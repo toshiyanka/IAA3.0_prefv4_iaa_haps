@@ -1,0 +1,16 @@
+$ip/source/Common/PowerGatingParamsPkg.sv
+$ip/source/Common/PowerGatingCommonPkg.sv
+$ip/source/CC/CCAgentPkg.sv
+$ip/source/PGCB/PGCBAgentPkg.sv
+$ip/source/Common/PowerGatingIF.sv
+$ip/source/Common/PowerGatingNoParamIF.sv
+$ip/source/CC/CCAgentTI.sv
+$ip/source/PGCB/PGCBAgentTI.sv
++incdir+$OVM_HOME/src
++incdir+$UVM_HOME/src
++incdir+$XVM_HOME/src
++incdir+$SAOLA_HOME/verilog
++incdir+$ip/source
++incdir+$ip/source/Common
++incdir+$ip/source/CC
++incdir+$ip/source/PGCB
