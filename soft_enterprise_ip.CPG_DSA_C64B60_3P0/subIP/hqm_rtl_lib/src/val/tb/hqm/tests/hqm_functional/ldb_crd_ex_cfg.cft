@@ -1,0 +1,15 @@
+## -- Setup LUTs used by HCWs
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+  msix_alarm 0 enable=0x1 addr=0xaaaa5555aaaa5555 data=0xaaaa5555
+
+  ldb qid 2 qid_ldb_inflight_limit=1024
+  
+  vas VS:* ldb_qidv2=1 credit_cnt=0xf0 
+
+  ldb pp 1 vas=VS
+  ldb cq 1 cq_depth=1024 qidv0=1 qidix0=2 cq_ldb_inflight_limit=1024 hist_list_limit=1024 hist_list_base=0 gpa=sm
+
+cfg_end

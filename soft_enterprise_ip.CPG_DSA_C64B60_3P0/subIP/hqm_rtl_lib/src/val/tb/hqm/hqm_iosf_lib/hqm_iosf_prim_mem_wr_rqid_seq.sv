@@ -1,0 +1,125 @@
+//-----------------------------------------------------------------------------------------------------
+//
+// INTEL CONFIDENTIAL
+//
+// Copyright 2015 Intel Corporation All Rights Reserved.
+//
+// The source code contained or described herein and all documents related to the source code
+// ("Material") are owned by Intel Corporation or its suppliers or licensors. Title to the Material
+// remains with Intel Corporation or its suppliers and licensors. The Material contains trade
+// secrets and proprietary and confidential information of Intel or its suppliers and licensors.
+// The Material is protected by worldwide copyright and trade secret laws and treaty provisions.
+// No part of the Material may be used, copied, reproduced, modified, published, uploaded, posted,
+// transmitted, distributed, or disclosed in any way without Intel's prior express written permission.
+//
+// No license under any patent, copyright, trade secret or other intellectual property right is
+// granted to or conferred upon you by disclosure or delivery of the Materials, either expressly, by
+// implication, inducement, estoppel or otherwise. Any license under such intellectual property rights
+// must be express and approved by Intel in writing.
+//
+//-----------------------------------------------------------------------------------------------------
+//-- Test
+//-----------------------------------------------------------------------------------------------------
+`ifndef hqm_iosf_prim_mem_wr_rqid_seq__SV
+`define hqm_iosf_prim_mem_wr_rqid_seq__SV
+
+import IosfPkg::*;
+
+//-------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------
+class hqm_iosf_prim_mem_wr_rqid_seq extends IosfSendTxnSeq;
+
+  `ovm_sequence_utils(hqm_iosf_prim_mem_wr_rqid_seq,IosfAgtSeqr)
+
+  rand logic [63:0]     iosf_addr;
+  rand Iosf::data_t     iosf_data[];
+  rand logic [7:0]      iosf_sai;
+  static logic [7:0]    iosf_tag = 0;
+  rand logic			iosf_EP;
+   rand logic [3:0] attr_force_val;
+  rand logic [9:0] iosf_tagl;
+
+   rand logic [15:0]    req_id;
+
+   constraint req_id_addr {
+               req_id[2:0] inside {[0:8]};
+               req_id[7:3] inside {[0:32]};
+               req_id[15:8] inside {[0:1]};
+             }
+
+
+  constraint deflt { soft iosf_sai == 8'h03; soft iosf_EP == 1'b0; }
+
+  extern                function        new(string name = "hqm_iosf_prim_mem_wr_rqid_seq");
+  extern virtual        task            body();
+
+endclass : hqm_iosf_prim_mem_wr_rqid_seq
+
+function hqm_iosf_prim_mem_wr_rqid_seq::new(string name = "hqm_iosf_prim_mem_wr_rqid_seq");
+  super.new(name);
+endfunction
+
+//------------------
+//-- body
+//------------------
+task hqm_iosf_prim_mem_wr_rqid_seq::body();
+  IosfTxn               iosfTxn;
+  Iosf::data_t          data_i[];
+
+  iosfTxn = new("iosfTxn");
+
+  data_i = iosf_data;
+
+  iosfTxn.set_sequencer (get_sequencer());
+  iosfTxn.cmd               = (iosf_addr[63:32] == 32'h0) ? Iosf::MWr32 : Iosf::MWr64;
+  iosfTxn.reqChId           = 0;
+  iosfTxn.trafficClass      = 0;
+  iosfTxn.reqID             = req_id;
+  iosfTxn.reqType           = Iosf::getReqTypeFromCmd (iosfTxn.cmd);
+  iosfTxn.procHint          = 0;
+  iosfTxn.length            = data_i.size();
+  iosfTxn.address           = iosf_addr;
+  iosfTxn.byteEnWithData    = 0;
+  iosfTxn.data              = data_i;
+  iosfTxn.first_byte_en     = 4'hf;
+  iosfTxn.last_byte_en      = (data_i.size() > 1) ? 4'hf : 4'h0;
+  iosfTxn.reqLocked         = 0;  
+  iosfTxn.compareType       = Iosf::CMP_EQ;
+  iosfTxn.compareCompletion = 0;
+  iosfTxn.waitForCompletion = 0;
+  iosfTxn.pollingMode       = 0;
+  iosfTxn.tag               = iosf_tag;
+  iosfTxn.expectRsp         = 0;
+  iosfTxn.driveBadCmdParity =  0;
+  iosfTxn.driveBadDataParity =  0;
+  iosfTxn.driveBadDataParityCycle =  0;
+  iosfTxn.driveBadDataParityPct   =  0;
+  iosfTxn.reqGap            =  0;
+  iosfTxn.chain             =  1'b0;
+  iosfTxn.sai               =  iosf_sai;
+  iosfTxn.errorPresent		=  iosf_EP;
+
+  if ($test$plusargs("hqm_attr_force")) begin
+      iosfTxn.tag               = iosf_tagl;
+    case (attr_force_val)
+      1: iosfTxn.trafficClass      =  $urandom_range(1,7); //iosf_ttc
+      2: iosfTxn.tlpDigest         =  1; //iosf_ttd
+      3: iosfTxn.root_space        =  1; //iosf_trs
+      4: iosfTxn.atSvc             =  $urandom_range(1,3); //iosf_tat
+      5: iosfTxn.nonSnoop          =  1; //iosf_tns
+      6: iosfTxn.procHint          =  1; //iosf_tth
+      7: iosfTxn.chain             =  1; //iosf_tchain
+      8: iosfTxn.idBasedOrdering   =  1; //iosf_tido 
+      default: begin end
+    endcase
+  end
+
+  iosf_tag++;
+
+  `ovm_send (iosfTxn)
+
+  ovm_report_info(get_full_name(), $psprintf("MWr64 Address=0x%x SAI=0x%02x Data=0x%08x",iosf_addr,iosf_sai,data_i[0]), OVM_LOW);
+
+endtask : body  
+
+`endif

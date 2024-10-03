@@ -1,0 +1,35 @@
+##
+This will setup casa include this in your source scripts
+setenv PATH /p/cse/asic/casa/coverage/casa_latest/bin/:${PATH}
+
+set this in your script too depending upon your requirements what all you want to enable in code coverage
+setenv AGGREGATE_URG_FLAGS "-metric line -metric tgl -metric fsm -metric branch -metric cond"
+
+
+Below command will tag the tests simv with the necessary info which will get copied to sandbox location  
+In script unsupported/scripts/sb_ep_regress i have edited following ace command (added switch -COV_RANDOM)
+ace -c $resdir $vlgopt -cc_on -elab_opts "-cm_hier $IP_ROOT/hier_file -cm_tgl portsonly  -cm  "tgl+branch+fsm+cond+line"" ; acereg -x -tl $IP_ROOT/    ace/iosf_sbc_ep_full.list -cc_on -ccm "tgl+branch+fsm+cond+line" $resdir -noprompt -nonbmon -rtt -quiet -COV_RANDOM &
+
+
+Sandox location for IOSF_SB_EP
+/p/cse/asic/casa/coverage/casa/sandbox/sandbox_IOSF_SB_EP
+
+once the tar conatining the vdbs are copied to the sandbox location you have to run following commands, you can set these commands as cron too so that you don't have to run it manually
+
+upload command this will move the vdb to the official area which is /p/cse/asic/casa/coverage/casa/results/official/IOSF_SB_EP  
+/usr/bin/env IP="IOSF_SBC_EP" casa uploadNB --verbosity debug --constant 1 --max 5 /p/cse/asic/casa/coverage/casa/sandbox/sandbox_IOSF_SBC_EP --nb-class SLES11_EM64T_2G --nb-queue fm_normal --nb-qslot /EIG/FABRIC/RTL/sb
+
+This will merge the per tests vdb in official area and will create daily.vdb for that day
+/usr/bin/env IP="IOSF_SBC_EP" casa aggregateNB --verbosity debug --ratio 50 --max 20 --nb-class SLES11_EM64T_2G --nb-queue fm_normal --nb-qslot /EIG/FABRIC/RTL/sb
+
+This will merge different daily.vdb for different day and will create a 1w, 2w, 4w or 8w vdb depending upon your requirements 
+/usr/bin/env IP="IOSF_SBC_EP" casa reportNB --verbosity debug --parallel 4 --period 1d --period 1w --period 4w --nb-class SLES11_EM64T_2G --nb-queue fm_normal --nb-qslot /EIG/FABRIC/RTL/sb
+
+Now to generate a report
+/usr/bin/env IP="IOSF_SBC_EP" casa urg -dir <full path to the vdb for which you want the report for example /p/cse/asic/casa/coverage/casa/results/official/IOSF_SBC_EP/1w.vdb> -report <path where you want the report to be generated>
+
+firefox <path to the report>/dashbard.html
+
+Commands to check the result area
+tree -I snps /p/cse/asic/casa/coverage/casa/results/official/IOSF_SBC_EP/
+

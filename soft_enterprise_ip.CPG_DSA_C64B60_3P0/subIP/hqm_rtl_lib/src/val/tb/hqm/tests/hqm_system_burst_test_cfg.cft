@@ -1,0 +1,111 @@
+idle 400
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+
+wr config_master.cfg_pm_pmcsr_disable.disable 0
+rd config_master.cfg_pm_pmcsr_disable
+
+###################################
+# Setup FUNC_VF BAR to a base address of 0x00000003_xxxxxxxx
+###################################
+# 16 VF
+###################################
+# Enable VF and VF memory operations
+###################################
+# poll to Wait for reset to be done 
+poll config_master.cfg_diagnostic_reset_status 0x80000bff 0x80000bff 500
+# poll to Wait for unit_idle to be done 
+poll config_master.cfg_diagnostic_idle_status 0x0007ffff 0x0007ffff 500
+###################################
+
+# Setup LUTs used by HCWs
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+  dir qid 0
+  dir qid 1
+  dir qid 2
+  dir qid 3
+  dir qid 4
+  dir qid 5
+  dir qid 6
+  dir qid 7
+  dir qid 8
+  dir qid 9
+  dir qid 10
+  dir qid 11
+  dir qid 12
+  dir qid 13
+  dir qid 14
+  dir qid 15
+  dir qid 16
+
+  vas 0 credit_cnt=8192 dir_qidv0=1 dir_qidv1=1 dir_qidv2=1 dir_qidv3=1 dir_qidv4=1 dir_qidv5=1 dir_qidv6=1 dir_qidv7=1 dir_qidv8=1 dir_qidv9=1 dir_qidv10=1 dir_qidv11=1 dir_qidv12=1 dir_qidv13=1 dir_qidv14=1 dir_qidv15=1 dir_qidv16=1
+
+  dir pp 0  vas=0
+  dir pp 1  vas=0
+  dir pp 2  vas=0
+  dir pp 3  vas=0
+  dir pp 4  vas=0
+  dir pp 5  vas=0
+  dir pp 6  vas=0
+  dir pp 7  vas=0
+  dir pp 8  vas=0
+  dir pp 9  vas=0
+  dir pp 10 vas=0
+  dir pp 11 vas=0
+  dir pp 12 vas=0
+  dir pp 13 vas=0
+  dir pp 14 vas=0
+  dir pp 15 vas=0
+  dir pp 16 vas=0
+
+  dir cq 0  cq_depth=1024 gpa=sm
+  dir cq 1  cq_depth=1024 gpa=sm
+  dir cq 2  cq_depth=1024 gpa=sm
+  dir cq 3  cq_depth=1024 gpa=sm
+  dir cq 4  cq_depth=1024 gpa=sm
+  dir cq 5  cq_depth=1024 gpa=sm
+  dir cq 6  cq_depth=1024 gpa=sm
+  dir cq 7  cq_depth=1024 gpa=sm
+  dir cq 8  cq_depth=1024 gpa=sm
+  dir cq 9  cq_depth=1024 gpa=sm
+  dir cq 10 cq_depth=1024 gpa=sm
+  dir cq 11 cq_depth=1024 gpa=sm
+  dir cq 12 cq_depth=1024 gpa=sm
+  dir cq 13 cq_depth=1024 gpa=sm
+  dir cq 14 cq_depth=1024 gpa=sm
+  dir cq 15 cq_depth=1024 gpa=sm
+  dir cq 16 cq_depth=1024 gpa=sm
+
+  vf 0  dir_vpp1_pp=1   dir_vqid1_qid=1
+  vf 1  dir_vpp2_pp=2   dir_vqid2_qid=2
+  vf 2  dir_vpp3_pp=3   dir_vqid3_qid=3
+  vf 3  dir_vpp4_pp=4   dir_vqid4_qid=4
+  vf 4  dir_vpp5_pp=5   dir_vqid5_qid=5
+  vf 5  dir_vpp6_pp=6   dir_vqid6_qid=6
+  vf 6  dir_vpp7_pp=7   dir_vqid7_qid=7
+  vf 7  dir_vpp8_pp=8   dir_vqid8_qid=8
+  vf 8  dir_vpp9_pp=9   dir_vqid9_qid=9
+  vf 9  dir_vpp10_pp=10 dir_vqid10_qid=10
+  vf 10 dir_vpp11_pp=11 dir_vqid11_qid=11
+  vf 11 dir_vpp12_pp=12 dir_vqid12_qid=12
+  vf 12 dir_vpp13_pp=13 dir_vqid13_qid=13
+  vf 13 dir_vpp14_pp=14 dir_vqid14_qid=14
+  vf 14 dir_vpp15_pp=15 dir_vqid15_qid=15
+  vf 15 dir_vpp16_pp=16 dir_vqid16_qid=16
+cfg_end
+
+rd hqm_pf_cfg_i.vendor_id

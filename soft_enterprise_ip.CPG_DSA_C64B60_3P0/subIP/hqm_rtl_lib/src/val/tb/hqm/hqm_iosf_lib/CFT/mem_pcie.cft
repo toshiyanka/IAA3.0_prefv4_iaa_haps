@@ -1,0 +1,42 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000000
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000005
+###################################
+# Enable memory and parity operations
+wr hqm_pf_cfg_i.device_command 0x46
+rd hqm_pf_cfg_i.device_command
+#####################################
+#set PCI Express AER Uncorrectable Error Mask Register
+#kept it default value 
+
+wr hqm_pf_cfg_i.aer_cap_uncorr_err_mask 0x00400000
+rd hqm_pf_cfg_i.aer_cap_uncorr_err_mask
+#########################################################
+#aer_cap_uncorr_err_sev posion severity set
+wr hqm_pf_cfg_i.aer_cap_uncorr_err_sev 0x00441000
+rd hqm_pf_cfg_i.aer_cap_uncorr_err_sev
+ 
+#PCIe cap control
+# Error Reporting Enable bit is set
+wr hqm_pf_cfg_i.pcie_cap_device_control 0x291F
+rd hqm_pf_cfg_i.pcie_cap_device_control
+###################################
+# set_iosf_parity 4th bit set to 0
+wr hqm_system_csr.parity_ctl 0x00000000
+rd hqm_system_csr.parity_ctl 0x00000000
+
+#EOT_checks added
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+

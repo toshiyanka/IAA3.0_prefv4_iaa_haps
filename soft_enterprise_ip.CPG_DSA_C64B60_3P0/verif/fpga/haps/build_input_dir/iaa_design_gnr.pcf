@@ -1,0 +1,112 @@
+###==== BEGIN Header
+# ProtoCompiler Constraint Editor 
+# Thu Sep 4 2014 20:55:33
+#
+###==== END Header
+#-------------------------------------------------------------------------------
+# Lock Unused FPGA's
+#-------------------------------------------------------------------------------
+bin_attribute mb1.uC -locked
+#ANK bin_attribute mb1.uB -locked
+set cell_soft {-hard}
+set repl_soft {-hard}
+
+assign_port { uhfi_pcie_refclk_n } -trace {MGB_AM2_J2.REFCLKN[0] }
+assign_port { uhfi_pcie_refclk_p } -trace {MGB_AM2_J2.REFCLKP[0] }
+assign_port { uhfi_pcie_txn[3:0] } -trace {MGB_AM2_J2.TXN[3:0] }
+assign_port { uhfi_pcie_txp[3:0] } -trace {MGB_AM2_J2.TXP[3:0] }
+assign_port { uhfi_pcie_rxn[3:0] } -trace {MGB_AM2_J2.RXN[3:0] }
+assign_port { uhfi_pcie_rxp[3:0] } -trace {MGB_AM2_J2.RXP[3:0] }
+
+# UHFI PCIe interface connections
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+net_attribute {haps80_mgb1_io[10:1]} -function {SLOW_PANEL_GPIO} 
+
+assign_port {haps80_mgb1_io[10:1]} -trace {MB1_A_GPIO[10:1]}
+
+
+net_attribute {haps80_mgb2_io[1]} -function {SLOW_MGB_GPIO} 
+net_attribute {haps80_mgb2_io[2]} -function {SLOW_MGB_GPIO} 
+net_attribute {haps80_mgb2_io[3]} -function {SLOW_MGB_GPIO} 
+net_attribute {haps80_mgb2_io[4]} -function {SLOW_MGB_GPIO} 
+
+assign_port {haps80_mgb2_io[1]} -pin {PERST}   {MGB_AM1_J2.mgb}
+assign_port {haps80_mgb2_io[2]} -pin {PWRON_n} {MGB_AM1_J2.mgb}
+assign_port {haps80_mgb2_io[3]} -pin {WAKE_n}  {MGB_AM1_J2.mgb}
+assign_port {haps80_mgb2_io[4]} -pin {PRSNT_n} {MGB_AM1_J2.mgb}
+
+
+net_attribute {haps80_mgb2_io[6]} -function {SLOW_MGB_GPIO} 
+net_attribute {haps80_mgb2_io[7]} -function {SLOW_MGB_GPIO} 
+net_attribute {haps80_mgb2_io[8]} -function {SLOW_MGB_GPIO} 
+net_attribute {haps80_mgb2_io[9]} -function {SLOW_MGB_GPIO} 
+
+assign_port {haps80_mgb2_io[6]} -pin {PERST}   {MGB_AM2_J2.mgb}
+assign_port {haps80_mgb2_io[7]} -pin {PWRON_n} {MGB_AM2_J2.mgb}
+assign_port {haps80_mgb2_io[8]} -pin {WAKE_n}  {MGB_AM2_J2.mgb}
+assign_port {haps80_mgb2_io[9]} -pin {PRSNT_n} {MGB_AM2_J2.mgb}
+
+
+net_attribute {haps80_mgb2_io[5]} -function {SLOW_MGB_GPIO} 
+net_attribute {haps80_mgb2_io[10]} -function {SLOW_MGB_GPIO} 
+
+assign_port {haps80_mgb2_io[5]}  -trace {MB1_AM2_IO[5]}
+assign_port {haps80_mgb2_io[10]} -trace {MB1_AM2_IO[10]}
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+## LEDs
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+net_attribute {haps80_led_grn[1:0]} -function PANEL_LED
+assign_port {haps80_led_grn[1:0]} -trace {mb1.A_LED_GRN[1:2]}
+
+net_attribute {haps80_led_red[1:0]} -function PANEL_LED
+assign_port {haps80_led_red[1:0]} -trace {mb1.A_LED_RED[1:2]}
+
+bin_utilization -bin mb1.uA -resource_ratio {ALL 0.60}
+bin_utilization -bin mb1.uB -resource_ratio {ALL 0.45}
+bin_utilization -bin mb1.uC -resource_ratio {ALL 0.45}
+bin_utilization -bin mb1.uD -resource_ratio {ALL 0.45}
+
+# UHFI Clock
+net_attribute {uhfi_clk} -function GCLK -diffsingle -is_clock 1
+assign_global_net {uhfi_clk} mb1.GCLK1
+
+# Prim Clock
+net_attribute {prim_clk} -function GCLK -diffsingle -is_clock 1
+assign_global_net {prim_clk} mb1.GCLK2
+
+# Side Clock
+net_attribute {side_clk} -function GCLK -diffsingle -is_clock 1
+assign_global_net {side_clk} mb1.GCLK3
+
+
+##################################
+####### FPGA Infrastructure ######
+##################################
+# [FPGA A]
+assign_cell  {sbr}                 {mb1.uA}
+assign_cell  {glue}                {mb1.uA}
+assign_cell  {uhfi}                {mb1.uA}
+assign_cell  {i_hqm_sfi2iosf_uhfi} {mb1.uA}
+assign_cell  {iaam3p0s64b60_ip}    {mb1.uA}
+assign_cell  {iaas3p0s64b60_ip}    {mb1.uA}
+
+# [FPGA B]
+#ANK assign_cell {iaab3p0s64b60_ip.pgd.core.eng} {mb1.uB}
+#ANK assign_cell {iaab3p0s64b60_ip.pgd.core.cb} {mb1.uB}
+#ANK assign_cell {iaab3p0s64b60_ip.pgd.core.atc.etrk} {mb1.uB}
+#ANK assign_cell {iaab3p0s64b60_ip.pgd.core.wq} {mb1.uB}
+#ANK 
+#ANK ## [FPGA D]
+assign_cell {iaab3p0s64b60_ip} {mb1.uD}
+#ANK assign_cell {iaab3p0s64b60_ip.pgd.core.atc.axq} {mb1.uD}
+#ANK assign_cell {iaab3p0s64b60_ip.pgd.core.atc.devtlb_wrap} {mb1.uD} 
+
+
+tdm_control -qualification_mode seq2seq 
+tdm_control -max_ratio 32.0
+
+## SNPS
+replicate_cell {iaab3p0s64b60_ip.aon.aon_common.crp.resets.rst_sync.i_sync_rst\[5\].ctech_doublesync_rstb.sync[1:0]} -all_bins

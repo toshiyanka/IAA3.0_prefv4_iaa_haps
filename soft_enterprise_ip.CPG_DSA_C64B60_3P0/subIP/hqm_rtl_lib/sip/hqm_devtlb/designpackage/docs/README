@@ -1,0 +1,69 @@
+Running Design Package Flow:
+
+   ** Design package flow usage
+	- Generating tech views.list (lib,ndm etc) file using the respective technology vars.tcl
+
+   ** How to run?
+      	- cd <local_bundle_path>/adl_top/design_pkg
+	- Copy template makefiles and cfg files from Flow_root/design_pkg/templates area
+        - make design_pkg
+	- make clean (to remove/cleanup the output directory)
+
+Design Package root path structure and DP versions to choose -
+   ** Non-Intel Technology:
+      	- Root path: /p/tech/<technology>/tech-prerelease/<dp_version>/flowinterface
+	- Example for n6: /p/tech/n6/tech-prerelease/v1.1.0_pre.1/flowinterface
+	- Versions for n6: v1.0.0, v1.0.0_pre.1, v1.0.0_pre.2, v1.0.0_pre.3, v1.0.0_pre.4, v1.0.0_pre.5, v1.0.1, v1.0.1_pre.1, v1.0.1_pre.2, v1.0.1_pre.3,
+	  	       	   v1.0.1_pre.4, v1.1.0, v1.1.0_pre.1
+	  
+   ** Intel Technology - 1276:
+      	- Root path: /p/hdk/cad/eou_tech_config_1276/<dp_version>
+	- Example:/p/hdk/cad/eou_tech_config_1276/2020.06.SP1
+	- Versions: 2020.04_001, 2020.06.SP1.p02, 2020.06.eou_rel_1276_ww22.p1, 2020.07_try, 2020.eou_integ_1276_ww19.eb, 2020.04_002, 2020.06.SP1.p03,
+	  	    2020.06.eou_rel_1276_ww22, 2020.09.p1, 2020.eou_integ_1276_ww19.p1.eb, 2020.06.SP1.p01, 2020.06.SP1, 2020.09
+
+Project level override in rtl_tools.cth -
+   ** Only DP_VERSION and TECH can be overridden in rtl_tools.cth. To do so please delete the defined flow.cfg config vars for the same. First priority is always
+      given to flow.cfg/command line definations.  
+
+Design Package views csv file override to add,delete and filter the libs -
+   ** Copy the default input csv file from $FLOW_ROOT/inputs/views.csv or views_intel_tech.csv. Edit the csv file and source it in designpackage.cfg with
+      config var VIEWS_CSV_OVERRIDE.
+   ** Filtering the views list file based on ivars: lib_type, view_type and rc/oc type(temperature etc. Note: Voltage based filtering is not supported yet).
+      	- Views CSV file structure - <view_type>, <rc/oc type1> <rc/oc type2> .., <lib_type1> <lib_type2>..
+	- <view_type> - Mandotory
+	- <rc/oc type> and <lib_type> - Optional for filtering.
+	- Example Usage: Filtering based on both lib_type and rc/oc type - <view_type>, <rc/oc type>, <lib_type>
+	  	  	 Filtering based on only lib_type        	 - <view_type>,, <lib_type>
+			 Filtering based on only rc/oc type		 - <view_type>, <rc/oc type>
+			 
+	- Example lib_types for 1276  : halo,tic,ctech,g1m_an,g1m_bn,g1mspecial_cn etc.
+	- Example RC/OC types for 1276: TT_100,RF_110,TM_100,TM_m40,TT_115,prcs,tttt etc.
+
+
+   **Note: 
+     All options supported in the H2B config
+
+    ====================================================================================================================
+           OPTION              MANDATORY(M)/                               DESCRIPTION
+                               OPTIONAL(O)
+    ========================= ===============  =========================================================================
+    TOP                              M         Option to specify the top module, if ip name is different from 
+                                               top module name use <ip_name>:<top_module_name>.
+    FILELIST_FILE                    O         Option to specify the custom gen_file path.
+    OUTPUT_DIR_OVERRIDE              O         Option to output directory
+    CFG_PROJECT                      M         Speify project group (shdk74.sdg74 etc)
+    BLOCK                            O         Specify partition block         
+    BLOCK_CFG                        O         Specify blocks.cfg file for iFlow
+    DUT                              O         Specify DUT settings
+    CTECH_PATH_RTL                   O         Specify Ctech RTL Path
+    CTECH_PATH_SYN                   O         Specify Ctech Exp RTL Path
+    CTECH_EXP_PATH_RTL               O         Specify Ctech Syn Path 
+    CTECH_EXP_PATH_SYN               O         Specify Ctech exp syn path
+    CLEAN_GENFILE                    O         deletes syn_genfile.PASS if true
+    CLEAN                            O         deletes target directory from H2B WORKAREA
+    DP_VERSION                       M         Specify design package version
+    TECH                             M         Specify technology used
+    VIEWS_CSV_OVERRIDE               O         Option to specify override csv file
+    DP_ROOT_PATH_OVERRIDE            O         Option to specify dp_root_path  override path for a technology
+    INTEL_TECH                       M         Specify whether its Intel or Non-Intel technology

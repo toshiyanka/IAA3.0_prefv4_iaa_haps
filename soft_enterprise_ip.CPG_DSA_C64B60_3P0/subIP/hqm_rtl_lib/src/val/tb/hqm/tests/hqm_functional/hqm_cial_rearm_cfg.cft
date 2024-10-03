@@ -1,0 +1,62 @@
+cfg_begin
+
+#Enable QID
+ldb qid 0 fid_cfg_v=1 qid_ldb_inflight_limit=128 ## aqed_qos=512
+ldb qid 1 fid_cfg_v=1 qid_ldb_inflight_limit=128 ## aqed_qos=512
+ldb qid 2 fid_cfg_v=1 qid_ldb_inflight_limit=128 ## aqed_qos=512
+ldb qid 3 fid_cfg_v=1 qid_ldb_inflight_limit=128 ## aqed_qos=512
+ldb qid 4             qid_ldb_inflight_limit=128
+ldb qid 5             qid_ldb_inflight_limit=128
+ldb qid 6             qid_ldb_inflight_limit=128
+ldb qid 7             qid_ldb_inflight_limit=128
+ldb qid 8             qid_ldb_inflight_limit=128
+
+vas 0 credit_cnt=12288 ldb_qidv0=1 ldb_qidv1=1 ldb_qidv2=1 ldb_qidv3=1 ldb_qidv4=1 ldb_qidv5=1 ldb_qidv6=1 ldb_qidv7=1 ldb_qidv8=1 
+
+#Setup LDB Producer Ports
+ldb pp 0 vas=0
+ldb pp 1 vas=0
+ldb pp 2 vas=0
+ldb pp 3 vas=0
+ldb pp 4 vas=0
+ldb pp 5 vas=0
+ldb pp 6 vas=0
+ldb pp 7 vas=0
+ldb pp 8 vas=0
+ldb pp 9 vas=0
+
+
+ldb cq 0 cq_depth=4 gpa=sm cq_ldb_inflight_limit=64 qidv0=1 qidix0=0 pri0=0
+ldb cq 2 cq_depth=8 gpa=sm cq_ldb_inflight_limit=64 qidv0=1 qidix0=2 pri0=0
+ldb cq 4 cq_depth=4 gpa=sm cq_ldb_inflight_limit=64 qidv0=1 qidix0=4 pri0=0
+ldb cq 6 cq_depth=8 gpa=sm cq_ldb_inflight_limit=64 qidv0=1 qidix0=6 pri0=0
+
+ldb cq 1 cq_depth=4 gpa=sm cq_ldb_inflight_limit=64 qidv0=1 qidix0=1 pri0=0 cq_isr_en_code=2 cq_cwdt_intr_ena=0 cq_timer_intr_ena=0 cq_depth_intr_ena=1 cq_timer_intr_thresh=256 cq_depth_intr_thresh=3
+ldb cq 3 gpa=sm cq_depth=8 gpa=sm cq_ldb_inflight_limit=64 qidv0=1 qidix0=3 pri0=0 cq_isr_en_code=2 cq_cwdt_intr_ena=0 cq_timer_intr_ena=0 cq_depth_intr_ena=1 cq_timer_intr_thresh=256 cq_depth_intr_thresh=7
+ldb cq 5 cq_depth=4 gpa=sm cq_ldb_inflight_limit=64 qidv0=1 qidix0=5 pri0=0 cq_isr_en_code=2 cq_cwdt_intr_ena=0 cq_timer_intr_ena=0 cq_depth_intr_ena=1 cq_timer_intr_thresh=256 cq_depth_intr_thresh=3
+ldb cq 7 cq_depth=8 gpa=sm cq_ldb_inflight_limit=64 qidv0=1 qidix0=7 pri0=0 cq_isr_en_code=2 cq_cwdt_intr_ena=0 cq_timer_intr_ena=0 cq_depth_intr_ena=1 cq_timer_intr_thresh=256 cq_depth_intr_thresh=7
+   
+## Threshold config
+  msix_cq 1  addr=0x2222cafebebc200 data=0xbb331000 is_ldb=1 cq=0
+  msix_cq 2  addr=0x2222cafebebc210 data=0xbb331001 is_ldb=1 cq=1
+  msix_cq 3  addr=0x2222cafebebc220 data=0xbb331002 is_ldb=1 cq=2
+  msix_cq 4  addr=0x2222cafebebc230 data=0xbb331003 is_ldb=1 cq=3
+
+  msix_cq 5  addr=0x2222cafebebc240 data=0xbb331004 is_ldb=1 cq=4
+  msix_cq 6  addr=0x2222cafebebc250 data=0xbb331005 is_ldb=1 cq=5
+  msix_cq 7  addr=0x2222cafebebc260 data=0xbb331006 is_ldb=1 cq=6
+  msix_cq 8  addr=0x2222cafebebc270 data=0xbb331007 is_ldb=1 cq=7
+
+
+cfg_end
+
+##ingress alarm enable
+rd hqm_system_csr.ingress_alarm_enable 0x00000000
+wr hqm_system_csr.ingress_alarm_enable 0xffffffff
+rd hqm_system_csr.ingress_alarm_enable 0x0000003f
+
+
+wr credit_hist_pipe.cfg_ldb_cq_intr_armed0 0xffffffff
+wr credit_hist_pipe.cfg_ldb_cq_intr_armed1 0xffffffff
+
+rd hqm_pf_cfg_i.vendor_id

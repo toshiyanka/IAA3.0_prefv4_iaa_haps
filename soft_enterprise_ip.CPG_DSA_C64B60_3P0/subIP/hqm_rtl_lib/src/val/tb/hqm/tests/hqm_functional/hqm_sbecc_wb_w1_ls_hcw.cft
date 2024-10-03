@@ -1,0 +1,143 @@
+
+wr hqm_system_csr.sys_alarm_sb_ecc_int_enable 0xffffffff
+#########################################################################################################################
+# Inject SB ECC errors
+wr hqm_system_csr.ecc_ctl.INJ_SB_ECC_WBUF_W1_LS 1
+rd hqm_system_csr.ecc_ctl.INJ_SB_ECC_WBUF_W1_LS 1
+HCW DIR:51 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=51 dsi=0x300 batch=1 
+HCW DIR:51 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=51 dsi=0x300 batch=1
+HCW DIR:51 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=51 dsi=0x300 batch=1
+HCW DIR:51 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=51 dsi=0x300
+
+HCW DIR:2  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=2  dsi=0x300 batch=1 
+HCW DIR:2  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=2  dsi=0x300 batch=1
+HCW DIR:2  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=2  dsi=0x300 batch=1
+HCW DIR:2  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=2  dsi=0x300
+
+HCW DIR:6  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=6  dsi=0x300 batch=1 
+HCW DIR:6  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=6  dsi=0x300 batch=1
+HCW DIR:6  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=6  dsi=0x300 batch=1
+HCW DIR:6  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=6  dsi=0x300
+
+HCW DIR:13 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=13 dsi=0x300 batch=1 
+HCW DIR:13 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=13 dsi=0x300 batch=1
+HCW DIR:13 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=13 dsi=0x300 batch=1
+HCW DIR:13 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=13 dsi=0x300
+
+poll_sch dir:2  0x4 200 100
+poll_sch dir:6  0x4 200 100
+poll_sch dir:13 0x4 200 100
+poll_sch dir:51 0x4 200 100
+msix_alarm_wait 500
+rd hqm_system_csr.sbe_cnt_0          0x00000001
+rd hqm_system_csr.sbe_cnt_1          0x00000000
+rd hqm_system_csr.alarm_sb_ecc_err   0x00000004
+rd hqm_system_csr.alarm_hw_synd      0x80424533 0xffffffff  # v=1 m=0 src=0 unit=1 aid=00 cls=1 alarm=1 rtype=1 rid=pp
+wr hqm_system_csr.alarm_hw_synd      0x80000000
+##clear 
+wr hqm_system_csr.alarm_sb_ecc_err   0x00000004
+rd hqm_system_csr.alarm_sb_ecc_err   0x00000000
+wr hqm_system_csr.msix_ack.MSIX_0_ACK 1
+rd hqm_system_csr.msix_ack.MSIX_0_ACK 0
+idle 1000
+## Now reset the sb ecc, send hcw
+wr hqm_system_csr.ecc_ctl.INJ_SB_ECC_WBUF_W1_LS 0
+rd hqm_system_csr.ecc_ctl.INJ_SB_ECC_WBUF_W1_LS 0
+HCW DIR:2  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=2  dsi=0x300
+HCW DIR:2  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=2  dsi=0x300
+HCW DIR:2  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=2  dsi=0x300
+HCW DIR:2  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=2  dsi=0x300
+
+HCW DIR:6  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=6  dsi=0x300
+HCW DIR:6  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=6  dsi=0x300
+HCW DIR:6  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=6  dsi=0x300
+HCW DIR:6  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=6  dsi=0x300
+
+HCW DIR:13 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=13 dsi=0x300
+HCW DIR:13 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=13 dsi=0x300
+HCW DIR:13 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=13 dsi=0x300
+HCW DIR:13 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=13 dsi=0x300
+
+HCW DIR:51 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=51 dsi=0x300
+HCW DIR:51 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=51 dsi=0x300
+HCW DIR:51 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=51 dsi=0x300
+HCW DIR:51 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=51 dsi=0x300
+
+poll_sch dir:2  0x8 200 100
+poll_sch dir:6  0x8 200 100
+poll_sch dir:13 0x8 200 100
+poll_sch dir:51 0x8 200 100
+rd hqm_system_csr.sbe_cnt_0          0x00000001
+rd hqm_system_csr.sbe_cnt_1          0x00000000
+rd hqm_system_csr.alarm_sb_ecc_err   0x00000000
+
+##set sb ecc
+wr hqm_system_csr.ecc_ctl.INJ_SB_ECC_WBUF_W1_LS 1
+rd hqm_system_csr.ecc_ctl.INJ_SB_ECC_WBUF_W1_LS 1
+
+HCW LDB:21  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=6  dsi=0x300
+HCW LDB:21  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=6  dsi=0x300
+HCW LDB:21  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=6  dsi=0x300
+HCW LDB:21  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=6  dsi=0x300
+
+HCW LDB:2  vf_num=0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=3  dsi=0x300
+HCW LDB:2  vf_num=0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=3  dsi=0x300
+HCW LDB:2  vf_num=0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=3  dsi=0x300
+HCW LDB:2  vf_num=0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=3  dsi=0x300
+
+poll_sch ldb:21 0x4 100 100
+
+HCW DIR:6  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=6  dsi=0x300
+HCW DIR:6  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=6  dsi=0x300
+HCW DIR:6  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=6  dsi=0x300
+HCW DIR:6  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=6  dsi=0x300
+
+
+HCW DIR:13 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=13 dsi=0x300
+HCW DIR:13 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=13 dsi=0x300
+HCW DIR:13 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=13 dsi=0x300
+HCW DIR:13 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=13 dsi=0x300
+
+HCW DIR:2  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=2  dsi=0x300
+HCW DIR:2  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=2  dsi=0x300
+HCW DIR:2  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=2  dsi=0x300
+HCW DIR:2  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=2  dsi=0x300
+
+HCW DIR:51 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=51 dsi=0x300
+HCW DIR:51 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=51 dsi=0x300
+HCW DIR:51 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=51 dsi=0x300
+HCW DIR:51 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=51 dsi=0x300
+
+poll_sch ldb:21 0x4 100 100
+poll_sch ldb:40 0x4 100 100
+poll_sch dir:2  0xc 200 100
+poll_sch dir:6  0xc 200 100
+poll_sch dir:13 0xc 200 100
+poll_sch dir:51 0xc 200 100
+msix_alarm_wait 500
+rd hqm_system_csr.sbe_cnt_0          0x00000002
+rd hqm_system_csr.sbe_cnt_1          0x00000000
+rd hqm_system_csr.alarm_sb_ecc_err   0x00000004
+rd hqm_system_csr.alarm_hw_synd      0x80424515 0xffffffff  # v=1 m=0 src=0 unit=1 aid=00 cls=1 alarm=1 rtype=1 rid=pp
+## token and completion return
+HCW LDB:21 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=6  dsi=0x300
+HCW LDB:21 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=6  dsi=0x300
+HCW LDB:21 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=6  dsi=0x300
+HCW LDB:21 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=6  dsi=0x300
+## token and completion return
+HCW LDB:2  vf_num=0 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=3  dsi=0x300
+HCW LDB:2  vf_num=0 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=3  dsi=0x300
+HCW LDB:2  vf_num=0 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=3  dsi=0x300
+HCW LDB:2  vf_num=0 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=3  dsi=0x300
+##toekn return 
+HCW DIR:2  qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x0b msgtype=0 qpri=0 qtype=dir qid=2  dsi=0x300
+HCW DIR:6  qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x0b msgtype=0 qpri=0 qtype=dir qid=6  dsi=0x300
+HCW DIR:13 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x0b msgtype=0 qpri=0 qtype=dir qid=13 dsi=0x300
+HCW DIR:51 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x0b msgtype=0 qpri=0 qtype=dir qid=51 dsi=0x300
+wr hqm_system_csr.msix_ack.MSIX_0_ACK 1
+## clear msix
+rd hqm_system_csr.msix_ack.MSIX_0_ACK 0
+wr hqm_system_csr.alarm_sb_ecc_err   0x00000004
+rd hqm_system_csr.alarm_sb_ecc_err   0x00000000
+idle 1000
+

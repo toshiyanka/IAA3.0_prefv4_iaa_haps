@@ -1,0 +1,50 @@
+##configuration cq[1]
+rd credit_hist_pipe.cfg_dir_cq_intr_armed0 0x0
+wr credit_hist_pipe.cfg_dir_cq_intr_armed0 0x2
+rd credit_hist_pipe.cfg_dir_cq_intr_armed0 0x2
+## Interrupt timer enable bit. &SAMPLE_INTERVAL required for timer intr case
+wr credit_hist_pipe.cfg_dir_cq_timer_ctl.enb 1
+wr credit_hist_pipe.cfg_dir_cq_timer_ctl.sample_interval 1
+rd credit_hist_pipe.cfg_dir_cq_timer_ctl.enb 1
+rd credit_hist_pipe.cfg_dir_cq_timer_ctl.sample_interval 1
+idle 200
+
+##set arm command
+HCW DIR:1 qe_valid=0 qe_orsp=1 qe_uhl=0 cq_pop=1 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=1 dsi=0x302 
+idle 100
+##Send NEW HCW [ cq_threh=3]
+HCW DIR:1 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=1 dsi=0x302 
+HCW DIR:1 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=1 dsi=0x302 
+HCW DIR:1 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=1 dsi=0x302 
+HCW DIR:1 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=1 dsi=0x302
+idle 300
+poll_sch  dir:1  0x4     1000 200
+
+
+## check cq interrupt timer has started 
+rd credit_hist_pipe.cfg_dir_cq_intr_run_timer0 0x0 
+rd credit_hist_pipe.cfg_dir_cq_intr_run_timer1 0x0
+## check cq_intr expired  ??
+rd credit_hist_pipe.cfg_dir_cq_intr_expired0 0x0
+rd credit_hist_pipe.cfg_dir_cq_intr_expired1 0x0
+## cq Interrupt status 
+rd credit_hist_pipe.cfg_dir_cq_intr_irq0 0x2
+rd credit_hist_pipe.cfg_dir_cq_intr_irq1 0x0
+
+## this will reset when cq intr is armed
+rd credit_hist_pipe.cfg_dir_cq_intr_armed0  0x0
+
+
+idle 100 
+##token return
+HCW DIR:1 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x03 msgtype=0 qpri=0 qtype=dir qid=1 dsi=0x302 
+##send HCW 
+HCW DIR:1 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=1 dsi=0x302
+poll_sch  dir:1  0x5     1000 200
+
+##token return
+HCW DIR:1 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=dir qid=1 dsi=0x302
+idle 300
+
+rd credit_hist_pipe.cfg_dir_cq_intr_irq0 0x2
+rd credit_hist_pipe.cfg_dir_cq_intr_armed0  0x0

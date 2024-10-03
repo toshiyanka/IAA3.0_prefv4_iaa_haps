@@ -1,0 +1,36 @@
+## -- Test hqm_system LUTs
+rd hqm_system_csr.vf_dir_vpp_v[0]
+wr hqm_system_csr.vf_dir_vpp_v[0] 0x1
+rd hqm_system_csr.vf_dir_vpp_v[0] 0x1
+wr hqm_system_csr.vf_dir_vpp_v[0] 0x0
+rd hqm_system_csr.vf_dir_vpp_v[0] 0x0
+
+## -- Test VAS credit count
+rd credit_hist_pipe.cfg_vas_credit_count[4] 
+wr credit_hist_pipe.cfg_vas_credit_count[4] 0x40
+rd credit_hist_pipe.cfg_vas_credit_count[4] 0x40
+wr credit_hist_pipe.cfg_vas_credit_count[4] 0x0
+rd credit_hist_pipe.cfg_vas_credit_count[4] 0x0
+
+## -- Test hcw timeouts
+cfg_begin
+   wr hqm_sif_csr.hcw_timeout.timeout_enable 1
+   wr hqm_sif_csr.hcw_timeout.timeout_pwr2   3
+cfg_end
+
+## -- Setup LUTs used by HCWs
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+  vas 0 dir_qidv0=1 credit_cnt=0x10
+
+  dir qid 0
+  
+  dir pp 0 vas=0 
+  dir cq 0 gpa=sm
+
+cfg_end
+
+rd hqm_pf_cfg_i.vendor_id

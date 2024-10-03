@@ -1,0 +1,217 @@
+## There are 3 sub-flows within upf_utils. LocalizeUPF, InspectUPF, MergeUPF
+
+
+## Running UPF_UTILS sub-flow for LocalizeUPF
+
+## (I) LocalizeUPF
+Description
+  LocalizeUPF is a utility that parses through the UPF design hierarchy and :
+  1. Co-locates all UPFs, configs, and auxillary files that are sourced
+  2. Updates all nested pointers to the files sourced to use a relative pointer : set LOCALIZED_UPF_PATH [file normalize [file dirname [info script]]]
+  3. Will detect and auto-uniquify filenames which are not unique and have different contents
+  4. Provides a mechanism to update HIP UPF pointers to a new version/location or to expand the realpath
+  5. Parser is fully configurable through parse_env_vars and parse_vars, which allows it to be environment and design system independent
+  6. Provides a mechanism to speficy a flat (single-scoped) UPF to be used in place of the hierarchical (multi-scoped) UPF for implementation
+  7. Will only localize the top scoped global_upf.cfg
+  
+  Requirements
+  1. UPFs must already be generated through whatever mechanism
+  2. UPFs must adhere to the SoC/IP Requirements : https://wiki.ith.intel.com/display/hdk/IP+and+SoC+UPF+Requirements
+  
+  Inputs
+  1. LocalizeUPF Config must be provided to program the UPFs and to modify HIP pointers to adjust versions
+  
+  Outputs
+  
+  Tool Details
+  1. No dependencies other than it relies on InspectUPF (under the hood) as the UPF parser.
+  2. LocalizeUPF is released under /p/hdk/rtl/cad/x86-64_linux30/intel/upf_utils, so UPF_UTILS_HOME_PATH/UPF_UTILS_VERSION is specified in integration/upf_utils/defaults/upf_utils.cfg
+   
+  Configuration Options (specified through $WORKAREA/integration/upf_utils/upf_utils.cfg)
+  1. UPF                          = (full path to UPF) ... REQUIRED
+  
+  2. LOCALIZE_UPF_CFG             = (filename of LocalizeUPF Config) ... REQUIRED
+  * Expected location : $WORKAREA/integration/upf_utils/config/
+  
+  3. DISABLE_PST_COMPARE          = true/false ... OPTIONAL
+  * Disables the hierarchical PST consistency check performed by InspectUPF.
+  * False by default, but can be disabled to temporarily improve performance.
+  
+  4. DISABLE_UNIQUIFICATION       = true/false ... OPTIONAL
+  * Disables uniquification of filenames by LocalizeUPF when conflicts are detected. The last UPF read will be the one that remains.
+  * Conflicts arise when more than 1 UPF/Config with the same name exists in the design hierarchy and they have different contents.
+  * False by default, but can be disabled temporarily if issues arise with file uniquification.
+  * File HSD if uniquification needs to be disabled.
+  
+  5. USE_GLOBAL_CONFIG            = (full path to comma separated global configs) ... OPTIONAL
+  * Will create localize_upf_wrapper.upf which will first source the config(s) listed in USE_GLOBAL_CONFIG, followed by the UPF specified in UPF.
+  * This is useful if IP UPFs are being Localized prior to integration and the IPs are not self contained with global configs or to force consistent usage of global config(s) when localizing set of IP UPFs.
+  
+  6. INSPECT_LOCALIZED_UPF        = true/false
+  * Runs InspectUPF on the localized UPFs to ensure collateral is not DOA. Any error reported will be reflected in the flow status.
+  * True by default, but can be disabled temporarily if issues arise with InspectUPF.
+  * File HSD if LocalizeUPF needs to be disabled.
+  
+  7. DEBUG_LOCALIZE_UPF           = true/false
+  * For DA only.
+  * False by default.
+  
+  UPF_UTILS CTH Localize Sub-Flow
+  1a. setenv WORKAREA (local_bundle_path)
+  1b. cd $WORKAREA/integration/upf_utils
+  2. Sub-Flow make options
+     * To co-locate UPFs, update load_upf/source pointers, and update HIP versions
+       % make LocalizeUPF
+       * TOP must be defiled in $WORKAREA/integration/upf_utils/upf_utils.cfg
+       * Output is generated at $WORKAREA/output/<TOP>/upf_utils/<PASS>/LocalizeUPF
+       * Output is linked at $WORKAREA/integration/upf_utils/output
+       * COPY_CODEGEN_FILES must be set to true for output to be copied to $WORKAREA/src/codegen/<TOP/DUT>/IntgMstr/upf/LocalizeUPF
+     * For config processing
+         % make config
+         * Output is generated at $WORKAREA/output/<TOP>/upf_utils/<PASS>/flow_inputs
+     * To remove the upf_utils output dir for provided PASS
+         % make clean
+     * To remove the complete upf_utils output dir
+         % make clean_all
+     * To show help message
+         % make help
+  3. A replay file is created to replicate the run in a standalone recipe and this recipe is also used in the main run
+     * $WORKAREA/output/<TOP>/upf_utils/<PASS>/LocalizeUPF_replay.csh
+    
+
+## (II) InspectUPF
+Description
+  InspectUPF is a utility that parses through the UPF design hierarchy and :
+  1. Inspect the UPF for correctness of UPF syntax based on Intel UPF_command_master_list specs
+  2. Checks for completeness of the UPF commands
+  3. Hierarchical PST Consistency Checks, giving supply_nets mapping, relative PST views and PST consistency comparison
+  4. Generate reports in format of html, flat_upf, supply_connectivity
+  5. Generate a normalizedUPF (only supported for upf version 1.0)
+
+  Requirements
+  1. UPFs must already be generated through whatever mechanism
+  2. UPFs must adhere to the SoC/IP Requirements : https://wiki.ith.intel.com/display/hdk/IP+and+SoC+UPF+Requirements
+  
+  Inputs
+  1. One, and only one TOP UPF given with full-path from variable "UPF"
+  2. Inspect_UPF configuration specified from variable "INSPECT_UPF_CFG", and must be placed under integration/upf_utils/config
+
+  Outputs
+  1. Generated logfile is found under integration/upf_utils/config/output/<PASS>/InspectUPF/work/log
+  
+  Tool Details
+  1. InspectUPF is released under /p/hdk/rtl/cad/x86-64_linux30/intel/upf_utils, so UPF_UTILS_HOME_PATH/UPF_UTILS_VERSION is specified in integration/upf_utils/defaults/upf_utils.cfg
+   
+  Configuration Options (specified through $WORKAREA/integration/upf_utils/upf_utils.cfg)
+  1. UPF                          = (full path to UPF) ... REQUIRED
+  
+  2. INSPECT_UPF_CFG             = (filename of InspectUPF Config) ... REQUIRED
+  * Expected location : $WORKAREA/integration/upf_utils/config/
+  
+  3.  DISABLE_SUPPLY_CONN_REPORT           = true/false ... OPTIONAL
+  * Disable supply_conn report generated by InspectUPF.
+  * False by default, but can be disabled to temporarily improve performance.
+
+  4. DISABLE_PST_COMPARE          = true/false ... OPTIONAL
+  * Disables the hierarchical PST consistency check performed by InspectUPF.
+  * False by default, but can be disabled to temporarily improve performance.
+  * Tool FATAL error is DISABLE_SUPPLY_CONN_REPORT is true, but DISABLE_PST_COMPARE is false
+  
+  5. DEBUG_UPF       = true/false ... OPTIONAL
+  * For developer/debug purpose, print out log message guarded by UPF-DEBUG
+  * False by default, set to true for development/debug
+
+  6.  DISABLE_FLAT_UPF           = true/false ... OPTIONAL
+  * Disables the flat_upf generated by InspectUPF.
+  * False by default, but can be disabled if no use-case.  
+
+  7.  DISABLE_NORMALIZE           = true/false ... OPTIONAL
+  * Disables the normalized upf generated by InspectUPF.
+  * False by default, but can be disabled if no use-case.
+  * Not supported for upf version 2.0 and above
+
+  8.  DISABLE_HTML           = true/false ... OPTIONAL
+  * Disables the html report generated by InspectUPF.
+  * False by default, but can be disabled if no use-case.
+
+  9.  INSPECT_LOGFILE           = true/false ... OPTIONAL
+  * Old switches. No longer needs to be set to true.
+  * False by default, should remain false.
+  
+  UPF_UTILS CTH InspectUPF Sub-Flow
+  1a. setenv WORKAREA (local_bundle_path)
+  1b. cd $WORKAREA/integration/upf_utils
+  2. Sub-Flow make options
+     * To carry out all features of InspectUPF
+       % make InspectUPF
+       * TOP must be defiled in $WORKAREA/integration/upf_utils/upf_utils.cfg
+       * Output is generated at $WORKAREA/output/<TOP>/upf_utils/<PASS>/InspectUPF
+       * Output is linked at $WORKAREA/integration/upf_utils/output
+       * No handoff or copying of files will happen
+     * For config processing
+         % make config
+         * Output is generated at $WORKAREA/output/<TOP>/upf_utils/<PASS>/flow_inputs
+     * To remove the upf_utils output dir for provided PASS
+         % make clean
+     * To remove the complete upf_utils output dir
+         % make clean_all
+     * To show help message
+         % make help
+  3. A replay file is created to replicate the run in a standalone recipe and this recipe is also used in the main run
+     * $WORKAREA/output/<TOP>/upf_utils/<PASS>/InspectUPF_replay.csh
+
+## (III) MergeUPF
+Description
+  MergeUPF is a utility that parses through the UPF design hierarchy and :
+  1. Inspect the UPF for correctness of UPF syntax based on Intel UPF_command_master_list specs
+  2. Checks for completeness of the UPF commands
+  3. Flattens hierarchical UPFs to a single UPF file
+  4. Identifies equivalent domains and merge them
+
+  Requirements
+  1. UPFs must already be generated through whatever mechanism
+  2. UPFs must adhere to the SoC/IP Requirements : https://wiki.ith.intel.com/display/hdk/IP+and+SoC+UPF+Requirements
+  
+  Inputs
+  1. The top UPFs must be located at same directory, defined from variable "MERGE_INPUT_DIR"
+
+  Outputs
+  1. Generated merged_upfs are found under integration/upf_utils/config/output/<PASS>/MergeUPF/gen/upf
+  2. Generated log files are found under: integration/upf_utils/config/output/<PASS>/MergeUPF/work/log
+  3. Other report files are found under: integration/upf_utils/config/output/<PASS>/MergeUPF/work/
+  
+  Tool Details
+  1. MergeUPF is released under /p/hdk/rtl/cad/x86-64_linux30/intel/upf_utils, so UPF_UTILS_HOME_PATH/UPF_UTILS_VERSION is specified in integration/upf_utils/defaults/upf_utils.cfg
+   
+  Configuration Options (specified through $WORKAREA/integration/upf_utils/upf_utils.cfg)
+  1. MERGE_INPUT_DIR                          = (full path to input UPF directory) ... REQUIRED
+  
+  2. DEBUG_UPF       = true/false ... OPTIONAL
+  * For developer/debug purpose, print out log message guarded by UPF-DEBUG
+  * False by default, set to true for development/debug
+
+  3. MERGE_SCRIPT_NAME = (name of script to invoke merge_upf) ... OPTIONAL with DEFAULT
+  * By default, the script to run is $WORKAREA/integration/upf_utils/scripts/run_merge_upf.csh
+  * Useful if user want to use python script, or other language. Else do not overwrite
+  
+  UPF_UTILS CTH MergeUPF Sub-Flow
+  1a. setenv WORKAREA (local_bundle_path)
+  1b. cd $WORKAREA/integration/upf_utils
+  2. Sub-Flow make options
+     * To carry out all features of InspectUPF
+       % make MergeUPF
+       * MERGE_INPUT_DIR must be defiled in $WORKAREA/integration/upf_utils/upf_utils.cfg
+       * Output is generated at $WORKAREA/output/<TOP>/upf_utils/<PASS>/MergeUPF
+       * Output is linked at $WORKAREA/integration/upf_utils/output
+       * No handoff or copying of files will happen
+     * For config processing
+         % make config
+         * Output is generated at $WORKAREA/output/<TOP>/upf_utils/<PASS>/flow_inputs
+     * To remove the upf_utils output dir for provided PASS
+         % make clean
+     * To remove the complete upf_utils output dir
+         % make clean_all
+     * To show help message
+         % make help
+  3. A replay file is created to replicate the run in a standalone recipe and this recipe is also used in the main run
+     * $WORKAREA/output/<TOP>/upf_utils/<PASS>/MergeUPF_replay.csh     

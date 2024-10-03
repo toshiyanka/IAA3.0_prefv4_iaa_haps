@@ -1,0 +1,145 @@
+#########################################################
+# Check SMONs
+wr hqm_system_csr.aw_smon_configuration0[0] 0x00000000
+wr hqm_system_csr.aw_smon_configuration0[1] 0x00000000
+# DIR CQ Occ Ints
+rd hqm_system_csr.aw_smon_activitycounter0[0] 0x00000080
+# LDB CQ Occ Ints
+rd hqm_system_csr.aw_smon_activitycounter1[0] 0x00000040
+# MSI-X Ints (95 are masked by pending being set)
+rd hqm_system_csr.aw_smon_activitycounter0[1] 0x00000001
+# MSI Ints (32 are masked by pending being set)
+rd hqm_system_csr.aw_smon_activitycounter1[1] 0x00000040
+# MSI-Xs
+rd hqm_system_csr.hqm_system_cnt_34 0x00000001
+rd hqm_system_csr.hqm_system_cnt_35 0x00000000
+# IOSF writes
+rd hqm_system_csr.hqm_system_cnt_36 0x00000041
+rd hqm_system_csr.hqm_system_cnt_37 0x00000000
+# IOSF write drops
+rd hqm_system_csr.hqm_system_cnt_38 0x00000000
+rd hqm_system_csr.hqm_system_cnt_39 0x00000000
+# Check MSI-X Syndrome
+rd hqm_system_csr.msix_71_64_synd               0x00000000
+rd hqm_system_csr.msix_63_32_synd               0x00000000
+rd hqm_system_csr.msix_31_0_synd                0x00000100
+# Clear MSI-X Syndrome
+wr hqm_system_csr.msix_31_0_synd                0x00000100
+rd hqm_system_csr.msix_31_0_synd                0x00000000
+# Check CQ status
+rd hqm_system_csr.dir_cq_127_96_occ_int_status  0xaaaaaaaa
+rd hqm_system_csr.dir_cq_95_64_occ_int_status   0xaaaaaaaa
+rd hqm_system_csr.dir_cq_63_32_occ_int_status   0xaaaaaaaa
+rd hqm_system_csr.dir_cq_31_0_occ_int_status    0xaaaaaaaa
+rd hqm_system_csr.ldb_cq_63_32_occ_int_status   0xaaaaaaaa
+rd hqm_system_csr.ldb_cq_31_0_occ_int_status    0xaaaaaaaa
+rd hqm_system_csr.msix_ack                      0x00000100
+# Clear just one of the CQs
+wr hqm_system_csr.dir_cq_31_0_occ_int_status    0x00000002
+rd hqm_system_csr.dir_cq_127_96_occ_int_status  0xaaaaaaaa
+rd hqm_system_csr.dir_cq_95_64_occ_int_status   0xaaaaaaaa
+rd hqm_system_csr.dir_cq_63_32_occ_int_status   0xaaaaaaaa
+rd hqm_system_csr.dir_cq_31_0_occ_int_status    0xaaaaaaa8
+rd hqm_system_csr.ldb_cq_63_32_occ_int_status   0xaaaaaaaa
+rd hqm_system_csr.ldb_cq_31_0_occ_int_status    0xaaaaaaaa
+rd hqm_system_csr.msix_ack                      0x00000100
+rd hqm_system_csr.hqm_system_cnt_34             0x00000001
+rd hqm_system_csr.hqm_system_cnt_36             0x00000041
+# Clearing the msix_ack[8] should cause another MSI-X[8]
+wr hqm_system_csr.msix_ack                      0x00000100
+rd hqm_system_csr.dir_cq_127_96_occ_int_status  0xaaaaaaaa
+rd hqm_system_csr.dir_cq_95_64_occ_int_status   0xaaaaaaaa
+rd hqm_system_csr.dir_cq_63_32_occ_int_status   0xaaaaaaaa
+rd hqm_system_csr.dir_cq_31_0_occ_int_status    0xaaaaaaa8
+rd hqm_system_csr.ldb_cq_63_32_occ_int_status   0xaaaaaaaa
+rd hqm_system_csr.ldb_cq_31_0_occ_int_status    0xaaaaaaaa
+rd hqm_system_csr.msix_ack                      0x00000100
+rd hqm_system_csr.hqm_system_cnt_34             0x00000002
+rd hqm_system_csr.hqm_system_cnt_36             0x00000042
+rd hqm_system_csr.msix_31_0_synd                0x00000100
+wr hqm_system_csr.msix_31_0_synd                0x00000100
+rd hqm_system_csr.msix_31_0_synd                0x00000000
+# Clear all but one of the remaining CQs
+wr hqm_system_csr.dir_cq_127_96_occ_int_status  0xaaaaaaaa
+rd hqm_system_csr.dir_cq_127_96_occ_int_status  0x00000000
+rd hqm_system_csr.dir_cq_95_64_occ_int_status   0xaaaaaaaa
+rd hqm_system_csr.dir_cq_63_32_occ_int_status   0xaaaaaaaa
+rd hqm_system_csr.dir_cq_31_0_occ_int_status    0xaaaaaaa8
+rd hqm_system_csr.ldb_cq_63_32_occ_int_status   0xaaaaaaaa
+rd hqm_system_csr.ldb_cq_31_0_occ_int_status    0xaaaaaaaa
+wr hqm_system_csr.dir_cq_95_64_occ_int_status   0xaaaaaaaa
+rd hqm_system_csr.dir_cq_127_96_occ_int_status  0x00000000
+rd hqm_system_csr.dir_cq_95_64_occ_int_status   0x00000000
+rd hqm_system_csr.dir_cq_63_32_occ_int_status   0xaaaaaaaa
+rd hqm_system_csr.dir_cq_31_0_occ_int_status    0xaaaaaaa8
+rd hqm_system_csr.ldb_cq_63_32_occ_int_status   0xaaaaaaaa
+rd hqm_system_csr.ldb_cq_31_0_occ_int_status    0xaaaaaaaa
+wr hqm_system_csr.dir_cq_63_32_occ_int_status   0xaaaaaaaa
+rd hqm_system_csr.dir_cq_127_96_occ_int_status  0x00000000
+rd hqm_system_csr.dir_cq_95_64_occ_int_status   0x00000000
+rd hqm_system_csr.dir_cq_63_32_occ_int_status   0x00000000
+rd hqm_system_csr.dir_cq_31_0_occ_int_status    0xaaaaaaa8
+rd hqm_system_csr.ldb_cq_63_32_occ_int_status   0xaaaaaaaa
+rd hqm_system_csr.ldb_cq_31_0_occ_int_status    0xaaaaaaaa
+wr hqm_system_csr.dir_cq_31_0_occ_int_status    0xaaaaaaa8
+rd hqm_system_csr.dir_cq_127_96_occ_int_status  0x00000000
+rd hqm_system_csr.dir_cq_95_64_occ_int_status   0x00000000
+rd hqm_system_csr.dir_cq_63_32_occ_int_status   0x00000000
+rd hqm_system_csr.dir_cq_31_0_occ_int_status    0x00000000
+rd hqm_system_csr.ldb_cq_63_32_occ_int_status   0xaaaaaaaa
+rd hqm_system_csr.ldb_cq_31_0_occ_int_status    0xaaaaaaaa
+wr hqm_system_csr.ldb_cq_63_32_occ_int_status   0xaaaaaaaa
+rd hqm_system_csr.dir_cq_127_96_occ_int_status  0x00000000
+rd hqm_system_csr.dir_cq_95_64_occ_int_status   0x00000000
+rd hqm_system_csr.dir_cq_63_32_occ_int_status   0x00000000
+rd hqm_system_csr.dir_cq_31_0_occ_int_status    0x00000000
+rd hqm_system_csr.ldb_cq_63_32_occ_int_status   0x00000000
+rd hqm_system_csr.ldb_cq_31_0_occ_int_status    0xaaaaaaaa
+wr hqm_system_csr.ldb_cq_31_0_occ_int_status    0xaaaaaaa8
+rd hqm_system_csr.dir_cq_127_96_occ_int_status  0x00000000
+rd hqm_system_csr.dir_cq_95_64_occ_int_status   0x00000000
+rd hqm_system_csr.dir_cq_63_32_occ_int_status   0x00000000
+rd hqm_system_csr.dir_cq_31_0_occ_int_status    0x00000000
+rd hqm_system_csr.ldb_cq_63_32_occ_int_status   0x00000000
+rd hqm_system_csr.ldb_cq_31_0_occ_int_status    0x00000002
+rd hqm_system_csr.msix_ack                      0x00000100
+rd hqm_system_csr.hqm_system_cnt_34             0x00000002
+rd hqm_system_csr.hqm_system_cnt_36             0x00000042
+# Clearing the msix_ack[8] should cause another MSI-X[8]
+wr hqm_system_csr.msix_ack                      0x00000100
+rd hqm_system_csr.dir_cq_127_96_occ_int_status  0x00000000
+rd hqm_system_csr.dir_cq_95_64_occ_int_status   0x00000000
+rd hqm_system_csr.dir_cq_63_32_occ_int_status   0x00000000
+rd hqm_system_csr.dir_cq_31_0_occ_int_status    0x00000000
+rd hqm_system_csr.ldb_cq_63_32_occ_int_status   0x00000000
+rd hqm_system_csr.ldb_cq_31_0_occ_int_status    0x00000002
+rd hqm_system_csr.msix_ack                      0x00000100
+rd hqm_system_csr.hqm_system_cnt_34             0x00000003
+rd hqm_system_csr.hqm_system_cnt_36             0x00000043
+rd hqm_system_csr.msix_31_0_synd                0x00000100
+wr hqm_system_csr.msix_31_0_synd                0x00000100
+rd hqm_system_csr.msix_31_0_synd                0x00000000
+# Clear the last CQ bit
+wr hqm_system_csr.ldb_cq_31_0_occ_int_status    0x00000002
+rd hqm_system_csr.dir_cq_127_96_occ_int_status  0x00000000
+rd hqm_system_csr.dir_cq_95_64_occ_int_status   0x00000000
+rd hqm_system_csr.dir_cq_63_32_occ_int_status   0x00000000
+rd hqm_system_csr.dir_cq_31_0_occ_int_status    0x00000000
+rd hqm_system_csr.ldb_cq_63_32_occ_int_status   0x00000000
+rd hqm_system_csr.ldb_cq_31_0_occ_int_status    0x00000000
+rd hqm_system_csr.msix_ack                      0x00000100
+rd hqm_system_csr.hqm_system_cnt_34             0x00000003
+rd hqm_system_csr.hqm_system_cnt_36             0x00000043
+# Clearing the msix_ack[8] should not cause another MSI-X[8]
+wr hqm_system_csr.msix_ack                      0x00000100
+rd hqm_system_csr.dir_cq_127_96_occ_int_status  0x00000000
+rd hqm_system_csr.dir_cq_95_64_occ_int_status   0x00000000
+rd hqm_system_csr.dir_cq_63_32_occ_int_status   0x00000000
+rd hqm_system_csr.dir_cq_31_0_occ_int_status    0x00000000
+rd hqm_system_csr.ldb_cq_63_32_occ_int_status   0x00000000
+rd hqm_system_csr.ldb_cq_31_0_occ_int_status    0x00000000
+rd hqm_system_csr.msix_ack                      0x00000000
+rd hqm_system_csr.hqm_system_cnt_34             0x00000003
+rd hqm_system_csr.hqm_system_cnt_36             0x00000043
+rd hqm_system_csr.msix_31_0_synd                0x00000000
+

@@ -1,0 +1,30 @@
+#!/bin/csh -f
+
+
+foreach cur_cfg (`cat config_list`)
+    cd $IP_ROOT
+    sed -e 's/DFXSECURE_DFX_/DFX_/g' -e 's/;/,/' verif/tb/include/configs/$cur_cfg/DFXSECURE_dfxsecureplugin_param_values.vh | sed '$s/,//'  >! source/rtl/include/dfxsecure_params_include.vh
+
+    ##Lintra###
+    cd scripts/qa
+    source runLint
+    cp $IP_ROOT/pwa/lint/lintra.rpt $IP_ROOT/pwa/lint/lintra.rpt_$cur_cfg
+    ##########
+
+    ###CDC###
+    setenv CWD $cwd
+    cd $IP_ROOT/scripts/qa
+    source runCdc
+    cp $IP_ROOT/pwa/cdc/reports_cdc/0in_detail.log $IP_ROOT/pwa/cdc/reports_cdc/0in_detail.log_$cur_cfg
+    ##########
+
+
+    ##Spyglass###
+    cd $IP_ROOT/scripts/qa
+    source runSpyglass
+    cp $IP_ROOT/tools/spyglass/SPYGLASS_WDIR/spyglass_reports/moresimple.rpt $IP_ROOT/tools/spyglass/SPYGLASS_WDIR/spyglass_reports/moresimple.rpt_$cur_cfg
+    ##########
+
+
+
+end

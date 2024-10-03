@@ -1,0 +1,60 @@
+# mode:cperl; cperl-indent-level 4; cperl-indent-parens-as-block t;# # vim: noai:ts=4 : sw=4 : filetype=perl
+# vim: noai:ts=4 : sw=4 : filetype=perl
+
+my $scope = "AW";
+
+%audf = (
+    HDLSpec => {
+        $scope => {
+            libs => {
+                AW_lib => {
+                    -hdl_spec => [ "src/rtl/AW_lib.hdl", ],
+                    -sub_libs => [
+                        "$ENV{CTECH_LIB_NAME}",
+                    ],
+                },
+            },
+        },
+    },
+);
+
+if ($ENV{"MODEL_ROOT"} =~ /subIP\/sip\/AW/) {
+ my @aw_blocks=`grep "hqm_AW.*\.sv" $ENV{"MODEL_ROOT"}/src/rtl/AW_lib.hdl`;
+ foreach my $aw_block (@aw_blocks) {
+     chomp($aw_block);
+     $aw_block=~s/.*\/rtl\///;
+     $aw_block=~s/\.sv.*$//;
+     my $aw_file=$ENV{"MODEL_ROOT"}."/cfg/lintra/.tmp_waiver_db/${aw_block}.WDB";
+     if (! -r "$aw_file") {`touch "$aw_file"`;}
+     $audf{"HDLSpec"}->{$scope}->{"models"}->{"${aw_block}"} = {
+         top => "AW_lib.${aw_block}",
+         flg_lintra_top => ["${aw_block}",],
+         top_language => "SystemVerilog",
+         use => [
+             "hqm_array_macro_module:ip743rfshpm1r1w64x32_dfx_wrapper",
+             "tfm_array_macro_module:s742rf024b256e1r1w1cbeheaa0aa2_dfx_wrapper",
+             "hqm_ssa_macro_module:ip743srmbslv2048x72m8k4r2c1n_MSWT_WRP",
+         ],
+         libs => [
+             "AW_lib",
+         ],
+         pli_libs => [
+             '-debussy_pli_libs',
+         ],
+         lintra_blackbox_files => [
+             "tools/lint/inputs/common/dw.bb",
+             "tools/lint/inputs/common/rf.bb",
+             "tools/lint/inputs/common/ssa.bb",
+         ],
+         lintra_waiver_dirs => [
+             "tools/lint/waivers/hsd",
+             "tools/lint/waivers/perm",
+             "tools/lint/waivers/tmp",
+         ],
+         lintra_waiver_files => [
+             "*.xml",
+         ],
+     },
+ }
+}
+

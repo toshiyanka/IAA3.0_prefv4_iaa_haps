@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<ipxact:abstractionDefinition xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2014" xmlns:snps="http://www.synopsys.com/SPIRIT-snps" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.accellera.org/XMLSchema/IPXACT/1685-2014 http://www.accellera.org/XMLSchema/IPXACT/1685-2014/index.xsd">
+
+  <ipxact:vendor>Intel</ipxact:vendor>
+
+  <ipxact:library>Intel</ipxact:library>
+
+  <ipxact:name>SFI::Header_rtl</ipxact:name>
+
+  <ipxact:version>v1.0_r1.1</ipxact:version>
+
+  <ipxact:busType library="Intel" name="SFI::Header" vendor="Intel" version="v1.0_r1.1"/>
+
+  <ipxact:ports>
+    <ipxact:port>
+      <ipxact:logicalName>hdr_valid</ipxact:logicalName>
+      <ipxact:description>Indicates the start of a new packet on the corresponding header byte. It is required to have a fixed association between the individual bits of hdr_valid and the bytes of header.</ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:width>M</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:width>M</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:isPresent>BLOCK_EARLY_VLD_EN</ipxact:isPresent>
+      <ipxact:logicalName>hdr_early_valid</ipxact:logicalName>
+      <ipxact:description>This is an optional signal. It is an early valid indication from TX to RX indicating that TX has packets to send on the HDR channel. </ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:isPresent>BLOCK_EARLY_VLD_EN</ipxact:isPresent>
+      <ipxact:logicalName>hdr_block</ipxact:logicalName>
+      <ipxact:description>This is an optional signal. It is an indication from RX to TX for a temporary stall to header transfers.</ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>header</ipxact:logicalName>
+      <ipxact:description>Header information. It can contain multiple packets transferred in the same cycle. FC and VC information is additionally embedded in the hdr_info_bytes. H must be a multiple of M, and hdr_valid[i] corresponds to header byte (i*H/M). </ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:width>8*H</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:width>8*H</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>hdr_info_bytes</ipxact:logicalName>
+      <ipxact:description>Indicates packet headersize, flow control, VC, and parity information. Information is valid whenever the corresponding hdr_valid is asserted.</ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:width>16*M</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:width>16*M</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>hdr_crd_rtn_valid</ipxact:logicalName>
+      <ipxact:description>Credit return valid</ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>hdr_crd_rtn_ded</ipxact:logicalName>
+      <ipxact:description>Indicates the credit returns are to the dedicated pool of credits. If this is 0 on a valid credit return, the credits should be returned to the corresponding shared pool of credits. It must be set to 0 if hdr_crd_rtn_vc_id is 5’d30 or 5’d31.</ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>hdr_crd_rtn_fc_id</ipxact:logicalName>
+      <ipxact:description>Identifies the flow control class for this credit return.</ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:width>2</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:width>2</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>hdr_crd_rtn_vc_id</ipxact:logicalName>
+      <ipxact:description>Identifies the virtual channel for this credit return. </ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:width>5</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:width>5</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>hdr_crd_rtn_value</ipxact:logicalName>
+      <ipxact:description>Indicates how many credits are returned in this cycle</ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:width>NHCRD</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:width>NHCRD</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:isPresent>BLOCK_EARLY_VLD_EN</ipxact:isPresent>
+      <ipxact:logicalName>hdr_crd_rtn_block</ipxact:logicalName>
+      <ipxact:description>This is an optional signal. It is an indication from TX to RX for a temporary stall to credit returns.</ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+  </ipxact:ports>
+
+  <ipxact:description>Revision: r1.1.</ipxact:description>
+
+  <ipxact:parameters>
+    <ipxact:parameter parameterId="VT" resolve="user" type="int">
+      <ipxact:name>VT</ipxact:name>
+      <ipxact:description>Width of tx_vendor_field</ipxact:description>
+      <ipxact:value>0</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="VR" resolve="user" type="int">
+      <ipxact:name>VR</ipxact:name>
+      <ipxact:description>Width of rx_vendor_field</ipxact:description>
+      <ipxact:value>0</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="VIRAL_EN" resolve="user" type="bit">
+      <ipxact:name>VIRAL_EN</ipxact:name>
+      <ipxact:description>This is either 0 or 1. Indicates the viral signal is supported on the global channel. </ipxact:description>
+      <ipxact:value>0</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="FATAL_EN" resolve="user" type="bit">
+      <ipxact:name>FATAL_EN</ipxact:name>
+      <ipxact:description>This is either 0 or 1. Indicates the fatal signal is supported on the global channel. </ipxact:description>
+      <ipxact:value>0</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="BLOCK_EARLY_VLD_EN" resolve="user" type="bit">
+      <ipxact:name>BLOCK_EARLY_VLD_EN</ipxact:name>
+      <ipxact:description>This is either 0 or 1. Indicates all the *_block and *_early_valid signals are supported.</ipxact:description>
+      <ipxact:value>0</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="M" resolve="user" type="int">
+      <ipxact:name>M</ipxact:name>
+      <ipxact:description>Maximum number of Headers that can be transmitted on a given cycle</ipxact:description>
+      <ipxact:value>1</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="MAX_HDR_WIDTH" resolve="user" type="int">
+      <ipxact:name>MAX_HDR_WIDTH</ipxact:name>
+      <ipxact:description>Maximum size of 1 header in bytes. One header credit corresponds to MAX_HDR_WIDTH bytes of storage. A minimum and maximum of one credit is used per header transfer.</ipxact:description>
+      <ipxact:value>1</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="H" resolve="user" type="int">
+      <ipxact:name>H</ipxact:name>
+      <ipxact:description>Total width of header in bytes. If the interface is optimizing throughput for a header size of HX (can be less than MAX_HDR_WIDTH), this is HX*M.</ipxact:description>
+      <ipxact:value>1</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="NHCRD" resolve="user" type="int">
+      <ipxact:name>NHCRD</ipxact:name>
+      <ipxact:description>Width (number of bits) of credit return value signal on HDR channel</ipxact:description>
+      <ipxact:value>1</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="HGRAN" resolve="user" type="int">
+      <ipxact:name>HGRAN</ipxact:name>
+      <ipxact:description>Design parameter for granularity of HDR SIZE field in hdr_info_bytes. Typically this is set to four bytes (DWORD).</ipxact:description>
+      <ipxact:value>1</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="HPARITY" resolve="user" type="bit">
+      <ipxact:name>HPARITY</ipxact:name>
+      <ipxact:description>This is either 0 or 1. When set to 1, it indicates header parity is supported. When set to 0, it indicates header parity is not supported.</ipxact:description>
+      <ipxact:value>0</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="HDR_MAX_FC_VC" resolve="user" type="int">
+      <ipxact:name>HDR_MAX_FC_VC</ipxact:name>
+      <ipxact:description>Maximum number of FC and VC ID combinations that can be received in one cycle on the HDR Layer. It is recommended that this should be 1 or 2.All TX must support setting this to 1 for interoperability reasons.</ipxact:description>
+      <ipxact:value>1</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="MAX_CRD_CNT_WIDTH" resolve="user" type="int">
+      <ipxact:name>MAX_CRD_CNT_WIDTH</ipxact:name>
+      <ipxact:description>Determines the width in number of bits for all the credit counters.</ipxact:description>
+      <ipxact:value>1</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="SHARED_CREDIT_EN" resolve="user" type="bit">
+      <ipxact:name>SHARED_CREDIT_EN</ipxact:name>
+      <ipxact:description>This is either 0 or 1. When set to 1, it implies Type 1 shared crediting is used. </ipxact:description>
+      <ipxact:value>0</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="NUM_SHARED_POOLS" resolve="user" type="int">
+      <ipxact:name>NUM_SHARED_POOLS</ipxact:name>
+      <ipxact:description>Number of shared pools for Type 1 shared crediting, must be a number greater than or equal to 0 and less than or equal to 8. If SHARED_CRD_EN = 1, this must be greater than or equal to 1. If PCIE_SHARED_SELECT is 0, IP data sheet must provide shared pool to FC/VC mapping.</ipxact:description>
+      <ipxact:value>1</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="PCIE_SHARED_SELECT" resolve="user" type="bit">
+      <ipxact:name>PCIE_SHARED_SELECT</ipxact:name>
+      <ipxact:description>This is either 0 or 1. If it is 1, PCIe shared pool allocation is used; i.e. SHARED_CRD_EN = 1, NUM_SHARED_POOLS = 2 if PCIE_MERGED_SELECT = 1;shared pool 0 is for Posteds and Completions, shared pool 1 is for Non-Posteds.else NUM_SHARED_POOLS=3 if PCIE_MERGED_SELECT = 0; shared pool 0 is for Posteds, shared pool 1 is for Non-Posteds, shared pool 2 is for Completions.</ipxact:description>
+      <ipxact:value>0</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="PCIE_MERGED_SELECT" resolve="user" type="bit">
+      <ipxact:name>PCIE_MERGED_SELECT</ipxact:name>
+      <ipxact:description>This is either 0 or 1. If 1, Posteds and Completions share the same shared pool. If 0, Posteds and completions have separateshared pools of credits.</ipxact:description>
+      <ipxact:value>0</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="SH_HDR_CRD_BLK_SZ" resolve="user" type="int">
+      <ipxact:name>SH_HDR_CRD_BLK_SZ</ipxact:name>
+      <ipxact:description>Indicates the block size for shared header credit returns from the RX. It must be set to 1 or more. It is strongly recommended for TX to provide a configuration register for this parameter.</ipxact:description>
+      <ipxact:value>1</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="DATA_MAX_FC_VC" resolve="user" type="int">
+      <ipxact:name>DATA_MAX_FC_VC</ipxact:name>
+      <ipxact:description>Maximum number of FC and VC ID combinations that can be received in one cycle on the DATA Layer. It is recommended that this be 1 or 2.All TX must support setting this to 1 for interoperability reasons.</ipxact:description>
+      <ipxact:value>1</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="D" resolve="user" type="int">
+      <ipxact:name>D</ipxact:name>
+      <ipxact:description>Total width of the data signal in bytes. This must be a multiple of 4.</ipxact:description>
+      <ipxact:value>1</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="DS" resolve="user" type="int">
+      <ipxact:name>DS</ipxact:name>
+      <ipxact:description>Maximum number of independent data packets that can be sent in one cycle.All TX must support setting this to 1 for interoperability reasons.</ipxact:description>
+      <ipxact:value>1</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="NDCRD" resolve="user" type="int">
+      <ipxact:name>NDCRD</ipxact:name>
+      <ipxact:description>Width (number of bits) of credit return value signal on DATA channel.</ipxact:description>
+      <ipxact:value>1</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="DATA_PARITY_EN" resolve="user" type="bit">
+      <ipxact:name>DATA_PARITY_EN</ipxact:name>
+      <ipxact:description>This is either 0 or 1. If set to 1, data_parity signal is instantiated, and used to transfer data parity across the interface.</ipxact:description>
+      <ipxact:value>0</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="DATA_AUX_PARITY_EN" resolve="user" type="bit">
+      <ipxact:name>DATA_AUX_PARITY_EN</ipxact:name>
+      <ipxact:description>This is either 0 or 1. If set to 1, data_aux_parity signal is instantiated, and used to transfer data parity across the interface.</ipxact:description>
+      <ipxact:value>0</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="DATA_PASS_HDR" resolve="user" type="bit">
+      <ipxact:name>DATA_PASS_HDR</ipxact:name>
+      <ipxact:description>If set to 1, TX can allow Data to race ahead of the corresponding Header. If set to 0, TX will always send Header before the corresponding Data. All TX must support setting this to 0 for interoperability reasons.It is strongly recommended that this parameter be set to 0, so that the RX data tracking is simplified.</ipxact:description>
+      <ipxact:value>0</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="HDR_DATA_SEP" resolve="user" type="int">
+      <ipxact:name>HDR_DATA_SEP</ipxact:name>
+      <ipxact:description>This is applicable when DATA_PASS_HDR = 0. If set to 1, data for a corresponding header is 1 cycle behind the header. If set to 0, data can be 1 or more cycles behind the corresponding header. All TX must support setting this to 1 for interoperability reasons. Setting this greater than 1 is permitted, and it indicates a fixed delay of those many clock cycles.</ipxact:description>
+      <ipxact:value>0</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="DATA_INTERLEAVE" resolve="user" type="bit">
+      <ipxact:name>DATA_INTERLEAVE</ipxact:name>
+      <ipxact:description>This is either 0 or 1. When advertised as 1 by a receiver, it indicates that the receiver is capable of dealing with data interleaving across different FC and VC over different clock cycles.</ipxact:description>
+      <ipxact:value>0</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="ECRC_SUPPORT" resolve="user" type="bit">
+      <ipxact:name>ECRC_SUPPORT</ipxact:name>
+      <ipxact:description>This is either 0 or 1. When set to 1, it indicates ECRC is supported. When set to 0, it indicates ECRC is not supported.</ipxact:description>
+      <ipxact:value>0</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="IDE_SUPPORT" resolve="user" type="bit">
+      <ipxact:name>IDE_SUPPORT</ipxact:name>
+      <ipxact:description>When set to 1, it indicates that IDE TLPs are permitted to be sent across the interface. The formats of the prefixes and MAC follow the flit mode definitions given in PCIe Base Specification Revision 6.0. Implementations must also follow all the routing/ordering rules outlined in the specification.</ipxact:description>
+      <ipxact:value>0</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="DATA_CRD_GRAN" resolve="user" type="int">
+      <ipxact:name>DATA_CRD_GRAN</ipxact:name>
+      <ipxact:description>Credit granularity for data credits in DOWRDs. Typically set to 4 DWORD (or 16 Bytes) to match PCIe i.e., each credit accounts for 16 bytes of storage in the receiver.</ipxact:description>
+      <ipxact:value>1</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="SH_DATA_CRD_BLK_SZ" resolve="user" type="int">
+      <ipxact:name>SH_DATA_CRD_BLK_SZ</ipxact:name>
+      <ipxact:description>Indicates the block size for shared data credit returns from the RX. It must be set to 1 or more. It is strongly recommended for TX to provide a configuration register for this parameter.</ipxact:description>
+      <ipxact:value>1</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="TBN" resolve="user" type="int">
+      <ipxact:name>TBN</ipxact:name>
+      <ipxact:description>Once hdr_block/data_block is asserted, the compile time parameter TBN determines the number of clock cycles after which TX must guarantee a stall (i.e. no more assertion of hdr_valid/data_valid).</ipxact:description>
+      <ipxact:value>0</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="RBN" resolve="user" type="int">
+      <ipxact:name>RBN</ipxact:name>
+      <ipxact:description>Once hdr_crd_rtn_block/data_crd_rtn_block is asserted, the compile time parameter RBN determines the number of clock cycles after which RX must guarantee a stall (i.e. no more assertion of hdr_crd_rtn_valid/data_crd_rtn_valid).</ipxact:description>
+      <ipxact:value>0</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="TX_CRD_REG" resolve="user" type="bit">
+      <ipxact:name>TX_CRD_REG</ipxact:name>
+      <ipxact:description>If 1, Tx exposes configuration registers that can be programmed and/or reset to values that indicate the maximum credits advertised by Rx for each credit pool.</ipxact:description>
+      <ipxact:value>0</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="BCM_EN" resolve="user" type="bit">
+      <ipxact:name>BCM_EN</ipxact:name>
+      <ipxact:description>If 1, the vendor defined prefix shown in Figure 4-6 is the first DWORD for all completion headers sent over SFI.</ipxact:description>
+      <ipxact:value>0</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="FLIT_MODE_PREFIX_EN" resolve="user" type="bit">
+      <ipxact:name>FLIT_MODE_PREFIX_EN</ipxact:name>
+      <ipxact:description>If 0, transmitters must never send Flit Mode TLP prefix over SFI. See Section 4.2.3.</ipxact:description>
+      <ipxact:value>0</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="DATA_LAYER_EN" resolve="user" type="bit">
+      <ipxact:name>DATA_LAYER_EN</ipxact:name>
+      <ipxact:description>If 1, data layer is present.</ipxact:description>
+      <ipxact:value>0</ipxact:value>
+    </ipxact:parameter>
+  </ipxact:parameters>
+
+</ipxact:abstractionDefinition>

@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<!-- Release file -->
+
+<sip_release>
+  <version>8.4 November 13, 2013</version>
+  <date>Thu Mar 30 13:25:18 PDT 2017</date>
+  <user>jignasap</user>
+  <sip_name>31</sip_name>
+  <sip_variation>147</sip_variation>
+  <sip_variation_id>147</sip_variation_id>
+  <sip_reldate>2017WW13</sip_reldate>
+  <sip_milestone>1p0</sip_milestone>
+  <sip_relver>PICr19</sip_relver>
+  <sip_relname>ALL_2017WW13_R1p0_PICr19</sip_relname>
+  <sip_owner>jignasap</sip_owner>
+  <sip_dist></sip_dist>
+  <sip_fixed></sip_fixed>
+  <sip_open></sip_open>
+  <sip_attachment>
+  </sip_attachment>
+  <sip_customers>
+  </sip_customers>
+  <sip_base>0</sip_base>
+  <sip_features>
+    <sip_feature>
+<![CDATA[
+HTML
+ <h2>RTL Updates:</h2>
+      <dl>
+         <dt>HSDs: <dt>
+         <dd>
+            1. <a
+            href="https://hsdes.intel.com/appstore/article/#/1405619927/main">1405619927: " Sideband EP CDC cleanup with new HDM flow "</a>:With new CDC versions and methodology, there were new false violations reported on sideband. Appropriate waivers have been added to address those.
+         </dd>
+         <dd>                   
+            2.  <a
+            href="https://hsdes.intel.com/appstore/article/#/1405566327/main">1405566327: " FWD (PCR) Partition iosf-sb EP RTL for async crossing logic into modules based on clock domain "</a>:Sideband EP modules having multiple clocks within the same module are now separated as individual modules entirely on a particular clock domain. This should help in better UPF flow and manage skew related to level shifters. There is no functional or gate count change from this PCR. All endpoint customers using this revision will see additional wrappers/hierarchical modules when in ASYNC mode.       
+         </dd>
+         <dd>
+            3.  <a
+            href="https://hsdes.intel.com/appstore/article/#/1405711171/main">1405711171: " Replace tech_lib_clk_gate_te_rst_ss CTECH in mapping file "</a>:P1222 libraries does not currently include this cell- ctech_lib_clk_gate_te_rst_ss (which was available in all previous libraries). As a workaround, an existing/available cell in the library was used with additional logic, to match the expected behavior. The changes are confined to the sbc_map.v file which is used/owned by the customers.
+          </dd>
+         <dd>
+            4.  <a
+            href="https://hsdes.intel.com/appstore/article/#/1405040816/main">1405040816: " Clkreq is not high after reset - merged with (PCR) Sideband Endpoint to add a chicken bit/parameter to set default value of side_clkreq according to spec "</a>:IOSF Spec 1.2 states that the reset value (when reset is in effect) of side_clkreq from EP to fabric is 0. But the RTL so far had been compliant to earlier versions of the IOSF Spec –setting the reset value to 1. This was to support early boot IPs. To avoid this discrepancy between the spec and RTL, at the same time to support IP’s who have already set up their clock requesting logic to be consistent with the RTL/SPEC, a new parameter CLKREQDEFAULT has been added. Not setting (or setting this to 0), will result in the legacy behavior (reset value of 1 on side_clkreq). Setting this parameter to 1, side_clkreq does not have a default reset value.  Instead, EP relies on the parent/agent IP to wake up the fabric clock through IP’s clkreq to EP(agent_clkreq or sbi_sbe_clkreq). The IOSF spec will also reflect this change in upcoming revisions. Early boot IPs typically drive agent_clkreq to 1 during reset, whereas non-early boot IPs should have an agent_clkreq reset value of 0.                       
+         </dd>
+         <dd>                         
+            5.  <a
+            href="https://hsdes.intel.com/appstore/article/#/1405654777/main">1405654777:" FWD (PCR) Modify RTL for TGL IP to Support for RP Flow in Backend for FIFO/Memory Structures "</a>:RP (Relative Placement) flow is a new genram module template for power and timing improvement. The genram modules are instantiated as a SubIP within the endpoint and are also available directly from IRR. To use the new GENRAM modules, customers need to set the RELATIVE_PLACEMENT_EN parameter in the endpoint. This will pick the genram modules instead of the legacy FIFO structures. If RELATIVE_PLACEMENT_EN is 0, customers can still chose either a latch or flop FIFO based on legacy Endpoint parameters.              
+         </dd>
+         <dd>                         
+            6. <a
+            href="https://hsdes.intel.com/appstore/article/#/1405773309/main">1405773309:" TFM: SBE EIG 1713 Tool-lock and CTECH "</a>:This version of EP is compliant with the 1713 tool lock and CTECH versions. 
+         </dd>
+         <dd>
+            7. <a
+            href="https://hsdes.intel.com/appstore/article/#/1405764917/main">1405764917:" Lintra violation 0529 in IOSF SB Endpoint"
+</a>:Fixed lintra violation.
+        </dd>
+
+      </dl>      
+      <h2>Backend Updates:</h2>
+         <dt> General updates.</dt>
+      <h2>Validation Updates:</h2>
+         <dt> General updates.</dt>]]>    </sip_feature>
+  </sip_features>
+  <sip_knissues>
+    <sip_knissue>
+<![CDATA[
+HTML
+<dt> None. </dt>]]>    </sip_knissue>
+  </sip_knissues>
+  <sip_speccons>
+    <sip_speccon>
+<![CDATA[
+HTML
+<h2>Integration Notes:</h2>
+    <dt>NOTE: The first Sideband Fabric  release with support for parity pins is IOSF_Sideband_Fabric_Compiler_ALL_2014WW38_R1p0_v5</dt> ]]>    </sip_speccon>
+  </sip_speccons>
+  <sip_specins>
+    <sip_specin>
+<![CDATA[
+HTML
+<ul>
+         <li>This SBE release uses the "IOSF_SVC_2017WW13"  version of SVC in IRR</li>
+         <li>This SBE release is compliant with HDK 1713 tool lock</li>
+         <li>For support file an <b>HSD</b> at <a href="https://hsdes.intel.com/home/default.html#magazine?id=101846185&contentId=1012194360">https://hsdes.intel.com/home/default.html#magazine?id=101846185&contentId=1012194360</a></li>
+         <li>Please note that Sideband Endpoint instantiations need to be uniquified in all IP's per the SEG POR instantiation and uniquification methodology to avoid module collisions with other instances of the endpoint with other IPs.</li>
+         <li>Please read integration guide carefully for handling current clock request logic</li>
+         <li>Please read integration guide carefully for conditions of locally clock gating the agent_clk in asynchronous endpoints.</li>
+         <li>Please read integration guide carefully for any necessary power gating logic that may be needed.</li>
+         <li>The Zircon scores are uploaded to the IPDS dashboard for the SBE IP at <a href="https://zircon.fm.intel.com/zircon/zircon/zirconReleaseDashboardTable.php?top_filter_checkbox=0&Proj_id=12686&IP_id=17324&milestone_filter=4&Ver_id=all&App_id=1&showlatest=0">https://zircon.fm.intel.com/zircon/zircon/zirconReleaseDashboardTable.php?top_filter_checkbox=0&Proj_id=12686&IP_id=17324&milestone_filter=4&Ver_id=all&App_id=1&showlatest=0</a></li>
+      </ul>]]>    </sip_specin>
+  </sip_specins>
+  <sip_models>
+  </sip_models>
+</sip_release>

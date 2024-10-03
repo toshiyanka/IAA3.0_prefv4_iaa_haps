@@ -1,0 +1,108 @@
+cd target/patterns
+
+export TEST=hqm_basic_tap_tests.v
+echo ${TEST}
+
+egrep -q "HQM_VPD" ${TEST}
+if [ "$?" -ne "0" ]; then
+  rm -f temp
+  gawk '/endmodule/ {\
+  print "    initial begin"; \
+  print "      if ($test$plusargs(\"HQM_VPD\")) begin"; \
+  print "        $display(\"VPD enabled\");"; \
+  print "        $vcdplusfile(\"dump.vpd\");"; \
+  print "        $vcdpluson();"; \
+  print "        $vcdplusmemon();"; \
+  print "      end"; \
+  print "      else begin"; \
+  print "        $display(\"VPD not enabled\");"; \
+  print "      end"; \
+  print "    end"; \
+  };\
+  { print }' ${TEST} > temp
+  mv temp ${TEST}
+fi
+
+rm -rf mems.filelist simv simv.daidir csrc ucli.key simv.vdb vc_hdrs.h
+
+/bin/ls -1 `ToolConfig.pl get_tool_path ipconfig/hqm_array_macro_module`/src/rtl/hqm*.sv >mems.filelist
+/bin/ls -1 `ToolConfig.pl get_tool_path ipconfig/hqm_ssa_macro_module`/src/rtl/hqm*.sv  >>mems.filelist
+sed -i -e '/_GLS/d' mems.filelist
+sed -i -e '/hqm_ip7413rfshpm1r1w64x36c1p1m5/d' mems.filelist
+
+vcs \
+-sverilog \
+-assert svaext \
+-timescale=1ns/1ps \
++lint=TFIPC-L \
++warn=noISALS \
++libext+.sv+.v+.vs \
++define+INTEL_SVA_OFF \
++define+INTEL_NO_PWR_PINS \
++incdir+`ToolConfig.pl get_tool_path ipconfig/hqm`/src/rtl \
++incdir+`ToolConfig.pl get_tool_path ipconfig/hqm`/src/rtl/system \
++incdir+`ToolConfig.pl get_tool_path ipconfig/hqm`/src/rtl/visa/include \
++incdir+`ToolConfig.pl get_tool_path ipconfig/hqm`/target/hqm_pf_cfg_nebulon_lib/nebulon/output/sverilog \
++incdir+`ToolConfig.pl get_tool_path ipconfig/hqm`/target/hqm_vf_cfg_nebulon_lib/nebulon/output/sverilog \
++incdir+`ToolConfig.pl get_tool_path ipconfig/hqm`/target/hqm_func_per_vf_nebulon_lib/nebulon/output/sverilog \
++incdir+`ToolConfig.pl get_tool_path ipconfig/hqm`/target/hqm_msix_mem_nebulon_lib/nebulon/output/sverilog \
++incdir+`ToolConfig.pl get_tool_path ipconfig/hqm`/target/hqm_system_csr_nebulon_lib/nebulon/output/sverilog \
++incdir+`ToolConfig.pl get_tool_path ipconfig/hqm`/target/hqm_iosf_csr_nebulon_lib/nebulon/output/sverilog \
++incdir+`ToolConfig.pl get_tool_path ipconfig/hqm`/subIP/sip/AW/src/rtl \
++incdir+`ToolConfig.pl get_tool_path ipconfig/hqm_pgcbunit`/src/rtl/ClockDomainController \
++incdir+`ToolConfig.pl get_tool_path ipconfig/hqm_pgcbunit`/src/rtl/pgcbunit \
++incdir+`ToolConfig.pl get_tool_path ipconfig/hqm_iosfsbc`/source/rtl/iosfsbc/common \
++incdir+`ToolConfig.pl get_tool_path ipconfig/hqm_visa`/rtl \
++incdir+`ToolConfig.pl get_tool_path ipconfig/sdg_bcam`/src/rtl \
++incdir+`ToolConfig.pl get_tool_path nebulon_data`/include \
++incdir+`ToolConfig.pl get_tool_path designware` \
+-y `ToolConfig.pl get_tool_path ipconfig/hqm`/src/rtl \
+-y `ToolConfig.pl get_tool_path ipconfig/hqm`/src/rtl/bind_dir \
+-y `ToolConfig.pl get_tool_path ipconfig/hqm`/src/rtl/system \
+-y `ToolConfig.pl get_tool_path ipconfig/hqm`/src/rtl/visa/include \
+-y `ToolConfig.pl get_tool_path ipconfig/hqm`/src/rtl/mems \
+-y `ToolConfig.pl get_tool_path ipconfig/hqm`/subIP/sip/AW/src/rtl \
+-y `ToolConfig.pl get_tool_path ipconfig/hqm`/target/hqm_pf_cfg_nebulon_lib/nebulon/output/sverilog \
+-y `ToolConfig.pl get_tool_path ipconfig/hqm`/target/hqm_vf_cfg_nebulon_lib/nebulon/output/sverilog \
+-y `ToolConfig.pl get_tool_path ipconfig/hqm`/target/hqm_func_per_vf_nebulon_lib/nebulon/output/sverilog \
+-y `ToolConfig.pl get_tool_path ipconfig/hqm`/target/hqm_msix_mem_nebulon_lib/nebulon/output/sverilog \
+-y `ToolConfig.pl get_tool_path ipconfig/hqm`/target/hqm_system_csr_nebulon_lib/nebulon/output/sverilog \
+-y `ToolConfig.pl get_tool_path ipconfig/hqm`/target/hqm_iosf_csr_nebulon_lib/nebulon/output/sverilog \
+-y `ToolConfig.pl get_tool_path ipconfig/hqm`/target/collage/work/hqm/gen/src/rtl \
+-y `ToolConfig.pl get_tool_path ipconfig/hqm_array_macro_module`/src/rtl \
+-y `ToolConfig.pl get_tool_path ipconfig/hqm_pgcbunit`/src/rtl/ClockDomainController \
+-y `ToolConfig.pl get_tool_path ipconfig/hqm_pgcbunit`/src/rtl/common \
+-y `ToolConfig.pl get_tool_path ipconfig/hqm_pgcbunit`/src/rtl/pgcbunit \
+-y `ToolConfig.pl get_tool_path ipconfig/hqm_iosfsbc`/source/rtl/iosfsbc/common \
+-y `ToolConfig.pl get_tool_path ipconfig/hqm_iosfsbc`/source/rtl/iosfsbc/endpoint \
+-y `ToolConfig.pl get_tool_path ipconfig/hqm_rcfwl`/src/rtl/widgets \
+-y `ToolConfig.pl get_tool_path ipconfig/hqm_visa`/rtl \
+-y `ToolConfig.pl get_tool_path ipconfig/sdg_bcam`/src/rtl \
+-y `ToolConfig.pl get_tool_path designware` \
+-y `ToolConfig.pl get_tool_path ctech`/source/v \
+-y `ToolConfig.pl get_tool_path ctech_exp`/source/v \
+-v `ToolConfig.pl get_tool_path ipconfig/hqm`/subIP/sip/AW/src/rtl/hqm_AW_map.sv \
+-v `ToolConfig.pl get_tool_path ipconfig/hqm_iosfsbc`/source/rtl/iosfsbc/common/hqm_sbc_map.sv \
+-v `ToolConfig.pl get_tool_path ipconfig/hqm_rcfwl`/src/rtl/widgets/hqm_rcfwl_ctech_map.sv \
+-v `ToolConfig.pl get_tool_path ipconfig/sdg_bcam`/src/rtl/srf026b256e1r1w1cbbeheaa0aaw_map.sv \
+`ToolConfig.pl get_tool_path ipconfig/hqm_pgcbunit`/src/rtl/common/hqm_pgcb_ctech_map.sv \
+`ToolConfig.pl get_tool_path nebulon_data`/include/rtlgen_pkg_v12.vh \
+`ToolConfig.pl get_tool_path ipconfig/hqm`/target/hqm_pf_cfg_nebulon_lib/nebulon/output/sverilog/hqm_pf_cfg_pkg.vh \
+`ToolConfig.pl get_tool_path ipconfig/hqm`/target/hqm_vf_cfg_nebulon_lib/nebulon/output/sverilog/hqm_vf_cfg_pkg.vh \
+`ToolConfig.pl get_tool_path ipconfig/hqm`/target/hqm_func_per_vf_nebulon_lib/nebulon/output/sverilog/hqm_func_per_vf_pkg.vh \
+`ToolConfig.pl get_tool_path ipconfig/hqm`/target/hqm_msix_mem_nebulon_lib/nebulon/output/sverilog/hqm_msix_mem_pkg.vh \
+`ToolConfig.pl get_tool_path ipconfig/hqm`/target/hqm_system_csr_nebulon_lib/nebulon/output/sverilog/hqm_system_csr_pkg.vh \
+`ToolConfig.pl get_tool_path ipconfig/hqm`/target/hqm_iosf_csr_nebulon_lib/nebulon/output/sverilog/hqm_iosf_csr_pkg.vh \
+`ToolConfig.pl get_tool_path ipconfig/hqm`/subIP/sip/AW/src/rtl/hqm_AW_pkg.sv \
+`ToolConfig.pl get_tool_path ipconfig/hqm`/src/rtl/hqm_iosf_pkg.sv \
+`ToolConfig.pl get_tool_path ipconfig/hqm`/src/rtl/hqm_pkg.sv \
+`ToolConfig.pl get_tool_path ipconfig/hqm`/src/rtl/hqm_core_pkg.sv \
+`ToolConfig.pl get_tool_path ipconfig/hqm`/src/rtl/system/hqm_system_pkg.sv \
+`ToolConfig.pl get_tool_path ipconfig/hqm`/src/rtl/system/hqm_system_type_pkg.sv \
+`ToolConfig.pl get_tool_path ipconfig/hqm`/src/rtl/system/hqm_system_func_pkg.sv \
+-f mems.filelist \
+-y . \
++incdir+. \
+-debug_access+all \
+${TEST}
+

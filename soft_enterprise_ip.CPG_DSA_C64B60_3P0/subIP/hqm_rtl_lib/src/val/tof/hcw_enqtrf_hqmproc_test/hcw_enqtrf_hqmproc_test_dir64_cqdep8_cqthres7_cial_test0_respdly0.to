@@ -1,0 +1,19 @@
+-include $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test/hcw_enqtrf_hqmproc_test.to
+-dirtag dir64_cqdep8_cqthres7_cial_test0_respdly0
+-simv_args
+  +HQM_CIAL_INT_ARM_CK_3 
+  +MSIX_CQ_check 
+  +hqmproc_sel=1 
+  +has_cq_cwdt_ctrl=1               #0: wait has_cq_intr_resp_waitnum_max; 1: upon cq.intr received wait for CWDT alarm before return tokens/rearm
+  +DIR_PP64_TRF_ENA=1
+  +DIR_PP64_Q0_NUM_HCW=511
+  +DIR_PP64_RTNTOKCTRL_SELMODE=3     #3: token control when available tokens >= _RTNTOKCTRL_NUM check cq_intr if cq_intr is received return token; otherwise don't return token
+  +DIR_PP64_RTNTOKCTRL_NUM=8
+  +DIR_PP64_RTNTOKCTRL_RTNNUM_MAX=0  #return all token before rearm
+  +DIR_PP64_RTNTOKCTRL_RTNNUM_MIN=0
+  +DIR_PP64_CQINTR_THRES_NUM=1
+  +DIR_PP64_CQINTR_RESP_WAITNUM_MIN=4
+  +DIR_PP64_CQINTR_RESP_WAITNUM_MAX=1200
+  +DIR_PP64_CQREARM_CTRL=43          #bit0:  1:tok-rearm state control: when cq_intr is received return token rearm asap (highest priority)
+  +HQM_SEQ_CFG=$WORKAREA/src/val/tb/hqm/tests/hqm_hqmproc_functional/hcw_enqtrf_hqmproc_cq64_1map_cqdep8_cqthres7_timer_cfg.cft		     
+-simv_args-

@@ -1,0 +1,128 @@
+iProcsForModule ip
+
+iProc ip_test {} {
+
+   iReset
+   iRunLoop 1 -tck
+   iNote "Activate selection of the following scan muxes:"
+   iNote "  tdo_mux,             selection 0: fsm.irsel = 1'b0 -> tdo_mux = dr_mux"
+   iNote "  dr_mux,              selection 5: IR.tir_out, unlock_red, unlock_orange_or_red = 'bx, \$GREEN -> dr_mux = BYPASS_RSVD.so"
+   iWrite IR.IR[7:0] 0b01001100
+   iApply
+
+   iNote "Scan in verification pattern to the following scan register:"
+   iNote "  BYPASS_RSVD.DR\[0:0\], load value = 1"
+   iWrite BYPASS_RSVD.DR[0] 0b1
+   iRead  BYPASS_RSVD.DR[0] 0b0
+   iApply -end_in_pause
+
+   iNote "Scan out verification pattern from the following scan register:"
+   iNote "  BYPASS_RSVD.DR\[0:0\], expected value = 1"
+   iWrite BYPASS_RSVD.DR[0] 0b0
+   iRead  BYPASS_RSVD.DR[0] 0b1
+   iApply
+
+   iNote "Activate selection of the following scan muxes:"
+   iNote "  tdo_mux,             selection 0: fsm.irsel = 1'b0 -> tdo_mux = dr_mux"
+   iNote "  dr_mux,              selection 4: IR.tir_out, unlock_red, unlock_orange_or_red = \$BYPASS_OPCODE, \$BYPASS_SECURITY -> dr_mux = BYPASS.so"
+   iWrite IR.IR[7:0] 0b11111111
+   iApply
+
+   iNote "Scan in verification pattern to the following scan register:"
+   iNote "  BYPASS.DR\[0:0\], load value = 1"
+   iWrite BYPASS.DR[0] 0b1
+   iRead  BYPASS.DR[0] 0b0
+   iApply -end_in_pause
+
+   iNote "Scan out verification pattern from the following scan register:"
+   iNote "  BYPASS.DR\[0:0\], expected value = 1"
+   iWrite BYPASS.DR[0] 0b0
+   iRead  BYPASS.DR[0] 0b1
+   iApply
+
+   iNote "Activate selection of the following scan muxes:"
+   iNote "  tdo_mux,             selection 0: fsm.irsel = 1'b0 -> tdo_mux = dr_mux"
+   iNote "  dr_mux,              selection 3: IR.tir_out, unlock_red, unlock_orange_or_red = \$regB_OPCODE, \$regB_SECURITY -> dr_mux = regB.so"
+   iWrite IR.IR[7:0] 0b01000000
+   iApply
+
+   iNote "Scan in verification pattern to the following scan register:"
+   iNote "  regB.DR\[11:0\], load value = 101100111100"
+   iWrite regB.DR[11:0] 0b101100111100
+   iRead  regB.DR[11:0] 0bXXXXXXXX0101
+   iApply -end_in_pause
+
+   iNote "Scan out verification pattern from the following scan register:"
+   iNote "  regB.DR\[11:0\], expected value = 101100111100"
+   iWrite regB.DR[11:0] 0b000000000101
+   iRead  regB.DR[11:0] 0b101100111100
+   iApply
+
+   iNote "Activate selection of the following scan muxes:"
+   iNote "  tdo_mux,             selection 0: fsm.irsel = 1'b0 -> tdo_mux = dr_mux"
+   iNote "  dr_mux,              selection 2: IR.tir_out, unlock_red, unlock_orange_or_red = \$regA2_OPCODE, \$regA2_SECURITY -> dr_mux = regA2.so"
+   iWrite IR.IR[7:0] 0b00110001
+   iApply
+
+   iWrite feature_en[2] 0b1
+   iApply
+
+   iNote "Scan in verification pattern to the following scan register:"
+   iNote "  regA2.DR\[5:0\], load value = 101100"
+   iWrite regA2.DR[5:0] 0b101100
+   iApply -end_in_pause
+
+   iNote "Scan out verification pattern from the following scan register:"
+   iNote "  regA2.DR\[5:0\], expected value = 101100"
+   iWrite regA2.DR[5:0] 0b000000
+   iRead  regA2.DR[5:0] 0b101100
+   iApply
+
+   iNote "Activate selection of the following scan muxes:"
+   iNote "  tdo_mux,             selection 0: fsm.irsel = 1'b0 -> tdo_mux = dr_mux"
+   iNote "  dr_mux,              selection 1: IR.tir_out, unlock_red, unlock_orange_or_red = \$regA1_OPCODE, \$regA1_SECURITY -> dr_mux = regA1.so"
+   iWrite IR.IR[7:0] 0b00110000
+   iApply
+
+   iNote "Scan in verification pattern to the following scan register:"
+   iNote "  regA1.DR\[5:0\], load value = 101100"
+   iWrite regA1.DR[5:0] 0b101100
+   iApply -end_in_pause
+
+   iNote "Scan out verification pattern from the following scan register:"
+   iNote "  regA1.DR\[5:0\], expected value = 101100"
+   iWrite regA1.DR[5:0] 0b000000
+   iRead  regA1.DR[5:0] 0b101100
+   iApply
+
+   iNote "Activate selection of the following scan muxes:"
+   iNote "  tdo_mux,             selection 0: fsm.irsel = 1'b0 -> tdo_mux = dr_mux"
+   iNote "  dr_mux,              selection 0: IR.tir_out, unlock_red, unlock_orange_or_red = \$SLVIDCODE_OPCODE, \$SLVIDCODE_SECURITY -> dr_mux = SLVIDCODE.so"
+   iWrite IR.IR[7:0] 0b00001100
+   iApply
+
+   iNote "Scan in verification pattern to the following scan register:"
+   iNote "  SLVIDCODE.DR\[31:0\], load value = 10110011110000111111110000000011"
+   iWrite SLVIDCODE.DR[31:0] 0b10110011110000111111110000000011
+   iApply -end_in_pause
+
+   iNote "Scan out verification pattern from the following scan register:"
+   iNote "  SLVIDCODE.DR\[31:0\], expected value = 10110011110000111111110000000011"
+   iWrite SLVIDCODE.DR[31:0] 0b00000000000000000000000000000000
+   iRead  SLVIDCODE.DR[31:0] 0b10110011110000111111110000000011
+   iApply
+
+   iNote "Activate selection for scan mux tdo_mux, selection 1: fsm.irsel = 1'b1 -> tdo_mux = IR.so"
+   iNote "Scan in verification pattern to the following scan register:"
+   iNote "  IR.IR\[7:0\], load value = 10110011"
+   iWrite IR.IR[7:0] 0b10110011
+   iApply -end_in_pause
+
+   iNote "Scan out verification pattern from the following scan register:"
+   iNote "  IR.IR\[7:0\], expected value = 10110011"
+   iWrite IR.IR[7:0] 0b00001100
+   iRead  IR.IR[7:0] 0b10110011
+   iApply
+
+
+}

@@ -1,0 +1,247 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => [
+                     "+AW_CONTINUE_ON_ERROR",
+                     "+iosf_tracker_filename=iosf_trk",
+                     "-assert nopostproc",
+                     "+vcs+lic+wait",
+                     "+SLA_USER_DATA_PHASE_TIMEOUT=200000",
+                     "+SLA_CONFIG_PHASE_TIMEOUT=200000",
+                     "+HQMS_DEBUG",
+                     "+HQMI_DEBUG",
+                    ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+      inta => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_inta.cft",
+                         "+HQM_SYSTEM_CONTINUE_ON_PERR",
+                        ],
+      },
+
+      hcw => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_test0_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hcw_test0_hcw.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq",
+
+                        ],
+      },
+
+      vf_generic => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_newTR_test/CFT/hqm_vf_generic_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_newTR_test/CFT/hqm_vf_generic_hcw.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_newTR_test/CFT/hqm_vf_generic_eot.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq",
+
+                        ],
+      },
+
+
+      vf_traffic => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_newTR_test/CFT/hqm_vf_traffic_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_newTR_test/CFT/hqm_vf_traff_mult_hcw.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_newTR_test/CFT/mem_generic.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq","+HQM_INGRESS_ERROR_TEST","+HQM_DYNAMIC_CONFIG",
+
+                        ],
+      },
+
+       vf_traff_reset => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_newTR_test/CFT/hqm_vf_traffic_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_newTR_test/CFT/hqm_vf_traffic_hcw.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_newTR_test/CFT/mem_generic.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq","+HQM_INGRESS_ERROR_TEST","+HQM_DYNAMIC_CONFIG",
+
+                        ],
+      },
+
+
+
+
+
+       vf_reset => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_newTR_test/CFT/hqm_vf_traffic_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_newTR_test/CFT/hqm_vf_reset_hcw.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_newTR_test/CFT/vf_flr_check.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq","+HQM_INGRESS_ERROR_TEST","+HQM_DYNAMIC_CONFIG",
+
+                        ],
+      },
+
+      pf_rst => {
+          -simv_args => ["+BLOCKING_IOSF_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/pf_reset.cft",
+           "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/pf_reset_check.cft","+IOSF_INPUT_FILE=pfrst_seq",
+          "+IOSF_PRIM_FILE=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/reset_check.cft",],
+
+      },
+
+
+      
+       VF_FLR_UR_HCW => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_newTR_test/CFT/hqm_vf_traffic_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_newTR_test/CFT/hqm_vf_reset_hcw1.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_newTR_test/CFT/mem_UR_check.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq","+HQM_INGRESS_ERROR_TEST","+HQM_DYNAMIC_CONFIG",
+
+                        ],
+      },
+
+
+       vf_msi => {
+          -simv_args => [
+                     "+hqm_pcie_init_stim_config::skip_msi_cfg=1",
+                     "+hqm_pcie_init_stim_config::skip_msix_cfg=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/arm_test/hqm_vf_traffic_msi_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_functional/arm_test/hqm_vf_traffic_msi_hcw.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_functional/arm_test/msi_generic.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq","+INTA_TXN",
+
+                        ],
+      },
+
+      
+       msi_msix => {
+          -simv_args => [
+                     "+hqm_pcie_init_stim_config::skip_msi_cfg=1",
+                     "+hqm_pcie_init_stim_config::skip_msix_cfg=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/arm_test/hqm_vf_traffic_msix_cfg.cft","+MSIX_CQ_check","+MSIx_INT_CHECK",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_functional/arm_test/hqm_vf_traffic_msix_hcw.cft","+HQM_INGRESS_ERROR_TEST",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_functional/arm_test/msix_generic.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq","+INTA_TXN","+HQM_LSP_CQ_QID_CFG_CHECK_DIS",
+
+                        ],
+      },
+
+
+
+
+      vf_pfrst => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_newTR_test/CFT/hqm_vf_traffic_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_newTR_test/CFT/hqm_vf_traffic_pfrst_hcw.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_newTR_test/CFT/hqm_vf_pfrst_resume_hcw.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq",
+
+                        ],
+      },
+
+
+      vf_pfrst_new => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_newTR_test/CFT/hqm_vf_traffic_pfrst.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_newTR_test/CFT/hqm_vf_pfrst_resume_hcw.cft",
+                         "+IOSF_INPUT_FILE=pfrst_hcw_seq",
+
+                        ],
+      },
+
+
+
+
+
+      hcw_reset_old => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_newTR_test/CFT/hcw_test0_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_newTR_test/CFT/hcw_pf_reset.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_newTR_test/CFT/hqm_pf_resume_hcw.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq",
+                        ],
+      },
+
+
+      hcw_reset => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_newTR_test/CFT/hcw_pfrst_final.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_newTR_test/CFT/hqm_pf_resume_hcw.cft",
+                          "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_newTR_test/CFT/hqm_pf_resume_hcw.cft",
+                         "+IOSF_INPUT_FILE=pfrst_hcw_seq",
+                        ],
+      },
+
+
+
+      hcw_side_reset => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_test0_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_newTR_test/CFT/hcw_test0_hcw_sb_reset.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq",
+                        ],
+      },
+
+     hqm_ldb_msix => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_newTR_test/CFT/hqm_ldb_msix_cfg.cft","+MSIX_CQ_check",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_newTR_test/CFT/hqm_ldb_msix_hcw.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_newTR_test/CFT/msix_generic1.cft",
+                         "+HQM_LSP_CQ_QID_CFG_CHECK_DIS","+IOSF_INPUT_FILE=hcw_seq",
+
+                        ],
+      },
+
+      hcw_ldb_msi => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_ldb_msi_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hcw_ldb_msix_hcw.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                         "+HQM_LSP_CQ_QID_CFG_CHECK_DIS","+IOSF_INPUT_FILE=hcw_seq",
+
+                        ],
+      },
+
+
+
+
+
+
+
+      mmio => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_regcheck.cft",
+                        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_wrrd.cft",
+                            "+IOSF_INPUT_FILE=back2back_posted_wrd_seq",],
+      },
+
+      
+      
+       hcw2 => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_test2_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hcw_test2.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq",
+
+                        ],
+      },
+      hcw_ord => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_ord_test0_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hcw_test0_hcw.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+            smoke => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_cfg_smoke.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

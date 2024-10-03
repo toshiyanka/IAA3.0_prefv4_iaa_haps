@@ -1,0 +1,79 @@
+####################################################################################################
+####################################################################################################
+#09172020: RTL change
+#hw_reset_force_pwr_on input port is removed
+#issue hw_reset_force_pwr_on via RTDR tapconfig[11]
+####################################################################################################
+####################################################################################################
+#case1: turn on hw_reset_force_pwr_on, running with pmcsr_disable=0
+hqm_trigger_test:q8_vdev1+short+rtdr_tapconfig_force_pwr_on+pmcsr_disable -dirtag  rtdr_tapconfig_force_pwr_on.pmcsr_disable
+
+#case2: turn on hw_reset_force_pwr_on, running with pmcsr_disable=1 (skip master_regs.CFG_PM_PMCSR_DISABLE.write(status,32'h_0,primary_id,this,.sai(legal_sai));)
+hqm_trigger_test:q8_vdev1+short+rtdr_tapconfig_force_pwr_on+skip_pmcsr_disable -dirtag  rtdr_tapconfig_force_pwr_on.skip_pmcsr_disable
+
+#case3: turn on hw_reset_force_pwr_on, then turn off hw_reset_force_pwr_on
+hqm_trigger_test:q8_vdev1+short+rtdr_tapconfig_force_pwr_switch -dirtag  rtdr_tapconfig_force_pwr_switch
+
+#Case3:
+# Starting from powered-off state. 
+# Issue the chassis 2.1 reset sequence (do not write pmcsr_disable). 
+#Confirm PMSM os in OFF.
+#Force hw_reset_force_pwr_on to '1.
+#Confirm PMSM is RUNNING
+#hw_reset_force_pwr_on to '0.
+#Confirm PMSM is OFF
+#---> check PMSM state machine returns to its functionally defined state prior to assertion when  hw_reset_force_pwr_on returns to '0
+#####
+#####review waveform
+#hqm_pwr_test:hw_reset_force_pwr_case2_rtdr_flow0         -dirtag hw_reset_force_pwr_case2_rtdr_flow0  -ovm_medium -vpd_mem 
+
+####################################################################################################
+#old tests when hw_reset_force_pwr_on is an input port
+####################################################################################################
+####################
+####################
+######### CASE0
+####################
+####################
+######### CASE0_0
+#+HQM_HW_RESET_FORCE_PWR_ON set  hw_reset_force_pwr_on=1 from time=0ns
+#########
+##  hcw_pf_test:q8+short  -ace_args -simv_args +HQM_HW_RESET_FORCE_PWR_ON    -ace_args-   -dirtag HQM_HWRSTFRPWRON_q8_short_hw_reset_force_pwr_on_init_test00_0               
+
+##  hcw_pf_test:q8+short+skip_pmcsr_disable  -ace_args -simv_args +HQM_HW_RESET_FORCE_PWR_ON  -ace_args-   -dirtag HQM_HWRSTFRPWRON_q8_short_hw_reset_force_pwr_on_init_test00_1               
+
+######### CASE0_1
+#+HQM_INIT_HW_RESET_FORCE_PWR_ON set  hw_reset_force_pwr_on=1 from time=1000ns
+#########
+##  hcw_pf_test:q8+short  -ace_args -simv_args +HQM_INIT_HW_RESET_FORCE_PWR_ON   -ace_args-   -dirtag HQM_HWRSTFRPWRON_q8_short_hw_reset_force_pwr_on_init_test0_0               
+
+##  hcw_pf_test:q8+short+skip_pmcsr_disable  -ace_args -simv_args +HQM_INIT_HW_RESET_FORCE_PWR_ON -ace_args-   -dirtag HQM_HWRSTFRPWRON_q8_short_hw_reset_force_pwr_on_init_test0_1               
+
+######### CASE0_2
+#+hw_reset_force_pwr_on_test0
+#assert  hw_reset_force_pwr_on=1 after HARD_RESET_PHASE and before WARM_RESET_PHASE
+#########
+##  hcw_pf_test:q8+short+hw_reset_force_pwr_on_test0            -dirtag HQM_HWRSTFRPWRON_q8_short_hw_reset_force_pwr_on_test0_0               
+
+##  hcw_pf_test:q8+short+hw_reset_force_pwr_on_test0+skip_pmcsr_disable       -dirtag HQM_HWRSTFRPWRON_q8_short_hw_reset_force_pwr_on_test0_1               
+
+####################
+####################
+######### CASE1
+####################
+####################
+#+hw_reset_force_pwr_on_test1
+#don't do pmcsr_disable (skip_pmcsr_disable=1), assert hw_reset_force_pwr_on=1 instead
+#########
+##  hcw_pf_test:q8+short+hw_reset_force_pwr_on_test1+skip_pmcsr_disable            -dirtag HQM_HWRSTFRPWRON_q8_short_hw_reset_force_pwr_on_test1               
+
+####################
+######### CASE2   ( #-vcsvariant mpp )
+####################
+#don't do pmcsr_disable (skip_pmcsr_disable=1), assert hw_reset_force_pwr_on=1 instead
+#
+#########
+#hw_reset_force_pwr_case2
+###### hqm_pwr_test:hw_reset_force_pwr_case2_flow0         -dirtag hw_reset_force_pwr_case2_flow0   
+
+ 

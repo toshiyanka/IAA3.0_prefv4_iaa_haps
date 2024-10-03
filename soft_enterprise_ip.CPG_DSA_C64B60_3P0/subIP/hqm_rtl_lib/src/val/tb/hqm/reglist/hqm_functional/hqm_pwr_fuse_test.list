@@ -1,0 +1,93 @@
++defaults -vcsvariant mpp
+
+hqm_pwr_test:fuse_seq_pwr+fuse_proc_dis                           -dirtag fuse_proc_dis_warm_reset
+hqm_pwr_test:fuse_seq_pwr+fuse_fr_on                              -dirtag fuse_fr_on_warm_reset
+hqm_pwr_test:fuse_seq_pwr+fuse_fr_on_proc_dis                     -dirtag fuse_fr_on_proc_dis_warm_reset
+hqm_pwr_test:fuse_seq_pwr+fuse_proc_dis+sel_cold_reset            -dirtag fuse_proc_dis_sel_cold_reset
+hqm_pwr_test:fuse_seq_pwr+fuse_fr_on+sel_cold_reset               -dirtag fuse_fr_on_sel_cold_reset
+hqm_pwr_test:fuse_seq_pwr+fuse_fr_on_proc_dis+sel_cold_reset      -dirtag fuse_fr_on_proc_dis_sel_cold_reset
+
+hqm_pwr_test:fuse_seq_pwr+fuse_proc_dis+check_thru_sb                            -dirtag fuse_proc_dis_warm_reset_check_thru_sb
+hqm_pwr_test:fuse_seq_pwr+fuse_fr_on+check_thru_sb                               -dirtag fuse_fr_on_warm_reset_check_thru_sb
+hqm_pwr_test:fuse_seq_pwr+fuse_fr_on_proc_dis+check_thru_sb                      -dirtag fuse_fr_on_proc_dis_warm_reset_check_thru_sb
+hqm_pwr_test:fuse_seq_pwr+fuse_proc_dis+sel_cold_reset+check_thru_sb             -dirtag fuse_proc_dis_sel_cold_reset_check_thru_sb
+hqm_pwr_test:fuse_seq_pwr+fuse_fr_on+sel_cold_reset+check_thru_sb                -dirtag fuse_fr_on_sel_cold_reset_check_thru_sb
+hqm_pwr_test:fuse_seq_pwr+fuse_fr_on_proc_dis+sel_cold_reset+check_thru_sb       -dirtag fuse_fr_on_proc_dis_sel_cold_reset_check_thru_sb
+
+hqm_pwr_test:fuse_seq_pwr+fuse_dflt+pm_override                                  -dirtag fuse_dflt_pm_override
+hqm_pwr_test:fuse_seq_pwr+fuse_dflt+pm_override+check_thru_sb                    -dirtag fuse_dflt_pm_override_check_thru_sb
+
+#hqm_pwr_test:fuse_pull_seq_pwr+fuse_str_var_2                         -dirtag fuse_pull_fuse_str_var_2
+#hqm_pwr_test:fuse_pull_seq_pwr+fuse_str_var_1                         -dirtag fuse_pull_fuse_str_var_1
+#hqm_pwr_test:fuse_pull_seq_pwr+fuse_str_var_2+sel_cold_reset          -dirtag fuse_pull_fuse_str_var_2_sel_cold_reset
+#hqm_pwr_test:fuse_pull_seq_pwr+fuse_str_var_1+sel_cold_reset          -dirtag fuse_pull_fuse_str_var_1_sel_cold_reset
+
+####RTDR access tapconfig to sel viewpins
+## COLD_RESET
+hqm_pwr_test:fuse_seq_pwr+fuse_fr_on_proc_dis+sel_cold_reset+rtdr_tapconfig_sel21  -dirtag fuse_fr_on_tapcfgsel21_proc_dis_sel_cold_reset 
+hqm_pwr_test:fuse_seq_pwr+fuse_fr_on_proc_dis+sel_cold_reset+rtdr_tapconfig_sel43  -dirtag fuse_fr_on_tapcfgsel43_proc_dis_sel_cold_reset 
+hqm_pwr_test:fuse_seq_pwr+fuse_fr_on_proc_dis+sel_cold_reset+rtdr_tapconfig_sel65  -dirtag fuse_fr_on_tapcfgsel65_proc_dis_sel_cold_reset 
+hqm_pwr_test:fuse_seq_pwr+fuse_fr_on_proc_dis+sel_cold_reset+rtdr_tapconfig_selrnd -dirtag fuse_fr_on_tapcfgselrnd_proc_dis_sel_cold_reset 
+
+## WARM_RESET
+hqm_pwr_test:fuse_seq_pwr+fuse_fr_on_proc_dis+rtdr_tapconfig_sel21                 -dirtag fuse_fr_on_tapcfgsel21_proc_dis_warm_reset 
+hqm_pwr_test:fuse_seq_pwr+fuse_fr_on_proc_dis+rtdr_tapconfig_sel43                 -dirtag fuse_fr_on_tapcfgsel43_proc_dis_warm_reset 
+hqm_pwr_test:fuse_seq_pwr+fuse_fr_on_proc_dis+rtdr_tapconfig_sel65                 -dirtag fuse_fr_on_tapcfgsel65_proc_dis_warm_reset 
+hqm_pwr_test:fuse_seq_pwr+fuse_fr_on_proc_dis+rtdr_tapconfig_selrnd                -dirtag fuse_fr_on_tapcfgselrnd_proc_dis_warm_reset 
+
+####RTDR access tapconfig to sel taptrigger for TRIG_PM1 [29:20] and TRIG_PM0 [19:10]
+hqm_pwr_test:fuse_seq_pwr+fuse_fr_on_proc_dis+sel_cold_reset+rtdr_taptrigger_pm0mask -dirtag fuse_fr_on_taptriggerpm0_proc_dis_sel_cold_reset 
+hqm_pwr_test:fuse_seq_pwr+fuse_fr_on_proc_dis+rtdr_taptrigger_pm0mask                -dirtag fuse_fr_on_taptriggerpm0_proc_dis_warm_reset 
+
+#TRIG_PM1 must run with prochot
+hqm_pwr_test:fuse_seq_pwr+fuse_fr_on_proc_dis+sel_cold_reset+rtdr_taptrigger_pm1mask+hqm_prochot_enable+hqm_prochot_tgl  -dirtag fuse_fr_on_taptriggerpm1_proc_dis_sel_cold_reset.prochot_tgl  
+hqm_pwr_test:fuse_seq_pwr+fuse_fr_on_proc_dis+rtdr_taptrigger_pm1mask+hqm_prochot_enable+hqm_prochot_tgl                 -dirtag fuse_fr_on_taptriggerpm1_proc_dis_warm_reset.prochot_tgl     
+
+#########################################################################################
+#running with WAKE_SET mode pwrgate_pmc_wake1
+#########################################################################################
+hqm_pwr_test:pwrgate_pmc_wake1+fuse_seq_pwr+fuse_proc_dis                           -dirtag pmcwak1_fuse_proc_dis_warm_reset
+hqm_pwr_test:pwrgate_pmc_wake1+fuse_seq_pwr+fuse_fr_on                              -dirtag pmcwak1_fuse_fr_on_warm_reset
+hqm_pwr_test:pwrgate_pmc_wake1+fuse_seq_pwr+fuse_fr_on_proc_dis                     -dirtag pmcwak1_fuse_fr_on_proc_dis_warm_reset
+hqm_pwr_test:pwrgate_pmc_wake1+fuse_seq_pwr+fuse_proc_dis+sel_cold_reset            -dirtag pmcwak1_fuse_proc_dis_sel_cold_reset
+hqm_pwr_test:pwrgate_pmc_wake1+fuse_seq_pwr+fuse_fr_on+sel_cold_reset               -dirtag pmcwak1_fuse_fr_on_sel_cold_reset
+hqm_pwr_test:pwrgate_pmc_wake1+fuse_seq_pwr+fuse_fr_on_proc_dis+sel_cold_reset      -dirtag pmcwak1_fuse_fr_on_proc_dis_sel_cold_reset
+
+hqm_pwr_test:pwrgate_pmc_wake1+fuse_seq_pwr+fuse_proc_dis+check_thru_sb                            -dirtag pmcwak1_fuse_proc_dis_warm_reset_check_thru_sb
+hqm_pwr_test:pwrgate_pmc_wake1+fuse_seq_pwr+fuse_fr_on+check_thru_sb                               -dirtag pmcwak1_fuse_fr_on_warm_reset_check_thru_sb
+hqm_pwr_test:pwrgate_pmc_wake1+fuse_seq_pwr+fuse_fr_on_proc_dis+check_thru_sb                      -dirtag pmcwak1_fuse_fr_on_proc_dis_warm_reset_check_thru_sb
+hqm_pwr_test:pwrgate_pmc_wake1+fuse_seq_pwr+fuse_proc_dis+sel_cold_reset+check_thru_sb             -dirtag pmcwak1_fuse_proc_dis_sel_cold_reset_check_thru_sb
+hqm_pwr_test:pwrgate_pmc_wake1+fuse_seq_pwr+fuse_fr_on+sel_cold_reset+check_thru_sb                -dirtag pmcwak1_fuse_fr_on_sel_cold_reset_check_thru_sb
+hqm_pwr_test:pwrgate_pmc_wake1+fuse_seq_pwr+fuse_fr_on_proc_dis+sel_cold_reset+check_thru_sb       -dirtag pmcwak1_fuse_fr_on_proc_dis_sel_cold_reset_check_thru_sb
+
+hqm_pwr_test:pwrgate_pmc_wake1+fuse_seq_pwr+fuse_dflt+pm_override                                  -dirtag pmcwak1_fuse_dflt_pm_override
+hqm_pwr_test:pwrgate_pmc_wake1+fuse_seq_pwr+fuse_dflt+pm_override+check_thru_sb                    -dirtag pmcwak1_fuse_dflt_pm_override_check_thru_sb
+
+#hqm_pwr_test:pwrgate_pmc_wake1+fuse_pull_seq_pwr+fuse_str_var_2                         -dirtag pmcwak1_fuse_pull_fuse_str_var_2
+#hqm_pwr_test:pwrgate_pmc_wake1+fuse_pull_seq_pwr+fuse_str_var_1                         -dirtag pmcwak1_fuse_pull_fuse_str_var_1
+#hqm_pwr_test:pwrgate_pmc_wake1+fuse_pull_seq_pwr+fuse_str_var_2+sel_cold_reset          -dirtag pmcwak1_fuse_pull_fuse_str_var_2_sel_cold_reset
+#hqm_pwr_test:pwrgate_pmc_wake1+fuse_pull_seq_pwr+fuse_str_var_1+sel_cold_reset          -dirtag pmcwak1_fuse_pull_fuse_str_var_1_sel_cold_reset
+
+####RTDR access tapconfig to sel viewpins
+## COLD_RESET
+hqm_pwr_test:pwrgate_pmc_wake1+fuse_seq_pwr+fuse_fr_on_proc_dis+sel_cold_reset+rtdr_tapconfig_sel21  -dirtag pmcwak1_fuse_fr_on_tapcfgsel21_proc_dis_sel_cold_reset 
+hqm_pwr_test:pwrgate_pmc_wake1+fuse_seq_pwr+fuse_fr_on_proc_dis+sel_cold_reset+rtdr_tapconfig_sel43  -dirtag pmcwak1_fuse_fr_on_tapcfgsel43_proc_dis_sel_cold_reset 
+hqm_pwr_test:pwrgate_pmc_wake1+fuse_seq_pwr+fuse_fr_on_proc_dis+sel_cold_reset+rtdr_tapconfig_sel65  -dirtag pmcwak1_fuse_fr_on_tapcfgsel65_proc_dis_sel_cold_reset 
+hqm_pwr_test:pwrgate_pmc_wake1+fuse_seq_pwr+fuse_fr_on_proc_dis+sel_cold_reset+rtdr_tapconfig_selrnd -dirtag pmcwak1_fuse_fr_on_tapcfgselrnd_proc_dis_sel_cold_reset 
+
+## WARM_RESET
+hqm_pwr_test:pwrgate_pmc_wake1+fuse_seq_pwr+fuse_fr_on_proc_dis+rtdr_tapconfig_sel21                 -dirtag pmcwak1_fuse_fr_on_tapcfgsel21_proc_dis_warm_reset 
+hqm_pwr_test:pwrgate_pmc_wake1+fuse_seq_pwr+fuse_fr_on_proc_dis+rtdr_tapconfig_sel43                 -dirtag pmcwak1_fuse_fr_on_tapcfgsel43_proc_dis_warm_reset 
+hqm_pwr_test:pwrgate_pmc_wake1+fuse_seq_pwr+fuse_fr_on_proc_dis+rtdr_tapconfig_sel65                 -dirtag pmcwak1_fuse_fr_on_tapcfgsel65_proc_dis_warm_reset 
+hqm_pwr_test:pwrgate_pmc_wake1+fuse_seq_pwr+fuse_fr_on_proc_dis+rtdr_tapconfig_selrnd                -dirtag pmcwak1_fuse_fr_on_tapcfgselrnd_proc_dis_warm_reset 
+
+####RTDR access tapconfig to sel taptrigger for TRIG_PM1 [29:20] and TRIG_PM0 [19:10]
+hqm_pwr_test:pwrgate_pmc_wake1+fuse_seq_pwr+fuse_fr_on_proc_dis+sel_cold_reset+rtdr_taptrigger_pm0mask -dirtag pmcwak1_fuse_fr_on_taptriggerpm0_proc_dis_sel_cold_reset 
+hqm_pwr_test:pwrgate_pmc_wake1+fuse_seq_pwr+fuse_fr_on_proc_dis+rtdr_taptrigger_pm0mask                -dirtag pmcwak1_fuse_fr_on_taptriggerpm0_proc_dis_warm_reset 
+
+#TRIG_PM1 must run with prochot
+hqm_pwr_test:pwrgate_pmc_wake1+fuse_seq_pwr+fuse_fr_on_proc_dis+sel_cold_reset+rtdr_taptrigger_pm1mask+hqm_prochot_enable+hqm_prochot_tgl -dirtag pmcwak1_fuse_fr_on_taptriggerpm1_proc_dis_sel_cold_reset.prochot_tgl    
+hqm_pwr_test:pwrgate_pmc_wake1+fuse_seq_pwr+fuse_fr_on_proc_dis+rtdr_taptrigger_pm1mask+hqm_prochot_enable+hqm_prochot_tgl                -dirtag pmcwak1_fuse_fr_on_taptriggerpm1_proc_dis_warm_reset.prochot_tgl      
+
+
+-defaults -vcsvariant mpp

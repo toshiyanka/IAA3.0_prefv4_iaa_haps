@@ -1,0 +1,51 @@
+# ACE ResourCe file (*.acerc.)  This file specifies search-paths.
+%acerc = (
+    PRE_SCRIPT => {
+        -enable_prescripts => 0,
+        -scripts => [
+            #[script 1, arg 1a, arg 1b, arg 1c],
+            #[script 2, arg 2a, arg 2b, arg 2c],
+        ],
+    },
+
+    TEMP_SPACE => "$ENV{TMP}/$ENV{USER}/ace/CPG_VIP_env_top",
+
+    UDF => [
+        "$ENV{MODEL_ROOT}/ace/common/common_ivars.udf",
+        "$ENV{MODEL_ROOT}/ace/common/common_pli.udf",
+#	"$ENV{MODEL_ROOT}/ace/common/CommandMapper.udf",
+        "$ENV{MODEL_ROOT}/ace/CPG_VIP_env.udf",
+        "$ENV{MODEL_ROOT}/ace/common/fcov.udf",
+    ],
+
+    LIBS => [
+"$ENV{MODEL_ROOT}/ace/lib",
+"$ENV{MODEL_ROOT}/ace/lib/common",
+#       "$ENV{MODEL_ROOT}/scripts",
+    ],
+
+    SHARED_RESULTS_DIR => $ENV{ACE_SAVED_COMPILE_RESULTS},
+
+    # Run 'ace -show_search_path' to list all the search paths.
+    # Note that $MODEL_ROOT is automatically added to the search path for the environment-scope.
+    SEARCH_PATHS => {
+        # Environment UDF files.
+        CPG_VIP_env_top => [
+            "$ENV{SAOLA_HOME}/",   # The sla.hdl file (for Saola) resides here.
+            "$ENV{SAOLA_HOME}/ace",   # The ovm.hdl file (for OVM) resides here.  Uses $OVM_HOME to find the actual directory containing the OVM source files.
+#"$ENV{MODEL_ROOT}/subIP/ip-ccu-vc-2012WW46r121115/ccu_vc_WW46.4",
+#			"$ENV{MODEL_ROOT}/subIP/ip-ccu-vc-2013WW21r130521/ccu_vc_WW21",
+#"$ENV{MODEL_ROOT}/subIP/ip-VccModeling-v120907",
+#"$ENV{MODEL_ROOT}/subIP/VccModeling_v121213",
+			"$ENV{MODEL_ROOT}/source/",
+			"$ENV{MODEL_ROOT}/verif/",
+			"$ENV{MODEL_ROOT}",
+        ],
+    },
+    # These search-paths are relative to $MODEL_ROOT automatically.
+    TEST_PATTERNS => [
+        #"verif/tests",
+	"verif/tb/test",
+        #"verif/tests/testlists",
+    ],
+); 

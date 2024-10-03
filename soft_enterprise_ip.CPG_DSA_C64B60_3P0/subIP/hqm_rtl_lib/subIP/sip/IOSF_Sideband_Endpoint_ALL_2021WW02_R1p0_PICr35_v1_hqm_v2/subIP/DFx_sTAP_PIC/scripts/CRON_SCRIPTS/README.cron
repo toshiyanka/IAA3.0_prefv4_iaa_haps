@@ -1,0 +1,32 @@
+////////////////////////////////////Setting up CRON for tap2sb ////////////////////////////
+
+# Command For running locally the cron : 
+ 
+   perl $IP_ROOT/scripts/cron_tap2sb/tap2sb_cron_script.pl 
+
+# want to change the command for regression please update command in file
+
+   $IP_ROOT/scripts/cron_tap2sb/script.sh
+
+# Replace the following command with new command
+
+ Example : simbuild -dut tap2iosfsb -ace_args source $IP_ROOT/scripts/regress.sh 0 100 8 -ace_args- -1c -CUST ADL -1c-
+
+ The scripts already present in the path $IP_ROOT/scripts/cron_tap2sb
+
+///////////////// To setup Cron : ////////////////////
+
+ ssh inlcron05
+
+ ////////////////To set the time and path for the cron script to run : //////////////////////
+
+ crontab -e
+
+ #here for setting the format is : 
+          
+          mm hh * * * ssh machine_number perl_source_path script_path 
+          [24hr Time]
+
+Example :  00 02 * * * ssh inlc8445 '/usr/intel/pkgs/perl/5.14.1/bin/perl  /nfs/iind/disks/dteg_disk002/users/TAP_CRON/TAP2IOSFSB_CRON/tap2sb_cron/tap2sb_cron_script.pl' 
+
+

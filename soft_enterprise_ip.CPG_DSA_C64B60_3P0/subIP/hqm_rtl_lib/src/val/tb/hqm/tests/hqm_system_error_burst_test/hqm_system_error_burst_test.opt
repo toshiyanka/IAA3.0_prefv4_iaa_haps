@@ -1,0 +1,193 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => [
+                     "+AW_CONTINUE_ON_ERROR",
+                     "+iosf_tracker_filename=iosf_trk",
+                     "-assert nopostproc",
+                     "+vcs+lic+wait",
+                     "+SLA_MAX_RUN_CLOCK=400000",
+                     "+SLA_USER_DATA_PHASE_TIMEOUT=400000",
+                     "+SLA_CONFIG_PHASE_TIMEOUT=200000",
+                     "+HQMS_DEBUG",
+                     "+HQM_LSP_CQ_QID_CFG_CHECK_DIS",
+                     "+HQM_RAL_SET_VARIANT_CHECK",
+                     "+EXP_UNWANTED_TXN_TO_HQM",
+                     "+HQM_PCIE_SKIP_EOT_SEQ",
+                     "+HQM_DIS_ERR_MSG_CHECK",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_hw_synd=0x00000000-0x80000000/0x80000000",
+                     "-assert hier=aceroot/verif/tb/hqm/tests/hqm_system_error_burst_test/hqm_system_error_burst_test_assert.hier",
+                     "+HQM_EOT_RD_SEQ_ENABLE_CREDIT_CHECK",
+                     "+HQM_CFG_SEQ=aceroot/verif/tb/hqm/tests/hqm_system_error_burst_test_cfg.cft",
+                     "+HQM_DATA_POST_PF_FLR_SEQ=aceroot/verif/tb/hqm/tests/hqm_system_error_burst_test_cfg.cft",
+                     "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                     "+HQM_DISABLE_BACKGROUND_CFG_GEN_SEQ",  
+                     "+HQM_SKIP_AGITATE_SEQ",
+                     "+iosf_sb_mem_reg_wr_stim_config::posted=1",
+
+                    ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+      one_burst => {
+          -simv_args => [
+                     "+hqm_system_error_burst_user_data_seq_stim_config::num_bursts=1",
+                        ],
+      },
+      bursts_10 => {
+          -simv_args => [
+                     "+hqm_system_error_burst_user_data_seq_stim_config::num_bursts=10",
+                        ],
+      },
+      bursts_100 => {
+          -simv_args => [
+                     "+hqm_system_error_burst_user_data_seq_stim_config::num_bursts=100",
+                        ],
+      },
+      size_1 => {
+          -simv_args => [
+                     "+hqm_system_error_burst_user_data_seq_stim_config::min_burst_size=1",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::max_burst_size=1",
+                        ],
+      },
+      size_2 => {
+          -simv_args => [
+                     "+hqm_system_error_burst_user_data_seq_stim_config::min_burst_size=2",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::max_burst_size=2",
+                        ],
+      },
+      size_4 => {
+          -simv_args => [
+                     "+hqm_system_error_burst_user_data_seq_stim_config::min_burst_size=4",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::max_burst_size=4",
+                        ],
+      },
+      size_10 => {
+          -simv_args => [
+                     "+hqm_system_error_burst_user_data_seq_stim_config::min_burst_size=10",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::max_burst_size=10",
+                        ],
+      },
+      size_20 => {
+          -simv_args => [
+                     "+hqm_system_error_burst_user_data_seq_stim_config::min_burst_size=20",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::max_burst_size=20",
+                        ],
+      },
+      size_1_20 => {
+          -simv_args => [
+                     "+hqm_system_error_burst_user_data_seq_stim_config::min_burst_size=1",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::max_burst_size=20",
+                        ],
+      },
+      basic => {
+          -simv_args => [
+                     "+hqm_system_error_burst_user_data_seq_stim_config::pf_memrd_ur_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::pf_memwr_ur_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::pf_memwr_dpe_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::pf_memwr_mtlp_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::pf_memrd_mtlp_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::total_num_vf=16",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::active_num_vf=8",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::vf_memrd_ur_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::vf_memwr_ur_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::vf_memwr_dpe_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::vf_memwr_mtlp_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::vf_memrd_mtlp_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::pf_hcw_weight=0",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::pf_hcw_err_weight=0",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::vf_hcw_weight=0",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::vf_hcw_err_weight=0",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::pf_flr_weight=0",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::vf_flr_weight=0",
+                        ],
+      },
+      basic_with_hcw => {
+          -simv_args => [
+                     "+hqm_system_error_burst_user_data_seq_stim_config::pf_memrd_ur_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::pf_memwr_ur_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::pf_memwr_dpe_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::pf_memwr_mtlp_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::pf_memrd_mtlp_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::total_num_vf=16",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::active_num_vf=8",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::vf_memrd_ur_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::vf_memwr_ur_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::vf_memwr_dpe_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::vf_memwr_mtlp_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::vf_memrd_mtlp_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::pf_flr_weight=0",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::vf_flr_weight=0",
+                        ],
+      },
+      basic_with_hcw_vf_flr => {
+          -simv_args => [
+                     "+hqm_system_error_burst_user_data_seq_stim_config::pf_memrd_ur_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::pf_memwr_ur_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::pf_memwr_dpe_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::pf_memwr_mtlp_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::pf_memrd_mtlp_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::total_num_vf=16",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::active_num_vf=8",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::vf_memrd_ur_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::vf_memwr_ur_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::vf_memwr_dpe_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::vf_memwr_mtlp_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::vf_memrd_mtlp_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::pf_flr_weight=0",
+                        ],
+      },
+      vf_flr_stress => {
+          -simv_args => [
+                     "+hqm_system_error_burst_user_data_seq_stim_config::pf_cfgrd_weight=0",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::pf_cfgwr_weight=0",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::pf_memrd_weight=0",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::pf_memwr_weight=0",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::pf_memrd_ur_weight=0",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::pf_memwr_ur_weight=0",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::pf_memwr_dpe_weight=0",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::pf_memwr_mtlp_weight=0",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::pf_memrd_mtlp_weight=0",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::pf_hcw_weight=0",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::pf_hcw_err_weight=0",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::total_num_vf=4",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::active_num_vf=2",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::vf_hcw_weight=0",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::vf_hcw_err_weight=0",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::vf_memrd_ur_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::vf_memwr_ur_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::vf_memwr_dpe_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::vf_memwr_mtlp_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::vf_memrd_mtlp_weight=100",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::pf_flr_weight=0",
+                     "+hqm_system_error_burst_user_data_seq_stim_config::vf_flr_weight=100",
+                        ],
+      },
+
+      ##------------------------------------------------------------##
+      ##  Agitations 
+      ##------------------------------------------------------------##
+      agitate_fri => {
+          -simv_args => [
+                     "-debug_all -ucli +vcs+dumparrays +HQM_DISABLE_AGITIATE_ASSERT -i aceroot/verif/tb/hqm_proc/tests/agitate/agitate_fri.tcl", 
+                        ],
+      },      
+      agitate_cfg => {
+          -simv_args => [
+                     "-debug_all -ucli +vcs+dumparrays +HQM_DISABLE_AGITIATE_ASSERT -i aceroot/verif/tb/hqm_proc/tests/agitate/agitate_cfg.tcl", 
+                        ],
+      },                   
+      agitate_sys => {
+          -simv_args => [
+                     "-debug_all -ucli +vcs+dumparrays +HQM_DISABLE_AGITIATE_ASSERT -i aceroot/verif/tb/hqm_proc/tests/agitate/agitate_sys.tcl", 
+                        ],
+      },
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

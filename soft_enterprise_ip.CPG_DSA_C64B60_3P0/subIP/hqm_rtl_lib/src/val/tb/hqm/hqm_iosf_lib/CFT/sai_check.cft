@@ -1,0 +1,41 @@
+idle 400
+idle 500
+#################################################
+wr hqm_sif_csr.hqm_csr_cp_lo 0xFFFFFFFF
+wr hqm_sif_csr.hqm_csr_cp_hi 0xFFFFFFFF
+wr hqm_sif_csr.hqm_csr_rac_lo 0xFFFFFFFF
+wr hqm_sif_csr.hqm_csr_rac_hi 0xFFFFFFFF
+wr hqm_sif_csr.hqm_csr_wac_lo 0xFFFFFFFF
+wr hqm_sif_csr.hqm_csr_wac_hi 0xFFFFFFFF
+
+
+#check device status and 
+rd hqm_pf_cfg_i.device_status 0x0010
+
+#check aer_cap_uncorr_err_status  and expect unsupporte request 
+rd hqm_pf_cfg_i.aer_cap_uncorr_err_status 0x00000000
+
+
+
+#check ERror status
+rd hqm_pf_cfg_i.pcie_cap_device_status 0x0000
+
+
+
+#Check register  update happened or not
+rd hqm_sif_csr.ri_phdr_fifo_ctl 0x000000F
+
+#update check
+
+rd hqm_pf_cfg_i.func_bar_l 0x0000000C
+rd hqm_pf_cfg_i.func_bar_u 0x00000001
+
+rd hqm_pf_cfg_i.csr_bar_l 0x0000000C
+rd hqm_pf_cfg_i.csr_bar_u 0x00000002
+
+
+rd hqm_pf_cfg_i.int_line 0x00
+
+#wait for reset done
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+

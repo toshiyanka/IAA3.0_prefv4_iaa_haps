@@ -1,0 +1,91 @@
+#!/bin/csh
+
+/bin/rm -rf DVEfiles
+/bin/rm -rf NTI_trk.out
+/bin/rm -rf csrc
+/bin/rm -rf *.vpd
+/bin/rm -rf ral_monitor_reg_trk.out
+/bin/rm -rf simv
+/bin/rm -rf simv.daidir
+/bin/rm -rf simv.vdb
+/bin/rm -rf ucli.key
+/bin/rm -rf vc_hdrs.h
+/bin/rm -rf .restartSimSession.tcl
+/bin/rm -rf .synopsys_dve_rebuild.tcl
+
+# Specify the directory where the JTAG BFM from IRR is located.
+setenv JTAG_BFM_VER /nfs/iind/disks/mg_disk1653/sudheer/repo/ip-jtag-bfm
+
+setenv STAP_CONVERGED /nfs/iind/disks/mg_disk1653/sudheer/ip-stap
+
+echo "Change JTAG_BFM_VER and STAP_CONVERGED variables before run this file"
+echo "setenv STAP_CONVERGED <Path of ip-stap_converged"
+echo "setenv JTAG_BFM_VER <Path of ip-jtag-bfm"
+
+setenv OVM_HOME /p/com/eda/ovm/ovm/2.1.1_2
+setenv GLOBAL_CTECH_VER /p/com/eda/intel/ctech/v14ww45e
+setenv SAOLA_HOME /p/com/eda/intel/saola/v20150417
+setenv VCS_HOME /p/com/eda/synopsys/vcsmx/H-2013.06-SP1-3
+setenv VCS_TARGET_ARCH suse64 # or: setenv VCS_MODE_FLAG 64 and specify -full64 on the command line
+setenv LM_LICENSE_FILE 26586@anls1312.an.intel.com:26586@scylic13.sc.intel.com:26586@fmylic36a.fm.intel.com:26586@fmylic36c.fm.intel.com:26586@plxs0412.pdx.intel.com:26586@hdylic09.hd.intel.com:26586@ilic2004.iil.intel.com:26586@pgllic11.png.intel.com
+
+# Specify +define+DFX_TAP_PRE_AUTOMATION if using non-generated original style TAP class names.
+$VCS_HOME/bin/vcs \
+  -R -sverilog +v2k -debug_all -lca -notice -l log\
+  -timescale=1ns/1ps \
+  +OVM_TESTNAME="TapTestOnlySLVIDCODE_EBEL" \
+  +VPD \
+  $SAOLA_HOME/libs/Linux_x86_64/libsla.so \
+  +define+_A_TAP_BFM_+USE_CONVERGED_JTAGBFM \
+  $OVM_HOME/src/ovm_pkg.sv \
+  $SAOLA_HOME/verilog/sla_pkg.sv \
+  +incdir+$OVM_HOME/src \
+  +incdir+$SAOLA_HOME/verilog \
+  +incdir+$JTAG_BFM_VER/verif/tb/Converged_JtagBfm/testbench \
+  +incdir+$JTAG_BFM_VER/verif/tb/Converged_JtagBfm/Converged_SampleTests/tap_files \
+  +incdir+$JTAG_BFM_VER/verif/tb/Converged_JtagBfm/Converged_SampleTests \
+  +incdir+$JTAG_BFM_VER/verif/tb/Converged_JtagBfm/Converged_SampleTests/configs \
+  -f $JTAG_BFM_VER/scripts/converged_filelist.f \
+  #+define+SVA_OFF \
+  +incdir+$STAP_CONVERGED/verif/ \
+  +incdir+$STAP_CONVERGED/verif/tb/ \
+  +incdir+$STAP_CONVERGED/verif/tests/ \
+  +incdir+$STAP_CONVERGED/verif/tb/include \
+  +incdir+$STAP_CONVERGED/verif/tb/include/configs \
+  +incdir+$STAP_CONVERGED/subIP/DfxSecurePlugin/verif/ \
+  +incdir+$STAP_CONVERGED/subIP/DfxSecurePlugin/verif/tb \
+  +incdir+$STAP_CONVERGED/subIP/DfxSecurePlugin/verif/tb/include \
+  $STAP_CONVERGED/subIP/DfxSecurePlugin/verif/tb/DfxSecurePlugin_Pkg.sv \
+  $STAP_CONVERGED/subIP/DfxSecurePlugin/verif/tb/DfxSecurePlugin_pin_if.sv \
+  $STAP_CONVERGED/subIP/DfxSecurePlugin/verif/tb/DfxSecurePlugin_TestIsland.sv \
+  $STAP_CONVERGED/verif/tb/stap_pin_if.sv \
+  $STAP_CONVERGED/verif/tb/include/STAP_DfxSecurePlugin_TbDefines.svh \
+  $STAP_CONVERGED/verif/tb/STapPkg.sv \
+  $STAP_CONVERGED/verif/tb/STap_ti.sv \
+  $STAP_CONVERGED/verif/tb/emulate_stap_tdo.sv \
+  $STAP_CONVERGED/verif/tb/stap_rtdr_ref.sv \
+  $STAP_CONVERGED/verif/tb/STapTop.sv \
+  $STAP_CONVERGED/verif/tests/STapTest.sv \
+  +incdir+$STAP_CONVERGED/source/rtl/include \
+  +incdir+$STAP_CONVERGED/source/rtl/include/assertions \
+  +incdir+$STAP_CONVERGED/source/rtl/ctech_lib \
+  +incdir+$STAP_CONVERGED/subIP/DfxSecurePlugin/source/rtl/include \
+  +incdir+$STAP_CONVERGED/subIP/DfxSecurePlugin/source/rtl/include/assertions \
+  $GLOBAL_CTECH_VER/source/v/ctech_lib_clk_buf.v \
+  $GLOBAL_CTECH_VER/source/v/ctech_lib_dq.v \
+  $GLOBAL_CTECH_VER/source/v/ctech_lib_mux_2to1.v \
+  $STAP_CONVERGED/subIP/DfxSecurePlugin/source/rtl/dfxsecure_plugin/stap_dfxsecure_plugin.sv \
+  $STAP_CONVERGED/source/rtl/stap/stap.sv \
+  $STAP_CONVERGED/source/rtl/stap/stap_fsm.sv \
+  $STAP_CONVERGED/source/rtl/stap/stap_irreg.sv \
+  $STAP_CONVERGED/source/rtl/stap/stap_irdecoder.sv \
+  $STAP_CONVERGED/source/rtl/stap/stap_drreg.sv \
+  $STAP_CONVERGED/source/rtl/stap/stap_tdomux.sv \
+  $STAP_CONVERGED/source/rtl/stap/stap_data_reg.sv \
+  $STAP_CONVERGED/source/rtl/stap/stap_remote_data_reg.sv \
+  $STAP_CONVERGED/source/rtl/stap/stap_decoder.sv \
+  $STAP_CONVERGED/source/rtl/stap/stap_tapnw.sv \
+  $STAP_CONVERGED/source/rtl/stap/stap_bscan.sv \
+  $STAP_CONVERGED/source/rtl/stap/stap_glue.sv \
+  $STAP_CONVERGED/source/rtl/stap/stap_wtapnw.sv \
+  $STAP_CONVERGED/source/rtl/ctech_lib/stap_ctech_map.sv

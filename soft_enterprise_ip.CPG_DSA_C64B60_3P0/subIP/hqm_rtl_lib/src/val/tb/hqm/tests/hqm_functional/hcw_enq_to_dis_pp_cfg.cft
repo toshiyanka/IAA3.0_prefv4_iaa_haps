@@ -1,0 +1,51 @@
+###################################
+# Setup LUTs used by HCWs
+# Create three DIR/LDB PP/CQ QID Random numbers
+# one PP is owned by each of the PF/ VF1/VF2
+# send HCW from VF1 which is owned by PF
+# send HCW from VF1 which is owned by VF2
+# send HCW from VF2 which is owned by VF1
+# send intermediate good HCWs
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+  dir qid 1
+  dir qid 2
+  dir qid DQID0:*
+  dir qid DQID1:*
+  dir qid DQID2:*
+
+  ldb qid LQID0:*  qid_ldb_inflight_limit=512
+  ldb qid LQID1:*  qid_ldb_inflight_limit=512
+  ldb qid LQID2:*  qid_ldb_inflight_limit=512
+
+  vas VS:* dir_qidv:DQID0=1  dir_qidv:DQID1=1  dir_qidv:DQID2=1 credit_cnt=2046
+  vas VS   ldb_qidv:LQID0=1  ldb_qidv:LQID1=1  ldb_qidv:LQID2=1
+
+  dir pp DQID0  vas=VS
+  dir pp DQID1  vas=VS 
+  dir pp DQID2  vas=VS
+  dir cq DQID0  cq_depth=512 gpa=sm
+  dir cq DQID1  cq_depth=512 gpa=sm
+  dir cq DQID2  cq_depth=512 gpa=sm
+  
+  ldb pp 1 vas=VS
+  ldb pp 2 vas=VS
+  ldb pp LPP0:* vas=VS 
+  ldb pp LPP1:* vas=VS 
+  ldb pp LPP2:* vas=VS 
+
+  ldb cq LPP0 cq_depth=1024  gpa=sm qidv0=1 qidix0=LQID0 cq_ldb_inflight_limit=512 hist_list_base=0 hist_list_limit=511 
+  ldb cq LPP1 cq_depth=1024  gpa=sm qidv0=1 qidix0=LQID1 cq_ldb_inflight_limit=512 hist_list_base=512 hist_list_limit=1023
+  ldb cq LPP2 cq_depth=1024  gpa=sm qidv0=1 qidix0=LQID2 cq_ldb_inflight_limit=512 hist_list_base=1024 hist_list_limit=1535
+
+  vf 1 ldb_vpp1_pp=LPP1  dir_vpp1_pp=DQID1  ldb_vqid1_qid=LQID1  dir_vqid1_qid=DQID1
+  vf 2 ldb_vpp2_pp=LPP2  dir_vpp2_pp=DQID2  ldb_vqid2_qid=LQID2  dir_vqid2_qid=DQID2 
+
+cfg_end
+
+rd hqm_system_csr.ingress_alarm_enable 0x00000000
+wr hqm_system_csr.ingress_alarm_enable 0xffffffff
+rd hqm_system_csr.ingress_alarm_enable 0x0000003f

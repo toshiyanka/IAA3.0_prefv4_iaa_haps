@@ -1,0 +1,1907 @@
+<% use security; %>
+<% my %Security_Props = security::GetSecurityInfo(); %>
+
+<% use hqm_params; %>
+
+enum hqm_enum_cq_isr_en {
+        disable      = 2'h0 { desc = "Disable interrupt for this CQ."; };
+        msix         = 2'h1 { desc = "Enable MSI-X interrupt for this CQ."; };
+        msi          = 2'h2 { desc = "Enable MSI interrupt for this CQ."; };
+};
+
+  reg hqm_sif_unit_version_r {
+        donttest = true ;
+        Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+        Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+        Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+  HqmClassification="DEBUG_ONLY_REG_NA_1";
+        IntelRsvd=false;
+        name = "Cfg Unit Version";
+        desc = "contains unit version for the hqm_sif unit (for fpga use)";
+        regwidth = 32;
+        shared;
+        field { name = "Unit version";desc = "unit version number"; AccessType = "RO"; PowerWell="vcccfn"; IntelRsvd=false;} UNIT_VERSION[31:24] = 8'h01;
+  } ;
+
+reg hqm_csr_cp_lo_r {
+  HqmClassification="SAI_REG_NA_1";
+  name = "HQM CSR Control Policy Low Register";
+  desc = "HQM CSR Control Policy register low bits, corresponding to 6-bit SAI values 31-0";
+  shared;
+  Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+  Security_PolicyAccess = <%=$Security_Props{'HQM_OS_W_CP_AGENTS'}%>;
+  Security_PolicyRole = "CP_LO";
+  DefaultValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.%REG_NAME%.%FIELD_NAME%";
+  IntelRsvd = false;
+
+     field {
+       name = "HQM_OS_W Control Policy";
+       desc = "Bit-vector used to determine which agents are allowed write access to HQM_CSR WAC, RAC and CP registers, based on the value from each agent's 6bit SAI field.";
+       PowerWell="vcccfn";
+       AccessType = "RW";
+     } SAI_MASK [31:0] = <%=security::str2hex_lower32 ($Security_Props{'HQM_OS_W_CP_AGENTS'})%>;
+};
+
+reg hqm_csr_cp_hi_r {
+  HqmClassification="SAI_REG_NA_1";
+  name = "HQM CSR Control Policy High Register";
+  desc = "HQM CSR Control Policy register high bits, corresponding to 6-bit SAI values 63-32";
+  shared;
+  Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+  Security_PolicyAccess = <%=$Security_Props{'HQM_OS_W_CP_AGENTS'}%>;
+  Security_PolicyRole = "CP_HI";
+  DefaultValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.%REG_NAME%.%FIELD_NAME%";
+  IntelRsvd = false;
+
+     field {
+       name = "HQM_OS_W Control Policy";
+       desc = "Bit-vector used to determine which agents are allowed write access to HQM_CSR WAC, RAC and CP registers, based on the value from each agent's 6bit SAI field.";
+       PowerWell="vcccfn";
+       AccessType = "RW";
+     } SAI_MASK [31:0] = <%=security::str2hex_upper32 ($Security_Props{'HQM_OS_W_CP_AGENTS'})%>;
+};
+
+reg hqm_csr_wac_lo_r {
+  HqmClassification="SAI_REG_NA_1";
+  name = "HQM CSR Write Access Policy Low Register";
+  desc = "HQM CSR Write Access register low bits, corresponding to 6-bit SAI values 31-0";
+  shared;
+  Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+  Security_PolicyAccess = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+  Security_PolicyRole = "WAC_LO";
+  DefaultValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.%REG_NAME%.%FIELD_NAME%";
+  IntelRsvd = false;
+
+     field {
+       name = "HQM_CSR Write Access Control";
+       desc = "Bit-vector used to determine which agents are allowed write access to registers, based on the value from each agent's 6bit SAI field.";
+       PowerWell="vcccfn";
+       AccessType = "RW";
+     } SAI_MASK [31:0] = <%=security::str2hex_lower32 ($Security_Props{'HQM_OS_W_WAC_AGENTS'})%>;
+};
+
+reg hqm_csr_wac_hi_r {
+  HqmClassification="SAI_REG_NA_1";
+  name = "HQM CSR Write Access Policy High Register";
+  desc = "HQM CSR Write Access register high bits, corresponding to 6-bit SAI values 63-32";
+  shared;
+  Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+  Security_PolicyAccess = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+  Security_PolicyRole = "WAC_HI";
+  DefaultValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.%REG_NAME%.%FIELD_NAME%";
+  IntelRsvd = false;
+
+     field {
+       name = "HQM_CSR Write Access Control";
+       desc = "Bit-vector used to determine which agents are allowed read access to registers, based on the value from each agent's 6bit SAI field.";
+       PowerWell="vcccfn";
+       AccessType = "RW";
+     } SAI_MASK [31:0] = <%=security::str2hex_upper32 ($Security_Props{'HQM_OS_W_WAC_AGENTS'})%>;
+};
+
+reg hqm_csr_rac_lo_r {
+  HqmClassification="SAI_REG_NA_1";
+  name = "HQM CSR Read Access Policy Low Register";
+  desc = "HQM CSR Read Access register low bits, corresponding to 6-bit SAI values 31-0";
+  shared;
+  Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+  Security_PolicyAccess = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+  Security_PolicyRole = "RAC_LO";
+  DefaultValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.%REG_NAME%.%FIELD_NAME%";
+  IntelRsvd = false;
+
+     field {
+       name = "HQM_CSR Read Access Control";
+       desc = "Bit-vector used to determine which agents are allowed read access to registers, based on the value from each agent's 6bit SAI field.";
+       PowerWell="vcccfn";
+       AccessType = "RW";
+     } SAI_MASK [31:0] = <%=security::str2hex_lower32 ($Security_Props{'HQM_OS_W_RAC_AGENTS'})%>;
+};
+
+reg hqm_csr_rac_hi_r {
+  HqmClassification="SAI_REG_NA_1";
+  name = "HQM CSR Read Access Policy High Register";
+  desc = "HQM CSR Read Access register high bits, corresponding to 6-bit SAI values 63-32";
+  shared;
+  Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+  Security_PolicyAccess = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+  Security_PolicyRole = "RAC_HI";
+  DefaultValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.%REG_NAME%.%FIELD_NAME%";
+  IntelRsvd = false;
+
+     field {
+       name = "HQM_CSR Read Access Control";
+       desc = "Bit-vector used to determine which agents are allowed read access to registers, based on the value from each agent's 6bit SAI field.";
+       PowerWell="vcccfn";
+       AccessType = "RW";
+     } SAI_MASK [31:0] = <%=security::str2hex_upper32 ($Security_Props{'HQM_OS_W_RAC_AGENTS'})%>;
+};
+
+reg fifo_status_r {
+  HqmClassification="STATUS_REG_NA_1";
+    name = "Fifo Status";
+    desc = "FIFO Status";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = true;
+
+    field { name = "Depth";   desc = "Current FIFO depth";                 PowerWell="vcccfn"; AccessType = "RO/V"; } DEPTH   [31:8] = 24'h000000;
+    field { name = "Full";    desc = "FIFO is full";                       PowerWell="vcccfn"; AccessType = "RO/V"; } FULL    [7:7]  = 1'b0;
+    field { name = "Afull";   desc = "FIFO is at or above high watermark"; PowerWell="vcccfn"; AccessType = "RO/V"; } AFULL   [6:6]  = 1'b0;
+    field { name = "Rsvd5";   desc = "Reserved";                           PowerWell="vcccfn"; AccessType = "RO/V"; } RSVD5   [5:5]  = 1'b0;
+    field { name = "Empty";   desc = "FIFO is empty";                      PowerWell="vcccfn"; AccessType = "RO/V"; } EMPTY   [4:4]  = 1'b1;
+    field { name = "Rsvd32";  desc = "Reserved";                           PowerWell="vcccfn"; AccessType = "RO/V"; } RSVD32  [3:2]  = 2'h0;
+    field { name = "Ovrflow"; desc = "FIFO overflow detected";             PowerWell="vcccfn"; AccessType = "RW/1C/V"; } OVRFLOW [1:1]  = 1'b0;
+    field { name = "Undflow"; desc = "FIFO underflow detected";            PowerWell="vcccfn"; AccessType = "RW/1C/V"; } UNDFLOW [0:0]  = 1'b0;
+};
+
+reg fifo_status_dc_r {
+  HqmClassification="STATUS_REG_NA_1";
+    name = "Fifo Status";
+    desc = "FIFO Status";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = true;
+
+    field { name = "Depth";   desc = "Current FIFO depth";                 PowerWell="vcccfn"; AccessType = "RO/V"; } DEPTH   [31:8] = 24'h000000;
+    field { name = "Full";    desc = "FIFO is full";                       PowerWell="vcccfn"; AccessType = "RO/V"; } FULL    [7:7]  = 1'b0;
+    field { name = "Afull";   desc = "FIFO is at or above high watermark"; PowerWell="vcccfn"; AccessType = "RO/V"; } AFULL   [6:6]  = 1'b0;
+    field { name = "Aempty";  desc = "FIFO is at or below low watermark";  PowerWell="vcccfn"; AccessType = "RO/V"; } AEMPTY  [5:5]  = 1'b1;
+    field { name = "Empty";   desc = "FIFO is empty";                      PowerWell="vcccfn"; AccessType = "RO/V"; } EMPTY   [4:4]  = 1'b1;
+    field { name = "Rsvd32";  desc = "Reserved";                           PowerWell="vcccfn"; AccessType = "RO/V"; } RSVD32  [3:2]  = 2'h0;
+    field { name = "Ovrflow"; desc = "FIFO overflow detected";             PowerWell="vcccfn"; AccessType = "RW/1C/V"; } OVRFLOW [1:1]  = 1'b0;
+    field { name = "Undflow"; desc = "FIFO underflow detected";            PowerWell="vcccfn"; AccessType = "RW/1C/V"; } UNDFLOW [0:0]  = 1'b0;
+};
+
+reg ri_phdr_fifo_ctl_r {
+  HqmClassification="CONFIG_REG_NA_1";
+    name = "Ri Phdr Fifo Ctl";
+    desc = "Non-default settings may cause UNDEFINED behavior. RI Posted Header FIFO Control";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+    donttest = true;
+
+    field { name = "High Wm"; desc = "High watermark"; PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal = "side_gated_rst_prim_b";} HIGH_WM [4:0] = 5'd15;
+};
+
+reg ri_pdata_fifo_ctl_r {
+  HqmClassification="CONFIG_REG_NA_1";
+    name = "Ri Pdata Fifo Ctl";
+    desc = "Non-default settings may cause UNDEFINED behavior. RI Posted Data FIFO Control";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+    donttest = true;
+
+    field { name = "High Wm"; desc = "High watermark"; PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal = "side_gated_rst_prim_b";} HIGH_WM [5:0] = 6'd31;
+};
+
+reg ri_nphdr_fifo_ctl_r {
+  HqmClassification="CONFIG_REG_NA_1";
+    name = "Ri Nphdr Fifo Ctl";
+    desc = "Non-default settings may cause UNDEFINED behavior. RI Non-Posted Header FIFO Control";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+    donttest = true;
+
+    field { name = "High Wm"; desc = "High watermark"; PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal = "side_gated_rst_prim_b";} HIGH_WM [3:0] = 4'd7;
+};
+
+reg ri_npdata_fifo_ctl_r {
+  HqmClassification="CONFIG_REG_NA_1";
+    name = "Ri Npdata Fifo Ctl";
+    desc = "Non-default settings may cause UNDEFINED behavior. RI Non-Posted Data FIFO Control";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+    donttest = true;
+
+    field { name = "High Wm"; desc = "High watermark"; PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal = "side_gated_rst_prim_b";} HIGH_WM [3:0] = 4'd7;
+};
+
+reg ri_ioq_fifo_ctl_r {
+  HqmClassification="CONFIG_REG_NA_1";
+    name = "Ri Ioq Fifo Ctl";
+    desc = "Non-default settings may cause UNDEFINED behavior. RI In Order Queue FIFO Control";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+    donttest = true;
+
+    field { name = "High Wm"; desc = "High watermark"; PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal = "side_gated_rst_prim_b";} HIGH_WM [5:0] = 6'd31;
+};
+
+reg ibcpl_hdr_fifo_ctl_r {
+  HqmClassification="CONFIG_REG_NA_1";
+    name = "Ibcpl Hdr Fifo Ctl";
+    desc = "Non-default settings may cause UNDEFINED behavior. Inbound completion header FIFO control";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+    donttest = true;
+
+    field { name = "High Wm"; desc = "High watermark"; PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal = "side_gated_rst_prim_b";} HIGH_WM [8:0] = 9'd256;
+};
+
+reg ibcpl_data_fifo_ctl_r {
+  HqmClassification="CONFIG_REG_NA_1";
+    name = "Ibcpl Data Fifo Ctl";
+    desc = "Non-default settings may cause UNDEFINED behavior. Inbound completion data FIFO control";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+    donttest = true;
+
+    field { name = "High Wm"; desc = "High watermark"; PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal = "side_gated_rst_prim_b";} HIGH_WM [8:0] = 9'd256;
+};
+
+reg timeout_r {
+  HqmClassification="DEBUG_ONLY_REG_NA_1";
+    name = "Timeout Control";
+    desc = "Non-default settings may cause UNDEFINED behavior. Timeout control";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+
+    field { name = "Timeout Enable"; desc = "Enable timeouts if set.";
+            PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal = "side_gated_rst_prim_b";} TIMEOUT_ENABLE [31:31] = 1'h1;
+
+    field { name = "Timeout Pwr2"; desc = "Power of 2 for the number of clocks before a timeout occurs on a pending access.
+                                      A timeout will result in the associated sif alarm bit being set.
+                                      Posted writes will be discarded and non-posted reads will result in an unsupported request completion.";
+            PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal = "side_gated_rst_prim_b";} TIMEOUT_PWR2 [4:0] = 5'h15;
+};
+
+reg prim_cdc_ctl_r {
+  HqmClassification="CONFIG_REG_NA_1";
+    name = "Prim Cdc Ctl";
+    desc = "Non-default settings may cause UNDEFINED behavior. Primary Clock Domain Controller Control";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+
+    field { name = "Clkgate Disabled"; desc = "Don't allow idle-based clock gating";
+            PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal = "side_gated_rst_prim_b";} CLKGATE_DISABLED [17:17] = 1'h0;
+    field { name = "Clkreq Ctl Disabled"; desc = "Don't allow de-assertion of clkreq when idle";
+            PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal = "side_gated_rst_prim_b";} CLKREQ_CTL_DISABLED [16:16] = 1'h0;
+    field { name = "Clkgate Holdoff"; desc = "Min time from idle to clock gating (2^value in clocks)";
+            PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal = "side_gated_rst_prim_b";} CLKGATE_HOLDOFF [15:12] = 4'h4;
+    field { name = "Pwrgate Holdoff"; desc = "Min time from clock gate to power gate ready (2^value in clocks)";
+            PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal = "side_gated_rst_prim_b";} PWRGATE_HOLDOFF [11:8] = 4'h4;
+    field { name = "Clkreq Off Holdoff"; desc = "Min time from locking to !clkreq (2^value in clocks)";
+            PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal = "side_gated_rst_prim_b";} CLKREQ_OFF_HOLDOFF [7:4] = 4'h4;
+    field { name = "Clkreq Syncoff Holdoff"; desc = "Min time from ck gate to !clkreq (2^value in clocks)";
+            PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal = "side_gated_rst_prim_b";} CLKREQ_SYNCOFF_HOLDOFF [3:0] = 4'h4;
+};
+
+reg side_cdc_ctl_r {
+  HqmClassification="CONFIG_REG_NA_1";
+    name = "Side Cdc Ctl";
+    desc = "Non-default settings may cause UNDEFINED behavior. Sideband Clock Domain Controller Control";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+
+    field { name = "Clkgate Disabled"; desc = "Don't allow idle-based clock gating";
+            PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal = "side_gated_rst_prim_b";} CLKGATE_DISABLED [17:17] = 1'h0;
+    field { name = "Clkreq Ctl Disabled"; desc = "Don't allow de-assertion of clkreq when idle";
+            PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal = "side_gated_rst_prim_b";} CLKREQ_CTL_DISABLED [16:16] = 1'h0;
+    field { name = "Clkgate Holdoff"; desc = "Min time from idle to clock gating (2^value in clocks)";
+            PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal = "side_gated_rst_prim_b";} CLKGATE_HOLDOFF [15:12] = 4'h4;
+    field { name = "Pwrgate Holdoff"; desc = "Min time from clock gate to power gate ready (2^value in clocks)";
+            PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal = "side_gated_rst_prim_b";} PWRGATE_HOLDOFF [11:8] = 4'h4;
+    field { name = "Clkreq Off Holdoff"; desc = "Min time from locking to !clkreq (2^value in clocks)";
+            PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal = "side_gated_rst_prim_b";} CLKREQ_OFF_HOLDOFF [7:4] = 4'h4;
+    field { name = "Clkreq Syncoff Holdoff"; desc = "Min time from ck gate to !clkreq (2^value in clocks)";
+            PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal = "side_gated_rst_prim_b";} CLKREQ_SYNCOFF_HOLDOFF [3:0] = 4'h4;
+};
+
+reg iosfp_cgctl_r {
+  HqmClassification="CONFIG_REG_NA_1";
+    name = "Iosfp Cgctl";
+    desc = "Non-default settings may cause UNDEFINED behavior. IOSF Primary Clock Gate Control";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+
+    field { name = "Clkgate Enable"; desc = "Allow clock gating";
+            PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal = "side_gated_rst_prim_b";} CLKGATE_ENABLE [8:8] = 1'h1;
+    field { name = "Idle Count";     desc = "Min idle time before clock gating takes effect (value in clocks)";
+            PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal = "side_gated_rst_prim_b";} IDLE_COUNT [7:0] = 8'h10;
+};
+
+reg iosfs_cgctl_r {
+  HqmClassification="CONFIG_REG_NA_1";
+    name = "Iosfs Cgctl";
+    desc = "Non-default settings may cause UNDEFINED behavior. IOSF Sideband Clock Gate Control";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+
+    field { name = "Clkgate Enable"; desc = "Allow clock gating";
+            PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal = "side_gated_rst_prim_b";} CLKGATE_ENABLE [8:8] = 1'h1;
+    field { name = "Idle Count";     desc = "Min idle time before clock gating takes effect (value in clocks)";
+            PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal = "side_gated_rst_prim_b";} IDLE_COUNT [7:0] = 8'h10;
+};
+
+reg parity_ctl_r {
+  HqmClassification="DEBUG_ONLY_REG_NA_1";
+    name = "Parity Ctl";
+    desc = "Non-default settings may cause UNDEFINED behavior. Parity Control";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+    donttest = true;
+
+    field { name = "Inj Sif Mdperr"; desc = "A rising edge on this bit causes an SIF primary master data parity error on the next transaction";
+            PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal = "side_gated_rst_prim_b";} INJ_SIF_MDPERR [4:4] = 1'h0;
+    field { name = "Inj Sif Mcperr"; desc = "A rising edge on this bit causes an SIF primary master command parity error on the next transaction";
+            PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal = "side_gated_rst_prim_b";} INJ_SIF_MCPERR [3:3] = 1'h0;
+    field { name = "Ri Par Off"; desc = "Disable parity checking on RI memories";
+            PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal = "side_gated_rst_prim_b";} RI_PAR_OFF [2:2] = 1'h0;
+    field { name = "Mstr Par Off"; desc = "Disable parity checking on SIF MSTR memories";
+            PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal = "side_gated_rst_prim_b";} MSTR_PAR_OFF [1:1] = 1'h0;
+    field { name = "Sifp Par Off"; desc = "Disable parity checking on SIF primary";
+            PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal = "side_gated_rst_prim_b";} SIFP_PAR_OFF [0:0] = 1'h0;
+};
+
+enum enum_smon_function {
+   mode00 = 3'h0 { desc = "Free running function. Trigger to accumulate the value into the engine SMON_COUNT when an event is valid."; };
+   mode01 = 3'h1 { desc = "Free running function. Trigger to accumulate a fixed value of 1 into the engine SMON_COUNT when an event is valid."; };
+   mode02 = 3'h2 { desc = "Max function. Trigger to update max value when an event is valid and larger than the current value stored in the engine SMON_COUNT."; };
+   mode03 = 3'h3 { desc = "Timestamp First Mode. Capture the timer value on the first occurance of an event. Need to write CONTROL01 to reset"; };
+   mode04 = 3'h4 { desc = "Timestamp Mode. Capture the timer value on every occurance of an event. "; };
+};
+
+enum enum_smon_function_compare {
+   mode00 = 1'h0 { desc = "Compare mode disabled"; };
+   mode01 = 1'h1 { desc = "Compare mode enabled"; };
+};
+
+enum enum_smon_prescale {
+   mode00 = 5'h00 { desc = "Increment timer every      1 clock"; };
+   mode01 = 5'h01 { desc = "Increment timer every      2 clocks"; };
+   mode02 = 5'h02 { desc = "Increment timer every      4 clocks"; };
+   mode03 = 5'h03 { desc = "Increment timer every      8 clocks"; };
+   mode04 = 5'h04 { desc = "Increment timer every     16 clocks"; };
+   mode05 = 5'h05 { desc = "Increment timer every     32 clocks"; };
+   mode06 = 5'h06 { desc = "Increment timer every     64 clocks"; };
+   mode07 = 5'h07 { desc = "Increment timer every    128 clocks"; };
+   mode08 = 5'h08 { desc = "Increment timer every    256 clocks"; };
+   mode09 = 5'h09 { desc = "Increment timer every    512 clocks"; };
+   mode10 = 5'h0a { desc = "Increment timer every   1024 clocks"; };
+   mode11 = 5'h0b { desc = "Increment timer every   2048 clocks"; };
+   mode12 = 5'h0c { desc = "Increment timer every   4096 clocks"; };
+   mode13 = 5'h0d { desc = "Increment timer every   8192 clocks"; };
+   mode14 = 5'h0e { desc = "Increment timer every  16384 clocks"; };
+   mode15 = 5'h0f { desc = "Increment timer every  32768 clocks"; };
+   mode16 = 5'h10 { desc = "Increment timer every  65536 clocks"; };
+   mode17 = 5'h11 { desc = "Increment timer every 131072 clocks"; };
+   mode18 = 5'h12 { desc = "Increment timer every 262144 clocks"; };
+   mode19 = 5'h13 { desc = "Increment timer every 524288 clocks"; };
+};
+
+enum enum_smon_mode {
+   mode00 = 4'h0 { desc = "Independant Mode. SMON0_COUNT & SMON1_COUNT operate independantly as their function is configured."; };
+   mode01 = 4'h1 { desc = "Average Latency Mode. SMON0 trigger starts timer & SMON1 trigger stops timer. SMON0_COUNT accumulates occurances and SMON1_COUNT accumulates timer values. For multiple stop for a single start, accumulate  start_to_stop1,  start_to_stop1stop2 ..."; };
+   mode02 = 4'h2 { desc = "MinMax Latency Mode,. SMON0 trigger starts timer & SMON1 trigger stops timer. SMON0_COUNT maintains the minimum timer value and SMON1_COUNT maintains the maximum timer value"; };
+   mode03 = 4'h3 { desc = "Average Mode.   SMON0 trigger increments SMON0_COUNT and the value is accumulated in SMON1_COUNT. SMON1 events are disabled."; };
+   mode04 = 4'h4 { desc = "Average Lantecy Mode 2. same as mode01, but only accumulate the first start_to_stop1 if there are multiple stop for each start"; };
+   mode05 = 4'h5 { desc = "Average Latency Mode 3. same as mode01, but accumualte the incremental start_to_stop1, stop1_to_stop2... if there are multiple stop for each start"; };
+};
+
+enum enum_smon_event {
+   event16 = 8'd16 { desc="CDS transactions;  [31:16]=pasid[15:0], [15]=iosfsb, [14:13]=fmt, [12:8]=ttype, [7:0]=sai}"; };
+   event15 = 8'd15 { desc="Completion errors;  Completer abort or completion unsupported request"; };
+   event14 = 8'd14 { desc="Miscellaneous; comp={[31:29]=pwdata[2:0], [28]=pslverr_hqm, [27]=pready,
+                           [26]=pwrite, [25]=penable, [24]=psel, [23:16]=paddr[31:24], [15:0]=paddr[15:0]}"; };
+   event13 = 8'd13 { desc="FIFO afulls; MUST use mask; comp={[7]=ibcpl_hdr, [6]=ibcpl_data, [5]=ri_phdr, [4]=ri_pdata, [3]=ri_nphdr, [2]=ri_npdata, [1]=ri_ioq, [0]=obcpl}"; };
+   event12 = 8'd12 { desc="IOSF Command puts; val=dlen; comp={[8:4]=ttype, [3:2]=tfmt, [1:0]=cmd_rtype}"; };
+   event11 = 8'd11 { desc="IOSF Grants; val=dlen; comp={[10:6]=mtype, [5:4]=mfmt, [3:2]=gnt_type, [1:0]=gnt_rtype}"; };
+   event10 = 8'd10 { desc="IOSF Request puts; val=dlen; comp={[1:0]=req_rtype}"; };
+   event9  = 8'd9  { desc="IOSF Credit puts cmd; val=credits; comp={[1:0]=credit_rtype}"; };
+   event8  = 8'd8  { desc="IOSF Credit puts data; val=credits; comp={[1:0]=credit_rtype}"; };
+   event7  = 8'd7  { desc="Clocks hqm_sif is idle"; };
+   event6  = 8'd6  { desc="DB input stalls; MUST use mask; comp={[9]=cpl_req, [8]=np_req, [7]=p_req, [6]=hcw,
+                           [5]=ri_ioq, [4]=ri_npd, [3]=ri_nph, [2]=ri_pd, [1]=ri_ph, [0]=alarm}"; };
+   event5  = 8'd5  { desc="DB output stalls; MUST use mask; comp={[9]=cpl_req, [8]=np_req, [7]=p_req, [6]=hcw,
+                           [5]=ri_ioq, [4]=ri_npd, [3]=ri_nph, [2]=ri_pd, [1]=ri_ph, [0]=alarm}"; };
+   event4  = 8'd4  { desc="DB output takens (using input takens for output DBs); MUST use mask; [9]=cpl_req, [8]=np_req,
+                           [7]=p_req, [6]=hcw, [5]=ri_ioq, [4]=ri_npd, [3]=ri_nph, [2]=ri_pd, [1]=ri_ph, [0]=alarm}"; };
+   event3  = 8'd3  { desc="sif alarms; comp={[24:21]=unit, [20:15]=aid, [14:13]=cls, [12:10]=msix_map, [9:8]=rtype, [7:0]=rid}"; };
+   event2  = 8'd2  { desc="sif->ingress hcw enq; val=bytes; comp={[12]=is_pf_port, [11]=is_ldb_port, [10:7]=vf, [6:0]=vpp}"; };
+   event1  = 8'd1  { desc="sif->ingress hcw enq; val=bytes; comp=hcw[127:96]"; };
+   event0  = 8'd0  { desc="sif->ingress hcw enq; val=bytes; comp=hcw[95:64]"; };
+};
+
+regfile sif_aw_smon_rf {
+
+ reg sif_aw_smon_configuration0_r {
+  HqmClassification="DEBUG_ONLY_REG_NA_2";
+    name = "Sif Aw Smon Configuration0";
+    desc = "Non-default settings may cause UNDEFINED behavior. SMON Configuration0: This is used to configure the operation of the 2 internal counters in the SMON";
+    regwidth = 32;
+    shared;
+    HandCoded=true;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+    donttest = true;
+
+    field {name="version";                  desc="Version";
+                                            ValRTLSignal = "NoSignal";
+                                            PowerWell="vcccfn"; AccessType="RO";} VERSION[31:30] = 2'h1;
+    field {name="timer_prescale";           desc="Timer prescale"; encode=enum_smon_prescale;
+                                            PowerWell="vcccfn"; AccessType="RW";} TIMER_PRESCALE[28:24] = 5'h00;
+    field {name="stattimerovfl";            desc="A value of '1' signifies timer overflow, or timer>maxvalue.";
+                                            PowerWell="vcccfn"; AccessType="RW";} STATTIMEROVFL[22:22] = 1'h0;
+    field {name="inttimerovfl";             desc="Configure to interrupt on timer overflow or timer>maxvalue";
+                                            PowerWell="vcccfn"; AccessType="RW";} INTTIMEROVFL[21:21] = 1'h0;
+    field {name="stoptimerovfl";            desc="Configure to stop on timer overflow or timer>maxvalue";
+                                            PowerWell="vcccfn"; AccessType="RW";} STOPTIMEROVFL[20:20] = 1'h0;
+    field {name="statcounter1ovfl";         desc="A value of '1' signifies counter1 overflow.";
+                                            PowerWell="vcccfn"; AccessType="RW";} STATCOUNTER1OVFL[19:19] = 1'h0;
+    field {name="statcounter0ovfl";         desc="A value of '1' signifies counter0 overflow.";
+                                            PowerWell="vcccfn"; AccessType="RW";} STATCOUNTER0OVFL[18:18] = 1'h0;
+    field {name="intcounterovfl";           desc="Configure to interupt on counter0 or counter1 overflow";
+                                            PowerWell="vcccfn"; AccessType="RW";} INTCOUNTEROVFL[17:17] = 1'h0;
+    field {name="stopcounterovfl";          desc="Configure to stop on counter0 or counter1 overflow";
+                                            PowerWell="vcccfn"; AccessType="RW";} STOPCOUNTEROVFL[16:16] = 1'h0;
+    field {name="smon_mode";                desc="SMON mode"; encode=enum_smon_mode;
+                                            PowerWell="vcccfn"; AccessType="RW";} SMON_MODE[15:12]=4'h0;
+    field {name="smon1_function_compare";   desc="SMON1 function compare"; encode=enum_smon_function_compare;
+                                            PowerWell="vcccfn"; AccessType="RW";} SMON1_FUNCTION_COMPARE[11:11]=1'h0;
+    field {name="smon1_function";           desc="SMON1 function"; encode=enum_smon_function;
+                                            PowerWell="vcccfn"; AccessType="RW";} SMON1_FUNCTION[10:8]=3'h0;
+    field {name="smon0_function_compare";   desc="SMON0 function compare"; encode=enum_smon_function_compare;
+                                            PowerWell="vcccfn"; AccessType="RW";} SMON0_FUNCTION_COMPARE[7:7]=1'h0;
+    field {name="smon0_function";           desc="SMON0 function"; encode=enum_smon_function;
+                                            PowerWell="vcccfn"; AccessType="RW";} SMON0_FUNCTION[6:4]=3'h0;
+    field {name="smon_enable";              desc="Enable the SMON counters";
+                                            PowerWell="vcccfn"; AccessType="RW";} SMON_ENABLE[0:0] = 1'h0;
+ };
+
+ reg sif_aw_smon_configuration1_r {
+  HqmClassification="DEBUG_ONLY_REG_NA_2";
+    name = "Sif Aw Smon Configuration1";
+    desc = "Non-default settings may cause UNDEFINED behavior. SMON Configuration1: This is used to configure the operation of the 2 internal counters in the SMON";
+    regwidth = 32;
+    shared;
+    HandCoded=true;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+
+    field {name="rsvd";  desc="Reserved"; PowerWell="vcccfn"; AccessType="RW";
+          } RSVD[31:16] = 16'h0000;
+    field {name="mode1"; desc="Select input signal for SMON1 engine"; encode=enum_smon_event; PowerWell="vcccfn"; AccessType="RW";
+          } MODE1[15:8] = 8'h00;
+    field {name="mode0"; desc="Select input signal for SMON0 engine"; encode=enum_smon_event; PowerWell="vcccfn"; AccessType="RW";
+          } MODE0[ 7:0] = 8'h00;
+ };
+
+ reg sif_aw_smon_compare0_r {
+  HqmClassification="DEBUG_ONLY_REG_NA_2";
+    name = "Sif Aw Smon Compare0";
+    desc = "Non-default settings may cause UNDEFINED behavior. SMON Compare0: This is the compare register in the SMON0 engine used with the compare function";
+    regwidth = 32;
+    shared;
+    HandCoded=true;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+
+    field {name="compare0"; desc="Compare0 value"; PowerWell="vcccfn"; AccessType="RW";
+          } COMPARE0[31:0] = 32'h00000000;
+ };
+
+ reg sif_aw_smon_compare1_r {
+  HqmClassification="DEBUG_ONLY_REG_NA_2";
+    name = "Sif Aw Smon Compare1";
+    desc = "Non-default settings may cause UNDEFINED behavior. SMON Compare1: This is the compare register in the SMON1 engine used with the compare function";
+    regwidth = 32;
+    shared;
+    HandCoded=true;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+
+    field {name="compare1"; desc="Compare1 value"; PowerWell="vcccfn"; AccessType="RW";
+          } COMPARE1[31:0] = 32'h00000000;
+ };
+
+ reg sif_aw_smon_activitycounter0_r {
+  HqmClassification="DEBUG_ONLY_REG_NA_2";
+    name = "Sif Aw Smon Activitycounter0";
+    desc = "Non-default settings may cause UNDEFINED behavior. SMON Counter0: This is the first counter in SMON configured to count events by the SMON configuration register";
+    regwidth = 32;
+    shared;
+    HandCoded=true;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+
+    field {name="counter0"; desc="Counter0 value"; PowerWell="vcccfn"; AccessType="RW";
+          } COUNTER0[31:0] = 32'h00000000;
+ };
+
+ reg sif_aw_smon_activitycounter1_r {
+  HqmClassification="DEBUG_ONLY_REG_NA_2";
+    name = "Sif Aw Smon Activitycounter1";
+    desc = "Non-default settings may cause UNDEFINED behavior. SMON Counter1: This is the second counter in SMON configured to count events by the SMON configuration register";
+    regwidth = 32;
+    shared;
+    HandCoded=true;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+
+    field {name="counter1"; desc="Counter1 value"; PowerWell="vcccfn"; AccessType="RW";
+          } COUNTER1[31:0] = 32'h00000000;
+ };
+
+ reg sif_aw_smon_timer_r {
+  HqmClassification="DEBUG_ONLY_REG_NA_2";
+    name = "Sif Aw Smon Timer";
+    desc = "Non-default settings may cause UNDEFINED behavior. SMON Timer: This is the SMON timer, it is a running counter configured with a prescale parameter in the configuration register. The maxvalue is used to terminate counting.";
+    regwidth = 32;
+    shared;
+    HandCoded=true;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+
+    field {name="timer_val"; desc="Timer value"; PowerWell="vcccfn"; AccessType="RW";
+          } TIMER_VAL[31:0] = 32'h00000000;
+ };
+
+ reg sif_aw_smon_maximum_timer_r {
+  HqmClassification="DEBUG_ONLY_REG_NA_2";
+    name = "Sif Aw Smon Maximum Timer";
+    desc = "Non-default settings may cause UNDEFINED behavior. SMON Maximum Timer: This is the timer maxvalue used to provide a value to terminate counting.";
+    regwidth = 32;
+    shared;
+    HandCoded=true;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+
+    field {name="maxvalue"; desc="Maximum timer value"; PowerWell="vcccfn"; AccessType="RW";
+          } MAXVALUE[31:0] = 32'h00000000;
+ };
+
+ reg sif_aw_smon_comp_mask0_r {
+  HqmClassification="DEBUG_ONLY_REG_NA_2";
+    name = "Sif Aw Smon Comp Mask0";
+    desc = "Non-default settings may cause UNDEFINED behavior. SMON Compare Mask0: This value is ANDed with the SMON's compare 0 values before they are compared.";
+    regwidth = 32;
+    shared;
+    HandCoded=true;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+
+    field {name="comp_mask0"; desc="Compare Mask0"; PowerWell="vcccfn"; AccessType="RW";
+          } COMP_MASK0[31:0] = 32'hffffffff;
+ };
+
+ reg sif_aw_smon_comp_mask1_r {
+  HqmClassification="DEBUG_ONLY_REG_NA_2";
+    name = "Sif Aw Smon Comp Mask1";
+    desc = "Non-default settings may cause UNDEFINED behavior. SMON Compare Mask1: This value is ANDed with the SMON's compare 1 values before they are compared.";
+    regwidth = 32;
+    shared;
+    HandCoded=true;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+
+    field {name="comp_mask1"; desc="Compare Mask1"; PowerWell="vcccfn"; AccessType="RW";
+          } COMP_MASK1[31:0] = 32'hffffffff;
+ };
+
+ sif_aw_smon_configuration0_r        AW_SMON_CONFIGURATION0      @0x00;
+ sif_aw_smon_configuration1_r        AW_SMON_CONFIGURATION1      @0x04;
+ sif_aw_smon_compare0_r              AW_SMON_COMPARE0            @0x08;
+ sif_aw_smon_compare1_r              AW_SMON_COMPARE1            @0x0c;
+ sif_aw_smon_activitycounter0_r      AW_SMON_ACTIVITYCOUNTER0    @0x10;
+ sif_aw_smon_activitycounter1_r      AW_SMON_ACTIVITYCOUNTER1    @0x14;
+ sif_aw_smon_timer_r                 AW_SMON_TIMER               @0x18;
+ sif_aw_smon_maximum_timer_r         AW_SMON_MAXIMUM_TIMER       @0x1c;
+ sif_aw_smon_comp_mask0_r            AW_SMON_COMP_MASK0          @0x20;
+ sif_aw_smon_comp_mask1_r            AW_SMON_COMP_MASK1          @0x24;
+
+};
+
+reg pulled_fuses_0_r {
+  HqmClassification="RUNTIMEARCHSTATE_REG_NA_1";
+    name = "Pulled Fuses 0";
+    desc = "Pulled Fuses 0";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = true;
+    donttest = true;    // will test using FAL
+
+    field { name = "Fuses"; desc = "Pulled fuses"; PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.HQM_PULLED_FUSES_0.FUSES"; } FUSES [31:0] = 32'h00000000;
+};
+
+reg ri_parity_err_r {
+  HqmClassification="DEBUG_ONLY_REG_NA_1";
+    name = "Ri Parity Err";
+    desc = "RI Parity Errors";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    IntelRsvd = false;
+
+    field { name = "Cbd Hdr Perr"; desc = "CBD pipeline header parity error."; PowerWell="vcccfn"; AccessType = "RW/1C/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_PARITY_ERR.CBD_HDR_PERR"; } CBD_HDR_PERR       [8:8] = 1'b0;
+    field { name = "Cbd Data Perr"; desc = "CBD pipeline data parity error."; PowerWell="vcccfn"; AccessType = "RW/1C/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_PARITY_ERR.CBD_DATA_PERR"; } CBD_DATA_PERR     [7:7] = 1'b0;
+    field { name = "Hcw Data Perr"; desc = "HCW double buffer data parity error."; PowerWell="vcccfn"; AccessType = "RW/1C/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_PARITY_ERR.HCW_DATA_PERR"; } HCW_DATA_PERR     [6:6] = 1'b0;
+    field { name = "Ph Fifo Scream"; desc = "Posted header FIFO parity error in cmd/len fields."; PowerWell="vcccfn"; AccessType = "RW/1C/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_PARITY_ERR.PH_FIFO_SCREAM"; } PH_FIFO_SCREAM   [5:5] = 1'b0;
+    field { name = "Ph Fifo Perr"; desc = "Posted header FIFO parity error in non-cmd/len fields."; PowerWell="vcccfn"; AccessType = "RW/1C/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_PARITY_ERR.PH_FIFO_PERR"; }  PH_FIFO_PERR      [4:4] = 1'b0;
+    field { name = "Pd Fifo Perr"; desc = "Posted data   FIFO parity error."; PowerWell="vcccfn"; AccessType = "RW/1C/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_PARITY_ERR.PD_FIFO_PERR"; }  PD_FIFO_PERR      [3:3] = 1'b0;
+    field { name = "Nph Fifo Scream"; desc = "Non-posted header FIFO parity error in cmd/len fields."; PowerWell="vcccfn"; AccessType = "RW/1C/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_PARITY_ERR.NPH_FIFO_SCREAM"; } NPH_FIFO_SCREAM [2:2] = 1'b0;
+    field { name = "Nph Fifo Perr"; desc = "Non-posted header FIFO parity error in non-cmd/len fields."; PowerWell="vcccfn"; AccessType = "RW/1C/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_PARITY_ERR.NPH_FIFO_PERR"; } NPH_FIFO_PERR     [1:1] = 1'b0;
+    field { name = "Npd Fifo Perr"; desc = "Non-posted data   FIFO parity error."; PowerWell="vcccfn"; AccessType = "RW/1C/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_PARITY_ERR.NPD_FIFO_PERR"; } NPD_FIFO_PERR     [0:0] = 1'b0;
+};
+
+reg sif_parity_err_r {
+  HqmClassification="DEBUG_ONLY_REG_NA_1";
+    name = "Sif Parity Err";
+    desc = "Sif Parity Errors";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    IntelRsvd = false;
+
+    field { name = "GPSB Perr"; desc = "GPSB parity error. Reset only by powergood_rst_b."; PowerWell="vcccfn"; AccessType = "RW/1C/V/P";
+            ResetSignal = "powergood_rst_b";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_PARITY_ERR.GPSB_PERR"; } GPSB_PERR [9:9] = 1'b0;
+    field { name = "Scrbd Perr"; desc = "SIF scoreboard parity error."; PowerWell="vcccfn"; AccessType = "RW/1C/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_PARITY_ERR.SCRBD_PERR"; } SCRBD_PERR [8:8] = 1'b0;
+    field { name = "Ibcpl Data Perr"; desc = "SIF inbound completion data FIFO parity error."; PowerWell="vcccfn"; AccessType = "RW/1C/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_PARITY_ERR.IBCPL_DATA_FIFO_PERR"; } IBCPL_DATA_FIFO_PERR [7:7] = 1'b0;
+    field { name = "Ibcpl Hdr Perr"; desc = "SIF inbound completion header FIFO parity error."; PowerWell="vcccfn"; AccessType = "RW/1C/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_PARITY_ERR.IBCPL_HDR_FIFO_PERR"; } IBCPL_HDR_FIFO_PERR [6:6] = 1'b0;
+    field { name = "Devtlb Data 1G Perr"; desc = "Devtlb 1G Data parity error."; PowerWell="vcccfn"; AccessType = "RW/1C/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_PARITY_ERR.TLB_DATA_1G_PERR"; } TLB_DATA_1G_PERR [5:5] = 1'b0;
+    field { name = "Devtlb Data 2M Perr"; desc = "Devtlb 2M Data parity error."; PowerWell="vcccfn"; AccessType = "RW/1C/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_PARITY_ERR.TLB_DATA_2M_PERR"; } TLB_DATA_2M_PERR [4:4] = 1'b0;
+    field { name = "Devtlb Data 4K Perr"; desc = "Devtlb 4K Data parity error."; PowerWell="vcccfn"; AccessType = "RW/1C/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_PARITY_ERR.TLB_DATA_4K_PERR"; } TLB_DATA_4K_PERR [3:3] = 1'b0;
+    field { name = "Devtlb Tag 1G Perr"; desc = "Devtlb 1G Tag parity error."; PowerWell="vcccfn"; AccessType = "RW/1C/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_PARITY_ERR.TLB_TAG_1G_PERR"; } TLB_TAG_1G_PERR [2:2] = 1'b0;
+    field { name = "Devtlb Tag 2M Perr"; desc = "Devtlb 2M Tag parity error."; PowerWell="vcccfn"; AccessType = "RW/1C/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_PARITY_ERR.TLB_TAG_2M_PERR"; } TLB_TAG_2M_PERR [1:1] = 1'b0;
+    field { name = "Devtlb Tag 4K Perr"; desc = "Devtlb 4K Tag parity error."; PowerWell="vcccfn"; AccessType = "RW/1C/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_PARITY_ERR.TLB_TAG_4K_PERR"; } TLB_TAG_4K_PERR [0:0] = 1'b0;
+};
+
+reg sif_mstr_debug_r {
+  HqmClassification="DEBUG_ONLY_REG_NA_1";
+    name = "Sif Mstr Debug";
+    desc = "hqm_sif_mstr Debug";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = true;
+    donttest = true;
+
+    field { name = "Fabric CPL Credits"; desc = "Max outstanding fabric completion requests";   PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_MSTR_DEBUG.FABRIC_CPL_CREDITS"; } FABRIC_CPL_CREDITS [14:10] = 5'h00;
+    field { name = "Fabric NP Credits"; desc = "Max outstanding fabric non-posted requests";   PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_MSTR_DEBUG.FABRIC_NP_CREDITS"; } FABRIC_NP_CREDITS [9:5] = 5'h00;
+    field { name = "Fabric P Credits"; desc = "Max outstanding fabric posted requests";   PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_MSTR_DEBUG.FABRIC_P_CREDITS"; } FABRIC_P_CREDITS [4:0] = 5'h00;
+};
+
+reg hqm_sif_cnt_ctl_r {
+  HqmClassification="CONFIG_REG_NA_1";
+    name = "Hqm Sif Cnt Ctl";
+    desc = "SIF Counter Control";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    IntelRsvd = false;
+
+    field { name = "Cnt Clrv"; desc = "Value to which each bit of the hqm_sif counters is cleared"; PowerWell="vcccfn"; AccessType = "RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.HQM_SIF_CNT_CTL.CNT_CLRV";
+            ResetSignal = "side_gated_rst_prim_b";} CNT_CLRV [1:1] = 1'b0;
+    field { name = "Cnt Clr"; desc = "When set clears all hqm_sif counters"; PowerWell="vcccfn"; AccessType = "RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.HQM_SIF_CNT_CTL.CNT_CLR";
+            ResetSignal = "side_gated_rst_prim_b";} CNT_CLR [0:0] = 1'b0;
+};
+
+<% for ($i=0; $i<=11; $i++) { %>
+reg hqm_sif_cnt_<%=$i%>_r {
+  HqmClassification="STATISTICS_REG_NA_1";
+    name = "Hqm Sif Cnt_<%=$i%>";
+    desc = "Counter";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    IntelRsvd = false;
+    donttest = true;
+
+    field { name = "Cnt"; desc = "Count"; PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.HQM_SIF_CNT_<%=$i%>.CNT"; } CNT [31:0] = 32'h00000000;
+};
+<% } %>
+
+reg hqm_hw_agitate_control_r {
+  HqmClassification="DEBUG_ONLY_REG_NA_1";
+    name = "Hqm Hw Agitate Control";
+    desc = "Non-default settings may cause UNDEFINED behavior. Hardware agitate control register";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+    donttest = true;
+
+    field {name="ctrl"; desc="Agitate Control - mode dependent";                                  PowerWell="vcccfn"; AccessType="RW";
+            ResetSignal = "side_gated_rst_prim_b";} CTRL[31:2]  = 30'h00000000;
+    field {name="mode"; desc="Agitate Mode - 0=off, 1=Mode 1, 2=Mode 2, 3=Mode 3 (if supported)"; PowerWell="vcccfn"; AccessType="RW";
+            ResetSignal = "side_gated_rst_prim_b";} MODE[1:0]   = 2'b00;
+};
+
+reg cfgm_status_r {
+  HqmClassification="STATUS_REG_NA_1";
+    name = "Cfgm Status";
+    desc = "Configuration Master Status Register";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = true;
+    donttest = true;
+
+    field {name="paddr";   desc="APB address"; PowerWell="vcccfn"; AccessType="RO/V";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.CFGM_STATUS.PADDR"; } PADDR[31:0] = 32'h00000000;
+};
+
+reg cfgm_status2_r {
+  HqmClassification="STATUS_REG_NA_1";
+    name = "Cfgm Status 2";
+    desc = "Configuration Master Status 2 Register";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = true;
+    donttest = true;
+
+    field {name="psel";    desc="APB select";   PowerWell="vcccfn"; AccessType="RO/V";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.CFGM_STATUS2.PSEL"; } PSEL[31:31] = 1'b0;
+    field {name="pslverr"; desc="APB write response error"; PowerWell="vcccfn"; AccessType="RO/V";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.CFGM_STATUS2.PSLVERR"; } PSLVERR[30:30] = 1'b0;
+    field {name="pwrite";  desc="APB write indication"; PowerWell="vcccfn"; AccessType="RO/V";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.CFGM_STATUS2.PWRITE"; } PWRITE[29:29] = 1'b0;
+    field {name="pwdata";  desc="APB write data"; PowerWell="vcccfn"; AccessType="RO/V";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.CFGM_STATUS2.PWDATA"; } PWDATA[28:0] = 29'h00000000;
+};
+
+reg local_bme_status_r {
+  HqmClassification="STATUS_REG_NA_1";
+    name = "Local Bme Status";
+    desc = "SIF Master Local Bus Master Enable Status Register";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = true;
+    donttest = true;
+
+    field {name="bme_pf";   desc="Local BME for the PF"; PowerWell="vcccfn"; AccessType="RO/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.LOCAL_BME_STATUS.BME_PF"; }
+            BME_PF[0:0] = 1'b0;
+};
+
+reg local_msixe_status_r {
+  HqmClassification="STATUS_REG_NA_1";
+    name = "Local Msixe Status";
+    desc = "SIF Master Local Message Signaled Interrupt Extended Enable Status Register";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = true;
+    donttest = true;
+
+    field {name="msixe_pf";   desc="Local MSI-X enable for the PF"; PowerWell="vcccfn"; AccessType="RO/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.LOCAL_MSIE_STATUS.MSIXE_PF"; }
+            MSIXE_PF[0:0] = 1'b0;
+};
+
+reg visa_sw_control_r {
+  HqmClassification="CONFIG_REG_NA_1";
+    name = "isa Sw Control";
+    desc = "Non-default settings may cause UNDEFINED behavior. Visa software trigger control.";
+    regwidth = 32;
+    shared;
+    HandCoded=true;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+
+    field {name="sw_spare"; desc="Spare SW control bits."; PowerWell="vcccfn"; AccessType="RW";
+           ResetSignal = "side_gated_rst_prim_b";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_iosfsb_core.i_hqm_sb_ep_xlate.VISA_SW_CONTROL.SW_SPARE"; } SW_SPARE[31:3] = 29'h00000000;
+    field {name="ph_trigger_enable"; desc="Setting this bit will enable the posted header address compare event."; PowerWell="vcccfn"; AccessType="RW";
+           ResetSignal = "side_gated_rst_prim_b";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_iosfsb_core.i_hqm_sb_ep_xlate.VISA_SW_CONTROL.PH_TRIGGER_ENABLE"; } PH_TRIGGER_ENABLE[2:2] = 1'b0;
+    field {name="sw_trigger"; desc="Setting this bit will assert the VISA software trigger event."; PowerWell="vcccfn"; AccessType="RW";
+           ResetSignal = "side_gated_rst_prim_b";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_iosfsb_core.i_hqm_sb_ep_xlate.VISA_SW_CONTROL.SW_TRIGGER"; } SW_TRIGGER[1:1] = 1'b0;
+    field {name="trigger_mask"; desc="Setting this bit disables all agent VISA trigger events."; PowerWell="vcccfn"; AccessType="RW";
+           ResetSignal = "side_gated_rst_prim_b";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_iosfsb_core.i_hqm_sb_ep_xlate.VISA_SW_CONTROL.TRIGGER_MASK"; } TRIGGER_MASK[0:0] = 1'b0;
+};
+
+reg cfg_ph_trigger_addr_l_r {
+  HqmClassification="DEBUG_ONLY_REG_NA_1";
+    name = "Cfg Posted Header Trigger Address Lower";
+    desc = "Non-default settings may cause UNDEFINED behavior. Address bits [31:0] used for the posted header address comparison for the ph_trigger event.";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+
+    field {name="addr_l"; desc="Address[31:0]"; PowerWell="vcccfn"; AccessType="RW";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.CFG_PH_TRIGGER_ADDR_L.ADDR_L"; } ADDR_L[31:0] = 32'h00000000;
+};
+
+reg cfg_ph_trigger_addr_u_r {
+  HqmClassification="DEBUG_ONLY_REG_NA_1";
+    name = "Cfg Posted Header Trigger Address Upper";
+    desc = "Non-default settings may cause UNDEFINED behavior. Address bits [63:32] used for the posted header address comparison for the ph_trigger event.";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+
+    field {name="addr_u"; desc="Address[63:32]"; PowerWell="vcccfn"; AccessType="RW";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.CFG_PH_TRIGGER_ADDR_U.ADDR_U"; } ADDR_U[31:0] = 32'h00000000;
+};
+
+reg cfg_ph_trigger_mask_l_r {
+  HqmClassification="DEBUG_ONLY_REG_NA_1";
+    name = "Cfg Posted Header Trigger Mask Lower";
+    desc = "Non-default settings may cause UNDEFINED behavior. Mask bits [31:0] used for the posted header address comparison for the ph_trigger event.";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+
+    field {name="mask_l"; desc="Mask[31:0]"; PowerWell="vcccfn"; AccessType="RW";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.CFG_PH_TRIGGER_MASK_L.MASK_L"; } MASK_L[31:0] = 32'h00000000;
+};
+
+reg cfg_ph_trigger_mask_u_r {
+  HqmClassification="DEBUG_ONLY_REG_NA_1";
+    name = "Cfg Posted Header Trigger Mask Upper";
+    desc = "Non-default settings may cause UNDEFINED behavior. Mask bits [63:32] used for the posted header address comparison for the ph_trigger event.";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+
+    field {name="mask_u"; desc="Mask[63:32]"; PowerWell="vcccfn"; AccessType="RW";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.CFG_PH_TRIGGER_MASK_U.MASK_U"; } MASK_U[31:0] = 32'h00000000;
+};
+
+reg sif_idle_status_r {
+  HqmClassification="STATUS_REG_NA_1";
+    name = "Sif Idle Status";
+    desc = "SIF Idle Status";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = true;
+    donttest = true;    // not all bits necessarily idle when accessing
+
+    field { name = "Proc Idle";      desc = "hqm_proc idle";       PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_IDLE_STATUS.PROC_IDLE"; } PROC_IDLE [6:6] = 1'b1;
+    field { name = "Int Idle";       desc = "SIF interrupt idle"; PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_IDLE_STATUS.INT_IDLE"; }  INT_IDLE  [5:5] = 1'b1;
+    field { name = "Mstr Idle";      desc = "SIF master idle";    PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_IDLE_STATUS.MSTR_IDLE"; } MSTR_IDLE [4:4] = 1'b1;
+    field { name = "Mstr Intf Idle"; desc = "SIF master interface idle"; PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_IDLE_STATUS.MSTR_INTF_IDLE"; } MSTR_INTF_IDLE [3:3] = 1'b1;
+    field { name = "Tgt Idle";       desc = "SIF target idle";    PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_IDLE_STATUS.TGT_IDLE"; }  TGT_IDLE  [2:2] = 1'b1;
+    field { name = "Ri Idle";        desc = "Transmit logic idle"; PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_IDLE_STATUS.RI_IDLE"; }   RI_IDLE   [1:1] = 1'b1;
+    field { name = "Cfgm Idle";      desc = "Cfg master idle";     PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_IDLE_STATUS.CFGM_IDLE"; } CFGM_IDLE [0:0] = 1'b1;
+};
+
+reg sif_db_status_r {
+  HqmClassification="STATUS_REG_NA_1";
+    name = "Sif Db Status";
+    desc = "SIF Block Double Buffer Status";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = true;
+
+    field { name = "Cpl Req Db Ready"; desc = "Current ready input"; PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_DB_STATUS.CPL_REQ_DB_READY";
+          } CPL_REQ_DB_READY   [14:14] = 1'h0;
+    field { name = "Cpl Req Db Depth";   desc = "Current DB depth";    PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_DB_STATUS.CPL_REQ_DB_DEPTH";
+          } CPL_REQ_DB_DEPTH   [13:12] = 2'h0;
+    field { name = "Np Req Db Ready"; desc = "Current ready input"; PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_DB_STATUS.NP_REQ_DB_READY";
+          } NP_REQ_DB_READY   [10:10] = 1'h0;
+    field { name = "Np Req Db Depth";   desc = "Current DB depth";    PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_DB_STATUS.NP_REQ_DB_DEPTH";
+          } NP_REQ_DB_DEPTH   [9:8] = 2'h0;
+    field { name = "P Req Db Ready"; desc = "Current ready input"; PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_DB_STATUS.P_REQ_DB_READY";
+          } P_REQ_DB_READY   [6:6] = 1'h0;
+    field { name = "P Req Db Depth";   desc = "Current DB depth";    PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_DB_STATUS.P_REQ_DB_DEPTH";
+          } P_REQ_DB_DEPTH   [5:4] = 2'h0;
+    field { name = "Alarm Db Ready"; desc = "Current ready input"; PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_DB_STATUS.ALARM_DB_READY";
+          } ALARM_DB_READY [2:2]   = 1'h1;
+    field { name = "Alarm Db Depth"; desc = "Current DB depth";    PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_DB_STATUS.ALARM_DB_DEPTH";
+          } ALARM_DB_DEPTH [1:0]   = 2'h0;
+};
+
+reg ri_db_status_r {
+  HqmClassification="STATUS_REG_NA_1";
+    name = "Ri Db Status";
+    desc = "RI Block Double Buffer Status";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = true;
+
+    field { name = "HCW Db Ready"; desc = "Current ready input"; PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_DB_STATUS.HCW_DB_READY";
+          } HCW_DB_READY [22:22] = 1'h0;
+    field { name = "HCW Db Depth"; desc = "Current DB depth";    PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_DB_STATUS.HCW_DB_DEPTH";
+          } HCW_DB_DEPTH [21:20] = 2'h0;
+    field { name = "IOQ Db Ready";   desc = "Current ready input"; PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_DB_STATUS.IOQ_DB_READY";
+          } IOQ_DB_READY   [18:18] = 1'h0;
+    field { name = "IOQ Db Depth";   desc = "Current DB depth";    PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_DB_STATUS.IOQ_DB_DEPTH";
+          } IOQ_DB_DEPTH   [17:16] = 2'h0;
+    field { name = "NPD Db Ready";   desc = "Current ready input"; PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_DB_STATUS.NPD_DB_READY";
+          } NPD_DB_READY   [14:14] = 1'h0;
+    field { name = "NPD Db Depth";   desc = "Current DB depth";    PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_DB_STATUS.NPD_DB_DEPTH";
+          } NPD_DB_DEPTH   [13:12] = 2'h0;
+    field { name = "NPH Db Ready";   desc = "Current ready input"; PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_DB_STATUS.NPH_DB_READY";
+          } NPH_DB_READY   [10:10] = 1'h0;
+    field { name = "NPH Db Depth";   desc = "Current DB depth";    PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_DB_STATUS.NPH_DB_DEPTH";
+          } NPH_DB_DEPTH   [9:8]   = 2'h0;
+    field { name = "PD Db Ready";    desc = "Current ready input"; PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_DB_STATUS.PD_DB_READY";
+          } PD_DB_READY    [6:6]   = 1'h0;
+    field { name = "PD Db Depth";    desc = "Current DB depth";    PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_DB_STATUS.PD_DB_DEPTH";
+          } PD_DB_DEPTH    [5:4]   = 2'h0;
+    field { name = "PH Db Ready";    desc = "Current ready input"; PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_DB_STATUS.PH_DB_READY";
+          } PH_DB_READY    [2:2]   = 1'h0;
+    field { name = "PH Db Depth";    desc = "Current DB depth";    PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_DB_STATUS.PH_DB_DEPTH";
+          } PH_DB_DEPTH    [1:0]   = 2'h0;
+};
+
+reg sif_alarm_err_r {
+  HqmClassification="DEBUG_ONLY_REG_NA_1";
+    name = "Sif Alarm Err";
+    desc = "SIF Alarm Errors.  These sticky bits are set when the associated error is valid and are only cleared by software.";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    IntelRsvd = false;
+
+    field {name="devtlb_ats_error";  desc="Received a devtlb ATS error";  PowerWell="vcccfn"; AccessType="RW/1C/V";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_ALARM_ERR.DEVTLB_ATS_ERROR";
+            ResetSignal = "side_gated_rst_prim_b";}    DEVTLB_ATS_ERROR [9:9]=1'b0;
+    field {name="cpl_error";  desc="Received a completion with CA or UR status";  PowerWell="vcccfn"; AccessType="RW/1C/V";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_ALARM_ERR.CPL_ERROR";
+            ResetSignal = "side_gated_rst_prim_b";}    CPL_ERROR  [8:8]=1'b0;
+    field {name="rf_ipar_error";  desc="RF interleaved parity error";  PowerWell="vcccfn"; AccessType="RW/1C/V";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_ALARM_ERR.RF_IPAR_ERROR";
+            ResetSignal = "side_gated_rst_prim_b";}    RF_IPAR_ERROR  [7:7]=1'b0;
+    field {name="cfgm_target_err";  desc="CFG master target parity or timeout error";  PowerWell="vcccfn"; AccessType="RW/1C/V";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_ALARM_ERR.CFGM_TARGET_ERR";
+            ResetSignal = "side_gated_rst_prim_b";}    CFGM_TARGET_ERR  [6:6]=1'b0;
+    field {name="sif_parity_err";    desc="SIF parity error";  PowerWell="vcccfn"; AccessType="RW/1C/V";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_ALARM_ERR.SIF_PARITY_ERR";
+            ResetSignal = "side_gated_rst_prim_b";}    SIF_PARITY_ERR  [5:5]=1'b0;
+    field {name="ri_parity_err";    desc="Receive  interface parity error";  PowerWell="vcccfn"; AccessType="RW/1C/V";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_ALARM_ERR.RI_PARITY_ERR";
+            ResetSignal = "side_gated_rst_prim_b";}    RI_PARITY_ERR    [4:4]=1'b0;
+    field {name="fifo_overflow";    desc="FIFO overflow";                    PowerWell="vcccfn"; AccessType="RW/1C/V";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_ALARM_ERR.FIFO_OVERFLOW";
+            ResetSignal = "side_gated_rst_prim_b";}    FIFO_OVERFLOW    [3:3]=1'b0;
+    field {name="fifo_underflow";   desc="FIFO underflow";                   PowerWell="vcccfn"; AccessType="RW/1C/V";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_ALARM_ERR.FIFO_UNDERFLOW";
+            ResetSignal = "side_gated_rst_prim_b";}   FIFO_UNDERFLOW   [2:2]=1'b0;
+    field {name="sb_ep_parity_err"; desc="Sideband Endpoint parity error";   PowerWell="vcccfn"; AccessType="RW/1C/V";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_ALARM_ERR.SB_EP_PARITY_ERR";
+            ResetSignal = "side_gated_rst_prim_b";} SB_EP_PARITY_ERR [1:1]=1'b0;
+    field {name="timeout";          desc="MMIO or HCW access timeout";       PowerWell="vcccfn"; AccessType="RW/1C/V";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_ALARM_ERR.TIMEOUT";
+            ResetSignal = "side_gated_rst_prim_b";}          TIMEOUT          [0:0]=1'b0;
+};
+
+reg dir_cq2tc_map_r {
+  HqmClassification="CONFIG_REG_NA_1";
+    name = "Dir Cq to TC Map";
+    desc = "Controls the mapping of Directed Consumer Queue to Traffic Class for scheduled HCW or IMS interrupt posted writes.";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    IntelRsvd = false;
+
+    field { name="dir3_tc"; desc="The traffic class used for directed CQ writes where {^{CQ[6],CQ[4],CQ[2],CQ[0]},^{CQ[5],CQ[3],CQ[1]}}==3";
+            PowerWell="vcccfn"; AccessType="RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.DIR_CQ2TC_MAP.DIR3_TC";
+          } DIR3_TC[15:12] = 4'h0;
+    field { name="dir2_tc"; desc="The traffic class used for directed CQ writes where {^{CQ[6],CQ[4],CQ[2],CQ[0]},^{CQ[5],CQ[3],CQ[1]}}==2";
+            PowerWell="vcccfn"; AccessType="RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.DIR_CQ2TC_MAP.DIR2_TC";
+          } DIR2_TC[11:8] = 4'h0;
+    field { name="dir1_tc"; desc="The traffic class used for directed CQ writes where {^{CQ[6],CQ[4],CQ[2],CQ[0]},^{CQ[5],CQ[3],CQ[1]}}==1";
+            PowerWell="vcccfn"; AccessType="RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.DIR_CQ2TC_MAP.DIR1_TC";
+          } DIR1_TC[7:4] = 4'h0;
+    field { name="dir0_tc"; desc="The traffic class used for directed CQ writes where {^{CQ[6],CQ[4],CQ[2],CQ[0]},^{CQ[5],CQ[3],CQ[1]}}==0";
+            PowerWell="vcccfn"; AccessType="RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.DIR_CQ2TC_MAP.DIR0_TC";
+          } DIR0_TC[3:0] = 4'h0;
+};
+
+reg ldb_cq2tc_map_r {
+  HqmClassification="CONFIG_REG_NA_1";
+    name = "Ldb Cq to TC Map";
+    desc = "Controls the mapping of Load Balanced Consumer Queue to Traffic Class for scheduled HCW or IMS interrupt posted writes.";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    IntelRsvd = false;
+
+    field { name="ldb3_tc"; desc="The traffic class used for load balanced CQ writes where CQ[5:4]==3";
+            PowerWell="vcccfn"; AccessType="RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.LDB_CQ2TC_MAP.LDB3_TC";
+          } LDB3_TC[15:12] = 4'h0;
+    field { name="ldb2_tc"; desc="The traffic class used for load balanced CQ writes where CQ[5:4]==2";
+            PowerWell="vcccfn"; AccessType="RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.LDB_CQ2TC_MAP.LDB2_TC";
+          } LDB2_TC[11:8] = 4'h0;
+    field { name="ldb1_tc"; desc="The traffic class used for load balanced CQ writes where CQ[5:4]==1";
+            PowerWell="vcccfn"; AccessType="RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.LDB_CQ2TC_MAP.LDB1_TC";
+          } LDB1_TC[7:4] = 4'h0;
+    field { name="ldb0_tc"; desc="The traffic class used for load balanced CQ writes where CQ[5:4]==0";
+            PowerWell="vcccfn"; AccessType="RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.LDB_CQ2TC_MAP.LDB0_TC";
+          } LDB0_TC[3:0] = 4'h0;
+};
+
+reg int2tc_map_r {
+  HqmClassification="CONFIG_REG_NA_1";
+    name = "Interrupt to TC Map";
+    desc = "Controls the mapping of MSI or MSI-X interrupt writes to Traffic Class.";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    IntelRsvd = false;
+
+    field { name="INT_TC"; desc="The traffic class used for MSI or MSI-X interrupt writes.";
+            PowerWell="vcccfn"; AccessType="RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.INT2TC_MAP.INT_TC";
+          } INT_TC[3:0] = 4'h0;
+};
+
+reg tgt_init_hcredits_r {
+  HqmClassification="STATUS_REG_NA_1";
+    name = "SIF Primary Target Initial Header Credit Register";
+    desc = "Contains the per flowclass number of header credits supported on the SIF primary target interface.";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = true;
+
+    field {name="init_hcredits_cpl";
+           desc="Number of completion header credits supported (0 means infinite credits).";
+           PowerWell="vcccfn"; AccessType="RO/V";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.TGT_INIT_HCREDITS.INIT_HCREDITS_CPL";
+          } INIT_HCREDITS_CPL[23:16] = 8'h00;
+    field {name="init_hcredits_np";
+           desc="Number of non-posted header credits supported (0 means infinite credits).";
+           PowerWell="vcccfn"; AccessType="RO/V";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.TGT_INIT_HCREDITS.INIT_HCREDITS_NP";
+          } INIT_HCREDITS_NP[15:8] = 8'h08;
+    field {name="init_hcredits_p";
+           desc="Number of posted header credits supported (0 means infinite credits).";
+           PowerWell="vcccfn"; AccessType="RO/V";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.TGT_INIT_HCREDITS.INIT_HCREDITS_P";
+          } INIT_HCREDITS_P[7:0] = 8'h10;
+};
+
+reg tgt_init_dcredits_r {
+  HqmClassification="STATUS_REG_NA_1";
+    name = "SIF Primary Target Initial Data Credit Register";
+    desc = "Contains the per flowclass number of data credits supported on the SIF primary target interface.";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = true;
+
+    field {name="init_dcredits_cpl";
+           desc="Number of completion data 4DW (64B) credits supported (0 means infinite credits).";
+           PowerWell="vcccfn"; AccessType="RO/V";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.TGT_INIT_DCREDITS.INIT_DCREDITS_CPL";
+          } INIT_DCREDITS_CPL[23:16] = 8'h00;
+    field {name="init_dcredits_np";
+           desc="Number of non-posted data 4DW (64B) credits supported (0 means infinite credits).";
+           PowerWell="vcccfn"; AccessType="RO/V";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.TGT_INIT_DCREDITS.INIT_DCREDITS_NP";
+          } INIT_DCREDITS_NP[15:8] = 8'h08;
+    field {name="init_dcredits_p";
+           desc="Number of posted data 4DW (64B) credits supported (0 means infinite credits).";
+           PowerWell="vcccfn"; AccessType="RO/V";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.TGT_INIT_DCREDITS.INIT_DCREDITS_P";
+          } INIT_DCREDITS_P[7:0] = 8'h30;
+};
+
+reg tgt_rem_hcredits_r {
+  HqmClassification="STATUS_REG_NA_1";
+    name = "SIF Primary Target Remaining Header Credit Register";
+    desc = "Contains the per flowclass number of header credits not currently consumed on the SIF primary target interface.
+            These are credits that have been consumed by received transactions but are still in the RI TLQ.";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = true;
+    donttest = true;
+
+    field {name="rem_hcredits_cpl";
+           desc="Number of completion header credits remaining.";
+           PowerWell="vcccfn"; AccessType="RO/V";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.TGT_REM_HCREDITS.REM_HCREDITS_CPL";
+          } REM_HCREDITS_CPL[23:16] = 8'h00;
+    field {name="rem_hcredits_np";
+           desc="Number of non-posted header credits remaining.";
+           PowerWell="vcccfn"; AccessType="RO/V";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.TGT_REM_HCREDITS.REM_HCREDITS_NP";
+          } REM_HCREDITS_NP[15:8] = 8'h08;
+    field {name="rem_hcredits_p";
+           desc="Number of posted header credits remaining.";
+           PowerWell="vcccfn"; AccessType="RO/V";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.TGT_REM_HCREDITS.REM_HCREDITS_P";
+          } REM_HCREDITS_P[7:0] = 8'h10;
+};
+
+reg tgt_rem_dcredits_r {
+  HqmClassification="STATUS_REG_NA_1";
+    name = "SIF Primary Target Remaining Data Credit Register";
+    desc = "Contains the per flowclass number of data credits not currently consumed on the SIF primary target interface.
+            These are credits that have been consumed by received transactions but are still in the RI TLQ.";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = true;
+    donttest = true;
+
+    field {name="rem_dcredits_cpl";
+           desc="Number of completion header credits remaining.";
+           PowerWell="vcccfn"; AccessType="RO/V";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.TGT_REM_DCREDITS.REM_DCREDITS_CPL";
+          } REM_DCREDITS_CPL[23:16] = 8'h00;
+    field {name="rem_dcredits_np";
+           desc="Number of non-posted header credits remaining.";
+           PowerWell="vcccfn"; AccessType="RO/V";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.TGT_REM_DCREDITS.REM_DCREDITS_NP";
+          } REM_DCREDITS_NP[15:8] = 8'h08;
+    field {name="rem_dcredits_p";
+           desc="Number of posted header credits remaining.";
+           PowerWell="vcccfn"; AccessType="RO/V";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.TGT_REM_DCREDITS.REM_DCREDITS_P";
+          } REM_DCREDITS_P[7:0] = 8'h30;
+};
+
+reg tgt_ret_hcredits_r {
+  HqmClassification="STATUS_REG_NA_1";
+    name = "SIF Primary Target Return Header Credit Register";
+    desc = "Contains the per flowclass number of header credits to be returned to the SIF primary target interface.
+            These are credits that have been freed by the RI TLQ but not yet returned to the SIF primary fabric.";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = true;
+    donttest = true;
+
+    field {name="ret_hcredits_cpl";
+           desc="Number of completion header credits to return.";
+           PowerWell="vcccfn"; AccessType="RO/V";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.TGT_RET_HCREDITS.RET_HCREDITS_CPL";
+          } RET_HCREDITS_CPL[23:16] = 8'h00;
+    field {name="ret_hcredits_np";
+           desc="Number of non-posted header credits to return.";
+           PowerWell="vcccfn"; AccessType="RO/V";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.TGT_RET_HCREDITS.RET_HCREDITS_NP";
+          } RET_HCREDITS_NP[15:8] = 8'h00;
+    field {name="ret_hcredits_p";
+           desc="Number of posted header credits to return.";
+           PowerWell="vcccfn"; AccessType="RO/V";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.TGT_RET_HCREDITS.RET_HCREDITS_P";
+          } RET_HCREDITS_P[7:0] = 8'h00;
+};
+
+reg tgt_ret_dcredits_r {
+  HqmClassification="STATUS_REG_NA_1";
+    name = "SIF Primary Target Return Data Credit Register";
+    desc = "Contains the per flowclass number of data credits to be returned to the SIF primary target interface.
+            These are credits that have been freed by the RI TLQ but not yet returned to the SIF primary fabric.";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = true;
+    donttest = true;
+
+    field {name="ret_dcredits_cpl";
+           desc="Number of completion header credits to return.";
+           PowerWell="vcccfn"; AccessType="RO/V";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.TGT_RET_DCREDITS.RET_DCREDITS_CPL";
+          } RET_DCREDITS_CPL[23:16] = 8'h00;
+    field {name="ret_dcredits_np";
+           desc="Number of non-posted header credits to return.";
+           PowerWell="vcccfn"; AccessType="RO/V";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.TGT_RET_DCREDITS.RET_DCREDITS_NP";
+          } RET_DCREDITS_NP[15:8] = 8'h00;
+    field {name="ret_dcredits_p";
+           desc="Number of posted header credits to return.";
+           PowerWell="vcccfn"; AccessType="RO/V";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.TGT_RET_DCREDITS.RET_DCREDITS_P";
+          } RET_DCREDITS_P[7:0] = 8'h00;
+};
+
+reg scrbd_ctl_r {
+  HqmClassification="CONFIG_REG_NA_1";
+    name = "Scoreboard Control";
+    desc = "Non-default settings may cause UNDEFINED behavior. Non-posted transaction scoreboard control.";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+
+    field {name="xreq_limit"; desc="Limit on the number of outstanding devtlb requests (PendQ has 64 entries)"; PowerWell="vcccfn"; AccessType="RW";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SCRBD_CTL.XREQ_LIMIT"; } XREQ_LIMIT[22:16] = 7'h40;
+    field {name="timeout8"; desc="Cause NP transactions to timeout after just 8 clocks"; PowerWell="vcccfn"; AccessType="RW";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SCRBD_CTL.TIMEOUT8"; } TIMEOUT8[15:15] = 1'h0;
+    field {name="ats_limit"; desc="Limit on the number of outstanding ATS requests (Max=32)"; PowerWell="vcccfn"; AccessType="RW";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SCRBD_CTL.ATS_LIMIT"; } ATS_LIMIT[14:9] = 6'h20;
+    field {name="scrbd_limit"; desc="Limit on the number of outstanding NP transactions (Max=256)"; PowerWell="vcccfn"; AccessType="RW";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SCRBD_CTL.SCRBD_LIMIT"; } SCRBD_LIMIT[8:0] = 9'h100;
+};
+
+reg devtlb_ctl_r {
+  HqmClassification="CONFIG_REG_NA_1";
+    name = "Devtlb Control";
+    desc = "Non-default settings may cause UNDEFINED behavior. Devtlb control";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+
+    field {name="loxreq_gcnt"; desc="Low Priority Devtlb Requets"; PowerWell="vcccfn"; AccessType="RW";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.DEVTLB_CTL.LOXREQ_GCNT"; } LOXREQ_GCNT[15:13] = 3'h4;
+    field {name="hixreq_gcnt"; desc="High Priority Devtlb Requets"; PowerWell="vcccfn"; AccessType="RW";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.DEVTLB_CTL.HIXREQ_GCNT"; } HIXREQ_GCNT[12:10] = 3'h4;
+    field {name="pendq_gcnt"; desc="Pending Queue Credits"; PowerWell="vcccfn"; AccessType="RW";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.DEVTLB_CTL.PENDQ_GCNT"; } PENDQ_GCNT[9:7] = 3'h4;
+    field {name="fill_gcnt"; desc="Fill credits"; PowerWell="vcccfn"; AccessType="RW";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.DEVTLB_CTL.FILL_GCNT"; } FILL_GCNT[6:4] = 3'h4;
+    field {name="prs_cretry"; desc="Page request Service Continuous Retry"; PowerWell="vcccfn"; AccessType="RW";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.DEVTLB_CTL.PRS_CRETRY"; } PRS_CRETRY[3:3] = 1'h0;
+    field {name="disable_prs"; desc="Disable Page request Services"; PowerWell="vcccfn"; AccessType="RW";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.DEVTLB_CTL.DISABLE_PRS"; } DISABLE_PRS[2:2] = 1'h0;
+    field {name="disable_2m"; desc="Disable 2M page sizes"; PowerWell="vcccfn"; AccessType="RW";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.DEVTLB_CTL.DISABLE_2M"; } DISABLE_2M[1:1] = 1'h0;
+    field {name="disable_1g"; desc="Disable 1G page sizes"; PowerWell="vcccfn"; AccessType="RW";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.DEVTLB_CTL.DISABLE_1G"; } DISABLE_1G[0:0] = 1'h0;
+};
+
+reg devtlb_spare_r {
+  HqmClassification="CONFIG_REG_NA_1";
+    name = "Devtlb Spare Control";
+    desc = "Non-default settings may cause UNDEFINED behavior. Devtlb spare control";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+
+    field {name="Spare"; desc="Spare"; PowerWell="vcccfn"; AccessType="RW";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.DEVTLB_SPARE.SPARE"; } SPARE[31:0] = 32'h00000000;
+};
+
+reg devtlb_defeature0_r {
+  HqmClassification="CONFIG_REG_NA_1";
+    name = "Devtlb Defeature 0";
+    desc = "Non-default settings may cause UNDEFINED behavior. Devtlb defeature 0";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+
+    field {name="Defeature"; desc="Defeature"; PowerWell="vcccfn"; AccessType="RW";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.DEVTLB_DEFEATURE0.DEFEATURE"; } DEFEATURE[31:0] = 32'h00000000;
+};
+
+reg devtlb_defeature1_r {
+  HqmClassification="CONFIG_REG_NA_1";
+    name = "Devtlb Defeature 1";
+    desc = "Non-default settings may cause UNDEFINED behavior. Devtlb defeature 1";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+
+    field {name="Defeature"; desc="Defeature"; PowerWell="vcccfn"; AccessType="RW";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.DEVTLB_DEFEATURE1.DEFEATURE"; } DEFEATURE[31:0] = 32'h00000000;
+};
+
+reg devtlb_defeature2_r {
+  HqmClassification="CONFIG_REG_NA_1";
+    name = "Devtlb Defeature 2";
+    desc = "Non-default settings may cause UNDEFINED behavior. Devtlb defeature 2";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = false;
+
+    field {name="Defeature"; desc="Defeature"; PowerWell="vcccfn"; AccessType="RW";
+           ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.DEVTLB_DEFEATURE2.DEFEATURE"; } DEFEATURE[31:0] = 32'h00000000;
+};
+
+reg devtlb_status_r {
+  HqmClassification="STATUS_REG_NA_1";
+    name = "Devtlb Status";
+    desc = "Devtlb Status";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = true;
+
+    field { name = "xreq_cnt"; desc = "Number of outstanding devtlb requests.";    PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.DEVTLB_STATUS.XREQ_CNT";
+          } XREQ_CNT [28:22] = 7'h00;
+    field { name = "ats_req_cnt"; desc = "Number of outstanding devtlb ATS requests.";    PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.DEVTLB_STATUS.ATS_REQ_CNT";
+          } ATS_REQ_CNT [21:16] = 6'h00;
+    field { name = "drain_req_v"; desc = "A devtlb drain request is valid.";    PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.DEVTLB_STATUS.DRAIN_REQ_V";
+          } DRAIN_REQ_V [15:15] = 1'h0;
+    field { name = "tx_msg_v"; desc = "A devtlb invalidate completion is valid.";    PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.DEVTLB_STATUS.TX_MSG_V";
+          } TX_MSG_V [14:14] = 1'h0;
+    field { name = "ats_hreq_v"; desc = "A devtlb high priority ATS request is valid.";    PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.DEVTLB_STATUS.ATS_HREQ_V";
+          } ATS_HREQ_V [13:13] = 1'h0;
+    field { name = "ats_lreq_v"; desc = "A devtlb low priority ATS request is valid.";    PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.DEVTLB_STATUS.ATS_LREQ_V";
+          } ATS_LREQ_V [12:12] = 1'h0;
+    field { name = "hcrd_cnt"; desc = "Number of devtlb high priority request credits available.";    PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.DEVTLB_STATUS.HCRD_CNT";
+          } HCRD_CNT [10:8]  = 3'h4;
+    field { name = "lcrd_cnt"; desc = "Number of devtlb low priority request credits available.";    PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.DEVTLB_STATUS.LCRD_CNT";
+          } LCRD_CNT [6:4]   = 3'h4;
+    field { name = "ats_enabled"; desc = "Address Translation Services are enabled.";    PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.DEVTLB_STATUS.ATS_ENABLED";
+          } ATS_ENABLED [3:3]   = 1'h0;
+    field { name = "reset_active"; desc = "Reset in progress for devtlb.";    PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.DEVTLB_STATUS.RESET_ACTIVE";
+          } RESET_ACTIVE [2:2]   = 1'h0;
+    field { name = "invreqs_active"; desc = "There are outstanding devtlb invalidate requests";    PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.DEVTLB_STATUS.INVREQS_ACTIVE";
+          } INVREQS_ACTIVE [1:1]   = 1'h0;
+    field { name = "xreqs_active"; desc = "There are outstanding devtlb requests";    PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.DEVTLB_STATUS.XREQS_ACTIVE";
+          } XREQS_ACTIVE [0:0]   = 1'h0;
+};
+
+reg scrbd_status_r {
+  HqmClassification="STATUS_REG_NA_1";
+    name = "Scrbd Status";
+    desc = "Scoreboard Status";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = true;
+
+    field { name = "stopnscream"; desc = "Scoreboard stop and scream indication is set.";    PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SCRBD_STATUS.STOPNSCREAM";
+          } STOPNSCREAM [11:11] = 1'h0;
+    field { name = "tim_inuse"; desc = "Scoreboard has completion timers in use.";    PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SCRBD_STATUS.TIM_INUSE";
+          } TIM_INUSE [10:10] = 1'h0;
+    field { name = "to_pend"; desc = "Scoreboard has pending timeouts.";    PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SCRBD_STATUS.TO_PEND";
+          } TO_PEND [9:9] = 1'h0;
+    field { name = "scrbd_cnt"; desc = "Number of allocated scoreboard locations.";    PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SCRBD_STATUS.SCRBD_CNT";
+          } SCRBD_CNT [8:0] = 9'h000;
+};
+
+reg mstr_crd_status_r {
+  HqmClassification="STATUS_REG_NA_1";
+    name = "Sif Mstr Crd Status";
+    desc = "Mstr Credit Status";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = true;
+    donttest = true;
+
+    field { name = "cpl_req_put_cnt"; desc = "Outstanding completion requests";   PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.MSTR_CRD_STATUS.CPL_REQ_PUT_CNT"; } CPL_REQ_PUT_CNT [14:10] = 5'h00;
+    field { name = "np_req_put_cnt"; desc = "Outstanding non-posted requests";   PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.MSTR_CRD_STATUS.NP_REQ_PUT_CNT"; } NP_REQ_PUT_CNT [9:5] = 5'h00;
+    field { name = "p_req_put_cnt"; desc = "Outstanding posted requests";   PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.MSTR_CRD_STATUS.P_REQ_PUT_CNT"; } P_REQ_PUT_CNT [4:0] = 5'h00;
+};
+
+reg mstr_fl_status_r {
+  HqmClassification="STATUS_REG_NA_1";
+    name = "Sif Mstr Fl Status";
+    desc = "Mstr Freelist Status";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = true;
+    donttest = true;
+
+    field { name = "fl_full"; desc = "Freelist is full";   PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.MSTR_FL_STATUS.FL_FULL"; } FL_FULL [19:19] = 1'h1;
+    field { name = "fl_aempty"; desc = "Freelist blocks in use >= limit";   PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.MSTR_FL_STATUS.FL_AEMPTY"; } FL_AEMPTY [18:18] = 1'h0;
+    field { name = "fl_empty"; desc = "Freelist is empty";   PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.MSTR_FL_STATUS.FL_EMPTY"; } FL_EMPTY [17:17] = 1'h0;
+    field { name = "fl_cnt"; desc = "Current number of available freelist blocks";   PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.MSTR_FL_STATUS.FL_CNT"; } FL_CNT [16:8] = 9'h100;
+    field { name = "fl_hptr"; desc = "Outstanding completion requests";   PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.MSTR_FL_STATUS.FL_HPTR"; } FL_HPTR [7:0] = 8'h00;
+};
+
+reg mstr_ll_status_r {
+  HqmClassification="STATUS_REG_NA_1";
+    name = "Sif Mstr Ll Status";
+    desc = "Mstr Linked List Status";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = true;
+    donttest = true;
+
+    field { name = "hpa_v"; desc = "HPA valid indication for the last CQ LL read initiated with the MSTR_LL_CTL reg.  This bit will be zero for RL or BLK reads";   PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.MSTR_LL_STATUS.DRAIN"; } HPA_V [19:19] = 1'h0;
+    field { name = "hpa_err"; desc = "HPA fetch error indication for the last CQ LL read initiated with the MSTR_LL_CTL reg.  This bit will be zero for RL or BLK reads";   PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.MSTR_LL_STATUS.DRAIN"; } HPA_ERR [18:18] = 1'h0;
+    field { name = "hpa_pnd"; desc = "HPA fetch pending indication for the last CQ LL read initiated with the MSTR_LL_CTL reg.  This bit will be zero for RL or BLK reads";   PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.MSTR_LL_STATUS.DRAIN"; } HPA_PND [17:17] = 1'h0;
+    field { name = "valid"; desc = "Current valid indication for the last LL or RL read initiated with the MSTR_LL_CTL reg.  This bit will be zero for BLK reads";   PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.MSTR_LL_STATUS.VALID"; } VALID [16:16] = 1'h0;
+    field { name = "hptr "; desc = "Current head pointer value for the last LL or RL read initiated with the MSTR_LL_CTL reg.  For BLK reads, just the lower 2 bits contain the Block valid and MSI-X valid indications respectively.";   PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.MSTR_LL_STATUS.HPTR"; } HPTR [15:8] = 8'h00;
+    field { name = "tptr "; desc = "Current tail pointer value for LL or RL reads or the next block pointer for BLK reads initiated with the MSTR_LL_CTL reg.";   PowerWell="vcccfn"; AccessType = "RO/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.MSTR_LL_STATUS.TPTR"; } TPTR [7:0] = 8'h00;
+};
+
+reg mstr_ll_ctl_r {
+  HqmClassification="CONFIG_REG_NA_1";
+    name = "Sif Mstr Ll Control";
+    desc = "Mstr Linked List Control.  Non-default settings may cause UNDEFINED behavior. This register is used to control the master linked list and to setup reads of the initernal linked list state.  A rising edge on the CLR_HPA_ERR bit will clear the error bit for the CQ specified in the PTR field (if (LDB), PTR=LDB_CQ+#DIR_CQs, else PTR=DIR_CQ).  A rising edge on the RD_BLK bit writes the current HPA valid, interrupt valid, and next block pointer values for the linked list block specified by the PTR field into the MSTR_LL_STATUS reg where it can then be read. A rising edge on the RD_LL bit writes the current list valid, head pointer, and tail pointer for the input list specified in the PTR field into the MSTR_LL_STATUS reg.  A rising edge on the RD_RL bit writes the current list valid, head pointer, and tail pointer for the request list specified by PTR[1:0] into the MSTR_LL_STATUS reg.";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    HqmIsFeatureReg = true;
+    IntelRsvd = true;
+    donttest = true;
+
+    field { name="cq_ll_limit"; desc="Limit on the number of linked list blocks available for CQ writes"; PowerWell="vcccfn"; AccessType="RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SCRBD_CTL.CQ_LL_LIMIT"; } CQ_LL_LIMIT[19:12] = 8'h10;
+    field { name = "clr_hpa_err"; desc = "A rising edge on this bit will clear the hpa_err indication for the CQ specified in the PTR field.";   PowerWell="vcccfn"; AccessType = "RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.MSTR_LL_CTL.CLR_CQ"; } CLR_HPA_ERR [11:11] = 1'h0;
+    field { name = "rd_blk"; desc = "A rising edge on this bit causes a write of the current linked list block state into the MSTR_LL_STATUS reg.";   PowerWell="vcccfn"; AccessType = "RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.MSTR_LL_CTL.RD_BLK"; } RD_BLK [10:10] = 1'h0;
+    field { name = "rd_rl"; desc = "A rising edge on this bit causes a write of the current request list (0:P, 1:NP, 2:CPL) state into the MSTR_LL_STATUS reg.";   PowerWell="vcccfn"; AccessType = "RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.MSTR_LL_CTL.RD_RL"; } RD_RL [9:9] = 1'h0;
+    field { name = "rd_ll"; desc = "A rising edge on this bit causes a read of the current input list (0-127:CQn, 128:NP, 129:CPL) state into the MSTR_LL_STATUS reg.";   PowerWell="vcccfn"; AccessType = "RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.MSTR_LL_CTL.RD_LL"; } RD_LL [8:8] = 1'h0;
+    field { name = "ptr"; desc = "Pointer value to be used for reading the LL state.  If RD_BLK is set, PTR specifies the linked list block for which to read the status.  If RD_LL is set, only the bits required to specify a valid LL are used.  If RD_RL is set, then only PTR[1:0] are used.  For CLR_HPA_ERR this field represents the CQ for which to clear the error.";   PowerWell="vcccfn"; AccessType = "RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.MSTR_LL_CTL.PTR"; } PTR [7:0] = 8'h00;
+};
+
+reg ibcpl_err_r {
+  HqmClassification="DEBUG_ONLY_REG_NA_1";
+    name = "Ibcpl Err";
+    desc = "Inbound completion errors";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    IntelRsvd = false;
+
+    field { name = "ibcpl_ur";    desc = "Received a completion with status set to unsupported request"; PowerWell="vcccfn"; AccessType = "RW/1C/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.IBCPL_ERR.IBCPL_UR"; } IBCPL_UR [1:1] = 1'b0;
+    field { name = "ibcpl_abort"; desc = "Received a completion with status set to completer abort"; PowerWell="vcccfn"; AccessType = "RW/1C/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.IBCPL_ERR.IBCPL_ABORT"; } IBCPL_ABORT [0:0] = 1'b0;
+};
+
+reg ibcpl_err_hdr_r {
+  HqmClassification="DEBUG_ONLY_REG_NA_1";
+    name = "Ibcpl Err Hdr";
+    desc = "Inbound completion error header";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    IntelRsvd = false;
+
+    field { name = "hdr"; desc = "Contains the header of the first completion that had a UR or CA status."; PowerWell="vcccfn"; AccessType = "RW/1C/V";
+          } HDR [31:0] = 32'h00000000;
+};
+
+reg devtlb_ats_err_r {
+  HqmClassification="DEBUG_ONLY_REG_NA_1";
+    name = "Devtlb Ats Err";
+    desc = "Devtlb ATS Errors";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    IntelRsvd = false;
+
+    field { name = "Data error"; desc = "ATS response received with dperror=1."; PowerWell="vcccfn"; AccessType = "RW/1C/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.DEVTLB_ATS_ERR.DPERROR"; } DPERROR [2:2] = 1'b0;
+    field { name = "Hdr error"; desc = "ATS response received with hdrerror=1."; PowerWell="vcccfn"; AccessType = "RW/1C/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.DEVTLB_ATS_ERR.HDRERROR"; } HDRERROR [1:1] = 1'b0;
+    field { name = "Bad result"; desc = "ATS response received with result=0."; PowerWell="vcccfn"; AccessType = "RW/1C/V";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.DEVTLB_ATS_ERR.BAD_RESULT"; } BAD_RESULT [0:0] = 1'b0;
+};
+
+reg sif_ctl_r {
+  HqmClassification="CONFIG_REG_NA_1";
+    name = "Sif Ctl";
+    desc = "System interface control";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    IntelRsvd = false;
+
+    field { name = "idle_dly"; desc = "Cycles after idle to wait before initiating clk gating. Number of cycles to wait is 2**(idle_dly+3)"; PowerWell="vcccfn"; AccessType = "RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_CTL.IDLE_DLY";} IDLE_DLY[6:4] = 3'h0;
+    field { name = "sif_con_dly"; desc = "Cycles after reset to wait before initiating SIF connect request. Number of cycles to wait is 2**(sfi_con_dly+1)"; PowerWell="vcccfn"; AccessType = "RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_CTL.SIF_CON_DLY";} SIF_CON_DLY[3:0] = 4'h0;
+};
+
+reg sif_vc_rxmap_r {
+  HqmClassification="CONFIG_REG_NA_1";
+    name = "Sif Vc Rxmap";
+    desc = "System interface receive virtual channel mappings";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    IntelRsvd = false;
+
+    field { name = "vc7_map"; desc = "Internal VC# to use for external VC7."; PowerWell="vcccfn"; AccessType = "RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_VC_RXMAP.VC7_MAP";} VC7_MAP[30:28] = 3'h0;
+    field { name = "vc6_map"; desc = "Internal VC# to use for external VC6."; PowerWell="vcccfn"; AccessType = "RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_VC_RXMAP.VC6_MAP";} VC6_MAP[26:24] = 3'h0;
+    field { name = "vc5_map"; desc = "Internal VC# to use for external VC5."; PowerWell="vcccfn"; AccessType = "RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_VC_RXMAP.VC5_MAP";} VC5_MAP[22:20] = 3'h0;
+    field { name = "vc4_map"; desc = "Internal VC# to use for external VC4."; PowerWell="vcccfn"; AccessType = "RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_VC_RXMAP.VC4_MAP";} VC4_MAP[18:16] = 3'h0;
+    field { name = "vc3_map"; desc = "Internal VC# to use for external VC3."; PowerWell="vcccfn"; AccessType = "RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_VC_RXMAP.VC3_MAP";} VC3_MAP[14:12] = 3'h1;
+    field { name = "vc2_map"; desc = "Internal VC# to use for external VC2."; PowerWell="vcccfn"; AccessType = "RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_VC_RXMAP.VC2_MAP";} VC2_MAP[10: 8] = 3'h2;
+    field { name = "vc1_map"; desc = "Internal VC# to use for external VC1."; PowerWell="vcccfn"; AccessType = "RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_VC_RXMAP.VC1_MAP";} VC1_MAP[ 6: 4] = 3'h0;
+    field { name = "vc0_map"; desc = "Internal VC# to use for external VC0."; PowerWell="vcccfn"; AccessType = "RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_VC_RXMAP.VC0_MAP";} VC0_MAP[ 2: 0] = 3'h0;
+};
+
+reg sif_vc_txmap_r {
+  HqmClassification="CONFIG_REG_NA_1";
+    name = "Sif Vc Txmap";
+    desc = "System interface transmit virtual channel mappings";
+    regwidth = 32;
+    shared;
+    Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+    Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+    Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+    IntelRsvd = false;
+
+    field { name = "vc7_map"; desc = "External VC# to use for internal VC7."; PowerWell="vcccfn"; AccessType = "RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_VC_TXMAP.VC7_MAP";} VC7_MAP[30:28] = 3'h0;
+    field { name = "vc6_map"; desc = "External VC# to use for internal VC6."; PowerWell="vcccfn"; AccessType = "RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_VC_TXMAP.VC6_MAP";} VC6_MAP[26:24] = 3'h0;
+    field { name = "vc5_map"; desc = "External VC# to use for internal VC5."; PowerWell="vcccfn"; AccessType = "RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_VC_TXMAP.VC5_MAP";} VC5_MAP[22:20] = 3'h0;
+    field { name = "vc4_map"; desc = "External VC# to use for internal VC4."; PowerWell="vcccfn"; AccessType = "RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_VC_TXMAP.VC4_MAP";} VC4_MAP[18:16] = 3'h0;
+    field { name = "vc3_map"; desc = "External VC# to use for internal VC3."; PowerWell="vcccfn"; AccessType = "RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_VC_TXMAP.VC3_MAP";} VC3_MAP[14:12] = 3'h0;
+    field { name = "vc2_map"; desc = "External VC# to use for internal VC2."; PowerWell="vcccfn"; AccessType = "RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_VC_TXMAP.VC2_MAP";} VC2_MAP[10: 8] = 3'h2;
+    field { name = "vc1_map"; desc = "External VC# to use for internal VC1."; PowerWell="vcccfn"; AccessType = "RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_VC_TXMAP.VC1_MAP";} VC1_MAP[ 6: 4] = 3'h3;
+    field { name = "vc0_map"; desc = "External VC# to use for internal VC0."; PowerWell="vcccfn"; AccessType = "RW";
+            ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIF_VC_TXMAP.VC0_MAP";} VC0_MAP[ 2: 0] = 3'h0;
+};

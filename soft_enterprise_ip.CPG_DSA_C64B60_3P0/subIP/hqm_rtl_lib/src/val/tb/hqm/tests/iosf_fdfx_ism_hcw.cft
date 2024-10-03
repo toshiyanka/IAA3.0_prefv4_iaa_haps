@@ -1,0 +1,161 @@
+idle 500
+###########################################################################################
+# Should be completely idle with clkreqs and clock enables low and ISMs IDLE
+assert  hqm_tb_top.u_hqm.prim_clkreq 0
+assert  hqm_tb_top.u_hqm.side_clkreq 0
+assert  hqm_tb_top.u_hqm.prim_ism_agent 0
+assert  hqm_tb_top.u_hqm.gpsb_side_ism_agent 0
+assert  hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.prim_clk_enable 0
+assert  hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_sif.i_hqm_sif_core.i_hqm_iosfsb_core.side_gclock_enable_nc 0
+assert  hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_sif.i_hqm_sif_core.i_hqm_sifsb_core.i_hqm_sbebase.clkgate_en 0
+###########################################################################################
+# Force prim_jta_force_clkreq/cdc_prim_jta_force_clkreq
+# prim_clkreq should assert
+force   hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_rtdr_iosfsb_ism.rtdr_upd_f[2] 1
+idle 50
+assert  hqm_tb_top.u_hqm.prim_clkreq 1
+assert  hqm_tb_top.u_hqm.side_clkreq 0
+assert  hqm_tb_top.u_hqm.prim_ism_agent 0
+assert  hqm_tb_top.u_hqm.gpsb_side_ism_agent 0
+# Force prim_jta_force_notidle
+# prim_ism_agent should transition IDLE->ACTIVE_REQ->ACTIVE->IDLE_REQ->IDLE
+force   hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_rtdr_iosfsb_ism.rtdr_upd_f[4] 1
+idle 10
+assert  hqm_tb_top.u_hqm.prim_clkreq 1
+assert  hqm_tb_top.u_hqm.side_clkreq 0
+assert  hqm_tb_top.u_hqm.prim_ism_agent 3
+assert  hqm_tb_top.u_hqm.gpsb_side_ism_agent 0
+force   hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_rtdr_iosfsb_ism.rtdr_upd_f[4] 0
+idle 50
+assert  hqm_tb_top.u_hqm.prim_clkreq 1
+assert  hqm_tb_top.u_hqm.side_clkreq 0
+assert  hqm_tb_top.u_hqm.prim_ism_agent 0
+assert  hqm_tb_top.u_hqm.gpsb_side_ism_agent 0
+# We do not support credit reinit after we've already gone through credit exchange but to check the 
+# override we can artificially reset the tgt_crdt block where the credit counters exist first.
+force   hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_sif.i_hqm_sif_core.i_hqm_iosfp_core.i_hqm_iosf_tgt_top.hqm_iosf_tgt_crdt.prim_gated_rst_b 0
+idle 10
+# Force prim_jta_force_idle
+# This will keep us artificially looking like we're idle when the reset completes and stay in the IDLE state
+force   hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_rtdr_iosfsb_ism.rtdr_upd_f[5] 1
+idle 10
+force   hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_sif.i_hqm_sif_core.i_hqm_sifp_core.i_hqm_sif_tgt_top.hqm_sif_tgt_crdt.prim_gated_rst_b 1
+idle 10
+# Force prim_jta_force_creditreq
+# prim_ism_agent should transition IDLE->CREDIT_REQ->CREDIT_INIT_ST->CREDIT_DONE->IDLE
+force   hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_rtdr_iosfsb_ism.rtdr_upd_f[3] 1
+idle 20
+assert  hqm_tb_top.u_hqm.prim_clkreq 1
+assert  hqm_tb_top.u_hqm.side_clkreq 0
+assert  hqm_tb_top.u_hqm.prim_ism_agent 5
+assert  hqm_tb_top.u_hqm.gpsb_side_ism_agent 0
+force   hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_rtdr_iosfsb_ism.rtdr_upd_f[5] 0
+force   hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_rtdr_iosfsb_ism.rtdr_upd_f[3] 0
+idle 50
+assert  hqm_tb_top.u_hqm.prim_clkreq 1
+assert  hqm_tb_top.u_hqm.side_clkreq 0
+assert  hqm_tb_top.u_hqm.prim_ism_agent 0
+assert  hqm_tb_top.u_hqm.gpsb_side_ism_agent 0
+force   hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_rtdr_iosfsb_ism.rtdr_upd_f[2] 0
+idle 50
+# Force cdc_prim_jta_clkgate_ovrd
+# This should assert prim_clk_enable
+assert  hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.prim_clk_enable 0
+force   hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_rtdr_iosfsb_ism.rtdr_upd_f[1] 1
+idle 10
+assert  hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.prim_clk_enable 1
+force   hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_rtdr_iosfsb_ism.rtdr_upd_f[1] 0
+idle 10
+assert  hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.prim_clk_enable 0
+idle 30
+assert  hqm_tb_top.u_hqm.prim_clkreq 0
+assert  hqm_tb_top.u_hqm.side_clkreq 0
+assert  hqm_tb_top.u_hqm.prim_ism_agent 0
+assert  hqm_tb_top.u_hqm.gpsb_side_ism_agent 0
+assert  hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.prim_clk_enable 0
+assert  hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_sif.i_hqm_sif_core.i_hqm_iosfsb_core.side_gclock_enable_nc 0
+assert  hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_sif.i_hqm_sif_core.i_hqm_iosfsb_core.i_hqm_sbebase.clkgate_en 0
+###########################################################################################
+# Force gpsb_jta_force_clkreq/cdc_side_jta_force_clkreq
+force   hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_rtdr_iosfsb_ism.rtdr_upd_f[12] 1
+idle 50
+assert  hqm_tb_top.u_hqm.prim_clkreq 0
+assert  hqm_tb_top.u_hqm.side_clkreq 1
+assert  hqm_tb_top.u_hqm.prim_ism_agent 0
+assert  hqm_tb_top.u_hqm.gpsb_side_ism_agent 0
+# Force gpsb_jta_force_notidle
+# gpsb_side_ism_agent should transition IDLE->ACTIVE_REQ->ACTIVE->IDLE_REQ->IDLE
+force   hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_rtdr_iosfsb_ism.rtdr_upd_f[14] 1
+idle 25
+assert  hqm_tb_top.u_hqm.prim_clkreq 0
+assert  hqm_tb_top.u_hqm.side_clkreq 1
+assert  hqm_tb_top.u_hqm.prim_ism_agent 0
+assert  hqm_tb_top.u_hqm.gpsb_side_ism_agent 3
+force   hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_rtdr_iosfsb_ism.rtdr_upd_f[14] 0
+idle 100
+assert  hqm_tb_top.u_hqm.prim_clkreq 0
+assert  hqm_tb_top.u_hqm.side_clkreq 1
+assert  hqm_tb_top.u_hqm.prim_ism_agent 0
+assert  hqm_tb_top.u_hqm.gpsb_side_ism_agent 0
+# Force gpsb_jta_force_creditreq
+# gpsb_side_ism_agent should transition IDLE->CREDIT_REQ->CREDIT_INIT_ST->CREDIT_DONE->IDLE
+force   hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_rtdr_iosfsb_ism.rtdr_upd_f[13] 1
+idle 20
+assert  hqm_tb_top.u_hqm.prim_clkreq 0
+assert  hqm_tb_top.u_hqm.side_clkreq 1
+assert  hqm_tb_top.u_hqm.prim_ism_agent 0
+assert  hqm_tb_top.u_hqm.gpsb_side_ism_agent 4
+force   hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_rtdr_iosfsb_ism.rtdr_upd_f[13] 0
+idle 100
+assert  hqm_tb_top.u_hqm.prim_clkreq 0
+assert  hqm_tb_top.u_hqm.side_clkreq 1
+assert  hqm_tb_top.u_hqm.prim_ism_agent 0
+assert  hqm_tb_top.u_hqm.gpsb_side_ism_agent 0
+force   hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_rtdr_iosfsb_ism.rtdr_upd_f[12] 0
+idle 150
+assert  hqm_tb_top.u_hqm.prim_ism_agent 0
+assert  hqm_tb_top.u_hqm.gpsb_side_ism_agent 0
+assert  hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.prim_clk_enable 0
+assert  hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_sif.i_hqm_sif_core.i_hqm_sif_core.i_hqm_iosfsb_core.side_gclock_enable_nc 0
+assert  hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_sif.i_hqm_sif_core.i_hqm_iosfsb_core.i_hqm_sbebase.clkgate_en 0
+###########################################################################################
+# Force cdc_side_jta_clkgate_ovrd
+# This should assert the side_clk enable
+force   hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_rtdr_iosfsb_ism.rtdr_upd_f[0] 1
+idle 20
+assert  hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.prim_clk_enable 0
+assert  hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_sif.i_hqm_sif_core.i_hqm_sif_core.i_hqm_iosfsb_core.side_gclock_enable_nc 1
+assert  hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_sif.i_hqm_sif_core.i_hqm_iosfsb_core.i_hqm_sbebase.clkgate_en 0
+force   hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_rtdr_iosfsb_ism.rtdr_upd_f[0] 0
+idle 20
+assert  hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.prim_clk_enable 0
+assert  hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_sif.i_hqm_sif_core.i_hqm_sif_core.i_hqm_iosfsb_core.side_gclock_enable_nc 0
+assert  hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_sif.i_hqm_sif_core.i_hqm_iosfsb_core.i_hqm_sbebase.clkgate_en 0
+###########################################################################################
+# Force gpsb_jta_clkgate_ovrd
+# This forces the internal side_clk enable off (note instead of on like the other overrides, go figure...)
+assert  hqm_tb_top.u_hqm.prim_ism_agent 0
+assert  hqm_tb_top.u_hqm.gpsb_side_ism_agent 0
+force   hqm_tb_top.gpsb_side_ism_fabric 2
+idle 10
+force   hqm_tb_top.gpsb_side_ism_fabric 3
+idle 10
+assert  hqm_tb_top.u_hqm.gpsb_side_ism_agent 3
+assert  hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_sif.i_hqm_sif_core.i_hqm_iosfsb_core.i_hqm_sbebase.clkgate_en 1
+force   hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_rtdr_iosfsb_ism.rtdr_upd_f[11] 1
+idle 10
+assert  hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_sif.i_hqm_sif_core.i_hqm_iosfsb_core.i_hqm_sbebase.clkgate_en 0
+idle 10
+force   hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_rtdr_iosfsb_ism.rtdr_upd_f[11] 0
+idle 10
+assert  hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_sif.i_hqm_sif_core.i_hqm_iosfsb_core.i_hqm_sbebase.clkgate_en 1
+###########################################################################################
+# Force gpsb_jta_force_idle
+# This will force us into the idle state before we normally would get there after being ACTIVE
+force   hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_rtdr_iosfsb_ism.rtdr_upd_f[15] 1
+idle 10
+assert  hqm_tb_top.u_hqm.gpsb_side_ism_agent 1
+force   hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_rtdr_iosfsb_ism.rtdr_upd_f[15] 0
+force   hqm_tb_top.gpsb_side_ism_fabric 0
+# Need to neuter 4 of the IOSF compliance assertions since these are non-standard transitions
+

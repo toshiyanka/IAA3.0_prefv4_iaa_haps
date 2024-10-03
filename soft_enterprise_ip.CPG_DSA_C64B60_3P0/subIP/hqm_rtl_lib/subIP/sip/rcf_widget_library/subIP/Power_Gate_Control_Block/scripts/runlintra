@@ -1,0 +1,128 @@
+#!/bin/tcsh
+
+#ENV is now setup by ace setup
+
+#setenv CAD_ROOT /p/com/eda/dt/linux_2.6.5_x86-64
+#alias tsetup source /p/com/env/psetup/prod/bin/setupTool
+
+#tsetup lintra 11.2p9b_shOpt64
+#tsetup lintra 13.3p10_shOpt64
+#set RULEFILE=/p/spt/val/release/fcb/fcb-spt-a0-latest/tools/lint/LintraSoCConfig.xml 
+
+#set RULEFILE=/p/com/eda/intel/Soc_Lintra_Collaterals/13.46.0/cfg/LintraSoCConfig_WF.xml 
+#set RULEFILE=/p/com/eda/intel/Soc_Lintra_Collaterals/14.14.0/cfg/LintraSoCConfig_WF.xml
+set RULEFILE=$LINTRARULES/cfg/LintraSoCConfig_WF.xml
+
+source $LINTRA/bin/setup
+
+
+set CDC = 0;
+set PGCB = 0;
+set PCGU = 0;
+set TOOLTB = 0;
+
+foreach i ($argv)
+   if ( $i == "cdc") then
+      set CDC = 1;
+   endif
+
+   if ( $i == "pgcb") then
+      set PGCB = 1;
+   endif
+   
+   if ( $i == "pcgu") then
+      set PCGU = 1;
+   endif
+   
+   if ( $i == "tooltb") then
+      set TOOLTB = 1;
+   endif
+end
+
+mkdir -p $MODEL_ROOT/results/lintra
+
+# PCGU
+if ( $PCGU ) then
+   lintra \
+      -top pgcbcg \
+      -rep pcguunit_violations.log \
+      -od $MODEL_ROOT/results/lintra/ \
+      -cfg $RULEFILE \
+      -wd $MODEL_ROOT/tools/lint/waivers/ \
+      -wd $MODEL_ROOT/verif/pcgu_ref/waivers/ \
+      -wf pcguunit_waivers.lwv \
+      -wf pgcbunit_waivers.lwv \
+      -wf pgcbcg_waivers.lwv \
+      -wf pgcb_ctech_waivers.lwv \
+         -lira -cfg $MODEL_ROOT/tools/lint/lira_cfg/pcgu_lira_cfg.f \
+         -I $MODEL_ROOT/src/rtl/pcguunit \
+         -gp "ICDC=2,NCDC=2,IGCLK_REQ_ASYNC=5,NGCLK_REQ_ASYNC=5"
+endif
+
+# PGCB
+if ( $PGCB ) then
+   lintra \
+      -top pgcbunit \
+      -rep pgcbunit_violations.log \
+      -od $MODEL_ROOT/results/lintra/ \
+      -cfg $RULEFILE \
+      -wd $MODEL_ROOT/tools/lint/waivers/ \
+      -wf pgcbunit_waivers.lwv \
+      -wf pgcb_ctech_waivers.lwv \
+         -lira -cfg $MODEL_ROOT/tools/lint/lira_cfg/pgcb_lira_cfg.f \
+         -I $MODEL_ROOT/src/rtl/pgcbunit \
+         -D SVA_OFF \
+         -bb "$MODEL_ROOT/tools/lint/lintra_bb_list" \
+         -gp "DEF_PWRON=0,ISOLLATCH_NOSR_EN=0,USE_DFX_SEQ=1" \
+         #-gp "DEF_PWRON=0,ISOLLATCH_NOSR_EN=1,USE_DFX_SEQ=0" \
+         #-gp "DEF_PWRON=1,ISOLLATCH_NOSR_EN=1,USE_DFX_SEQ=0" \
+         #-gp "DEF_PWRON=1,ISOLLATCH_NOSR_EN=0,USE_DFX_SEQ=1" \
+   #      -D PGCB_FORCERST_DIS
+endif
+
+# CDC
+if ( $CDC ) then
+   lintra \
+      -top ClockDomainController \
+      -rep cdc_violations.log \
+      -od $MODEL_ROOT/results/lintra/ \
+      -cfg $RULEFILE \
+      -wd $MODEL_ROOT/tools/lint/waivers/ \
+      -wf pgcbunit_waivers.lwv \
+      -wf ClockDomainController.lwv \
+      -wf pgcb_ctech_waivers.lwv \
+         -lira -cfg $MODEL_ROOT/tools/lint/lira_cfg/cdc_lira_cfg.f \
+         -I $MODEL_ROOT/src/rtl/ClockDomainController \
+         #-gp "DEF_PWRON=0,DRIVE_POK=0,ISM_AGT_IS_NS=0,RSTR_B4_FORCE=0,FLOP_CG_EN=1,PRESCC=0,DSYNC_CG_EN=1" \
+         #-gp "DEF_PWRON=0,DRIVE_POK=1,ISM_AGT_IS_NS=1,RSTR_B4_FORCE=1,FLOP_CG_EN=0,PRESCC=0,DSYNC_CG_EN=0" \
+         #-gp "DEF_PWRON=1,DRIVE_POK=0,ISM_AGT_IS_NS=0,RSTR_B4_FORCE=1,FLOP_CG_EN=0,PRESCC=0,DSYNC_CG_EN=0" \
+         -gp "ITBITS=13,DEF_PWRON=1,DRIVE_POK=1,ISM_AGT_IS_NS=0,RSTR_B4_FORCE=0,FLOP_CG_EN=1,PRESCC=1,DSYNC_CG_EN=0" \
+         -D SVA_OFF \
+         -bb "$MODEL_ROOT/tools/lint/lintra_bb_list"
+
+   #lintra -gui -ov $MODEL_ROOT/results/lintra/ClockDomainController_violations.xml
+ 
+endif
+
+# TOOLTB
+if ( $TOOLTB ) then
+   lintra \
+      -top tooltb \
+      -rep tooltb_violations.log \
+      -od $MODEL_ROOT/results/lintra/ \
+      -cfg $RULEFILE \
+      -wd $MODEL_ROOT/tools/lint/waivers/ \
+      -wd $MODEL_ROOT/verif/pcgu_ref/waivers/ \
+      -wd $MODEL_ROOT/verif/tooltb/ \
+      -wf ClockDomainController.lwv \
+      -wf pcguunit_waivers.lwv \
+      -wf pgcbunit_waivers.lwv \
+      -wf pgcbcg_waivers.lwv \
+      -wf pgcb_ctech_waivers.lwv \
+      -wf tooltb.lwv \
+         -lira -cfg $MODEL_ROOT/tools/lint/lira_cfg/tooltb_lira_cfg.f \
+         -I $MODEL_ROOT/src/rtl/ClockDomainController \
+         -I $MODEL_ROOT/src/rtl/pgcbunit \
+         -I $MODEL_ROOT/src/rtl/pcguunit \
+         -gp ""
+endif

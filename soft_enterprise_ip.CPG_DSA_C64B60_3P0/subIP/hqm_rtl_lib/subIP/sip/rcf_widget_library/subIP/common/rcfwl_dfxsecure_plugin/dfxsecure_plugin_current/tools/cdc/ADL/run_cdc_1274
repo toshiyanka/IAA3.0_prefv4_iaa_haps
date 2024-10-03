@@ -1,0 +1,19 @@
+#\cp $IP_ROOT/tools/cdc/TGL/dfxsecure_plugin_cdc.hdl_1274 $IP_ROOT/tools/cdc/dfxsecure_plugin_cdc.hdl
+cd $MODEL_ROOT
+#change this appropriately
+setenv CTECH_LIB_NAME CTECH_p1274_e05_nn_rtl_lib
+#setenv CDC_VER V10.2b
+
+setenv KIT_PATH /p/hdk/cad/stdcells/e05/14ww49.3_e05_d.0.p1_cnlgt/
+setenv CDC_PROCESS p1274
+setenv CDC_FLOW_RELEASE v20170612
+setenv CDC_PREFERENCE_BIT_RECON TRUE
+setenv CDC_PREFERENCE_RECON_DEPTH TRUE
+setenv RECON_DEPTH 2
+
+ace -ccoz -ASSIGN -mc=cdc_dfxsecure_plugin_model  -vlog_opts '-sv +define+DC' | tee cdc_ace_compile.log
+ace -xz -t dfxsecure_plugin:cfmRUN -nocleanup -nocpmf
+ace -xz -t dfxsecure_plugin:hdmRUN -nocleanup -nocpmf  | tee cdc_ace_run.log
+#ace -xz -t dfxsecure_plugin -nocleanup -nocpmf | tee cdc_ace_run.log
+
+setenv CTECH_LIB_NAME CTECH_v_rtl_lib 

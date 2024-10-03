@@ -1,0 +1,182 @@
+
+# hqm_clk 1x;  0x0000_0600
+rd config_master.cfg_master_ctl 0xa00
+wr config_master.cfg_master_ctl.OVERRIDE_CLK_SWITCH_CONTROL 3
+rd config_master.cfg_master_ctl
+
+rd config_master.cfg_pm_pmcsr_disable
+wr config_master.cfg_pm_pmcsr_disable.disable 0
+rd config_master.cfg_pm_pmcsr_disable
+
+rd config_master.cfg_pm_override
+rd config_master.cfg_diagnostic_reset_status
+idle 500
+
+#poll to Wait for reset to be done 
+poll config_master.cfg_diagnostic_reset_status 0x80000bff 0x80000bff 1000
+
+#poll to Wait for unit_idle to be done
+poll config_master.cfg_diagnostic_idle_status 0x9d0fffff 0x9d0fffff 1000
+
+# hqm_clk 1/8x; 0x0000_0A00
+rd config_master.cfg_master_ctl 0x600
+wr config_master.cfg_master_ctl.OVERRIDE_CLK_SWITCH_CONTROL 5
+rd config_master.cfg_master_ctl
+
+access_path primary
+
+#############################################
+# Initiate PF FLR and wait for it to complete
+#############################################
+rd hqm_pf_cfg_i.pcie_cap_device_control
+wr hqm_pf_cfg_i.pcie_cap_device_control.STARTFLR 1
+#rd hqm_pf_cfg_i.pcie_cap_device_control
+idle 9000
+
+
+# hqm_clk 1x; 0x0000_0E00
+access_path sideband
+rd config_master.cfg_master_ctl 0xa00
+wr config_master.cfg_master_ctl.OVERRIDE_CLK_SWITCH_CONTROL 7
+rd config_master.cfg_master_ctl
+
+# wait 64 prim_clks: 64*1.25ns = 80
+idle 80
+
+# hqm_clk OFF; 0x0000_0200
+rd config_master.cfg_master_ctl 0xe00
+wr config_master.cfg_master_ctl.OVERRIDE_CLK_SWITCH_CONTROL 1
+rd config_master.cfg_master_ctl
+
+# wait 64 prim_clks: 64*1.25ns = 80
+idle 80
+
+access_path primary
+
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+
+# Enable PF memory operations
+wr hqm_pf_cfg_i.device_command 0x46
+
+rd config_master.cfg_pm_pmcsr_disable
+rd config_master.cfg_diagnostic_reset_status
+rd config_master.cfg_diagnostic_idle_status
+
+########
+#TEST 1: 
+######################################################
+# PM State change -- D0 -> D3; hqm_clk from 1/8x -> 1x
+######################################################
+
+
+# hqm_clk 1/8x; 0x0000_0A00
+access_path sideband
+rd config_master.cfg_master_ctl
+wr config_master.cfg_master_ctl.OVERRIDE_CLK_SWITCH_CONTROL 5
+rd config_master.cfg_master_ctl
+
+access_path primary
+
+# Initiate Power state change: D0->D3 and wait for it to complete
+rd hqm_pf_cfg_i.pm_cap_control_status
+wr hqm_pf_cfg_i.pm_cap_control_status.PS 3
+rd hqm_pf_cfg_i.pm_cap_control_status
+idle 5000
+
+# hqm_clk 1x; 0x0000_0E00
+access_path sideband
+rd config_master.cfg_master_ctl 0xa00
+wr config_master.cfg_master_ctl.OVERRIDE_CLK_SWITCH_CONTROL 7
+rd config_master.cfg_master_ctl
+
+# wait 64 prim_clks: 64*1.25ns = 80
+idle 80
+
+############################
+# PM State change -- D3 -> D0; hqm_clk from 1x -> 1/8x
+############################
+
+access_path primary
+
+# Initiate Power state change: D3->D0 and wait for it to complete
+rd hqm_pf_cfg_i.pm_cap_control_status
+wr hqm_pf_cfg_i.pm_cap_control_status.PS 0
+rd hqm_pf_cfg_i.pm_cap_control_status
+idle 5000
+
+
+# hqm_clk 1/8x; 0x0000_0A00
+access_path sideband
+rd config_master.cfg_master_ctl 0xe00
+wr config_master.cfg_master_ctl.OVERRIDE_CLK_SWITCH_CONTROL 5
+rd config_master.cfg_master_ctl
+
+# wait 64 prim_clks: 64*1.25ns = 80
+idle 80
+
+########
+#TEST 2: 
+######################################################
+# PM State change -- D0 -> D3; hqm_clk from 1x -> 1/8x
+######################################################
+
+# hqm_clk 1x; 0x0000_0E00
+access_path sideband
+rd config_master.cfg_master_ctl 0xa00
+wr config_master.cfg_master_ctl.OVERRIDE_CLK_SWITCH_CONTROL 7
+rd config_master.cfg_master_ctl
+
+access_path primary
+
+# Initiate Power state change: D0->D3 and wait for it to complete
+rd hqm_pf_cfg_i.pm_cap_control_status
+wr hqm_pf_cfg_i.pm_cap_control_status.PS 3
+rd hqm_pf_cfg_i.pm_cap_control_status
+idle 5000
+
+# hqm_clk 1/8x; 0x0000_0A00
+access_path sideband
+rd config_master.cfg_master_ctl 0xe00
+wr config_master.cfg_master_ctl.OVERRIDE_CLK_SWITCH_CONTROL 5
+rd config_master.cfg_master_ctl
+
+# wait 64 prim_clks: 64*1.25ns = 80
+idle 80
+
+############################
+# PM State change -- D3 -> D0; hqm_clk from 1/8x -> 1x
+############################
+
+access_path primary
+
+# Initiate Power state change: D3->D0 and wait for it to complete
+rd hqm_pf_cfg_i.pm_cap_control_status
+wr hqm_pf_cfg_i.pm_cap_control_status.PS 0
+rd hqm_pf_cfg_i.pm_cap_control_status
+idle 5000
+
+# hqm_clk 1x; 0x0000_0E00
+access_path sideband
+rd config_master.cfg_master_ctl 0xa00
+wr config_master.cfg_master_ctl.OVERRIDE_CLK_SWITCH_CONTROL 7
+rd config_master.cfg_master_ctl
+
+# wait 64 prim_clks: 64*1.25ns = 80
+idle 80
+
+
+# hqm_clk No affect; 0x0000_0000
+rd config_master.cfg_master_ctl 0xe00
+wr config_master.cfg_master_ctl.OVERRIDE_CLK_SWITCH_CONTROL 0
+rd config_master.cfg_master_ctl
+
+# wait 128 prim_clks: 128*1.25ns = 160
+idle 160
+
+access_path primary

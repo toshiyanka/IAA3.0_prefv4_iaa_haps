@@ -1,0 +1,196 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => [
+                     "+hqm_pcie_init_stim_config::mode=sriov",
+                     "+hqm_pcie_init_stim_config::num_vfs=16",
+                     "+hqm_pcie_init_stim_config::skip_msix_cfg=0",
+                     "+hqm_pcie_init_stim_config::skip_msi_cfg=0",
+                     "+AW_CONTINUE_ON_ERROR",
+                     "+iosf_tracker_filename=iosf_trk",
+                     "-assert nopostproc",
+                     "+vcs+lic+wait",
+                    
+                     #"+HQM_PRIM_CLK_LOW",
+                     #"+HQM_PRIM_CLK_1_GHZ",
+
+                     "+SLA_PCIE_CONFIG_PHASE_TIMEOUT=200000",
+                     #"+SLA_MAX_RUN_CLOCK=8000000",
+                     #"+SLA_USER_DATA_PHASE_TIMEOUT=8000000",
+                     #"+SLA_CONFIG_PHASE_TIMEOUT=5000000",
+
+                     "+SLA_MAX_RUN_CLOCK=1000000",
+                     "+SLA_USER_DATA_PHASE_TIMEOUT=1000000",
+                     "+SLA_CONFIG_PHASE_TIMEOUT=500000",
+
+                     "+LSP_CONTINUE_ON_ERROR",
+                     "+HQM_LSP_CQ_QID_CFG_CHECK_DIS",		     
+                     "+HQM_EOT_RD_SEQ_ENABLE_CREDIT_CHECK",  ##First Try
+ 
+                     #"+has_trfgen_watchdog_ena_in=0",
+
+                     "+LDB_PP0_HCW_DELAY=96",
+                     "+LDB_PP0_CQ_POLL=1",
+
+                     "+LDB_PP1_HCW_DELAY=96",
+                     "+LDB_PP1_CQ_POLL=1",
+
+                     "+LDB_PP2_HCW_DELAY=96",
+                     "+LDB_PP2_CQ_POLL=1", 
+
+                     "+LDB_PP3_HCW_DELAY=96",
+                     "+LDB_PP3_CQ_POLL=1", 
+		     
+		     
+                     "+DIR_PP0_HCW_DELAY=96",
+                     "+DIR_PP0_CQ_POLL=1",
+
+                     "+DIR_PP1_HCW_DELAY=96",
+                     "+DIR_PP1_CQ_POLL=1",
+ 
+                     "+DIR_PP2_HCW_DELAY=96",
+                     "+DIR_PP2_CQ_POLL=1",
+
+                     "+DIR_PP3_HCW_DELAY=96",
+                     "+DIR_PP3_CQ_POLL=1",
+		     
+                     "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                    ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+      #########################################################
+      #########################################################
+      #seqnum Tests
+      #########################################################
+      #########################################################
+     #FRAG smoke tests
+     ldb4ppdir4pp_qid1map_ord_test0 => {
+          -simv_args => [
+                    # "+LDB_PP0_TRF_QTYPE_SELMODE=1",
+                     "+HQM_HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_hqmproc_functional/test__hcw_enqtrf_hqmproc_4cqqid_1map_ord_cfg.cft",
+                        ],
+      },
+
+     ldb4ppdir4pp_qid1map_ord_test1 => {
+          -simv_args => [
+                    # "+LDB_PP0_TRF_QTYPE_SELMODE=1",
+                     "+HQM_HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_hqmproc_functional/test__hcw_enqtrf_hqmproc_4cqqid_1map_ord_cfg1.cft",
+                        ],
+      },
+
+     #2ndpass QID[1] => CQ[2]/
+     ldb4ppdir4pp_qid1map_ord_test2 => {
+          -simv_args => [
+                    # "+LDB_PP0_TRF_QTYPE_SELMODE=1",
+                     "+HQM_HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_hqmproc_functional/test__hcw_enqtrf_hqmproc_4cqqid_1map_ord_cfg2.cft",
+                        ],
+      },
+
+
+      #########################################################
+      #########################################################
+      #seqnum Tests
+      #########################################################
+      #########################################################
+      ##################
+      #scenario 4, test support ord replay test
+      ##################
+      #ldbPP[0]/QID0 => CQ[0].dep=8 + CQ[4].dep=1K
+      #2nd pass : +ldbPP[4] sending out 504*1frag
+      #         : then ldbPP[0] sending out 8 *1 frag
+      #=> older ORD are held in ldbPP[0]
+      #=> newer ORD are doing replay from ldbPP[4]
+      #=> SCHED : when ldbPP[0] start replay(enq), all ldbPP[4] enq HCWs are stalled in HQM
+      replay_scen4_smk00 => {
+          -simv_args => [
+                    "+HQM_CFG_HQMPROCTRFSTON",
+                     "+HQM_BYPASS_WU_TRACE",
+                     "+HQM_BYPASS_WU_CK",
+
+                     "+hqmproc_batch_disable=1",
+                     "+hqmproc_sel=1",
+                     "+hqmproc_alltrf_sel=2",
+                     "+hqmproc_ppnum_min=0",
+                     "+hqmproc_ppnum_max=80",
+                     "+hqmproc_ldbppnum_min=0",
+                     "+hqmproc_ldbppnum_max=8",
+                     "+hqmproc_dirppnum_min=0",
+                     "+hqmproc_dirppnum_max=16",
+                     "+has_pp_cq_enable=0",
+
+
+                     "+LDB_PP0_TRF_ENA=1",
+                     "+LDB_PP0_Q0_NUM_HCW=520",
+                     "+LDB_PP0_QTYPE=QORD",
+                     "+LDB_PP0_QID=0",
+                     "+LDB_PP0_TRF_NEWDELAY_MIN=0",
+                     "+LDB_PP0_TRF_NEWDELAY_MAX=0",
+                     "+LDB_PP0_HCW_DELAY=20",
+                     "+LDB_PP0_TRF_QID_SELMODE=0",
+
+                     "+LDB_PP0_RTNCMPCTRL_SELMODE=3",
+                     "+LDB_PP0_RTNCMPCTRL_NUM=8",
+                     "+LDB_PP0_RTNTOKCTRL_SELMODE=4",
+                     "+LDB_PP0_RTNTOKCTRL_NUM=8",
+                     #"+LDB_PP0_TRFCTRL_SELMODE=1", #1 and 2: send renq/renq_t as possible;
+                     "+LDB_PP0_ENQCTRL_SELMODE=13", #13: ENQ_NEW for 512, then change mode=11:  wait to get 8 HCWs and 504 HCWs from pp_cq_status.replay_oldersn_sch_cnt before starting frag
+                     "+LDB_PP0_ENQCTRL_NEWNUM=512",
+                     "+LDB_PP0_ENQCTRL_ENQNUM=8",
+                     "+LDB_PP0_ENQCTRL_ENQNUM_1=504",
+
+                     "+LDB_PP0_TRF_DELAY_MIN=10",
+                     "+LDB_PP0_TRF_DELAY_MAX=10",
+                     "+LDB_PP0_TRFFRAG_CTRL_MODE=1", #1: last with comp/comp_t; 2: ended by renq/renq_t
+                     "+LDB_PP0_TRFFRAG_NUM_MIN=1",
+                     "+LDB_PP0_TRFFRAG_NUM_MAX=1",
+                     "+LDB_PP0_RENQ_QTYPE=QDIR",
+                     "+LDB_PP0_RENQ_QID=8",
+
+                     #LDB_PP4
+                     "+LDB_PP4_TRF_ENA=1",
+                     "+LDB_PP4_Q0_NUM_HCW=504",
+                     "+LDB_PP4_QTYPE=QUNO",
+                     "+LDB_PP4_QID=4",
+                     "+LDB_PP4_TRF_NEWDELAY_MIN=50",
+                     "+LDB_PP4_TRF_NEWDELAY_MAX=50",
+                     "+LDB_PP4_HCW_DELAY=10",
+                     "+LDB_PP4_RTNCMPCTRL_SELMODE=3",
+                     "+LDB_PP4_RTNCMPCTRL_NUM=504",
+                     "+LDB_PP4_RTNTOKCTRL_SELMODE=4",
+                     "+LDB_PP4_RTNTOKCTRL_NUM=504",
+                     #"+LDB_PP4_TRFCTRL_SELMODE=1", #1 and 2: send renq/renq_t as possible;
+                     "+LDB_PP4_ENQCTRL_SELMODE=12", #12: wait to get ENQCTRL_ENQNUM=504 HCWs before starting frag; send ENQCTRL_FRAGNUM=504 FRAG only,
+                     "+LDB_PP4_ENQCTRL_FRAGNUM=504",
+                     "+LDB_PP4_ENQCTRL_ENQNUM=504",
+
+                     "+LDB_PP4_TRF_DELAY_MIN=10",
+                     "+LDB_PP4_TRF_DELAY_MAX=10",
+                     "+LDB_PP4_TRFFRAG_CTRL_MODE=1", #1: last with comp/comp_t; 2: ended by renq/renq_t
+                     "+LDB_PP4_TRFFRAG_NUM_MIN=1",
+                     "+LDB_PP4_TRFFRAG_NUM_MAX=1",
+                     "+LDB_PP4_RENQ_QTYPE=QDIR",
+                     "+LDB_PP4_RENQ_QID=8",
+
+
+                     #####returns only
+                     "+DIR_PP8_TRF_ENA=1",
+                     "+DIR_PP8_Q0_NUM_HCW=0",   #
+
+
+                    # "+hqmproc_return_flow=1",
+
+                     "+HQM_HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_hqmproc_functional/test__hcw_enqtrf_hqmproc_seqnum_scenario4_cfg0_test.cft",
+                        ],
+      },
+
+
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

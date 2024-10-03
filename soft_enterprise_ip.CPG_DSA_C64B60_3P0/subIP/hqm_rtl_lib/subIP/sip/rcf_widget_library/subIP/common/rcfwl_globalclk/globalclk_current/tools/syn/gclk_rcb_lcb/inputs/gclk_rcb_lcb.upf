@@ -1,0 +1,125 @@
+## -------------------------------------------------------------------------
+## -- IP: <Name of the IP>
+## -- Target SoC Project: <Target SoC Project>
+## -- Author: <Authors>
+## -- Intel Proprietary
+## -- Copyright (C) YYYY Intel Corporation
+## -- All Rights Reserved
+##
+## <Information related to the UPF file>
+##
+## NOTE: Naming prefix used in the template is based on SoC DA Low Power Methodology Manual
+##
+## -------------------------------------------------------------------------
+
+### Load global config
+### IPs can elect to use a local version of the soc_upf.cfg for convergence work. 
+### Please be aware that anything in that cfg will be overridden by SoC during integration.
+
+
+if { [info exists ::env(RTL_PROJ_TOOLS)] } {
+    set soc_upf_config [ exec $::env(RTL_PROJ_BIN)/ToolConfig.pl get_tool_path upf_config ]
+    if { [file exists ${soc_upf_config}/soc_upf.cfg] } {
+        puts "Sourcing from FE HDK : ${soc_upf_config}/soc_upf.cfg"
+        source ${soc_upf_config}/soc_upf.cfg
+    }
+} elseif { [info exists ::env(COMMON)] && [info exists ::env(PROJECT)] } {
+    if { [file exists $::env(COMMON)/rtl/proj_tools/upf_config/$::env(PROJECT)/latest/soc_upf.cfg] } {
+        puts "Sourcing from BE HDK : $::env(COMMON)/rtl/proj_tools/upf_config/$::env(PROJECT)/latest/soc_upf.cfg"
+        source $::env(COMMON)/rtl/proj_tools/upf_config/$::env(PROJECT)/latest/soc_upf.cfg
+    }
+}
+
+
+### Dynamically set IP_UPF_ROOT_DIR
+set IP_UPF_ROOT_DIR [file normalize [file dirname [info script]]]
+
+### IPs are required to set IP_VARIATION and DUT
+### Values must also be provided in the integration guide
+#set IP_VARIATION <VALUE>
+#set DUT <DUT>
+
+### IPs can create an IP specific cfg that will be used by SoC during integration. 
+### This config is optional.
+### Nothing in this cfg can collide with soc_upf.cfg.
+#source $IP_UPF_ROOT_DIR/tools/upf/$IP_VARIATION/$DUT/<IP_NAME>.cfg
+
+
+##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++##
+## The top level hierarchy, for which this UPF represents, is purely structural
+##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++##
+
+##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++##
+## TYPE A: IP that is all in a single power domain and has no power gated domains
+##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++##
+
+## -------------------------------------------------------------------------
+## Create non-Power Gated Domains
+## -------------------------------------------------------------------------
+## Create a default domain that will be connected to IP top level. It is recommended to use -include_scope for this domain.
+
+create_power_domain pd_rcb_lcb_vccagent -include_scope
+
+## -------------------------------------------------------------------------
+##  Create Supply Ports, associated supply nets and connect them up
+## -------------------------------------------------------------------------
+## Each IP will at least have 2 power supply ports - SUPPLY and GROUND
+## Each supply port will be a combination of the following:
+## 1. A supply port
+## 2. Associated supply net
+## 3. Connection between supply net and supply port 
+
+create_supply_port $SOC_VCFN -direction in -domain pd_rcb_lcb_vccagent
+create_supply_net  $SOC_VCFN -domain pd_rcb_lcb_vccagent
+connect_supply_net $SOC_VCFN -ports $SOC_VCFN
+
+create_supply_port $SOC_GROUND -direction in -domain pd_rcb_lcb_vccagent
+create_supply_net  $SOC_GROUND -domain pd_rcb_lcb_vccagent
+connect_supply_net $SOC_GROUND -ports $SOC_GROUND
+
+## -------------------------------------------------------------------------
+## Set Primary Supply Nets for non-Power Gated Domain
+## Each domain will have a power net and a ground net
+## -------------------------------------------------------------------------
+set_domain_supply_net pd_rcb_lcb_vccagent \
+-primary_power_net $SOC_VCFN \
+-primary_ground_net $SOC_GROUND
+
+#add_port_state $SOC_VCFN             -state "rcb_lcb_SOC_VCFN_MAX $SOC_SUPPLY_MAX"
+add_port_state $SOC_VCFN             -state "rcb_lcb_SOC_VCFN_NOM $SOC_SUPPLY_NOM"
+#add_port_state $SOC_VCFN             -state "rcb_lcb_SOC_VCFN_MIN $SOC_SUPPLY_MIN"
+add_port_state $SOC_VCFN             -state "rcb_lcb_SOC_VCFN_OFF  off"
+add_port_state $SOC_GROUND         -state "rcb_lcb_GROUND $SOC_GROUND_NOM"
+
+##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++##
+## END OF TYPE A
+##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++##
+
+##-------------------------------------------------------------------------
+## Define Power State Table & Power Modes supported by the IP
+##-------------------------------------------------------------------------
+create_pst pst_rcb_lcb -supplies     "$SOC_VCFN $SOC_GROUND"
+add_pst_state  "rcb_lcb_ALL_ON"    -state { rcb_lcb_SOC_VCFN_NOM    rcb_lcb_GROUND} -pst  pst_rcb_lcb  
+add_pst_state  "rcb_lcb_ALL_OFF"   -state { rcb_lcb_SOC_VCFN_OFF    rcb_lcb_GROUND} -pst  pst_rcb_lcb 
+
+
+##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++##
+## END OF TYPE B
+##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++##
+
+
+
+
+
+
+
+## -------------------------------------------------------------------------
+## VCS specific constructs to disable assertions and re-initialize initial blocks in BMODs
+## Use SNPS_assertion_control KILL to disable assertions in RTL when an associated domain is powered down.
+## Use SNPS_reinit on instances or power domains that contain EBB/IO blocks.
+## -------------------------------------------------------------------------
+#if {$__VCS}{
+#  set_design_attributes -elements {pd_rcb_lcb_vccagent } -attribute SNPS_assertion_control KILL 
+# set_design_attributes -elements {pd_rcb_lcb_vccagent } -attribute SNPS_reinit TRUE
+#}
+

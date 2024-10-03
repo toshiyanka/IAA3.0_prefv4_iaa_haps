@@ -1,0 +1,113 @@
+#!/bin/csh
+
+/bin/rm -rf DVEfiles
+/bin/rm -rf NTI_trk.out
+/bin/rm -rf csrc
+/bin/rm -rf inter.vpd
+/bin/rm -rf ral_monitor_reg_trk.out
+/bin/rm -rf simv
+/bin/rm -rf simv.daidir
+/bin/rm -rf simv.vdb
+/bin/rm -rf ucli.key
+/bin/rm -rf vc_hdrs.h
+/bin/rm -rf .restartSimSession.tcl
+/bin/rm -rf .synopsys_dve_rebuild.tcl
+
+tsetup uvm 1.2
+setenv XVM_HOME /p/com/eda/intel/xvm/1.0.3
+setenv OVM_HOME /p/hdk/rtl/cad/x86-64_linux30/ovm/ovm/2.1.2_2a_ml
+setenv VCS_HOME /p/hdk/rtl/cad/x86-64_linux30/synopsys/vcsmx/N-2017.12-1
+setenv VCS_LIB /p/hdk/rtl/cad/x86-64_linux30/synopsys/vcsmx/N-2017.12-1/suse64
+setenv VCS_LIC_EXPIRE_WARNING 0
+setenv VCS_TARGET_ARCH suse64
+setenv VERDI_HOME /p/hdk/rtl/cad/x86-64_linux30/synopsys/verdi3/N-2017.12-1
+setenv NOVAS_HOME /p/hdk/rtl/cad/x86-64_linux30/synopsys/verdi3/N-2017.12-1
+setenv VERDI_VERSION N-2017.12-1
+setenv LM_LICENSE_FILE 26586@anls1312.an.intel.com:26586@scylic13.sc.intel.com:26586@fmylic36a.fm.intel.com:26586@fmylic36c.fm.intel.com:26586@plxs0412.pdx.intel.com:26586@hdylic09.hd.intel.com:26586@ilic2004.iil.intel.com:26586@pgllic11.png.intel.com
+
+echo "This script builds the converged TAP TB with a sample TAP network."
+echo "Specify _A_TAP_BFM_ or _B_TAP_BFM_ as an argument to this script. (These are the 2 flavours currently supported.)"
+echo "Using option" $1 "when compiling: +define+"$1
+echo "Specify the sequence as second arugment $2"
+
+# Specify the directory where the JTAG BFM from IRR is located.
+setenv JTAG_BFM_VER $cwd
+
+# Set location of Converged TAP BFM.
+setenv CONVERGED_TAP_BFM $JTAG_BFM_VER/verif/tb/Converged_JtagBfm
+
+# Specify +define+DFX_TAP_PRE_AUTOMATION if using non-generated original style TAP class names.
+$VCS_HOME/bin/vcs \
+  -R -sverilog +v2k -debug_all -notice -l log\
+  -timescale=1ns/100ps \
+  +define+$1 \
+  +define+UVM_OBJECT_DO_NOT_NEED_CONSTRUCTOR+UVM_REGEX_NO_DPI \
+  $IP_ROOT/scripts/uvm_dpi.so \
+  +DFX_TEST_SEQUENCE="$2" \
+  +OVM_TESTNAME="dfx_test" \
+#  $OVM_HOME/src/ovm_pkg.sv +incdir+$OVM_HOME/src \
+  +incdir+$CONVERGED_TAP_BFM/testbench \
+  +incdir+$CONVERGED_TAP_BFM/Converged_SampleTests/tap_files \
+  +incdir+$CONVERGED_TAP_BFM/Converged_SampleTests \
+  +incdir+$CONVERGED_TAP_BFM/Converged_SampleTests/configs \
+ # $CONVERGED_TAP_BFM/testbench/dfx_tap_env_pkg.sv \
+ # +incdir+$CONVERGED_TAP_BFM/sequences \
+ # $CONVERGED_TAP_BFM/sequences/dfx_tap_seqlib_pkg.sv \
+ # $CONVERGED_TAP_BFM/modules/dfx_jtag_if.sv $CONVERGED_TAP_BFM/modules/dfx_test_island.sv \
+  -f $JTAG_BFM_VER/scripts/converged_filelist.f \
+  $CONVERGED_TAP_BFM/Converged_SampleTests/tck_generator.sv \
+  $CONVERGED_TAP_BFM/Converged_SampleTests/dfx_tb.sv \
+  $CONVERGED_TAP_BFM/Converged_SampleTests/dfx_env.sv \
+  $CONVERGED_TAP_BFM/Converged_SampleTests/dfx_test_program.sv \
+  +incdir+$CONVERGED_TAP_BFM/Converged_SampleTests/test_sequences \
+  $CONVERGED_TAP_BFM/Converged_SampleTests/test_sequences/dfx_tap_test_pkg.sv \
+  +define+SVA_OFF \
+  +incdir+$JTAG_BFM_VER/subIP/ip-tap-network/verif/tb/include \
+  +incdir+$JTAG_BFM_VER/subIP/ip-tap-network/verif/tb/include/configs \
+  +incdir+$JTAG_BFM_VER/subIP/ip-master-tap/source/rtl/include \
+  +incdir+$JTAG_BFM_VER/subIP/ip-master-tap/source/rtl/include/assertions \
+  +incdir+$JTAG_BFM_VER/subIP/ip-master-tap/source/rtl/common \
+  +incdir+$JTAG_BFM_VER/subIP/ip-tap-network/source/rtl/include \
+  +incdir+$JTAG_BFM_VER/subIP/ip-tap-network/source/rtl/include/assertions \
+  +incdir+$JTAG_BFM_VER/subIP/ip-stap/source/rtl/include \
+  +incdir+$JTAG_BFM_VER/subIP/ip-stap/source/rtl/include/assertions \
+  +incdir+$JTAG_BFM_VER/subIP/ip-stap/source/rtl/common \
+  $CONVERGED_TAP_BFM/Converged_SampleTests/mtap_tapnw_taps.sv \
+  $JTAG_BFM_VER/subIP/ip-master-tap/source/rtl/mtap/cltapc.sv \
+  $JTAG_BFM_VER/subIP/ip-master-tap/source/rtl/mtap/mtap_fsm.sv \
+  $JTAG_BFM_VER/subIP/ip-master-tap/source/rtl/mtap/mtap_irreg.sv \
+  $JTAG_BFM_VER/subIP/ip-master-tap/source/rtl/mtap/mtap_irdecoder.sv \
+  $JTAG_BFM_VER/subIP/ip-master-tap/source/rtl/mtap/mtap_drreg.sv \
+  $JTAG_BFM_VER/subIP/ip-master-tap/source/rtl/mtap/mtap_tdomux.sv \
+  $JTAG_BFM_VER/subIP/ip-master-tap/source/rtl/mtap/mtap_data_reg.sv \
+  $JTAG_BFM_VER/subIP/ip-master-tap/source/rtl/mtap/mtap_remote_data_reg.sv \
+  $JTAG_BFM_VER/subIP/ip-master-tap/source/rtl/mtap/mtap_decoder.sv \
+  $JTAG_BFM_VER/subIP/ip-master-tap/source/rtl/mtap/mtap_tapnw.sv \
+  $JTAG_BFM_VER/subIP/ip-master-tap/source/rtl/mtap/mtap_bscan.sv \
+  $JTAG_BFM_VER/subIP/ip-master-tap/source/rtl/mtap/mtap_glue.sv \
+  $JTAG_BFM_VER/subIP/ip-master-tap/source/rtl/mtap/mtap_wtapnw.sv \
+  $JTAG_BFM_VER/subIP/ip-master-tap/source/rtl/mtap/mtap_visa.sv \
+  $JTAG_BFM_VER/subIP/ip-master-tap/source/rtl/mtap/mtap_visa_reg.sv \
+  $JTAG_BFM_VER/subIP/ip-master-tap/source/rtl/mtap/mtap_dfxsecure.sv \
+  $JTAG_BFM_VER/subIP/ip-master-tap/source/rtl/ctech_lib/sipcltapc_map.sv \
+  $JTAG_BFM_VER/subIP/ip-tap-network/source/rtl/tapnw/tapnw.sv \
+  $JTAG_BFM_VER/subIP/ip-tap-network/source/rtl/tapnw/tapnw_mtcp.sv \
+  $JTAG_BFM_VER/subIP/ip-tap-network/source/rtl/tapnw/tapnw_mtdp.sv \
+  $JTAG_BFM_VER/subIP/ip-tap-network/source/rtl/ctech_lib/siptapnw_map.sv \
+  $JTAG_BFM_VER/subIP/ip-stap/source/rtl/stap/stap.sv \
+  $JTAG_BFM_VER/subIP/ip-stap/source/rtl/stap/stap_fsm.sv \
+  $JTAG_BFM_VER/subIP/ip-stap/source/rtl/stap/stap_irreg.sv \
+  $JTAG_BFM_VER/subIP/ip-stap/source/rtl/stap/stap_irdecoder.sv \
+  $JTAG_BFM_VER/subIP/ip-stap/source/rtl/stap/stap_drreg.sv \
+  $JTAG_BFM_VER/subIP/ip-stap/source/rtl/stap/stap_tdomux.sv \
+  $JTAG_BFM_VER/subIP/ip-stap/source/rtl/stap/stap_data_reg.sv \
+  $JTAG_BFM_VER/subIP/ip-stap/source/rtl/stap/stap_remote_data_reg.sv \
+  $JTAG_BFM_VER/subIP/ip-stap/source/rtl/stap/stap_decoder.sv \
+  $JTAG_BFM_VER/subIP/ip-stap/source/rtl/stap/stap_tapnw.sv \
+  $JTAG_BFM_VER/subIP/ip-stap/source/rtl/stap/stap_bscan.sv \
+  $JTAG_BFM_VER/subIP/ip-stap/source/rtl/stap/stap_glue.sv \
+  $JTAG_BFM_VER/subIP/ip-stap/source/rtl/stap/stap_wtapnw.sv \
+  $JTAG_BFM_VER/subIP/ip-stap/source/rtl/stap/stap_visa.sv \
+  $JTAG_BFM_VER/subIP/ip-stap/source/rtl/stap/stap_visa_reg.sv \
+  $JTAG_BFM_VER/subIP/ip-stap/source/rtl/stap/stap_dfxsecure.sv \
+  $JTAG_BFM_VER/subIP/ip-stap/source/rtl/ctech_lib/sipstap_map.sv

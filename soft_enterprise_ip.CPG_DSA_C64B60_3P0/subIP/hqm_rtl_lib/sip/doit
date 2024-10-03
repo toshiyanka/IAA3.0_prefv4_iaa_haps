@@ -1,0 +1,59 @@
+
+tsetup puni 2.6
+
+setenv IP DTEG_DFx_Secure_Plugin_PIC3_2017WW02_RTL1P0_V2_sdg_v3
+rm -rf ${IP} hqm_dfxsecure_plugin
+mkdir  ${IP}
+ln -s  ${IP} hqm_dfxsecure_plugin
+cd     ${IP}
+cp -pr $IP_RELEASES/dfxsecure_plugin/${IP}/* .
+cd tools/puni
+vi puni.file.list
+# Change the above so the prefix length is 3 and the prefix value is hqm
+puni -filelist puni.file.list -delete_orig_file
+# For some reason this is not uniquifying ../../source/rtl/dfxsecure_plugin/dfxsecure_plugin.sv, so do it here
+cd ../../source/rtl/dfxsecure_plugin
+sed -e 's/\<dfxsecure_plugin\>/hqm_dfxsecure_plugin/g' dfxsecure_plugin.sv > hqm_dfxsecure_plugin.sv
+rm dfxsecure_plugin.sv
+cd ..
+vi dfxsecure_plugin_rtl.hdl
+# Change the above to include the subIP/sip/hqm_dfxsecure_plugin prefix and reference hqm_dfxsecure_plugin.sv
+vi ../../tools/lint/dfxsecure_plugin_waivers.xml
+# Edit the above to include the waiver_tag="permanent" and to specify the filenames with the hqm_ prefixes
+
+cd ../../..
+
+setenv IP Chassis_Fuse_Puller_Gen2p1_All_2016ww22
+rm -rf ${IP} hqm_fuse_puller
+mkdir  ${IP}
+ln -s  ${IP} hqm_fuse_puller
+cd     ${IP}
+cp -pr $IP_RELEASES/fuse_puller/${IP}/* .
+printf "#MODULE:=fuse_puller\n#GLOBAL PREFIX LENGTH:=\"0\" IP PREFIX LENGTH:=\"3\"\n#GLOBAL PREFIX:=\"\" IP PREFIX:=\"hqm\"\n#INCLUDE:=\"\"\n" >tools/puni/puller.puni
+rm source/rtl/ctech/fuse_endpoint_ctech_map.sv.bk
+rm source/rtl/include/fuse_endpoint_include.vh
+rm source/rtl/include/sb_local_include.vm
+rm -rf source/rtl_withvisa
+puni -filelist tools/puni/puller.puni -delete_orig_file -autosearch source/rtl
+vi source/rtl/fuse_puller_rtl_lib.hdl
+# Change the above to include the subIP/sip/hqm_fuse_puller prefix and reference hqm_*.sv files
+vi tools/lint/fuse_puller/fuse_puller_waivers.xml
+# Edit the above to include the waiver_tag="permanent" and to specify the filenames with the hqm_ prefixes
+
+cd ..
+
+setenv IP IOSF_Sideband_Endpoint_ALL_2017WW05_R1p0_PICr18
+rm -rf ${IP} hqm_iosfsbc
+mkdir  ${IP}
+ln -s  ${IP} hqm_iosfsbc
+cd     ${IP}
+cp -pr $IP_RELEASES/iosf_sb_endpoint/${IP}/* .
+mkdir tools/puni
+printf "#MODULE:=iosfsbc\n#GLOBAL PREFIX LENGTH:=\"0\" IP PREFIX LENGTH:=\"3\"\n#GLOBAL PREFIX:=\"\" IP PREFIX:=\"hqm\"\n#INCLUDE:=\"\"\n" >tools/puni/puni.filelist
+puni -filelist tools/puni/puni.filelist -delete_orig_file -autosearch source/rtl
+vi ace/iosf_sbc_ep.hdl
+# Change the above to include the subIP/sip/hqm_iosfsbc prefix and reference hqm_*.sv files
+vi tools/lintra/iosf_sbc_ep_waivers.xml
+# Change the above to include waiver_tag="permanent" and desc fields
+
+cd ..

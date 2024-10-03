@@ -1,0 +1,79 @@
+#----*-perl-*-------------------------------------------------------
+# .acerc
+#
+# Remember - the PWA is the first directory on search path.
+#            the SEARCH_PATHS below are simply adding other
+#            directoris to be searched for AFTER the PWA
+# The PWA is <-eng>/<-pwa>
+#
+#------------------------------------------------------------------
+
+#use lib "$ENV{IP_ROOT}/cfg/ace/lib";
+
+%acerc = (
+#    PRE_SCRIPT => {
+#        -enable_prescripts => 1,
+#        -scripts => [
+#            [ 'scripts/qadlint', ],  # Quick And Dirty Linter.  Applies some checks not covered by Lintra, such as checks on PSV collateral, or Ace collateral.
+#            [ '/bin/sh', '-c', '"/usr/intel/bin/gmake -r -C $IP_ROOT/tools/csme_rtc/srdl"' ],  # Invoke 'make' on $IP_ROOT/tools/csme_rtc/srdl/Makefile, to generate Nebulon collaterals.
+#        ],
+#    },
+
+    TEMP_SPACE => "$ENV{TMP}/$ENV{USER}/ace/pgcb",
+
+    UDF => [
+        "ace/CTECH_hdl.udf",
+        "/p/cse/asic/simfigen/latest/simfigen.udf",
+#        "$ENV{IP_ROOT}/ace/common/dvt.udf",  # Copied from /p/cse/asic/dvt/spt/dvt.udf, in order to have the file within our CSME repository.
+        "cfg/ace/common/common_ivars.udf",
+        "cfg/ace/common/CommandMapper.udf",
+        "cfg/ace/common/common_pli.udf",
+        "cfg/ace/pgcb_collection/pgcb_collection.udf",
+        "cfg/ace/pgcb_collection/cdc.udf",
+        "cfg/ace/effm_flows/effmcheck.udf",
+        "cfg/ace/pgcb_collection/pgcb_emul.udf",
+        "cfg/ace/pgcb_collection/lintra.udf",
+    ],
+
+    LIBS => [
+#	     "/p/cse/asic",
+        "cfg/ace/lib",
+        "scripts",
+    ],
+
+    SUB_SCOPES => {
+        subscopes => {
+	        pgcb_collection => [ 'pgcbunit', 'ClockDomainController', 'pcguunit', ],
+        },
+    },
+
+    SHARED_RESULTS_DIR => $ENV{ACE_SAVED_COMPILE_RESULTS},
+
+    # Run 'ace -show_search_path' to list all the search paths.
+    SEARCH_PATHS => {
+        # Environment UDF files.
+        # Note that $IP_ROOT is automatically added to the search path for the environment-scope.
+        pgcb_collection => [
+            "$ENV{IP_ROOT}",
+            "$ENV{IP_ROOT}/cfg/ace/pgcb_collection",
+            "$ENV{CTECH_LIBRARY}",
+            "$ENV{IP_ROOT}/tools/ult/utb",
+        ],
+        pgcbunit => [
+            "$ENV{IP_ROOT}",
+        ],
+        pcguunit => [
+            "$ENV{IP_ROOT}"
+        ],
+        ClockDomainController => [
+            "$ENV{IP_ROOT}"
+        ],
+		  
+    },
+
+    # These search-paths are relative to $IP_ROOT automatically.
+    TEST_PATTERNS => [
+        "verif/tests",
+        "tools/ult/utb",
+    ],
+);

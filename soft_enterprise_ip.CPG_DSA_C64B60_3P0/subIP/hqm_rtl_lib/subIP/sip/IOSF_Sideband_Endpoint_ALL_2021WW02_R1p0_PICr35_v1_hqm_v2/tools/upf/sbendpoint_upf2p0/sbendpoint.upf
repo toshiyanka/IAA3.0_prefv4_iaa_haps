@@ -1,0 +1,91 @@
+upf_version 2.0
+
+if {[info exists synopsys_program_name]} {
+	set_design_attributes -elements {.} -attribute enable_state_propagation_in_add_power_state TRUE
+}
+
+
+
+#-------------------------------------------------------------------------------
+# Identify whether the UPF is being used for synthesis or for simulation.
+#
+# Gy default, assume  the UPF is being used for simulation. The UPF is 
+# configured for synthesis by setting the SIP_UPF_FOR_SYNTH env variable.
+set upf_for_simulation 0
+
+
+#-------------------------------------------------------------------------------
+# Configure the UPF appropriately for the current configuration. The following
+# configurations are supported:
+#
+#  1) Simulation of sbendpoint
+#  2) Synthesis of sbendpoint
+#  3) Synthesis of sbebase.
+#
+
+#--------------------------------------------------------------------------------
+# Source the SOC UPF config file.
+#UPF 1.0: source $::env(IP_ROOT)/tools/upf/soc_upf_$::env(SIP_LIBRARY_TYPE).cfg
+source $::env(IP_ROOT)/tools/upf/soc_upf_$::env(SIP_LIBRARY_TYPE).cfg
+
+#--------------------------------------------------------------------------------
+# Setup AON domain.
+if {!${upf_for_simulation}} {
+
+set PD_SBE_AON_NAME pd_SBE_AON 
+#UPF 1.0: create_power_domain ${PD_SBE_AON_NAME} -include_scope 
+set EXTRA_SUPPLIES_0 ""; set EXTRA_SUPPLIES_1 ""; 
+
+##### UPF 2.0 supply net creation order change
+create_supply_net "$SOC_GROUND_PORT"  
+
+if {!${upf_for_simulation}} {  
+ create_supply_net "$SOC_SUPPLY_PORT"   
+create_supply_set "ss_$SOC_SUPPLY_PORT" -function "power $SOC_SUPPLY_PORT" -function "ground $SOC_GROUND_PORT"   
+set EXTRA_SUPPLIES_0 "-supply {extra_supplies_0 ss_$SOC_SUPPLY_PORT}"  
+# create_supply_net "$SOC_GROUND_PORT"  
+ }  
+ 
+
+#####################################
+
+eval [concat {create_power_domain ${PD_SBE_AON_NAME} -include_scope }  "$EXTRA_SUPPLIES_0"]
+
+#UPF 1.0: create_supply_port $SOC_SUPPLY_PORT -direction in -domain ${PD_SBE_AON_NAME} 
+create_supply_port "$SOC_SUPPLY_PORT" -direction "in"
+#UPF 1.0: create_supply_net  $SOC_SUPPLY_PORT -domain               ${PD_SBE_AON_NAME} 
+#create_supply_net "$SOC_SUPPLY_PORT" 
+#create_supply_set "ss_$SOC_SUPPLY_PORT" -function "power $SOC_SUPPLY_PORT" -function "ground $SOC_GROUND_PORT" 
+#set EXTRA_SUPPLIES_0 "-supply {extra_supplies_0 ss_$SOC_SUPPLY_PORT}"
+connect_supply_net $SOC_SUPPLY_PORT -ports $SOC_SUPPLY_PORT 
+
+#UPF 1.0: create_supply_port $SOC_GROUND_PORT -direction in -domain ${PD_SBE_AON_NAME} 
+create_supply_port "$SOC_GROUND_PORT" -direction "in"
+#UPF 1.0: create_supply_net  $SOC_GROUND_PORT -domain               ${PD_SBE_AON_NAME} 
+#create_supply_net "$SOC_GROUND_PORT"
+connect_supply_net $SOC_GROUND_PORT -ports $SOC_GROUND_PORT 
+
+#UPF 1.0: set_domain_supply_net  ${PD_SBE_AON_NAME}     -primary_power_net   $SOC_SUPPLY_PORT     -primary_ground_net  $SOC_GROUND_PORT 
+set_domain_supply_net "${PD_SBE_AON_NAME}" -primary_power_net "ss_$SOC_SUPPLY_PORT.power" -primary_ground_net "ss_$SOC_SUPPLY_PORT.ground"
+
+#UPF 1.0: add_port_state $SOC_SUPPLY_PORT -state "prim_on  $SOC_SUPPLY_NOM"
+ add_power_state "ss_$SOC_SUPPLY_PORT" -state "prim_on" "-supply_expr \{power == `\{FULL_ON,$SOC_SUPPLY_NOM\}\} -simstate NORMAL" 
+
+#UPF 1.0: add_port_state $SOC_SUPPLY_PORT -state "prim_off off"
+ add_power_state "ss_$SOC_SUPPLY_PORT" -state "prim_off" "-supply_expr \{power == `\{OFF\}\} -simstate CORRUPT" 
+
+#UPF 1.0: add_port_state $SOC_GROUND_PORT -state "grnd_on  $GND_SUPPLY_NOM"
+ add_power_state "ss_$SOC_SUPPLY_PORT" -state "grnd_on" "-supply_expr \{ground == `\{FULL_ON,$GND_SUPPLY_NOM\}\} -simstate NORMAL" 
+
+
+}
+
+#--------------------------------------------------------------------------------
+# Create the power state table.
+#UPF 1.0: create_pst pst_SBE   -supplies  "$SOC_SUPPLY_PORT $SOC_GROUND_PORT"
+create_pst pst_SBE -supplies "ss_$SOC_SUPPLY_PORT.power ss_$SOC_SUPPLY_PORT.ground "
+add_pst_state all_on  -state    { prim_on grnd_on  } -pst pst_SBE
+add_pst_state all_off -state    { prim_off grnd_on  } -pst pst_SBE
+
+
+

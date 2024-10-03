@@ -1,0 +1,42 @@
+ 
+Script checks following issues 
+  1. All +defaults/-defaults are having same arguments
+  2. No default string included in the list
+  3. .repeat count should be even in a list
+  4. there should not be  "++" string included in the list
+  5. comments should not have .include or -dirtag
+ 
+ Script execution command
+ % <scriptpath>.py
+ e.g. ./misc_err_test.py
+
+Input: -
+Output:	<directory of script>/outlog/out_file_DD_Mon_YYYY, a list of testcases yet to be approved.
+	Output is also mailed to a list of recipients/debuggers, depending on succesful run of the test or not.
+
+
+Current script configuration:
+1. Result and error mails 
+ i. Both sent to the user who executes the script and nityajos
+ ii. Recipients can be edited in ListOwners and MailList
+2. Directories and subdirectories being read
+ i. Main directory (defaultArea) currently set to $IP_MODELS/hqm/hqm-srvr10nm-wave4-latest/verif/tb/hqm/reglist
+ ii. Input subdirectories of this path
+ iii. If absolute directory paths are to be input, change defaultArea to "" and add complete paths to lst.
+
+How does the script work?
+1. opens the folder.
+2. calls a function to check for +/-defaults balance.
+3. for each file in the folder, that function scans each line.
+4. if first word is +defaults, save the line contents.
+5. if first word is -defaults, see if corresponding line has been saved in +defaults or not. 
+5. print filename into output file if imbalance encountered.
+6. the script calls a function to check for spelling errors like +/-default and ++
+7. scans each line of the files till a spelling error is encountered and reports it.
+8. a function is called to see if even number of .repeat were called. reports if odd .repeat called. 
+9. commented out testcases/testfiles are detected by searching for #.include and -dirtag in comments
+10. print numer of files scanned in the folder
+11. move onto the next folder, if any, and repeat. 
+12. mail the output file to mail recipients. 
+13. If any error occurs in code execution, mail traceback to list of debuggers.
+

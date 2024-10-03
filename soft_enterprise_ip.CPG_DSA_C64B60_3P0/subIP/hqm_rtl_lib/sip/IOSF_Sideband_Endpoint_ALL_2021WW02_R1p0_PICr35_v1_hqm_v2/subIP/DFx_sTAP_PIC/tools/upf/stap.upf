@@ -1,0 +1,94 @@
+## -------------------------------------------------------------------------
+## -- IP: stap
+## -- Target SoC Project: 10nm SoCs
+## -- Author: 
+## -- Intel Proprietary
+## -- Copyright (C) 2015 Intel Corporation
+## -- All Rights Reserved
+##
+## <Information related to the UPF file>
+##
+## NOTE: Naming prefix used in the template is based on SoC DA Low Power Methodology Manual
+##
+## -------------------------------------------------------------------------
+set cur_unit stap
+source $::env(REPO_ROOT)/tools/upf/soc_upf.cfg
+source $::env(REPO_ROOT)/tools/upf/stap_srsn.tcl
+
+############################################################################
+# Power Domain1
+############################################################################
+create_power_domain pd_${cur_unit}_AON -include_scope
+
+
+create_supply_port $SOC_VCCST      -domain  pd_${cur_unit}_AON
+create_supply_net  $SOC_VCCST      -domain    pd_${cur_unit}_AON
+connect_supply_net $SOC_VCCST      -ports     $SOC_VCCST
+
+create_supply_port $SOC_GROUND     -domain  pd_${cur_unit}_AON
+create_supply_net  $SOC_GROUND     -domain    pd_${cur_unit}_AON
+connect_supply_net $SOC_GROUND     -ports     $SOC_GROUND
+
+############################################################################
+# Power Domain2 VNN
+############################################################################
+create_power_domain pd_${cur_unit}_VNN -elements { \
+                                                 generate_stap_swcomp_rtdr.i_stap_swcomp_rtdr \
+                                                  }
+create_supply_port $SOC_VCCSA      -domain    pd_${cur_unit}_VNN   
+create_supply_net  $SOC_VCCSA      -domain    pd_${cur_unit}_VNN
+connect_supply_net $SOC_VCCSA      -ports     $SOC_VCCSA 
+create_supply_net  $SOC_VCCST      -domain    pd_${cur_unit}_VNN -reuse 
+
+create_supply_net  $SOC_GROUND     -domain    pd_${cur_unit}_VNN  -reuse
+
+
+############################################################################
+# Power Domain Primary Supply Nets 
+############################################################################
+set_domain_supply_net pd_${cur_unit}_AON \
+  -primary_power_net  $SOC_VCCST     \
+  -primary_ground_net $SOC_GROUND
+
+############################################################################
+# Power Domain Primary Supply Nets 
+############################################################################
+set_domain_supply_net pd_${cur_unit}_VNN \
+  -primary_power_net  $SOC_VCCSA         \
+  -primary_ground_net $SOC_GROUND
+
+
+
+set_isolation             i_from_vccsa_to_outputs \
+    -domain               pd_${cur_unit}_VNN \
+    -elements             "$from_vccsa_to_outputs" \
+    -isolation_power_net  $SOC_VCCST \
+    -isolation_ground_net $SOC_GROUND \
+    -clamp_value          0
+
+set_isolation_control     i_from_vccsa_to_outputs \
+    -domain               pd_${cur_unit}_VNN \
+    -isolation_signal     {stap_isol_en_b} \
+    -isolation_sense      low \
+    -location             self 
+ 
+if { [info exists ::synopsys_program_name] } {
+    if { ($::synopsys_program_name == "dc_shell") } {
+map_isolation_cell        i_from_vccsa_to_outputs \
+    -domain               pd_${cur_unit}_VNN \
+    -lib_cells            "$FW_AND_CELL"
+
+  }
+}
+
+add_port_state $SOC_VCCSA     -state "ps_VCCSA     $VCCSA_SUPPLY" -state "ps_VCCSA_OFF off"
+add_port_state $SOC_VCCST     -state "ps_VCCST     $VCCST_SUPPLY" -state "ps_VCCST_OFF off"
+
+add_port_state $SOC_GROUND       -state { ps_GROUND  0.00 }
+
+create_pst pst_${cur_unit}     -supplies "$SOC_VCCSA  $SOC_VCCST $SOC_GROUND"
+
+add_pst_state S0               -state    "ps_VCCSA      ps_VCCST      ps_GROUND " -pst pst_${cur_unit} 
+add_pst_state S0i1             -state    "ps_VCCSA_OFF  ps_VCCST      ps_GROUND " -pst pst_${cur_unit} 
+add_pst_state G3_OFF           -state    "ps_VCCSA_OFF  ps_VCCST_OFF  ps_GROUND " -pst pst_${cur_unit} 
+

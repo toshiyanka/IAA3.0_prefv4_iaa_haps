@@ -1,0 +1,48 @@
+#!/usr/intel/bin/perl
+%audf = (
+    InterfaceVars => {
+        -enable_liblist_elab_order  => {default=>1},
+        -enable_debussy => {default => 0,},
+        -test_in_model  => {default => 1,},
+        -elab_models    => {default => 1,},
+        -post_process_pattern_file  => {default => "ace/iosf_sbc_ep.pp"    ,},
+        -results        => {default => "$ENV{IOSF_SBC_ROOT}/verif/sim/results_ace",},
+        -elab_opts      => {default => ["-sverilog"         ,
+#PA                                     '-power=dccompat_gen_separator',
+                                       ],},
+        -vlog_opts      => {default => ["-timescale=1ps/1ps",
+#PA                                     "+define+SBEP_POWER_AWARE_SIM",
+                                       ],},
+        -vc_ph2 => {
+          alias => "-vlog_opts +define+IOSF_SB_PH2 -simv_args +define+IOSF_SB_PH2",
+        },
+
+        -simv_args      => {default => ["-assert nopostproc",],},
+        IOSF_SBC_EP        => {
+            __PROTOTYPES => {import => ["TEST"],},
+#PA            __PROTOTYPES => {import => ["TEST", "LOWPOWER"],},
+            -model      => {default => "IosfSbEpTestbench",},
+#PA            -model      => {default => "Ep_pa",},
+            -test       => {default => "test01",},
+            -test_pkg   => {default => "iosftest_pkg",},
+            -implicit_runmode_libs => { default => ["iosf_sbc::RunModes"],},
+            -run_regression => {
+                switch  => {
+                    mini => "-exec_test -testlist " .
+                        "$ENV{IOSF_SBC_ROOT}/ace/iosf_sbc_ep_mini.list " .
+                        "-test_results_subdir mini.list",
+                    nb   => "-exec_test -testlist " .
+                        "$ENV{IOSF_SBC_ROOT}/ace/iosf_sbc_ep_mini.list " .
+                        "-test_results_subdir mini.list -nb",
+                }, # end switch
+            }, # end -run_regression
+        }, # end IOSF_SBC_EP
+
+    }, # end InterfaceVars
+    HDLSpec => {-hdl_compiler => {vcs => {-vlogToolArgs => '-sverilog',
+#PA                                          -iniContents  => <<EOF,
+#PA--Low-power libraries
+#PAUPF  : $ENV{VCS_HOME}/suse64/packages/upf
+#PALPA  : $ENV{VCS_HOME}/suse64/packages/lpa
+#PAEOF
+               },},},);

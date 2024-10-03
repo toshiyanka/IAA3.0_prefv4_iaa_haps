@@ -1,0 +1,194 @@
+# -----------------------------------------------------------------------------
+# Cheetah FE Env
+# -----------------------------------------------------------------------------
+
+source /p/acd/proj/cct/bin/cct.env cth
+
+# Note: The raw cheetah setup command does not setup Gatekeeper, but is:
+# /p/hdk/bin/cth_psetup -p cae -cfg EIPFE.cth -read_only
+
+# -----------------------------------------------------------------------------
+# Setup WORKAREA environment variable
+# -----------------------------------------------------------------------------
+
+cd myrepo
+setenv WORKAREA $cwd
+
+# -----------------------------------------------------------------------------
+# Generate filelists
+# -----------------------------------------------------------------------------
+
+cd gen_filelist
+make
+
+# -----------------------------------------------------------------------------
+# Build all simulation models
+# -----------------------------------------------------------------------------
+
+cd verif/vcssim
+make
+
+# -----------------------------------------------------------------------------
+# Build all simulation models in netbatch
+# -----------------------------------------------------------------------------
+
+cd verif/vcssim
+make NB=1
+
+# -----------------------------------------------------------------------------
+# Build each model individually
+# -----------------------------------------------------------------------------
+
+cd verif/vcssim
+make TARGET=vcssim.model.devtlb
+make TARGET=vcssim.model.devtlb_ipu
+make TARGET=vcssim.model.devtlb_vpu
+
+# -----------------------------------------------------------------------------
+# Run a single test N times
+# -----------------------------------------------------------------------------
+
+simregress -t devtlb_rand -num 20 -model devtlb_ipu
+
+# -----------------------------------------------------------------------------
+# Run default regression list on a single model
+# -----------------------------------------------------------------------------
+
+simregress -ld -model devtlb_vpu
+
+# -----------------------------------------------------------------------------
+# RTL Tools
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# VCLP
+# -----------------------------------------------------------------------------
+
+cd static/vclp
+make vclp_compile
+make vclp_run
+make vclp_gui
+
+# -----------------------------------------------------------------------------
+# SGDFT
+# -----------------------------------------------------------------------------
+
+cd static/sgdft
+make sgdft_compile
+make sgdft_run
+make sgdft_gui
+
+# -----------------------------------------------------------------------------
+# SGCDC
+# -----------------------------------------------------------------------------
+
+cd static/sgcdc
+make sgcdc_compile
+make sgcdc_run
+make sgcdc_gui
+
+# -----------------------------------------------------------------------------
+# SGLINT
+# -----------------------------------------------------------------------------
+
+cd static/sglint
+make sglint_compile
+make sglint_run
+make sglint_gui
+
+# -----------------------------------------------------------------------------
+# EFFM_ZEBU/VELOCE
+# -----------------------------------------------------------------------------
+
+cd static/effm_zebu
+make effm_zebu_compile
+make effm_zebu_run
+
+cd static/effm_veloce
+make effm_veloce_compile
+make effm_veloce_run
+
+# -----------------------------------------------------------------------------
+# EFFM_FPGA
+# -----------------------------------------------------------------------------
+
+cd static/effm_fpga
+
+# -----------------------------------------------------------------------------
+# To create BE Collaterals for DC and FC SYN.( 1276 is 7nm)
+# https://wiki.ith.intel.com/display/cheetah/Design+Package+Command+Reference
+# -----------------------------------------------------------------------------
+
+cd designpackage
+make config
+make design_pkg
+make clean
+
+# -----------------------------------------------------------------------------
+# SYNTHESIS DC/FC (Light Weight Synthesis, Ex. SYN_LITE, Will only check if RTL
+# is good for BE Handoff, can also be part of GK)
+# If Synthesis uses a different version of CTECH (or any other tool), make
+# sure to clean gen_filelist before running the tool.
+# -----------------------------------------------------------------------------
+
+cd syn/dc
+make synth_elab
+make synth_run
+
+cd syn/fc
+make synth_elab
+make synth_run
+
+# -----------------------------------------------------------------------------
+# BE Handoff Flows
+# -----------------------------------------------------------------------------
+
+## To create 2 Stage Filelist
+cd verif/vcs
+make vcs_compile && make vcs_elab
+
+cd handoff/h2b
+make h2b
+make v2k_config
+make fullchipdump
+make package
+
+# This can be more streamlined, Need to Figure a way to automate and
+# populate a new ward with all collaterals before setting off Tool
+
+cd output/devtlb/h2b/devtlb/CTHBE
+/p/hdk/bin/cth_psetup -p pesg/2021.06 -cfg 76p31_g1m_m15.cth -x '$SETUP_R2G   -w `pwd` -tech 1276.31 -t cth2021.06_1276'
+
+mkdir -p runs/devtlb/1276.31/apr_fc/scripts && cp scripts/vars.tcl runs/devtlb/1276.31/apr_fc/scripts
+Ifc_shell -B devtlb -F apr_fc -output_log_file logs/fc.log -T "import_design read_upf redefine init_floorplan setup_timing initial_map floorplan logic_opto insert_dft compile_initial_opto compile_final_opto" -f $ward/global/snps/apr_fc/apr_fc_launch.tcl
+##Ifc_shell -B devtlb -F apr_fc -output_log_file logs/fc.log -T "import_design read_upf redefine init_floorplan setup_timing initial_map floorplan logic_opto insert_dft compile_initial_opto compile_final_opto cts clock_route_opt route_auto route_opt fill finish" -f $ward/global/snps/apr_fc/apr_fc_launch.tcl
+
+##LEC
+mkdir -p runs/devtlb/1276.31/fev_conformal/scripts && cp scripts/fev_vars.tcl runs/devtlb/1276.31/fev_conformal/scripts/vars.tcl
+Ifev_shell -B devtlb -T fev_rtl2syn -log fev_conformal/fev.log
+#Ifev_shell -B devtlb -T fev_rtl2syn -gol_src fe_collateral/devtlb -rev_src compile_final_opto -log fev_conformal/fev.log
+#Ifev_shell -B devtlb -T fev_rtl2syn -gol_src fe_collateral/devtlb -rev_src compile_final_opto -fev_genesis_opt "-compare_type hier -user_config scripts/devtlb_fv_config.yaml" -log fev_conformal/fev.log
+## Release Flow
+
+##iFlow
+cd iflow
+make iflow_gk
+## Verify results
+
+## Packager Flow
+## Make Sure ToolConfig.pl is defined, source hdk 
+cd handoff/fepackager
+##make fepackager_run 
+make -C handoff/fepackager clean
+make -C handoff/fepackager fepackager_run TOP=DEVTLB_3P0_2021WW20_R0p5_v1 FEPACKAGER_PACKAGE_DIR=/nfs/pdx/proj/acd/fe.243/work/skuriako/Devtlb_Release/DEVTLB3_0/release_package
+## Disable moab from gen_filelist target
+
+# -----------------------------------------------------------------------------
+# Power Artist
+# -----------------------------------------------------------------------------
+
+# Generate fsdb
+trex devtlb_invreq_basic -model devtlb -fsdb
+
+cd power/powerartist
+make pa_report

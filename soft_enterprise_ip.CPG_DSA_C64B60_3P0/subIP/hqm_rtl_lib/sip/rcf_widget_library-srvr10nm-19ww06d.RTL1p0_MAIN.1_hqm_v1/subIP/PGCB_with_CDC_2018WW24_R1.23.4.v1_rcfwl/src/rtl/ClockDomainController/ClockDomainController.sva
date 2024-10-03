@@ -1,0 +1,771 @@
+/**********************************************************************************************************************\
+|*                                                                                                                    *|
+|*  Copyright (c) 2012 by Intel Corporation.  All rights reserved.                                                    *|
+|*                                                                                                                    *|
+|*  This material constitutes the confidential and proprietary information of Intel Corp and is not to be disclosed,  *|
+|*  reproduced, copied, or used in any manner not permitted under license from Intel Corp.                            *|
+|*                                                                                                                    *|
+\**********************************************************************************************************************/
+`ifndef DC
+
+/**********************************************************************************************************************\
+ * ClockDomainController (assertions)
+ * @author Jeff Wilcox
+ * 
+ * 
+\**********************************************************************************************************************/
+bit [3:0] current_state;
+assign current_state = u_CdcMainClock.current_state[3:0];
+   
+
+
+/******************************************************************************************************************\
+ *  
+ *  Upstream clkreq/clkack Assertions
+ *  
+\******************************************************************************************************************/
+   
+   //clkreqFall : Clkreq can only deassert when clkack is asserted 
+   aClkreqFall: assert property ( @(posedge pgcb_clk) disable iff((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+      $fell(clkreq) |-> ($past(clkack)==1)
+      //$fell(clkreq) |-> (clkack==1)
+   );
+   
+   //clkreqRise : Clkreq can only assert when clkack is de-asserted 
+   aClkreqRise: assert property ( @(posedge pgcb_clk) disable iff((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+      $rose(clkreq) |-> ($past(clkack)==0)
+      //$rose(clkreq) |-> (clkack==0)
+   );
+  
+   //*Reviewed - 05/21/2013*// 
+   //clkackFall : Clkack can only deassert when clkreq is de-asserted 
+   aClkackFall: assume property ( @(posedge clock) disable iff((u_CdcMainClock.pgcb_reset_sync_b!==1) /*|| ($past(u_CdcMainClock.pgcb_reset_sync_b, 1, 1, @(posedge clock)) !== 1)*/)
+      $fell(clkack) |-> (clkreq==0)
+   );
+   
+   //*Reviewed - 05/21/2013*// 
+   //clkackRise : Clkack can only assert when clkreq is asserted 
+   aClkackRise: assume property ( @(posedge clock) disable iff((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge clock)) !== 1))
+      $rose(clkack) |-> (clkreq==1)
+   );
+
+
+
+/******************************************************************************************************************\
+ *  
+ *  Check Main/PG domain handshakes
+ *  
+\******************************************************************************************************************/
+    //Unlock can only assert when lock is asserted
+    aUnlockPgRise: assert property ( @(posedge pgcb_clk) disable iff((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+      $rose(unlock_all_pg) |-> ($past(domain_locked)==1)
+    );
+    
+    //Unlock can only de-assert once lock has cleared
+    aUnlockPgFall: assert property ( @(posedge pgcb_clk) disable iff((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+      $fell(unlock_all_pg) |-> ($past(domain_locked)==0)
+    );
+    
+    //Lock can only assert when unlock has been cleared
+    aLockDomainRise: assert property ( @(posedge clock) disable iff((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge clock)) !== 1))
+      $rose(domain_locked) |-> ($past(unlock_all_pg)==0)
+    );
+    
+    //Lock must only de-assert when unlock is asserted
+    aLockDomainFall: assert property ( @(posedge clock) disable iff((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge clock)) !== 1))
+      $fell(domain_locked) |-> ($past(unlock_all_pg)==1)
+    );
+    
+    
+    /******************************************************************************************************************\
+     *  
+     *  Power Gate Active  & Restore Checks
+     *  
+    \******************************************************************************************************************/
+    //If power gating is active, domain must be locked
+    aPgActiveLock: assert property ( @(posedge pgcb_clk) disable iff (pgcb_rst_b!==1)
+      (pgcb_pwrgate_active) |-> (domain_locked && !unlock_all_pg)
+    );
+    
+    //Any time gclock is toggling, power gate must not be active unless we are in the restore phase
+    //or IP-Inaccessible
+    aPgActiveGclkOff: assert property ( @(posedge clock) disable iff (pgcb_rst_b!==1)
+        pgcb_pwrgate_active |-> (
+                                 (!u_CdcMainClock.gclock_enable && !u_CdcMainClock.gclock_enable_final) ||
+                                 (u_CdcMainClock.current_state==4'h8) || //CDC_RESTORE
+                                 (u_CdcMainClock.current_state==4'hE) || //CDC_RESTORE_NOCLK
+                                 (u_CdcMainClock.current_state==4'h1) || //CDC_OFF_PENDING
+                                 (u_CdcMainClock.current_state==4'hD) || //CDC_FORCE_READY
+                                 u_CdcMainClock.force_pgate_req || !u_CdcMainClock.pok_preout
+                                )
+    );
+    
+    //When in the restore phase boundary must remain locked
+    aRestoreBoundaryLock: assert property ( @(posedge gclock) disable iff (pgcb_rst_b!==1)
+      pgcb_restore |-> boundary_locked
+    );
+
+    //When in IP-Inaccessible, pwrgate_ready should stay asserted unless pmc_wake asserts
+    aIpInaccWake: assert property ( @(posedge pgcb_clk) disable iff (pgcb_rst_b!==1)
+      (pgcb_pwrgate_active && (!u_CdcPgcbClock.domain_pok_pg && !pgcb_pok)) |-> (pwrgate_ready || u_CdcPgcbClock.pmc_wake_pg)
+    );
+
+    
+    /******************************************************************************************************************\
+     *  
+     *  POK and Force Checks
+     *  
+    \******************************************************************************************************************/
+    
+    //pwrgate_force should should stay asserted until pgcb_pok has de-asserted
+    aPwrgateForceRisePok: assert property ( @(posedge pgcb_clk) disable iff ((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+      $fell(pwrgate_force) |-> (pgcb_pok === 0)
+    );
+    
+    //if force_ready, domain_locked should be asserted and isms and boundary must be locked
+    aForceReadyLock: assert property ( @(posedge clock) disable iff (pgcb_rst_b!==1)
+      force_ready |-> (ism_locked && boundary_locked && domain_locked)
+    );
+
+    aForceReadyPGInactive:  assert property ( @(posedge pgcb_clk) disable iff ((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+      $rose(u_CdcPgcbClock.force_ready_pg) |-> !$past(pgcb_pwrgate_active)
+    );
+
+
+    
+    /******************************************************************************************************************\
+     *  
+     *  ISM and Boundary Locked Checks
+     *  
+    \******************************************************************************************************************/
+    
+    if (ISM_AGT_IS_NS) begin: postfloplock
+        //if ism_locked asserted, the agent ISM must have been idle the previous clock (post-flop)
+        aISMIdleLocked: assert property ( @(posedge clock) disable iff((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge clock)) !== 1))
+          $rose(ism_locked) |-> ($past(ism_agent)=='0)
+        );
+    end else begin: prefloplock
+        //if ism_locked asserts, the agent ISM must be idle in the current clock
+        aISMIdleLocked: assert property ( @(posedge clock) disable iff ((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge clock)) !== 1))
+          $rose(ism_locked) |-> (ism_agent=='0)
+        );
+    end
+
+    // For any PG type, ism's must be locked before pwrgate_ready 
+    aPGReady: assert property ( @(posedge clock) disable iff ((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge clock)) !== 1))
+      $rose(pwrgate_ready) |-> ( ism_locked )
+    );
+    
+    /******************************************************************************************************************\
+     *  
+     * IP-accessible Entry/Exit [ following assertions needs to be reviewd with Jared] 
+     *  
+    \******************************************************************************************************************/
+    // If IP-Accessible pwrgate_ready, clocks must be gated, isms must be locked, pg is not disabled
+    // domain_locked assertion is in CdcMainClock.sva
+    aIPAccPGReady1: assert property ( @(posedge pgcb_clk) disable iff (pgcb_rst_b!==1)
+      (pwrgate_ready) |-> ( u_CdcPgcbClock.locked_pg && u_CdcPgcbClock.ism_locked_pg )
+    );
+
+
+
+    //pgcb_pwrgate_active aserted only if the pwrgate_ready = 1
+    //Note:pwrgate_ready signal may de-assert at any time regardless of the state of pgcb_pwrgate_active 
+    aPgActiveassert: assert property ( @(posedge pgcb_clk) disable iff ((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+      $rose(pgcb_pwrgate_active) |-> (u_CdcPgcbClock.locked_pg && u_CdcPgcbClock.ism_locked_pg ) 
+    );
+    
+    //Powrgating exit condition.
+    //if pgcb_pwrgate_active de-aserted then domain and ISM must be locked as the ungating process will start now. 
+    //Note:pwrgate_ready signal may de-assert at any time regardless of the state of pgcb_pwrgate_active 
+    aPgActivedeassert: assert property ( @(posedge pgcb_clk) disable iff((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+      $fell(pgcb_pwrgate_active) |-> (domain_locked && (ism_locked || (u_CdcMainClock.current_state==4'h8) ) && boundary_locked) //4'h8=CDC_RESTORE
+    );
+
+   //assert_clkreq_pg is asserted when pwrgate_pmc_wake is asserted and ism/boundry/domain locked
+  /* aAssertClkReqPGAssert: assert property ( @(posedge pgcb_clk) disable iff (pgcb_rst_b!==1)
+      $rose(assert_clkreq_pg) |-> (pwrgate_pmc_wake && domain_locked && ism_locked && boundary_locked) 
+    );
+*/
+
+//   //pgcb_pok is de-asserted  when pwrgate_force = 1 && ism/boundry/domain_locked == 1 && pgcb_pwrgate_active ==1
+//    aPgcb_pokde_assert: assert property ( @(posedge pgcb_clk) disable iff (pgcb_rst_b!==1)
+//      $fell(pgcb_pok) |-> (pwrgate_force && domain_locked && ism_locked && boundary_locked && $past(pgcb_pwrgate_active)) 
+//    );
+
+    //Never unlock when forced to Powergate
+    //***check with Jared the assertion is failing here as ism_locked is getting de-asserted when pgcb_pwrgate_active is asserted
+    //and restore is de-asserted
+
+    //Never unlock when Power gating is active
+   /* aPgActive_neverunlock: assert property ( @(posedge pgcb_clk) disable iff (pgcb_rst_b!==1)
+      (pgcb_pwrgate_active && pgcb_restore) |-> (domain_locked && ism_locked && boundary_locked ) 
+    );*/
+    
+   
+    /******************************************************************************************************************\
+     *  
+     *  Property for IP-Accessible Entry  This will check for the 5.1 waveform
+     *  
+    \******************************************************************************************************************/
+    event ev_acc_entry_wake;
+    event ev_inacc_entry;
+    event ev_inacc_exit_pmcwake;
+    event ev_pwrgate_ready;
+    event ev_state_change;
+    event ev_pwrgate_ready_wake;
+    always (* xprop_off *) @(posedge ism_locked)
+    begin
+         # 1ps;
+     //-> ev_acc_entry_wake;
+     -> ev_inacc_entry;
+   end
+
+    always (* xprop_off *) @(posedge domain_locked)
+    begin
+         # 1ps;
+     //-> ev_acc_entry_wake;
+     -> ev_inacc_entry;
+   end
+   
+ 
+always (* xprop_off *) @(posedge pgcb_pwrgate_active)
+  begin
+       # 1ps;
+     -> ev_acc_entry_wake;
+     -> ev_inacc_entry;
+     -> ev_inacc_exit_pmcwake;
+ end
+
+ always (* xprop_off *) @(negedge clkreq)
+ begin
+     # 1ps;
+     -> ev_acc_entry_wake;
+     -> ev_inacc_entry;
+     -> ev_inacc_exit_pmcwake;
+ end
+
+ always (* xprop_off *) @(negedge clkack)
+ begin
+     # 1ps;
+     -> ev_acc_entry_wake;
+ end     
+always (* xprop_off *) @(posedge pwrgate_force)
+begin
+     # 1ps;
+     -> ev_inacc_entry;
+     -> ev_inacc_exit_pmcwake;
+end
+
+/*always @(posedge force_ip_inacc_pg)
+begin
+     # 1ps;
+     -> ev_inacc_entry;
+end
+always @(posedge force_warm_reset)
+begin
+     # 1ps;
+     -> ev_inacc_entry;
+end
+*/
+always (* xprop_off *) @(negedge pgcb_pok)
+begin
+     # 1ps;
+     -> ev_inacc_entry;
+     -> ev_inacc_exit_pmcwake;
+end
+
+always (* xprop_off *) @(posedge pwrgate_pmc_wake)
+begin
+     #1ps;
+     -> ev_inacc_exit_pmcwake;
+end
+
+always (* xprop_off *) @(posedge pgcb_pok)
+begin
+     #1ps;
+     -> ev_inacc_exit_pmcwake;
+end
+
+always (* xprop_off *) @(posedge gclock_req_sync)
+begin
+     #1ps;
+     ->ev_inacc_exit_pmcwake;
+end
+
+always (* xprop_off *) @(posedge gclock_req_sync)
+begin
+     #1ps;
+     ->ev_acc_entry_wake;
+end
+
+always (* xprop_off *) @(posedge clkreq)
+begin
+     #1ps;
+     ->ev_acc_entry_wake;
+end
+always (* xprop_off *) @(negedge pgcb_pwrgate_active)
+begin
+     #1ps;
+     ->ev_acc_entry_wake;
+end
+
+always (* xprop_off *) @(posedge pgcb_pwrgate_active)
+begin
+     #1ps;
+     ->ev_pwrgate_ready;
+end     
+always (* xprop_off *) @(negedge pgcb_pwrgate_active)
+begin
+     #1ps;
+     ->ev_pwrgate_ready;
+end     
+always (* xprop_off *) @(current_state)
+begin
+     #5ps;
+     ->ev_state_change;
+     ->ev_pwrgate_ready_wake;
+end     
+
+always (* xprop_off *) @(posedge pwrgate_ready)
+begin
+     #5ns;
+     -> ev_acc_entry_wake;
+     -> ev_inacc_entry;
+     -> ev_inacc_exit_pmcwake;
+     -> ev_pwrgate_ready_wake;
+end     
+
+    /******************************************************************************************************************\
+     * Table 1-1 Property coding
+     * CDC enter into pwrgate_ready but IP does not reach to PG state.
+     * The scenario here is that CDC assert Powergate_ready but the before IP gets into the PGATE state it sees some wake event and goes into ON stae.
+     *Following state transistion is captured in the coverage property
+     *PGATE_PENDING->PGATE->ON state because of unlock_all_pg goes active
+     \******************************************************************************************************************/
+     // JWH - Priority 2, and incorrectly coded based on description, also gclock_req_sync needs to
+     // be generic wake term
+     CIPaccessible_pwrgate_ready:
+     cover property (@(ev_pwrgate_ready)
+        ((pwrgate_ready==1'b1 && clkreq==1'b1 && pwrgate_force==1'b0) ##1 (pwrgate_ready==1'b0 && clkreq==1'b1 && pwrgate_force==1'b0 && gclock_req_sync ==1'b1))
+     );
+
+     
+    /******************************************************************************************************************\
+     * Table 1-1 Property coding -IP-inaccessible-Entry 
+     *Combined with !-4 which is wake condition
+     *This coverage property check for the IP-Accessible entey and IP-accessible wake conditions. 
+     \******************************************************************************************************************/
+     // JWH - Priority 2, Insignificant the way it is coded, should be easily hittable, needs to be updated to
+     // match intent
+ cIPAccessible_Entry_Wake:
+ cover property (@(ev_acc_entry_wake) 
+     
+      ((pwrgate_force==1'b0) ##[0:3] (pwrgate_ready==1'b1 && unlock_all_pg== 1'b0 && gclock_req_sync==1'b0))
+     );
+     //##1 (pgcb_pwrgate_active==1'b1) ##1 (clkreq==1'b0) ##1 (gclock_req_sync==1'b1) ##1 (pwrgate_ready==1'b0) ##1 (clkreq==1'b1) ##1 (pgcb_pwrgate_active==1'b0 ))
+     //);
+     
+//IP in IP-Acc PG state followed by clkreq de-assertion, followed by wake from ip (clkreq_async)
+//Wake condition
+
+//gclock_req_sync =1 ## pwrgate_ready==0 ## clkreq==1 ##1 pgcb_pwrgate_active == 0
+
+  
+
+              
+    
+    /******************************************************************************************************************\
+     * Table 3-3 Property coding -IP-inaccessible_nowake 
+     * When IP is in IP-Inacc PG state ? have some IP wakes be asserted (not pmc_ip_wake) 
+     *IP should not honor any IP wake and should remain in PG state. 
+     *  
+    \******************************************************************************************************************/
+     // JWH - Priority 2, may be unhittable the way it is coded, needs to be updated to match intent
+//     CIPInaccessible__nowake:
+        cover property (@(ev_inacc_exit_pmcwake)
+     ((pwrgate_force == 1'b1 && clkreq==1'b1 && pwrgate_disabled==1'b1) ##1 (pgcb_pwrgate_active==1'b1) ##1 (pgcb_pok == 1'b0)  ##1 (gclock_req_sync==1'b1 && pgcb_pok== 1'b0 && assert_clkreq_pg==1'b0 ) )
+     );
+
+  /******************************************************************************************************************\
+     * Table 3-4 Property coding -IP-inaccessible_exit_condition 
+     * When IP is in IP-Inacc PG state pmc_ip_wake asserts and it causes IP to exit the IP-inaccessible state and PG is disabled 
+     *  
+  \******************************************************************************************************************/
+     // JWH - Priority 2, may be unhittable the way it is coded, needs to be updated to match intent
+   CIPInaccessiblePg_exit_pmc_ip_wake:
+        cover property (@(ev_inacc_exit_pmcwake)
+     ((pwrgate_force == 1'b1 && clkreq==1'b1 && pwrgate_disabled==1'b1) ##1 (pgcb_pwrgate_active==1'b1) ##1 (pgcb_pok == 1'b0) ##1 (clkreq==1'b0) ##1 (pwrgate_pmc_wake ==1'b1) ##1 (pgcb_pok ==1'b1 && pgcb_pwrgate_active==1'b0 && clkreq==1'b1))
+     );
+   
+    /******************************************************************************************************************\
+        *Table 1-2
+     *PWRGATE_READY is 1 and then it deasserts so that the IP does not enter the PG state
+     *Current_state moves from PGATE to ON state. During PGATE state the pwrgate_ready = 1 'b1
+   \******************************************************************************************************************/
+      // JWH - Needs to updated to take into account pwergate_active, this does not actually check
+      // that pwrgate_active did not assert
+       CIPaccessible_pwrgate_ready_no_pgate:
+        cover property(@(ev_pwrgate_ready_wake)
+     ((current_state == 'h7 && pwrgate_ready ==1'b1) ##1 (current_state=='h3))
+     );
+
+ 
+   /******************************************************************************************************************\
+        *Table 1-2
+     *PWRGATE_READY is 1 and PG enters in to PG state -> OFF_PENDING -> OFF state
+    \******************************************************************************************************************/
+       CIPaccessible_pwrgate_ready_pgate:
+        cover property(@(ev_pwrgate_ready_wake)
+     ((current_state == 'h7 && pwrgate_ready ==1'b1) ##1 (current_state=='h1) ##1 (current_state=='h0))
+     );
+
+   
+
+
+ 
+/******************************************************************************************************************\
+ *  
+ *  Interface Assumptions
+ *  
+\******************************************************************************************************************/
+
+//VCS doesn't seem to understand the assume final syntax
+`ifdef SVA_FORMAL
+   //-- pgcb_rst_b --//
+      //1. pgcb_rst_b is the deepest of all the resets
+      a_pgcb_rst_b_1: assume final (
+         ((pgcb_rst_b!==1) && ((|reset_b)!==1) && (pok_reset_b!==1)) || (pgcb_rst_b===1)
+      );
+      
+   //-- pok_reset_b --//
+      //1a. pok_reset_b is deasserted if any reset_b is deasserted
+      a_pok_reset_b_1a: assume final (
+         ((pok_reset_b!==1) && ((|reset_b)!==1)) || !DRIVE_POK || (pok_reset_b===1)
+      );
+      //1b. if pok_reset_b is deasserted pgcb_reset_b is deasserted
+      a_pok_reset_b_1b: assume final (
+         ((pgcb_rst_b!==1) && (pok_reset_b!==1)) || (pgcb_rst_b===1)
+      );
+      if (DRIVE_POK) begin
+         //2.
+         a_pok_reset_b_2: assume property ( @(posedge clock) disable iff ((pgcb_rst_b!==1)|| ($past(pgcb_rst_b, 1, 1, @(posedge clock)) !== 1))
+            ($fell(pok_reset_b) && DRIVE_POK) |-> (!$past(pok) && !$past(pgcb_pok) && $past(domain_locked) && $past(pgcb_pwrgate_active))
+         );
+      end
+      //the following assumption has been moved from below 
+      //since this is not necessarily valid for all IP's and 
+      //it can flag false error
+      //5. pwrgate_force must be cleared when pgcb_pok drops
+      a_pwrgate_force_5: assume property ( @(posedge pgcb_clk)  disable iff ((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+         $fell(pgcb_pok) |-> ##[1:4] !pwrgate_force
+      );
+`endif
+
+   //-- reset_b --//
+      //1. If all the resets assert, it is expected that the IP had entered IP-Inaccessible
+      if (!DEF_PWRON) begin
+         a_reset_b_1: assume property ( @(posedge pgcb_clk) disable iff ((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+            ($fell(|reset_b)) |-> (!$past(pok) && $past(pwrgate_ready) && $past(pgcb_pwrgate_active))
+         );
+      end
+   //-- pwrgate_force --//
+      //1. pwrgate_force must stay asserted until pgcb_pok is low
+      a_pwrgate_force_1: assume property ( @(posedge pgcb_clk)  disable iff ((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+         $fell(pwrgate_force) |-> (pgcb_pok==0)
+      );
+      //2. pwrgate_force will only assert if pgcb_pok is 1 
+      a_pwrgate_force_2: assume property ( @(posedge pgcb_clk)  disable iff ((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+         $rose(pwrgate_force) |-> (pgcb_pok && $stable(pgcb_pok))
+      );
+      //3. pwrgate_force will only assert if pok is 1 
+      a_pwrgate_force_3: assume property ( @(posedge pgcb_clk)  disable iff ((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+         $rose(pwrgate_force) |-> (u_CdcMainClock.pok_preout)
+      );
+      //4. pwrgate_force will only assert if force_ready is deasserted 
+      a_pwrgate_force_4: assume property ( @(posedge pgcb_clk)  disable iff ((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+         $rose(pwrgate_force) |-> (!u_CdcPgcbClock.force_ready_pg & !$past(u_CdcPgcbClock.force_ready_pg))
+      );
+
+      
+   //-- pgcb_force_rst_b --//
+      //1. force_rst_b should not change while gclock is running (IP-Accessible only)
+      a_force_rst_b_1: assume property ( @(posedge pgcb_clk)  disable iff ((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+         !$stable(pgcb_force_rst_b) && (pgcb_pok && !pwrgate_force)  |-> (u_CdcMainClock.gclock_enable_final==0)
+      );
+
+      //2. force_rst_b should only assert when domain_locked
+      a_force_rst_b_2: assume property ( @(posedge pgcb_clk)  disable iff (pgcb_rst_b!==1)
+         (!pgcb_force_rst_b) |-> (domain_locked==1)
+      );
+
+      //3.
+      a_force_rst_b_3: assume property ( @(posedge pgcb_clk)  disable iff ((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+         $rose(pgcb_force_rst_b) |-> (pgcb_pwrgate_active && pgcb_pok && !pgcb_restore)
+      );
+
+      //4.
+      a_force_rst_b_4: assume property ( @(posedge pgcb_clk)  disable iff ((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+         //$fell(pgcb_force_rst_b) |-> (pgcb_pwrgate_active && (!pgcb_pok || !pwrgate_force) && !pgcb_restore)
+         $fell(pgcb_force_rst_b) |-> (pgcb_pwrgate_active && !pgcb_restore)
+      );
+      
+//`ifdef SVA_FORMAL
+//      //5. force_rst_b must assert once during pwrgate_active window (not-true for warm reset so
+//      commenting out)
+//      a_force_rst_b_5: assume property ( @(posedge pgcb_clk)  disable iff (pgcb_rst_b!==1)
+//         $rose(pgcb_pwrgate_active) |-> (pgcb_force_rst_b==0) within ( (pgcb_pwrgate_active==1) [*1:$] ##1 (pgcb_pwrgate_active==0) )
+//      );
+//`endif
+      
+   //-- pgcb_pok --//
+      //1. pgcb_pok should only deassert when pwrgate_force is high
+      a_pgcb_pok_1: assume property ( @(posedge pgcb_clk)  disable iff ((pgcb_rst_b!==1)  || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+         $fell(pgcb_pok) |-> (pwrgate_force && pgcb_pwrgate_active && pgcb_force_rst_b && !pgcb_restore)
+      );
+      
+      //2. pgcb_pok should only assert when pmc_wake was asserted
+      a_pgcb_pok_2: assume property ( @(posedge pgcb_clk)  disable iff ((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+         $rose(pgcb_pok) |-> ($past(pwrgate_pmc_wake) && $past(pgcb_pwrgate_active)  && !pgcb_restore)
+      );
+`ifdef SVA_FORMAL
+      //3. pgcb_pok will only assert/deassert once during pwrgate_active 
+      a_pgcb_pok_3: assume property ( @(posedge pgcb_clk)  disable iff ((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+         ($rose(pgcb_pok) && pgcb_pwrgate_active) |-> ((pgcb_pok) until_with (!pgcb_pwrgate_active))
+      );
+`endif
+
+      //4. pgcb_pok will only deassert if force_ready was high 
+      a_pgcb_pok_4: assume property ( @(posedge pgcb_clk)  disable iff ((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+         $fell(pgcb_pok) |-> $past(u_CdcPgcbClock.force_ready_pg)
+      );
+
+      
+   //-- pgcb_restore --//
+      //1. pgcb_restore should only assert when domain_locked is asserted
+      a_pgcb_restore_1: assume property ( @(posedge pgcb_clk)  disable iff ((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+         $rose(pgcb_restore) |-> ($past(domain_locked) && $past(pgcb_pwrgate_active) && pgcb_pwrgate_active && $past(pgcb_force_rst_b) && $past(pgcb_pok))
+      );
+      a_pgcb_restore_2: assume property ( @(posedge pgcb_clk)  disable iff ((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+         $fell(pgcb_restore) |-> ($past(pgcb_pwrgate_active) && pgcb_force_rst_b && pgcb_pok)
+      );
+
+`ifdef SVA_FORMAL
+      //3. pgcb_restore can only assert after pok has asserted (ie pok cannot deassert after restore
+      //   when pwrgate_active is asserted
+      a_pgcb_restore_3: assume property ( @(posedge pgcb_clk)  disable iff (pgcb_rst_b!==1)
+         (pgcb_pwrgate_active && pgcb_restore) |-> pgcb_pok until_with !pgcb_pwrgate_active
+      );
+`endif
+
+      
+   //-- pgcb_pwrgate_active --//
+      //1. pgcb_pwrgate_active should only assert when pwrgate_ready is asserted
+      a_pgcb_pwrgate_active_1: assume property ( @(posedge pgcb_clk)  disable iff ((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+         $rose(pgcb_pwrgate_active) |-> (pwrgate_ready==1)
+      );
+
+      //2. pok and force_rst_b should both be high when pwrgate_active deasserts
+      //     If restore is connected to PGCB directly, it will also deassert by this time but one
+      //     clock later is still okay (HSD#2246461)
+      a_pgcb_pwrgate_active_2: assume property ( @(posedge pgcb_clk)  disable iff (pgcb_rst_b!==1)
+         !pgcb_pwrgate_active |-> (pgcb_pok && pgcb_force_rst_b) ##1 !pgcb_restore
+      );
+
+      //3.
+      a_pgcb_pwrgate_active_3: assume property ( @(posedge pgcb_clk)  disable iff ((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+         ( $fell(pgcb_restore) && ($past(pwrgate_ready)==0) ) |-> (pgcb_pwrgate_active==0)
+      );
+      
+//      //4. pwrgate_active must have been low in order for force_ready to assert
+//      a_pgcb_pwrgate_active_4: assume property ( @(posedge pgcb_clk)  disable iff (pgcb_rst_b!==1)
+//         $rose(u_CdcPgcbClock.force_ready_pg) |-> !$past(pgcb_pwrgate_active)
+//      );
+
+`ifdef SVA_FORMAL
+      //5. If pwrgate_active asserts for IP-Inaccessible (pwrgate_force==1), it should stay high
+      //   until pok has gone low
+//      a_pgcb_pwrgate_active_5: assume property ( @(posedge pgcb_clk)  disable iff (pgcb_rst_b!==1)
+//         ($rose(pgcb_pwrgate_active) && pwrgate_force) |-> (pgcb_pwrgate_active) until_with ($fell(pok))
+//      );
+      a_pgcb_pwrgate_active_6: assume property ( @(posedge pgcb_clk)  disable iff ((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+         ($rose(pgcb_pwrgate_active) && pwrgate_force) |-> (pgcb_pwrgate_active) until_with ($fell(pgcb_pok))
+      );
+      
+      //7. If pwrgate_force asserts while pwrgate_active, pwrgate_active must deassert before
+      //   pgcb_pok asserts (leave ip-accessible pg, and enter ip-inaccessible pg)
+      a_pgcb_pwrgate_active_7: assume property ( @(posedge pgcb_clk)  disable iff ((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+         (pgcb_pwrgate_active & $rose(pwrgate_force)) |-> (pgcb_pok) until_with (!pgcb_pwrgate_active)
+      );
+`endif
+      //8. When force_ready deasserts, pok must be low and powergating must have started
+      a_pgcb_pwrgate_active_8: assume property ( @(posedge pgcb_clk)  disable iff ((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+         $fell(u_CdcPgcbClock.force_ready_pg) |-> (!pgcb_pok && pgcb_pwrgate_active)
+      );
+      
+      //9. If pwrgate_force asserts when pwrgate_active in the middle of a restore, then pwrgate_active needs to deassert soon 
+      a_pgcb_pwrgate_active_9: assume property ( @(posedge pgcb_clk)  disable iff ((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+         (pwrgate_force && pgcb_pwrgate_active && pgcb_restore) |-> ##[0:20] $fell(pgcb_pwrgate_active)
+      );
+
+   //-- pwrgate_pmc_wake --//
+      //1. If the IP is entering/in an IP-Inaccessible state, PMC will only assert the wake once it
+      //   has seen that the sync pok is low
+      a_pwrgate_pmc_wake_1: assume property ( @(posedge pgcb_clk)  disable iff ((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+         ( $rose(pwrgate_pmc_wake) && (!pgcb_pok || pwrgate_force) ) |-> !pok
+      );
+//------------------------ Begin FPV Constraints ------------------------//
+`ifdef SVA_FORMAL
+
+   // Out of reset, force_clks_on_ack is 0
+   aResetValues: assume property ( @(posedge clock) disable iff (pgcb_rst_b!==1)
+         ($past(pgcb_rst_b)==0) |->
+            (
+               (clkack==0) &&
+               (pgcb_pwrgate_active==1) &&
+               (pgcb_restore==DEF_PWRON) &&
+               (pgcb_pok==DEF_PWRON) &&
+               (pgcb_force_rst_b==DEF_PWRON) &&
+               (pwrgate_force==0)
+            )
+   );
+   
+   pmcWakeDeassert: assume property ( @(posedge pgcb_clk) disable iff (pgcb_rst_b!==1)
+         $fell(pwrgate_pmc_wake) |-> ($past(u_CdcMainClock.pok_preout) && $past(u_CdcMainClock.pok_reset_sync_b) && ($past(u_CdcMainClock.reset_sync_b)=='1))
+   );
+
+   assumeDFxOff: assume final (
+         !fscan_clkungate &&
+         !fismdfx_clkgate_ovrd && 
+         (fscan_byprst_b=='1) &&
+         (fscan_rstbypen=='0) &&
+         (fscan_clkgenctrl=='0) &&
+         (fscan_clkgenctrlen=='0)
+   );
+   
+   aISMAgentUntilClkAck: assume property ( @(posedge clock) disable iff (pgcb_rst_b!==1)
+      $fell(ism_agent) |-> $past(clkack)
+   );
+
+   // For FPV ensure assertions pass when pok_reset_b is tied to 0
+   a_DRIVEPOK_PokResetB:  assume property ( @(posedge pgcb_clk) disable iff (pgcb_rst_b!==1)
+      (DRIVE_POK || !pok_reset_b)
+   );
+
+
+`endif
+//------------------------ End FPV Constraints ------------------------//
+
+   //CDC Coverage scenarios
+   //----------------------
+   
+   // JWH - Update to $past pwrgate_ready?
+   //IP ACC & IP INACC - BOTH
+  //Unreachable and cannot be hit 
+ //  cBoth_pgforce_pgrdy1: cover property ( @(posedge pgcb_clk) disable iff (pgcb_rst_b!==1)
+  //   $rose(pwrgate_force) && (pwrgate_ready == 1)
+   //);     
+   
+   // IP does not wake out of IP-Inaccessible when only non-PMC wakes are asserted, this scenario
+   // expects the non-pmc wake to be asserted for at least 20 pgcb clocks
+   // Note: Applicable for IP-Inaccessible (despite property name)
+   cIpAcc_nopwrgate_pmc_wake: cover property ( @(posedge pgcb_clk) disable iff (pgcb_rst_b !==1)
+     ((gclock_req_async != 0) && (pwrgate_pmc_wake == 0) && (pgcb_pok == 0)) [*20] 
+   );
+
+   // Domain becomes power-gate ready, but never power gates (ie other domains are not ready), and
+   // eventually pwrgate_ready deasserts
+   cIpAcc_pwrgate_activelow_pgrdytran: cover property ( @(posedge pgcb_clk) disable iff (pgcb_rst_b !==1)
+     (u_CdcMainClock.pwrgate_active !== 1) throughout ( $rose(pwrgate_ready) ##[1:$] $fell(pwrgate_ready))
+   );
+
+   // Domain becomes power-gate ready and drops clkreq before the PG entry sequence starts
+   // Note: Some CDC's may never hit this if they are always the last one to be pwrgate_ready and
+   // their off_holdoff value is large enough.
+   // Note: Applicable for IP-Accessible
+   cPgrdywoPgActClkreq: cover property ( @(posedge pgcb_clk) disable iff (pgcb_rst_b !==1)
+     (pwrgate_ready == 1) && (u_CdcMainClock.pwrgate_active == 0) && (clkreq == 0)
+   );
+
+   // Domain is in IP-Inaccessible state with clkreq and pok deasserted
+   cIpInAcc_Pgrdyacthigh_clkreq_pok_low: cover property ( @(posedge pgcb_clk) disable iff (pgcb_rst_b !==1)
+     (pwrgate_ready == 1) && (u_CdcMainClock.pwrgate_active == 1) && (clkreq == 0) && (pgcb_pok == 0)
+   );
+
+   // Domain is in IP-Accessible state with clkreq deasserted (pok stays asserted) 
+   cIpAcci_Pgrdyacthigh_clkreq0_pgcbpok1: cover property ( @(posedge pgcb_clk) disable iff (pgcb_rst_b !==1)
+     (pwrgate_ready == 1) && (u_CdcMainClock.pwrgate_active == 1) && (clkreq == 0) && (pgcb_pok == 1)
+   );
+
+   // PGCB starts power gating flow, then on next clock pwrgate_ready deasserts due to non-pmc wake
+   // Note: This may be difficult to hit due to the requirement to have only 1 clock delay between
+   // pwrgate_active assertion and pwrgate_ready deassertion (refer to the coverage document for
+   // alternative options)
+   cIpAcc_gclkreqhigh_wake0: cover property ( @(posedge pgcb_clk) disable iff (pgcb_rst_b !==1)
+     $rose(u_CdcMainClock.pwrgate_active) ##1 $fell(pwrgate_ready) && (gclock_req_async != 0) && (pwrgate_pmc_wake == 0)
+   );
+
+   // PGCB starts power gating flow, then on next clock pwrgate_ready deassertes due to pmc wake
+   // Note: This may be difficult to hit due to the requirement to have only 1 clock delay between
+   // pwrgate_active assertion and pwrgate_ready deassertion (refer to the coverage document for
+   // alternative options)
+   cIpAcc_gclkreqlow_wake1: cover property ( @(posedge pgcb_clk) disable iff (pgcb_rst_b !==1)
+     $rose(u_CdcMainClock.pwrgate_active) ##1 $fell(pwrgate_ready) && (gclock_req_async == 0) && (pwrgate_pmc_wake == 1)
+   );
+
+   // Async wake when domain is Ip-Accessible power-gate ready (may or may not actually power-gate)
+   // with clkreq deasserted
+   cIpAcc_clkreq0_gclkreqhigh: cover property ( @(posedge pgcb_clk) disable iff (pgcb_rst_b !==1)
+     (pwrgate_ready == 1'b1) && (clkreq == 0) && (pgcb_pok == 1) && (gclock_req_async != 0)   
+   );
+
+   // Async wake when domain is Ip-Accessible power-gate ready with clkreq asserted
+   // Note: As coded, is actually applicable for Both IP-Inaccessible and IP-Accessible
+   cIpAcc_clkreq1_gclkreqhigh: cover property ( @(posedge pgcb_clk) disable iff (pgcb_rst_b !==1)
+     (pwrgate_ready == 1'b1) && (clkreq == 1) && (pgcb_pok == 1) && (gclock_req_async != 0)   
+   );
+
+   // JWH - Priority 2 - Coding Error: should be $rose(pg_disabled)
+   // Power Gating is disabled while in a power gated state
+   // Note: May only occur for some CDC's only based on sw_pg_req_b deassertion (PMCRE enable bit has to be set)
+   cIpAcc_pgact_pgdisabld_deassert: cover property ( @(posedge pgcb_clk) disable iff (pgcb_rst_b !== 1)
+     (u_CdcMainClock.pwrgate_active == 1'b1) && $fell(u_CdcMainClock.pg_disabled)
+   );
+
+   // JWH - Cannot be reached because of assumptions?
+   // what was the intention of this, my notes say !pok || force?
+    //Cannot be reached. Hence commenting out 
+   //cIpAcc_pmcwake_pok1_pgforce1: cover property (@(posedge pgcb_clk) disable iff (pgcb_rst_b !== 1)
+    // (pwrgate_pmc_wake == 1) && (pok != 0) && (pwrgate_force == 1)
+   //);
+
+   // JWH - Cannot be reached because of assumptions?
+    //Cannot be reached. Hence commenting out 
+   // PMC Initiated wake from IP-Accessible Power Gating
+   //cIpAcc_pmcwake_pgactive1_pok1: cover property (@(posedge pgcb_clk) disable iff (pgcb_rst_b !== 1)
+    // (pwrgate_pmc_wake == 1) && (u_CdcMainClock.pwrgate_active == 1) && (pok == 1) 
+   //);
+
+   // JWH - Coding Error - intention was to have $rose(pmc_wake), may be hit as part of
+   // IP-Inaccessible exit before pmc_wake deasserts.  IP should try to hit this scenario as was
+   // intended such that a pmc wake asserts at points when IP is not power-gated (active or idle) 
+   // PMC initiated wake occurs when not power-gated
+   c_pmcwake_pgactlow: cover property (@(posedge pgcb_clk) disable iff (pgcb_rst_b !== 1)
+     (pwrgate_pmc_wake == 1) && (u_CdcMainClock.pwrgate_active != 1)
+   );
+
+
+   // JWH - Cannot be reached because of assumptions?
+    //Cannot be reached. Hence commenting out
+   // ForcePwrGatePOK is received when agent ISM is not idle
+   //c_drv_pok1_Forcepg_ismagt_1: cover property (@(posedge pgcb_clk) disable iff (pgcb_rst_b !== 1)
+    // (DRIVE_POK == 1) && (pwrgate_force == 1) && (ism_agent != 0) 
+   //);
+
+   // Initiate restore flow
+   c_Pgrdy_pgcbrestore: cover property (@(posedge pgcb_clk) disable iff (pgcb_rst_b !== 1)
+     (pwrgate_ready) && (pgcb_restore)
+   );
+
+   
+`endif 

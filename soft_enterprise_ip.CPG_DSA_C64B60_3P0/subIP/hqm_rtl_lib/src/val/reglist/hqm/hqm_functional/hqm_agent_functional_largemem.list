@@ -1,0 +1,58 @@
+## .nbclass '${HQM_ARCH}&&32G' or .nbclass (SLES12SP5||SLES11SP4)&&32G.
+##############################################
+#hqm_agent_functional_v2.list
+##############################################
+$WORKAREA/src/val/tof/hcw_sciov_test -tv lq32_dq64_vdev16 -tv short -tv pf_flr                         -dirtag lq32_dq64_vdev16_short_pf_flr      
+$WORKAREA/src/val/tof/hcw_sciov_test -tv lq32_dq64_vdev16 -tv short -tv warm_rst -tv rst_with_traffic_on   -dirtag lq32_dq64_vdev16_short_warm_rst_with_traffic_on      
+$WORKAREA/src/val/tof/hcw_sciov_test -tv lq32_dq64_vdev16 -tv short -tv cold_rst -tv rst_with_traffic_on   -dirtag lq32_dq64_vdev16_short_cold_rst_with_traffic_on      
+$WORKAREA/src/val/tof/hcw_sciov_test -tv lq32_dq64_vdev16 -tv short -tv pf_flr -tv rst_with_traffic_on -tv rst_waitnum_1     -dirtag lq32_dq64_vdev16_short_pf_flr_rst_with_traffic_on      
+
+##############################################
+#hqm_agent_functional_v2_agi.list
+##############################################
+##############################################
+#hqm_agent_top_level_stress.list
+##############################################
+.repeat 20
+
+$WORKAREA/src/val/tof/hqm_system_burst_test -tv basic -tv sai_wr_errinj_pf    -dut hqm -model hqm -dirtag basic.pfwrsaierrinj
+####AY_RM_VF_V30 hqm_system_burst_test:basic+sai_wr_errinj_vf    -dut hqm -model hqm -dirtag basic.vfwrsaierrinj
+$WORKAREA/src/val/tof/hqm_system_burst_test -tv basic -tv sai_rd_errinj       -dut hqm -model hqm -dirtag basic.rdsaierrinj
+####AY_RM_VF_V30 hqm_system_burst_test:basic+sai_wr_errinj_vf+sai_rd_errinj    -dut hqm -model hqm -dirtag basic.vfwrrdsaierrinj
+##PVIM:
+$WORKAREA/src/val/tof/hqm_system_burst_test -tv sb_basic -tv sai_sb_wr_errinj_pf    -dut hqm -model hqm -dirtag sb_basic.pfwrsaierrinj
+####AY_RM_VF_V30 hqm_system_burst_test:sb_basic+sai_sb_wr_errinj_vf    -dut hqm -model hqm -dirtag sb_basic.vfwrsaierrinj
+$WORKAREA/src/val/tof/hqm_system_burst_test -tv sb_basic -tv sai_sb_rd_errinj       -dut hqm -model hqm -dirtag sb_basic.rdsaierrinj
+####AY_RM_VF_V30 hqm_system_burst_test:sb_basic+sai_sb_wr_errinj_vf+sai_sb_rd_errinj    -dut hqm -model hqm -dirtag sb_basic.vfwrrdsaierrinj
+
+
+$WORKAREA/src/val/tof/hqm_system_burst_test -tv basic                     -dut hqm -model hqm -dirtag basic
+$WORKAREA/src/val/tof/hqm_system_burst_test -tv basic                     -dut hqm -model hqm -dirtag basic
+$WORKAREA/src/val/tof/hqm_system_burst_test -tv random_doorbell_window    -dut hqm -model hqm -dirtag random_doorbell_window
+$WORKAREA/src/val/tof/hqm_system_burst_test -tv outside_doorbell_window   -dut hqm -model hqm -dirtag outside_doorbell_window
+####AY_RM_VF_V30 hqm_system_burst_test:basic_with_vf_hcw         -dut hqm -model hqm -dirtag basic_with_vf_hcw
+$WORKAREA/src/val/tof/hqm_system_burst_test -tv all                       -dut hqm -model hqm -dirtag all
+$WORKAREA/src/val/tof/hqm_system_burst_test -tv basic_with_pf_flr         -dut hqm -model hqm -dirtag basic_with_pf_flr
+.repeat 
+
+##############################################
+#from hqm_agent_top_level_stress_agi.list
+##############################################
+#.repeat 20
+#
+#hqm_system_burst_test:basic                     -dut hqm -model hqm -dirtag basic
+####AY_RM_VF_V30 ### NO_AGI hqm_system_burst_test:basic_with_vf_hcw         -dut hqm -model hqm -dirtag basic_with_vf_hcw
+#hqm_system_burst_test:all                       -dut hqm -model hqm -dirtag all
+#hqm_system_burst_test:basic_with_pf_flr         -dut hqm -model hqm -dirtag basic_with_pf_flr
+#.repeat
+
+##############################################
+#hqm_all_tok_exhaust.list
+##############################################
+$WORKAREA/src/val/tof/hqm_cfg_test -tv all_tok_exhaust_test_ldb_cq_depth_512  -dirtag all_tok_exhaust_test_ldb_cq_depth_512
+$WORKAREA/src/val/tof/hqm_cfg_test -tv all_tok_exhaust_test_ldb_cq_depth_1024 -dirtag all_tok_exhaust_test_ldb_cq_depth_1024
+
+## -- Excess token return scenario with depth full
+$WORKAREA/src/val/tof/hqm_cfg_test -tv all_tok_exhaust_test_dir_cq_depth_8_excess_tok -dirtag all_tok_exhaust_test_dir_cq_depth_8_excess_tok
+
+## .nbclass '${HQM_ARCH}&&8G'

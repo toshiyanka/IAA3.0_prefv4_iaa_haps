@@ -1,0 +1,515 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => [
+                     "+AW_CONTINUE_ON_ERROR",
+                     "+iosf_tracker_filename=iosf_trk",
+                     "-assert nopostproc",
+                     "+vcs+lic+wait",
+                     "+SLA_USER_DATA_PHASE_TIMEOUT=4000000",
+                     "+SLA_CONFIG_PHASE_TIMEOUT=4000000",
+                     "+SLA_MAX_RUN_CLOCK=4000000",
+                    ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+      inta => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_inta.cft",
+                         "+HQM_SYSTEM_CONTINUE_ON_PERR",
+                        ],
+      },
+
+      hcw => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_test0_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hcw_test0_hcw.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq",
+
+                        ],
+      },
+
+      vf_generic => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/hqm_vf_generic_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/hqm_vf_generic_hcw.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/hqm_vf_generic_eot.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq",
+
+                        ],
+      },
+
+
+       mult_dir_hcw => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/dir_mult_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_functional/dir_mult_hcw.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq",
+                         "+HQM_PCIE_EP_VIP_ABSENT",
+                        ],
+      },
+
+
+      hcw_ldb_msi => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_ldb_msi_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hcw_ldb_msix_hcw.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                         "+HQM_LSP_CQ_QID_CFG_CHECK_DIS","+IOSF_INPUT_FILE=hcw_seq",
+
+                        ],
+      },
+
+      ##pvim:1604581698
+      mult_ldb_hcw => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/hcw_ldb_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_functional/hcw_ldb_hcw.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                         "+HQM_LSP_CQ_QID_CFG_CHECK_DIS","+IOSF_INPUT_FILE=hcw_seq",
+
+                        ],
+      },
+
+      dir_on_ldb => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/dir_crd_cfg.cft","+HQM_LSP_CQ_QID_CFG_CHECK_DIS",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/dir_on_ldb.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq",
+
+                        ],
+      },
+      crd_dir_ex1 => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/crd_ldb_cfg1.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/hcw_dir_ex1.cft",
+                         "+hqm_seq_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft","+HQM_DISABLE_EOT_CHECK",
+                         "+HQM_LSP_CQ_QID_CFG_CHECK_DIS","+IOSF_INPUT_FILE=hcw_seq",
+
+                        ],
+      },
+      crd_dir_ex2 => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/crd_ldb_cfg2.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/hcw_dir_ex2.cft",
+                         "+hqm_seq_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft","+HQM_DISABLE_EOT_CHECK",
+                         "+HQM_LSP_CQ_QID_CFG_CHECK_DIS","+IOSF_INPUT_FILE=hcw_seq",
+
+                        ],
+      },
+      crd_dir => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/crd_ldb_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/hcw_dir_ex.cft",
+                         "+hqm_seq_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/hqm_system_eot.cft","+HQM_DISABLE_EOT_CHECK",
+                         "+HQM_LSP_CQ_QID_CFG_CHECK_DIS","+IOSF_INPUT_FILE=hcw_seq1",
+
+                        ],
+      },
+
+       crd_ldb_ex1 => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/ldb_ex_cfg1.cft","+OVERFLOW_CRD_check",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/hcw_ldb_ex1.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                         "+HQM_LSP_CQ_QID_CFG_CHECK_DIS","+IOSF_INPUT_FILE=hcw_seq",
+
+                        ],
+      },
+      ldb_crd_ex_dir_traffic => {
+          -simv_args => [
+                         "+hqm_pcie_init_stim_config::skip_msix_cfg=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/ldb_crd_ex_dir_traffic_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_functional/ldb_crd_ex_dir_traffic_hcw.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq",
+
+                        ],
+      },
+      dir_crd_ex_ldb_traffic => {
+          -simv_args => [
+                         "+hqm_pcie_init_stim_config::skip_msix_cfg=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/dir_crd_ex_ldb_traffic_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_functional/dir_crd_ex_ldb_traffic_hcw.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq",
+
+                        ],
+      },
+      sec_7_7 => {
+          -simv_args => [
+                         "",
+                        ],
+      },
+      dir_crd_ex_msix_vector_mask_pba_chk => {
+          -simv_args => [
+                         "+hqm_pcie_init_stim_config::skip_msix_cfg=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/dir_crd_ex_msix_vector_mask_cfg.cft",
+                        "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_functional/dir_crd_ex_hcw.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/eot_check.cft",
+                         "+HQM_EXTRA_DATA_PHASE_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/hqm_msix_vector_en_pba_check.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq",
+                         "+EXP_EP_MSIX0_CNT=1",
+                         "+HQM_CHP_INGRESS_ERROR_OUT_OF_CREDIT_TEST",
+                        ],
+      },
+
+      dir_crd_ex_msix_vector_mask => {
+          -simv_args => [
+                         "+hqm_pcie_init_stim_config::skip_msix_cfg=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/dir_crd_ex_msix_vector_mask_cfg.cft",
+                        "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_functional/dir_crd_ex_hcw.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/eot_check.cft",
+                         "+HQM_EXTRA_DATA_PHASE_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/hqm_msix_pba_check.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq",
+                         "+HQM_CHP_INGRESS_ERROR_OUT_OF_CREDIT_TEST",
+                        ],
+      },
+      dir_crd_ex_msix_function_mask_pba_chk => {
+          -simv_args => [
+                         "+hqm_pcie_init_stim_config::skip_msix_cfg=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/dir_crd_ex_msix_func_mask_cfg.cft",
+                        "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_functional/dir_crd_ex_hcw.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/eot_check.cft",
+                         "+HQM_EXTRA_DATA_PHASE_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/hqm_msix_func_mask_en_pba_check.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq",
+                         "+EXP_EP_MSIX0_CNT=1",
+                         "+HQM_CHP_INGRESS_ERROR_OUT_OF_CREDIT_TEST",
+                        ],
+      },
+
+      dir_crd_ex_msix_function_mask => {
+          -simv_args => [
+                         "+hqm_pcie_init_stim_config::skip_msix_cfg=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/dir_crd_ex_msix_func_mask_cfg.cft",
+                        "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_functional/dir_crd_ex_hcw.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/eot_check.cft",
+                         "+HQM_EXTRA_DATA_PHASE_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/hqm_msix_pba_check.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq",
+                         "+HQM_CHP_INGRESS_ERROR_OUT_OF_CREDIT_TEST",
+                        ],
+      },
+      dir_crd_ex_msix_disable => {
+          -simv_args => [
+                         "+hqm_pcie_init_stim_config::skip_msix_cfg=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/dir_crd_ex_msix_disable_cfg.cft",
+                        "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_functional/dir_crd_ex_hcw.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/eot_check.cft",
+                         "+HQM_EXTRA_DATA_PHASE_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/hqm_msix_dis_pba_check.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq",
+                         "+HQM_CHP_INGRESS_ERROR_OUT_OF_CREDIT_TEST",
+                        ],
+      },
+      dir_crd_ex => {
+          -simv_args => [
+                         "+hqm_pcie_init_stim_config::skip_msix_cfg=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/dir_crd_ex_cfg.cft",
+                        "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_functional/dir_crd_ex_hcw.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/eot_check.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq",
+                         "+HQM_CHP_INGRESS_ERROR_OUT_OF_CREDIT_TEST",
+                         "+EXP_EP_MSIX0_CNT=1",
+                        ],
+      },
+      dir_crd_ex_busnum => {
+          -simv_args => [
+                         "+hqm_pcie_init_stim_config::skip_msix_cfg=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/dir_crd_ex_cfg.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/eot_check.cft",
+                         "+HQM_USER_DATA_SEQ_OVERRIDE=hqm_msix_busnum_seq",
+                         "+IOSF_INPUT_FILE=hcw_seq",
+                         "+HQM_CHP_INGRESS_ERROR_OUT_OF_CREDIT_TEST",
+                         "+HQM_DISABLE_BACKGROUND_CFG_GEN_SEQ",
+                         "+EXP_EP_MSIX0_CNT=2",
+                         "+hqm_eot_rd_seq_stim_config::do_chp_syndrome_chk=0",
+                        ],
+      },
+      ldb_crd_ex => {
+          -simv_args => [
+                         "+hqm_pcie_init_stim_config::skip_msix_cfg=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/ldb_crd_ex_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_functional/ldb_crd_ex_hcw.cft",
+                         "+hqm_seq_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/eot_check.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq1",
+                         "+HQM_CHP_INGRESS_ERROR_OUT_OF_CREDIT_TEST",
+                         "+EXP_EP_MSIX0_CNT=1"
+                        ],
+      },
+      dir_ldb_crd_ex => {
+          -simv_args => [
+                         "+hqm_pcie_init_stim_config::skip_msix_cfg=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/dir_ldb_crd_ex_cfg.cft",
+                        "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_functional/dir_ldb_crd_ex_hcw.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/eot_check.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq",
+                         "+HQM_CHP_INGRESS_ERROR_OUT_OF_CREDIT_TEST",
+                         "+EXP_EP_MSIX0_CNT=1",
+                        ],
+      },
+
+      dir_ldb_crd_ex_single_port => {
+          -simv_args => [
+                         "+hqm_pcie_init_stim_config::skip_msix_cfg=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/dir_ldb_crd_ex_cfg.cft",
+                        "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_functional/dir_ldb_crd_ex_single_port_hcw.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/eot_check.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq",
+                         "+HQM_CHP_INGRESS_ERROR_OUT_OF_CREDIT_TEST",
+                         "+EXP_EP_MSIX0_CNT=1",
+                        ],
+      },
+
+      dir_crd_limit => {
+          -simv_args => [
+                         "+hqm_pcie_init_stim_config::skip_msix_cfg=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/dir_crd_limit_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_functional/dir_crd_limit_hcw.cft",
+                         "+hqm_seq_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/eot_check.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq1",
+                         "+HQM_CHP_INGRESS_ERROR_OUT_OF_CREDIT_TEST",
+                         "+EXP_EP_MSIX0_CNT=1",
+                         "+HQM_TB_HQMCORE_LSP_EOT_CHECK_DISABLE", ## this is to mask the EOT error from LSP RTL eot_check() task for CFG_COUNTER_ENQ_DIR register count overflow as the test intention is to enqueue >16k dir HCWs to exhaust credit limit
+                        ],
+      },
+      ldb_crd_limit => {
+          -simv_args => [
+                         "+hqm_pcie_init_stim_config::skip_msix_cfg=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/ldb_crd_limit_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_functional/ldb_crd_limit_hcw.cft",
+                         "+hqm_seq_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/eot_check.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq1",
+                         "+HQM_CHP_INGRESS_ERROR_OUT_OF_CREDIT_TEST",
+                         "+EXP_EP_MSIX0_CNT=1"
+                        ],
+      },
+      dir_ldb_crd_limit_dir_port => {
+          -simv_args => [
+                         "+hqm_pcie_init_stim_config::skip_msix_cfg=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/dir_ldb_crd_limit_dir_port_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_functional/dir_ldb_crd_limit_dir_port_hcw.cft",
+                         "+hqm_seq_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/eot_check.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq1",
+                         "+HQM_CHP_INGRESS_ERROR_OUT_OF_CREDIT_TEST",
+                         "+EXP_EP_MSIX0_CNT=1"
+                        ],
+      },
+      dir_ldb_crd_limit_ldb_port => {
+          -simv_args => [
+                         "+hqm_pcie_init_stim_config::skip_msix_cfg=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/dir_ldb_crd_limit_ldb_port_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_functional/dir_ldb_crd_limit_ldb_port_hcw.cft",
+                         "+hqm_seq_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/eot_check.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq1",
+                         "+HQM_CHP_INGRESS_ERROR_OUT_OF_CREDIT_TEST",
+                         "+EXP_EP_MSIX0_CNT=1"
+                        ],
+      },
+      dir_crd_no_qe => {
+          -simv_args => [
+                         "+hqm_pcie_init_stim_config::skip_msix_cfg=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/dir_crd_no_qe_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_functional/dir_crd_no_qe_hcw.cft",
+                         "+hqm_seq_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/eot_check.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq1",
+                        ],
+      },
+      ldb_crd_no_qe => {
+          -simv_args => [
+                         "+hqm_pcie_init_stim_config::skip_msix_cfg=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/ldb_crd_no_qe_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_functional/ldb_crd_no_qe_hcw.cft",
+                         "+hqm_seq_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/eot_check.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq1",
+                        ],
+      },
+
+      dir_ldb_crd_no_qe => {
+          -simv_args => [
+                         "+hqm_pcie_init_stim_config::skip_msix_cfg=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/dir_ldb_crd_ex_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_functional/dir_ldb_crd_no_qe_hcw.cft",
+                         "+hqm_seq_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/eot_check.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq1",
+                        ],
+      },
+      crd_disable_dir_pp => {
+          -simv_args => [
+                         "+hqm_pcie_init_stim_config::skip_msix_cfg=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/crd_disable_dir_pp_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_functional/crd_disable_dir_pp_hcw.cft",
+                         "+hqm_seq_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/eot_check.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq1",
+                         "+EXP_EP_MSIX0_CNT=1",
+                        ],
+      },
+
+      crd_disable_ldb_pp => {
+          -simv_args => [
+                         "+hqm_pcie_init_stim_config::skip_msix_cfg=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/crd_disable_ldb_pp_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_functional/crd_disable_ldb_pp_hcw.cft",
+                         "+hqm_seq_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/eot_check.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq1",
+                        ],
+      },
+
+      crd_ex_sciov_multi_vdev_different_vas => {
+          -simv_args => [
+                         "+hqm_pcie_init_stim_config::mode=sciov",
+                         "+hqm_pcie_init_stim_config::num_vfs=16",
+                         "+hqm_pcie_init_stim_config::skip_msix_cfg=0",
+                         "+hqm_pcie_init_stim_config::skip_msi_cfg=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/crd_ex_sciov_multi_vdev_different_vas_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_functional/crd_ex_sciov_multi_vdev_different_vas_hcw.cft",
+                         "+hqm_seq_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/eot_check.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq1",
+                         "+HQM_CHP_INGRESS_ERROR_OUT_OF_CREDIT_TEST",
+                         "+DISABLE_TXN",
+                        ],
+      },
+
+      crd_ex_sciov_multi_vdev_same_vas => {
+          -simv_args => [
+                         "+hqm_pcie_init_stim_config::mode=sciov",
+                         "+hqm_pcie_init_stim_config::num_vfs=16",
+                         "+hqm_pcie_init_stim_config::skip_msix_cfg=0",
+                         "+hqm_pcie_init_stim_config::skip_msi_cfg=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/crd_ex_sciov_multi_vdev_same_vas_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_functional/crd_ex_sciov_multi_vdev_same_vas_hcw.cft",
+                         "+hqm_seq_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/eot_check.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq1",
+                         "+HQM_CHP_INGRESS_ERROR_OUT_OF_CREDIT_TEST",
+                         "+DISABLE_TXN",
+                         "+EXP_EP_MSIX0_CNT=1"
+                        ],
+      },
+
+      inj_par_err_msix => { 
+          -simv_args => [
+                         "+SLA_ADD_PHASE_BEFORE_CONFIG_PHASE=MSIX_PAR_ERR_PHASE",
+                         "+SLA_MSIX_PAR_ERR_PHASE_SEQUENCE=hqm_tb_cfg_file_mode_seq",
+                         ## -- "+hqm_tb_hcw_eot_file_mode_seq_stim_config::do_eot_rd_seq=0",
+                         "+HQM_TB_EOT_CHECK_DISABLE",
+                         "+HQM_SYSTEM_CONTINUE_ON_PERR",
+                         "+EXP_EP_MSIX0_CNT=0",
+                         "+HQM_SEQ_CFG_OPT=aceroot/verif/tb/hqm/tests/hqm_functional/hqm_par_inj_par_err_int.cft",
+                         "+HQM_EXTRA_DATA_PHASE_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/hqm_par_inj_par_err_int_check.cft",
+                        ],
+      },
+
+      inj_res_err_msix => { 
+          -simv_args => [
+                         "+SLA_ADD_PHASE_BEFORE_CONFIG_PHASE=MSIX_PAR_ERR_PHASE",
+                         "+SLA_MSIX_PAR_ERR_PHASE_SEQUENCE=hqm_tb_cfg_file_mode_seq",
+                         ## -- "+hqm_tb_hcw_eot_file_mode_seq_stim_config::do_eot_rd_seq=0",
+                         "+HQM_TB_EOT_CHECK_DISABLE",
+                         "+HQM_SYSTEM_CONTINUE_ON_PERR",
+                         "+EXP_EP_MSIX0_CNT=0",
+                         "+HQM_SEQ_CFG_OPT=aceroot/verif/tb/hqm/tests/hqm_functional/hqm_par_inj_res_err_int.cft",
+                         "+HQM_EXTRA_DATA_PHASE_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/hqm_par_inj_res_err_int_check.cft",
+                        ],
+      },
+
+
+
+      smoke => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_cfg_smoke.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      ##------------------------------------------------------------##
+      ##  Agitations 
+      ##------------------------------------------------------------##
+      agitate_fri => {
+          -simv_args => [
+                     "-debug_all -ucli +vcs+dumparrays +HQM_DISABLE_AGITIATE_ASSERT -i aceroot/verif/tb/hqm_proc/tests/agitate/agitate_fri.tcl", 
+                        ],
+      },      
+      agitate_cfg => {
+          -simv_args => [
+                     "-debug_all -ucli +vcs+dumparrays +HQM_DISABLE_AGITIATE_ASSERT -i aceroot/verif/tb/hqm_proc/tests/agitate/agitate_cfg.tcl", 
+                        ],
+      },                   
+      agitate_sys => {
+          -simv_args => [
+                     "-debug_all -ucli +vcs+dumparrays +HQM_DISABLE_AGITIATE_ASSERT -i aceroot/verif/tb/hqm_proc/tests/agitate/agitate_sys.tcl", 
+                        ],
+      },        
+   );
+   for (my $i=0; $i<32; $i++) {
+
+      my $test_str = "vas$i"."_crd_ex";
+      my $cfg_file = "$test_str"."_cfg.cft";
+      my $hcw_file = "$test_str"."_hcw.cft";
+      $runModes{"$test_str"} = {
+          -simv_args => [
+                         "+hqm_pcie_init_stim_config::skip_msix_cfg=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/$cfg_file",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_functional/$hcw_file",
+                         "+hqm_seq_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/eot_check.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq1",
+                         "+HQM_CHP_INGRESS_ERROR_OUT_OF_CREDIT_TEST",
+                         "+EXP_EP_MSIX0_CNT=1"
+                        ],
+      };
+   }
+
+   ## -- Debug related testcases
+   for (my $i=0; $i<1; $i++) {
+
+      my $test_str = "vas$i"."_ldb_crd_ex";
+      my $cfg_file = "$test_str"."_cfg.cft";
+      my $hcw_file = "$test_str"."_hcw.cft";
+      $runModes{"$test_str"} = {
+          -simv_args => [
+                         "+hqm_pcie_init_stim_config::skip_msix_cfg=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/debug/$cfg_file",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_functional/debug/$hcw_file",
+                         "+hqm_seq_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/eot_check.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq1",
+                         "+HQM_CHP_INGRESS_ERROR_OUT_OF_CREDIT_TEST",
+                         "+EXP_EP_MSIX0_CNT=1"
+                        ],
+      };
+   }
+   for (my $i=0; $i<1; $i++) {
+
+      my $test_str = "vas$i"."_dir_crd_ex";
+      my $cfg_file = "$test_str"."_cfg.cft";
+      my $hcw_file = "$test_str"."_hcw.cft";
+      $runModes{"$test_str"} = {
+          -simv_args => [
+                         "+hqm_pcie_init_stim_config::skip_msix_cfg=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/debug/$cfg_file",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_functional/debug/$hcw_file",
+                         "+hqm_seq_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/eot_check.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq1",
+                         "+HQM_CHP_INGRESS_ERROR_OUT_OF_CREDIT_TEST",
+                         "+EXP_EP_MSIX0_CNT=1"
+                        ],
+      };
+   }
+   $runModes{"crd_ex"} = {
+          -simv_args => [
+                         "+hqm_pcie_init_stim_config::skip_msix_cfg=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/debug/crd_ex_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_functional/debug/crd_ex_hcw.cft",
+                         "+hqm_seq_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_top_test/CFT/eot_check.cft",
+                         "+IOSF_INPUT_FILE=hcw_seq1",
+                         "+HQM_CHP_INGRESS_ERROR_OUT_OF_CREDIT_TEST",
+                         "+DISABLE_TXN",
+                         "+EXP_EP_MSIX0_CNT=1"
+                        ],
+   },   
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

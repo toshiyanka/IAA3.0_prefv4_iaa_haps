@@ -1,0 +1,161 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+
+###################################
+# Enable ID Based ordering capability
+wr hqm_pf_cfg_i.pcie_cap_device_control_2.eido 1
+
+###################################
+# Wait for reset to be done (including hardware memory init)
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+
+###################################
+# Setup LUTs used by HCWs
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+mwr 0x0000_0000_a000_0000 0x7d440000
+mwr 0x0000_0000_a000_0004 0x0000000e
+mwr 0x0000_0000_a000_0008 0x7d440100
+mwr 0x0000_0000_a000_000c 0x0000000e
+mwr 0x0000_0000_a000_0010 0x7d440200
+mwr 0x0000_0000_a000_0014 0x0000000e
+mwr 0x0000_0000_a000_0018 0x7d440300
+mwr 0x0000_0000_a000_001c 0x0000000e
+mwr 0x0000_0000_a000_0020 0x7d440400
+mwr 0x0000_0000_a000_0024 0x0000000e
+mwr 0x0000_0000_a000_0028 0x7d440500
+mwr 0x0000_0000_a000_002c 0x0000000e
+mwr 0x0000_0000_a000_0030 0x7d440600
+mwr 0x0000_0000_a000_0034 0x0000000e
+mwr 0x0000_0000_a000_0038 0x7d440700
+mwr 0x0000_0000_a000_003c 0x0000000e
+mwr 0x0000_0000_a000_0040 0x7d440800
+mwr 0x0000_0000_a000_0044 0x0000000e
+mwr 0x0000_0000_a000_0048 0x7d440900
+mwr 0x0000_0000_a000_004c 0x0000000e
+mwr 0x0000_0000_a000_0050 0x7d440a00
+mwr 0x0000_0000_a000_0054 0x0000000e
+mwr 0x0000_0000_a000_0058 0x7d440b00
+mwr 0x0000_0000_a000_005c 0x0000000e
+mwr 0x0000_0000_a000_0060 0x7d440c00
+mwr 0x0000_0000_a000_0064 0x0000000e
+mwr 0x0000_0000_a000_0068 0x7d440d00
+mwr 0x0000_0000_a000_006c 0x0000000e
+mwr 0x0000_0000_a000_0070 0x7d440e00
+mwr 0x0000_0000_a000_0074 0x0000000e
+mwr 0x0000_0000_a000_0078 0x7d440f00
+mwr 0x0000_0000_a000_007c 0x0000000e
+
+mwr 0x0000_0000_b000_0000 0x82bb0000
+mwr 0x0000_0000_b000_0004 0x00000001
+mwr 0x0000_0000_b000_0008 0x82bb0800
+mwr 0x0000_0000_b000_000c 0x00000001
+mwr 0x0000_0000_b000_0010 0x82bb1000
+mwr 0x0000_0000_b000_0014 0x00000001
+mwr 0x0000_0000_b000_0018 0x82bb1800
+mwr 0x0000_0000_b000_001c 0x00000001
+mwr 0x0000_0000_b000_0020 0x82bb2000
+mwr 0x0000_0000_b000_0024 0x00000001
+mwr 0x0000_0000_b000_0028 0x82bb2800
+mwr 0x0000_0000_b000_002c 0x00000001
+mwr 0x0000_0000_b000_0030 0x82bb3000
+mwr 0x0000_0000_b000_0034 0x00000001
+mwr 0x0000_0000_b000_0038 0x82bb3800
+mwr 0x0000_0000_b000_003c 0x00000001
+mwr 0x0000_0000_b000_0040 0x82bb4000
+mwr 0x0000_0000_b000_0044 0x00000001
+mwr 0x0000_0000_b000_0048 0x82bb4800
+mwr 0x0000_0000_b000_004c 0x00000001
+mwr 0x0000_0000_b000_0050 0x82bb5000
+mwr 0x0000_0000_b000_0054 0x00000001
+mwr 0x0000_0000_b000_0058 0x82bb5800
+mwr 0x0000_0000_b000_005c 0x00000001
+mwr 0x0000_0000_b000_0060 0x82bb6000
+mwr 0x0000_0000_b000_0064 0x00000001
+mwr 0x0000_0000_b000_0068 0x82bb6800
+mwr 0x0000_0000_b000_006c 0x00000001
+mwr 0x0000_0000_b000_0070 0x82bb7000
+mwr 0x0000_0000_b000_0074 0x00000001
+mwr 0x0000_0000_b000_0078 0x82bb7800
+mwr 0x0000_0000_b000_007c 0x00000001
+
+# setup descriptor for DM
+mwr 0x0000_0000_0000_1000 0x00000000 16
+mwr 0x0000_0000_0000_2000 0x00000000 16
+mwr 0x0000_0000_0000_3000 0x00000000 16
+mwr 0x0000_0000_0000_1000 0xaabb0000
+mwr 0x0000_0000_0000_1004 0x00000040
+mwr 0x0000_0000_0000_1014 0x80000040
+mwr 0x0000_0000_0000_101c 0x00000010
+mwr 0x0000_0000_0000_1024 0x80000000
+mwr 0x0000_0000_0000_1034 0x80000000
+mwr 0x0000_0000_0000_2000 0xaabb0000
+mwr 0x0000_0000_0000_2004 0x00000040
+mwr 0x0000_0000_0000_2014 0x80000040
+mwr 0x0000_0000_0000_201c 0x00000010
+mwr 0x0000_0000_0000_2024 0x80000000
+mwr 0x0000_0000_0000_2034 0x80000000
+mwr 0x0000_0000_0000_3000 0xaabb0000
+mwr 0x0000_0000_0000_3004 0x00000040
+mwr 0x0000_0000_0000_3014 0x80000040
+mwr 0x0000_0000_0000_301c 0x00000010
+mwr 0x0000_0000_0000_3024 0x80000000
+mwr 0x0000_0000_0000_3034 0x80000000
+
+# setup packet data
+mwr 0x0000_0010_0000_0000 0x00000000 16
+
+cfg_begin
+
+  ldb qid 0 qid_ldb_inflight_limit=16 #aqed_qos=16
+  dir qid 64 dvas=0
+
+  ldb pool 0 credit_cnt=0x3ff3 credit_limit=0x4000 freelist_base=0 freelist_limit=0x3fff
+  dir pool 0 credit_cnt=0x0fe8 credit_limit=0x1000 freelist_base=0 freelist_limit=0x0fff
+
+  vas 0 dir_qidv64=1 ldb_qidv0=1 is_pa=1 r0_pa=0 r0_va=0 r0_len=VPA_16MB hbm_256_hptr=0 hbm_2k_hptr=0 hbm_256_base=0xa0000000 hbm_2k_base=0xb0000000 hbm_256_len=RING_16K hbm_2k_len=RING_16K hbm_256_init=0 hbm_2k_init=0
+
+  ldb pp  0 gpa=0x80000000 vas=0 dir_pool=0 ldb_pool=0 dir_credit_count=0xc ldb_credit_count=0xc dir_min_credit_quanta=32 ldb_min_credit_quanta=0x100 dir_credit_hwm=64 dir_credit_lwm=32 ldb_credit_hwm=0x200 ldb_credit_lwm=0x100 nq_pa=0x00100000 nq_sz=NQ_8K
+  ldb cq  0 gpa=0x80200000 qidv0=1 qidix0=0
+
+  dir pp 64 gpa=0x8003c000 vas=0 dir_pool=0 ldb_pool=0 ldb_credit_count=0xc dir_min_credit_quanta=0x100 ldb_min_credit_quanta=32 ldb_credit_hwm=64 ldb_credit_lwm=32 mb_dm=1
+  dir cq 64 gpa=0x80241000 is_keep_pf_ppid=1
+
+cfg_end
+
+cfg_begin
+
+wr dm_dma_unit.cfg_dma_per_cq_blk_thresh[0].thresh 0x00000004 
+
+cfg_end
+
+rd hqm_pf_cfg_i.vendor_id
+
+# Enable debug and set pipeline holds/masks
+wr hqm_system_csr.write_buffer_ctl 0x000010f0
+wr hqm_system_csr.egress_ctl       0x0000010f
+wr hqm_system_csr.ingress_ctl      0x0002001f
+
+# Kick off prefetches in DMV
+wr dm_cmp_unit.cfg_cmp_cq_tptr_credits[0] 0x400
+wr dm_hbm_unit.cfg_hbm_ring_tptr[0] 0x400
+wr dm_hbm_unit.cfg_hbm_ring_tptr[1] 0x400
+

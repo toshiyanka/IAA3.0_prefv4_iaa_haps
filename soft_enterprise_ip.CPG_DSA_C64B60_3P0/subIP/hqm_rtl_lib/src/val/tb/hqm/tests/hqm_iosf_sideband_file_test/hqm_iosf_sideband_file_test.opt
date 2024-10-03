@@ -1,0 +1,34 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => ["+AW_CONTINUE_ON_ERROR", "+iosf_tracker_filename=iosf_trk",
+       "+SLA_USER_DATA_PHASE_TIMEOUT=1900000",
+       "+HQM_RAL_ACCESS_PATH=pcie","+pick_prim_seq=0",
+       "+SLA_CONFIG_PHASE_TIMEOUT=300000",
+       "-assert nopostproc", "+HQMS_DEBUG", "+HQMI_DEBUG",
+       "+vcs+lic+wait",
+      ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+      test0 => {
+         -simv_args => ["+IOSF_SIDE_FILE=hqm_tb_cfg_file_mode_seq",
+          "+HQM_SEQ_CFG=/nfs/sc/disks/axx_0015/users/amlawand/CFT/strap_sb_check.cft",        
+          ],
+      },
+
+
+        
+   
+      
+ 
+
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

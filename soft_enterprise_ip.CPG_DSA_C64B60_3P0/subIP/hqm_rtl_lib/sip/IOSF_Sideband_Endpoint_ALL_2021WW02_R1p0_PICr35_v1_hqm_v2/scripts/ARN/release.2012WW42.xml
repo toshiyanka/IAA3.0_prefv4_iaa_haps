@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!-- Release file -->
+
+<sip_release>
+  <version>7.8 June 8, 2012</version>
+  <date>Fri Oct 19 17:28:30 PDT 2012</date>
+  <user>jakrigel</user>
+  <sip_name>47</sip_name>
+  <sip_variation>0</sip_variation>
+  <sip_reldate>2012WW42</sip_reldate>
+  <sip_milestone>0</sip_milestone>
+  <sip_relver>0</sip_relver>
+  <sip_relname>2012WW42</sip_relname>
+  <sip_owner>jakrigel</sip_owner>
+  <sip_dist>csg_sip_all@intel.com,csg_sip_proj_cherryview@intel.com</sip_dist>
+  <sip_fixed></sip_fixed>
+  <sip_open></sip_open>
+  <sip_customers>
+      <sip_customer>20</sip_customer>
+      <sip_customer>45</sip_customer>
+  </sip_customers>
+  <sip_base>0</sip_base>
+  <sip_features>
+<![CDATA[- DFX 2.1 interface was added to Dynamo (No RTL Changes)
+- Collage and CoreTool versions needed to be updated to support changes
+- Fixed VISA insertion script for Dynamo builds
+- Put documents directly into the tarball for ease of use
+- Fixed ACE HDL files
+]]>  </sip_features>
+  <sip_knissues>
+<![CDATA[Routers that have no asynchronous clock crossing seem to have issues with the control files generated for CDC. Clock groups need to be fixed in some control files if this happens.
+Test environment that contians multiple asynchronous ports within the same router having the same clock creates a situation where the:
+1. RTL assigns all similarly clocked ports the same clock domain (technically locally clock gated) into the port logic of the asynchronous ports are grouped together.
+2. Dynamo assumes that every async port is driven by a different clock, (p0_clk, p1_clk, ...) and it reassigns it to the same clock internally within the RTL, which means that the correct clock is indeterminate from outside of dynamo to the internal logic.
+3. The testbench assumes that each agent is to be separately clock gated by the PMU the clocks gate in the VC and in the RTL differently causing some issues when counting credits and delivery of messages.
+Router to Router connections use the Skip Active Request (1.0 feature) if the port is the agent in the fabric|agent connection. However, the fabric port will complain about the agent skipping active request. This will cause false error messages that can be ignored as the test will still run properly.
+]]>  </sip_knissues>
+  <sip_speccons>
+<![CDATA[]]>  </sip_speccons>
+  <sip_specins>
+<![CDATA[- Execute using the Dynamo command
+- Please note that the Sideband Router cell map file needs to be updated per IP instance to replace generic library cells or risk getting behavior models.
+]]>  </sip_specins>
+  <sip_models>
+  </sip_models>
+</sip_release>

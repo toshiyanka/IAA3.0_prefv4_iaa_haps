@@ -1,0 +1,51 @@
+GLOBAL:
+   NLP: YES
+   UPF:
+      USE_RTL_TOP: YES
+   SETUP:
+      - GCC_HOME = /usr/intel/pkgs/gcc/4.3.3
+   ACE_METAFILES:
+      EMULATION:
+         FILE: ACE_METAFILE 
+############################
+# EFFM Configurations Starts
+############################
+CONFIGURATIONS:
+   ZSE:
+      ABSTRACT: NO
+      PLATFORM: ZSE1
+      BOARDS: 1
+      UNIFIED_COMPILE: 1
+      COMPILE_OPTIONS_FILE: $ENV{EMUL_CFG_DIR}/cfg/zse_vcs_opts.yml
+      USE_HBL: NO
+      SETUP:
+         - ZSE_PATH=/p/vt/tools/sim/vendor/zse/release/V15.09-2
+   VELOCE:
+      ABSTRACT: NO
+      BOARDS: 1
+      PLATFORM: D2 
+      CFG_FILES:
+         - veloce/tbx.config
+      SETUP:
+         - VELOCE_HOME=/nfs/site/eda/group/SYSNAME/emu/mentor/veloce/v3.0.1.9  
+   FPGA:
+      ABSTRACT: NO
+      BOARDS: 1
+      PLATFORM: FPGA_PROTOCOMPILER
+      UNIFIED_COMPILE: 0
+      CFG_FILES:
+         - $ENV{EMUL_CFG_DIR}/fpga/protocompiler_opts.tcl
+      USER:
+         LIBS_AS_FILES: YES
+      FPGA_OPTIONS:
+         HARDWARE: HAPS-80
+         DIRECTIVES:
+            COMPILE:
+               - -hdl_define {__USELIBGROUPORDER__ __SYN_COMPATIBLE_INCLUDEPATH__}
+      SETUP:
+         - PROTOCOMPILER_PATH=/p/hdk/rtl/cad/x86-64_linux26/synopsys/protocompiler/L-2016.03
+         - VIVADO_PATH=/nfs/site/eda/tools/xilinx/vivado/2014.4/common
+         - SNPSLMD_LICENSE_FILE=26586@synopsys32b.elic.intel.com:26586@synopsys03p.elic.intel.com:26586@synopsys10p.elic.intel.com:26586@synopsys50p.elic.intel.com:26586@synopsys02b.elic.intel.com
+##########################
+# EFFM Configurations Ends
+##########################

@@ -1,0 +1,402 @@
+<% use security; %>
+<% my %Security_Props = security::GetSecurityInfo(); %>
+
+enum enum_smon_function {
+   mode00 = 3'h0 { desc = "free running function. Trigger to accumulate the value into the engine SMON_COUNT when an event is valid."; };
+   mode01 = 3'h1 { desc = "free running function. Trigger to accumulate a fixed value of 1 into the engine SMON_COUNT when an event is valid."; };
+   mode02 = 3'h2 { desc = "max function. Trigger to update max value when an event is valid and larger than the current value stored in the engine SMON_COUNT."; };
+   mode03 = 3'h3 { desc = "Timestamp First Mode. Capture the timer value on the first occurance of an event. Need to write CONTROL01 to reset"; };
+   mode04 = 3'h4 { desc = "Timestamp Mode. Capture the timer value on every occurance of an event. "; };
+};
+enum enum_smon_function_compare {
+   mode00 = 1'h0 { desc = "Compare mode disabled"; };
+   mode01 = 1'h1 { desc = "compare mode enabled"; };
+};
+
+enum enum_enabled_disabled {
+   enabled  = 1'h1 { desc = "Enabled"; };
+   disabled = 1'h0 { desc = "Disabled"; };
+};
+
+enum enum_smon_prescale {
+   mode00 = 5'h00 { desc = "increment timer every      1 clock"; };
+   mode01 = 5'h01 { desc = "increment timer every      2 clocks"; };
+   mode02 = 5'h02 { desc = "increment timer every      4 clocks"; };
+   mode03 = 5'h03 { desc = "increment timer every      8 clocks"; };
+   mode04 = 5'h04 { desc = "increment timer every     16 clocks"; };
+   mode05 = 5'h05 { desc = "increment timer every     32 clocks"; };
+   mode06 = 5'h06 { desc = "increment timer every     64 clocks"; };
+   mode07 = 5'h07 { desc = "increment timer every    128 clocks"; };
+   mode08 = 5'h08 { desc = "increment timer every    256 clocks"; };
+   mode09 = 5'h09 { desc = "increment timer every    512 clocks"; };
+   mode10 = 5'h0a { desc = "increment timer every   1024 clocks"; };
+   mode11 = 5'h0b { desc = "increment timer every   2048 clocks"; };
+   mode12 = 5'h0c { desc = "increment timer every   4096 clocks"; };
+   mode13 = 5'h0d { desc = "increment timer every   8192 clocks"; };
+   mode14 = 5'h0e { desc = "increment timer every  16384 clocks"; };
+   mode15 = 5'h0f { desc = "increment timer every  32768 clocks"; };
+   mode16 = 5'h10 { desc = "increment timer every  65536 clocks"; };
+   mode17 = 5'h11 { desc = "increment timer every 131072 clocks"; };
+   mode18 = 5'h12 { desc = "increment timer every 262144 clocks"; };
+   mode19 = 5'h13 { desc = "increment timer every 524288 clocks"; };
+};
+
+enum enum_smon_mode {
+   mode00 = 4'h0 { desc = "Independant Mode. SMON0_COUNT & SMON1_COUNT operate independantly as their function is configured."; };
+   mode01 = 4'h1 { desc = "Average Latency Mode. SMON0 trigger starts timer & SMON1 trigger stops timer. SMON0_COUNT accumulates occurances and SMON1_COUNT accumulates timer values. For multiple stop for a single start, accumulate  start_to_stop1,  start_to_stop1stop2 ..."; };
+   mode02 = 4'h2 { desc = "MinMax Latency Mode,. SMON0 trigger starts timer & SMON1 trigger stops timer. SMON0_COUNT maintains the minimum timer value and SMON1_COUNT maintains the maximum timer value"; };
+   mode03 = 4'h3 { desc = "Average Mode.   SMON0 trigger increments SMON0_COUNT and the value is accumulated in SMON1_COUNT. SMON1 events are disabled."; };
+   mode04 = 4'h4 { desc = "Average Lantecy Mode 2. same as mode01, but only accumulate the first start_to_stop1 if there are multiple stop for each start"; };
+   mode05 = 4'h5 { desc = "Average Latency Mode 3. same as mode01, but accumualte the incremental start_to_stop1, stop1_to_stop2... if there are multiple stop for each start"; };
+};
+
+reg aw_smon_configuration0_r {
+  donttest = true ;  //Enabling smon can trigger interrutps 
+  Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+  Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+  Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+  HqmClassification="DEBUG_ONLY_REG_NA_1";
+  HqmIsFeatureReg=true;
+  IntelRsvd=false;
+  name = "Aw Smon Control0";
+  desc = "Non-default settings may cause UNDEFINED behavior. This is used to configure the operation of the 2 internal counters in the SMON";
+  shared;
+  field { name="smon_enable"; AccessType = "RW/V"; fieldwidth = 1;  desc = "enable the SMON counters"; PowerWell="vcccfn_gated"; IntelRsvd=false;} SMON_ENABLE[0:0] = 1'h0;
+  field { name="smon_0trigger_enable"; AccessType = "RW/V"; fieldwidth = 1;  desc = "when trigger event 0 observed enable the SMON counters, and clear this bit"; PowerWell="vcccfn_gated"; IntelRsvd=false;} SMON_0TRIGGER_ENABLE[1:1] = 1'h0;
+
+  field { name="rsvz0"; AccessType = "RW/V"; fieldwidth = 2;  desc = "rsvz0"; PowerWell="vcccfn_gated"; IntelRsvd=false;} RSVZ0[3:2] = 2'h0;
+
+  field { name="smon0_function"; AccessType = "RW/V"; fieldwidth = 3;  desc = "SMON0 function"; encode=enum_smon_function; PowerWell="vcccfn_gated"; IntelRsvd=false;} SMON0_FUNCTION[6:4]=3'h0;
+  field { name="smon0_function_compare"; AccessType = "RW/V"; fieldwidth = 1;  desc = "SMON0 function_compare"; encode=enum_smon_function_compare; PowerWell="vcccfn_gated"; IntelRsvd=false;} SMON0_FUNCTION_COMPARE[7:7]=1'h0;
+  field { name="smon1_function"; AccessType = "RW/V"; fieldwidth = 3;  desc = "SMON1 function"; encode=enum_smon_function; PowerWell="vcccfn_gated"; IntelRsvd=false;} SMON1_FUNCTION[10:8]=3'h0;
+  field { name="smon1_function_compare"; AccessType = "RW/V"; fieldwidth = 1;  desc = "SMON1 function_compare"; encode=enum_smon_function_compare; PowerWell="vcccfn_gated"; IntelRsvd=false;} SMON1_FUNCTION_COMPARE[11:11]=1'h0;
+  field { name="smon_mode"; AccessType = "RW/V"; fieldwidth = 4;  desc = "SMON mode"; encode=enum_smon_mode; PowerWell="vcccfn_gated"; IntelRsvd=false;} SMON_MODE[15:12]=4'h0;
+  field { name="stopcounterovfl"; AccessType = "RW/V"; fieldwidth = 1;  desc = "configure to stop on counter0 or counter1 overflow"; PowerWell="vcccfn_gated"; IntelRsvd=false;} STOPCOUNTEROVFL[16:16] = 1'h0;
+  field { name="intcounterovfl"; AccessType = "RW/V"; fieldwidth = 1;  desc = "configure to interupt on counter0 or counter1 overflow"; PowerWell="vcccfn_gated"; IntelRsvd=false;} INTCOUNTEROVFL[17:17] = 1'h0;
+  field { name="statcounter0ovfl"; AccessType = "RW/V"; fieldwidth = 1;  desc = "status for counter0 overflow. A value of '1' signifies counter0 overflow."; PowerWell="vcccfn_gated"; IntelRsvd=false;} STATCOUNTER0OVFL[18:18] = 1'h0;
+  field { name="statcounter1ovfl"; AccessType = "RW/V"; fieldwidth = 1;  desc = "status for counter1 overflow. A value of '1' signifies counter1 overflow."; PowerWell="vcccfn_gated"; IntelRsvd=false;} STATCOUNTER1OVFL[19:19] = 1'h0;
+  field { name="stoptimerovfl"; AccessType = "RW/V"; fieldwidth = 1;  desc = "configure to stop on timer overflow or timer>maxvalue"; PowerWell="vcccfn_gated"; IntelRsvd=false;} STOPTIMEROVFL[20:20] = 1'h0;
+  field { name="inttimerovfl"; AccessType = "RW/V"; fieldwidth = 1;  desc = "configure to interrupt on timer overflow or timer>maxvalue"; PowerWell="vcccfn_gated"; IntelRsvd=false;} INTTIMEROVFL[21:21] = 1'h0;
+  field { name="stattimerovfl"; AccessType = "RW/V"; fieldwidth = 1;  desc = "status of timer overflow. A value of '1' signifies timer overflow, or timer>maxvalue."; PowerWell="vcccfn_gated"; IntelRsvd=false;} STATTIMEROVFL[22:22] = 1'h0;
+
+  field { name="rsvz1"; AccessType = "RW/V"; fieldwidth = 1;  desc = "rsvz1"; PowerWell="vcccfn_gated"; IntelRsvd=false;} RSVZ1[23:23] = 1'h0;
+
+  field { name="timer_prescale"; AccessType = "RW/V"; fieldwidth = 5;  desc = "timer prescale"; encode=enum_smon_prescale; PowerWell="vcccfn_gated"; IntelRsvd=false;} TIMER_PRESCALE[28:24] = 5'h0;
+
+  field { name="rsvz2"; AccessType = "RW/V"; fieldwidth = 1;  desc = "rsvz2"; PowerWell="vcccfn_gated"; IntelRsvd=false;} RSVZ2[29:29] = 1'h0;
+
+  field { name="version"; AccessType = "RO"; fieldwidth = 2;  desc = "version"; PowerWell="vcccfn_gated"; IntelRsvd=false;} VERSION[31:30] = 2'h1;
+};
+
+reg aw_smon_configuration1_r {
+  Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+  Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+  Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+  HqmClassification="DEBUG_ONLY_REG_NA_1";
+  HqmIsFeatureReg=true;
+  IntelRsvd=false;
+  name = "Aw Smon Control1";
+  desc = "Non-default settings may cause UNDEFINED behavior. This is used to configure the operation of the 2 internal counters in the SMON";
+  shared;
+  field { name = "Rsvz0";    desc = "rsvz0"; AccessType = "RW"; PowerWell="vcccfn_gated"; IntelRsvd=false;} RSVZ0[31:16] = 16'h0;
+  field { name="mode0"; AccessType = "RW/V"; fieldwidth = 8;  desc = "select input signal for SMON0 engine"; PowerWell="vcccfn_gated"; IntelRsvd=false;} MODE0[7:0]   = 8'h0;
+  field { name="mode1"; AccessType = "RW/V"; fieldwidth = 8;  desc = "select input signal for SMON1 engine"; PowerWell="vcccfn_gated"; IntelRsvd=false;} MODE1[15:8]  = 8'h0;
+};
+
+reg aw_smon_compare0_r {
+  Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+  Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+  Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+  HqmClassification="DEBUG_ONLY_REG_NA_1";
+  HqmIsFeatureReg=true;
+  IntelRsvd=false;
+  name = "Aw Smon Smon0_compare";
+  desc = "Non-default settings may cause UNDEFINED behavior. This is the compare register in the SMON0 engine used with the compare function";
+  shared;
+  field { name="compare0"; AccessType = "RW/V"; fieldwidth = 32; desc = "counter0"; PowerWell="vcccfn_gated"; IntelRsvd=false;} COMPARE0[31:0] = 32'h0;
+};
+
+reg aw_smon_compare1_r {
+  Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+  Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+  Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+  HqmClassification="DEBUG_ONLY_REG_NA_1";
+  HqmIsFeatureReg=true;
+  IntelRsvd=false;
+  name = "Aw Smon Smon1_compare";
+  desc = "Non-default settings may cause UNDEFINED behavior. This is the compare register in the SMON1 engine used with the compare function";
+  shared;
+  field { name="compare1"; AccessType = "RW/V"; fieldwidth = 32; desc = "counter0"; PowerWell="vcccfn_gated"; IntelRsvd=false;} COMPARE1[31:0] = 32'h0;
+};
+
+reg aw_smon_activitycounter0_r {
+  Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+  Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+  Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+  HqmClassification="DEBUG_ONLY_REG_NA_1";
+  HqmIsFeatureReg=true;
+  IntelRsvd=false;
+  name = "Aw Smon Smon0_count";
+  desc = "Non-default settings may cause UNDEFINED behavior. This is the first counter in SMON configured to count events by the SMON configuration register";
+  shared;
+  field { name="counter0"; AccessType = "RW/V"; fieldwidth = 32; desc = "counter0"; PowerWell="vcccfn_gated"; IntelRsvd=false;} COUNTER0[31:0] = 32'h0;
+};
+
+reg aw_smon_activitycounter1_r {
+  Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+  Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+  Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+  HqmClassification="DEBUG_ONLY_REG_NA_1";
+  HqmIsFeatureReg=true;
+  IntelRsvd=false;
+  name = "Aw Smon Smon1_count";
+  desc = "Non-default settings may cause UNDEFINED behavior. This is the second counter in SMON configured to count events by the SMON configuration register";
+  shared;
+  field { name="counter1"; AccessType = "RW/V"; fieldwidth = 32; desc = "counter1"; PowerWell="vcccfn_gated"; IntelRsvd=false;} COUNTER1[31:0] = 32'h0;
+};
+
+reg aw_smon_timer_r {
+  Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+  Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+  Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+  HqmIsFeatureReg=true;
+  HqmClassification="DEBUG_ONLY_REG_NA_1";
+  IntelRsvd=false;
+  name = "Aw Smon Timer";
+  desc = "Non-default settings may cause UNDEFINED behavior. This is the SMON timer, it is a running counter configured with a prescale parameter in the configuration register. The maxvalue is used to terminate counting.";
+  shared;
+  field { name="timer"; AccessType = "RW/V"; fieldwidth = 32; desc = "timer"; PowerWell="vcccfn_gated"; IntelRsvd=false;} TIMER[31:0] = 32'h0;
+};
+
+reg aw_smon_maximum_timer_r {
+  Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+  Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+  Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+  HqmClassification="DEBUG_ONLY_REG_NA_1";
+  HqmIsFeatureReg=true;
+  IntelRsvd=false;
+  name = "Aw Smon Timermaxval";
+  desc = "Non-default settings may cause UNDEFINED behavior. This is the timer maxvalue used to provide a value to terminate counting.";
+  shared;
+  field { name="maxvalue"; AccessType = "RW/V"; fieldwidth = 32; desc = "maxvalue"; PowerWell="vcccfn_gated"; IntelRsvd=false;} MAXVALUE[31:0] = 32'h0;
+};
+
+reg aw_fifo_control_r {
+  Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+  Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+  Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+  HqmClassification="DEBUG_ONLY_REG_NA_1";
+  HqmIsFeatureReg=true;
+  IntelRsvd=true;
+  name = "Need To Update"; 
+  desc = "Non-default settings may cause UNDEFINED behavior. Need To Update"; 
+  shared;
+  field { name="fifo_depth"; AccessType = "RO/V"; fieldwidth = 16; desc = "FIFO Depth"; PowerWell="vcccfn_gated"; IntelRsvd=true;}  FIFO_DEPTH[31:16] = 16'h0;
+  field { name="fifo_full"; AccessType = "RO/V"; fieldwidth = 1; desc = "FIFO Full"; PowerWell="vcccfn_gated"; IntelRsvd=true;}  FIFO_FULL[15:15] = 1'h0;
+  field { name="fifo_afull"; AccessType = "RO/V"; fieldwidth = 1; desc = "FIFO Almost Full"; PowerWell="vcccfn_gated"; IntelRsvd=true;} FIFO_AFULL[14:14] = 1'h0;
+  field { name="fifo_empty"; AccessType = "RO/V"; fieldwidth = 1; desc = "FIFO Empty"; PowerWell="vcccfn_gated"; IntelRsvd=true;} FIFO_EMPTY[12:12] = 1'h1;
+  field { name="fifo_overflow"; AccessType = "RO/V"; fieldwidth = 1; desc = "FIFO Overflow"; PowerWell="vcccfn_gated"; IntelRsvd=true;} FIFO_OVERFLOW[9:9] = 1'h0;
+  field { name="fifo_underflow"; AccessType = "RO/V"; fieldwidth = 1; desc = "FIFO Underflow or HWM parity error detected"; PowerWell="vcccfn_gated"; IntelRsvd=true;} FIFO_UNDERFLOW[8:8] = 1'h0;
+  field { name="fifo_hwm"; AccessType = "RW"; fieldwidth = 8; desc = "FIFO HWM"; PowerWell="vcccfn_gated"; IntelRsvd=true;}  FIFO_HWM[7:0] = 8'h0;
+} ;
+
+reg aw_ofifo_control_r {
+  Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+  Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+  Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+  HqmClassification="DEBUG_ONLY_REG_NA_1";
+  HqmIsFeatureReg=true;
+  IntelRsvd=true;
+  name = "Need To Update";
+  desc = "Non-default settings may cause UNDEFINED behavior. Need To Update";
+  shared;
+  field { name="fifo_hwm"; AccessType = "RW"; fieldwidth = 8; desc = "FIFO HWM"; PowerWell="vcccfn_gated"; IntelRsvd=true;}  FIFO_HWM[7:0] = 8'h0;
+} ;
+
+reg control_reserved_r {
+  Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+  Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+  Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+  HqmClassification="DEBUG_ONLY_REG_NA_1";
+  HqmIsFeatureReg=true;
+  IntelRsvd=true;
+  name = "Control Reserved";
+  desc = "control_reserved";
+  shared;
+  field { name="reserved"; AccessType = "RO/V"; fieldwidth = 32; desc = "reserved"; PowerWell="vcccfn_gated"; IntelRsvd=true;} RESERVED[31:0] = 32'h0;
+};
+
+reg diagnostic_reserved_r {
+  Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+  Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+  Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+  HqmClassification="DEBUG_ONLY_REG_NA_1";
+  HqmIsFeatureReg=true;
+  IntelRsvd=true;
+  name = "Diagnostic Reserved";
+  desc = "diagnostic_reserved";
+  shared;
+  field { name="reserved"; AccessType = "RO/V"; fieldwidth = 32; desc = "reserved"; PowerWell="vcccfn_gated"; IntelRsvd=true;} RESERVED[31:0] = 32'h0;
+};
+
+reg cfg_hw_agitate_control_r {
+  Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+  Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+  Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+  HqmClassification="DEBUG_ONLY_REG_NA_1";
+  HqmIsFeatureReg=true;
+  IntelRsvd=false;
+  donttest = true ;
+  name = "Agitate Control";
+  desc = "Non-default settings may cause UNDEFINED behavior. agitate_control: configure how to issue agitiate";
+  shared;
+
+  field { name="prob2nd"; AccessType = "RW"; fieldwidth = 8; desc = "DUTY mode usage: agitate duty cycles second half probablity. n/256 change to agitate"; PowerWell="vcccfn_gated"; IntelRsvd=false;} PROB2ND[31:24] = 8'h0;
+  field { name="prob1st"; AccessType = "RW"; fieldwidth = 8; desc = "DUTY mode usage: agitate duty cycles first half probablity. n/256 change to agitate"; PowerWell="vcccfn_gated"; IntelRsvd=false;} PROB1ST[23:16] = 8'h0;
+  field { name="period"; AccessType = "RW"; fieldwidth = 11; desc = "DUTY mode usage: agitate period. THis is multiplied by 16"; PowerWell="vcccfn_gated"; IntelRsvd=false;} PERIOD[15:5] = 11'h0;
+  field { name="duty"; AccessType = "RW"; fieldwidth = 3; desc = "DUTY mode usage: agitate duty cycle"; PowerWell="vcccfn_gated"; IntelRsvd=false;} DUTY[4:2] = 3'h0;
+  field { name="mode"; AccessType = "RW"; fieldwidth = 2; desc = "agitate mode. 0:off 1:duty"; PowerWell="vcccfn_gated"; IntelRsvd=false;} MODE[1:0] = 2'h0;
+};
+
+reg cfg_hw_agitate_select_r {
+  Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+  Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+  Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+  HqmClassification="DEBUG_ONLY_REG_NA_1";
+  HqmIsFeatureReg=true;
+  IntelRsvd=false;
+  donttest = true ;
+  name = "Agitate Select";
+  shared;
+  desc = "Non-default settings may cause UNDEFINED behavior. agitate_select: select which interfaces to agitate";
+
+  field { name="rsvz"; AccessType = "RW"; fieldwidth = 16; desc = "agitate interface"; PowerWell="vcccfn_gated"; IntelRsvd=false;} RSVZ[31:16] = 16'h0;
+
+  field { name="agg_if_15"; AccessType = "RW"; fieldwidth = 1; desc = "agitate interface"; PowerWell="vcccfn_gated"; IntelRsvd=false;} AGG_IF_15[15:15] = 1'h0;
+  field { name="agg_if_14"; AccessType = "RW"; fieldwidth = 1; desc = "agitate interface"; PowerWell="vcccfn_gated"; IntelRsvd=false;} AGG_IF_14[14:14] = 1'h0;
+  field { name="agg_if_13"; AccessType = "RW"; fieldwidth = 1; desc = "agitate interface"; PowerWell="vcccfn_gated"; IntelRsvd=false;} AGG_IF_13[13:13] = 1'h0;
+  field { name="agg_if_12"; AccessType = "RW"; fieldwidth = 1; desc = "agitate interface"; PowerWell="vcccfn_gated"; IntelRsvd=false;} AGG_IF_12[12:12] = 1'h0;
+  field { name="agg_if_11"; AccessType = "RW"; fieldwidth = 1; desc = "agitate interface"; PowerWell="vcccfn_gated"; IntelRsvd=false;} AGG_IF_11[11:11] = 1'h0;
+  field { name="agg_if_10"; AccessType = "RW"; fieldwidth = 1; desc = "agitate interface"; PowerWell="vcccfn_gated"; IntelRsvd=false;} AGG_IF_10[10:10] = 1'h0;
+  field { name="agg_if_09"; AccessType = "RW"; fieldwidth = 1; desc = "agitate interface"; PowerWell="vcccfn_gated"; IntelRsvd=false;} AGG_IF_09[9:9] = 1'h0;
+  field { name="agg_if_08"; AccessType = "RW"; fieldwidth = 1; desc = "agitate interface"; PowerWell="vcccfn_gated"; IntelRsvd=false;} AGG_IF_08[8:8] = 1'h0;
+  field { name="agg_if_07"; AccessType = "RW"; fieldwidth = 1; desc = "agitate interface"; PowerWell="vcccfn_gated"; IntelRsvd=false;} AGG_IF_07[7:7] = 1'h0;
+  field { name="agg_if_06"; AccessType = "RW"; fieldwidth = 1; desc = "agitate interface"; PowerWell="vcccfn_gated"; IntelRsvd=false;} AGG_IF_06[6:6] = 1'h0;
+  field { name="agg_if_05"; AccessType = "RW"; fieldwidth = 1; desc = "agitate interface"; PowerWell="vcccfn_gated"; IntelRsvd=false;} AGG_IF_05[5:5] = 1'h0;
+  field { name="agg_if_04"; AccessType = "RW"; fieldwidth = 1; desc = "agitate interface"; PowerWell="vcccfn_gated"; IntelRsvd=false;} AGG_IF_04[4:4] = 1'h0;
+  field { name="agg_if_03"; AccessType = "RW"; fieldwidth = 1; desc = "agitate interface"; PowerWell="vcccfn_gated"; IntelRsvd=false;} AGG_IF_03[3:3] = 1'h0;
+  field { name="agg_if_02"; AccessType = "RW"; fieldwidth = 1; desc = "agitate interface"; PowerWell="vcccfn_gated"; IntelRsvd=false;} AGG_IF_02[2:2] = 1'h0;
+  field { name="agg_if_01"; AccessType = "RW"; fieldwidth = 1; desc = "agitate interface"; PowerWell="vcccfn_gated"; IntelRsvd=false;} AGG_IF_01[1:1] = 1'h0;
+  field { name="agg_if_00"; AccessType = "RW"; fieldwidth = 1; desc = "agitate interface"; PowerWell="vcccfn_gated"; IntelRsvd=false;} AGG_IF_00[0:0] = 1'h0;
+};
+
+reg cfg_unit_idle_r {
+        Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+        Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+        Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+  HqmClassification="DEBUG_ONLY_REG_NA_1";
+        HqmIsFeatureReg=true;
+        donttest = true ;
+        IntelRsvd=true;
+        name = "Cfg Unit Idle";
+        desc = "Unit idle status register";
+        regwidth = 32;
+        shared;
+        HandCoded=true;
+
+
+        field { name = "Rsvz0";  desc = "rsvz0"; AccessType = "RO/V"; PowerWell="vcccfn_gated"; IntelRsvd=true;} RSVZ0[31:2] = 30'h0;
+        field { name = "Unit Idle";  desc = "Unit is idle"; AccessType = "RO/V"; PowerWell="vcccfn_gated"; IntelRsvd=true;} UNIT_IDLE[1:1] = 1'h1;
+        field { name = "Pipe Idle";  desc = "Unit pipe/s ss/are idle"; AccessType = "RO/V"; PowerWell="vcccfn_gated"; IntelRsvd=true;} PIPE_IDLE[0:0] = 1'h1;
+};
+
+reg cfg_reset_unit_status_r {
+        Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+        Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+        Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+  HqmClassification="DEBUG_ONLY_REG_NA_1";
+        HqmIsFeatureReg=true;
+        IntelRsvd=true;
+        name = "Cfg Reset Unit Status";
+        desc = "Unit reset status regiser";
+        regwidth = 32;
+        shared;
+        HandCoded=true;
+        field { name = "Reset Done";   desc = "reset done "; AccessType = "RO/V"; PowerWell="vcccfn_gated"; IntelRsvd=true;} RESET_DONE[5:5] = 1'b0;
+        field { name = "Reset Active";   desc = "reset active. H/W clears when it sets reset_done."; AccessType = "RO/V"; PowerWell="vcccfn_gated"; IntelRsvd=true;} RESET_ACTIVE[4:4] = 1'b0;
+        field { name = "Vf Reset Done";   desc = "vf reset done "; AccessType = "RO/V"; PowerWell="vcccfn_gated"; IntelRsvd=true;} VF_RESET_DONE[3:3] = 1'b0;
+        field { name = "Vf Reset Active";   desc = "vf reset active. H/W clears when it sets vf_reset_done."; AccessType = "RO/V"; PowerWell="vcccfn_gated"; IntelRsvd=true;} VF_RESET_ACTIVE[2:2] = 1'b0;
+        field { name = "Pf Reset Done";   desc = "pf reset done. "; AccessType = "RO/V"; PowerWell="vcccfn_gated"; IntelRsvd=true;} PF_RESET_DONE[1:1] = 1'b1;
+        field { name = "Pf Reset Active";   desc = "pf reset active. H/W clears automatically when it sets pf_reset_done. "; AccessType = "RO/V"; PowerWell="vcccfn_gated"; IntelRsvd=true;} PF_RESET_ACTIVE[0:0] = 1'b0;
+};
+
+  enum hqm_enum_ldb_cq_depth {
+    depth_4     = 4'h0 { desc = "CQ Depth is 4."; };
+    depth_8     = 4'h1 { desc = "CQ Depth is 8."; };
+    depth_16    = 4'h2 { desc = "CQ Depth is 16."; };
+    depth_32    = 4'h3 { desc = "CQ Depth is 32."; };
+    depth_64    = 4'h4 { desc = "CQ Depth is 64."; };
+    depth_128   = 4'h5 { desc = "CQ Depth is 128."; };
+    depth_256   = 4'h6 { desc = "CQ Depth is 256."; };
+    depth_512   = 4'h7 { desc = "CQ Depth is 512."; };
+    depth_1024  = 4'h8 { desc = "CQ Depth is 1024."; };
+  };
+
+  enum hqm_enum_dir_cq_depth {
+    depth_4     = 4'h0 { desc = "CQ Depth is 4."; };
+    depth_8     = 4'h1 { desc = "CQ Depth is 8."; };
+    depth_16    = 4'h2 { desc = "CQ Depth is 16."; };
+    depth_32    = 4'h3 { desc = "CQ Depth is 32."; };
+    depth_64    = 4'h4 { desc = "CQ Depth is 64."; };
+    depth_128   = 4'h5 { desc = "CQ Depth is 128."; };
+    depth_256   = 4'h6 { desc = "CQ Depth is 256."; };
+    depth_512   = 4'h7 { desc = "CQ Depth is 512."; };
+    depth_1024  = 4'h8 { desc = "CQ Depth is 1024."; };
+    depth_2048  = 4'h9 { desc = "CQ Depth is 2048."; };
+    depth_4096  = 4'ha { desc = "CQ Depth is 4096."; };
+  };
+
+enum sn_mode_enum {
+   NUM_SN_32_QID   = 3'b000 { desc = "32 Sequence numbers (SN) per QID"; }; 
+   NUM_SN_64_QID   = 3'b001 { desc = "64 Sequence numbers (SN) per QID"; };
+   NUM_SN_128_QID  = 3'b010 { desc = "128 Sequence numbers (SN)per QID"; };
+   NUM_SN_256_QID  = 3'b011 { desc = "256 Sequence numbers (SN) per QID"; };
+   NUM_SN_512_QID  = 3'b100 { desc = "512 Sequence numbers (SN) per QID"; };
+   NUM_SN_1024_QID = 3'b101 { desc = "1024 Sequence number (SN) per QID"; };
+   NOT_DEFINE0     = 3'b110 { desc = "Note Defined"; };
+   NOT_DEFINE1     = 3'b111 { desc = "Note Defined"; };
+}; // sn_mode_num
+
+  reg cfg_unit_version_r {
+        donttest = true ;
+        Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+        Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+        Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+  HqmClassification="DEBUG_ONLY_REG_NA_1";
+        IntelRsvd=false;
+        name = "Cfg Unit Version";
+        desc = "contains unit version for the unit in which the hqm_AW_cfg_ring is instantiated (for fpga use)";
+        regwidth = 32;
+        shared;
+        HandCoded=true;
+        field { name = "Unit version";desc = "unit version number"; AccessType = "RO"; PowerWell="vcccfn_gated"; IntelRsvd=false;} UNIT_VERSION[31:24] = 8'h01;
+  } ;
+
+  reg cfg_unit_timeout_r {
+        Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+        Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+        Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+  HqmClassification="DEBUG_ONLY_REG_NA_1";
+        HqmIsFeatureReg=true;
+        IntelRsvd=false;
+        name = "Cfg Unit Timeout";
+        desc = "Non-default settings may cause UNDEFINED behavior. Config timeout specific to each sub module";
+        regwidth = 32;
+        shared;
+        HandCoded=true;
+      field { name = "Cfg Timeout Enable";    desc = "sub module config timeout enable"; AccessType = "RW"; PowerWell="vcccfn_gated"; IntelRsvd=false;} ENABLE[31:31] = 1'h1;
+      field { name = "Rsvz0";    desc = "rsvz0"; AccessType = "RW/V"; PowerWell="vcccfn_gated"; IntelRsvd=false;} RSVZ0[30:16] = 15'h0;
+      field { name = "Cfg Timeout Threshold";    desc = "sub module config timeout threshold.";  AccessType = "RW";  PowerWell="vcccfn_gated"; IntelRsvd=false;} THRESHOLD[15:5] = 11'h7ff;
+      field { name = "Cfg Timeout Multiplier";   desc = "Lowest 5 bits of 16 bit timeout are fixed. Total timeout cannot be less than 32 clks.";  AccessType = "RO";  PowerWell="vcccfn_gated"; IntelRsvd=false;} MULTIPLIER[4:0] = 5'h1f;
+  } ;
+

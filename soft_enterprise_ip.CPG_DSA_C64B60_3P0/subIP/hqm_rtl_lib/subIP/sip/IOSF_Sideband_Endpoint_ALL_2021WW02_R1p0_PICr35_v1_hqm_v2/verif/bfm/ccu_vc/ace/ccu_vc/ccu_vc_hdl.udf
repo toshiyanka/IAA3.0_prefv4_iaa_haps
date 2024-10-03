@@ -1,0 +1,156 @@
+# Pragma
+# ======
+use Ace::OSData;
+
+# Variables 
+# =========
+
+# Define scope var for use later 
+my $SCOPE = "ccu_vc";
+
+# Start UDF Hash
+%audf = (
+   # -------------------------------------------------------------------------------
+   # List of other UDF file to include
+   # You can choose to place all UDF information in one file,
+   # or split it up amoung various files.
+   # Any UDF that includes this one will also include the following
+   # UDFs
+   # -------------------------------------------------------------------------------
+   #Includes => [
+   #],
+
+
+   # -------------------------------------------------------------------------------
+   # The HDLSpec catagory defines the RTL to compile and simulate.
+   # -------------------------------------------------------------------------------
+   HDLSpec => {
+      $SCOPE => {
+         # Define all the libraries which could be compiled 
+         libs => {
+         
+			ccu_vc_val_lib => {
+			   -hdl_spec => [
+				    "verif/ccu_env/ccu_vc_env_pkg.hdl",
+				    "verif/ccu-vc/ccu_vc_pkg.hdl",
+				],
+			   -dependent_libs => [
+                    'ovm_val_lib',
+                    'saola_val_lib',
+                    'sipmanager_val_lib',
+                    'IOSF_SVC_val_lib',
+				],
+                -vlog_opts => [
+                    '-sverilog',
+                    "+define+IGNORE_CCU_CRG_TIMEPREC",
+                ],
+			},
+
+            #Why we add sip_shared_lib (per Elizabeth Woolley, 2/5/18)
+            #1) to serve as documentation, and 
+            #2) to help ensure that backward-compatible use of sip_shared_lib does not get broken, 
+            #   by making sure that libs which should be part of sip_shared_lib are delivered that 
+            #   way (with recursive library dependencies enabled during testing so that we can avoid 
+            #   any recursive loops of library depending on sip_shared_lib which in turn depends on 
+            #   that same library).
+            sip_shared_lib => {
+                #The below tag leverages the contour's data to uniformly tag all member val libs; the commented line below contains what this should resolve to.                    #-tag            => &ToolConfig::get_tool_var("vc_vars", "TYPICAL_SVTB_TAGS"),
+                -tag            =>  "nonsynth+nonemu+nonfpga+nonlint",
+                -vlog_files     =>  ["verif/tb/sip_shared_lib_pkg.sv",], #stub file that will import all of the pieces that it defines. Also needs to have a module, so we can target it in the ace model
+                -dependent_libs =>  ## list self (since sip_shared_lib should be DEPENDENT on, 
+                                    ##  not contain as a sub_lib, this lib.) Also add any SIIP 
+                                    ##  compliant shared libs here, that you DIRECTLY depend on
+                                    [
+                                    'ovm_val_lib',
+                                    'saola_val_lib',
+                                    'sipmanager_val_lib',
+                                    'IOSF_SVC_val_lib',
+                                    'ccu_vc_val_lib',
+                                    ], 
+                -sub_libs =>        #List the libs you DIRECTLY depend on, that are NOT SIIP compliant
+                                    # The libs that do not export themselves and do not export their uses
+                                    [
+                                    ], 
+                -vlog_opts      =>  [
+                                    '-sverilog',
+                                    ],
+                -vlog_incdirs   =>  [ "$ENV{OVM_HOME}/src", ], ## code as needed when used in other scopes
+            },
+           
+            # Non exportable tests 
+            # ====================
+            ccu_vc_test_lib => {
+               -hdl_spec => [
+                  'verif/tests/ccu_vc_test_lib.hdl',
+               ],                                                        
+               -dependent_libs => [
+                  'sip_shared_lib',
+				  'ccu_vc_val_lib',
+               ],
+            },
+
+            # Non exportable TB
+            # =================
+
+            ccu_vc_tb_lib => {
+               -hdl_spec => [
+                  "verif/tb/ccu_vc_tb_lib.hdl", 
+               ],
+               -dependent_libs => [
+                  'sip_shared_lib',
+				  'ccu_vc_val_lib',
+                  'ccu_vc_test_lib',
+               ],
+            },
+         }, #libs
+                                 
+         # Defines a set of models that could be simulated.
+         # AT LEAST ONE MUST BE DEFINED.  Besure to set the
+         # default for the InterfaceVars -model flag to
+         # one of these
+         models => {
+            ccu_vc => {
+               # top module in model
+               top => 'ccu_vc_tb_lib.ccu_vc_tb',
+            
+               # List of libraries to use, including self (and sip_shared_lib for testing purposes) 
+               libs => [
+				  'ccu_vc_val_lib',
+                  'sip_shared_lib',
+                  'ccu_vc_test_lib',
+                  'ccu_vc_tb_lib',
+               ],
+               pli_libs => [
+                  '-debussy_pli_libs'
+               ],
+               use =>  #SIIP Compliant VCs should specify the use of each
+                   # scope:model of every lib their exported lib is dependent on
+                   [
+                   #'<scope>:<model>',
+                   'ovm:ovm',
+                   'saola:saola',
+                   'sipmanager:sipmanager',
+                   'IOSF_SVC:IOSF_SVC',
+                   ],
+               #Shared Libs must export themselves and ONLY themselves. 
+               # This allows them to be used via "use => '<scope>:<model>'" 
+               # which grants access to the lib in that scope that was exported
+               export => {
+                   libs => [ 'ccu_vc_val_lib' ],
+                   use =>  #SIIP Compliant VCs should specify the use of each
+                           # scope:model of every lib their exported lib is dependent on
+                           [
+                           #'<scope>:<model>'
+                           'ovm:ovm',
+                           'saola:saola',
+                           'sipmanager:sipmanager',
+                           'IOSF_SVC:IOSF_SVC',
+                           ], 
+               },
+
+            }, #ccu_vc_tim
+         }, #models
+      }, #$SCOPE
+   }, #HDL Spec
+); #audf
+

@@ -1,0 +1,91 @@
+#!/bin/csh
+
+## Basic environment setup#first run the script that finds and replaces all the interfaces for collage version of the classes
+scripts/fr.pl
+
+source /p/com/env/psetup/prod/bin/setupTool -bits 32 vcsmx F-2011.12-SP1-22
+
+setenv VCS_TARGET_ARCH suse32
+setenv CWD $cwd
+#cd ../
+
+setenv BASE $cwd 
+setenv COMMON $cwd/source/Common
+setenv SOURCECC $cwd/source/CC
+setenv SOURCEPGCB $cwd/source/PGCB
+setenv SCRIPTS $cwd/scripts
+setenv TESTBENCH $cwd/verif/tb
+setenv VERIF $cwd/verif
+
+# When Saola or OVM change versions, update these.
+# Optional: you could simply require that OVM_HOME and SAOLA_HOME be setup via other means. (AVCEnv)
+
+if ! $?OVM_HOME then
+	echo "Need to set OVM_HOME"
+	setenv OVM_HOME /p/com/eda/ovm/ovm/2.1.1_2
+	echo "OVM HOME now set to " $OVM_HOME
+endif
+
+if ! $?SAOLA_HOME then
+	echo "Need to set SAOLA_HOME"
+	setenv SAOLA_HOME /p/com/eda/intel/saola/v20120517
+	echo "SAOLA HOME now set to " $SAOLA_HOME
+endif
+rm -rf AN.DB
+echo "base      = " $BASE
+echo "src       = " $SOURCECC
+#echo "src       = " $SOURCEPGCB
+echo "scripts   = " $SCRIPTS
+echo "verif     = " $VERIF
+echo "testbench = " $TESTBENCH
+#############################################
+## COMPILE ALL
+#############################################
+vlogan +incdir+$OVM_HOME/ +incdir+$SAOLA_HOME/ +incdir+$OVM_HOME/src+$SAOLA_HOME/verilog +incdir+$COMMON +incdir+$SOURCECC +incdir+$SOURCEPGCB  +incdir+$TESTBENCH -timescale=1ps/1ps -sverilog -lca $OVM_HOME/src/ovm_pkg.sv $SAOLA_HOME/verilog/sla_pkg.sv $COMMON/PowerGatingParamsPkg.sv $COMMON/PowerGatingCommonPkg.sv $COMMON/PowerGatingIF.sv $COMMON/PowerGatingNoParamIF.sv $SOURCECC/CCAgentPkg.sv  $SOURCEPGCB/PGCBAgentPkg.sv $TESTBENCH/PowerGatingSaolaPkg.sv $TESTBENCH/PowerGatingTestbenchTop.sv $SOURCECC/CCAgentTI.sv $SOURCEPGCB/PGCBAgentTI.sv +define+OVM +define+SECLAYER -timescale=1ps/1ps  +define+CHASSIS_PG_P2
+#+define+CHASSIS_PG_P2 
+##-debug_all 
+
+##-test_vcs_args="debug_all"
+
+
+rm compile.log
+echo "############################"
+echo "###  COMPILE SUCCESSFULL ###"
+echo "############################"
+sleep 1 #just a quick sleep so I can see compiles are complete
+
+
+#############################################
+## ELABORATE PURE OVM TEMPLATES
+#############################################
+
+vcs PowerGatingTestbenchTop  -sverilog -lca $SAOLA_HOME/libs/Linux/libsla.so -L/usr/intel/pkgs/gcc/4.2.0/lib -lstdc++ -debug_all -test_vcs_args+debug_all |& tee log.elab  
+
+#vcs PM_DOWNBFM_mod -sverilog -lca $SLA_HOME/libs/Linux/libsla.so -debug_all |& tee log.elab
+#vcs PM_DOWNBFM_mod -sverilog -lca -debug_all   
+
+if (-e ./simv) then
+	./simv -l vsim.log $2  +OVM_VERBOSITY=OVM_HIGH +vcs+flush+all -assert nopostproc +OVM_TESTNAME=$1 +ntb_random_seed_automatic |& tee log.run 
+endif
+
+#-simprofile time
+
+echo "##############################"
+echo "###  ELABORATION SUCCEEDED ###"
+echo "##############################"
+
+#rm -rf simv*
+
+sleep 1 #just a quick sleep so I can see each elab complete
+
+#############################################
+## CLEANUP AND POST STATUS
+#############################################
+rm -rf AN.DB
+rm log.*
+rm ucli.key
+rm vc_hdrs.h
+rm -rf csrc
+
+
+exit 0

@@ -1,0 +1,522 @@
+idle 400
+####################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+####################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+####################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+####################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+####################################
+# Wait for reset to be done (including hardware memory init)
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+
+###################################
+# Setup LUTs used by HCWs
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+dir qid 0
+dir qid 1
+dir qid 2
+dir qid 3
+dir qid 4
+dir qid 5
+dir qid 6
+dir qid 7
+dir qid 8
+dir qid 9
+dir qid 10
+dir qid 11
+dir qid 12
+dir qid 13
+dir qid 14
+dir qid 15
+dir qid 16  
+dir qid 17  
+dir qid 18  
+dir qid 19  
+dir qid 20  
+dir qid 21  
+dir qid 22  
+dir qid 23  
+dir qid 24  
+dir qid 25  
+dir qid 26  
+dir qid 27  
+dir qid 28  
+dir qid 29  
+dir qid 30  
+dir qid 31  
+dir qid 32  
+dir qid 33  
+dir qid 34  
+dir qid 35  
+dir qid 36  
+dir qid 37  
+dir qid 38  
+dir qid 39  
+dir qid 40  
+dir qid 41  
+dir qid 42  
+dir qid 43  
+dir qid 44  
+dir qid 45  
+dir qid 46  
+dir qid 47  
+dir qid 48  
+dir qid 49  
+dir qid 50  
+dir qid 51  
+dir qid 52  
+dir qid 53  
+dir qid 54  
+dir qid 55  
+dir qid 56  
+dir qid 57  
+dir qid 58  
+dir qid 59  
+dir qid 60  
+dir qid 61  
+dir qid 62  
+dir qid 63  
+dir qid 64  
+dir qid 65  
+dir qid 66  
+dir qid 67  
+dir qid 68  
+dir qid 69  
+dir qid 70  
+dir qid 71  
+dir qid 72  
+dir qid 73  
+dir qid 74  
+dir qid 75  
+dir qid 76  
+dir qid 77  
+dir qid 78  
+dir qid 79  
+dir qid 80  
+dir qid 81  
+dir qid 82  
+dir qid 83  
+dir qid 84  
+dir qid 85  
+dir qid 86  
+dir qid 87  
+dir qid 88  
+dir qid 89  
+dir qid 90  
+dir qid 91  
+dir qid 92  
+dir qid 93  
+dir qid 94  
+dir qid 95  
+dir qid 96  
+dir qid 97  
+dir qid 98  
+dir qid 99  
+dir qid 100 
+dir qid 101 
+dir qid 102 
+dir qid 103 
+dir qid 104 
+dir qid 105 
+dir qid 106 
+dir qid 107 
+dir qid 108 
+dir qid 109 
+dir qid 110 
+dir qid 111 
+dir qid 112 
+dir qid 113 
+dir qid 114 
+dir qid 115 
+dir qid 116 
+dir qid 117 
+dir qid 118 
+dir qid 119 
+dir qid 120 
+dir qid 121 
+dir qid 122 
+dir qid 123 
+dir qid 124 
+dir qid 125 
+dir qid 126 
+dir qid 127 
+
+dir pool 0  credit_cnt=0x20 credit_limit=0x100 freelist_base=0x0 freelist_limit=0x10
+dir pool 1  credit_cnt=0x20 credit_limit=0x100 freelist_base=0x10 freelist_limit=0x20
+dir pool 2  credit_cnt=0x20 credit_limit=0x100 freelist_base=0x20 freelist_limit=0x30
+dir pool 3  credit_cnt=0x20 credit_limit=0x100 freelist_base=0x30 freelist_limit=0x40
+dir pool 4  credit_cnt=0x20 credit_limit=0x100 freelist_base=0x40 freelist_limit=0x50
+dir pool 5  credit_cnt=0x20 credit_limit=0x100 freelist_base=0x50 freelist_limit=0x60
+dir pool 6  credit_cnt=0x20 credit_limit=0x100 freelist_base=0x60 freelist_limit=0x70
+dir pool 7  credit_cnt=0x20 credit_limit=0x100 freelist_base=0x70 freelist_limit=0x80
+dir pool 8  credit_cnt=0x20 credit_limit=0x100 freelist_base=0x80 freelist_limit=0x90
+dir pool 9  credit_cnt=0x20 credit_limit=0x100 freelist_base=0x90 freelist_limit=0xa0
+dir pool 10 credit_cnt=0x20 credit_limit=0x100 freelist_base=0xa0 freelist_limit=0xb0
+dir pool 11 credit_cnt=0x20 credit_limit=0x100 freelist_base=0xb0 freelist_limit=0xc0
+dir pool 12 credit_cnt=0x20 credit_limit=0x100 freelist_base=0xc0 freelist_limit=0xd0
+dir pool 13 credit_cnt=0x20 credit_limit=0x100 freelist_base=0xd0 freelist_limit=0xe0
+dir pool 14 credit_cnt=0x20 credit_limit=0x100 freelist_base=0xe0 freelist_limit=0xf0
+dir pool 15 credit_cnt=0x20 credit_limit=0x100 freelist_base=0xf0 freelist_limit=0x100
+dir pool 16 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x100 freelist_limit=0x110
+dir pool 17 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x110 freelist_limit=0x120
+dir pool 18 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x120 freelist_limit=0x130
+dir pool 19 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x130 freelist_limit=0x140
+dir pool 20 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x140 freelist_limit=0x150
+dir pool 21 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x150 freelist_limit=0x160
+dir pool 22 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x160 freelist_limit=0x170
+dir pool 23 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x170 freelist_limit=0x180
+dir pool 24 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x180 freelist_limit=0x190
+dir pool 25 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x190 freelist_limit=0x1a0
+dir pool 26 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x1a0 freelist_limit=0x1b0
+dir pool 27 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x1b0 freelist_limit=0x1c0
+dir pool 28 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x1c0 freelist_limit=0x1d0
+dir pool 29 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x1d0 freelist_limit=0x1e0
+dir pool 30 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x1e0 freelist_limit=0x1f0
+dir pool 31 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x1f0 freelist_limit=0x200
+dir pool 32 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x200 freelist_limit=0x210
+dir pool 33 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x210 freelist_limit=0x220
+dir pool 34 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x220 freelist_limit=0x230
+dir pool 35 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x230 freelist_limit=0x240
+dir pool 36 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x240 freelist_limit=0x250
+dir pool 37 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x250 freelist_limit=0x260
+dir pool 38 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x260 freelist_limit=0x270
+dir pool 39 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x270 freelist_limit=0x280
+dir pool 40 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x280 freelist_limit=0x290
+dir pool 41 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x290 freelist_limit=0x2a0
+dir pool 42 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x2a0 freelist_limit=0x2b0
+dir pool 43 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x2b0 freelist_limit=0x2c0
+dir pool 44 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x2c0 freelist_limit=0x2d0
+dir pool 45 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x2d0 freelist_limit=0x2e0
+dir pool 46 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x2e0 freelist_limit=0x2f0
+dir pool 47 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x2f0 freelist_limit=0x300
+dir pool 48 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x300 freelist_limit=0x310
+dir pool 49 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x310 freelist_limit=0x320
+dir pool 50 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x320 freelist_limit=0x330
+dir pool 51 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x330 freelist_limit=0x340
+dir pool 52 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x340 freelist_limit=0x350
+dir pool 53 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x350 freelist_limit=0x360
+dir pool 54 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x360 freelist_limit=0x370
+dir pool 55 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x370 freelist_limit=0x380
+dir pool 56 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x380 freelist_limit=0x390
+dir pool 57 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x390 freelist_limit=0x3a0
+dir pool 58 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x3a0 freelist_limit=0x3b0
+dir pool 59 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x3b0 freelist_limit=0x3c0
+dir pool 60 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x3c0 freelist_limit=0x3d0
+dir pool 61 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x3d0 freelist_limit=0x3e0
+dir pool 62 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x3e0 freelist_limit=0x3f0
+dir pool 63 credit_cnt=0x20 credit_limit=0x100 freelist_base=0x3f0 freelist_limit=0x400
+
+ldb pool 0 credit_cnt=0x4000 credit_limit=0x4000 freelist_base=0x400 freelist_limit=0x410
+
+vas 0  dir_qidv0=1   dir_qidv1=1   dir_qidv2=1   dir_qidv3=1  
+vas 1  dir_qidv4=1   dir_qidv5=1   dir_qidv6=1   dir_qidv7=1 
+vas 2  dir_qidv8=1   dir_qidv9=1   dir_qidv10=1  dir_qidv11=1 
+vas 3  dir_qidv12=1  dir_qidv13=1  dir_qidv14=1  dir_qidv15=1
+vas 4  dir_qidv16=1  dir_qidv17=1  dir_qidv18=1  dir_qidv19=1
+vas 5  dir_qidv20=1  dir_qidv21=1  dir_qidv22=1  dir_qidv23=1
+vas 6  dir_qidv24=1  dir_qidv25=1  dir_qidv26=1  dir_qidv27=1
+vas 7  dir_qidv28=1  dir_qidv29=1  dir_qidv30=1  dir_qidv31=1
+vas 8  dir_qidv32=1  dir_qidv33=1  dir_qidv34=1  dir_qidv35=1
+vas 9  dir_qidv36=1  dir_qidv37=1  dir_qidv38=1  dir_qidv39=1
+vas 10 dir_qidv40=1  dir_qidv41=1  dir_qidv42=1  dir_qidv43=1
+vas 11 dir_qidv44=1  dir_qidv45=1  dir_qidv46=1  dir_qidv47=1
+vas 12 dir_qidv48=1  dir_qidv49=1  dir_qidv50=1  dir_qidv51=1
+vas 13 dir_qidv52=1  dir_qidv53=1  dir_qidv54=1  dir_qidv55=1
+vas 14 dir_qidv56=1  dir_qidv57=1  dir_qidv58=1  dir_qidv59=1
+vas 15 dir_qidv60=1  dir_qidv61=1  dir_qidv62=1  dir_qidv63=1
+vas 16 dir_qidv64=1  dir_qidv65=1  dir_qidv66=1  dir_qidv67=1
+vas 17 dir_qidv68=1  dir_qidv69=1  dir_qidv70=1  dir_qidv71=1
+vas 18 dir_qidv72=1  dir_qidv73=1  dir_qidv74=1  dir_qidv75=1
+vas 19 dir_qidv76=1  dir_qidv77=1  dir_qidv78=1  dir_qidv79=1
+vas 20 dir_qidv80=1  dir_qidv81=1  dir_qidv82=1  dir_qidv83=1
+vas 21 dir_qidv84=1  dir_qidv85=1  dir_qidv86=1  dir_qidv87=1
+vas 22 dir_qidv88=1  dir_qidv89=1  dir_qidv90=1  dir_qidv91=1
+vas 23 dir_qidv92=1  dir_qidv93=1  dir_qidv94=1  dir_qidv95=1
+vas 24 dir_qidv96=1  dir_qidv97=1  dir_qidv98=1  dir_qidv99=1
+vas 25 dir_qidv100=1 dir_qidv101=1 dir_qidv102=1 dir_qidv103=1
+vas 26 dir_qidv104=1 dir_qidv105=1 dir_qidv106=1 dir_qidv107=1
+vas 27 dir_qidv108=1 dir_qidv109=1 dir_qidv100=1 dir_qidv111=1
+vas 28 dir_qidv112=1 dir_qidv113=1 dir_qidv114=1 dir_qidv115=1
+vas 29 dir_qidv116=1 dir_qidv117=1 dir_qidv118=1 dir_qidv119=1
+vas 30 dir_qidv120=1 dir_qidv121=1 dir_qidv122=1 dir_qidv123=1
+vas 31 dir_qidv124=1 dir_qidv125=1 dir_qidv126=1 dir_qidv127=1
+
+dir pp 0   gpa=0x55aabbbb10000000 vas=0  dir_pool=0  ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 1   gpa=0x55aabbbb10010000 vas=0  dir_pool=0  ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 2   gpa=0x55aabbbb10020000 vas=0  dir_pool=1  ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 3   gpa=0x55aabbbb10030000 vas=0  dir_pool=1  ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 4   gpa=0x55aabbbb10040000 vas=1  dir_pool=2  ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 5   gpa=0x55aabbbb10050000 vas=1  dir_pool=2  ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 6   gpa=0x55aabbbb10060000 vas=1  dir_pool=3  ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 7   gpa=0x55aabbbb10070000 vas=1  dir_pool=3  ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 8   gpa=0x55aabbbb10080000 vas=2  dir_pool=4  ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 9   gpa=0x55aabbbb10090000 vas=2  dir_pool=4  ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 10  gpa=0x55aabbbb100a0000 vas=2  dir_pool=5  ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 11  gpa=0x55aabbbb100b0000 vas=2  dir_pool=5  ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 12  gpa=0x55aabbbb100c0000 vas=3  dir_pool=6  ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 13  gpa=0x55aabbbb100d0000 vas=3  dir_pool=6  ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 14  gpa=0x55aabbbb100e0000 vas=3  dir_pool=7  ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 15  gpa=0x55aabbbb100f0000 vas=3  dir_pool=7  ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 16  gpa=0x55aabbbb10100000 vas=4  dir_pool=8  ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 17  gpa=0x55aabbbb10110000 vas=4  dir_pool=8  ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 18  gpa=0x55aabbbb10120000 vas=4  dir_pool=9  ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 19  gpa=0x55aabbbb10130000 vas=4  dir_pool=9  ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 20  gpa=0x55aabbbb10140000 vas=5  dir_pool=10 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 21  gpa=0x55aabbbb10150000 vas=5  dir_pool=10 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 22  gpa=0x55aabbbb10160000 vas=5  dir_pool=11 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 23  gpa=0x55aabbbb10170000 vas=5  dir_pool=11 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 24  gpa=0x55aabbbb10180000 vas=6  dir_pool=12 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 25  gpa=0x55aabbbb10190000 vas=6  dir_pool=12 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 26  gpa=0x55aabbbb101a0000 vas=6  dir_pool=13 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 27  gpa=0x55aabbbb101b0000 vas=6  dir_pool=13 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 28  gpa=0x55aabbbb101c0000 vas=7  dir_pool=14 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 29  gpa=0x55aabbbb101d0000 vas=7  dir_pool=14 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 30  gpa=0x55aabbbb101e0000 vas=7  dir_pool=15 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 31  gpa=0x55aabbbb101f0000 vas=7  dir_pool=15 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 32  gpa=0x55aabbbb10200000 vas=8  dir_pool=16 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 33  gpa=0x55aabbbb10210000 vas=8  dir_pool=16 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 34  gpa=0x55aabbbb10220000 vas=8  dir_pool=17 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 35  gpa=0x55aabbbb10230000 vas=8  dir_pool=17 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 36  gpa=0x55aabbbb10240000 vas=9  dir_pool=18 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 37  gpa=0x55aabbbb10250000 vas=9  dir_pool=18 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 38  gpa=0x55aabbbb10260000 vas=9  dir_pool=19 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 39  gpa=0x55aabbbb10270000 vas=9  dir_pool=19 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 40  gpa=0x55aabbbb10280000 vas=10 dir_pool=20 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 41  gpa=0x55aabbbb10290000 vas=10 dir_pool=20 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 42  gpa=0x55aabbbb102a0000 vas=10 dir_pool=21 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 43  gpa=0x55aabbbb102b0000 vas=10 dir_pool=21 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 44  gpa=0x55aabbbb102c0000 vas=11 dir_pool=22 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 45  gpa=0x55aabbbb102d0000 vas=11 dir_pool=22 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 46  gpa=0x55aabbbb102e0000 vas=11 dir_pool=23 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 47  gpa=0x55aabbbb102f0000 vas=11 dir_pool=23 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 48  gpa=0x55aabbbb10300000 vas=12 dir_pool=24 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 49  gpa=0x55aabbbb10310000 vas=12 dir_pool=24 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 50  gpa=0x55aabbbb10320000 vas=12 dir_pool=25 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 51  gpa=0x55aabbbb10330000 vas=12 dir_pool=25 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 52  gpa=0x55aabbbb10340000 vas=13 dir_pool=26 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 53  gpa=0x55aabbbb10350000 vas=13 dir_pool=26 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 54  gpa=0x55aabbbb10360000 vas=13 dir_pool=27 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 55  gpa=0x55aabbbb10370000 vas=13 dir_pool=27 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 56  gpa=0x55aabbbb10380000 vas=14 dir_pool=28 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 57  gpa=0x55aabbbb10390000 vas=14 dir_pool=28 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 58  gpa=0x55aabbbb103a0000 vas=14 dir_pool=29 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 59  gpa=0x55aabbbb103b0000 vas=14 dir_pool=29 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 60  gpa=0x55aabbbb103c0000 vas=15 dir_pool=30 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 61  gpa=0x55aabbbb103d0000 vas=15 dir_pool=30 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 62  gpa=0x55aabbbb103e0000 vas=15 dir_pool=31 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 63  gpa=0x55aabbbb103f0000 vas=15 dir_pool=31 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 64  gpa=0x55aabbbb10400000 vas=16 dir_pool=32 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 65  gpa=0x55aabbbb10410000 vas=16 dir_pool=32 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 66  gpa=0x55aabbbb10420000 vas=16 dir_pool=33 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 67  gpa=0x55aabbbb10430000 vas=16 dir_pool=33 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 68  gpa=0x55aabbbb10440000 vas=17 dir_pool=34 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 69  gpa=0x55aabbbb10450000 vas=17 dir_pool=34 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 70  gpa=0x55aabbbb10460000 vas=17 dir_pool=35 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 71  gpa=0x55aabbbb10470000 vas=17 dir_pool=35 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 72  gpa=0x55aabbbb10480000 vas=18 dir_pool=36 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 73  gpa=0x55aabbbb10490000 vas=18 dir_pool=36 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 74  gpa=0x55aabbbb104a0000 vas=18 dir_pool=37 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 75  gpa=0x55aabbbb104b0000 vas=18 dir_pool=37 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 76  gpa=0x55aabbbb104c0000 vas=19 dir_pool=38 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 77  gpa=0x55aabbbb104d0000 vas=19 dir_pool=38 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 78  gpa=0x55aabbbb104e0000 vas=19 dir_pool=39 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 79  gpa=0x55aabbbb104f0000 vas=19 dir_pool=39 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 80  gpa=0x55aabbbb10500000 vas=20 dir_pool=40 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 81  gpa=0x55aabbbb10510000 vas=20 dir_pool=40 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 82  gpa=0x55aabbbb10520000 vas=20 dir_pool=41 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 83  gpa=0x55aabbbb10530000 vas=20 dir_pool=41 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 84  gpa=0x55aabbbb10540000 vas=21 dir_pool=42 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 85  gpa=0x55aabbbb10550000 vas=21 dir_pool=42 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 86  gpa=0x55aabbbb10560000 vas=21 dir_pool=43 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 87  gpa=0x55aabbbb10570000 vas=21 dir_pool=43 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 88  gpa=0x55aabbbb10580000 vas=22 dir_pool=44 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 89  gpa=0x55aabbbb10590000 vas=22 dir_pool=44 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 90  gpa=0x55aabbbb105a0000 vas=22 dir_pool=45 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 91  gpa=0x55aabbbb105b0000 vas=22 dir_pool=45 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 92  gpa=0x55aabbbb105c0000 vas=23 dir_pool=46 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 93  gpa=0x55aabbbb105d0000 vas=23 dir_pool=46 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 94  gpa=0x55aabbbb105e0000 vas=23 dir_pool=47 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 95  gpa=0x55aabbbb105f0000 vas=23 dir_pool=47 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 96  gpa=0x55aabbbb10600000 vas=24 dir_pool=48 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 97  gpa=0x55aabbbb10610000 vas=24 dir_pool=48 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 98  gpa=0x55aabbbb10620000 vas=24 dir_pool=49 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 99  gpa=0x55aabbbb10630000 vas=24 dir_pool=49 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 100 gpa=0x55aabbbb10640000 vas=25 dir_pool=50 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 101 gpa=0x55aabbbb10650000 vas=25 dir_pool=50 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 102 gpa=0x55aabbbb10660000 vas=25 dir_pool=51 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 103 gpa=0x55aabbbb10670000 vas=25 dir_pool=51 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 104 gpa=0x55aabbbb10680000 vas=26 dir_pool=52 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 105 gpa=0x55aabbbb10690000 vas=26 dir_pool=52 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 106 gpa=0x55aabbbb106a0000 vas=26 dir_pool=53 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 107 gpa=0x55aabbbb106b0000 vas=26 dir_pool=53 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 108 gpa=0x55aabbbb106c0000 vas=27 dir_pool=54 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 109 gpa=0x55aabbbb106d0000 vas=27 dir_pool=54 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 110 gpa=0x55aabbbb106e0000 vas=27 dir_pool=55 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 111 gpa=0x55aabbbb106f0000 vas=27 dir_pool=55 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 112 gpa=0x55aabbbb10700000 vas=28 dir_pool=56 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 113 gpa=0x55aabbbb10710000 vas=28 dir_pool=56 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 114 gpa=0x55aabbbb10720000 vas=28 dir_pool=57 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 115 gpa=0x55aabbbb10730000 vas=28 dir_pool=57 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 116 gpa=0x55aabbbb10740000 vas=29 dir_pool=58 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 117 gpa=0x55aabbbb10750000 vas=29 dir_pool=58 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 118 gpa=0x55aabbbb10760000 vas=29 dir_pool=59 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 119 gpa=0x55aabbbb10770000 vas=29 dir_pool=59 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 120 gpa=0x55aabbbb10780000 vas=30 dir_pool=60 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 121 gpa=0x55aabbbb10790000 vas=30 dir_pool=60 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 122 gpa=0x55aabbbb107a0000 vas=30 dir_pool=61 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 123 gpa=0x55aabbbb107b0000 vas=30 dir_pool=61 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 124 gpa=0x55aabbbb107c0000 vas=31 dir_pool=62 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 125 gpa=0x55aabbbb107d0000 vas=31 dir_pool=62 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 126 gpa=0x55aabbbb107e0000 vas=31 dir_pool=63 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+dir pp 127 gpa=0x55aabbbb107f0000 vas=31 dir_pool=63 ldb_pool=0 dir_credit_count=0x30 dir_min_credit_quanta=0x20 dir_credit_hwm=0x50 dir_credit_lwm=0x20
+
+dir cq 0   gpa=0x55aabbbb20000000 cq_depth=1024 
+dir cq 1   gpa=0x55aabbbb20010000 cq_depth=1024 
+dir cq 2   gpa=0x55aabbbb20020000 cq_depth=1024 
+dir cq 3   gpa=0x55aabbbb20030000 cq_depth=1024 
+dir cq 4   gpa=0x55aabbbb20040000 cq_depth=1024 
+dir cq 5   gpa=0x55aabbbb20050000 cq_depth=1024 
+dir cq 6   gpa=0x55aabbbb20060000 cq_depth=1024 
+dir cq 7   gpa=0x55aabbbb20070000 cq_depth=1024 
+dir cq 8   gpa=0x55aabbbb20080000 cq_depth=1024 
+dir cq 9   gpa=0x55aabbbb20090000 cq_depth=1024 
+dir cq 10  gpa=0x55aabbbb200a0000 cq_depth=1024 
+dir cq 11  gpa=0x55aabbbb200b0000 cq_depth=1024 
+dir cq 12  gpa=0x55aabbbb200c0000 cq_depth=1024 
+dir cq 13  gpa=0x55aabbbb200d0000 cq_depth=1024 
+dir cq 14  gpa=0x55aabbbb200e0000 cq_depth=1024 
+dir cq 15  gpa=0x55aabbbb200f0000 cq_depth=1024 
+dir cq 16  gpa=0x55aabbbb20100000 cq_depth=1024 
+dir cq 17  gpa=0x55aabbbb20110000 cq_depth=1024 
+dir cq 18  gpa=0x55aabbbb20120000 cq_depth=1024 
+dir cq 19  gpa=0x55aabbbb20130000 cq_depth=1024 
+dir cq 20  gpa=0x55aabbbb20140000 cq_depth=1024 
+dir cq 21  gpa=0x55aabbbb20150000 cq_depth=1024 
+dir cq 22  gpa=0x55aabbbb20160000 cq_depth=1024 
+dir cq 23  gpa=0x55aabbbb20170000 cq_depth=1024 
+dir cq 24  gpa=0x55aabbbb20180000 cq_depth=1024 
+dir cq 25  gpa=0x55aabbbb20190000 cq_depth=1024 
+dir cq 26  gpa=0x55aabbbb201a0000 cq_depth=1024 
+dir cq 27  gpa=0x55aabbbb201b0000 cq_depth=1024 
+dir cq 28  gpa=0x55aabbbb201c0000 cq_depth=1024 
+dir cq 29  gpa=0x55aabbbb201d0000 cq_depth=1024 
+dir cq 30  gpa=0x55aabbbb201e0000 cq_depth=1024 
+dir cq 31  gpa=0x55aabbbb201f0000 cq_depth=1024 
+dir cq 32  gpa=0x55aabbbb20200000 cq_depth=1024 
+dir cq 33  gpa=0x55aabbbb20210000 cq_depth=1024 
+dir cq 34  gpa=0x55aabbbb20220000 cq_depth=1024 
+dir cq 35  gpa=0x55aabbbb20230000 cq_depth=1024 
+dir cq 36  gpa=0x55aabbbb20240000 cq_depth=1024 
+dir cq 37  gpa=0x55aabbbb20250000 cq_depth=1024 
+dir cq 38  gpa=0x55aabbbb20260000 cq_depth=1024 
+dir cq 39  gpa=0x55aabbbb20270000 cq_depth=1024 
+dir cq 40  gpa=0x55aabbbb20280000 cq_depth=1024 
+dir cq 41  gpa=0x55aabbbb20290000 cq_depth=1024 
+dir cq 42  gpa=0x55aabbbb202a0000 cq_depth=1024 
+dir cq 43  gpa=0x55aabbbb202b0000 cq_depth=1024 
+dir cq 44  gpa=0x55aabbbb202c0000 cq_depth=1024 
+dir cq 45  gpa=0x55aabbbb202d0000 cq_depth=1024 
+dir cq 46  gpa=0x55aabbbb202e0000 cq_depth=1024 
+dir cq 47  gpa=0x55aabbbb202f0000 cq_depth=1024 
+dir cq 48  gpa=0x55aabbbb20300000 cq_depth=1024 
+dir cq 49  gpa=0x55aabbbb20310000 cq_depth=1024 
+dir cq 50  gpa=0x55aabbbb20320000 cq_depth=1024 
+dir cq 51  gpa=0x55aabbbb20330000 cq_depth=1024 
+dir cq 52  gpa=0x55aabbbb20340000 cq_depth=1024 
+dir cq 53  gpa=0x55aabbbb20350000 cq_depth=1024 
+dir cq 54  gpa=0x55aabbbb20360000 cq_depth=1024 
+dir cq 55  gpa=0x55aabbbb20370000 cq_depth=1024 
+dir cq 56  gpa=0x55aabbbb20380000 cq_depth=1024 
+dir cq 57  gpa=0x55aabbbb20390000 cq_depth=1024 
+dir cq 58  gpa=0x55aabbbb203a0000 cq_depth=1024 
+dir cq 59  gpa=0x55aabbbb203b0000 cq_depth=1024 
+dir cq 60  gpa=0x55aabbbb203c0000 cq_depth=1024 
+dir cq 61  gpa=0x55aabbbb203d0000 cq_depth=1024 
+dir cq 62  gpa=0x55aabbbb203e0000 cq_depth=1024 
+dir cq 63  gpa=0x55aabbbb203f0000 cq_depth=1024 
+dir cq 64  gpa=0x55aabbbb20400000 cq_depth=1024 
+dir cq 65  gpa=0x55aabbbb20410000 cq_depth=1024 
+dir cq 66  gpa=0x55aabbbb20420000 cq_depth=1024 
+dir cq 67  gpa=0x55aabbbb20430000 cq_depth=1024 
+dir cq 68  gpa=0x55aabbbb20440000 cq_depth=1024 
+dir cq 69  gpa=0x55aabbbb20450000 cq_depth=1024 
+dir cq 70  gpa=0x55aabbbb20460000 cq_depth=1024 
+dir cq 71  gpa=0x55aabbbb20470000 cq_depth=1024 
+dir cq 72  gpa=0x55aabbbb20480000 cq_depth=1024 
+dir cq 73  gpa=0x55aabbbb20490000 cq_depth=1024 
+dir cq 74  gpa=0x55aabbbb204a0000 cq_depth=1024 
+dir cq 75  gpa=0x55aabbbb204b0000 cq_depth=1024 
+dir cq 76  gpa=0x55aabbbb204c0000 cq_depth=1024 
+dir cq 77  gpa=0x55aabbbb204d0000 cq_depth=1024 
+dir cq 78  gpa=0x55aabbbb204e0000 cq_depth=1024 
+dir cq 79  gpa=0x55aabbbb204f0000 cq_depth=1024 
+dir cq 80  gpa=0x55aabbbb20500000 cq_depth=1024 
+dir cq 81  gpa=0x55aabbbb20510000 cq_depth=1024 
+dir cq 82  gpa=0x55aabbbb20520000 cq_depth=1024 
+dir cq 83  gpa=0x55aabbbb20530000 cq_depth=1024 
+dir cq 84  gpa=0x55aabbbb20540000 cq_depth=1024 
+dir cq 85  gpa=0x55aabbbb20550000 cq_depth=1024 
+dir cq 86  gpa=0x55aabbbb20560000 cq_depth=1024 
+dir cq 87  gpa=0x55aabbbb20570000 cq_depth=1024 
+dir cq 88  gpa=0x55aabbbb20580000 cq_depth=1024 
+dir cq 89  gpa=0x55aabbbb20590000 cq_depth=1024 
+dir cq 90  gpa=0x55aabbbb205a0000 cq_depth=1024 
+dir cq 91  gpa=0x55aabbbb205b0000 cq_depth=1024 
+dir cq 92  gpa=0x55aabbbb205c0000 cq_depth=1024 
+dir cq 93  gpa=0x55aabbbb205d0000 cq_depth=1024 
+dir cq 94  gpa=0x55aabbbb205e0000 cq_depth=1024 
+dir cq 95  gpa=0x55aabbbb205f0000 cq_depth=1024 
+dir cq 96  gpa=0x55aabbbb20600000 cq_depth=1024 
+dir cq 97  gpa=0x55aabbbb20610000 cq_depth=1024 
+dir cq 98  gpa=0x55aabbbb20620000 cq_depth=1024 
+dir cq 99  gpa=0x55aabbbb20630000 cq_depth=1024 
+dir cq 100 gpa=0x55aabbbb20640000 cq_depth=1024 
+dir cq 101 gpa=0x55aabbbb20650000 cq_depth=1024 
+dir cq 102 gpa=0x55aabbbb20660000 cq_depth=1024 
+dir cq 103 gpa=0x55aabbbb20670000 cq_depth=1024 
+dir cq 104 gpa=0x55aabbbb20680000 cq_depth=1024 
+dir cq 105 gpa=0x55aabbbb20690000 cq_depth=1024 
+dir cq 106 gpa=0x55aabbbb206a0000 cq_depth=1024 
+dir cq 107 gpa=0x55aabbbb206b0000 cq_depth=1024 
+dir cq 108 gpa=0x55aabbbb206c0000 cq_depth=1024 
+dir cq 109 gpa=0x55aabbbb206d0000 cq_depth=1024 
+dir cq 110 gpa=0x55aabbbb206e0000 cq_depth=1024 
+dir cq 111 gpa=0x55aabbbb206f0000 cq_depth=1024 
+dir cq 112 gpa=0x55aabbbb20700000 cq_depth=1024 
+dir cq 113 gpa=0x55aabbbb20710000 cq_depth=1024 
+dir cq 114 gpa=0x55aabbbb20720000 cq_depth=1024 
+dir cq 115 gpa=0x55aabbbb20730000 cq_depth=1024 
+dir cq 116 gpa=0x55aabbbb20740000 cq_depth=1024 
+dir cq 117 gpa=0x55aabbbb20750000 cq_depth=1024 
+dir cq 118 gpa=0x55aabbbb20760000 cq_depth=1024 
+dir cq 119 gpa=0x55aabbbb20770000 cq_depth=1024 
+dir cq 120 gpa=0x55aabbbb20780000 cq_depth=1024 
+dir cq 121 gpa=0x55aabbbb20790000 cq_depth=1024 
+dir cq 122 gpa=0x55aabbbb207a0000 cq_depth=1024 
+dir cq 123 gpa=0x55aabbbb207b0000 cq_depth=1024 
+dir cq 124 gpa=0x55aabbbb207c0000 cq_depth=1024 
+dir cq 125 gpa=0x55aabbbb207d0000 cq_depth=1024 
+dir cq 126 gpa=0x55aabbbb207e0000 cq_depth=1024 
+dir cq 127 gpa=0x55aabbbb207f0000 cq_depth=1024 
+
+cfg_end
+
+idle 400
+
+rd hqm_pf_cfg_i.vendor_id

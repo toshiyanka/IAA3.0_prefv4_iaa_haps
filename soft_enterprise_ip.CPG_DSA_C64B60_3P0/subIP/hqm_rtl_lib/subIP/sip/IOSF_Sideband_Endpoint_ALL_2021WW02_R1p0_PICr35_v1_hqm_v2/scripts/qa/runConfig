@@ -1,0 +1,938 @@
+#!/bin/tcsh -f
+# name: runConfig
+
+# TODO: Any manipulation of data not through parseXml should no longer be
+#       required. Change as soon as possible.
+
+################################################################################
+# Source a script that is called at the start of each back-end 
+# scripts/qa/run* script
+################################################################################
+source ./runPre -tool_name $0 $argv
+if( $status != 0 ) exit $status
+
+# Does this need to be done anymore?
+if (! $?SIP_CONFIG_FILE) then
+  setenv SIP_CONFIG_FILE sbr_config_ipxact_${config}.xml
+endif
+
+if ("${config}" == "IOSF_Sideband_Endpoint") then
+   echo "${SIP_TOOL_NAME} -I- Endpoint(${component}) with PUNI_PREFI(${puniprefix})"
+   pushd ../../
+   setenv SBE_DIR $cwd
+   popd
+   set TOOLS_DIR=${SBE_DIR}/tools
+else
+   set cmdline=""
+   set cmdline="${cmdline}-ip_name '${ipname}' "
+   set cmdline="${cmdline}-config '${config}' "
+   set cmdline="${cmdline}-component '${component}' "
+   set cmdline="${cmdline}-puni_prefix '${puniprefix}' "
+   set cmdline="${cmdline}-dyn_opt '${dynopt}' "
+   set cmdline="${cmdline}-generate_collateral "
+   set cmdline="${cmdline}-no_run "
+
+   echo "${SIP_TOOL_NAME} -I- Router(${component}) with DYN_OPT(${dynopt}) and PUNI_PREFIX(${puniprefix})"
+
+   set TOOLS_DIR=${SBR_DIR}/tools
+   set CONST_PARSEXML=${SBR_DIR}/unsupported/export/data/const
+   set PRE_PARSEXML=${SBR_DIR}/unsupported/export/data/xml
+   set POST_PARSEXML=${SBR_DIR}/unsupported/export
+   if ( ${dynopt} == "nonDyn" ) then
+      set RTLTOP=${component}
+      set PUNITOP=${component}
+   else
+      set RTLTOP=${component}_sbr_generic
+      set PUNITOP=${puniprefix}${component}
+   endif
+
+
+   ######################
+   # Creating LINT area #
+   ######################
+   
+   #set LINTRA_DIR=${TOOLS_DIR}/lintra/${component}
+   set LINTRA_DIR=${TOOLS_DIR}/lintra/${RTLTOP}
+   mkdir -p ${LINTRA_DIR}
+   source ${SBR_DIR}/scripts/qa/runLintra ${cmdline}
+   if ( $debug ) echo "${SIP_TOOL_NAME} -D- Lintra colateral generated at ${LINTRA_DIR}"
+   
+
+   #############################
+   # Creating SpyglassDFT area #
+   #############################
+   set SPYGLASSDFT_DIR=${TOOLS_DIR}/spyglassdft/router/${component}
+   mkdir -p ${SPYGLASSDFT_DIR}
+   # ACE SpyglassDFT setup
+   source ${SBR_DIR}/scripts/qa/runACESpyglassDFT ${cmdline}
+   # Legacy SpyglassDFT setup
+   mv ${POST_PARSEXML}/${component}_spyglass_dft.prj               ${SPYGLASSDFT_DIR}/..
+   mv ${POST_PARSEXML}/${component}_scan_ready.sgdc                ${SPYGLASSDFT_DIR}/..
+
+
+   #####################
+   # Creating CDC area #
+   #####################
+   set CDC_DIR=${TOOLS_DIR}/cdc/tests/${RTLTOP}
+   
+   mkdir -p                                                        ${CDC_DIR}
+#Jesse: Adding in ACE CDC TCL Flow - START
+   source ${SBR_DIR}/scripts/qa/runACECDC ${cmdline}
+#Jesse: Adding in ACE CDC TCL Flow - FINISH
+
+   cp ${POST_PARSEXML}/${component}_cdc_ctrl.v                     ${CDC_DIR}/iosf_sbc_rtr_${RTLTOP}_cdc_ctrl.v
+   mkdir -p                                                        ${CDC_DIR}/tcl_ctrl_files
+   cp ${PRE_PARSEXML}/debug_flags.v.tcl                            ${CDC_DIR}/tcl_ctrl_files
+   cp ${POST_PARSEXML}/${component}_cdc.list                       ${CDC_DIR}/rtl.list
+   if ( $debug ) echo "${SIP_TOOL_NAME} -D- CDC colateral generated at ${CDC_DIR}"
+   
+   #####################
+   # Creating SYN area #
+   #####################
+   set SYNTH_DIR=${TOOLS_DIR}/syn
+   ######## 1271 Synthesis ########
+   set SYNTH1271_DIR=${SYNTH_DIR}/syn_1271/${component}/rdt/scripts
+   
+   mkdir -p ${SYNTH1271_DIR}
+
+   echo 'cd ../../../../'                                                             >  ${SYNTH1271_DIR}/../${component}_run_syn
+   echo 'source $KIT_PATH/kit_setup'                                                  >> ${SYNTH1271_DIR}/../${component}_run_syn
+   echo "${component}"'_runSynth $argv'                                               >> ${SYNTH1271_DIR}/../${component}_run_syn
+   chmod +x                                                                              ${SYNTH1271_DIR}/../${component}_run_syn
+   
+   # Generate the Scripts to execute a 1271 specific synthesis run
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   cp ${COPY_FROM_DIR}/${component}_rtl_list.tcl                                         ${SYNTH1271_DIR}/rtl_list.tcl
+   /usr/intel/bin/perl -pi -e 's/<SIPINT>/SIPINT_1271/g'                                 ${SYNTH1271_DIR}/rtl_list.tcl
+   cp ${COPY_FROM_DIR}/${component}_block_setup.tcl                                      ${SYNTH1271_DIR}/block_setup.tcl
+   
+   # Const for 1271
+   set COPY_FROM_DIR=${CONST_PARSEXML}/syn/scripts_1271/
+   cp ${COPY_FROM_DIR}/global_constraints.tcl                                            ${SYNTH1271_DIR}/global_constraints.tcl
+   cp ${COPY_FROM_DIR}/router_clock_gate.tcl                                             ${SYNTH1271_DIR}/${RTLTOP}_clock_gate.tcl
+   
+   # Variable Files for 1271
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   cp  ${COPY_FROM_DIR}/${component}_additional_upf_setup.tcl                            ${SYNTH1271_DIR}/${RTLTOP}_additional_upf_setup.tcl
+   cp  ${COPY_FROM_DIR}/${component}_io_constraints.tcl                                  ${SYNTH1271_DIR}/${RTLTOP}_io_constraints.tcl
+   cp  ${COPY_FROM_DIR}/${component}_clocks.stcl                                         ${SYNTH1271_DIR}/${RTLTOP}_clocks.tcl
+   cp  ${COPY_FROM_DIR}/${component}_scan_config_1273.tcl                                ${SYNTH1271_DIR}/${RTLTOP}_scan_config.tcl
+   cat ${COPY_FROM_DIR}/${component}_scon.stcl ${COPY_FROM_DIR}/${component}_tcon.stcl > ${SYNTH1271_DIR}/global_cross_clk_exceptions.tcl
+   
+   if ( $debug ) echo "${SIP_TOOL_NAME} -D- SYN colateral generated at ${SYNTH1271_DIR}"
+   
+   ######## 1273 Synthesis ########
+   set SYNTH1273_DIR=${SYNTH_DIR}/syn_1273/${component}/rdt/scripts
+   
+   mkdir -p ${SYNTH1273_DIR}
+   
+   echo 'cd ../../../../'                                                             >  ${SYNTH1273_DIR}/../${component}_run_syn
+   echo 'source $KIT_PATH/kit_setup'                                                  >> ${SYNTH1273_DIR}/../${component}_run_syn
+   echo "${component}"'_runSynth $argv'                                               >> ${SYNTH1273_DIR}/../${component}_run_syn
+   echo "popd"                                                                        >> ${SYNTH1273_DIR}/../${component}_run_syn
+   chmod +x                                                                              ${SYNTH1273_DIR}/../${component}_run_syn
+
+   # Generate the Scripts to execute a 1273 specific synthesis run
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   cp ${COPY_FROM_DIR}/${component}_rtl_list.tcl                                         ${SYNTH1273_DIR}/rtl_list.tcl
+   /usr/intel/bin/perl -pi -e 's/<SIPINT>/SIPINT_1273/g'                                 ${SYNTH1273_DIR}/rtl_list.tcl
+   cp ${COPY_FROM_DIR}/${component}_block_setup.tcl                                      ${SYNTH1273_DIR}/block_setup.tcl
+   
+   # Variable Files for 1273
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   cp  ${COPY_FROM_DIR}/${component}_additional_upf_setup.tcl                            ${SYNTH1273_DIR}/${RTLTOP}_additional_upf_setup.tcl
+   cp  ${COPY_FROM_DIR}/${component}_io_constraints.tcl                                  ${SYNTH1273_DIR}/${RTLTOP}_io_constraints.tcl
+   cp  ${COPY_FROM_DIR}/${component}_clocks.stcl                                         ${SYNTH1273_DIR}/${RTLTOP}_clocks.tcl
+   cp  ${COPY_FROM_DIR}/${component}_scan_config_1273.tcl                                ${SYNTH1273_DIR}/${RTLTOP}_scan_config.tcl
+   cat ${COPY_FROM_DIR}/${component}_scon.stcl ${COPY_FROM_DIR}/${component}_tcon.stcl > ${SYNTH1273_DIR}/global_cross_clk_exceptions.tcl
+   
+   if ( $debug ) echo "${SIP_TOOL_NAME} -D- SYN colateral generated at ${SYNTH1273_DIR}"
+   
+   ######## 10nm Synthesis ########
+   set SYNTH1274_DIR=${SYNTH_DIR}/syn_1274/${component}/rdt/scripts
+   
+   mkdir -p ${SYNTH1274_DIR}
+   
+   echo 'cd ../../../../'                                                             >  ${SYNTH1274_DIR}/../${component}_run_syn
+   echo 'source $KIT_PATH/kit_setup'                                                  >> ${SYNTH1274_DIR}/../${component}_run_syn
+   echo "${component}"'_runSynth $argv'                                               >> ${SYNTH1274_DIR}/../${component}_run_syn
+   echo "popd"                                                                        >> ${SYNTH1274_DIR}/../${component}_run_syn
+   chmod +x                                                                              ${SYNTH1274_DIR}/../${component}_run_syn
+
+   # Generate the Scripts to execute a 10nm specific synthesis run
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   cp ${COPY_FROM_DIR}/${component}_rtl_list.tcl                                         ${SYNTH1274_DIR}/rtl_list.tcl
+   /usr/intel/bin/perl -pi -e 's/<SIPINT>/SIPINT_1274/g'                                 ${SYNTH1274_DIR}/rtl_list.tcl
+   cp ${COPY_FROM_DIR}/${component}_block_setup.tcl                                      ${SYNTH1274_DIR}/block_setup.tcl
+   cp ${COPY_FROM_DIR}/${component}_insert_dft.tcl                                       ${SYNTH1274_DIR}/insert_dft.tcl
+   
+   # Variable Files for 10nm
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   cp  ${COPY_FROM_DIR}/${component}_additional_upf_setup.tcl                            ${SYNTH1274_DIR}/${RTLTOP}_additional_upf_setup.tcl
+   cp  ${COPY_FROM_DIR}/${component}_io_constraints.tcl                                  ${SYNTH1274_DIR}/${RTLTOP}_io_constraints.tcl
+   cp  ${COPY_FROM_DIR}/${component}_clocks.stcl                                         ${SYNTH1274_DIR}/${RTLTOP}_clocks.tcl
+   cp  ${COPY_FROM_DIR}/${component}_scan_config_1274.tcl                                ${SYNTH1274_DIR}/${RTLTOP}_scan_config.tcl
+   cat ${COPY_FROM_DIR}/${component}_scon.stcl ${COPY_FROM_DIR}/${component}_tcon.stcl > ${SYNTH1274_DIR}/global_cross_clk_exceptions.tcl
+   
+   if ( $debug ) echo "${SIP_TOOL_NAME} -D- SYN colateral generated at ${SYNTH1274_DIR}"
+
+
+   ######## PUNI checker mode ########
+   cp -r ${CONST_PARSEXML}/uniquification ${SBR_DIR}/tools
+
+   ######## FEBE config ########
+   #cp ${CONST_PARSEXML}/febe/LocalToolData.pm ${SBR_DIR}/cfg/LocalToolData.pm
+   cp ${POST_PARSEXML}/${component}_LocalToolData.pm ${SBR_DIR}/cfg/LocalToolData.pm
+   cp ${CONST_PARSEXML}/febe/p1273.waiver ${SBR_DIR}/cfg/tsa/
+   cp ${CONST_PARSEXML}/febe/p1274.waiver ${SBR_DIR}/cfg/tsa/
+   cp ${CONST_PARSEXML}/febe/p1222.waiver ${SBR_DIR}/cfg/tsa/
+   cp ${CONST_PARSEXML}/febe/p1222.waiver ${SBR_DIR}/cfg/tsa/LKF1B.waiver
+   cat ${POST_PARSEXML}/${component}_LocalToolData_p1273_xml.pm ${COPY_FROM_DIR}/hdkcfg_p1273.txt ${CONST_PARSEXML}/febe/LocalToolData_cust_eof.pm > ${SBR_DIR}/cfg/LocalToolData_p1273.pm
+   cat ${POST_PARSEXML}/${component}_LocalToolData_p1274_xml.pm ${COPY_FROM_DIR}/hdkcfg_p1274.txt ${CONST_PARSEXML}/febe/LocalToolData_cust_eof.pm > ${SBR_DIR}/cfg/LocalToolData_p1274.pm
+   cat ${POST_PARSEXML}/${component}_LocalToolData_s14nm_xml.pm ${COPY_FROM_DIR}/hdkcfg_s14nm.txt ${CONST_PARSEXML}/febe/LocalToolData_cust_eof.pm > ${SBR_DIR}/cfg/LocalToolData_s14nm.pm
+   cat ${POST_PARSEXML}/${component}_LocalToolData_p1222_xml.pm ${COPY_FROM_DIR}/hdkcfg_p1222.txt ${CONST_PARSEXML}/febe/LocalToolData_cust_eof.pm > ${SBR_DIR}/cfg/LocalToolData_p1222.pm
+   cat ${POST_PARSEXML}/${component}_LocalToolData_n7_xml.pm ${COPY_FROM_DIR}/hdkcfg_n7.txt ${CONST_PARSEXML}/febe/LocalToolData_cust_eof.pm > ${SBR_DIR}/cfg/LocalToolData_n7.pm
+   cat ${POST_PARSEXML}/${component}_LocalToolData_n6_xml.pm ${COPY_FROM_DIR}/hdkcfg_n6.txt ${CONST_PARSEXML}/febe/LocalToolData_cust_eof.pm > ${SBR_DIR}/cfg/LocalToolData_n6.pm
+   cp ${SBR_DIR}/cfg/LocalToolData_p1222.pm ${SBR_DIR}/cfg/LocalToolData_LKF1B.pm
+   cp ${CONST_PARSEXML}/febe/ToolData.pm ${SBR_DIR}/cfg/ToolData.pm
+   cp ${CONST_PARSEXML}/febe/custom_post.env.template ${SBR_DIR}/cfg/ace/templates/custom_post.env.template
+
+   set FEBE_DIR=${TOOLS_DIR}/febe/inputs
+   mkdir -p ${FEBE_DIR}
+   cp ${CONST_PARSEXML}/febe/febe_populate.yaml ${FEBE_DIR}
+   cp ${CONST_PARSEXML}/febe/febe_override_dc_config_tsa_prime.pm ${FEBE_DIR}/override_dc_config.pm
+   #cp ${CONST_PARSEXML}/febe/febe_override_dc_config.pm ${FEBE_DIR}/override_dc_config.pm
+   #cp ${CONST_PARSEXML}/febe/febe_override_dc.ot ${FEBE_DIR}/override_dc.ot
+
+
+   ######## FEBE UPF ########
+   mv ${TOOLS_DIR}/upf/router/${config}_${component}_sbx_top.upf      ${TOOLS_DIR}/upf/router/${RTLTOP}_wrapper.upf
+
+   ######## FEBE UPF ########
+   set UPF_FEBE_DIR=${TOOLS_DIR}/upf/inputs
+   mkdir -p ${UPF_FEBE_DIR}
+   cp ${TOOLS_DIR}/upf/router/${config}_${component}_top.upf          ${UPF_FEBE_DIR}/${RTLTOP}.upf
+
+   set UPF2p0_FEBE_DIR=${TOOLS_DIR}/upf/router_upf2p0
+#  mkdir -p ${UPF2p0_FEBE_DIR}
+#  cp ${TOOLS_DIR}/upf/router/${config}_${component}_UPF2p0.upf       ${UPF2p0_FEBE_DIR}/${config}_${component}.upf
+#  cp ${TOOLS_DIR}/upf/router/${config}_${component}_UPF2p0.upf       ${UPF2p0_FEBE_DIR}/${RTLTOP}_cth.upf
+#  cp ${TOOLS_DIR}/upf/router/${config}_${component}.upf              ${UPF2p0_FEBE_DIR}/${config}_${component}_UPF1p0.upf
+#  cp ${TOOLS_DIR}/upf/router/${config}_${component}_clamp_upf.cfg    ${UPF2p0_FEBE_DIR}
+#  cp ${TOOLS_DIR}/upf/router/${config}_${component}_top.upf          ${UPF2p0_FEBE_DIR}
+#  cp ${TOOLS_DIR}/upf/router/${config}_${component}_top_cth.upf      ${UPF2p0_FEBE_DIR}/${RTLTOP}_top_cth.upf
+#  cp ${TOOLS_DIR}/upf/router/${RTLTOP}_wrapper.upf                   ${UPF2p0_FEBE_DIR}
+#  cp ${TOOLS_DIR}/upf/router/${config}_top_UPF2p0.upf                ${UPF2p0_FEBE_DIR}/${config}_top.upf
+#  cp ${TOOLS_DIR}/upf/router/${config}_top.upf                       ${UPF2p0_FEBE_DIR}/${config}_top_UPF1p0.upf
+#  cp ${TOOLS_DIR}/upf/router/lpa_bind.tcl                            ${UPF2p0_FEBE_DIR}
+
+   cp -r ${TOOLS_DIR}/upf/router ${UPF2p0_FEBE_DIR}
+   mv ${UPF2p0_FEBE_DIR}/${config}_${component}.upf        ${UPF2p0_FEBE_DIR}/${config}_${component}_UPF1p0.upf
+   cp ${UPF2p0_FEBE_DIR}/${config}_${component}_UPF2p0.upf ${UPF2p0_FEBE_DIR}/${config}_${component}.upf
+   cp ${UPF2p0_FEBE_DIR}/${config}_${component}_UPF2p0.upf ${UPF2p0_FEBE_DIR}/${RTLTOP}_cth.upf
+   mv ${UPF2p0_FEBE_DIR}/${config}_${component}_top_cth.upf ${UPF2p0_FEBE_DIR}/${RTLTOP}_top_cth.upf
+   mv ${UPF2p0_FEBE_DIR}/${config}_top.upf                  ${UPF2p0_FEBE_DIR}/${config}_top_UPF1p0.upf
+   cp ${UPF2p0_FEBE_DIR}/${config}_top_UPF2p0.upf           ${UPF2p0_FEBE_DIR}/${config}_top.upf
+
+
+   ######## FEBE Caliber ########
+   set CALIBER_FEBE_DIR=${TOOLS_DIR}/caliber/scripts
+   mkdir -p ${CALIBER_FEBE_DIR}
+   touch ${CALIBER_FEBE_DIR}/block_setup.tcl
+   cp -r ${CONST_PARSEXML}/febe/caliber_waivers ${TOOLS_DIR}/caliber/waivers
+
+   set CALIBER_FEBE_DIR=${TOOLS_DIR}/caliber/p1273/${RTLTOP}/scripts
+   mkdir -p ${CALIBER_FEBE_DIR}
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   cp  ${COPY_FROM_DIR}/${component}_block_setup_febe_caliber_p1273.tcl   ${CALIBER_FEBE_DIR}/block_setup.tcl
+   cp  ${COPY_FROM_DIR}/${component}_clocks_caliber.stcl            ${CALIBER_FEBE_DIR}/${RTLTOP}_clocks.tcl
+   cp  ${CONST_PARSEXML}/febe/caliber_bug.dummy                     ${CALIBER_FEBE_DIR}/sbr_internal_exceptions.tcl
+   cp  ${CONST_PARSEXML}/febe/caliber_bug.dummy                     ${CALIBER_FEBE_DIR}/${RTLTOP}_constraints.tcl
+   cp  ${CONST_PARSEXML}/febe/caliber_bug.dummy                     ${CALIBER_FEBE_DIR}/bug.dummy
+
+   set CALIBER_FEBE_DIR=${TOOLS_DIR}/caliber/p1274/${RTLTOP}/scripts
+   mkdir -p ${CALIBER_FEBE_DIR}
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   cp  ${COPY_FROM_DIR}/${component}_block_setup_febe_caliber_p1274.tcl   ${CALIBER_FEBE_DIR}/block_setup.tcl
+   cp  ${COPY_FROM_DIR}/${component}_clocks_caliber.stcl            ${CALIBER_FEBE_DIR}/${RTLTOP}_clocks.tcl
+   cp  ${CONST_PARSEXML}/febe/caliber_bug.dummy                     ${CALIBER_FEBE_DIR}/sbr_internal_exceptions.tcl
+   cp  ${CONST_PARSEXML}/febe/caliber_bug.dummy                     ${CALIBER_FEBE_DIR}/${RTLTOP}_constraints.tcl
+   cp  ${CONST_PARSEXML}/febe/caliber_bug.dummy                     ${CALIBER_FEBE_DIR}/bug.dummy
+
+   set CALIBER_FEBE_DIR=${TOOLS_DIR}/caliber/n7/${RTLTOP}/scripts
+   mkdir -p ${CALIBER_FEBE_DIR}
+   set CALIBER_FEBE_DIR_N6=${TOOLS_DIR}/caliber/n6/${RTLTOP}/scripts
+   mkdir -p ${CALIBER_FEBE_DIR_N6}
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   cp  ${COPY_FROM_DIR}/${component}_block_setup_febe_caliber_p1274.tcl   ${CALIBER_FEBE_DIR}/block_setup.tcl
+   cp  ${COPY_FROM_DIR}/${component}_block_setup_febe_caliber_p1274.tcl   ${CALIBER_FEBE_DIR_N6}/block_setup.tcl
+   cp  ${COPY_FROM_DIR}/${component}_clocks_caliber.stcl            ${CALIBER_FEBE_DIR}/${RTLTOP}_clocks.tcl
+   cp  ${COPY_FROM_DIR}/${component}_clocks_caliber.stcl            ${CALIBER_FEBE_DIR_N6}/${RTLTOP}_clocks.tcl
+   cp  ${CONST_PARSEXML}/febe/caliber_bug.dummy                     ${CALIBER_FEBE_DIR}/sbr_internal_exceptions.tcl
+   cp  ${CONST_PARSEXML}/febe/caliber_bug.dummy                     ${CALIBER_FEBE_DIR_N6}/sbr_internal_exceptions.tcl
+   cp  ${CONST_PARSEXML}/febe/caliber_bug.dummy                     ${CALIBER_FEBE_DIR}/${RTLTOP}_constraints.tcl
+   cp  ${CONST_PARSEXML}/febe/caliber_bug.dummy                     ${CALIBER_FEBE_DIR_N6}/${RTLTOP}_constraints.tcl
+   cp  ${CONST_PARSEXML}/febe/caliber_bug.dummy                     ${CALIBER_FEBE_DIR}/bug.dummy
+   cp  ${CONST_PARSEXML}/febe/caliber_bug.dummy                     ${CALIBER_FEBE_DIR_N6}/bug.dummy
+
+   set CALIBER_FEBE_DIR=${TOOLS_DIR}/caliber/s14nm/${RTLTOP}/scripts
+   mkdir -p ${CALIBER_FEBE_DIR}
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   cp  ${COPY_FROM_DIR}/${component}_block_setup_febe_caliber_s14nm.tcl   ${CALIBER_FEBE_DIR}/block_setup.tcl
+   cp  ${COPY_FROM_DIR}/${component}_clocks_caliber.stcl            ${CALIBER_FEBE_DIR}/${RTLTOP}_clocks.tcl
+   cp  ${CONST_PARSEXML}/febe/caliber_bug.dummy                     ${CALIBER_FEBE_DIR}/sbr_internal_exceptions.tcl
+   cp  ${CONST_PARSEXML}/febe/caliber_bug.dummy                     ${CALIBER_FEBE_DIR}/${RTLTOP}_constraints.tcl
+   cp  ${CONST_PARSEXML}/febe/caliber_bug.dummy                     ${CALIBER_FEBE_DIR}/bug.dummy
+
+   ######## Openlatch ########
+   cp -r ${CONST_PARSEXML}/openlatch ${TOOLS_DIR}
+   set OPENLATCH_DIR=${SBR_DIR}/verif/tests/static_checks/openlatch
+   mkdir -p ${OPENLATCH_DIR}
+   set OPENLATCH_DIR=${SBR_DIR}/verif/tests/static_checks/openlatch/${RTLTOP}
+   mkdir -p ${OPENLATCH_DIR}
+   cp ${POST_PARSEXML}/${component}_openlatch.opt   ${OPENLATCH_DIR}/${RTLTOP}.opt
+
+   ######## n7 Cheetah FLG ########
+   #set N7_FLG_DUMP_HIER_DIR=${SBR_DIR}/verif/tests/dump_hier_test
+   set N7_FLG_DUMP_HIER_DIR_STATIC=${SBR_DIR}/verif/tests/static_checks/dump_hier_test
+   mkdir -p ${N7_FLG_DUMP_HIER_DIR_STATIC}
+   #cp  ${CONST_PARSEXML}/dump_hier_test.sv ${N7_FLG_DUMP_HIER_DIR}
+   #cp  ${CONST_PARSEXML}/dump_hier_test.opt ${N7_FLG_DUMP_HIER_DIR}
+   #cp  ${CONST_PARSEXML}/dump_hier_postsim.pp ${N7_FLG_DUMP_HIER_DIR}
+   cp  ${CONST_PARSEXML}/febe/dump_hier_test.sv ${N7_FLG_DUMP_HIER_DIR_STATIC}
+   cp  ${CONST_PARSEXML}/febe/dump_hier_test.opt ${N7_FLG_DUMP_HIER_DIR_STATIC}
+   cp  ${CONST_PARSEXML}/febe/dump_hier_postsim.pp ${N7_FLG_DUMP_HIER_DIR_STATIC}
+
+   ######## FEBE FEV 1273 ########
+   set FEV_FEBE_DIR=${TOOLS_DIR}/lec/inputs/p1273/${RTLTOP}/scripts
+   mkdir -p ${FEV_FEBE_DIR}
+
+   cp ${CONST_PARSEXML}/febe/block_setup_lec.tcl ${FEV_FEBE_DIR}/block_setup.tcl
+   cp ${CONST_PARSEXML}/febe/hier_fev_prepend_lec.do ${FEV_FEBE_DIR}/hier_fev_prepend.do
+   cp ${CONST_PARSEXML}/febe/hier_fev_append_lec.do ${FEV_FEBE_DIR}/hier_fev_append.do
+   cp ${CONST_PARSEXML}/febe/pin_constraints_lec.tcl ${FEV_FEBE_DIR}/pin_constraints.tcl
+   cp ${CONST_PARSEXML}/febe/PRE_read_upf_lec_p1273.tcl ${FEV_FEBE_DIR}/PRE.read_upf.tcl
+   cp ${CONST_PARSEXML}/febe/PRE_map_lec_p1273.tcl ${FEV_FEBE_DIR}/PRE.map.tcl
+
+   ######## FEBE FEV 1274 ########
+   set FEV_FEBE_DIR=${TOOLS_DIR}/lec/inputs/p1274/${RTLTOP}/scripts
+   mkdir -p ${FEV_FEBE_DIR}
+
+   cp ${CONST_PARSEXML}/febe/block_setup_lec.tcl ${FEV_FEBE_DIR}/block_setup.tcl
+   cp ${CONST_PARSEXML}/febe/hier_fev_prepend_lec.do ${FEV_FEBE_DIR}/hier_fev_prepend.do
+   cp ${CONST_PARSEXML}/febe/hier_fev_append_lec.do ${FEV_FEBE_DIR}/hier_fev_append.do
+   cp ${CONST_PARSEXML}/febe/pin_constraints_lec.tcl ${FEV_FEBE_DIR}/pin_constraints.tcl
+
+   ######## FEBE FEV n7 ########
+   set FEV_FEBE_DIR=${TOOLS_DIR}/lec/inputs/n7/${RTLTOP}/scripts
+   mkdir -p ${FEV_FEBE_DIR}
+   set FEV_FEBE_DIR_N6=${TOOLS_DIR}/lec/inputs/n6/${RTLTOP}/scripts
+   mkdir -p ${FEV_FEBE_DIR_N6}
+
+   cp ${CONST_PARSEXML}/febe/block_setup_lec.tcl ${FEV_FEBE_DIR}/block_setup.tcl
+   cp ${CONST_PARSEXML}/febe/block_setup_lec.tcl ${FEV_FEBE_DIR_N6}/block_setup.tcl
+   cp ${CONST_PARSEXML}/febe/hier_fev_prepend_lec.do ${FEV_FEBE_DIR}/hier_fev_prepend.do
+   cp ${CONST_PARSEXML}/febe/hier_fev_prepend_lec.do ${FEV_FEBE_DIR_N6}/hier_fev_prepend.do
+   cp ${CONST_PARSEXML}/febe/hier_fev_append_lec.do ${FEV_FEBE_DIR}/hier_fev_append.do
+   cp ${CONST_PARSEXML}/febe/hier_fev_append_lec.do ${FEV_FEBE_DIR_N6}/hier_fev_append.do
+   cp ${CONST_PARSEXML}/febe/pin_constraints_lec.tcl ${FEV_FEBE_DIR}/pin_constraints.tcl
+   cp ${CONST_PARSEXML}/febe/pin_constraints_lec.tcl ${FEV_FEBE_DIR_N6}/pin_constraints.tcl
+   cp ${CONST_PARSEXML}/febe/fev_pin_constraints_n7_cth.tcl ${TOOLS_DIR}/lec/inputs/n7/fev_pin_constraints.tcl
+   cp ${CONST_PARSEXML}/febe/fev_pin_constraints_n7_cth.tcl ${TOOLS_DIR}/lec/inputs/n6/fev_pin_constraints.tcl
+   cp ${CONST_PARSEXML}/febe/fev_user_config_n7_cth.tcl ${TOOLS_DIR}/lec/inputs/n7/fev_user_config.tcl
+   cp ${CONST_PARSEXML}/febe/fev_user_config_n7_cth.tcl ${TOOLS_DIR}/lec/inputs/n6/fev_user_config.tcl
+   cp ${CONST_PARSEXML}/febe/fev_user_lec_n7_cth.do ${TOOLS_DIR}/lec/inputs/n7/fev_user_lec.do
+   cp ${CONST_PARSEXML}/febe/fev_user_lec_n7_cth.do ${TOOLS_DIR}/lec/inputs/n6/fev_user_lec.do
+
+   ######## FEBE FEV s14nm ########
+   set FEV_FEBE_DIR=${TOOLS_DIR}/lec/inputs/s14nm/${RTLTOP}/scripts
+   mkdir -p ${FEV_FEBE_DIR}
+
+   cp ${CONST_PARSEXML}/febe/block_setup_lec_s14nm.tcl ${FEV_FEBE_DIR}/block_setup.tcl
+   cp ${CONST_PARSEXML}/febe/hier_fev_prepend_lec.do ${FEV_FEBE_DIR}/hier_fev_prepend.do
+   cp ${CONST_PARSEXML}/febe/hier_fev_append_lec.do ${FEV_FEBE_DIR}/hier_fev_append.do
+   cp ${CONST_PARSEXML}/febe/pin_constraints_lec.tcl ${FEV_FEBE_DIR}/pin_constraints.tcl
+   cp ${CONST_PARSEXML}/febe/PRE_read_upf_lec_p1273.tcl ${FEV_FEBE_DIR}/PRE.read_upf.tcl
+   cp ${CONST_PARSEXML}/febe/PRE_map_lec_p1273.tcl ${FEV_FEBE_DIR}/PRE.map.tcl
+
+   ######## FEBE FEV 1222 ########
+   set FEV_FEBE_DIR=${TOOLS_DIR}/lec/inputs/p1222/${RTLTOP}/scripts
+   mkdir -p ${FEV_FEBE_DIR}
+
+   cp ${CONST_PARSEXML}/febe/block_setup_lec_p1222.tcl ${FEV_FEBE_DIR}/block_setup.tcl
+   cp ${CONST_PARSEXML}/febe/hier_fev_prepend_lec.do ${FEV_FEBE_DIR}/hier_fev_prepend.do
+   cp ${CONST_PARSEXML}/febe/hier_fev_append_lec.do ${FEV_FEBE_DIR}/hier_fev_append.do
+   cp ${CONST_PARSEXML}/febe/pin_constraints_lec.tcl ${FEV_FEBE_DIR}/pin_constraints.tcl
+   cp ${CONST_PARSEXML}/febe/PRE_read_lib_lec_p1222.tcl ${FEV_FEBE_DIR}/PRE.read_lib.tcl
+
+   ######## FEBE FEV LKF1B ########
+   set FEV_FEBE_DIR=${TOOLS_DIR}/lec/inputs/LKF1B/${RTLTOP}/scripts
+   mkdir -p ${FEV_FEBE_DIR}
+
+   cp ${CONST_PARSEXML}/febe/block_setup_lec_p1222.tcl ${FEV_FEBE_DIR}/block_setup.tcl
+   cp ${CONST_PARSEXML}/febe/hier_fev_prepend_lec.do ${FEV_FEBE_DIR}/hier_fev_prepend.do
+   cp ${CONST_PARSEXML}/febe/hier_fev_append_lec.do ${FEV_FEBE_DIR}/hier_fev_append.do
+   cp ${CONST_PARSEXML}/febe/pin_constraints_lec.tcl ${FEV_FEBE_DIR}/pin_constraints.tcl
+   cp ${CONST_PARSEXML}/febe/PRE_read_lib_lec_p1222.tcl ${FEV_FEBE_DIR}/PRE.read_lib.tcl
+
+
+   ######## FEBE SYNTH 1273 ########
+   set SYNTH_FEBE_DIR=${SYNTH_DIR}/inputs/p1273/${RTLTOP}/scripts
+   mkdir -p ${SYNTH_FEBE_DIR}
+
+   # Generate the Scripts to execute a FEBE synthesis run
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   cp  ${COPY_FROM_DIR}/${component}_block_setup_febe.tcl                                ${SYNTH_FEBE_DIR}/block_setup.tcl
+   cp  ${COPY_FROM_DIR}/${component}_insert_dft_febe.tcl                                 ${SYNTH_FEBE_DIR}/insert_dft.tcl
+   cp  ${COPY_FROM_DIR}/${component}_additional_upf_setup.tcl                            ${SYNTH_FEBE_DIR}/${RTLTOP}_additional_upf_setup.tcl
+   cp  ${COPY_FROM_DIR}/${component}_io_constraints.tcl                                  ${SYNTH_FEBE_DIR}/${RTLTOP}_io_constraints.tcl
+   cp  ${COPY_FROM_DIR}/${component}_clocks.stcl                                         ${SYNTH_FEBE_DIR}/${RTLTOP}_clocks.tcl
+   cp  ${COPY_FROM_DIR}/${component}_scan_config_febe.tcl                                ${SYNTH_FEBE_DIR}/${RTLTOP}_scan_config.tcl
+   cat ${COPY_FROM_DIR}/${component}_scon_febe.stcl ${COPY_FROM_DIR}/${component}_tcon.stcl > ${SYNTH_FEBE_DIR}/global_cross_clk_exceptions.tcl
+   cp  ${CONST_PARSEXML}/febe/ipds_checker.tcl                                           ${SYNTH_DIR}/inputs
+
+   if ( $debug ) echo "${SIP_TOOL_NAME} -D- SYN colateral generated at ${SYNTH_FEBE_DIR}"
+
+
+   ######## FEBE SYNTH 1274 ########
+   set SYNTH_FEBE_DIR=${SYNTH_DIR}/inputs/p1274/${RTLTOP}/scripts
+   mkdir -p ${SYNTH_FEBE_DIR}
+
+   # Generate the Scripts to execute a FEBE synthesis run
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   cp  ${COPY_FROM_DIR}/${component}_block_setup_febe.tcl                                ${SYNTH_FEBE_DIR}/block_setup.tcl
+   cp  ${COPY_FROM_DIR}/${component}_insert_dft_febe.tcl                                 ${SYNTH_FEBE_DIR}/insert_dft.tcl
+   cp  ${COPY_FROM_DIR}/${component}_additional_upf_setup.tcl                            ${SYNTH_FEBE_DIR}/${RTLTOP}_additional_upf_setup.tcl
+   cp  ${COPY_FROM_DIR}/${component}_io_constraints.tcl                                  ${SYNTH_FEBE_DIR}/${RTLTOP}_io_constraints.tcl
+   cp  ${COPY_FROM_DIR}/${component}_clocks.stcl                                         ${SYNTH_FEBE_DIR}/${RTLTOP}_clocks.tcl
+   cp  ${COPY_FROM_DIR}/${component}_scan_config_febe.tcl                                ${SYNTH_FEBE_DIR}/${RTLTOP}_scan_config.tcl
+   cat ${COPY_FROM_DIR}/${component}_scon_febe.stcl ${COPY_FROM_DIR}/${component}_tcon.stcl > ${SYNTH_FEBE_DIR}/global_cross_clk_exceptions.tcl
+   
+   if ( $debug ) echo "${SIP_TOOL_NAME} -D- SYN colateral generated at ${SYNTH_FEBE_DIR}"
+   
+
+   ######## FEBE SYNTH n7 ########
+   set SYNTH_FEBE_DIR=${SYNTH_DIR}/inputs/n7/${RTLTOP}/scripts
+   mkdir -p ${SYNTH_FEBE_DIR}
+   set SYNTH_FEBE_DIR_N6=${SYNTH_DIR}/inputs/n6/${RTLTOP}/scripts
+   mkdir -p ${SYNTH_FEBE_DIR_N6}
+
+   # Generate the Scripts to execute a FEBE synthesis run
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   cp  ${COPY_FROM_DIR}/${component}_block_setup_febe.tcl                                ${SYNTH_FEBE_DIR}/block_setup.tcl
+   cp  ${COPY_FROM_DIR}/${component}_block_setup_febe.tcl                                ${SYNTH_FEBE_DIR_N6}/block_setup.tcl
+   cp  ${COPY_FROM_DIR}/${component}_insert_dft_febe.tcl                                 ${SYNTH_FEBE_DIR}/insert_dft.tcl
+   cp  ${COPY_FROM_DIR}/${component}_insert_dft_febe.tcl                                 ${SYNTH_FEBE_DIR_N6}/insert_dft.tcl
+   cp  ${COPY_FROM_DIR}/${component}_additional_upf_setup.tcl                            ${SYNTH_FEBE_DIR}/${RTLTOP}_additional_upf_setup.tcl
+   cp  ${COPY_FROM_DIR}/${component}_additional_upf_setup.tcl                            ${SYNTH_FEBE_DIR_N6}/${RTLTOP}_additional_upf_setup.tcl
+   cp  ${COPY_FROM_DIR}/${component}_io_constraints_n7_cth.tcl                           ${SYNTH_FEBE_DIR}/${RTLTOP}_io_constraints.tcl
+   cp  ${COPY_FROM_DIR}/${component}_io_constraints_n7_cth.tcl                           ${SYNTH_FEBE_DIR_N6}/${RTLTOP}_io_constraints.tcl
+   cp  ${COPY_FROM_DIR}/${component}_clocks_n7_cth.stcl                                  ${SYNTH_FEBE_DIR}/${RTLTOP}_clocks.tcl
+   cp  ${COPY_FROM_DIR}/${component}_clocks_n7_cth.stcl                                  ${SYNTH_FEBE_DIR_N6}/${RTLTOP}_clocks.tcl
+   cp  ${COPY_FROM_DIR}/${component}_scan_config_febe.tcl                                ${SYNTH_FEBE_DIR}/${RTLTOP}_scan_config.tcl
+   cp  ${COPY_FROM_DIR}/${component}_scan_config_febe.tcl                                ${SYNTH_FEBE_DIR_N6}/${RTLTOP}_scan_config.tcl
+   cat ${COPY_FROM_DIR}/${component}_scon_febe_n7_cth.stcl ${COPY_FROM_DIR}/${component}_tcon.stcl > ${SYNTH_FEBE_DIR}/global_cross_clk_exceptions.tcl
+   cat ${COPY_FROM_DIR}/${component}_scon_febe_n7_cth.stcl ${COPY_FROM_DIR}/${component}_tcon.stcl > ${SYNTH_FEBE_DIR_N6}/global_cross_clk_exceptions.tcl
+   cp  ${COPY_FROM_DIR}/${component}_set_voltage_n7_cth.tcl                              ${SYNTH_FEBE_DIR}/${RTLTOP}_set_voltage.tcl
+   cp  ${COPY_FROM_DIR}/${component}_set_voltage_n7_cth.tcl                              ${SYNTH_FEBE_DIR_N6}/${RTLTOP}_set_voltage.tcl
+   cp  ${COPY_FROM_DIR}/${component}_t_constraints_dir_n7_cth.tcl                               ${SYNTH_FEBE_DIR}/${RTLTOP}_constraints.tcl
+   cp  ${COPY_FROM_DIR}/${component}_t_constraints_dir_n7_cth.tcl                               ${SYNTH_FEBE_DIR_N6}/${RTLTOP}_constraints.tcl
+   cp  ${CONST_PARSEXML}/febe/rtl_list_2stage_mod_n7_cth.tcl ${SYNTH_FEBE_DIR}/rtl_list_2stage.tcl.MOD
+   cp  ${CONST_PARSEXML}/febe/rtl_list_2stage_mod_n7_cth.tcl ${SYNTH_FEBE_DIR_N6}/rtl_list_2stage.tcl.MOD
+   cp  ${CONST_PARSEXML}/febe/rtl_list_2stage_ref_n7_cth.tcl ${SYNTH_FEBE_DIR}/rtl_list_2stage.tcl.REF
+   cp  ${CONST_PARSEXML}/febe/rtl_list_2stage_ref_n7_cth.tcl ${SYNTH_FEBE_DIR_N6}/rtl_list_2stage.tcl.REF
+   cp  ${CONST_PARSEXML}/febe/config_flow_n7_mod.xml         ${SYNTH_FEBE_DIR}/config_flow.xml.MOD
+   cp  ${CONST_PARSEXML}/febe/config_flow_n7_mod.xml         ${SYNTH_FEBE_DIR_N6}/config_flow.xml.MOD
+   cp  ${CONST_PARSEXML}/febe/config_flow_n7_ref.xml         ${SYNTH_FEBE_DIR}/config_flow.xml.REF
+   cp  ${CONST_PARSEXML}/febe/config_flow_n7_ref.xml         ${SYNTH_FEBE_DIR_N6}/config_flow.xml.REF
+   cp  ${COPY_FROM_DIR}/${component}_scan_config_n7_cth.tcl                       ${SYNTH_FEBE_DIR}/${RTLTOP}.scan_config.cth_dc.tcl
+   cp  ${COPY_FROM_DIR}/${component}_scan_config_n7_cth.tcl                       ${SYNTH_FEBE_DIR_N6}/${RTLTOP}.scan_config.cth_dc.tcl
+   cp  ${COPY_FROM_DIR}/${component}_scan_exclusion_n7_cth.tcl                    ${SYNTH_FEBE_DIR}/${RTLTOP}.scan_exclusion.cth_dc.tcl
+   cp  ${COPY_FROM_DIR}/${component}_scan_exclusion_n7_cth.tcl                    ${SYNTH_FEBE_DIR_N6}/${RTLTOP}.scan_exclusion.cth_dc.tcl
+   cp  ${CONST_PARSEXML}/febe/svar_values_ref_cth.tcl                                 ${SYNTH_FEBE_DIR}/svar_values.tcl.REF
+   cp  ${CONST_PARSEXML}/febe/svar_values_ref_cth.tcl                                 ${SYNTH_FEBE_DIR_N6}/svar_values.tcl.REF
+   cp  ${CONST_PARSEXML}/febe/svar_values_cth.tcl                                 ${SYNTH_FEBE_DIR}/svar_values.tcl.MOD
+   cp  ${CONST_PARSEXML}/febe/svar_values_cth.tcl                                 ${SYNTH_FEBE_DIR_N6}/svar_values.tcl.MOD
+   
+   if ( $debug ) echo "${SIP_TOOL_NAME} -D- SYN colateral generated at ${SYNTH_FEBE_DIR}"
+
+
+   ######## FEBE SYNTH s14nm ########
+   set SYNTH_FEBE_DIR=${SYNTH_DIR}/inputs/s14nm/${RTLTOP}/scripts
+   mkdir -p ${SYNTH_FEBE_DIR}
+
+   # Generate the Scripts to execute a FEBE synthesis run
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   cp  ${COPY_FROM_DIR}/${component}_block_setup_febe_s14nm.tcl                          ${SYNTH_FEBE_DIR}/block_setup.tcl
+   cp  ${COPY_FROM_DIR}/${component}_insert_dft_febe.tcl                                 ${SYNTH_FEBE_DIR}/insert_dft.tcl
+   cp  ${COPY_FROM_DIR}/${component}_additional_upf_setup.tcl                            ${SYNTH_FEBE_DIR}/${RTLTOP}_additional_upf_setup.tcl
+   cp  ${COPY_FROM_DIR}/${component}_io_constraints.tcl                                  ${SYNTH_FEBE_DIR}/${RTLTOP}_io_constraints.tcl
+   cp  ${COPY_FROM_DIR}/${component}_clocks.stcl                                         ${SYNTH_FEBE_DIR}/${RTLTOP}_clocks.tcl
+   cp  ${COPY_FROM_DIR}/${component}_scan_config_febe.tcl                                ${SYNTH_FEBE_DIR}/${RTLTOP}_scan_config.tcl
+   cat ${COPY_FROM_DIR}/${component}_scon_febe.stcl ${COPY_FROM_DIR}/${component}_tcon.stcl > ${SYNTH_FEBE_DIR}/global_cross_clk_exceptions.tcl
+   cp  ${CONST_PARSEXML}/febe/ipds_checker.tcl                                           ${SYNTH_DIR}/inputs
+   cp  ${CONST_PARSEXML}/febe/s14nm_rdt_procs.tcl                                        ${SYNTH_FEBE_DIR}/rdt_procs.tcl
+   cp  ${CONST_PARSEXML}/febe/s14nm_rdt_procs.tcl.ORIG                                   ${SYNTH_FEBE_DIR}/rdt_procs.tcl.ORIG
+
+   if ( $debug ) echo "${SIP_TOOL_NAME} -D- SYN colateral generated at ${SYNTH_FEBE_DIR}"
+
+
+   ######## FEBE SYNTH 1222 ########
+   set SYNTH_FEBE_DIR=${SYNTH_DIR}/inputs/p1222/${RTLTOP}/scripts
+   mkdir -p ${SYNTH_FEBE_DIR}
+
+   # Generate the Scripts to execute a FEBE synthesis run
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   cp  ${COPY_FROM_DIR}/${component}_block_setup_febe_p1222.tcl                          ${SYNTH_FEBE_DIR}/block_setup.tcl
+   cp  ${COPY_FROM_DIR}/${component}_insert_dft_febe.tcl                                 ${SYNTH_FEBE_DIR}/insert_dft.tcl
+   cp  ${COPY_FROM_DIR}/${component}_additional_upf_setup.tcl                            ${SYNTH_FEBE_DIR}/${RTLTOP}_additional_upf_setup.tcl
+   cp  ${COPY_FROM_DIR}/${component}_io_constraints.tcl                                  ${SYNTH_FEBE_DIR}/${RTLTOP}_io_constraints.tcl
+   cp  ${COPY_FROM_DIR}/${component}_clocks.stcl                                         ${SYNTH_FEBE_DIR}/${RTLTOP}_clocks.tcl
+   cp  ${COPY_FROM_DIR}/${component}_scan_config_febe.tcl                                ${SYNTH_FEBE_DIR}/${RTLTOP}_scan_config.tcl
+   cat ${COPY_FROM_DIR}/${component}_scon_febe.stcl ${COPY_FROM_DIR}/${component}_tcon.stcl > ${SYNTH_FEBE_DIR}/global_cross_clk_exceptions.tcl
+   
+   if ( $debug ) echo "${SIP_TOOL_NAME} -D- SYN colateral generated at ${SYNTH_FEBE_DIR}"
+
+
+   ######## FEBE SYNTH LKF1B ########
+   set SYNTH_FEBE_DIR=${SYNTH_DIR}/inputs/LKF1B/${RTLTOP}/scripts
+   mkdir -p ${SYNTH_FEBE_DIR}
+
+   # Generate the Scripts to execute a FEBE synthesis run
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   cp  ${COPY_FROM_DIR}/${component}_block_setup_febe_p1222.tcl                          ${SYNTH_FEBE_DIR}/block_setup.tcl
+   cp  ${COPY_FROM_DIR}/${component}_insert_dft_febe.tcl                                 ${SYNTH_FEBE_DIR}/insert_dft.tcl
+   cp  ${COPY_FROM_DIR}/${component}_additional_upf_setup.tcl                            ${SYNTH_FEBE_DIR}/${RTLTOP}_additional_upf_setup.tcl
+   cp  ${COPY_FROM_DIR}/${component}_io_constraints.tcl                                  ${SYNTH_FEBE_DIR}/${RTLTOP}_io_constraints.tcl
+   cp  ${COPY_FROM_DIR}/${component}_clocks.stcl                                         ${SYNTH_FEBE_DIR}/${RTLTOP}_clocks.tcl
+   cp  ${COPY_FROM_DIR}/${component}_scan_config_febe.tcl                                ${SYNTH_FEBE_DIR}/${RTLTOP}_scan_config.tcl
+   cat ${COPY_FROM_DIR}/${component}_scon_febe.stcl ${COPY_FROM_DIR}/${component}_tcon.stcl > ${SYNTH_FEBE_DIR}/global_cross_clk_exceptions.tcl
+   
+   if ( $debug ) echo "${SIP_TOOL_NAME} -D- SYN colateral generated at ${SYNTH_FEBE_DIR}"
+
+   ######## FEBE Fishtail 1273 ########
+    set FISHTAIL_DIR=${TOOLS_DIR}/fishtail
+    set FISHTAIL_FEBE_DIR=${FISHTAIL_DIR}/inputs/p1273/${RTLTOP}/scripts
+    mkdir -p ${FISHTAIL_FEBE_DIR}
+    mkdir -p ${FISHTAIL_DIR}/inputs/common/waivers
+
+    set COPY_FROM_DIR=${POST_PARSEXML}
+    cp  ${COPY_FROM_DIR}/${component}_block_setup_fishtail_p1273.tcl                     ${FISHTAIL_FEBE_DIR}/block_setup.tcl  
+    cp  ${COPY_FROM_DIR}/${component}_clocks_fishtail.stcl                               ${FISHTAIL_FEBE_DIR}/${RTLTOP}_clocks.tcl
+    cp  ${COPY_FROM_DIR}/${component}_proj_override_file_fishtail_1273.cfg               ${FISHTAIL_FEBE_DIR}/proj_override_file.cfg
+    cp  ${COPY_FROM_DIR}/${component}_proj_ft_cfg_file_fishtail_1273.cfg                 ${FISHTAIL_FEBE_DIR}/proj_ft_cfg_file.cfg
+    cp  ${CONST_PARSEXML}/febe/waived_exceptions_fishtail_mgbe.txt                       ${FISHTAIL_FEBE_DIR}/waived_exceptions_mgbe.txt
+    cp  ${CONST_PARSEXML}/febe/waivers.txt                                               ${FISHTAIL_DIR}/inputs/common/waivers/waivers.txt
+    cp  ${CONST_PARSEXML}/febe/fishtail_variable_setup.tcl                               ${FISHTAIL_FEBE_DIR}/variable_setup.tcl
+    cp  ${CONST_PARSEXML}/febe/fishtail_waive.sdc                                        ${FISHTAIL_FEBE_DIR}/waive.sdc
+    cp  ${CONST_PARSEXML}/febe/fishtail_waive.tcl                                        ${FISHTAIL_FEBE_DIR}/waive.tcl
+
+   ######## FEBE Fishtail 1274 ########
+    set FISHTAIL_FEBE_DIR=${FISHTAIL_DIR}/inputs/p1274/${RTLTOP}/scripts
+    mkdir -p ${FISHTAIL_FEBE_DIR}
+
+    set COPY_FROM_DIR=${POST_PARSEXML}
+    cp  ${COPY_FROM_DIR}/${component}_block_setup_fishtail_p1274.tcl                     ${FISHTAIL_FEBE_DIR}/block_setup.tcl  
+    cp  ${COPY_FROM_DIR}/${component}_clocks_fishtail.stcl                               ${FISHTAIL_FEBE_DIR}/${RTLTOP}_clocks.tcl
+    cp  ${COPY_FROM_DIR}/${component}_proj_override_file_fishtail_1274.cfg               ${FISHTAIL_FEBE_DIR}/proj_override_file.cfg
+    cp  ${COPY_FROM_DIR}/${component}_proj_ft_cfg_file_fishtail_1274.cfg                 ${FISHTAIL_FEBE_DIR}/proj_ft_cfg_file.cfg   
+    cp  ${CONST_PARSEXML}/febe/waived_exceptions_fishtail_mgbe.txt                       ${FISHTAIL_FEBE_DIR}/waived_exceptions_mgbe.txt
+    cp  ${CONST_PARSEXML}/febe/fishtail_variable_setup.tcl                               ${FISHTAIL_FEBE_DIR}/variable_setup.tcl
+    cp  ${CONST_PARSEXML}/febe/fishtail_waive.sdc                                        ${FISHTAIL_FEBE_DIR}/waive.sdc
+    cp  ${CONST_PARSEXML}/febe/fishtail_waive.tcl                                        ${FISHTAIL_FEBE_DIR}/waive.tcl
+
+   ######## FEBE Fishtail n7 ########
+    set FISHTAIL_FEBE_DIR=${FISHTAIL_DIR}/inputs/n7/${RTLTOP}/scripts
+    mkdir -p ${FISHTAIL_FEBE_DIR}
+    set FISHTAIL_FEBE_DIR_N6=${FISHTAIL_DIR}/inputs/n6/${RTLTOP}/scripts
+    mkdir -p ${FISHTAIL_FEBE_DIR_N6}
+
+    set COPY_FROM_DIR=${POST_PARSEXML}
+    cp  ${COPY_FROM_DIR}/${component}_block_setup_fishtail_p1274.tcl                     ${FISHTAIL_FEBE_DIR}/block_setup.tcl  
+    cp  ${COPY_FROM_DIR}/${component}_block_setup_fishtail_p1274.tcl                     ${FISHTAIL_FEBE_DIR_N6}/block_setup.tcl  
+    cp  ${COPY_FROM_DIR}/${component}_clocks_fishtail.stcl                               ${FISHTAIL_FEBE_DIR}/${RTLTOP}_clocks.tcl
+    cp  ${COPY_FROM_DIR}/${component}_clocks_fishtail.stcl                               ${FISHTAIL_FEBE_DIR_N6}/${RTLTOP}_clocks.tcl
+    cp  ${COPY_FROM_DIR}/${component}_proj_override_file_fishtail_1274.cfg               ${FISHTAIL_FEBE_DIR}/proj_override_file.cfg
+    cp  ${COPY_FROM_DIR}/${component}_proj_override_file_fishtail_1274.cfg               ${FISHTAIL_FEBE_DIR_N6}/proj_override_file.cfg
+    cp  ${COPY_FROM_DIR}/${component}_proj_ft_cfg_file_fishtail_1274.cfg                 ${FISHTAIL_FEBE_DIR}/proj_ft_cfg_file.cfg   
+    cp  ${COPY_FROM_DIR}/${component}_proj_ft_cfg_file_fishtail_1274.cfg                 ${FISHTAIL_FEBE_DIR_N6}/proj_ft_cfg_file.cfg   
+    cp  ${CONST_PARSEXML}/febe/waived_exceptions_fishtail_mgbe.txt                       ${FISHTAIL_FEBE_DIR}/waived_exceptions_mgbe.txt
+    cp  ${CONST_PARSEXML}/febe/waived_exceptions_fishtail_mgbe.txt                       ${FISHTAIL_FEBE_DIR_N6}/waived_exceptions_mgbe.txt
+    cp  ${CONST_PARSEXML}/febe/fishtail_variable_setup.tcl                               ${FISHTAIL_FEBE_DIR}/variable_setup.tcl
+    cp  ${CONST_PARSEXML}/febe/fishtail_variable_setup.tcl                               ${FISHTAIL_FEBE_DIR_N6}/variable_setup.tcl
+    cp  ${CONST_PARSEXML}/febe/fishtail_waive.sdc                                        ${FISHTAIL_FEBE_DIR}/waive.sdc
+    cp  ${CONST_PARSEXML}/febe/fishtail_waive.sdc                                        ${FISHTAIL_FEBE_DIR_N6}/waive.sdc
+    cp  ${CONST_PARSEXML}/febe/fishtail_waive.tcl                                        ${FISHTAIL_FEBE_DIR}/waive.tcl
+    cp  ${CONST_PARSEXML}/febe/fishtail_waive.tcl                                        ${FISHTAIL_FEBE_DIR_N6}/waive.tcl
+
+   ######## FEBE Fishtail 1222 ########
+    set FISHTAIL_FEBE_DIR=${FISHTAIL_DIR}/inputs/p1222/${RTLTOP}/scripts
+    mkdir -p ${FISHTAIL_FEBE_DIR}
+
+    set COPY_FROM_DIR=${POST_PARSEXML}
+    cp  ${COPY_FROM_DIR}/${component}_block_setup_fishtail.tcl                           ${FISHTAIL_FEBE_DIR}/block_setup.tcl  
+    cp  ${COPY_FROM_DIR}/${component}_proj_override_file_fishtail_1222.cfg               ${FISHTAIL_FEBE_DIR}/proj_override_file.cfg
+    cp  ${COPY_FROM_DIR}/${component}_proj_ft_cfg_file_fishtail_1222.cfg                 ${FISHTAIL_FEBE_DIR}/proj_ft_cfg_file.cfg
+
+   ######## FEBE Fishtail LKF1B ########
+    set FISHTAIL_FEBE_DIR=${FISHTAIL_DIR}/inputs/LKF1B/${RTLTOP}/scripts
+    mkdir -p ${FISHTAIL_FEBE_DIR}
+
+    set COPY_FROM_DIR=${POST_PARSEXML}
+    cp  ${COPY_FROM_DIR}/${component}_block_setup_fishtail.tcl                           ${FISHTAIL_FEBE_DIR}/block_setup.tcl  
+    cp  ${COPY_FROM_DIR}/${component}_proj_override_file_fishtail_lkf1b.cfg              ${FISHTAIL_FEBE_DIR}/proj_override_file.cfg
+    cp  ${COPY_FROM_DIR}/${component}_proj_ft_cfg_file_fishtail_lkf1b.cfg                ${FISHTAIL_FEBE_DIR}/proj_ft_cfg_file.cfg
+
+
+
+   ######## Powerartist 1273 ########
+    set POWERARTIST_DIR=${TOOLS_DIR}/powerartist/p1273
+    mkdir -p ${POWERARTIST_DIR}
+
+    set COPY_FROM_DIR=${CONST_PARSEXML}/febe
+    cp  ${COPY_FROM_DIR}/project.sbr1273.pcfg                           ${POWERARTIST_DIR}/project.sbr1273.pcfg
+    cp  ${COPY_FROM_DIR}/runsbr1273PACIFIC                                ${POWERARTIST_DIR}/runsbr1273PACIFIC
+
+   ######## PowerArtist 1274 ########
+   set POWERARTIST_DIR=${TOOLS_DIR}/powerartist/p1274
+    mkdir -p ${POWERARTIST_DIR}
+
+    set COPY_FROM_DIR=${CONST_PARSEXML}/febe
+    cp  ${COPY_FROM_DIR}/project.sbr1274.pcfg                          ${POWERARTIST_DIR}/project.sbr1274.pcfg
+    cp  ${COPY_FROM_DIR}/runsbr1274PACIFIC                             ${POWERARTIST_DIR}/runsbr1274PACIFIC
+
+   ######## FEBE SPYGLASSLP ########
+   set SGLP_FEBE_DIR=${TOOLS_DIR}/spyglasslp/${RTLTOP}
+   mkdir -p ${SGLP_FEBE_DIR}
+
+   # Generate the Scripts to execute a FEBE synthesis run
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   cp  ${COPY_FROM_DIR}/${component}_sglp.opt     ${SGLP_FEBE_DIR}/${RTLTOP}.opt
+   cp  ${COPY_FROM_DIR}/${component}_sglp_s14nm.opt     ${SGLP_FEBE_DIR}/${RTLTOP}.opt.s14nm
+   cp  ${COPY_FROM_DIR}/${component}_sglp.sgdc    ${SGLP_FEBE_DIR}/${RTLTOP}.sgdc
+   cp  ${CONST_PARSEXML}/febe/my_e05_ln_p1274_0x1r0v0_tttt_v065_t100_max.lib ${TOOLS_DIR}/spyglasslp/router/
+
+
+   ######## FEBE VCLP ########
+   set VCLP_FEBE_DIR=${TOOLS_DIR}/vclp/${RTLTOP}
+   mkdir -p ${VCLP_FEBE_DIR}
+
+   # Generate the Scripts to execute a FEBE synthesis run
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   cp  ${COPY_FROM_DIR}/${component}_vclp.opt     ${VCLP_FEBE_DIR}/${RTLTOP}.opt
+   cp  ${COPY_FROM_DIR}/${component}_vclp.sgdc    ${VCLP_FEBE_DIR}/${RTLTOP}.sgdc
+   cp  ${COPY_FROM_DIR}/${component}_vclp_dc_config.pm    ${TOOLS_DIR}/vclp/dc_config.pm
+   cp  ${CONST_PARSEXML}/febe/vclp_waivers.tcl    ${TOOLS_DIR}/vclp
+
+
+   ######## FEBE SGCDC ########
+   set SGCDC_FEBE_DIR=${SBR_DIR}/verif/tests/static_checks/spyglass_cdc/${RTLTOP}
+   mkdir -p ${SBR_DIR}/verif/tests/static_checks
+   mkdir -p ${SGCDC_FEBE_DIR}
+
+   # Generate the Scripts to execute an SGCDC run
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   cp  ${COPY_FROM_DIR}/${component}_sgcdc.opt     ${SGCDC_FEBE_DIR}/${RTLTOP}.opt
+
+   set SGCDC_FEBE_DIR=${SBR_DIR}/tools/spyglasscdc/${RTLTOP}
+   mkdir -p ${SGCDC_FEBE_DIR}
+   cp ${POST_PARSEXML}/${component}_sgcdc_ctrl.v   ${SGCDC_FEBE_DIR}/${RTLTOP}.sgdc
+   set SGCDC_FEBE_DIR=${SBR_DIR}/tools/spyglasscdc
+   cp ${CONST_PARSEXML}/febe/sbr_permanent.awl ${SGCDC_FEBE_DIR}
+   cp ${CONST_PARSEXML}/febe/sbr_temporary.awl ${SGCDC_FEBE_DIR}
+
+   # Generate the Scripts to execute a Post-VISA SGCDC run
+   set SGCDC_FEBE_DIR=${SBR_DIR}/verif/tests/static_checks/spyglass_cdc_postvisa/${RTLTOP}
+   mkdir -p ${SGCDC_FEBE_DIR}
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   cp  ${COPY_FROM_DIR}/${component}_sgcdc_postvisa.opt     ${SGCDC_FEBE_DIR}/${RTLTOP}.opt
+
+   set SGCDC_FEBE_DIR=${SBR_DIR}/tools/spyglasscdc_postvisa/${RTLTOP}
+   mkdir -p ${SGCDC_FEBE_DIR}
+   cat ${POST_PARSEXML}/${component}_sgcdc_ctrl.v ${POST_PARSEXML}/${component}_sgcdc_ctrl_postvisa.v > ${SGCDC_FEBE_DIR}/${RTLTOP}.sgdc
+   cp ${POST_PARSEXML}/${component}_sgcdc_generate_visa_constraints.csh ${SGCDC_FEBE_DIR}/generate_visa_constraints.csh
+   set SGCDC_FEBE_DIR=${SBR_DIR}/tools/spyglasscdc_postvisa
+   cat ${CONST_PARSEXML}/febe/sbr_permanent.awl ${CONST_PARSEXML}/febe/sbr_permanent_postvisa.awl > ${SGCDC_FEBE_DIR}/sbr_permanent.awl
+   cp ${CONST_PARSEXML}/febe/sbr_temporary.awl ${SGCDC_FEBE_DIR}
+
+   ######## FEBE SGLINT ########
+   set SGLINT_FEBE_DIR=${TOOLS_DIR}/spyglasslint/${RTLTOP}
+   mkdir -p ${SGLINT_FEBE_DIR}
+
+   # Generate the Scripts to execute a FEBE synthesis run
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   cp  ${COPY_FROM_DIR}/${component}_sglint.opt         ${SGLINT_FEBE_DIR}/${RTLTOP}.opt
+   cp  ${CONST_PARSEXML}/febe/sglint_time0_waivers.awl  ${TOOLS_DIR}/spyglasslint
+   cp  ${CONST_PARSEXML}/febe/sbr_sglint_waivers.awl  ${TOOLS_DIR}/spyglasslint
+
+
+   ######## FEBE SPYGLASSDFT 1273 ########
+   set SGDFT_FEBE_DIR=${TOOLS_DIR}/spyglassdft/p1273
+   mkdir -p ${SGDFT_FEBE_DIR}
+
+   # Generate the Scripts to execute a FEBE synthesis run
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   cp  ${CONST_PARSEXML}/febe/ace_static_check_sgdft.cfg         ${SGDFT_FEBE_DIR}/ace_static_check.cfg
+   cp  ${COPY_FROM_DIR}/${component}_sgdft.opt              ${SGDFT_FEBE_DIR}/${RTLTOP}_spyglass.opt
+   cp  ${COPY_FROM_DIR}/${component}_sgdft_p1273.ip_info    ${SGDFT_FEBE_DIR}/${RTLTOP}.ip_info
+
+
+   ######## FEBE SPYGLASSDFT 1274 ########
+   set SGDFT_FEBE_DIR=${TOOLS_DIR}/spyglassdft/p1274
+   mkdir -p ${SGDFT_FEBE_DIR}
+
+   # Generate the Scripts to execute a FEBE synthesis run
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   cp  ${CONST_PARSEXML}/febe/ace_static_check_sgdft.cfg         ${SGDFT_FEBE_DIR}/ace_static_check.cfg
+   cp  ${COPY_FROM_DIR}/${component}_sgdft.opt              ${SGDFT_FEBE_DIR}/${RTLTOP}_spyglass.opt
+   cp  ${COPY_FROM_DIR}/${component}_sgdft_p1274.ip_info    ${SGDFT_FEBE_DIR}/${RTLTOP}.ip_info
+
+
+   ######## FEBE SPYGLASSDFT n7 ########
+   set SGDFT_FEBE_DIR=${TOOLS_DIR}/spyglassdft/n7
+   mkdir -p ${SGDFT_FEBE_DIR}
+   set SGDFT_FEBE_DIR_N6=${TOOLS_DIR}/spyglassdft/n6
+   mkdir -p ${SGDFT_FEBE_DIR_N6}
+
+   # Generate the Scripts to execute a FEBE synthesis run
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   cp  ${CONST_PARSEXML}/febe/ace_static_check_sgdft.cfg         ${SGDFT_FEBE_DIR}/ace_static_check.cfg
+   cp  ${CONST_PARSEXML}/febe/ace_static_check_sgdft.cfg         ${SGDFT_FEBE_DIR_N6}/ace_static_check.cfg
+   cp  ${COPY_FROM_DIR}/${component}_sgdft.opt              ${SGDFT_FEBE_DIR}/${RTLTOP}_spyglass.opt
+   cp  ${COPY_FROM_DIR}/${component}_sgdft.opt              ${SGDFT_FEBE_DIR_N6}/${RTLTOP}_spyglass.opt
+   cp  ${COPY_FROM_DIR}/${component}_sgdft_n7.ip_info    ${SGDFT_FEBE_DIR}/${RTLTOP}.ip_info
+   cp  ${COPY_FROM_DIR}/${component}_sgdft_n7.ip_info    ${SGDFT_FEBE_DIR_N6}/${RTLTOP}.ip_info
+
+
+   ######## FEBE SPYGLASSDFT s14nm ########
+   set SGDFT_FEBE_DIR=${TOOLS_DIR}/spyglassdft/s14nm
+   mkdir -p ${SGDFT_FEBE_DIR}
+
+   # Generate the Scripts to execute a FEBE synthesis run
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   cp  ${CONST_PARSEXML}/febe/ace_static_check_sgdft.cfg         ${SGDFT_FEBE_DIR}/ace_static_check.cfg
+   cp  ${COPY_FROM_DIR}/${component}_sgdft.opt              ${SGDFT_FEBE_DIR}/${RTLTOP}_spyglass.opt
+   cp  ${COPY_FROM_DIR}/${component}_sgdft_p1273.ip_info    ${SGDFT_FEBE_DIR}/${RTLTOP}.ip_info
+
+
+   ######## FEBE SPYGLASSDFT 1222 ########
+   set SGDFT_FEBE_DIR=${TOOLS_DIR}/spyglassdft/p1222
+   mkdir -p ${SGDFT_FEBE_DIR}
+
+   # Generate the Scripts to execute a FEBE synthesis run
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   cp  ${CONST_PARSEXML}/febe/ace_static_check_sgdft.cfg         ${SGDFT_FEBE_DIR}/ace_static_check.cfg
+   cp  ${COPY_FROM_DIR}/${component}_sgdft.opt              ${SGDFT_FEBE_DIR}/${RTLTOP}_spyglass.opt
+   cp  ${COPY_FROM_DIR}/${component}_sgdft_p1222.ip_info    ${SGDFT_FEBE_DIR}/${RTLTOP}.ip_info
+
+
+   ######## FEBE SPYGLASSDFT LKF1B########
+   set SGDFT_FEBE_DIR=${TOOLS_DIR}/spyglassdft/LKF1B
+   mkdir -p ${SGDFT_FEBE_DIR}
+
+   # Generate the Scripts to execute a FEBE synthesis run
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   cp  ${CONST_PARSEXML}/febe/ace_static_check_sgdft.cfg         ${SGDFT_FEBE_DIR}/ace_static_check.cfg
+   cp  ${COPY_FROM_DIR}/${component}_sgdft.opt              ${SGDFT_FEBE_DIR}/${RTLTOP}_spyglass.opt
+   cp  ${COPY_FROM_DIR}/${component}_sgdft_p1222.ip_info    ${SGDFT_FEBE_DIR}/${RTLTOP}.ip_info
+
+
+   ######## FEBE SAGE 1273 ########
+   set SAGE_FEBE_DIR=${TOOLS_DIR}/sage/inputs/p1273/${RTLTOP}/scripts
+   mkdir -p ${SAGE_FEBE_DIR}
+
+   # Generate the Scripts to execute a FEBE synthesis run
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   cp  ${CONST_PARSEXML}/febe/atpg_local_ovr_p1273.pl            ${SAGE_FEBE_DIR}/atpg_local_ovr.pl
+   cp  ${CONST_PARSEXML}/febe/block_setup_sage_p1273.tcl              ${SAGE_FEBE_DIR}/block_setup.tcl
+
+
+   ######## FEBE SAGE 1274 ########
+   set SAGE_FEBE_DIR=${TOOLS_DIR}/sage/inputs/p1274/${RTLTOP}/scripts
+   mkdir -p ${SAGE_FEBE_DIR}
+
+   # Generate the Scripts to execute a FEBE synthesis run
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   cp  ${CONST_PARSEXML}/febe/atpg_local_ovr_p1274.pl            ${SAGE_FEBE_DIR}/atpg_local_ovr.pl
+   cp  ${CONST_PARSEXML}/febe/block_setup_sage_p1274.tcl              ${SAGE_FEBE_DIR}/block_setup.tcl
+
+
+   ######## FEBE SAGE n7 ########
+   set SAGE_FEBE_DIR=${TOOLS_DIR}/sage/inputs/n7/${RTLTOP}/scripts
+   mkdir -p ${SAGE_FEBE_DIR}
+   set SAGE_FEBE_DIR_N6=${TOOLS_DIR}/sage/inputs/n6/${RTLTOP}/scripts
+   mkdir -p ${SAGE_FEBE_DIR_N6}
+
+   # Generate the Scripts to execute a FEBE synthesis run
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   cp  ${CONST_PARSEXML}/febe/atpg_local_ovr_p1274.pl            ${SAGE_FEBE_DIR}/atpg_local_ovr.pl
+   cp  ${CONST_PARSEXML}/febe/atpg_local_ovr_p1274.pl            ${SAGE_FEBE_DIR_N6}/atpg_local_ovr.pl
+   cp  ${CONST_PARSEXML}/febe/block_setup_sage_p1274.tcl              ${SAGE_FEBE_DIR}/block_setup.tcl
+   cp  ${CONST_PARSEXML}/febe/block_setup_sage_p1274.tcl              ${SAGE_FEBE_DIR_N6}/block_setup.tcl
+
+
+   ######## FEBE SAGE s14nm ########
+   set SAGE_FEBE_DIR=${TOOLS_DIR}/sage/inputs/s14nm/${RTLTOP}/scripts
+   mkdir -p ${SAGE_FEBE_DIR}
+
+   # Generate the Scripts to execute a FEBE synthesis run
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   cp  ${CONST_PARSEXML}/febe/atpg_local_ovr_s14nm.pl            ${SAGE_FEBE_DIR}/atpg_local_ovr.pl
+   cp  ${CONST_PARSEXML}/febe/block_setup_sage_s14nm.tcl              ${SAGE_FEBE_DIR}/block_setup.tcl
+
+
+   ######## FEBE SAGE 1222 ########
+   set SAGE_FEBE_DIR=${TOOLS_DIR}/sage/inputs/p1222/${RTLTOP}/scripts
+   mkdir -p ${SAGE_FEBE_DIR}
+
+   # Generate the Scripts to execute a FEBE synthesis run
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   cp  ${CONST_PARSEXML}/febe/atpg_local_ovr_p1222.pl            ${SAGE_FEBE_DIR}/atpg_local_ovr.pl
+   cp  ${CONST_PARSEXML}/febe/block_setup_sage_p1222.tcl              ${SAGE_FEBE_DIR}/block_setup.tcl
+
+
+   ######## FEBE SAGE LKF1B ########
+   set SAGE_FEBE_DIR=${TOOLS_DIR}/sage/inputs/LKF1B/${RTLTOP}/scripts
+   mkdir -p ${SAGE_FEBE_DIR}
+
+   # Generate the Scripts to execute a FEBE synthesis run
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   cp  ${CONST_PARSEXML}/febe/atpg_local_ovr_p1222.pl            ${SAGE_FEBE_DIR}/atpg_local_ovr.pl
+   cp  ${CONST_PARSEXML}/febe/block_setup_sage_p1222.tcl              ${SAGE_FEBE_DIR}/block_setup.tcl
+
+
+   #####################
+   # Creating LEC Area #
+   #####################
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   set LEC_DIR=${TOOLS_DIR}/lec
+   set LEC1271_DIR=${LEC_DIR}/lec_1271/${component}
+   set LEC1273_DIR=${LEC_DIR}/lec_1273/${component}
+   set LEC1274_DIR=${LEC_DIR}/lec_1274/${component}
+   
+   mkdir -p ${LEC1271_DIR}
+   cp ${COPY_FROM_DIR}/${component}_lec_1271.do ${LEC1271_DIR}/${component}.do
+   cp ${COPY_FROM_DIR}/${component}_lec.list    ${LEC1271_DIR}/${component}.list
+   
+   if ( $debug ) echo "${SIP_TOOL_NAME} -D- LEC colateral generated at ${LEC1271_DIR}"
+   
+   mkdir -p ${LEC1273_DIR}
+   cp ${COPY_FROM_DIR}/${component}_lec_1273.do ${LEC1273_DIR}/${component}.do
+   cp ${COPY_FROM_DIR}/${component}_lec.list    ${LEC1273_DIR}/${component}.list
+   
+   if ( $debug ) echo "${SIP_TOOL_NAME} -D- LEC colateral generated at ${LEC1273_DIR}"
+   
+   mkdir -p ${LEC1274_DIR}
+   cp ${COPY_FROM_DIR}/${component}_lec_1274.do ${LEC1274_DIR}/${component}.do
+   cp ${COPY_FROM_DIR}/${component}_lec.list    ${LEC1274_DIR}/${component}.list
+  
+   if ( $debug ) echo "${SIP_TOOL_NAME} -D- LEC colateral generated at ${LEC1274_DIR}"
+   
+    #########################
+   # Creating ATPG Scripts #
+   #########################
+   set COPY_FROM_DIR=${POST_PARSEXML}
+   set ATPG_DIR=${TOOLS_DIR}/atpg
+   set ATPG1271_DIR=${ATPG_DIR}/atpg_1271/${component}
+   set ATPG1273_DIR=${ATPG_DIR}/atpg_1273/${component}
+   set ATPG1274_DIR=${ATPG_DIR}/atpg_1274/${component}
+   
+   mkdir -p ${ATPG1271_DIR}
+   cp ${COPY_FROM_DIR}/${component}_internal.dofile ${ATPG1271_DIR}/internal.dofile
+   if ( $debug ) echo "${SIP_TOOL_NAME} -D- ATPG colateral generated at ${ATPG1273_DIR}"
+   
+   mkdir -p ${ATPG1273_DIR}
+   cp ${COPY_FROM_DIR}/${component}_internal.dofile ${ATPG1273_DIR}/internal.dofile
+   if ( $debug ) echo "${SIP_TOOL_NAME} -D- ATPG colateral generated at ${ATPG1273_DIR}"
+
+   mkdir -p ${ATPG1274_DIR}
+   cp ${COPY_FROM_DIR}/${component}_internal.dofile ${ATPG1274_DIR}/internal.dofile
+   if ( $debug ) echo "${SIP_TOOL_NAME} -D- ATPG colateral generated at ${ATPG1274_DIR}"
+
+endif
+
+###########################################################
+# Create helper scripts to assist in running the BE tools #
+###########################################################
+#set tools=(runATPG runCDC runLEC runLintra runSpyglassLP runACESpyglassDFT runSpyglassDFT runSynth runACECDC runACEEmulation runACEVisa)
+#if (${dynopt} != "nonDyn" || ${config} == "IOSF_Sideband_Endpoint" ) set tools=(${tools} runVisa)
+#set tools_febe=(runSynth)
+
+set cmdline=""
+set cmdline="${cmdline}-config \'${config}\' "
+set cmdline="${cmdline}-component \'${component}\' "
+set cmdline="${cmdline}-puni_prefix \'${puniprefix}\' "
+set cmdline="${cmdline}-dyn_opt \'${dynopt}\' "
+
+# Legacy Non HDK tool runs, not needed for now
+#foreach tool (${tools})
+#   set script_name=${TOOLS_DIR}/${component}_${tool}
+#   echo "#\!/bin/tcsh -f"                  >  ${script_name}
+#   echo "setenv SIMBUILDTOOLDRUN 0"        >> ${script_name}
+#   echo "cd ../scripts/qa/"                >> ${script_name}
+#   echo "source ${tool} ${cmdline}"'$argv' >> ${script_name}
+#   echo "unsetenv SIMBUILDTOOLDRUN"        >> ${script_name}
+#   chmod +x                                   ${script_name}
+
+#   if ( $debug ) echo "${SIP_TOOL_NAME} -D- Created helper script ${script_name}"
+#
+#end
+
+#foreach tool (${tools_febe})
+#   set script_name=${TOOLS_DIR}/${component}_${tool}HDK
+#   echo "#\!/bin/tcsh -f"                  >  ${script_name}
+#   echo "setenv SIMBUILDTOOLDRUN 0"        >> ${script_name}
+#   echo "cd ../scripts/qa/"                >> ${script_name}
+#   echo "source ${tool} ${cmdline}"'$argv' >> ${script_name}
+#   echo "unsetenv SIMBUILDTOOLDRUN"        >> ${script_name}
+#   chmod +x                                   ${script_name}
+#
+#   if ( $debug ) echo "${SIP_TOOL_NAME} -D- Created helper script ${script_name}"
+#
+#end
+
+
+set tools_simbuild=(runLintra runACECDC runSpyglassLP runVisa runACEEmulation runACEVisa)
+set cust_simbuild=(p1273 p1274 s14nm n7 n6)
+if (${config} == "IOSF_Sideband_Endpoint" ) then
+   set hdk_dut = sbe
+else
+   set hdk_dut = sbr
+endif
+
+foreach cust (${cust_simbuild})
+   if (${cust} == "s14nm" ) then
+       set hdk_mat = mat1.6.4.p1
+   else
+        if (${cust} == "n7" || ${cust} == "n6") then
+         set hdk_mat = mat1.6.1.p7
+      else
+         set hdk_mat = mat1.6.4.p2
+      endif
+   endif
+         foreach tool (${tools_simbuild})
+      set script_name=${TOOLS_DIR}/${component}_${tool}_HDK${cust}
+      echo "#\!/bin/tcsh -f"                  >  ${script_name}
+      echo "simbuild -dut ${hdk_dut} -1c -CUST ${cust} -toolset ${hdk_mat} -1c- -ace_args scripts/qa/${tool} ${cmdline}"'$argv -ace_args-' >> ${script_name}
+      chmod +x                                   ${script_name}
+
+      if ( $debug ) echo "${SIP_TOOL_NAME} -D- Created helper script ${script_name}"
+   end
+end
+
+# for simbuild/febe tools the scripts in scripts/qa dir has the simbuild commands in them. So it is enough to just source those
+set tools_sg=(runSGCDC runVCLP runSGLint)
+foreach cust (${cust_simbuild})
+   foreach tool (${tools_sg})
+      set script_name=${TOOLS_DIR}/${component}_${tool}_HDK${cust}
+      echo "#\!/bin/tcsh -f"                  >  ${script_name}
+      echo "simbuild -dut ${hdk_dut} -1c -CUST ${cust} -1c- -ace_args scripts/qa/${tool} ${cmdline}"'$argv -ace_args-' >> ${script_name}
+      chmod +x                                   ${script_name}
+
+      if ( $debug ) echo "${SIP_TOOL_NAME} -D- Created helper script ${script_name}"
+   end
+end
+
+if ( $debug ) echo "${SIP_TOOL_NAME} -D- Completed for the configuration ${component}"
+
+cd ${SBR_DIR}

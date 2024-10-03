@@ -1,0 +1,46 @@
+# ace setup_ep
+#---------------------------------------------------
+# Verify that this is a tcsh
+if (`/usr/bin/basename $SHELL` != "tcsh") then 
+   echo; echo "ERROR: you need use tcsh to work in this environment. Sorry."
+   echo; exit 1
+endif
+
+# Verify that current directory is SB_EP_ROOT
+if (! -f scripts/setup) then
+   echo; echo "ERROR: ace/setup cannot find scripts/setup"
+   echo; exit 1
+endif
+alias   iosf_sbc_setenv 'setenv \!*; echo "\!:1 \t = ${\!:1}"'
+
+# Set required ACE envirnoment variables
+iosf_sbc_setenv ACE_PROJECT  IOSF_SBC_EP
+iosf_sbc_setenv IOSF_SBC_ROOT $cwd 
+iosf_sbc_setenv CCU_VC_HOME $cwd/verif/bfm/ccu_vc
+iosf_sbc_setenv IOSF_SVC_ROOT $cwd/verif/bfm/sideband_vc 
+iosf_sbc_setenv IOSF_SBC_RTL $cwd/source/rtl/iosfsbc 
+iosf_sbc_setenv IOSF_SBC_EP_TESTS $cwd/verif/tests/ep_tests
+iosf_sbc_setenv ACE_PWA_DIR `basename $IOSF_SBC_ROOT`
+iosf_sbc_setenv ACE_ENG     `dirname  $IOSF_SBC_ROOT`
+iosf_sbc_setenv ACE_RC      $ACE_ENG/$ACE_PWA_DIR/ace/iosf_sbc_ep.acerc
+iosf_sbc_setenv TMP         /tmp_proj
+
+# Other fun enviroment variables
+#setenv ACE_SINGLE_TOP_MODULE ACE_SINGLE_TOP_MODULE
+#setenv OPTIMIZE_TICK_EVENT 1;
+#setenv VCS_VER `show_setup -v | sed 's/(eng)//'`
+#setenv VCS_VER ${VCS_VER}_${VCS_TARGET_ARCH}; echo "VCS_VER     = $VCS_VER"
+
+# Project specific batch queues
+iosf_sbc_setenv NBPOOL  CSE_VirtualPool_nb6 
+iosf_sbc_setenv NBQSLOT /SEG/All/SIP/sb
+iosf_sbc_setenv NBCLASS SLES_EM64T_4G_nosusp
+
+cd scripts
+source setup
+cd ../
+
+
+cp ace/iosf_sbc_ep.pp.master ace/iosf_sbc_ep.pp
+cp ace/iosf_sbc_ep_hdl.udf.master ace/iosf_sbc_ep_hdl.udf
+cp ace/iosf_sbc_ep_local_ivars.udf.master ace/iosf_sbc_ep_local_ivars.udf

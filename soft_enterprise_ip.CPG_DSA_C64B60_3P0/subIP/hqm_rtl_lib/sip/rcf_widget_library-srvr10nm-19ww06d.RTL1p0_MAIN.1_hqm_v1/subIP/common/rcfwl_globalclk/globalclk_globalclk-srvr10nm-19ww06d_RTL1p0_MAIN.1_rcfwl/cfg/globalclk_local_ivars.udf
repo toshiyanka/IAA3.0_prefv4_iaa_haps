@@ -1,0 +1,106 @@
+# mode:cperl; cperl-indent-level 4; cperl-indent-parens-as-block t;# # vim: noai:ts=4 : sw=4 : filetype=perl
+# vim: noai:ts=4 : sw=4 : filetype=perl
+use lib "$ENV{RTL_PROJ_BIN}/perllib";
+require ToolConfig;
+my $scope = "rcfwl_globalclk"; 
+%audf = (
+    InterfaceVars => {
+    -static_check_cfg_file => {
+            merging => 'ASSIGN',
+            default => ["$ENV{MODEL_ROOT}/tools/lint/lintra_static_check.cfg",
+	                &ToolConfig::get_tool_env_var('spyglass_cdc', 'SPYGLASS_METHODOLOGY_CDC') . "/ace_static_check.cfg",],
+                },
+      -sglint_static_check_cfg_file => {
+                default => [
+                          &ToolConfig::get_tool_var('spyglass_lint','sglint_ace_static_file'),
+                 ],
+         },
+
+	-allow_hdl_spec_of_elab_opts => { default => 1},
+    -enable_cdc_lint => { default => 1 },
+    -exit_on_missing_cdclint_home => { default => 1 },
+	-enable_legacy_lib_mapping => { default => 0, },
+	-enable_sub_libraries => { default => 1, },
+	-enable_hier_dump => { default => 1,},
+       -enable_dump_ctl => { default => 1 },
+       -enable_dump_rtl => { default => 1 },
+	-enable_generate_rtl => { default => 1 },
+	 # added for move to 16.01.19
+#        -lintra_include_type => { default => "incdir" },
+        -models_to_compile => {
+                         merging => 'ASSIGN',
+			 default => ['divsync_gen','rcb_lcb','cda','trunk_clock_switch','vret_clock_gate','glitchfree_clkmux','clkdist_clkmux','clkdist_mux','clkdist_repeater','refclkdist','psocsyncdist','psocclkdist','mesh_clkdist','pclkdist','pccdu','psyncdist','clkreqaggr',
+			 ],
+#			 default => ['refclkdist'],
+	},
+	-vlog_opts => { default => ["+define+INSTANTIATE_HIERDUMP",
+                          ],},
+        $scope => {
+       # -vlog_opts => { default => ["-full64", "+define+INST_ON", "-sverilog", "-timescale=1ps/1ps", ] },
+	
+		    },
+	    
+    #$scope => {
+          -post_process_pattern_file => { default => "cfg/ccdu_clkdist_post_process.pp", },
+    #},
+      $scope=> {
+              __PROTOTYPES => {
+                import => ["TEST","LOWPOWER"],
+                        },  
+	     -model => {
+                default => "$ENV{DUT}",
+                        },
+	  -zin_opts => { default => ["-c -licq",], },
+                 -spyglass_goals => {
+
+             		clear_default => 1,
+
+             		default => [],
+
+           		},
+	       },
+		 
+      -elab_opts =>  {
+	            
+                default => [ 
+                         "+vpi", 
+			 "+acc",
+			 "-debug_access+f",
+                         "-full64",
+                         "+error+99999",
+                         "-fastpartcomp=j3",
+                         "-debug_pp", 
+                         "-cc " . &ToolConfig::get_tool_exec("gcc"),
+                         "-ld " . &ToolConfig::get_tool_exec("gxx"),
+			 "-error=UNIQUE",
+                         "-error=PRIORITY",
+                         "-congruency=allowBA",
+                     
+		        ],
+		    },
+	
+         }, 
+	   
+    HDLSpec => {
+        -hdl_compiler => {
+	    debussy => {
+                -libDir => "vericom_4value",
+            },
+            vcs => {
+                -libDir         => "vcs_4value",
+                -iniContents    => <<'EOF',
+                --Mapping default work dir
+                WORK > DEFAULT
+                --Mapping system libraries
+                --Low-power libraries
+                UPF : $VCS_HOME/suse64/packages/upf
+                LPA : $VCS_HOME/suse64/packages/lpa
+EOF
+            },
+            },
+ cdc => {
+                   -vlogToolArgs   => "-sv -mfcu -mixedansiports -permissive -convertallparams -synthprefix -nopsl -oldsv -suppress 2902 -suppress 7033 -suppress 3838 -skipsynthoffregion +define+LINT_ON",
+                   -libDir         => "cdc_lib/$ENV{CDC_VER}",
+                  },
+            }, 
+);

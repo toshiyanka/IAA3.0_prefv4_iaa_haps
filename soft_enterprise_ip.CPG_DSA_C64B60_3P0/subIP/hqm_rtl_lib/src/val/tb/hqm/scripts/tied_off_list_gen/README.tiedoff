@@ -1,0 +1,40 @@
+VCS Verdi utility to get list of signal which are assigned with constant value or tied off in the RLT and Testbench
+
+Note: For tied off signals, you can see as "Port High/Low Connection"
+Note: For constant assignments , you can see as "Continous or assigment"
+
+Method-1: Getting info from simv.daidir
+
+1. Make sure VERDI_HOME should set, else set to the path which was used in the project
+to get VERDI_HOME info execute following command
+% ToolConfig.pl show_tool_info verdi 
+setenv VERDI_HOME /p/hdk/rtl/cad/x86-64_linux26/synopsys/verdi3/P-2019.06-SP2-2
+
+if you want to avoide Step-1, or if you get verdi licence checkout error after executing the script try with following two options
+% osetup vcs 
+% osetup verdi
+
+2. Script path used to get the tied-off information
+   Path: $VERDI_HOME/share/VIA/Apps/DesignComprehension/GetConstAssign/getConstAssign_batch.pl
+
+3. command to get the list of all Tied-offs
+%  $VERDI_HOME/share/VIA/Apps/DesignComprehension/GetConstAssign/getConstAssign_batch.pl -dbdir <simv.daidir> -modules <"Intended_instnace"> -o <logfile_name.log> 
+Note: Use wildcard (*) to search in all hierarchy from intended instance
+e.g. 
+% $VERDI_HOME/share/VIA/Apps/DesignComprehension/GetConstAssign/getConstAssign_batch.pl -dbdir $IP_MODELS/hqm/hqm-srvr10nm-wave4-latest/target/hqm/vcs_4value/hqm/hqm.simv.daidir/ -modules "hqm_tb_top.u_hqm.*" -o hqm_tiedoff_list.log
+
+
+above command will search all tied-off from u_hqm instance till leaf instance
+
+4. you can find two types of information, one is for Port High/Low connection and other is constant assignments.
+
+Method-2: Getting info from verdi
+
+open Verdi fsdb 
+% verdi -> Tools >  VC Apps_Toolbox -> Design exploration -> get Constant Assign 
+in the pop-up window, provide the instance path for which constant assignment need to be check
+
+e.g. Modules:* -> changed to Modules:hqm_tb_top.u_hqm.* 
+Note: .* search for all the child instanes as well
+
+

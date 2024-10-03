@@ -1,0 +1,57 @@
+################################################################################
+## -- Setup LUTs used by HCW
+#mem_update ## -- initialize memories to hqm_cfg defaults using backdoor_access
+
+cfg_begin
+
+   ldb qid 0
+   ldb qid 1 sn_cfg_v=1
+   ldb qid 2 fid_cfg_v=1
+   ldb qid 3
+   ldb qid 4
+
+   dir qid 60
+   dir qid 61
+   dir qid 62
+   dir qid 63
+
+   vas 0  ldb_qidv0=1             dir_qidv63=1 credit_cnt=0x100 
+   vas 7  ldb_qidv1=1 ldb_qidv4=1 dir_qidv62=1 credit_cnt=0x100 
+   vas 21 ldb_qidv2=1             dir_qidv61=1 credit_cnt=0x100 
+   vas 31 ldb_qidv3=1             dir_qidv60=1 credit_cnt=0x100 
+
+   ldb pp 0 vas=0 
+   ldb cq 0 gpa=sm qidv0=1 qidix0=0
+
+   dir pp 63 vas=0
+   dir cq 63 gpa=sm
+
+   ldb pp 1 vas=7 
+   ldb cq 1 gpa=sm qidv2=1 qidix2=4
+
+   dir pp 62 vas=7
+   dir cq 62 gpa=sm
+
+   ldb pp 2 vas=21
+   ldb cq 2 gpa=sm qidv5=1 qidix5=2
+
+   dir pp 61 vas=21
+   dir cq 61 gpa=sm
+
+   ldb pp 3 vas=31 
+   ldb cq 3 gpa=sm qidv7=1 qidix7=3
+
+   dir pp 60 vas=31
+   dir cq 60 gpa=sm
+
+   ldb pp 4 vas=7
+   ldb cq 4 gpa=sm qidv3=1 qidix3=1
+
+   vdev 0  ldb_pp0_v=1 dir_pp63_v=1 ldb_vqid31_qid=0 dir_vqid0_qid=63
+   vdev 4  ldb_pp1_v=1 dir_pp62_v=1 ldb_vqid30_qid=1 dir_vqid1_qid=62 ldb_pp4_v=1 ldb_vqid27_qid=4
+   vdev 8  ldb_pp2_v=1 dir_pp61_v=1 ldb_vqid29_qid=2 dir_vqid2_qid=61
+   vdev 14 ldb_pp3_v=1 dir_pp60_v=1 ldb_vqid28_qid=3 dir_vqid3_qid=60
+
+cfg_end
+
+rd hqm_pf_cfg_i.vendor_id

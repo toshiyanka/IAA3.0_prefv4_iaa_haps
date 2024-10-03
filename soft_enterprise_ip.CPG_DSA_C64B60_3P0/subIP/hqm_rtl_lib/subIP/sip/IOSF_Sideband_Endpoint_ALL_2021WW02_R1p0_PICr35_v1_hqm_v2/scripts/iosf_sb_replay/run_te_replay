@@ -1,0 +1,596 @@
+#!/usr/intel/pkgs/perl/5.14.1/bin/perl
+
+use strict;
+use File::Basename;
+use Cwd;
+use Cwd 'abs_path';
+use Scalar::Util qw(looks_like_number);
+
+
+# Constants
+my $SCRIPT_NAME = "run_te_replay";
+my $LOG_FILE = "$SCRIPT_NAME.log";
+#my $DIFF_OPTS_FILENAME = "te_replay_diff_opts.csv";
+
+my $TEST_CMD = "ace -cc -vc_ph2 -vlog_opts \"+define+SB_ENABLE_RTR_TRACKERS\" -vlog_opts \"+define+EMULATION\" -vlog_opts \"+define+USE_SLA_RTL_TLM\" -x -t __TE_REPLAY_TEST_NAME__ -jem_dump_bin -model_compile_results_dir \$IP_ROOT/verif/results_jem_dump/target -results __TE_REPLAY_OUTPUT_AREA__";
+
+my $REPLAY_CMD = "ace -cc -vc_ph2 -vlog_opts \"+define+SB_ENABLE_RTR_TRACKERS\" -vlog_opts \"+define+USE_SLA_RTL_TLM\" -x -t jem_ovm_replay -simv_args \"+ML_SYNC_PERIOD=1000 +REPLAY_ENV_NAME=iosf_sb_replay_env +IOSF_SB_MONITORS_FILE=\$IP_ROOT/verif/tb/top_tb/sbr_config_ipxact_workspace/rtr_port_map.svh\" -model_compile_results_dir \$IP_ROOT/verif/results_jem_replay/target -results \$IP_ROOT/verif/results_jem_replay -vlog_opts \"+define+SLA_EXTERNAL_RTL_TLM_IMPL +incdir+\${JEM}/jem_rt\" -m jem_replay -mc jem_replay -test_setenv \"JEM_ML_REPLAY_TRACE_INDEX=./jem/tlm_map.txt\" -test_run_link_dirs __TE_REPLAY_OUTPUT_AREA__/tests/__TE_REPLAY_TEST_NAME__/jem";
+
+my $TEST_LOGS_DIR = "__TE_REPLAY_OUTPUT_AREA__/tests/__TE_REPLAY_TEST_NAME__";
+my $REPLAY_LOGS_DIR = "$ENV{'IP_ROOT'}/verif/results_jem_replay/tests/jem_ovm_replay";
+
+# Main Flow
+
+my $args = parse_args();
+
+print_msg("I", "Initializing script...");
+initialize_run($args->{"test_name"}, $args->{"output"}, $args->{"config"});
+#system "cp te_replay_diff_opts_$config.csv te_replay_diff_opts.csv";
+my $nm = $args->{"config"};
+my $DIFF_OPTS_FILENAME = "te_replay_diff_opts_$nm.csv";
+print_msg("I", "Initialization completed successfully");
+my $script_result = 0;
+print_msg("I", "Running Test...");
+my $result = run_test_or_replay(0, $args->{"test_name"}, $args->{"output"});
+if ($result->{"status"}) {
+	print_msg("W", "Running of test has failed: $result->{'message'}");
+	$script_result += 1;
+}
+print_msg("I", "Running Replay...");
+$result = run_test_or_replay(1, $args->{"test_name"}, $args->{"output"});
+if ($result->{"status"}) {
+	print_msg("W", "Running of replay has failed: $result->{'message'}");
+	$script_result += 2;
+}
+my $comparison_passed;
+my $comparison_notes = "";
+my $diff_opts_file = dirname(abs_path($0)) . "/" . $DIFF_OPTS_FILENAME;
+my $test_logs_dir = $TEST_LOGS_DIR;
+my $replay_logs_dir = $REPLAY_LOGS_DIR;
+foreach my $iter ($test_logs_dir, $replay_logs_dir) {
+	$iter =~ s/__TE_REPLAY_TEST_NAME__/$args->{"test_name"}/g;
+	$iter =~ s/__TE_REPLAY_OUTPUT_AREA__/$args->{"output"}/g;
+}
+$result = compare_tracker_files(\$comparison_passed, \$comparison_notes, $replay_logs_dir, $diff_opts_file, $test_logs_dir);
+if ($result->{status}) {
+	print_msg("W", "Error diffing tracker files: $result->{message}");
+	print_msg("I", "Comparison notes:\n$comparison_notes");
+	$script_result += 4;
+} elsif (! $comparison_passed) {
+	print_msg("W", "'diff' test has failed");
+	print_msg("I", "Comparison notes:\n$comparison_notes");
+	$script_result += 8;
+} else {
+	print_msg("Comparison passed!");
+}
+
+
+print_msg("I", "Completed " . (($script_result) ? "with errors" : "successfully"));
+#exit($script_result);
+
+
+
+# Flow sub-routines
+
+sub parse_args {
+	if (scalar(@ARGV) != 3) {
+		exit_usage();
+	}
+	my %args;
+	$args{"test_name"} = $ARGV[0];
+	$args{"output"} = $ARGV[1];
+	$args{"config"} = $ARGV[2];
+
+	return \%args;
+}
+
+sub initialize_run {
+	my ($test_name, $output_area, $config) = @_;
+
+	my $result = clear_log_file();
+	if ($result->{"status"}) {
+		exit_error("Error creating log file: " . $result->{"message"});
+	}
+
+	print_msg("I", "Clearing results area...");
+	my $cmd = "/bin/rm -rf $output_area/tests/$test_name";
+	my %output_hash;
+	print_msg("D", "Executing CMD: $cmd");
+	my $result = run_cmd($cmd, 0, \%output_hash);
+	if ($result->{"status"}) {
+		exit_error("Error running command: $cmd : $result->{message}");
+	}
+	if ($output_hash{'exit_status'}) {
+		exit_error("Command has failed with exit-status: $output_hash{'exit_status'} : $cmd\nError message is: $output_hash{'output'}");
+	}
+}
+
+sub run_test_or_replay {
+	my ($is_replay, $test_name, $output_area) = @_;
+
+	my $cmd = ($is_replay) ? $REPLAY_CMD : $TEST_CMD;
+	$cmd =~ s/__TE_REPLAY_TEST_NAME__/$test_name/g;
+	$cmd =~ s/__TE_REPLAY_OUTPUT_AREA__/$output_area/g;
+	my %output_hash;
+	print_msg("D", "Executing CMD: $cmd");
+	my $result = run_cmd($cmd, 1, \%output_hash);
+	if ($result->{"status"}) {
+		return result(1, "Error running command: $cmd : $result->{message}");
+	}
+	if ($output_hash{'exit_status'}) {
+		return result(1, "Command has failed with exit-status: $output_hash{'exit_status'} : $cmd");
+	}
+
+	return result(0, "");
+}
+
+sub compare_tracker_files {
+	my ($comparison_passed_ref, $comparison_notes_ref, $logs_dir_path, $diff_opts_file, $test_dir) = @_;
+
+
+	my %files_to_diff;
+	my $result = _get_files_to_diff($diff_opts_file, \%files_to_diff);
+	if ($result->{"status"}) {
+		return result(1, "Error getting list of files to diff: $result->{message}");
+	}
+	if (scalar(keys(%files_to_diff)) == 0) {
+		$$comparison_passed_ref = 1;
+		print_msg("W", "No files for diff were defined...");
+		return result(0, "");
+	}
+	my $diff_area_dirname = get_incremental_dirname("diff_work_area");
+	my %output_hash;
+	my $cmd = "/bin/mkdir -p $diff_area_dirname";
+	$result = run_cmd($cmd, 0, \%output_hash);
+	if ($result->{"status"}) {
+		return result(1, "Error running command: $cmd : $result->{message}");
+	}
+	if ($output_hash{'exit_status'}) {
+		return result(1, "Command has failed with exit-status: $output_hash{'exit_status'} : $cmd. Error message is: $output_hash{'output'}");
+	}
+	$result = convert_files_if_needed(\%files_to_diff, $logs_dir_path, $test_dir);
+	if ($result->{"status"}) {
+		return result(1, "Error converting files before diff: $result->{message}");
+	}
+	$$comparison_passed_ref = 1;
+	foreach my $file_to_diff (keys(%files_to_diff)) {
+		print_msg("I", "Going to diff file: $file_to_diff");
+		my $cant_diff = 0;
+		my $test_file = defined($files_to_diff{$file_to_diff}{"test_file_location_override"}) ? $files_to_diff{$file_to_diff}{"test_file_location_override"} : "$test_dir/$file_to_diff";
+		my $replay_file = defined($files_to_diff{$file_to_diff}{"replay_file_location_override"}) ? $files_to_diff{$file_to_diff}{"replay_file_location_override"} : "$logs_dir_path/$file_to_diff";
+		if ((-f $test_file) != (-f $replay_file)) {
+			# Failing in case that only one of the files exists
+			$$comparison_passed_ref = 0;
+		}
+		if (! -f $test_file) {
+			$$comparison_notes_ref .= "Test file for does not exist for log: $file_to_diff : $test_file\n";
+			$cant_diff = 1;
+		}
+		if (! -f $replay_file) {
+			$$comparison_notes_ref .= "Replay file does not exist for log: $file_to_diff : $replay_file\n";
+			$cant_diff = 1;
+		}
+		if ($cant_diff) {
+			print_msg("W", "Couldn't find file $file_to_diff in at least one of (test, post-process)");
+			next;
+		}
+		if ($files_to_diff{$file_to_diff}{"skip_diff"}) {
+			print_msg("I", "Skipping diff stage for file: $file_to_diff, as it was defined in diff CSV opts file");
+			next;
+		}
+		my $processed_diff_test_file = "$diff_area_dirname/$file_to_diff.test";
+		my $processed_diff_replay_file = "$diff_area_dirname/$file_to_diff.replay";
+		my $count_of_lines_in_file;
+		$result = _prepare_files_for_diff(\%files_to_diff, $file_to_diff, $test_file, $processed_diff_test_file, $replay_file, 
+												$processed_diff_replay_file, \$count_of_lines_in_file);
+		if ($result->{"status"}) {
+			return result(1, "Error preparing files for diff, for file: $file_to_diff : $result->{message}");
+		}
+		my $diff_succeeded;
+		my $accepted_diffs = $files_to_diff{$file_to_diff}{"mismatch_ratio"} * $count_of_lines_in_file;
+		$result = _diff_files($processed_diff_test_file, $processed_diff_replay_file, $accepted_diffs, \$diff_succeeded);
+		if ($result->{"status"}) {
+			return result(1, "Error diffing files, for file: $file_to_diff : $result->{message}");
+		}
+		if (! $diff_succeeded) {
+			my $current_dir = abs_path(getcwd());
+			$$comparison_notes_ref .= "Diff failed for file: $file_to_diff\nTo see diff, go to test area and run 'tkdiff $processed_diff_test_file $processed_diff_replay_file'\n";
+			$$comparison_passed_ref = 0;
+		}
+	}
+
+	return result(0, "");
+}
+
+sub _get_files_to_diff {
+	my ($diff_opts_file, $files_hash_ref) = @_;
+	
+	open(F, $diff_opts_file) or return result(1, "Cannot open file for reading: $diff_opts_file : $!");
+	my @lines = <F>;
+	close(F);
+
+	foreach my $line (@lines) {
+		$line = _trimmed($line);
+
+		# Ignoring empty lines and commented-out lines
+		if ($line eq "" || $line =~ /^#/) {
+			next;
+		}
+		my ($dut, $filename, $skip_diff, $mismatch_ratio, $ignore_columns, $ignore_extra_lines, $sort_before_diff, $grep_pattern, $grep_inverse_pattern, $convert_first) = split(/,/, $line);
+		foreach my $val ($dut, $filename, $skip_diff, $mismatch_ratio, $ignore_columns, $ignore_extra_lines, $sort_before_diff, $grep_pattern, $grep_inverse_pattern ,$convert_first) {
+			$val = _trimmed($val);
+		}
+		if ($dut ne $ENV{"DUT"}) {
+			next;
+		}
+		$files_hash_ref->{$filename}{"skip_diff"} = ($skip_diff =~ /^true$/i) ? 1 : 0;
+		$files_hash_ref->{$filename}{"mismatch_ratio"} = _is_real_number_between_0_and_1($mismatch_ratio) ? $mismatch_ratio : 0;
+		$files_hash_ref->{$filename}{"ignore_columns"} = ($ignore_columns ne "") ? $ignore_columns : undef;
+		$files_hash_ref->{$filename}{"ignore_extra_lines"} = ($ignore_extra_lines =~ /^true$/i) ? 1 : 0;
+		$files_hash_ref->{$filename}{"sort_before_diff"} = ($sort_before_diff =~ /^true$/i) ? 1 : 0;
+		$files_hash_ref->{$filename}{"grep_pattern"} = ($grep_pattern ne "") ? $grep_pattern : undef;
+		$files_hash_ref->{$filename}{"grep_inverse_pattern"} = ($grep_inverse_pattern ne "") ? $grep_inverse_pattern : undef;
+		$files_hash_ref->{$filename}{"convert_first"} = ($convert_first =~ /^true$/i) ? 1 : 0;
+	}
+
+	return result(0, "");
+}
+
+sub convert_files_if_needed {
+	my ($files_to_diff_hashref, $logs_dir_path, $test_dir) = @_;
+
+	
+	foreach my $file_to_diff (keys(%$files_to_diff_hashref)) {
+		if (! $files_to_diff_hashref->{$file_to_diff}{"convert_first"}) {
+			next;
+		}
+		my $test_file_orig = "$test_dir/$file_to_diff";
+		# Special case - if test area is readonly - have to save the converted test file in different place
+		# It means that we also need to specify to the comparator to take it from the special different location
+		my $test_file_conv = "$logs_dir_path/$file_to_diff.test_log_copy";
+		my $replay_file_orig = "$logs_dir_path/$file_to_diff";
+		my $replay_file_conv = "$replay_file_orig.te_replay_converted";
+		
+		my $converter_path = dirname(abs_path($0)) . "/scripts/log_converter";
+		my %output_hash;
+		my $cmd = "$converter_path $test_file_orig $test_file_conv";
+		my $result = run_cmd($cmd, 0, \%output_hash);
+		if ($result->{"status"}) {
+			return result(1, "Error running command: $cmd : $result->{message}");
+		}
+		if ($output_hash{'exit_status'}) {
+			return result(1, "Command has failed with exit-status: $output_hash{'exit_status'} : $cmd. Error message is: $output_hash{'output'}");
+		}
+
+		my $cmd = "$converter_path $replay_file_orig $replay_file_conv";
+		my $result = run_cmd($cmd, 0, \%output_hash);
+		if ($result->{"status"}) {
+			return result(1, "Error running command: $cmd : $result->{message}");
+		}
+		if ($output_hash{'exit_status'}) {
+			return result(1, "Command has failed with exit-status: $output_hash{'exit_status'} : $cmd. Error message is: $output_hash{'output'}");
+		}
+		# Setting converted file not to be converted again, so the loop does not run forever
+		$files_to_diff_hashref->{$file_to_diff}{"convert_first"} = 0;
+		# Specifying special file locations
+		$files_to_diff_hashref->{$file_to_diff}{"test_file_location_override"} = $test_file_conv;
+		$files_to_diff_hashref->{$file_to_diff}{"replay_file_location_override"} = $replay_file_conv;
+	}
+
+	return result(0, "");
+}
+
+
+
+# Utility Functions
+
+sub result {
+	my ($status, $message) = @_;
+	my %res;
+	$res{"status"} = $status;
+	$res{"message"} = $message;
+	return \%res;
+}
+
+sub print_msg {
+	my ($type, $msg) = @_;
+	
+	$msg = "$SCRIPT_NAME -${type}- $msg";
+
+	if ($type eq "E" || $type eq "W") {
+		print_log("$msg\n", 0, 1);
+		return;
+	}
+	print_log("$msg\n", 1, 0);
+}
+
+sub exit_error {
+	my ($msg) = @_;
+	print_msg("E", $msg);
+	exit(1);
+}
+
+sub exit_usage {
+	exit_error("Wrong Usage...
+Usage: $SCRIPT_NAME <TEST_NAME> <OUTPUT_AREA>");
+}
+
+sub print_log {
+	my ($msg, $include_stdout, $include_stderr) = @_;
+
+	if ($include_stdout) {
+		print $msg;
+	} elsif ($include_stderr) {
+		print STDERR $msg;
+	}
+	open(F, ">> $LOG_FILE");
+	print F $msg;
+	close(F);
+
+}
+
+sub clear_log_file {
+	open(F, ">> $LOG_FILE") or return result(1, "Error opening file for writing: $LOG_FILE : $!");
+	close(F);
+	
+	return result(0, "");
+}
+
+sub run_cmd {
+	my ($cmd, $print_output, $output_hashref) = @_;
+               
+ 	my $output = "";
+
+  	open(COMMAND, "$cmd 2>&1 |") or return result(1, "Error running command $cmd: $!");
+  	while (<COMMAND>) {
+  		$output .= $_;
+      	if ($print_output != 0) {
+      		print_log($_, 1, 0);
+      	}      	
+  	}
+ 	close(COMMAND);
+   	my $retval = $? >> 8;
+   	
+	$output_hashref->{"exit_status"} = $retval;
+	$output_hashref->{"output"} = $output;
+	
+ 	return result(0, "");
+}
+
+sub get_incremental_dirname {
+	my ($name) = @_;
+	
+	if (! -e $name) {
+		return $name;
+	}
+	my $i = 1;
+	while (1) {
+		my $dirname = $name . "." . $i;
+		if (! -e $dirname) {
+			return $dirname;
+		}
+		$i += 1;
+	}
+}
+
+sub _trimmed {
+	my ($txt) = @_;
+	
+	$txt =~ s/^\s+//;
+	$txt =~ s/\s+$//;
+
+	return $txt;
+}
+
+sub _prepare_files_for_diff {
+	my ($files_to_diff_hashref, $file_to_diff, $orig_test_file, $processed_diff_test_file, $orig_replay_file, $processed_diff_replay_file, $count_of_lines_in_file_ref) = @_;
+
+	open(F, $orig_test_file) or return result(1, "Error opening file for reading: $orig_test_file : $!");
+	my @test_file_lines = <F>;
+	close(F);
+
+	open(F, $orig_replay_file) or return result(1, "Error opening file for reading: $orig_replay_file : $!");
+	my @replay_file_lines = <F>;
+	close(F);
+
+	my $result = write_lines_to_file($processed_diff_test_file, \@test_file_lines, 0);
+	if ($result->{"status"}) {
+		return result(1, "Error saving lines to diff work file: $result->{message}");
+	}
+	my $result = write_lines_to_file($processed_diff_replay_file, \@replay_file_lines, 0);
+	if ($result->{"status"}) {
+		return result(1, "Error saving lines to diff work file: $result->{message}");
+	}
+
+	if ($files_to_diff_hashref->{$file_to_diff}{"grep_pattern"}) {
+		_grep_pattern_and_save(\@test_file_lines, $processed_diff_test_file, $files_to_diff_hashref->{$file_to_diff}{"grep_pattern"}, 0);
+		_grep_pattern_and_save(\@replay_file_lines, $processed_diff_replay_file, $files_to_diff_hashref->{$file_to_diff}{"grep_pattern"}, 0);
+	}
+	$result = write_lines_to_file($processed_diff_test_file, \@test_file_lines, 0);
+	if ($result->{"status"}) {
+		return result(1, "Error saving lines to diff work file: $result->{message}");
+	}
+	my $result = write_lines_to_file($processed_diff_replay_file, \@replay_file_lines, 0);
+	if ($result->{"status"}) {
+		return result(1, "Error saving lines to diff work file: $result->{message}");
+	}
+
+	if ($files_to_diff_hashref->{$file_to_diff}{"grep_inverse_pattern"}) {
+		_grep_pattern_and_save(\@test_file_lines, $processed_diff_test_file, $files_to_diff_hashref->{$file_to_diff}{"grep_inverse_pattern"}, 1);
+		_grep_pattern_and_save(\@replay_file_lines, $processed_diff_replay_file, $files_to_diff_hashref->{$file_to_diff}{"grep_inverse_pattern"}, 1);
+	}
+
+	$result = write_lines_to_file($processed_diff_test_file, \@test_file_lines, 0);
+	if ($result->{"status"}) {
+		return result(1, "Error saving lines to diff work file: $result->{message}");
+	}
+	my $result = write_lines_to_file($processed_diff_replay_file, \@replay_file_lines, 0);
+	if ($result->{"status"}) {
+		return result(1, "Error saving lines to diff work file: $result->{message}");
+	}
+
+	open(F, $processed_diff_test_file) or return result(1, "Error opening file for reading: $processed_diff_test_file : $!");
+	@test_file_lines = <F>;
+	close(F);
+
+	open(F, $processed_diff_replay_file) or return result(1, "Error opening file for reading: $processed_diff_replay_file : $!");
+	@replay_file_lines = <F>;
+	close(F);
+
+	if ($files_to_diff_hashref->{$file_to_diff}{"sort_before_diff"}) {
+		@test_file_lines = sort(@test_file_lines);
+		@replay_file_lines = sort(@replay_file_lines);
+	}
+	_remove_irrelevant_rows(\@test_file_lines);
+	_remove_irrelevant_rows(\@replay_file_lines);
+	if ($files_to_diff_hashref->{$file_to_diff}{"ignore_columns"}) {
+		_remove_columns(\@test_file_lines, $files_to_diff_hashref->{$file_to_diff}{"ignore_columns"});
+		_remove_columns(\@replay_file_lines, $files_to_diff_hashref->{$file_to_diff}{"ignore_columns"});
+	}
+
+	if ($files_to_diff_hashref->{$file_to_diff}{"ignore_extra_lines"}) {
+		my $test_file_num_of_lines = scalar(@test_file_lines);
+		my $replay_file_num_of_lines = scalar(@replay_file_lines);
+		if ($test_file_num_of_lines > $replay_file_num_of_lines) {
+			splice(@test_file_lines, $replay_file_num_of_lines);
+		}
+		$$count_of_lines_in_file_ref = $replay_file_num_of_lines;
+	}
+	my $result = write_lines_to_file($processed_diff_test_file, \@test_file_lines, 0);
+	if ($result->{"status"}) {
+		return result(1, "Error saving lines to diff work file: $result->{message}");
+	}
+	my $result = write_lines_to_file($processed_diff_replay_file, \@replay_file_lines, 0);
+	if ($result->{"status"}) {
+		return result(1, "Error saving lines to diff work file: $result->{message}");
+	}
+
+	return result(0, "");
+}
+
+sub _remove_irrelevant_rows {
+	my ($lines_arrayref) = @_;
+
+	my @new_lines_array;
+	foreach my $line (@$lines_arrayref) {
+		if ($line =~ /^\d/ || $line =~ /^\s+\d/) {
+			push(@new_lines_array, $line);
+		}
+	}
+	@$lines_arrayref = @new_lines_array;
+}
+
+sub _remove_columns {
+	my ($lines_arrayref, $columns_string) = @_;
+
+	my @columns_to_ignore = split(";", $columns_string);
+	foreach my $column (@columns_to_ignore) {
+		$column = _trimmed($column);
+		if ($column !~ /^\d+$/) {
+			return result(1, "Illegal syntax in diff CSV file. Columns to ignore must be integers separated by semicolon (;). Illegal value: $columns_string");
+		}
+		if ($column < 1) {
+			return result(1, "Illegal syntax in diff CSV file. Columns to ignore start from index 1. Illegal column: $column");
+		}
+	}
+	if (scalar(@columns_to_ignore) == 0) {
+		return result(0, "");
+	}
+	# Sort columns to ignore from highest to lowest
+	@columns_to_ignore = sort { $b <=> $a } @columns_to_ignore;
+	my $line_index = 0;
+	foreach my $line (@$lines_arrayref) {
+		chomp($line);
+		my @line_parts = split(/\|/, $line);
+		foreach my $column_to_ignore (@columns_to_ignore) {
+			if ($column_to_ignore > scalar(@line_parts)) {
+				next;
+			}
+			$line_parts[$column_to_ignore - 1] = "";
+			#delete $line_parts[$column_to_ignore - 1];
+		}
+		my $refactored_line = "";
+		foreach my $line_part (@line_parts) {
+		#	$line_part =~ s/^\s+//;
+		#	$line_part =~ s/\s+$//;
+			$refactored_line .= "$line_part|";
+		}
+		$lines_arrayref->[$line_index] = $refactored_line;
+		$line_index++;
+	}
+
+	return result(0, "");
+}
+
+sub _grep_pattern_and_save {
+	my ($lines_array_ref, $file, $pattern, $inverse) = @_;
+
+	my $cmd = "/bin/grep ";
+	if ($inverse) {
+		$cmd .= "-v ";
+	}
+	$cmd .= "$pattern $file";
+	my %output_hash;
+	my $result = run_cmd($cmd, 0, \%output_hash);
+	if ($result->{"status"}) {
+		return result(1, "Error running command: $cmd : $result->{message}");
+	}
+	if ($output_hash{'exit_status'}) {
+		return result(1, "Command has failed with exit-status: $output_hash{'exit_status'} : $cmd. Error message is: $output_hash{'output'}");
+	}
+	my $grepped_text = $output_hash{"output"};
+	@$lines_array_ref = split(/\n/, $grepped_text);
+
+	return result(0, "");
+}
+
+sub write_lines_to_file {
+	my ($file, $lines_arrayref, $append) = @_;
+
+	my $file_for_open = "> $file";
+	if ($append) {
+		$file_for_open = ">$file_for_open";
+	}
+	open(F, $file_for_open) or return result(1, "Cannot open file for writing: $file : $!");
+	foreach my $line (@$lines_arrayref) {
+		print F "$line\n";
+	}
+	close(F);
+
+	return result(0, "");
+}
+
+sub _diff_files {
+	my ($processed_diff_test_file, $processed_diff_replay_file, $accepted_diffs, $diff_succeeded_ref) = @_;
+	
+	my $cmd = "/usr/bin/diff $processed_diff_test_file $processed_diff_replay_file | egrep \"^[<>]\" | wc -l";
+	my %output_hash;
+	my $result = run_cmd($cmd, 0, \%output_hash);
+	if ($result->{"status"}) {
+		return result(1, "Error running command: $cmd : $result->{message}");
+	}
+	if ($output_hash{'exit_status'}) {
+		return result(1, "Command has failed with exit-status: $output_hash{'exit_status'} : $cmd. Error message is: $output_hash{'output'}");
+	}
+	my $diffs = $output_hash{"output"};
+	$diffs =~ s/^(\d+).*/$1/sg;
+	$$diff_succeeded_ref = 0;
+	if ($diffs <= $accepted_diffs) {
+		$$diff_succeeded_ref = 1;
+	}
+
+	return result(0, "");
+}
+
+sub _is_real_number_between_0_and_1 {
+	my ($value) = @_;
+
+	if (! looks_like_number($value)) {
+		return 0;
+	}
+	if ($value >= 0 && $value <= 1) {
+		return 1;
+	}
+	return 0;
+}
+

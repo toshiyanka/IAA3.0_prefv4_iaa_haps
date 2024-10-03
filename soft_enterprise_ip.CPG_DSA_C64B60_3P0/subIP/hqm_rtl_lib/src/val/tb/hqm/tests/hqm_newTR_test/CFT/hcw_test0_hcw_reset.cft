@@ -1,0 +1,84 @@
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+IDLE 300
+HCW DIR:DQ_A qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x003 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302
+IDLE 300
+
+#apply prim_reset
+#idle 400
+#force hqm_tb_top.prim_rst_b 0
+#idle 200
+#release hqm_tb_top.prim_rst_b
+#force hqm_tb_top.prim_rst_b 1
+#idle 400
+
+#FORCE PF_FLR
+wr hqm_pf_cfg_i.pcie_cap_device_control.startflr 1
+
+idle 500
+
+rd hqm_pf_cfg_i.pcie_cap_device_control.startflr 
+
+
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id 0x8086
+rd hqm_pf_cfg_i.device_id 0x270B
+rd hqm_pf_cfg_i.device_command 0x0000
+rd hqm_pf_cfg_i.device_status 0x0010
+rd hqm_pf_cfg_i.func_bar_l 0x0000000C
+rd hqm_pf_cfg_i.func_bar_u 0x00000000
+rd hqm_pf_cfg_i.csr_bar_l 0x0000000C
+rd hqm_pf_cfg_i.csr_bar_u 0x00000000
+
+
+#------------------------Resume HCW traffic ---------------------------------------------------------##
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable memory and parity operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+#####################################
+###################################
+# Wait for reset to be done (including hardware memory init)
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+
+###################################
+# Setup LUTs used by HCWs
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+# Setup LUTs used by HCWs
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+  dir qid DQ_A:*
+  dir pool 0 credit_cnt=0x3fc credit_limit=0x400 freelist_base=0 freelist_limit=0x3ff
+  dir pool 1 credit_cnt=0xc00 credit_limit=0xc00 freelist_base=0x400 freelist_limit=0xfff
+  ldb pool 0 credit_cnt=0x4000 credit_limit=0x4000 freelist_base=0 freelist_limit=0x3fff
+  vas 0 dir_qidv:DQ_A=1
+  dir pp DQ_A  gpa=sm vas=0 dir_pool=0 ldb_pool=0 dir_credit_count=0x4 dir_min_credit_quanta=0x100 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x200 dir_credit_lwm=0x100
+  dir cq DQ_A  cq_depth=512 gpa=sm
+
+cfg_end
+
+rd hqm_pf_cfg_i.vendor_id
+
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+IDLE 300
+HCW DIR:DQ_A qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x003 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302
+IDLE 300
+
+#----------------------------------------------------------------------------------------------------------------------------#

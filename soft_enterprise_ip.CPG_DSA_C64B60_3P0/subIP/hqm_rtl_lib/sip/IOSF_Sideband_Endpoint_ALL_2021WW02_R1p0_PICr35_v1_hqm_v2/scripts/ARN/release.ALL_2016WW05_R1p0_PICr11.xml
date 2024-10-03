@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<!-- Release file -->
+
+<sip_release>
+  <version>8.4 November 13, 2013</version>
+  <date>Fri Jan 29 21:04:16 PST 2016</date>
+  <user>vnandaku</user>
+  <sip_name>31</sip_name>
+  <sip_variation>147</sip_variation>
+  <sip_variation_id>147</sip_variation_id>
+  <sip_reldate>2016WW05</sip_reldate>
+  <sip_milestone>1p0</sip_milestone>
+  <sip_relver>PICr11</sip_relver>
+  <sip_relname>ALL_2016WW05_R1p0_PICr11</sip_relname>
+  <sip_owner>vnandaku</sip_owner>
+  <sip_dist></sip_dist>
+  <sip_fixed></sip_fixed>
+  <sip_open></sip_open>
+  <sip_attachment>
+  </sip_attachment>
+  <sip_customers>
+  </sip_customers>
+  <sip_base>0</sip_base>
+  <sip_features>
+    <sip_feature>
+<![CDATA[
+HTML
+      <h2>RTL Updates:</h2>
+      <dl>
+         <dt>HSDs: <dt>
+         <dd>
+            1. <a href="https://hsdes.intel.com/home/default.html#article?id=1404095787">, "1404095787,  Add an assertion to check when cfgctrl_idlecnt is programmed to zero (and similar conditions in the integration guide and spec)"</a>:
+            The integration guide mentions that the idle counter value cannot be zero and will cause design failures. To help customers debug, this assertion was added to catch such configurations
+         </dd> 
+         <dd>
+            2. <a href="https://hsdes.intel.com/home/default.html#article?id=1504099595">, "1504099595,  Lintra rules 60024b flagged for iosfsbc version 2015WW30_R1p0_PICr8 "</a>:
+            Redundant waiver was added on deliberately unconnected ports, in order to avoid customer support overhead on this issue, typically from using an older endpoint with a newer lintra version.
+         </dd> 
+         <dd>
+            3. <a href="https://hsdes.intel.com/home/default.html#article?id=1404567534">, "1404567534,  Revisit synchronizer added to the port (for endpoint) "</a>:
+            Few synchronizers in endpoint were added/generated always. They were moved to be conditionally sync'd to help in gate optimization.
+         </dd> 
+         <dd>
+            4. <a href="https://hsdes.intel.com/home/default.html#article?id=1504122858">, "1504122858,  FWD [DRNG2.0] mmsg_pcirdy_doserrmstr not included as the ungate event of gated_agent_clk causing SBE unable to send DO_SERR msg when parity error detected "</a>:
+            This applies only for endpoints with parity enabled. When the agent clock needs to be woken up to send the error message, adding the send_do_serr, and the indication from the do_serr_master block to clkgate equation, wakes up the agent clock (if its not available) to send the error message ,if parity error was detected.
+         </dd> 
+         <dd>
+            5. <a href="https://hsdes.intel.com/home/default.html#article?id=1404667655">, "1404667655,  SBendpoint IP IOSF_Sideband_Endpoint_ALL_2015WW47_R1p0_PICr10 missing default case and added appropriate lintra waivers. This should not mask any potential xprop issues."</a>:
+            Addressed this issue and reverted the endpoint to the legacy, with just case (instead of unique).
+         </dd> 
+         <dd>
+            6. <a href="https://hsdes.intel.com/home/default.html#article?id=1207504874">, "1207504874, Back-to-back NP config transactions in target reg block can be lost with completion fencing disabled "</a>:
+            This is seen only when completion fencing was disabled. The changes put in for 2.4Ghz PCR causes this issue. Target reg block can now handle back to back NP without dropping packets. EP can still be run at 2.4Ghz
+         </dd> 
+         <dd> 
+            7. <a href="https://hsdes.intel.com/home/default.html#article?id=1504106725">, "1504106725, Sideband Parity: Sideband Endpoint doesn't stay in parity error state if parity error is detected from tmsg* interface "</a>:
+            This is addressed together with the internal parity propagation in the endpoint. The agents can now use an external pin to push the EP into error state if parity error is detected from TMSG interface.
+            
+         </dd> 
+      </dl>      
+      <h2>Backend Updates:</h2>
+         <dt> General updates.</dt>
+      <h2>Validation Updates:</h2>
+         <dt> General updates.</dt>]]>    </sip_feature>
+  </sip_features>
+  <sip_knissues>
+    <sip_knissue>
+<![CDATA[
+HTML
+         <dt> In random configs that are generated for validation, certain parameters were tied to a constant value (e.g fencing) This constraint was recently removed. Similar restrictions need to be resolved for other such parameters.</dt>]]>    </sip_knissue>
+  </sip_knissues>
+  <sip_speccons>
+    <sip_speccon>
+<![CDATA[
+HTML
+      <h2>Integration Notes:</h2>
+    <dt>NOTE: The first Sideband Fabric  release with support for parity pins is IOSF_Sideband_Fabric_Compiler_ALL_2014WW38_R1p0_v5</dt> ]]>    </sip_speccon>
+  </sip_speccons>
+  <sip_specins>
+    <sip_specin>
+<![CDATA[
+HTML
+      <ul>
+         <li>This SBE release uses the "IOSF_SVC_2016WW05"  version of SVC in IRR</li>
+         <li>For support file an <b>HSD</b> at <a href="https://hsdes.intel.com/home/default.html#magazine?id=101846185&contentId=1012194360">https://hsdes.intel.com/home/default.html#magazine?id=101846185&contentId=1012194360</a></li>
+         <li>Please note that Sideband Endpoint instantiations need to be uniquified in all IP's per the SEG POR instantiation and uniquification methodology to avoid module collisions with other instances of the endpoint with other IPs.</li>
+         <li>Please read integration guide carefully for handling current clock request logic</li>
+         <li>Please read integration guide carefully for conditions of locally clock gating the agent_clk in asynchronous endpoints.</li>
+         <li>Please read integration guide carefully for any necessary power gating logic that may be needed.</li>
+         <li>The Zircon scores are uploaded to the IPDS dashboard for the SBE IP at <a href="https://zircon.fm.intel.com/zircon/zircon/zirconReleaseDashboardTable.php?top_filter_checkbox=0&Proj_id=12686&IP_id=17324&milestone_filter=4&Ver_id=all&App_id=all&showlatest=0">https://zircon.fm.intel.com/zircon/zircon/zirconReleaseDashboardTable.php?top_filter_checkbox=0&Proj_id=12686&IP_id=17324&milestone_filter=4&Ver_id=all&App_id=all&showlatest=0</a></li>
+      </ul>]]>    </sip_specin>
+  </sip_specins>
+  <sip_models>
+  </sip_models>
+</sip_release>

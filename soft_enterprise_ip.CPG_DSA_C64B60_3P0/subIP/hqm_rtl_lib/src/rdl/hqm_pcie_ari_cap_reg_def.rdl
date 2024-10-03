@@ -1,0 +1,127 @@
+regfile hqm_pcie_ari_cap_rf {
+	reg ari_cap_id_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Ari Cap Id";
+		desc = "Alternative Routing ID Capability ID Register";
+		regwidth = 16;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Arieci";
+			desc = "PCI Express Extended Capability ID - The PCI SIG has assigned 000Eh to the ARI extended capability.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} ARIECI [15:0] = 16'h000E;
+
+	}; // end register paridhdr
+
+	reg ari_cap_version_next_ptr_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Ari Cap Version Next Ptr";
+		desc = "Alternative Routing ID Capability Header";
+		regwidth = 16;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Cap Ptr";
+			desc = "Next Capability Offset - This field contains 140h which points to the next item in the extended capabilities list, the SR-IOV extended capability.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} CAP_PTR [15:4] = 12'h0;
+
+		field {
+			name = "Aricv";
+			desc = "Capability Version - This is set to 1h for the most current version of the specification.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} ARICV [3:0] = 4'h1;
+
+	}; // end register paridhdr
+
+	reg ari_cap_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Ari Cap";
+		desc = "ARI Capabilities Register";
+		regwidth = 16;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Vnfn";
+			desc = "Next Function Number:  The function number of the next highest numbered PF in a multi-function device.Only one physical function exists. Therefore, value = 0h.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} VNFN [15:8] = 8'h0;
+
+		field {
+			name = "Reserved";
+			desc = "Reserved.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} RESERVED [7:2] = 6'h0;
+
+		field {
+			name = "Acs";
+			desc = "ACS Functional Groups Capability : Hardwired to Zero as not support.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} ACS [1:1] = 1'b0;
+
+		field {
+			name = "Mfvc";
+			desc = "MFVC Functional Groups Capability : Hardwired to Zero as not support";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} MFVC [0:0] = 1'b0;
+
+	}; // end register pfaricap
+
+	reg ari_cap_control_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Ari Cap Control";
+		desc = "Alternative Routing ID Control Register";
+		regwidth = 16;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Reserved0";
+			desc = "Reserved0";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} RESERVED0 [15:7] = 9'h0;
+
+		field {
+			name = "Fg";
+			desc = "Function Group:  Hardwired to Zero as HQM does not support Function Groups.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} FG [6:4] = 3'b0;
+
+		field {
+			name = "Reserved1";
+			desc = "Reserved1";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} RESERVED1 [3:2] = 2'b0;
+
+		field {
+			name = "Acs";
+			desc = "ACS Functional Groups Enable : Hardwired to Zero as HQM does not support.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} ACS [1:1] = 1'b0;
+
+		field {
+			name = "Mfvc";
+			desc = "MFVC Functional Groups Enable : Hardwired to Zero as HQM does not support.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} MFVC [0:0] = 1'b0;
+
+	}; // end register paridctl
+
+	ari_cap_id_r                    ARI_CAP_ID                      @0x0;
+
+	ari_cap_version_next_ptr_r      ARI_CAP_VERSION_NEXT_PTR        @0x2;
+
+	ari_cap_r                       ARI_CAP                         @0x4;
+
+	ari_cap_control_r               ARI_CAP_CONTROL                 @0x6;
+
+};
+

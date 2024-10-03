@@ -1,0 +1,56 @@
+/////////////////////////////////////////////////////////////
+// Created by: Synopsys DC Ultra(TM) in topographical mode
+// Version   : L-2016.03-SP3
+// Date      : Mon Mar 12 18:40:22 2018
+/////////////////////////////////////////////////////////////
+
+
+module dfxsecure_plugin ( fdfx_powergood, fdfx_secure_policy, 
+        fdfx_earlyboot_exit, fdfx_policy_update, dfxsecure_feature_en, 
+        visa_all_dis, visa_customer_dis, sb_policy_ovr_value, 
+        oem_secure_policy );
+  input [3:0] fdfx_secure_policy;
+  output [0:0] dfxsecure_feature_en;
+  input [2:0] sb_policy_ovr_value;
+  input [3:0] oem_secure_policy;
+  input fdfx_powergood, fdfx_earlyboot_exit, fdfx_policy_update;
+  output visa_all_dis, visa_customer_dis;
+  wire   dfxsecure_feature_lch_3_0, dfxsecure_feature_lch_2_0,
+         dfxsecure_feature_lch_1_0, dfxsecure_feature_lch_0_0, n16, n17, n18,
+         n19, n20, n21, n22, n23, n24;
+
+  e05nand23al1n02x5 syn_21 ( .a(dfxsecure_feature_lch_2_0), .b(
+        dfxsecure_feature_lch_0_0), .c(dfxsecure_feature_lch_1_0), .o1(n24) );
+  e05inv020al2n02x5 syn_22 ( .a(dfxsecure_feature_lch_0_0), .o1(n20) );
+  e05aoi012al2n01x5 syn_23 ( .b(dfxsecure_feature_lch_1_0), .c(n20), .a(
+        dfxsecure_feature_lch_2_0), .o1(n21) );
+  e05oaoi13al2n01x5 syn_24 ( .b(dfxsecure_feature_lch_0_0), .c(
+        dfxsecure_feature_lch_1_0), .a(dfxsecure_feature_lch_2_0), .d(n21), 
+        .o1(n16) );
+  e05inv020al2n02x5 syn_25 ( .a(n16), .o1(n17) );
+  e05inv020al2n02x5 syn_26 ( .a(fdfx_earlyboot_exit), .o1(n19) );
+  e05aoi112al2n01x5 syn_27 ( .c(n24), .d(n17), .a(n19), .b(
+        dfxsecure_feature_lch_3_0), .o1(dfxsecure_feature_en[0]) );
+  e05and002al2n01x5 syn_28 ( .a(dfxsecure_feature_lch_2_0), .b(
+        dfxsecure_feature_lch_1_0), .o(n18) );
+  e05aoi012al2n01x5 syn_29 ( .b(n20), .c(n18), .a(dfxsecure_feature_lch_3_0), 
+        .o1(n22) );
+  e05oaoi13al2n01x5 syn_30 ( .b(dfxsecure_feature_lch_1_0), .c(n20), .a(n22), 
+        .d(n19), .o1(visa_all_dis) );
+  e05nonb02al1n01x7 syn_31 ( .a(n22), .b(n21), .out0(n23) );
+  e05aoai13al2n01x7 syn_32 ( .b(dfxsecure_feature_lch_3_0), .c(n24), .d(n23), 
+        .a(fdfx_earlyboot_exit), .o1(visa_customer_dis) );
+  e05lan00fal2n01x5 dfxsecure_feature_lch_reg_3 ( .clk(fdfx_policy_update), 
+        .psb(1'b1), .d(fdfx_secure_policy[3]), .rb(fdfx_powergood), .o(
+        dfxsecure_feature_lch_3_0) );
+  e05lan00fal2n01x5 dfxsecure_feature_lch_reg_0 ( .clk(fdfx_policy_update), 
+        .psb(1'b1), .d(fdfx_secure_policy[0]), .rb(fdfx_powergood), .o(
+        dfxsecure_feature_lch_0_0) );
+  e05lan00fal2n01x5 dfxsecure_feature_lch_reg_2 ( .clk(fdfx_policy_update), 
+        .psb(1'b1), .d(fdfx_secure_policy[2]), .rb(fdfx_powergood), .o(
+        dfxsecure_feature_lch_2_0) );
+  e05lan00fal2n01x5 dfxsecure_feature_lch_reg_1 ( .clk(fdfx_policy_update), 
+        .psb(1'b1), .d(fdfx_secure_policy[1]), .rb(fdfx_powergood), .o(
+        dfxsecure_feature_lch_1_0) );
+endmodule
+

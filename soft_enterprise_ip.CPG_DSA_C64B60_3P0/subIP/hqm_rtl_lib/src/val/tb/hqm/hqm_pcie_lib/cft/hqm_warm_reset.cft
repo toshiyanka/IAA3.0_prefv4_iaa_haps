@@ -1,0 +1,187 @@
+##idle 400
+##force hqm_tb_top.prim_rst_b 0
+##idle 20
+##release hqm_tb_top.prim_rst_b
+##force hqm_tb_top.prim_rst_b 1
+##idle 400
+
+sysrst flr=pf0
+idle 400
+
+###################################
+##Check if normal operation resumes after reset##
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+# Enable memory operations
+#
+sai hostia_boot_sai     # Should be SAI index 4
+
+#read all SAI register first
+wr hqm_sif_csr.hqm_csr_cp_lo 0xFFFFFFFF
+wr hqm_sif_csr.hqm_csr_cp_hi 0xFFFFFFFF
+
+##################################################################
+sai hostia_ucode_sai    # Should be SAI index 1
+
+wr hqm_sif_csr.hqm_csr_rac_lo 0xFFFFFFFF
+wr hqm_sif_csr.hqm_csr_rac_hi 0xFFFFFFFF
+wr hqm_sif_csr.hqm_csr_wac_lo 0xFFFFFFFF
+wr hqm_sif_csr.hqm_csr_wac_hi 0xFFFFFFFF
+
+idle 3500
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x46
+rd hqm_pf_cfg_i.device_command
+###################################
+
+###################################
+# Setup FUNC_VF BAR to a base address of 0x00000003_xxxxxxxx
+wr hqm_pf_cfg_i.sriov_cap_func_bar_l 0x00000000
+wr hqm_pf_cfg_i.sriov_cap_func_bar_u 0x00000003
+###################################
+# 0x10 VFs
+wr hqm_pf_cfg_i.sriov_cap_num_vf 0x10
+###################################
+# Enable VF and VF memory operations
+wr hqm_pf_cfg_i.sriov_cap_control_status 0x19
+rd hqm_pf_cfg_i.sriov_cap_control_status
+
+###################################
+# Wait for reset to be done (including hardware memory init)
+poll config_master.cfg_diagnostic_reset_status 0x800003ff 0xffffffff 1000
+
+###################################
+#Warm reset via sysrst cmd
+###################################
+#sysrst warm=50
+sysrst flr=pf0
+
+idle 1500
+poll config_master.cfg_diagnostic_reset_status 0x800003ff 0xffffffff 1000
+
+wr hqm_sif_csr.hqm_csr_wac_hi 0xFFFFFFFF
+
+idle 3500
+
+wr hqm_pf_cfg_i.pcie_cap_device_status 0xa
+wr hqm_pf_cfg_i.aer_cap_uncorr_err_status 0x100000
+idle 3500
+
+## --- PF FLR triggers VF(s) FLR      --- ##
+## --- Check if FLR ISR is not logged --- ##
+## rd hqm_func_pf_per_vf[0].vf_to_pf_flr_isr  0xffff
+## rd hqm_func_pf_per_vf[1].vf_to_pf_flr_isr  0xffff
+## rd hqm_func_pf_per_vf[2].vf_to_pf_flr_isr  0xffff
+## rd hqm_func_pf_per_vf[3].vf_to_pf_flr_isr  0xffff
+## rd hqm_func_pf_per_vf[4].vf_to_pf_flr_isr  0xffff
+## rd hqm_func_pf_per_vf[5].vf_to_pf_flr_isr  0xffff
+## rd hqm_func_pf_per_vf[6].vf_to_pf_flr_isr  0xffff
+## rd hqm_func_pf_per_vf[7].vf_to_pf_flr_isr  0xffff
+## rd hqm_func_pf_per_vf[8].vf_to_pf_flr_isr  0xffff
+## rd hqm_func_pf_per_vf[9].vf_to_pf_flr_isr  0xffff
+## rd hqm_func_pf_per_vf[10].vf_to_pf_flr_isr 0xffff
+## rd hqm_func_pf_per_vf[11].vf_to_pf_flr_isr 0xffff
+## rd hqm_func_pf_per_vf[12].vf_to_pf_flr_isr 0xffff
+## rd hqm_func_pf_per_vf[13].vf_to_pf_flr_isr 0xffff
+## rd hqm_func_pf_per_vf[14].vf_to_pf_flr_isr 0xffff
+## rd hqm_func_pf_per_vf[15].vf_to_pf_flr_isr 0xffff
+## 
+## wr hqm_func_pf_per_vf[0].vf_to_pf_flr_isr  0xffff
+## wr hqm_func_pf_per_vf[1].vf_to_pf_flr_isr  0xffff
+## wr hqm_func_pf_per_vf[2].vf_to_pf_flr_isr  0xffff
+## wr hqm_func_pf_per_vf[3].vf_to_pf_flr_isr  0xffff
+## wr hqm_func_pf_per_vf[4].vf_to_pf_flr_isr  0xffff
+## wr hqm_func_pf_per_vf[5].vf_to_pf_flr_isr  0xffff
+## wr hqm_func_pf_per_vf[6].vf_to_pf_flr_isr  0xffff
+## wr hqm_func_pf_per_vf[7].vf_to_pf_flr_isr  0xffff
+## wr hqm_func_pf_per_vf[8].vf_to_pf_flr_isr  0xffff
+## wr hqm_func_pf_per_vf[9].vf_to_pf_flr_isr  0xffff
+## wr hqm_func_pf_per_vf[10].vf_to_pf_flr_isr 0xffff
+## wr hqm_func_pf_per_vf[11].vf_to_pf_flr_isr 0xffff
+## wr hqm_func_pf_per_vf[12].vf_to_pf_flr_isr 0xffff
+## wr hqm_func_pf_per_vf[13].vf_to_pf_flr_isr 0xffff
+## wr hqm_func_pf_per_vf[14].vf_to_pf_flr_isr 0xffff
+## wr hqm_func_pf_per_vf[15].vf_to_pf_flr_isr 0xffff
+
+rd hqm_func_pf_per_vf[0].vf_to_pf_flr_isr  0x0000
+rd hqm_func_pf_per_vf[1].vf_to_pf_flr_isr  0x0000
+rd hqm_func_pf_per_vf[2].vf_to_pf_flr_isr  0x0000
+rd hqm_func_pf_per_vf[3].vf_to_pf_flr_isr  0x0000
+rd hqm_func_pf_per_vf[4].vf_to_pf_flr_isr  0x0000
+rd hqm_func_pf_per_vf[5].vf_to_pf_flr_isr  0x0000
+rd hqm_func_pf_per_vf[6].vf_to_pf_flr_isr  0x0000
+rd hqm_func_pf_per_vf[7].vf_to_pf_flr_isr  0x0000
+rd hqm_func_pf_per_vf[8].vf_to_pf_flr_isr  0x0000
+rd hqm_func_pf_per_vf[9].vf_to_pf_flr_isr  0x0000
+rd hqm_func_pf_per_vf[10].vf_to_pf_flr_isr 0x0000
+rd hqm_func_pf_per_vf[11].vf_to_pf_flr_isr 0x0000
+rd hqm_func_pf_per_vf[12].vf_to_pf_flr_isr 0x0000
+rd hqm_func_pf_per_vf[13].vf_to_pf_flr_isr 0x0000
+rd hqm_func_pf_per_vf[14].vf_to_pf_flr_isr 0x0000
+rd hqm_func_pf_per_vf[15].vf_to_pf_flr_isr 0x0000
+
+## --- Check the ISR pending bits are 0 --- ##
+## rd hqm_func_pf_per_vf[0].vf_to_pf_isr_pend  0x1
+## rd hqm_func_pf_per_vf[1].vf_to_pf_isr_pend  0x1
+## rd hqm_func_pf_per_vf[2].vf_to_pf_isr_pend  0x1
+## rd hqm_func_pf_per_vf[3].vf_to_pf_isr_pend  0x1
+## rd hqm_func_pf_per_vf[4].vf_to_pf_isr_pend  0x1
+## rd hqm_func_pf_per_vf[5].vf_to_pf_isr_pend  0x1
+## rd hqm_func_pf_per_vf[6].vf_to_pf_isr_pend  0x1
+## rd hqm_func_pf_per_vf[7].vf_to_pf_isr_pend  0x1
+## rd hqm_func_pf_per_vf[8].vf_to_pf_isr_pend  0x1
+## rd hqm_func_pf_per_vf[9].vf_to_pf_isr_pend  0x1
+## rd hqm_func_pf_per_vf[10].vf_to_pf_isr_pend 0x1
+## rd hqm_func_pf_per_vf[11].vf_to_pf_isr_pend 0x1
+## rd hqm_func_pf_per_vf[12].vf_to_pf_isr_pend 0x1
+## rd hqm_func_pf_per_vf[13].vf_to_pf_isr_pend 0x1
+## rd hqm_func_pf_per_vf[14].vf_to_pf_isr_pend 0x1
+## rd hqm_func_pf_per_vf[15].vf_to_pf_isr_pend 0x1
+## 
+## wr hqm_func_pf_per_vf[0].vf_to_pf_isr_pend  0x1
+## wr hqm_func_pf_per_vf[1].vf_to_pf_isr_pend  0x1
+## wr hqm_func_pf_per_vf[2].vf_to_pf_isr_pend  0x1
+## wr hqm_func_pf_per_vf[3].vf_to_pf_isr_pend  0x1
+## wr hqm_func_pf_per_vf[4].vf_to_pf_isr_pend  0x1
+## wr hqm_func_pf_per_vf[5].vf_to_pf_isr_pend  0x1
+## wr hqm_func_pf_per_vf[6].vf_to_pf_isr_pend  0x1
+## wr hqm_func_pf_per_vf[7].vf_to_pf_isr_pend  0x1
+## wr hqm_func_pf_per_vf[8].vf_to_pf_isr_pend  0x1
+## wr hqm_func_pf_per_vf[9].vf_to_pf_isr_pend  0x1
+## wr hqm_func_pf_per_vf[10].vf_to_pf_isr_pend 0x1
+## wr hqm_func_pf_per_vf[11].vf_to_pf_isr_pend 0x1
+## wr hqm_func_pf_per_vf[12].vf_to_pf_isr_pend 0x1
+## wr hqm_func_pf_per_vf[13].vf_to_pf_isr_pend 0x1
+## wr hqm_func_pf_per_vf[14].vf_to_pf_isr_pend 0x1
+## wr hqm_func_pf_per_vf[15].vf_to_pf_isr_pend 0x1
+
+rd hqm_func_pf_per_vf[0].vf_to_pf_isr_pend  0x0
+rd hqm_func_pf_per_vf[1].vf_to_pf_isr_pend  0x0
+rd hqm_func_pf_per_vf[2].vf_to_pf_isr_pend  0x0
+rd hqm_func_pf_per_vf[3].vf_to_pf_isr_pend  0x0
+rd hqm_func_pf_per_vf[4].vf_to_pf_isr_pend  0x0
+rd hqm_func_pf_per_vf[5].vf_to_pf_isr_pend  0x0
+rd hqm_func_pf_per_vf[6].vf_to_pf_isr_pend  0x0
+rd hqm_func_pf_per_vf[7].vf_to_pf_isr_pend  0x0
+rd hqm_func_pf_per_vf[8].vf_to_pf_isr_pend  0x0
+rd hqm_func_pf_per_vf[9].vf_to_pf_isr_pend  0x0
+rd hqm_func_pf_per_vf[10].vf_to_pf_isr_pend 0x0
+rd hqm_func_pf_per_vf[11].vf_to_pf_isr_pend 0x0
+rd hqm_func_pf_per_vf[12].vf_to_pf_isr_pend 0x0
+rd hqm_func_pf_per_vf[13].vf_to_pf_isr_pend 0x0
+rd hqm_func_pf_per_vf[14].vf_to_pf_isr_pend 0x0
+rd hqm_func_pf_per_vf[15].vf_to_pf_isr_pend 0x0
+

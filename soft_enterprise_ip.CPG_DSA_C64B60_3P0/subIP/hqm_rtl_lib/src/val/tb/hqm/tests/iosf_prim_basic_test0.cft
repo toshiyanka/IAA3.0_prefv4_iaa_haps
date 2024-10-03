@@ -1,0 +1,302 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+###################################
+wr config_master.cfg_pm_pmcsr_disable.disable 0x0
+rd config_master.cfg_pm_pmcsr_disable.disable 0x0
+##
+###poll to Wait for reset to be done 
+poll config_master.cfg_diagnostic_reset_status 0x80000bff 0x80000bff 500
+###poll to Wait for unit_idle to be done 
+poll config_master.cfg_diagnostic_idle_status 0x0007ffff 0x0007ffff 500
+###################################
+# Test hqm_system LUTs
+# wb_dir_cq_state
+rd hqm_system_csr.wb_dir_cq_state[0] 0x0
+wr hqm_system_csr.wb_dir_cq_state[0] 0x10
+rd hqm_system_csr.wb_dir_cq_state[0] 0x0
+rd hqm_system_csr.wb_dir_cq_state[63] 0x0
+wr hqm_system_csr.wb_dir_cq_state[63] 0x10
+rd hqm_system_csr.wb_dir_cq_state[63] 0x0
+# wb_ldb_cq_state
+rd hqm_system_csr.wb_ldb_cq_state[0] 0x0
+wr hqm_system_csr.wb_ldb_cq_state[0] 0x10
+rd hqm_system_csr.wb_ldb_cq_state[0] 0x0
+rd hqm_system_csr.wb_ldb_cq_state[63] 0x0
+wr hqm_system_csr.wb_ldb_cq_state[63] 0x10
+rd hqm_system_csr.wb_ldb_cq_state[63] 0x0
+# lut_vf_dir_vpp_v
+rd hqm_system_csr.vf_dir_vpp_v[0] 0x0
+wr hqm_system_csr.vf_dir_vpp_v[0] 0x1
+rd hqm_system_csr.vf_dir_vpp_v[0] 0x1
+rd hqm_system_csr.vf_dir_vpp_v[1023] 0x0
+wr hqm_system_csr.vf_dir_vpp_v[1023] 0x1
+rd hqm_system_csr.vf_dir_vpp_v[1023] 0x1
+# lut_vf_dir_vpp2pp
+rd hqm_system_csr.vf_dir_vpp2pp[0] 0x0
+wr hqm_system_csr.vf_dir_vpp2pp[0] 0x23
+rd hqm_system_csr.vf_dir_vpp2pp[0] 0x23
+rd hqm_system_csr.vf_dir_vpp2pp[1023] 0x0
+wr hqm_system_csr.vf_dir_vpp2pp[1023] 0x19
+rd hqm_system_csr.vf_dir_vpp2pp[1023] 0x19
+# lut_vf_ldb_vpp_v
+rd hqm_system_csr.vf_ldb_vpp_v[0] 0x0
+wr hqm_system_csr.vf_ldb_vpp_v[0] 0x1
+rd hqm_system_csr.vf_ldb_vpp_v[0] 0x1
+rd hqm_system_csr.vf_ldb_vpp_v[1023] 0x0
+wr hqm_system_csr.vf_ldb_vpp_v[1023] 0x1
+rd hqm_system_csr.vf_ldb_vpp_v[1023] 0x1
+# lut_vf_ldb_vpp2pp
+rd hqm_system_csr.vf_ldb_vpp2pp[0] 0x0
+wr hqm_system_csr.vf_ldb_vpp2pp[0] 0x21
+rd hqm_system_csr.vf_ldb_vpp2pp[0] 0x21
+rd hqm_system_csr.vf_ldb_vpp2pp[1023] 0x0
+wr hqm_system_csr.vf_ldb_vpp2pp[1023] 0x34
+rd hqm_system_csr.vf_ldb_vpp2pp[1023] 0x34
+# lut_vf_dir_vqid_v
+rd hqm_system_csr.vf_dir_vqid_v[0] 0x0
+wr hqm_system_csr.vf_dir_vqid_v[0] 0x1
+rd hqm_system_csr.vf_dir_vqid_v[0] 0x1
+rd hqm_system_csr.vf_dir_vqid_v[1023] 0x0
+wr hqm_system_csr.vf_dir_vqid_v[1023] 0x1
+rd hqm_system_csr.vf_dir_vqid_v[1023] 0x1
+# lut_vf_dir_vqid2qid
+rd hqm_system_csr.vf_dir_vqid2qid[0] 0x0
+wr hqm_system_csr.vf_dir_vqid2qid[0] 0x34
+rd hqm_system_csr.vf_dir_vqid2qid[0] 0x34
+rd hqm_system_csr.vf_dir_vqid2qid[1023] 0x0
+wr hqm_system_csr.vf_dir_vqid2qid[1023] 0x18
+rd hqm_system_csr.vf_dir_vqid2qid[1023] 0x18
+# lut_vf_ldb_vqid_v
+rd hqm_system_csr.vf_ldb_vqid_v[0] 0x0
+wr hqm_system_csr.vf_ldb_vqid_v[0] 0x1
+rd hqm_system_csr.vf_ldb_vqid_v[0] 0x1
+rd hqm_system_csr.vf_ldb_vqid_v[511] 0x0
+wr hqm_system_csr.vf_ldb_vqid_v[511] 0x1
+rd hqm_system_csr.vf_ldb_vqid_v[511] 0x1
+# lut_vf_ldb_vqid2qid
+rd hqm_system_csr.vf_ldb_vqid2qid[0] 0x0
+wr hqm_system_csr.vf_ldb_vqid2qid[0] 0x37
+rd hqm_system_csr.vf_ldb_vqid2qid[0] 0x17
+rd hqm_system_csr.vf_ldb_vqid2qid[511] 0x0
+wr hqm_system_csr.vf_ldb_vqid2qid[511] 0xFA
+rd hqm_system_csr.vf_ldb_vqid2qid[511] 0x1A
+# lut_ldb_qid2vqid
+rd hqm_system_csr.ldb_qid2vqid[0]   0x0
+wr hqm_system_csr.ldb_qid2vqid[0]   0x38
+rd hqm_system_csr.ldb_qid2vqid[0]   0x18
+rd hqm_system_csr.ldb_qid2vqid[31]  0x0
+wr hqm_system_csr.ldb_qid2vqid[31]  0xFB
+rd hqm_system_csr.ldb_qid2vqid[31]  0x1B
+# lut_ldb_vasqid_v
+rd hqm_system_csr.ldb_vasqid_v[0] 0x0
+wr hqm_system_csr.ldb_vasqid_v[0] 0x1
+rd hqm_system_csr.ldb_vasqid_v[0] 0x1
+rd hqm_system_csr.ldb_vasqid_v[1023] 0x0
+wr hqm_system_csr.ldb_vasqid_v[1023] 0x1
+rd hqm_system_csr.ldb_vasqid_v[1023] 0x1
+# lut_dir_vasqid_v
+rd hqm_system_csr.dir_vasqid_v[0] 0x0
+wr hqm_system_csr.dir_vasqid_v[0] 0x1
+rd hqm_system_csr.dir_vasqid_v[0] 0x1
+rd hqm_system_csr.dir_vasqid_v[2047] 0x0
+wr hqm_system_csr.dir_vasqid_v[2047] 0x1
+rd hqm_system_csr.dir_vasqid_v[2047] 0x1
+# lut_ldb_cq_addr_l
+rd hqm_system_csr.ldb_cq_addr_l[0] 0x0
+wr hqm_system_csr.ldb_cq_addr_l[0] 0x012345f7
+rd hqm_system_csr.ldb_cq_addr_l[0] 0x012345c0
+rd hqm_system_csr.ldb_cq_addr_l[63] 0x0
+wr hqm_system_csr.ldb_cq_addr_l[63] 0x123456f8
+rd hqm_system_csr.ldb_cq_addr_l[63] 0x123456c0
+# lut_ldb_cq_addr_u
+rd hqm_system_csr.ldb_cq_addr_u[0] 0x0
+wr hqm_system_csr.ldb_cq_addr_u[0] 0x23456789
+rd hqm_system_csr.ldb_cq_addr_u[0] 0x23456789
+rd hqm_system_csr.ldb_cq_addr_u[63] 0x0
+wr hqm_system_csr.ldb_cq_addr_u[63] 0x3456789A
+rd hqm_system_csr.ldb_cq_addr_u[63] 0x3456789A
+# lut_ldb_pp2vas
+rd hqm_system_csr.ldb_pp2vas[0] 0x0
+wr hqm_system_csr.ldb_pp2vas[0] 0x15
+rd hqm_system_csr.ldb_pp2vas[0] 0x15
+rd hqm_system_csr.ldb_pp2vas[63] 0x0
+wr hqm_system_csr.ldb_pp2vas[63] 0x16
+rd hqm_system_csr.ldb_pp2vas[63] 0x16
+# lut_ldb_cq2vf_pf_ro
+rd hqm_system_csr.ldb_cq2vf_pf_ro[0] 0x0
+wr hqm_system_csr.ldb_cq2vf_pf_ro[0] 0x17
+rd hqm_system_csr.ldb_cq2vf_pf_ro[0] 0x17
+rd hqm_system_csr.ldb_cq2vf_pf_ro[63] 0x0
+wr hqm_system_csr.ldb_cq2vf_pf_ro[63] 0x78
+rd hqm_system_csr.ldb_cq2vf_pf_ro[63] 0x38
+# lut_dir_cq_addr_l
+rd hqm_system_csr.dir_cq_addr_l[0] 0x0
+wr hqm_system_csr.dir_cq_addr_l[0] 0xFEDCBAf8
+rd hqm_system_csr.dir_cq_addr_l[0] 0xFEDCBAc0
+rd hqm_system_csr.dir_cq_addr_l[63] 0x0
+wr hqm_system_csr.dir_cq_addr_l[63] 0xEDCBA9f7
+rd hqm_system_csr.dir_cq_addr_l[63] 0xEDCBA9c0
+# lut_dir_cq_addr_u
+rd hqm_system_csr.dir_cq_addr_u[0] 0x0
+wr hqm_system_csr.dir_cq_addr_u[0] 0xDCBA9876
+rd hqm_system_csr.dir_cq_addr_u[0] 0xDCBA9876
+rd hqm_system_csr.dir_cq_addr_u[63] 0x0
+wr hqm_system_csr.dir_cq_addr_u[63] 0xCBA98765
+rd hqm_system_csr.dir_cq_addr_u[63] 0xCBA98765
+# lut_dir_pp2vas
+rd hqm_system_csr.dir_pp2vas[0] 0x0
+wr hqm_system_csr.dir_pp2vas[0] 0x1A
+rd hqm_system_csr.dir_pp2vas[0] 0x1A
+rd hqm_system_csr.dir_pp2vas[63] 0x0
+wr hqm_system_csr.dir_pp2vas[63] 0x1B
+rd hqm_system_csr.dir_pp2vas[63] 0x1B
+# lut_dir_cq2vf_pf_ro
+rd hqm_system_csr.dir_cq2vf_pf_ro[0] 0x0
+wr hqm_system_csr.dir_cq2vf_pf_ro[0] 0x7C
+rd hqm_system_csr.dir_cq2vf_pf_ro[0] 0x3C
+rd hqm_system_csr.dir_cq2vf_pf_ro[63] 0x0
+wr hqm_system_csr.dir_cq2vf_pf_ro[63] 0x1D
+rd hqm_system_csr.dir_cq2vf_pf_ro[63] 0x1D
+# lut_dir_cq_fmt
+rd hqm_system_csr.dir_cq_fmt[0] 0x0
+wr hqm_system_csr.dir_cq_fmt[0] 0x1
+rd hqm_system_csr.dir_cq_fmt[0] 0x1
+rd hqm_system_csr.dir_cq_fmt[63] 0x0
+wr hqm_system_csr.dir_cq_fmt[63] 0x1
+rd hqm_system_csr.dir_cq_fmt[63] 0x1
+# lut_ldb_qid_cfg_v
+rd hqm_system_csr.ldb_qid_cfg_v[0] 0x0
+wr hqm_system_csr.ldb_qid_cfg_v[0] 0x1
+rd hqm_system_csr.ldb_qid_cfg_v[0] 0x1
+rd hqm_system_csr.ldb_qid_cfg_v[31] 0x0
+wr hqm_system_csr.ldb_qid_cfg_v[31] 0x2
+rd hqm_system_csr.ldb_qid_cfg_v[31] 0x2
+# lut_dir_cq_isr
+rd hqm_system_csr.dir_cq_isr[0] 0x0
+wr hqm_system_csr.dir_cq_isr[0] 0x123
+rd hqm_system_csr.dir_cq_isr[0] 0x123
+rd hqm_system_csr.dir_cq_isr[63] 0x0
+wr hqm_system_csr.dir_cq_isr[63] 0xcde
+rd hqm_system_csr.dir_cq_isr[63] 0xcde
+# lut_ldb_cq_isr
+rd hqm_system_csr.ldb_cq_isr[0] 0x0
+wr hqm_system_csr.ldb_cq_isr[0] 0x234
+rd hqm_system_csr.ldb_cq_isr[0] 0x234
+rd hqm_system_csr.ldb_cq_isr[63] 0x0
+wr hqm_system_csr.ldb_cq_isr[63] 0xdef
+rd hqm_system_csr.ldb_cq_isr[63] 0xdef
+# lut_dir_pp_v
+rd hqm_system_csr.dir_pp_v[0] 0x0
+wr hqm_system_csr.dir_pp_v[0] 0x1
+rd hqm_system_csr.dir_pp_v[0] 0x1
+rd hqm_system_csr.dir_pp_v[63] 0x0
+wr hqm_system_csr.dir_pp_v[63] 0x1
+rd hqm_system_csr.dir_pp_v[63] 0x1
+# lut_ldb_pp_v
+rd hqm_system_csr.ldb_pp_v[0] 0x0
+wr hqm_system_csr.ldb_pp_v[0] 0x1
+rd hqm_system_csr.ldb_pp_v[0] 0x1
+rd hqm_system_csr.ldb_pp_v[63] 0x0
+wr hqm_system_csr.ldb_pp_v[63] 0x1
+rd hqm_system_csr.ldb_pp_v[63] 0x1
+# lut_dir_qid_v
+rd hqm_system_csr.dir_qid_v[0] 0x0
+wr hqm_system_csr.dir_qid_v[0] 0x1
+rd hqm_system_csr.dir_qid_v[0] 0x1
+rd hqm_system_csr.dir_qid_v[63] 0x0
+wr hqm_system_csr.dir_qid_v[63] 0x1
+rd hqm_system_csr.dir_qid_v[63] 0x1
+# lut_ldb_qid_v
+rd hqm_system_csr.ldb_qid_v[0] 0x0
+wr hqm_system_csr.ldb_qid_v[0] 0x1
+rd hqm_system_csr.ldb_qid_v[0] 0x1
+rd hqm_system_csr.ldb_qid_v[31] 0x0
+wr hqm_system_csr.ldb_qid_v[31] 0x1
+rd hqm_system_csr.ldb_qid_v[31] 0x1
+# alarm_pf_synd 
+rd hqm_system_csr.alarm_hw_synd  0x00000000
+rd hqm_system_csr.alarm_pf_synd0 0x00000000
+rd hqm_system_csr.alarm_pf_synd1 0x00000000
+rd hqm_system_csr.alarm_pf_synd2 0x00000000
+# alarm_vf_synd 
+rd hqm_system_csr.alarm_vf_synd0[0]  0x00000000
+rd hqm_system_csr.alarm_vf_synd1[0]  0x00000000
+rd hqm_system_csr.alarm_vf_synd2[0]  0x00000000
+rd hqm_system_csr.alarm_vf_synd0[1]  0x00000000
+rd hqm_system_csr.alarm_vf_synd1[1]  0x00000000
+rd hqm_system_csr.alarm_vf_synd2[1]  0x00000000
+rd hqm_system_csr.alarm_vf_synd0[2]  0x00000000
+rd hqm_system_csr.alarm_vf_synd1[2]  0x00000000
+rd hqm_system_csr.alarm_vf_synd2[2]  0x00000000
+rd hqm_system_csr.alarm_vf_synd0[3]  0x00000000
+rd hqm_system_csr.alarm_vf_synd1[3]  0x00000000
+rd hqm_system_csr.alarm_vf_synd2[3]  0x00000000
+rd hqm_system_csr.alarm_vf_synd0[4]  0x00000000
+rd hqm_system_csr.alarm_vf_synd1[4]  0x00000000
+rd hqm_system_csr.alarm_vf_synd2[4]  0x00000000
+rd hqm_system_csr.alarm_vf_synd0[5]  0x00000000
+rd hqm_system_csr.alarm_vf_synd1[5]  0x00000000
+rd hqm_system_csr.alarm_vf_synd2[5]  0x00000000
+rd hqm_system_csr.alarm_vf_synd0[6]  0x00000000
+rd hqm_system_csr.alarm_vf_synd1[6]  0x00000000
+rd hqm_system_csr.alarm_vf_synd2[6]  0x00000000
+rd hqm_system_csr.alarm_vf_synd0[7]  0x00000000
+rd hqm_system_csr.alarm_vf_synd1[7]  0x00000000
+rd hqm_system_csr.alarm_vf_synd2[7]  0x00000000
+rd hqm_system_csr.alarm_vf_synd0[8]  0x00000000
+rd hqm_system_csr.alarm_vf_synd1[8]  0x00000000
+rd hqm_system_csr.alarm_vf_synd2[8]  0x00000000
+rd hqm_system_csr.alarm_vf_synd0[9]  0x00000000
+rd hqm_system_csr.alarm_vf_synd1[9]  0x00000000
+rd hqm_system_csr.alarm_vf_synd2[9]  0x00000000
+rd hqm_system_csr.alarm_vf_synd0[10] 0x00000000
+rd hqm_system_csr.alarm_vf_synd1[10] 0x00000000
+rd hqm_system_csr.alarm_vf_synd2[10] 0x00000000
+rd hqm_system_csr.alarm_vf_synd0[11] 0x00000000
+rd hqm_system_csr.alarm_vf_synd1[11] 0x00000000
+rd hqm_system_csr.alarm_vf_synd2[11] 0x00000000
+rd hqm_system_csr.alarm_vf_synd0[12] 0x00000000
+rd hqm_system_csr.alarm_vf_synd1[12] 0x00000000
+rd hqm_system_csr.alarm_vf_synd2[12] 0x00000000
+rd hqm_system_csr.alarm_vf_synd0[13] 0x00000000
+rd hqm_system_csr.alarm_vf_synd1[13] 0x00000000
+rd hqm_system_csr.alarm_vf_synd2[13] 0x00000000
+rd hqm_system_csr.alarm_vf_synd0[14] 0x00000000
+rd hqm_system_csr.alarm_vf_synd1[14] 0x00000000
+rd hqm_system_csr.alarm_vf_synd2[14] 0x00000000
+rd hqm_system_csr.alarm_vf_synd0[15] 0x00000000
+rd hqm_system_csr.alarm_vf_synd1[15] 0x00000000
+rd hqm_system_csr.alarm_vf_synd2[15] 0x00000000
+#
+rd hqm_system_csr.sys_alarm_int_enable          0x00000fff
+wr hqm_system_csr.sys_alarm_int_enable          0x00000000
+rd hqm_system_csr.sys_alarm_int_enable          0x00000000
+wr hqm_system_csr.sys_alarm_int_enable          0xffffffff
+rd hqm_system_csr.sys_alarm_int_enable          0x00000fff
+rd hqm_system_csr.sys_alarm_mb_ecc_int_enable   0x000000ff
+wr hqm_system_csr.sys_alarm_mb_ecc_int_enable   0x00000000
+rd hqm_system_csr.sys_alarm_mb_ecc_int_enable   0x00000000
+wr hqm_system_csr.sys_alarm_mb_ecc_int_enable   0xffffffff
+rd hqm_system_csr.sys_alarm_mb_ecc_int_enable   0x000000ff
+rd hqm_system_csr.sys_alarm_sb_ecc_int_enable   0x00000000
+wr hqm_system_csr.sys_alarm_sb_ecc_int_enable   0xffffffff
+rd hqm_system_csr.sys_alarm_sb_ecc_int_enable   0x000003ff
+wr hqm_system_csr.sys_alarm_sb_ecc_int_enable   0x00000000
+rd hqm_system_csr.sys_alarm_sb_ecc_int_enable   0x00000000

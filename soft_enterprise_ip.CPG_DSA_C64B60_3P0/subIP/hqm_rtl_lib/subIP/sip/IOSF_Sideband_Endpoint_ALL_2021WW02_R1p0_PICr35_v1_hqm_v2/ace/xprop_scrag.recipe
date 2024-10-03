@@ -1,0 +1,37 @@
+# This is example on how to create a RECIPE for creating run script around 'ace calculated  model elab command'
+# Available Usage syntax:
+#      i. environment variables
+#             $ENV{ACE_HOME}
+#      ii. Elaboration command key word.  This is where the ace caclucated  model elab command to be placed
+#              _ELAB_COMMAND_
+#      iii. Reference to ACE flag
+#                <scope_name::flag name> 
+#      iv. Locate file on 'ace -show_search_path'
+#                  FIND_FILE:'partial path to file' 
+#      v. Locate directory on 'ace -show_search_path'
+#                  FIND_DIR:'partial path to directory' 
+#      vi. Only one Unix command per-line can be specified
+# The user may inject UNIX command before/after _ELAB_COMMAND_ command.  
+# Or, the user may write a wrapper script around _ELAB_COMMAND_ command
+
+#Example:
+
+# locate Readme file on search path and copy to  model elab execution directory.
+#cp FIND_FILE:doc/templates/Readme .
+
+# example on some other command with ENV var in it.
+#ls $ENV{ ACE_HOME }/doc/templates/
+
+# example on referencing ace  flag
+#tree <-model_compile_results_dir>/makefiles
+
+# the ace calcuated command executes here
+_ELAB_COMMAND_
+#if ( $ENV{HDK_EXEC} != "" ) then
+#if(exists $ENV{HDK_EXEC} && defined $ENV{HDK_EXEC}) then
+    $MODEL_ROOT/ace/xprop_check.pl <-model_compile_results_dir>/vcs_lib/$ENV{VCS_VER}/models/ <-models_to_elab>
+#endif
+
+# example of unix command to run after  model elab
+#echo DONE_WITH_ELAB_SCRAG_RECIPE
+

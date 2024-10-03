@@ -1,0 +1,20 @@
+#Scenario 1: Writing one register at a time and reading back all RAL files via backdoor for all the RAL registers
+.include reg_aliasing_tests.list
+
+#Scenario 2: Writing one register at a time, reading back all RAL files via backdoor for all the RAL registers. Then checking if any PP address is updated in EXTRA_DATA_PHASE 
+.include reg_aliasing_tests_w_pp.list
+
+#Scenario 3: Writing PP addresses (config phase) then sending 1 HCW (user data phase) and then reading complete RAL files (extra data phase) 
+hqm_reg_aliasing_test:pp_addr_aliasing_to_reg_chk_pf -dirtag pp_addr_aliasing_to_reg_chk_pf
+hqm_reg_aliasing_test:pp_addr_aliasing_to_reg_chk_vf -dirtag pp_addr_aliasing_to_reg_chk_vf
+
+
++defaults -sideband -dirtag sideband 
+.include reg_aliasing_tests.list
+-defaults -sideband -dirtag sideband 
+
+
++defaults -hqm_uat -dirtag uat -ace_args -simv_args  '"'  +CHK_RAL_VIA_BACKDOOR '"' -ace_args-
+.include reg_tests_uat.list -hqm_uat
+-defaults -hqm_uat -dirtag uat -ace_args -simv_args  '"'  +CHK_RAL_VIA_BACKDOOR '"' -ace_args-
+

@@ -1,0 +1,135 @@
+#!/usr/intel/bin/perl5.85 -w
+use strict;
+use warnings;
+use Carp;
+  $main::Usage    = <<'  ENDUSAGE';
+Usage: vunit [OPTIONS]
+	-test_src <path>              Path to test source
+  ENDUSAGE
+
+`rm -rf final_results`;
+`rm -rf test_list`;
+open(RESULTS, ">>final_results") || die "can't open tmp file\n";
+## Called to terminate script
+sub Fatal
+{
+	my $msg = $_[0];
+
+	die "\nfatal error: $msg\n\n";
+}
+&DoCommandlineOptions;
+sub DoCommandlineOptions
+{
+	$main::opt_test_src = "tests";
+    use Getopt::Long;
+    $Getopt::Long::autoabbrev = 1;
+    &GetOptions(
+	"test_src=s",
+	) || die $main::Usage;
+
+}
+
+&Build;
+sub Build
+{
+	my @files = @_;
+	my $fileListStr = "";
+	my $temp1;
+	my $temp2;
+	my $junk;
+	my $name;
+	# compile all tests if not specified to do otherwise OR if being asked to run all tests
+	#  - no_compile_all + no t argument is invalid combination - need all compiled in that case
+	if (scalar(@files) == 0) {
+		# get list of all sv files in tests
+		(-d $main::opt_test_src) || Fatal("Test source folder specified via -test_src not found : $main::opt_test_src");
+		@files = `ls $main::opt_test_src/*.svh`;
+		# check for at least 1 file
+		if (scalar(@files) == 0) {
+			Fatal("No test files found in test source directory (can be changed via -test_src): $main::opt_test_src");
+		}
+	}
+
+	# aggregate tests into list to pass to compile command
+	open(INPUT, ">>test_list") || die "can't open tmp file\n";
+
+	foreach my $file (@files) {
+		chomp($file);
+		($junk, $temp1) = split ("test//",$file);
+
+		($name, $temp2) = split (".svh",$temp1);
+#$fileListStr .= "$name\n";
+		print INPUT "$name\n";		
+	}
+
+#print"$fileListStr\n";
+
+}
+
+&RunAllTests;
+`rm -rf test_list`;
+
+
+sub RunAllTests
+{
+	my $simv;
+	my $line;
+	open(INPUT, "test_list") || die "can't open tmp file\n";
+
+	while (<INPUT> ) {
+		$line = $_;
+		$simv = "simv -l vsim.log +OVM_VERBOSITY=OVM_HIGH +vcs+flush+all +ntb_random_seed_automatic -assert nopostproc +OVM_TESTNAME=$line  |& tee log.run";
+		system($simv);
+		&PrintFinalResults($line);				
+	}
+	open(RESULTS, "final_results") || die "can't open tmp file\n";
+
+	while(<RESULTS>) {	
+		$line = $_;
+ 		print($line);	 
+	}
+}
+
+
+
+
+
+
+sub PrintFinalResults
+{
+	my $test_name = $_;
+	my $PASSED;
+	my $NO_ERROR;
+	my $NO_FATAL;
+	my $line;
+	$PASSED = 1;
+	$NO_ERROR = 0;
+	$NO_FATAL = 0;
+
+	open(LOG, "vsim.log") || die "can't open tmp file\n";
+	##read in the log file and make sure there are no "offending" and "OVM_ERROR :    0" and "OVM_FATAL :    0"
+
+	while (<LOG> ) {
+		$line = $_;
+		if($line =~ /Offending/) {
+			$PASSED = 0;
+		}
+		if($line =~ /OVM_ERROR :    0/) {
+			$NO_ERROR = 1;
+		}
+		if($line =~ /OVM_FATAL :    0/) {
+			$NO_FATAL = 1;
+		}
+	}
+	
+	if($PASSED == 1 and $NO_ERROR == 1 and $NO_FATAL == 1) {
+		print RESULTS "PASSED: $test_name\n";
+	}
+	else {
+		print RESULTS "FAILED: $test_name\n";
+	
+	}
+}
+
+
+

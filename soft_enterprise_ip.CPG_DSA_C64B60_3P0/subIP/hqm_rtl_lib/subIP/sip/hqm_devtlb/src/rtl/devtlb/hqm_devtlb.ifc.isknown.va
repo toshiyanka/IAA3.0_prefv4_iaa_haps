@@ -1,0 +1,190 @@
+//=====================================================================================================================
+//
+// iommu.ifc.isknown.sv
+//
+// Contacts            : Camron Rust
+// Original Author(s)  : Camron Rust
+// Original Date       : 9/2014
+//
+// -- Intel Proprietary
+// -- Copyright (C) 2016 Intel Corporation
+// -- All Rights Reserved
+//
+//=====================================================================================================================
+//
+// This file contains basic isknown assertions for interface signals
+//
+//=====================================================================================================================
+
+
+`ifndef HQM_DEVTLB_SVA_OFF
+   //==================================================================================================================
+   //
+   // General
+   //
+   //==================================================================================================================
+
+   `HQM_DEVTLB_IFC_ISKNOWN(clk,                               1)
+
+   `HQM_DEVTLB_IFC_ISKNOWN(reset,                             1)
+   `HQM_DEVTLB_IFC_ISKNOWN(nonflreset,                        1)
+
+   `HQM_DEVTLB_IFC_ISKNOWN(fscan_clkungate,                   1)
+   `HQM_DEVTLB_IFC_ISKNOWN(fscan_latchopen,                   1)
+   `HQM_DEVTLB_IFC_ISKNOWN(fscan_latchclosed_b,               1)
+   `HQM_DEVTLB_IFC_ISKNOWN(fscan_rstbypen,                    1)
+   `HQM_DEVTLB_IFC_ISKNOWN(fscan_byprst_b,                    1)
+
+   `HQM_DEVTLB_IFC_ISKNOWN(xreqs_active,                       1)
+   `HQM_DEVTLB_IFC_ISKNOWN(tlb_reset_active,                   1)
+   `HQM_DEVTLB_IFC_ISKNOWN(invreqs_active,                     1)
+
+   `HQM_DEVTLB_IFC_ISKNOWN(implicit_invalidation_valid,        1)
+   `HQM_DEVTLB_IFC_ISKNOWN(implicit_invalidation_bdf_valid,    implicit_invalidation_valid)
+   `HQM_DEVTLB_IFC_ISKNOWN(implicit_invalidation_bdf,          implicit_invalidation_valid)
+
+   //==================================================================================================================
+   //
+   // Host Interface (Upstream Request or downstream completion to/from Host interface, i.e IOSF)
+   //
+   //==================================================================================================================
+
+generate
+   for (g_id = 0; g_id < DEVTLB_ATSREQ_PORTNUM; g_id++) begin: GEN_DEVTLB_ATSREQ_PORTNUM
+   `HQM_DEVTLB_IFC_ISKNOWN(atsreq_valid[g_id],                   1)
+   `HQM_DEVTLB_IFC_ISKNOWN(atsreq_ack[g_id],                     1)
+   `HQM_DEVTLB_IFC_ISKNOWN(atsreq_address[g_id],                 atsreq_valid[g_id])
+   `HQM_DEVTLB_IFC_ISKNOWN(atsreq_bdf[g_id],                     atsreq_valid[g_id])
+   `HQM_DEVTLB_IFC_ISKNOWN(atsreq_pasid_valid[g_id],             atsreq_valid[g_id])
+   `HQM_DEVTLB_IFC_ISKNOWN(atsreq_pasid_priv[g_id],              atsreq_valid[g_id])
+   `HQM_DEVTLB_IFC_ISKNOWN(atsreq_pasid[g_id],                   atsreq_valid[g_id])
+   `HQM_DEVTLB_IFC_ISKNOWN(atsreq_id[g_id],                      atsreq_valid[g_id])
+   `HQM_DEVTLB_IFC_ISKNOWN(atsreq_tc[g_id],                      atsreq_valid[g_id])
+   `HQM_DEVTLB_IFC_ISKNOWN(atsreq_nw[g_id],                      atsreq_valid[g_id])
+   end
+endgenerate
+   `HQM_DEVTLB_IFC_ISKNOWN(atsrsp_valid,                         1)
+   //`DEVTLB_IFC_ISKNOWN(atsrsp_sts,                         atsrsp_valid)
+   `HQM_DEVTLB_IFC_ISKNOWN(atsrsp_dperror,                       atsrsp_valid)
+   `HQM_DEVTLB_IFC_ISKNOWN(atsrsp_hdrerror,                      atsrsp_valid)
+   `HQM_DEVTLB_IFC_ISKNOWN(atsrsp_id,                            atsrsp_valid)
+   `HQM_DEVTLB_IFC_ISKNOWN(atsrsp_data,                          atsrsp_valid)
+
+   `HQM_DEVTLB_IFC_ISKNOWN(tx_msg_valid,                         1)
+   `HQM_DEVTLB_IFC_ISKNOWN(tx_msg_ack,                           1)
+   `HQM_DEVTLB_IFC_ISKNOWN(tx_msg_opcode,                        tx_msg_valid)
+   `HQM_DEVTLB_IFC_ISKNOWN(tx_msg_bdf,                           tx_msg_valid)
+   `HQM_DEVTLB_IFC_ISKNOWN(tx_msg_pasid_valid,                   tx_msg_valid)
+   `HQM_DEVTLB_IFC_ISKNOWN(tx_msg_pasid_priv,                    tx_msg_valid)
+   `HQM_DEVTLB_IFC_ISKNOWN(tx_msg_pasid,                         tx_msg_valid)
+   `HQM_DEVTLB_IFC_ISKNOWN(tx_msg_dw2,                           tx_msg_valid)
+   `HQM_DEVTLB_IFC_ISKNOWN(tx_msg_dw3,                           tx_msg_valid)
+   `HQM_DEVTLB_IFC_ISKNOWN(tx_msg_tc,                     tx_msg_valid)
+   `HQM_DEVTLB_IFC_ISKNOWN(rx_msg_valid,                         1)
+   `HQM_DEVTLB_IFC_ISKNOWN(rx_msg_opcode,                        rx_msg_valid)
+   `HQM_DEVTLB_IFC_ISKNOWN(rx_msg_pasid_valid,                   rx_msg_valid)
+   `HQM_DEVTLB_IFC_ISKNOWN(rx_msg_pasid_priv,                    rx_msg_valid)
+   `HQM_DEVTLB_IFC_ISKNOWN(rx_msg_pasid,                         rx_msg_valid)
+   `HQM_DEVTLB_IFC_ISKNOWN(rx_msg_dw2,                           rx_msg_valid)
+   `HQM_DEVTLB_IFC_ISKNOWN(rx_msg_data,                          rx_msg_valid)
+   `HQM_DEVTLB_IFC_ISKNOWN(rx_msg_dperror,                       rx_msg_valid)
+   `HQM_DEVTLB_IFC_ISKNOWN(rx_msg_invreq_itag,                   rx_msg_valid)
+   `HQM_DEVTLB_IFC_ISKNOWN(rx_msg_invreq_reqid,                  rx_msg_valid)
+
+   //==================================================================================================================
+   //
+   // Drain interface to/from hosting unit (due to TLB Invalidation Request)
+   //
+   //==================================================================================================================
+   `HQM_DEVTLB_IFC_ISKNOWN(drainreq_valid,                       1)
+   `HQM_DEVTLB_IFC_ISKNOWN(drainreq_ack,                         1)
+   `HQM_DEVTLB_IFC_ISKNOWN(drainreq_bdf,                         drainreq_valid)
+   `HQM_DEVTLB_IFC_ISKNOWN(drainreq_pasid,                       drainreq_valid)
+   `HQM_DEVTLB_IFC_ISKNOWN(drainreq_pasid_priv,                  drainreq_valid)
+   `HQM_DEVTLB_IFC_ISKNOWN(drainreq_pasid_valid,                 drainreq_valid)
+   `HQM_DEVTLB_IFC_ISKNOWN(drainreq_pasid_global,                drainreq_valid)
+   `HQM_DEVTLB_IFC_ISKNOWN(drainrsp_valid,                       1)
+   `HQM_DEVTLB_IFC_ISKNOWN(drainrsp_tc,                          drainrsp_valid)
+
+   //==================================================================================================================
+   //
+   // Primary interface to/from hosting unit
+   //
+   //==================================================================================================================
+
+generate
+   for (g_id = 0; g_id < DEVTLB_XREQ_PORTNUM; g_id++) begin: XPROP0_NUM_PORTS
+   `HQM_DEVTLB_IFC_ISKNOWN(xreq_valid[g_id],                         1)
+   `HQM_DEVTLB_IFC_ISKNOWN(xreq_lcrd_inc[g_id],                         1)
+   `HQM_DEVTLB_IFC_ISKNOWN(xreq_hcrd_inc[g_id],                         1)
+
+   `HQM_DEVTLB_IFC_ISKNOWN(xrsp_valid[g_id],                         1)
+  end
+endgenerate
+   
+
+   //==================================================================================================================
+   //
+   // Primary interface to/from hosting unit
+   //
+   //==================================================================================================================
+
+   // Primary Request
+   //
+generate
+   for (g_id = 0; g_id < DEVTLB_XREQ_PORTNUM; g_id++) begin: XPROP_NUM_PORTS
+   `HQM_DEVTLB_IFC_ISKNOWN(xreq_priority[g_id],         xreq_valid[g_id])
+   `HQM_DEVTLB_IFC_ISKNOWN(xreq_address[g_id],          xreq_valid[g_id])
+   `HQM_DEVTLB_IFC_ISKNOWN(xreq_id[g_id],               xreq_valid[g_id])
+   `HQM_DEVTLB_IFC_ISKNOWN(xreq_bdf[g_id],              xreq_valid[g_id])
+   `HQM_DEVTLB_IFC_ISKNOWN(xreq_pasid_valid[g_id],      xreq_valid[g_id])
+   `HQM_DEVTLB_IFC_ISKNOWN(xreq_pasid_priv[g_id],       xreq_valid[g_id])
+   `HQM_DEVTLB_IFC_ISKNOWN(xreq_pasid[g_id],            xreq_valid[g_id])
+   `HQM_DEVTLB_IFC_ISKNOWN(xreq_prs[g_id],              xreq_valid[g_id])
+   `HQM_DEVTLB_IFC_ISKNOWN(xreq_tlbid[g_id],            xreq_valid[g_id])
+   `HQM_DEVTLB_IFC_ISKNOWN(xreq_tc[g_id],               xreq_valid[g_id])
+   //`DEVTLB_IFC_ISKNOWN(xreq_privdata[g_id],       xreq_valid[g_id])
+   `HQM_DEVTLB_IFC_ISKNOWN(xreq_opcode[g_id],           xreq_valid[g_id])
+   //`DEVTLB_IFC_ISKNOWN(xreq_overflow[g_id],       xreq_valid[g_id])
+
+      // Primary Response
+      //
+   `HQM_DEVTLB_IFC_ISKNOWN(xrsp_id[g_id],                           xrsp_valid[g_id])
+   `HQM_DEVTLB_IFC_ISKNOWN(xrsp_result[g_id],                       xrsp_valid[g_id])
+   `HQM_DEVTLB_IFC_ISKNOWN(xrsp_address[g_id],                      xrsp_valid[g_id])
+//   `DEVTLB_IFC_ISKNOWN(xrsp_u[g_id],                            xrsp_valid[g_id])
+//   `DEVTLB_IFC_ISKNOWN(xrsp_perm[g_id],                         xrsp_valid[g_id])
+   `HQM_DEVTLB_IFC_ISKNOWN(xrsp_nonsnooped[g_id],                   xrsp_valid[g_id])
+   `HQM_DEVTLB_IFC_ISKNOWN(xrsp_prs_code[g_id],                     xrsp_valid[g_id])
+   `HQM_DEVTLB_IFC_ISKNOWN(xrsp_dperror[g_id],                      xrsp_valid[g_id])
+   `HQM_DEVTLB_IFC_ISKNOWN(xrsp_hdrerror[g_id],                     xrsp_valid[g_id])
+  end
+endgenerate
+
+   // Parity error outputs
+   //
+   `HQM_DEVTLB_IFC_ISKNOWN(tlb_tag_parity_err,                1)
+   `HQM_DEVTLB_IFC_ISKNOWN(tlb_data_parity_err,               1)
+   
+   // Defeatures
+   //
+   `HQM_DEVTLB_IFC_ISKNOWN(defeature_misc_dis,                1)
+   `HQM_DEVTLB_IFC_ISKNOWN(defeature_pwrdwn_ovrd_dis,         1)
+   `HQM_DEVTLB_IFC_ISKNOWN(defeature_parity_injection,        1)
+   
+   //Configuration
+   //
+   `HQM_DEVTLB_IFC_ISKNOWN(scr_loxreq_gcnt,                1)
+   `HQM_DEVTLB_IFC_ISKNOWN(scr_hixreq_gcnt,                1)
+   `HQM_DEVTLB_IFC_ISKNOWN(scr_pendq_gcnt,                 1)
+   `HQM_DEVTLB_IFC_ISKNOWN(scr_fill_gcnt,                  1)
+   `HQM_DEVTLB_IFC_ISKNOWN(scr_prs_continuous_retry,       1)
+   `HQM_DEVTLB_IFC_ISKNOWN(scr_disable_prs,                1)
+   `HQM_DEVTLB_IFC_ISKNOWN(scr_spare,                      1)
+
+   `HQM_DEVTLB_IFC_ISKNOWN(PRSSTS_stopped,                 1)
+   `HQM_DEVTLB_IFC_ISKNOWN(PRSSTS_uprgi,                   1)
+   `HQM_DEVTLB_IFC_ISKNOWN(PRSSTS_rf,                      1)
+   `HQM_DEVTLB_IFC_ISKNOWN(PRSREQALLOC_alloc,              1)
+
+`endif

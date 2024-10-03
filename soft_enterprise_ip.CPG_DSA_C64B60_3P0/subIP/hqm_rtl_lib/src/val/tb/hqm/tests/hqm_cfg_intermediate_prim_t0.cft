@@ -1,0 +1,34 @@
+idle 400
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Set MPS to 512
+wr hqm_pf_cfg_i.pcie_cap_device_control.mps 0x2
+###################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+
+###################################
+# Wait for reset to be done (including hardware memory init)
+#poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+
+###################################
+# Setup LUTs used by HCWs
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+#wr credit_hist_pipe.cfg_ldb_cq_intr_armed0 0x000000ff
+#wr credit_hist_pipe.cfg_ldb_cq_timer_ctl.enb 1
+
+#wr credit_hist_pipe.cfg_ldb_cq_timer_ctl.sample_interval 1
+
+#rd hqm_pf_cfg_i.vendor_id

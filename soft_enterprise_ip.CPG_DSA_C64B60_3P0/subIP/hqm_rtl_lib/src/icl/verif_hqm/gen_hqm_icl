@@ -1,0 +1,17 @@
+#!/bin/csh -f
+setenv MY_ROOT `ToolConfig.pl get_tool_path ipconfig`
+setenv IP_ROOT $MY_ROOT/tools/icl
+setenv DUVE_M_HOME $MY_ROOT/tools/icl
+setenv IP_TESSENT_CFG $MY_ROOT/tools/icl/verif_hqm/cfg/ip_cfg.do
+setenv LM_LICENSE_FILE `ToolConfig.pl get_tool_getLf mentor`
+
+echo "Using tessent version      : `which tessent`"
+echo "DUVE_M_HOME defined as     : $DUVE_M_HOME"
+echo "IP_ROOT defined as         : $IP_ROOT"
+echo "IP_TESSENT_CFG defined as  : $IP_TESSENT_CFG"
+echo "LM_LICENSE_FILE defined as : $LM_LICENSE_FILE"
+
+rm -rf $DUVE_M_HOME/verif_hqm/target
+mkdir -p $DUVE_M_HOME/verif_hqm/target/log
+mkdir -p $DUVE_M_HOME/verif_hqm/target/patterns
+tessent -shell -dofile $DUVE_M_HOME/verif_hqm/flow/gen_val_tests.do

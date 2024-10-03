@@ -1,0 +1,99 @@
+#!/bin/tcsh -f
+
+
+################################################################################
+# Source a script that is called at the start of each back-end 
+# scripts/qa/run* script
+################################################################################
+if ( $SB_ACE_FLOW ) then
+   source ./runPre -tool_name $0 $argv
+else
+   source ${MODEL_ROOT}/scripts/qa/runPre -tool_name $0 $argv
+endif
+
+if( $status != 0 ) exit $status
+
+
+cd ../..
+
+unsetenv SB_STDCELLS_HDL
+
+## ACE Visa is exactly similar to non-ACE visa except for setting this variable
+## This parameter affects how the run_sbr script in tools/visa generates visa inserted files
+if (-d $IP_ROOT/GenRTL) then
+    rm -rf $IP_ROOT/GenRTL
+endif
+
+
+# VISA only only works with Dynamo...
+if ($DYN_OPT != "Dyn" && $SIP_CONF_NAME != "IOSF_Sideband_Endpoint") then
+   echo "ERROR: VISA is only supported at the Dynamo scope for the router."
+   exit (-1)
+endif
+
+
+
+
+if ("${SIP_CONF_NAME}" =~ "IOSF_Sideband_Endpoint") then
+   source ${IP_ROOT}/scripts/qa/ephelper.csh -rtlcfg ${SIP_COMP_NAME} \
+                                             -topdir ${IP_ROOT} 
+
+   set run_dir="${IP_ROOT}/tools/visa/run_${SIP_COMP_NAME}"
+   setenv RTLTOP ${rtltop}
+   setenv ASYNC_EP ${async_ep}
+   set run_script="./run_sbep"
+   if (-d $run_dir) then
+      rm -rf $run_dir
+   endif
+   cp -r ${IP_ROOT}/tools/visa/run $run_dir
+   cd $run_dir
+
+
+   ${IP_ROOT}/scripts/qa/setRTLparams.pl \
+          -config  ${IP_ROOT}/source/cfg/endpoint/csv/${SIP_COMP_NAME}.csv \
+          -src_rtl ${IP_ROOT}/source/rtl/iosfsbc/endpoint/${rtltop}.sv \
+          -dst_rtl ${run_dir}/sb_top.sv
+
+
+else
+
+   setenv prefix    ${PUNI_PREFIX}
+   setenv sbTopName ${SIP_COMP_NAME}
+ 
+    if ( $SB_ACE_FLOW ) then
+       setenv SB_M_ROOT $IP_ROOT
+    else
+       setenv SB_M_ROOT $MODEL_ROOT
+    endif
+
+   set run_script="${SB_M_ROOT}/tools/visa/run/run_sbr"
+   cd ${IP_ROOT}/tools/visa/run
+
+endif
+
+
+
+
+/p/com/eda/intel/siputils/prod/bin/runGenCmd ${run_script} -setup none -pc 'Test Passed'
+set exitStatus=$status
+
+
+
+
+#####################################################
+# Report
+#####################################################
+if ($?SIP_CREATE_REPORT) then
+endif
+
+#####################################################
+# Verification
+#####################################################
+if ($exitStatus) then
+  echo "Error: VISA insertion failed.  ($SIP_TOOL_NAME)"
+  exit $exitStatus
+else
+  echo "Note: VISA insertion ran successfully.  ($SIP_TOOL_NAME)"
+endif
+
+exit 0

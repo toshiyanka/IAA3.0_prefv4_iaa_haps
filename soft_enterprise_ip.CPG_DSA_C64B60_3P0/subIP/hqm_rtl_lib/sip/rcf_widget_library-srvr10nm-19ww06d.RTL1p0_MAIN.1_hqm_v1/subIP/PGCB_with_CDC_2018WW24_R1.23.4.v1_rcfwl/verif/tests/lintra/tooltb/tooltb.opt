@@ -1,0 +1,28 @@
+{
+  %opts = (
+    -static_check_top      => "lintra_tooltb_lib.tooltb",
+    -model                 => "lintra_tooltb",
+    -static_check_tools    => [ "lintra", ],
+    -static_check_cfg_file => [ "tools/lint/ace_static_check.lintra.cfg", ],
+    -lintra_goal           => "lint",
+    -lintra_exe_opts => ["--report_rules :full:xml"],
+    -lira_exe_opts         => [
+          " -cfg $ENV{MODEL_ROOT}/tools/lint/lira_cfg/tooltb_lira_cfg.f",
+          "-I $ENV{MODEL_ROOT}/src/rtl/pgcbunit", 
+          "-I $ENV{MODEL_ROOT}/src/rtl/pcguunit",
+          "-I $ENV{MODEL_ROOT}/src/rtl/ClockDomainController",
+    ],
+    -post_process_pattern_file => "$ENV{ACE_HOME}/udf/ace_base_postsim.pp",
+    -lintra_waiver_files => [ "$ENV{MODEL_ROOT}/tools/lint/waivers/pwrmisc_pgcbunit_waivers.lwv",
+                              "$ENV{MODEL_ROOT}/tools/lint/waivers/pwrmisc_pgcb_ctech_waivers.lwv",
+                              "$ENV{MODEL_ROOT}/tools/lint/waivers/pwrmisc_ClockDomainController.lwv",
+                              "$ENV{MODEL_ROOT}/tools/lint/waivers/pwrmisc_pcguunit_waivers.lwv"],
+  );
+
+ %runModes = (
+     FLG => {
+         #  use `ace -show_lintra_goals' to get a list of available goals
+         -lintra_goal     =>  "flg",
+     },
+ );
+}

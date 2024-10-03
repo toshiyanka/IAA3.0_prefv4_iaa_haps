@@ -1,0 +1,216 @@
+
+
+#-------------------------------------------------------------------------------
+# Agent Misc signasl
+#-------------------------------------------------------------------------------
+
+set sbep_isolation_clamp0_agent_misc ""
+lappend sbep_isolation_clamp0_agent_misc "${path_to_pg_domain}gated_side_clk"
+if { ${pg_domain_sbebase} } {
+   lappend sbep_isolation_clamp0_agent_misc "${path_to_pg_domain}sbe_sbi_clkreq"
+   lappend sbep_isolation_clamp0_agent_misc "${path_to_pg_domain}sbe_sbi_clk_valid"
+} else {
+   lappend sbep_isolation_clamp0_agent_misc "${path_to_pg_domain}sbe_clkreq"
+   lappend sbep_isolation_clamp0_agent_misc "${path_to_pg_domain}sbe_clk_valid"
+}
+
+set sbep_isolation_clamp1_agent_misc ""
+if { ${pg_domain_sbebase} } {
+   set    sbep_isolation_clamp1_agent_misc "${path_to_pg_domain}sbe_sbi_idle"
+} else {
+   set    sbep_isolation_clamp1_agent_misc "${path_to_pg_domain}sbe_idle"
+}
+
+
+
+#-------------------------------------------------------------------------------
+# Agent MMSG signasl
+#-------------------------------------------------------------------------------
+
+
+set mmsg_prefix ""
+if { ${pg_domain_sbebase} } {
+   set mmsg_prefix "sbe_sbi_"
+}
+set sbep_isolation_clamp0_agent_mmsg ""
+lappend sbep_isolation_clamp0_agent_mmsg  "${path_to_pg_domain}${mmsg_prefix}mmsg_pctrdy"
+lappend sbep_isolation_clamp0_agent_mmsg  "${path_to_pg_domain}${mmsg_prefix}mmsg_nptrdy"
+lappend sbep_isolation_clamp0_agent_mmsg  "${path_to_pg_domain}${mmsg_prefix}mmsg_pcmsgip"
+lappend sbep_isolation_clamp0_agent_mmsg  "${path_to_pg_domain}${mmsg_prefix}mmsg_npmsgip"
+
+set sbep_isolation_clamp1_agent_mmsg ""
+lappend sbep_isolation_clamp1_agent_mmsg "${path_to_pg_domain}${mmsg_prefix}mmsg_pcsel\[*\]"
+lappend sbep_isolation_clamp1_agent_mmsg "${path_to_pg_domain}${mmsg_prefix}mmsg_npsel\[*\]"
+
+
+#-------------------------------------------------------------------------------
+# Agent MREG signasl
+#-------------------------------------------------------------------------------
+
+if { ${pg_domain_sbebase} } {
+   set sbep_isolation_clamp0_agent_mreg ""
+} else {
+   set sbep_isolation_clamp0_agent_mreg ""
+   lappend sbep_isolation_clamp0_agent_mreg "${path_to_pg_domain}mreg_trdy"
+   lappend sbep_isolation_clamp0_agent_mreg "${path_to_pg_domain}mreg_pmsgip"
+   lappend sbep_isolation_clamp0_agent_mreg "${path_to_pg_domain}mreg_nmsgip"
+}
+
+
+
+#-------------------------------------------------------------------------------
+# Agent TMSG signasl
+#-------------------------------------------------------------------------------
+
+set tmsg_prefix ""
+if { ${pg_domain_sbebase} } {
+   set tmsg_prefix "sbe_sbi_"
+}
+set sbep_isolation_clamp0_agent_tmsg ""
+lappend sbep_isolation_clamp0_agent_tmsg "${path_to_pg_domain}${tmsg_prefix}tmsg_pcput"
+lappend sbep_isolation_clamp0_agent_tmsg "${path_to_pg_domain}${tmsg_prefix}tmsg_npput"
+lappend sbep_isolation_clamp0_agent_tmsg "${path_to_pg_domain}${tmsg_prefix}tmsg_pcmsgip"
+lappend sbep_isolation_clamp0_agent_tmsg "${path_to_pg_domain}${tmsg_prefix}tmsg_npmsgip"
+lappend sbep_isolation_clamp0_agent_tmsg "${path_to_pg_domain}${tmsg_prefix}tmsg_pceom"
+lappend sbep_isolation_clamp0_agent_tmsg "${path_to_pg_domain}${tmsg_prefix}tmsg_npeom"
+lappend sbep_isolation_clamp0_agent_tmsg "${path_to_pg_domain}${tmsg_prefix}tmsg_pcpayload\[*\]"
+lappend sbep_isolation_clamp0_agent_tmsg "${path_to_pg_domain}${tmsg_prefix}tmsg_nppayload\[*\]"
+lappend sbep_isolation_clamp0_agent_tmsg "${path_to_pg_domain}${tmsg_prefix}tmsg_pccmpl"
+lappend sbep_isolation_clamp0_agent_tmsg "${path_to_pg_domain}${tmsg_prefix}tmsg_npvalid"
+lappend sbep_isolation_clamp0_agent_tmsg "${path_to_pg_domain}${tmsg_prefix}tmsg_pcvalid"
+
+
+
+#-------------------------------------------------------------------------------
+# Agent TREG signasl
+#-------------------------------------------------------------------------------
+
+if { ${pg_domain_sbebase} } {
+   set sbep_isolation_clamp0_agent_treg ""
+} else {
+   set sbep_isolation_clamp0_agent_treg ""
+   lappend sbep_isolation_clamp0_agent_treg "${path_to_pg_domain}treg_irdy"
+   lappend sbep_isolation_clamp0_agent_treg "${path_to_pg_domain}treg_np"
+   lappend sbep_isolation_clamp0_agent_treg "${path_to_pg_domain}treg_dest\[*\]"
+   lappend sbep_isolation_clamp0_agent_treg "${path_to_pg_domain}treg_source\[*\]"
+   lappend sbep_isolation_clamp0_agent_treg "${path_to_pg_domain}treg_opcode\[*\]"
+   lappend sbep_isolation_clamp0_agent_treg "${path_to_pg_domain}treg_addrlen"
+   lappend sbep_isolation_clamp0_agent_treg "${path_to_pg_domain}treg_bar\[*\]"
+   lappend sbep_isolation_clamp0_agent_treg "${path_to_pg_domain}treg_tag\[*\]"
+   lappend sbep_isolation_clamp0_agent_treg "${path_to_pg_domain}treg_be\[*\]"
+   lappend sbep_isolation_clamp0_agent_treg "${path_to_pg_domain}treg_fid"
+   lappend sbep_isolation_clamp0_agent_treg "${path_to_pg_domain}treg_addr\[*\]"
+   lappend sbep_isolation_clamp0_agent_treg "${path_to_pg_domain}treg_wdata\[*\]"
+   lappend sbep_isolation_clamp0_agent_treg "${path_to_pg_domain}treg_eh"
+   lappend sbep_isolation_clamp0_agent_treg "${path_to_pg_domain}treg_ext_header\[*\]"
+   lappend sbep_isolation_clamp0_agent_treg "${path_to_pg_domain}treg_eh_discard"
+}
+
+
+#-------------------------------------------------------------------------------
+# DFx signasl
+#-------------------------------------------------------------------------------
+
+set sbep_isolation_clamp0_dfx ""
+lappend sbep_isolation_clamp0_dfx "${path_to_pg_domain}avisa_data_out\[*\]\[*\]"
+lappend sbep_isolation_clamp0_dfx "${path_to_pg_domain}avisa_clk_out\[*\]"
+
+lappend sbep_isolation_clamp0_dfx "${path_to_pg_domain}visa_port_tier1_sb"
+lappend sbep_isolation_clamp0_dfx "${path_to_pg_domain}visa_fifo_tier1_sb"
+lappend sbep_isolation_clamp0_dfx "${path_to_pg_domain}visa_fifo_tier1_ag"
+lappend sbep_isolation_clamp0_dfx "${path_to_pg_domain}visa_agent_tier1_ag"
+  
+lappend sbep_isolation_clamp0_dfx "${path_to_pg_domain}visa_port_tier2_sb"
+lappend sbep_isolation_clamp0_dfx "${path_to_pg_domain}visa_fifo_tier2_sb"
+lappend sbep_isolation_clamp0_dfx "${path_to_pg_domain}visa_fifo_tier2_ag"
+lappend sbep_isolation_clamp0_dfx "${path_to_pg_domain}visa_agent_tier2_ag"
+
+if {! ${pg_domain_sbebase} } {
+   lappend sbep_isolation_clamp0_dfx "${path_to_pg_domain}visa_reg_tier1_ag"
+   lappend sbep_isolation_clamp0_dfx "${path_to_pg_domain}visa_reg_tier2_ag"
+}
+
+#-------------------------------------------------------------------------------
+# IOSF signasl
+#-------------------------------------------------------------------------------
+
+set sbep_isolation_clamp0_iosf ""
+lappend sbep_isolation_clamp0_iosf "${path_to_pg_domain}side_ism_agent\[*\]"
+
+lappend sbep_isolation_clamp0_iosf "${path_to_pg_domain}mpcput"
+lappend sbep_isolation_clamp0_iosf "${path_to_pg_domain}mnpput"
+lappend sbep_isolation_clamp0_iosf "${path_to_pg_domain}meom"
+lappend sbep_isolation_clamp0_iosf "${path_to_pg_domain}mpayload\[*\]"
+
+lappend sbep_isolation_clamp0_iosf "${path_to_pg_domain}tpccup"
+lappend sbep_isolation_clamp0_iosf "${path_to_pg_domain}tnpcup"
+
+
+
+set sbep_isolation_clamp1_iosf "${path_to_pg_domain}side_clkreq"
+
+
+
+
+
+
+#-------------------------------------------------------------------------------
+# Apply the 0-clamps to the list of signals
+#-------------------------------------------------------------------------------
+
+
+set  sbep_isolation_clamp0 ""
+set  sbep_isolation_clamp0  [concat $sbep_isolation_clamp0 $sbep_isolation_clamp0_iosf]
+set  sbep_isolation_clamp0  [concat $sbep_isolation_clamp0 $sbep_isolation_clamp0_agent_misc]
+set  sbep_isolation_clamp0  [concat $sbep_isolation_clamp0 $sbep_isolation_clamp0_agent_treg]
+set  sbep_isolation_clamp0  [concat $sbep_isolation_clamp0 $sbep_isolation_clamp0_agent_mreg]
+set  sbep_isolation_clamp0  [concat $sbep_isolation_clamp0 $sbep_isolation_clamp0_agent_tmsg]
+set  sbep_isolation_clamp0  [concat $sbep_isolation_clamp0 $sbep_isolation_clamp0_agent_mmsg]
+set  sbep_isolation_clamp0  [concat $sbep_isolation_clamp0 $sbep_isolation_clamp0_dfx]
+
+set_isolation              io_clamp0_sbep_top              \
+    -domain                $sbep_power_domain              \
+    -elements              $sbep_isolation_clamp0          \
+    -isolation_power_net   ${SOC_SUPPLY_PORT}              \
+    -isolation_ground_net  ${SOC_GROUND_PORT}              \
+    -clamp_value           0
+ 
+set_isolation_control      io_clamp0_sbep_top              \
+     -domain               $sbep_power_domain              \
+     -isolation_signal     $sbep_isol_signal               \
+     -isolation_sense      low                             \
+     -location             ${SOC_ISOLATION_CELL_LOCATION}
+
+
+map_isolation_cell          io_clamp0_sbep_top  \
+     -domain                $sbep_power_domain \
+     -lib_cells             $FW_AND_CELL  
+
+
+
+#-------------------------------------------------------------------------------
+# Apply the 1-clamps to the list of signals
+#-------------------------------------------------------------------------------
+set  sbep_isolation_clamp1 ""
+set  sbep_isolation_clamp1 [concat $sbep_isolation_clamp1 $sbep_isolation_clamp1_agent_misc]
+set  sbep_isolation_clamp1 [concat $sbep_isolation_clamp1 $sbep_isolation_clamp1_agent_mmsg]
+set  sbep_isolation_clamp1 [concat $sbep_isolation_clamp1 $sbep_isolation_clamp1_iosf]
+
+set_isolation              io_clamp1_sbep_top              \
+    -domain                $sbep_power_domain              \
+    -elements              $sbep_isolation_clamp1          \
+    -isolation_power_net   ${SOC_SUPPLY_PORT}              \
+    -isolation_ground_net  ${SOC_GROUND_PORT}              \
+    -clamp_value           1
+ 
+set_isolation_control      io_clamp1_sbep_top              \
+     -domain               $sbep_power_domain              \
+     -isolation_signal     $sbep_isol_signal               \
+     -isolation_sense      low                             \
+     -location             ${SOC_ISOLATION_CELL_LOCATION}
+
+map_isolation_cell          io_clamp1_sbep_top  \
+     -domain               $sbep_power_domain \
+     -lib_cells            $FW_OR_CELL  
+
+

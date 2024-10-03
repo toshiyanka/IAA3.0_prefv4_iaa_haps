@@ -1,0 +1,120 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+
+###################################
+# Wait for reset to be done (including hardware memory init)
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+
+# Setup MSI-X Table entries
+wr hqm_msix_mem.msg_addr_l[0]  0xdeadf00c
+wr hqm_msix_mem.msg_addr_u[0]  0xfeeddeaf
+wr hqm_msix_mem.msg_data[0]    0xa11c0ded
+wr hqm_msix_mem.vector_ctrl[0] 0x00000000
+wr hqm_msix_mem.msg_addr_l[1]  0xdeadf11c
+wr hqm_msix_mem.msg_addr_u[1]  0xfeeddeaf
+wr hqm_msix_mem.msg_data[1]    0x1ce1cebb
+wr hqm_msix_mem.vector_ctrl[1] 0x00000000
+rd hqm_msix_mem.msg_addr_l[0]  0xdeadf00c
+rd hqm_msix_mem.msg_addr_u[0]  0xfeeddeaf
+rd hqm_msix_mem.msg_data[0]    0xa11c0ded
+rd hqm_msix_mem.vector_ctrl[0] 0x00000000
+rd hqm_msix_mem.msg_addr_l[1]  0xdeadf11c
+rd hqm_msix_mem.msg_addr_u[1]  0xfeeddeaf
+rd hqm_msix_mem.msg_data[1]    0x1ce1cebb
+rd hqm_msix_mem.vector_ctrl[1] 0x00000000
+# Enable MSI
+wr hqm_pf_cfg_i.msix_cap_control 0x8000
+rd hqm_pf_cfg_i.msix_cap_control 0x8047
+
+###################################
+# Setup LUTs used by HCWs
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+  ldb qid 0
+  ldb qid 1
+  ldb qid 2
+  ldb qid 3
+  ldb qid 4
+  ldb qid 5
+  ldb qid 6
+  ldb qid 7
+
+  dir pool DP:* credit_cnt=0x1000 credit_limit=0x1000 freelist_base=0 freelist_limit=0xfff
+  ldb pool LP:*  credit_cnt=0x3ffc credit_limit=0x4000 freelist_base=0 freelist_limit=0x3fff
+
+  vas VS:* ldb_qidv0=1 
+  vas 0 ldb_qidv0=1 ldb_qidv1=1 ldb_qidv2=1 ldb_qidv3=1 ldb_qidv4=1 ldb_qidv5=1 ldb_qidv6=1 ldb_qidv7=1
+
+
+  ldb pp 0 gpa=0x80000000 vas=VS dir_pool=DP ldb_pool=LP ldb_credit_count=0x4 dir_min_credit_quanta=0x100 ldb_min_credit_quanta=0x100 ldb_credit_hwm=0x200 ldb_credit_lwm=0x100
+  ldb cq 0   gpa=0x80200000 qidv0=1 qidix0=0 cq_timer_intr_thresh=100 cq_timer_intr_ena=0 cq_depth_intr_thresh=1 cq_depth_intr_ena=1
+
+  ldb pp 1  gpa=sm vas=0 dir_pool=DP ldb_pool=LP dir_credit_count=0x2 ldb_credit_count=0x4 dir_min_credit_quanta=0x100 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x200 dir_credit_lwm=0x100
+  ldb cq 1  gpa=sm qidv0=1 qidix0=0 qidv1=1 qidix1=1 cq_timer_intr_thresh=100 cq_timer_intr_ena=0 cq_depth_intr_thresh=1 cq_depth_intr_ena=1
+
+  ldb pp 2  gpa=sm vas=0 dir_pool=DP ldb_pool=LP dir_credit_count=0x2 ldb_credit_count=0x4 dir_min_credit_quanta=0x100 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x200 dir_credit_lwm=0x100
+  ldb cq 2  gpa=sm qidv0=1 qidix0=2 cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1
+
+  ldb pp 3  gpa=sm vas=0 dir_pool=DP ldb_pool=LP dir_credit_count=0x2 ldb_credit_count=0x4 dir_min_credit_quanta=0x100 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x200 dir_credit_lwm=0x100
+  ldb cq 3  gpa=sm qidv0=1 qidix0=3 cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1
+
+  ldb pp 4  gpa=sm vas=0 dir_pool=DP ldb_pool=LP dir_credit_count=0x2 ldb_credit_count=0x4 dir_min_credit_quanta=0x100 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x200 dir_credit_lwm=0x100
+  ldb cq 4  gpa=sm qidv0=1 qidix0=4 cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1
+
+  ldb pp 7  gpa=sm vas=0 dir_pool=DP ldb_pool=LP dir_credit_count=0x2 ldb_credit_count=0x4 dir_min_credit_quanta=0x100 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x200 dir_credit_lwm=0x100
+  ldb cq 7  gpa=sm qidv0=1 qidix0=7 cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1
+
+  ldb pp 5  gpa=sm vas=0 dir_pool=DP ldb_pool=LP dir_credit_count=0x2 ldb_credit_count=0x4 dir_min_credit_quanta=0x100 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x200 dir_credit_lwm=0x100
+  ldb cq 5  gpa=sm qidv0=1 qidix0=5 cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1
+
+
+  ldb pp 6  gpa=sm vas=0 dir_pool=DP ldb_pool=LP dir_credit_count=0x2 ldb_credit_count=0x4 dir_min_credit_quanta=0x100 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x200 dir_credit_lwm=0x100
+  ldb cq 6  gpa=sm qidv0=1 qidix0=6 cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1
+
+
+
+  msix_cq 8 addr=0x123456789abcdec data=0x55aacc30 is_ldb=1 cq=0 
+  msix_cq 9 addr=0x123456789abcded data=0x55aacc31 is_ldb=1 cq=1
+  msix_cq 10 addr=0x123456789abcde0 data=0x55aacc32 is_ldb=1 cq=2
+  msix_cq 11 addr=0x123456789abcd00 data=0x65aacc32 is_ldb=1 cq=3
+  msix_cq 12 addr=0x123456789abc0e0 data=0x65aacc32 is_ldb=1 cq=4
+  msix_cq 13 addr=0x123456789abcdec data=0x55aacc32 is_ldb=1 cq=5
+  msix_cq 14 addr=0x123456789abcd0b data=0x65aacc32 is_ldb=1 cq=6
+  msix_cq 15 addr=0x123456789abc0ea data=0x65aacc32 is_ldb=1 cq=7
+
+
+
+
+
+
+cfg_end
+
+wr hqm_system_csr.ldb_cq_isr[0]   0x800
+wr hqm_system_csr.ldb_cq_isr[1]   0x801
+wr hqm_system_csr.ldb_cq_isr[2]   0x802
+
+
+
+wr credit_hist_pipe.cfg_ldb_cq_intr_armed0 0x00000FFF
+
+rd hqm_pf_cfg_i.vendor_id

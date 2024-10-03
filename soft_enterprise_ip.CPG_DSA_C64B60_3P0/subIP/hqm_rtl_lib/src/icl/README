@@ -1,0 +1,69 @@
+#######################################################################################
+# The verif directory is the unmodified contents of the DUVE_M release.
+# The verif_hqm directory is the verif directory customized for HQM verification.
+#######################################################################################
+# See scripts/HQM_INFO_V25/README on how to generate new rdl and icl header files from updated RTDR
+#
+# Outputs:
+#   tools/icl/hqm_hdr.icl
+#   tools/icl/hqm.rdl
+#
+#######################################################################################
+# To generate new HQM icl from updated rdl and icl header files:
+# run_rdl2icl
+#
+# Inputs:
+#   tools/icl/hqm_hdr.icl
+#   tools/icl/hqm.rdl
+# Outputs:
+#   tools/icl/hqm.icl
+#
+#######################################################################################
+# To validate icl+rtl (HQM must already be vcs-compiled in the local directory (nebulon, collage etc.)):
+# cd tools/icl/verif_hqm
+# - generate the test patterns and testbench (tessent)
+#     osetup tessent
+#     ./gen_hqm_icl
+#         Inputs:
+#           tools/icl/hqm.icl
+#           tools/icl/verif_hqm/cfg/*
+#           tools/icl/verif_hqm/flow/*
+#         Outputs:
+#           tools/icl/verif_hqm/target/patterns/hqm_basic_tap_tests.*
+# - compile the testbench+rtl (vcs)
+#     osetup vcs
+#     ./comp_hqm_icl
+#         Inputs:
+#           tools/icl/verif_hqm/target/patterns/hqm_basic_tap_tests.*
+#           <compiled HQM>
+#         Outputs:
+#           tools/icl/verif_hqm/target/patterns/simv
+# - simulate the test patterns (vcs) with or without vpd
+#     ./run_hqm_icl
+#     ./run_hqm_icl +HQM_VPD
+#         Expect zero miscompares and a nonzero number of 0/1 compares, e.g.:
+#           Number of miscompares            =           0
+#           Number of 0/1 compares           =         864
+#
+# - review vpd if desired
+#     dve -vpd target/patterns/dump.vpd -session hqm_rtdr.tcl
+#
+#######################################################################################
+# To pick up a new DTEG (DUVE_M) release from IPX:
+#   - you will need to be a member of a unix group such as gnr74 which has IPX permissions for DUVE_M
+#   - create an IPX-capable session
+#     - open an IPX-compatible xterm - must *not* have source "/p/hdk/rtl/hdk.rc -cfg shdk74" in your $HOME/.cshrc.<idsid>
+#       file when you open the xterm.  You may need to open a new session in the ION Sessions Manager to accomplish this.
+#     - in that xterm
+#       - which ipx               // should return "Command not found"; if not, you're still getting ipx from the wrong spot
+#       - source /p/ipx/cad/ipxclient/prod/setup/ph1_ipxclient.setup
+#       - which ipx               // should return a result such as "/p/hdk/cad/ipx_services/prod/bin/ipx", not "Command not found"
+#       - ipx login               // use your network credentials if prompted
+#   - in the IPX-capable session, download the release from IPX:
+#     ipx ip download -ip dteg_verif_ip.duve_m@<release> -branch -unixgroup <unix group> -path <your DUVE_M download directory>
+#     e.g.: ipx ip download -ip dteg_verif_ip.duve_m@3.R0 -branch -unixgroup gnr74 -path hqm-srvr10nm-wave4_DUVE_M
+#   - copy the DUVE_M update from your download directory to the proper location in our HQM repo
+#     cd $PROJ_ROOT/tools/icl
+#     cp -rp <your DUVE_M download directory>/dteg_verif_ip.duve_m/* .
+#######################################################################################
+# For rdl2icl and icl validation documentation see tools/icl/doc

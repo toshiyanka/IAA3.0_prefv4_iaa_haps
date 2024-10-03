@@ -1,0 +1,2612 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => [
+                     "+AW_CONTINUE_ON_ERROR",
+                     "+iosf_tracker_filename=iosf_trk",
+                     "-assert nopostproc",
+                     "+vcs+lic+wait",
+                     "+SLA_MAX_RUN_CLOCK=400000",
+                     "+SLA_USER_DATA_PHASE_TIMEOUT=400000",
+                     "+SLA_CONFIG_PHASE_TIMEOUT=300000",
+                     "+HQMS_DEBUG",
+                     "+HQMI_DEBUG",
+                     "+HQM_LSP_CQ_QID_CFG_CHECK_DIS",
+                     "+HQM_EOT_RD_SEQ_ENABLE_CREDIT_CHECK",
+
+                     "+DIR_PP0_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP0_cq_token_return_burst_size=32",
+                     "+DIR_PP0_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP0_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP0_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP0_cq_token_return_enable_mean=1",
+                     "+DIR_PP0_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP0_cq_token_return_enable_min=1",
+                     "+DIR_PP0_cq_token_return_enable_max=1",
+                     "+DIR_PP0_cq_token_return_disable_mean=0",
+                     "+DIR_PP0_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP0_cq_token_return_disable_min=0",
+                     "+DIR_PP0_cq_token_return_disable_max=0",
+                     "+DIR_PP0_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP1_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP1_cq_token_return_burst_size=32",
+                     "+DIR_PP1_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP1_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP1_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP1_cq_token_return_enable_mean=1",
+                     "+DIR_PP1_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP1_cq_token_return_enable_min=1",
+                     "+DIR_PP1_cq_token_return_enable_max=1",
+                     "+DIR_PP1_cq_token_return_disable_mean=0",
+                     "+DIR_PP1_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP1_cq_token_return_disable_min=0",
+                     "+DIR_PP1_cq_token_return_disable_max=0",
+                     "+DIR_PP1_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP2_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP2_cq_token_return_burst_size=32",
+                     "+DIR_PP2_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP2_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP2_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP2_cq_token_return_enable_mean=1",
+                     "+DIR_PP2_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP2_cq_token_return_enable_min=1",
+                     "+DIR_PP2_cq_token_return_enable_max=1",
+                     "+DIR_PP2_cq_token_return_disable_mean=0",
+                     "+DIR_PP2_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP2_cq_token_return_disable_min=0",
+                     "+DIR_PP2_cq_token_return_disable_max=0",
+                     "+DIR_PP2_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP3_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP3_cq_token_return_burst_size=32",
+                     "+DIR_PP3_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP3_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP3_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP3_cq_token_return_enable_mean=1",
+                     "+DIR_PP3_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP3_cq_token_return_enable_min=1",
+                     "+DIR_PP3_cq_token_return_enable_max=1",
+                     "+DIR_PP3_cq_token_return_disable_mean=0",
+                     "+DIR_PP3_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP3_cq_token_return_disable_min=0",
+                     "+DIR_PP3_cq_token_return_disable_max=0",
+                     "+DIR_PP3_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP4_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP4_cq_token_return_burst_size=32",
+                     "+DIR_PP4_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP4_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP4_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP4_cq_token_return_enable_mean=1",
+                     "+DIR_PP4_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP4_cq_token_return_enable_min=1",
+                     "+DIR_PP4_cq_token_return_enable_max=1",
+                     "+DIR_PP4_cq_token_return_disable_mean=0",
+                     "+DIR_PP4_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP4_cq_token_return_disable_min=0",
+                     "+DIR_PP4_cq_token_return_disable_max=0",
+                     "+DIR_PP4_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP5_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP5_cq_token_return_burst_size=32",
+                     "+DIR_PP5_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP5_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP5_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP5_cq_token_return_enable_mean=1",
+                     "+DIR_PP5_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP5_cq_token_return_enable_min=1",
+                     "+DIR_PP5_cq_token_return_enable_max=1",
+                     "+DIR_PP5_cq_token_return_disable_mean=0",
+                     "+DIR_PP5_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP5_cq_token_return_disable_min=0",
+                     "+DIR_PP5_cq_token_return_disable_max=0",
+                     "+DIR_PP5_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP6_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP6_cq_token_return_burst_size=32",
+                     "+DIR_PP6_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP6_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP6_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP6_cq_token_return_enable_mean=1",
+                     "+DIR_PP6_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP6_cq_token_return_enable_min=1",
+                     "+DIR_PP6_cq_token_return_enable_max=1",
+                     "+DIR_PP6_cq_token_return_disable_mean=0",
+                     "+DIR_PP6_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP6_cq_token_return_disable_min=0",
+                     "+DIR_PP6_cq_token_return_disable_max=0",
+                     "+DIR_PP6_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP7_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP7_cq_token_return_burst_size=32",
+                     "+DIR_PP7_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP7_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP7_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP7_cq_token_return_enable_mean=1",
+                     "+DIR_PP7_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP7_cq_token_return_enable_min=1",
+                     "+DIR_PP7_cq_token_return_enable_max=1",
+                     "+DIR_PP7_cq_token_return_disable_mean=0",
+                     "+DIR_PP7_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP7_cq_token_return_disable_min=0",
+                     "+DIR_PP7_cq_token_return_disable_max=0",
+                     "+DIR_PP7_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP8_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP8_cq_token_return_burst_size=32",
+                     "+DIR_PP8_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP8_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP8_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP8_cq_token_return_enable_mean=1",
+                     "+DIR_PP8_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP8_cq_token_return_enable_min=1",
+                     "+DIR_PP8_cq_token_return_enable_max=1",
+                     "+DIR_PP8_cq_token_return_disable_mean=0",
+                     "+DIR_PP8_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP8_cq_token_return_disable_min=0",
+                     "+DIR_PP8_cq_token_return_disable_max=0",
+                     "+DIR_PP8_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP9_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP9_cq_token_return_burst_size=32",
+                     "+DIR_PP9_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP9_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP9_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP9_cq_token_return_enable_mean=1",
+                     "+DIR_PP9_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP9_cq_token_return_enable_min=1",
+                     "+DIR_PP9_cq_token_return_enable_max=1",
+                     "+DIR_PP9_cq_token_return_disable_mean=0",
+                     "+DIR_PP9_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP9_cq_token_return_disable_min=0",
+                     "+DIR_PP9_cq_token_return_disable_max=0",
+                     "+DIR_PP9_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP10_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP10_cq_token_return_burst_size=32",
+                     "+DIR_PP10_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP10_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP10_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP10_cq_token_return_enable_mean=1",
+                     "+DIR_PP10_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP10_cq_token_return_enable_min=1",
+                     "+DIR_PP10_cq_token_return_enable_max=1",
+                     "+DIR_PP10_cq_token_return_disable_mean=0",
+                     "+DIR_PP10_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP10_cq_token_return_disable_min=0",
+                     "+DIR_PP10_cq_token_return_disable_max=0",
+                     "+DIR_PP10_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP11_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP11_cq_token_return_burst_size=32",
+                     "+DIR_PP11_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP11_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP11_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP11_cq_token_return_enable_mean=1",
+                     "+DIR_PP11_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP11_cq_token_return_enable_min=1",
+                     "+DIR_PP11_cq_token_return_enable_max=1",
+                     "+DIR_PP11_cq_token_return_disable_mean=0",
+                     "+DIR_PP11_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP11_cq_token_return_disable_min=0",
+                     "+DIR_PP11_cq_token_return_disable_max=0",
+                     "+DIR_PP11_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP12_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP12_cq_token_return_burst_size=32",
+                     "+DIR_PP12_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP12_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP12_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP12_cq_token_return_enable_mean=1",
+                     "+DIR_PP12_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP12_cq_token_return_enable_min=1",
+                     "+DIR_PP12_cq_token_return_enable_max=1",
+                     "+DIR_PP12_cq_token_return_disable_mean=0",
+                     "+DIR_PP12_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP12_cq_token_return_disable_min=0",
+                     "+DIR_PP12_cq_token_return_disable_max=0",
+                     "+DIR_PP12_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP13_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP13_cq_token_return_burst_size=32",
+                     "+DIR_PP13_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP13_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP13_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP13_cq_token_return_enable_mean=1",
+                     "+DIR_PP13_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP13_cq_token_return_enable_min=1",
+                     "+DIR_PP13_cq_token_return_enable_max=1",
+                     "+DIR_PP13_cq_token_return_disable_mean=0",
+                     "+DIR_PP13_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP13_cq_token_return_disable_min=0",
+                     "+DIR_PP13_cq_token_return_disable_max=0",
+                     "+DIR_PP13_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP14_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP14_cq_token_return_burst_size=32",
+                     "+DIR_PP14_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP14_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP14_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP14_cq_token_return_enable_mean=1",
+                     "+DIR_PP14_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP14_cq_token_return_enable_min=1",
+                     "+DIR_PP14_cq_token_return_enable_max=1",
+                     "+DIR_PP14_cq_token_return_disable_mean=0",
+                     "+DIR_PP14_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP14_cq_token_return_disable_min=0",
+                     "+DIR_PP14_cq_token_return_disable_max=0",
+                     "+DIR_PP14_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP15_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP15_cq_token_return_burst_size=32",
+                     "+DIR_PP15_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP15_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP15_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP15_cq_token_return_enable_mean=1",
+                     "+DIR_PP15_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP15_cq_token_return_enable_min=1",
+                     "+DIR_PP15_cq_token_return_enable_max=1",
+                     "+DIR_PP15_cq_token_return_disable_mean=0",
+                     "+DIR_PP15_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP15_cq_token_return_disable_min=0",
+                     "+DIR_PP15_cq_token_return_disable_max=0",
+                     "+DIR_PP15_cq_token_return_sel_algorithm=fifo",
+                    ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+      TI_PHDR_AFULL => {
+          -simv_args => [
+                     "+DIR_PP0_Q0_NUM_HCW=8192",
+                     "+DIR_PP1_Q0_NUM_HCW=0",
+                     "+DIR_PP2_Q0_NUM_HCW=0",
+                     "+DIR_PP3_Q0_NUM_HCW=0",
+                     "+DIR_PP4_Q0_NUM_HCW=0",
+                     "+DIR_PP5_Q0_NUM_HCW=0",
+                     "+DIR_PP6_Q0_NUM_HCW=0",
+                     "+DIR_PP7_Q0_NUM_HCW=0",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=2",
+
+                     "+LDB_PP0_Q0_NUM_HCW=4096",
+                     "+LDB_PP1_Q0_NUM_HCW=0",
+                     "+LDB_PP2_Q0_NUM_HCW=0",
+                     "+LDB_PP3_Q0_NUM_HCW=0",
+                     "+LDB_PP4_Q0_NUM_HCW=0",
+                     "+LDB_PP5_Q0_NUM_HCW=0",
+                     "+LDB_PP6_Q0_NUM_HCW=0",
+                     "+LDB_PP7_Q0_NUM_HCW=0",
+
+                     "+LDB_PP0_HCW_DELAY=4",
+
+                     "+HQM_AGI_TI_PHDR_AFULL_STRESS",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test1_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      
+      TI_PDATA_AFULL => {
+          -simv_args => [
+                     "+DIR_PP0_Q0_NUM_HCW=8192",
+                     "+DIR_PP1_Q0_NUM_HCW=0",
+                     "+DIR_PP2_Q0_NUM_HCW=0",
+                     "+DIR_PP3_Q0_NUM_HCW=0",
+                     "+DIR_PP4_Q0_NUM_HCW=0",
+                     "+DIR_PP5_Q0_NUM_HCW=0",
+                     "+DIR_PP6_Q0_NUM_HCW=0",
+                     "+DIR_PP7_Q0_NUM_HCW=0",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=2",
+
+                     "+LDB_PP0_Q0_NUM_HCW=4096",
+                     "+LDB_PP1_Q0_NUM_HCW=0",
+                     "+LDB_PP2_Q0_NUM_HCW=0",
+                     "+LDB_PP3_Q0_NUM_HCW=0",
+                     "+LDB_PP4_Q0_NUM_HCW=0",
+                     "+LDB_PP5_Q0_NUM_HCW=0",
+                     "+LDB_PP6_Q0_NUM_HCW=0",
+                     "+LDB_PP7_Q0_NUM_HCW=0",
+
+                     "+LDB_PP0_HCW_DELAY=4",
+
+                     "+HQM_AGI_TI_PDATA_AFULL_STRESS",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test1_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      TI_CMPL_AFULL => {
+          -simv_args => [
+                     "+DIR_PP0_Q0_NUM_HCW=8192",
+                     "+DIR_PP1_Q0_NUM_HCW=0",
+                     "+DIR_PP2_Q0_NUM_HCW=0",
+                     "+DIR_PP3_Q0_NUM_HCW=0",
+                     "+DIR_PP4_Q0_NUM_HCW=0",
+                     "+DIR_PP5_Q0_NUM_HCW=0",
+                     "+DIR_PP6_Q0_NUM_HCW=0",
+                     "+DIR_PP7_Q0_NUM_HCW=0",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=2",
+
+                     "+LDB_PP0_Q0_NUM_HCW=4096",
+                     "+LDB_PP1_Q0_NUM_HCW=0",
+                     "+LDB_PP2_Q0_NUM_HCW=0",
+                     "+LDB_PP3_Q0_NUM_HCW=0",
+                     "+LDB_PP4_Q0_NUM_HCW=0",
+                     "+LDB_PP5_Q0_NUM_HCW=0",
+                     "+LDB_PP6_Q0_NUM_HCW=0",
+                     "+LDB_PP7_Q0_NUM_HCW=0",
+
+                     "+LDB_PP0_HCW_DELAY=4",
+
+                     "+HQM_AGI_TI_CMPL_AFULL_STRESS",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test1_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      SIG_NUM_AFULL => {
+          -simv_args => [
+                     "+DIR_PP0_Q0_NUM_HCW=8192",
+                     "+DIR_PP1_Q0_NUM_HCW=0",
+                     "+DIR_PP2_Q0_NUM_HCW=0",
+                     "+DIR_PP3_Q0_NUM_HCW=0",
+                     "+DIR_PP4_Q0_NUM_HCW=0",
+                     "+DIR_PP5_Q0_NUM_HCW=0",
+                     "+DIR_PP6_Q0_NUM_HCW=0",
+                     "+DIR_PP7_Q0_NUM_HCW=0",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=2",
+
+                     "+LDB_PP0_Q0_NUM_HCW=4096",
+                     "+LDB_PP1_Q0_NUM_HCW=0",
+                     "+LDB_PP2_Q0_NUM_HCW=0",
+                     "+LDB_PP3_Q0_NUM_HCW=0",
+                     "+LDB_PP4_Q0_NUM_HCW=0",
+                     "+LDB_PP5_Q0_NUM_HCW=0",
+                     "+LDB_PP6_Q0_NUM_HCW=0",
+                     "+LDB_PP7_Q0_NUM_HCW=0",
+
+                     "+LDB_PP0_HCW_DELAY=4",
+
+                     "+HQM_AGI_SIG_NUM_AFULL_STRESS",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test1_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      PEND_SIG_AFULL => {
+          -simv_args => [
+                     "+DIR_PP0_Q0_NUM_HCW=8192",
+                     "+DIR_PP1_Q0_NUM_HCW=0",
+                     "+DIR_PP2_Q0_NUM_HCW=0",
+                     "+DIR_PP3_Q0_NUM_HCW=0",
+                     "+DIR_PP4_Q0_NUM_HCW=0",
+                     "+DIR_PP5_Q0_NUM_HCW=0",
+                     "+DIR_PP6_Q0_NUM_HCW=0",
+                     "+DIR_PP7_Q0_NUM_HCW=0",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=2",
+
+                     "+LDB_PP0_Q0_NUM_HCW=4096",
+                     "+LDB_PP1_Q0_NUM_HCW=0",
+                     "+LDB_PP2_Q0_NUM_HCW=0",
+                     "+LDB_PP3_Q0_NUM_HCW=0",
+                     "+LDB_PP4_Q0_NUM_HCW=0",
+                     "+LDB_PP5_Q0_NUM_HCW=0",
+                     "+LDB_PP6_Q0_NUM_HCW=0",
+                     "+LDB_PP7_Q0_NUM_HCW=0",
+
+                     "+LDB_PP0_HCW_DELAY=4",
+
+                     "+HQM_AGI_PEND_SIG_AFULL_STRESS",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test1_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      CSR_DATA_AFULL => {
+          -simv_args => [
+                     "+DIR_PP0_Q0_NUM_HCW=8192",
+                     "+DIR_PP1_Q0_NUM_HCW=0",
+                     "+DIR_PP2_Q0_NUM_HCW=0",
+                     "+DIR_PP3_Q0_NUM_HCW=0",
+                     "+DIR_PP4_Q0_NUM_HCW=0",
+                     "+DIR_PP5_Q0_NUM_HCW=0",
+                     "+DIR_PP6_Q0_NUM_HCW=0",
+                     "+DIR_PP7_Q0_NUM_HCW=0",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=2",
+
+                     "+LDB_PP0_Q0_NUM_HCW=4096",
+                     "+LDB_PP1_Q0_NUM_HCW=0",
+                     "+LDB_PP2_Q0_NUM_HCW=0",
+                     "+LDB_PP3_Q0_NUM_HCW=0",
+                     "+LDB_PP4_Q0_NUM_HCW=0",
+                     "+LDB_PP5_Q0_NUM_HCW=0",
+                     "+LDB_PP6_Q0_NUM_HCW=0",
+                     "+LDB_PP7_Q0_NUM_HCW=0",
+
+                     "+LDB_PP0_HCW_DELAY=4",
+
+                     "+HQM_AGI_CSR_DATA_AFULL_STRESS",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test1_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      WB_SCH_OUT_AFULL => {
+          -simv_args => [
+                     "+DIR_PP0_Q0_NUM_HCW=8192",
+                     "+DIR_PP1_Q0_NUM_HCW=0",
+                     "+DIR_PP2_Q0_NUM_HCW=0",
+                     "+DIR_PP3_Q0_NUM_HCW=0",
+                     "+DIR_PP4_Q0_NUM_HCW=0",
+                     "+DIR_PP5_Q0_NUM_HCW=0",
+                     "+DIR_PP6_Q0_NUM_HCW=0",
+                     "+DIR_PP7_Q0_NUM_HCW=0",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=2",
+
+                     "+LDB_PP0_Q0_NUM_HCW=4096",
+                     "+LDB_PP1_Q0_NUM_HCW=0",
+                     "+LDB_PP2_Q0_NUM_HCW=0",
+                     "+LDB_PP3_Q0_NUM_HCW=0",
+                     "+LDB_PP4_Q0_NUM_HCW=0",
+                     "+LDB_PP5_Q0_NUM_HCW=0",
+                     "+LDB_PP6_Q0_NUM_HCW=0",
+                     "+LDB_PP7_Q0_NUM_HCW=0",
+
+                     "+LDB_PP0_HCW_DELAY=4",
+
+                     "+HQM_AGI_WB_SCH_OUT_AFULL_STRESS",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test1_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      IG_HCW_ENQ_AFULL => {
+          -simv_args => [
+                     "+DIR_PP0_Q0_NUM_HCW=8192",
+                     "+DIR_PP1_Q0_NUM_HCW=0",
+                     "+DIR_PP2_Q0_NUM_HCW=0",
+                     "+DIR_PP3_Q0_NUM_HCW=0",
+                     "+DIR_PP4_Q0_NUM_HCW=0",
+                     "+DIR_PP5_Q0_NUM_HCW=0",
+                     "+DIR_PP6_Q0_NUM_HCW=0",
+                     "+DIR_PP7_Q0_NUM_HCW=0",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=2",
+
+                     "+LDB_PP0_Q0_NUM_HCW=4096",
+                     "+LDB_PP1_Q0_NUM_HCW=0",
+                     "+LDB_PP2_Q0_NUM_HCW=0",
+                     "+LDB_PP3_Q0_NUM_HCW=0",
+                     "+LDB_PP4_Q0_NUM_HCW=0",
+                     "+LDB_PP5_Q0_NUM_HCW=0",
+                     "+LDB_PP6_Q0_NUM_HCW=0",
+                     "+LDB_PP7_Q0_NUM_HCW=0",
+
+                     "+LDB_PP0_HCW_DELAY=4",
+
+                     "+HQM_AGI_IG_HCW_ENQ_AFULL_STRESS",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test1_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      IG_HCW_ENQ_W_DB => {
+          -simv_args => [
+                     "+DIR_PP0_Q0_NUM_HCW=8192",
+                     "+DIR_PP1_Q0_NUM_HCW=0",
+                     "+DIR_PP2_Q0_NUM_HCW=0",
+                     "+DIR_PP3_Q0_NUM_HCW=0",
+                     "+DIR_PP4_Q0_NUM_HCW=0",
+                     "+DIR_PP5_Q0_NUM_HCW=0",
+                     "+DIR_PP6_Q0_NUM_HCW=0",
+                     "+DIR_PP7_Q0_NUM_HCW=0",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=2",
+
+                     "+LDB_PP0_Q0_NUM_HCW=4096",
+                     "+LDB_PP1_Q0_NUM_HCW=0",
+                     "+LDB_PP2_Q0_NUM_HCW=0",
+                     "+LDB_PP3_Q0_NUM_HCW=0",
+                     "+LDB_PP4_Q0_NUM_HCW=0",
+                     "+LDB_PP5_Q0_NUM_HCW=0",
+                     "+LDB_PP6_Q0_NUM_HCW=0",
+                     "+LDB_PP7_Q0_NUM_HCW=0",
+
+                     "+LDB_PP0_HCW_DELAY=4",
+
+                     "+HQM_AGI_IG_HCW_ENQ_W_DB_STRESS",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test1_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      EG_HCW_SCHED_DB => {
+          -simv_args => [
+                     "+DIR_PP0_Q0_NUM_HCW=8192",
+                     "+DIR_PP1_Q0_NUM_HCW=0",
+                     "+DIR_PP2_Q0_NUM_HCW=0",
+                     "+DIR_PP3_Q0_NUM_HCW=0",
+                     "+DIR_PP4_Q0_NUM_HCW=0",
+                     "+DIR_PP5_Q0_NUM_HCW=0",
+                     "+DIR_PP6_Q0_NUM_HCW=0",
+                     "+DIR_PP7_Q0_NUM_HCW=0",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=2",
+
+                     "+LDB_PP0_Q0_NUM_HCW=4096",
+                     "+LDB_PP1_Q0_NUM_HCW=0",
+                     "+LDB_PP2_Q0_NUM_HCW=0",
+                     "+LDB_PP3_Q0_NUM_HCW=0",
+                     "+LDB_PP4_Q0_NUM_HCW=0",
+                     "+LDB_PP5_Q0_NUM_HCW=0",
+                     "+LDB_PP6_Q0_NUM_HCW=0",
+                     "+LDB_PP7_Q0_NUM_HCW=0",
+
+                     "+LDB_PP0_HCW_DELAY=4",
+
+                     "+HQM_AGI_EG_HCW_SCHED_DB_STRESS",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test1_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      AL_MSI_MSIX_DB => {
+          -simv_args => [
+                     "+DIR_PP0_Q0_NUM_HCW=8192",
+                     "+DIR_PP1_Q0_NUM_HCW=0",
+                     "+DIR_PP2_Q0_NUM_HCW=0",
+                     "+DIR_PP3_Q0_NUM_HCW=0",
+                     "+DIR_PP4_Q0_NUM_HCW=0",
+                     "+DIR_PP5_Q0_NUM_HCW=0",
+                     "+DIR_PP6_Q0_NUM_HCW=0",
+                     "+DIR_PP7_Q0_NUM_HCW=0",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=2",
+
+                     "+LDB_PP0_Q0_NUM_HCW=4096",
+                     "+LDB_PP1_Q0_NUM_HCW=0",
+                     "+LDB_PP2_Q0_NUM_HCW=0",
+                     "+LDB_PP3_Q0_NUM_HCW=0",
+                     "+LDB_PP4_Q0_NUM_HCW=0",
+                     "+LDB_PP5_Q0_NUM_HCW=0",
+                     "+LDB_PP6_Q0_NUM_HCW=0",
+                     "+LDB_PP7_Q0_NUM_HCW=0",
+
+                     "+LDB_PP0_HCW_DELAY=4",
+
+                     "+HQM_AGI_AL_MSI_MSIX_DB_STRESS",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test1_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      AL_CWD_ALARM_DB => {
+          -simv_args => [
+                     "+DIR_PP0_Q0_NUM_HCW=8192",
+                     "+DIR_PP1_Q0_NUM_HCW=0",
+                     "+DIR_PP2_Q0_NUM_HCW=0",
+                     "+DIR_PP3_Q0_NUM_HCW=0",
+                     "+DIR_PP4_Q0_NUM_HCW=0",
+                     "+DIR_PP5_Q0_NUM_HCW=0",
+                     "+DIR_PP6_Q0_NUM_HCW=0",
+                     "+DIR_PP7_Q0_NUM_HCW=0",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=2",
+
+                     "+LDB_PP0_Q0_NUM_HCW=4096",
+                     "+LDB_PP1_Q0_NUM_HCW=0",
+                     "+LDB_PP2_Q0_NUM_HCW=0",
+                     "+LDB_PP3_Q0_NUM_HCW=0",
+                     "+LDB_PP4_Q0_NUM_HCW=0",
+                     "+LDB_PP5_Q0_NUM_HCW=0",
+                     "+LDB_PP6_Q0_NUM_HCW=0",
+                     "+LDB_PP7_Q0_NUM_HCW=0",
+
+                     "+LDB_PP0_HCW_DELAY=4",
+
+                     "+HQM_AGI_AL_CWD_ALARM_DB_STRESS",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test1_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      AL_HQM_ALARM_DB => {
+          -simv_args => [
+                     "+DIR_PP0_Q0_NUM_HCW=8192",
+                     "+DIR_PP1_Q0_NUM_HCW=0",
+                     "+DIR_PP2_Q0_NUM_HCW=0",
+                     "+DIR_PP3_Q0_NUM_HCW=0",
+                     "+DIR_PP4_Q0_NUM_HCW=0",
+                     "+DIR_PP5_Q0_NUM_HCW=0",
+                     "+DIR_PP6_Q0_NUM_HCW=0",
+                     "+DIR_PP7_Q0_NUM_HCW=0",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=2",
+
+                     "+LDB_PP0_Q0_NUM_HCW=4096",
+                     "+LDB_PP1_Q0_NUM_HCW=0",
+                     "+LDB_PP2_Q0_NUM_HCW=0",
+                     "+LDB_PP3_Q0_NUM_HCW=0",
+                     "+LDB_PP4_Q0_NUM_HCW=0",
+                     "+LDB_PP5_Q0_NUM_HCW=0",
+                     "+LDB_PP6_Q0_NUM_HCW=0",
+                     "+LDB_PP7_Q0_NUM_HCW=0",
+
+                     "+LDB_PP0_HCW_DELAY=4",
+
+                     "+HQM_AGI_AL_HQM_ALARM_DB_STRESS",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test1_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      AL_IOSF_ALARM_AFULL => {
+          -simv_args => [
+                     "+DIR_PP0_Q0_NUM_HCW=8192",
+                     "+DIR_PP1_Q0_NUM_HCW=0",
+                     "+DIR_PP2_Q0_NUM_HCW=0",
+                     "+DIR_PP3_Q0_NUM_HCW=0",
+                     "+DIR_PP4_Q0_NUM_HCW=0",
+                     "+DIR_PP5_Q0_NUM_HCW=0",
+                     "+DIR_PP6_Q0_NUM_HCW=0",
+                     "+DIR_PP7_Q0_NUM_HCW=0",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=2",
+
+                     "+LDB_PP0_Q0_NUM_HCW=4096",
+                     "+LDB_PP1_Q0_NUM_HCW=0",
+                     "+LDB_PP2_Q0_NUM_HCW=0",
+                     "+LDB_PP3_Q0_NUM_HCW=0",
+                     "+LDB_PP4_Q0_NUM_HCW=0",
+                     "+LDB_PP5_Q0_NUM_HCW=0",
+                     "+LDB_PP6_Q0_NUM_HCW=0",
+                     "+LDB_PP7_Q0_NUM_HCW=0",
+
+                     "+LDB_PP0_HCW_DELAY=4",
+
+                     "+HQM_AGI_AL_IOSF_ALARM_AFULL_STRESS",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test1_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+
+      q1_short => {
+          -simv_args => [
+                     "+DIR_PP0_BATCH_MIN=1",
+                     "+DIR_PP0_BATCH_MAX=4",
+
+                     "+DIR_PP0_Q0_NUM_HCW=1024",
+                     "+DIR_PP1_Q0_NUM_HCW=0",
+                     "+DIR_PP2_Q0_NUM_HCW=0",
+                     "+DIR_PP3_Q0_NUM_HCW=0",
+                     "+DIR_PP4_Q0_NUM_HCW=0",
+                     "+DIR_PP5_Q0_NUM_HCW=0",
+                     "+DIR_PP6_Q0_NUM_HCW=0",
+                     "+DIR_PP7_Q0_NUM_HCW=0",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=2",
+
+                     "+LDB_PP0_Q0_NUM_HCW=512",
+                     "+LDB_PP1_Q0_NUM_HCW=0",
+                     "+LDB_PP2_Q0_NUM_HCW=0",
+                     "+LDB_PP3_Q0_NUM_HCW=0",
+                     "+LDB_PP4_Q0_NUM_HCW=0",
+                     "+LDB_PP5_Q0_NUM_HCW=0",
+                     "+LDB_PP6_Q0_NUM_HCW=0",
+                     "+LDB_PP7_Q0_NUM_HCW=0",
+
+                     "+LDB_PP0_HCW_DELAY=4",
+               
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test1_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      q1_comp_msix => {
+          -simv_args => [
+                     "+DIR_PP0_BATCH_MIN=1",
+                     "+DIR_PP0_BATCH_MAX=4",
+
+                     "+DIR_PP0_Q0_NUM_HCW=1024",
+                     "+DIR_PP1_Q0_NUM_HCW=0",
+                     "+DIR_PP2_Q0_NUM_HCW=0",
+                     "+DIR_PP3_Q0_NUM_HCW=0",
+                     "+DIR_PP4_Q0_NUM_HCW=0",
+                     "+DIR_PP5_Q0_NUM_HCW=0",
+                     "+DIR_PP6_Q0_NUM_HCW=0",
+                     "+DIR_PP7_Q0_NUM_HCW=0",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_CQ_POLL=0",
+                     "+DIR_PP1_CQ_POLL=0",
+                     "+DIR_PP2_CQ_POLL=0",
+                     "+DIR_PP3_CQ_POLL=0",
+                     "+DIR_PP4_CQ_POLL=0",
+                     "+DIR_PP5_CQ_POLL=0",
+                     "+DIR_PP6_CQ_POLL=0",
+                     "+DIR_PP7_CQ_POLL=0",
+                     "+DIR_PP8_CQ_POLL=0",
+                     "+DIR_PP9_CQ_POLL=0",
+                     "+DIR_PP10_CQ_POLL=0",
+                     "+DIR_PP11_CQ_POLL=0",
+                     "+DIR_PP12_CQ_POLL=0",
+                     "+DIR_PP13_CQ_POLL=0",
+                     "+DIR_PP14_CQ_POLL=0",
+                     "+DIR_PP15_CQ_POLL=0",
+
+                     "+DIR_PP0_HCW_DELAY=2",
+
+                     "+LDB_PP0_Q0_NUM_HCW=512",
+                     "+LDB_PP1_Q0_NUM_HCW=0",
+                     "+LDB_PP2_Q0_NUM_HCW=0",
+                     "+LDB_PP3_Q0_NUM_HCW=0",
+                     "+LDB_PP4_Q0_NUM_HCW=0",
+                     "+LDB_PP5_Q0_NUM_HCW=0",
+                     "+LDB_PP6_Q0_NUM_HCW=0",
+                     "+LDB_PP7_Q0_NUM_HCW=0",
+
+                     "+LDB_PP0_CQ_POLL=0",
+                     "+LDB_PP1_CQ_POLL=0",
+                     "+LDB_PP2_CQ_POLL=0",
+                     "+LDB_PP3_CQ_POLL=0",
+                     "+LDB_PP4_CQ_POLL=0",
+                     "+LDB_PP5_CQ_POLL=0",
+                     "+LDB_PP6_CQ_POLL=0",
+                     "+LDB_PP7_CQ_POLL=0",
+
+                     "+LDB_PP0_HCW_DELAY=4",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test2_cfg.cft",
+                     "+HQM_SEQ_CFG2=aceroot/verif/tb/hqm/tests/enable_compressed_msix_mode.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      q1_short_b3 => {
+          -simv_args => [
+                     "+DIR_PP0_BATCH_MIN=3",
+                     "+DIR_PP0_BATCH_MAX=3",
+
+                     "+DIR_PP0_Q0_NUM_HCW=1024",
+                     "+DIR_PP1_Q0_NUM_HCW=0",
+                     "+DIR_PP2_Q0_NUM_HCW=0",
+                     "+DIR_PP3_Q0_NUM_HCW=0",
+                     "+DIR_PP4_Q0_NUM_HCW=0",
+                     "+DIR_PP5_Q0_NUM_HCW=0",
+                     "+DIR_PP6_Q0_NUM_HCW=0",
+                     "+DIR_PP7_Q0_NUM_HCW=0",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=2",
+
+                     "+LDB_PP0_BATCH_MIN=3",
+                     "+LDB_PP0_BATCH_MAX=3",
+
+                     "+LDB_PP0_Q0_NUM_HCW=512",
+                     "+LDB_PP1_Q0_NUM_HCW=0",
+                     "+LDB_PP2_Q0_NUM_HCW=0",
+                     "+LDB_PP3_Q0_NUM_HCW=0",
+                     "+LDB_PP4_Q0_NUM_HCW=0",
+                     "+LDB_PP5_Q0_NUM_HCW=0",
+                     "+LDB_PP6_Q0_NUM_HCW=0",
+                     "+LDB_PP7_Q0_NUM_HCW=0",
+
+                     "+LDB_PP0_HCW_DELAY=4",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test1_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      q2 => {
+          -simv_args => [
+                     "+DIR_PP0_Q0_NUM_HCW=4096",
+                     "+DIR_PP1_Q0_NUM_HCW=4096",
+                     "+DIR_PP2_Q0_NUM_HCW=0",
+                     "+DIR_PP3_Q0_NUM_HCW=0",
+                     "+DIR_PP4_Q0_NUM_HCW=0",
+                     "+DIR_PP5_Q0_NUM_HCW=0",
+                     "+DIR_PP6_Q0_NUM_HCW=0",
+                     "+DIR_PP7_Q0_NUM_HCW=0",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=4",
+
+                     "+DIR_PP1_HCW_DELAY=4",
+
+                     "+LDB_PP0_Q0_NUM_HCW=2048",
+                     "+LDB_PP1_Q0_NUM_HCW=2048",
+                     "+LDB_PP2_Q0_NUM_HCW=0",
+                     "+LDB_PP3_Q0_NUM_HCW=0",
+                     "+LDB_PP4_Q0_NUM_HCW=0",
+                     "+LDB_PP5_Q0_NUM_HCW=0",
+                     "+LDB_PP6_Q0_NUM_HCW=0",
+                     "+LDB_PP7_Q0_NUM_HCW=0",
+
+                     "+LDB_PP0_HCW_DELAY=8",
+
+                     "+LDB_PP1_HCW_DELAY=8",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test1_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      q4 => {
+          -simv_args => [
+                     "+DIR_PP0_Q0_NUM_HCW=2048",
+                     "+DIR_PP1_Q0_NUM_HCW=2048",
+                     "+DIR_PP2_Q0_NUM_HCW=2048",
+                     "+DIR_PP3_Q0_NUM_HCW=2048",
+                     "+DIR_PP4_Q0_NUM_HCW=0",
+                     "+DIR_PP5_Q0_NUM_HCW=0",
+                     "+DIR_PP6_Q0_NUM_HCW=0",
+                     "+DIR_PP7_Q0_NUM_HCW=0",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=8",
+
+                     "+DIR_PP1_HCW_DELAY=8",
+
+                     "+DIR_PP2_HCW_DELAY=8",
+
+                     "+DIR_PP3_HCW_DELAY=8",
+
+                     "+LDB_PP0_Q0_NUM_HCW=1024",
+                     "+LDB_PP1_Q0_NUM_HCW=1024",
+                     "+LDB_PP2_Q0_NUM_HCW=1024",
+                     "+LDB_PP3_Q0_NUM_HCW=1024",
+                     "+LDB_PP4_Q0_NUM_HCW=0",
+                     "+LDB_PP5_Q0_NUM_HCW=0",
+                     "+LDB_PP6_Q0_NUM_HCW=0",
+                     "+LDB_PP7_Q0_NUM_HCW=0",
+
+                     "+LDB_PP0_HCW_DELAY=32",
+
+                     "+LDB_PP1_HCW_DELAY=32",
+
+                     "+LDB_PP2_HCW_DELAY=32",
+
+                     "+LDB_PP3_HCW_DELAY=32",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test1_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      
+     q4_dir_ldb_freq4_short => {
+          -simv_args => [
+                     "+DIR_PP0_Q0_NUM_HCW=128",
+                     "+DIR_PP1_Q0_NUM_HCW=128",
+                     "+DIR_PP2_Q0_NUM_HCW=128",
+                     "+DIR_PP3_Q0_NUM_HCW=128",
+                     "+DIR_PP4_Q0_NUM_HCW=0",
+                     "+DIR_PP5_Q0_NUM_HCW=0",
+                     "+DIR_PP6_Q0_NUM_HCW=0",
+                     "+DIR_PP7_Q0_NUM_HCW=0",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=32",
+
+                     "+DIR_PP1_HCW_DELAY=32",
+
+                     "+DIR_PP2_HCW_DELAY=32",
+
+                     "+DIR_PP3_HCW_DELAY=32",
+
+                     "+LDB_PP0_Q0_NUM_HCW=128",
+                     "+LDB_PP1_Q0_NUM_HCW=128",
+                     "+LDB_PP2_Q0_NUM_HCW=128",
+                     "+LDB_PP3_Q0_NUM_HCW=128",
+                     "+LDB_PP4_Q0_NUM_HCW=0",
+                     "+LDB_PP5_Q0_NUM_HCW=0",
+                     "+LDB_PP6_Q0_NUM_HCW=0",
+                     "+LDB_PP7_Q0_NUM_HCW=0",
+
+                     "+LDB_PP0_HCW_DELAY=32",
+
+                     "+LDB_PP1_HCW_DELAY=32",
+
+                     "+LDB_PP2_HCW_DELAY=32",
+
+                     "+LDB_PP3_HCW_DELAY=32",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test2_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+
+     q4_dir_ldb_freq4 => {
+          -simv_args => [
+                     "+DIR_PP0_Q0_NUM_HCW=256",
+                     "+DIR_PP1_Q0_NUM_HCW=256",
+                     "+DIR_PP2_Q0_NUM_HCW=256",
+                     "+DIR_PP3_Q0_NUM_HCW=256",
+                     "+DIR_PP4_Q0_NUM_HCW=0",
+                     "+DIR_PP5_Q0_NUM_HCW=0",
+                     "+DIR_PP6_Q0_NUM_HCW=0",
+                     "+DIR_PP7_Q0_NUM_HCW=0",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=32",
+
+                     "+DIR_PP1_HCW_DELAY=32",
+
+                     "+DIR_PP2_HCW_DELAY=32",
+
+                     "+DIR_PP3_HCW_DELAY=32",
+
+                     "+LDB_PP0_Q0_NUM_HCW=256",
+                     "+LDB_PP1_Q0_NUM_HCW=256",
+                     "+LDB_PP2_Q0_NUM_HCW=256",
+                     "+LDB_PP3_Q0_NUM_HCW=256",
+                     "+LDB_PP4_Q0_NUM_HCW=0",
+                     "+LDB_PP5_Q0_NUM_HCW=0",
+                     "+LDB_PP6_Q0_NUM_HCW=0",
+                     "+LDB_PP7_Q0_NUM_HCW=0",
+
+                     "+LDB_PP0_HCW_DELAY=32",
+
+                     "+LDB_PP1_HCW_DELAY=32",
+
+                     "+LDB_PP2_HCW_DELAY=32",
+
+                     "+LDB_PP3_HCW_DELAY=32",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test2_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      
+     q4_dir_atm_freq4_short => {
+          -simv_args => [
+                     "+DIR_PP0_Q0_NUM_HCW=128",
+                     "+DIR_PP1_Q0_NUM_HCW=128",
+                     "+DIR_PP2_Q0_NUM_HCW=128",
+                     "+DIR_PP3_Q0_NUM_HCW=128",
+                     "+DIR_PP4_Q0_NUM_HCW=0",
+                     "+DIR_PP5_Q0_NUM_HCW=0",
+                     "+DIR_PP6_Q0_NUM_HCW=0",
+                     "+DIR_PP7_Q0_NUM_HCW=0",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=32",
+
+                     "+DIR_PP1_HCW_DELAY=32",
+
+                     "+DIR_PP2_HCW_DELAY=32",
+
+                     "+DIR_PP3_HCW_DELAY=32",
+
+
+                     "+LDB_PP0_Q0_NUM_HCW=128",
+                     "+LDB_PP1_Q0_NUM_HCW=128",
+                     "+LDB_PP2_Q0_NUM_HCW=128",
+                     "+LDB_PP3_Q0_NUM_HCW=128",
+                     "+LDB_PP4_Q0_NUM_HCW=0",
+                     "+LDB_PP5_Q0_NUM_HCW=0",
+                     "+LDB_PP6_Q0_NUM_HCW=0",
+                     "+LDB_PP7_Q0_NUM_HCW=0",
+		     
+                     "+LDB_PP0_QTYPE=QATM",
+                     "+LDB_PP1_QTYPE=QATM",
+                     "+LDB_PP2_QTYPE=QATM",
+                     "+LDB_PP3_QTYPE=QATM",
+
+                     "+LDB_PP0_HCW_DELAY=32",
+
+                     "+LDB_PP1_HCW_DELAY=32",
+
+                     "+LDB_PP2_HCW_DELAY=32",
+
+                     "+LDB_PP3_HCW_DELAY=32",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test1_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+
+
+     q4_dir_atm_freq4 => {
+          -simv_args => [
+                     "+DIR_PP0_Q0_NUM_HCW=128",
+                     "+DIR_PP1_Q0_NUM_HCW=128",
+                     "+DIR_PP2_Q0_NUM_HCW=128",
+                     "+DIR_PP3_Q0_NUM_HCW=128",
+                     "+DIR_PP4_Q0_NUM_HCW=0",
+                     "+DIR_PP5_Q0_NUM_HCW=0",
+                     "+DIR_PP6_Q0_NUM_HCW=0",
+                     "+DIR_PP7_Q0_NUM_HCW=0",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=24",
+
+                     "+DIR_PP1_HCW_DELAY=24",
+
+                     "+DIR_PP2_HCW_DELAY=24",
+
+                     "+DIR_PP3_HCW_DELAY=24",
+
+
+                     "+LDB_PP0_Q0_NUM_HCW=128",
+                     "+LDB_PP1_Q0_NUM_HCW=128",
+                     "+LDB_PP2_Q0_NUM_HCW=128",
+                     "+LDB_PP3_Q0_NUM_HCW=128",
+                     "+LDB_PP4_Q0_NUM_HCW=0",
+                     "+LDB_PP5_Q0_NUM_HCW=0",
+                     "+LDB_PP6_Q0_NUM_HCW=0",
+                     "+LDB_PP7_Q0_NUM_HCW=0",
+		     
+                     "+LDB_PP0_QTYPE=QATM",
+                     "+LDB_PP1_QTYPE=QATM",
+                     "+LDB_PP2_QTYPE=QATM",
+                     "+LDB_PP3_QTYPE=QATM",
+
+                     "+LDB_PP0_HCW_DELAY=24",
+
+                     "+LDB_PP1_HCW_DELAY=24",
+
+                     "+LDB_PP2_HCW_DELAY=24",
+
+                     "+LDB_PP3_HCW_DELAY=24",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test2_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      
+     q4_dir_ldb_new_short => {
+          -simv_args => [
+                     "+cmd_type_sel=2",	   
+                     "+DIR_PP0_Q0_NUM_HCW=256",
+                     "+DIR_PP1_Q0_NUM_HCW=256",
+                     "+DIR_PP2_Q0_NUM_HCW=256",
+                     "+DIR_PP3_Q0_NUM_HCW=256",
+                     "+DIR_PP4_Q0_NUM_HCW=0",
+                     "+DIR_PP5_Q0_NUM_HCW=0",
+                     "+DIR_PP6_Q0_NUM_HCW=0",
+                     "+DIR_PP7_Q0_NUM_HCW=0",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=24",
+
+                     "+DIR_PP1_HCW_DELAY=24",
+
+                     "+DIR_PP2_HCW_DELAY=24",
+
+                     "+DIR_PP3_HCW_DELAY=24",
+
+                     "+LDB_PP0_Q0_NUM_HCW=256",
+                     "+LDB_PP1_Q0_NUM_HCW=256",
+                     "+LDB_PP2_Q0_NUM_HCW=256",
+                     "+LDB_PP3_Q0_NUM_HCW=256",
+                     "+LDB_PP4_Q0_NUM_HCW=0",
+                     "+LDB_PP5_Q0_NUM_HCW=0",
+                     "+LDB_PP6_Q0_NUM_HCW=0",
+                     "+LDB_PP7_Q0_NUM_HCW=0",
+
+                     "+LDB_PP0_HCW_DELAY=24",
+
+                     "+LDB_PP1_HCW_DELAY=24",
+
+                     "+LDB_PP2_HCW_DELAY=24",
+
+                     "+LDB_PP3_HCW_DELAY=24",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test2_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+            
+     q4_dir_ldb_freq4_renqt_short => {
+          -simv_args => [
+                     "+cmd_type_sel=1",	   
+                     "+DIR_PP0_Q0_NUM_HCW=256",
+                     "+DIR_PP1_Q0_NUM_HCW=256",
+                     "+DIR_PP2_Q0_NUM_HCW=256",
+                     "+DIR_PP3_Q0_NUM_HCW=256",
+                     "+DIR_PP4_Q0_NUM_HCW=0",
+                     "+DIR_PP5_Q0_NUM_HCW=0",
+                     "+DIR_PP6_Q0_NUM_HCW=0",
+                     "+DIR_PP7_Q0_NUM_HCW=0",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=24",
+
+                     "+DIR_PP1_HCW_DELAY=24",
+
+                     "+DIR_PP2_HCW_DELAY=24",
+
+                     "+DIR_PP3_HCW_DELAY=24",
+
+                     "+LDB_PP0_Q0_NUM_HCW=128",
+                     "+LDB_PP1_Q0_NUM_HCW=128",
+                     "+LDB_PP2_Q0_NUM_HCW=128",
+                     "+LDB_PP3_Q0_NUM_HCW=128",
+                     "+LDB_PP4_Q0_NUM_HCW=0",
+                     "+LDB_PP5_Q0_NUM_HCW=0",
+                     "+LDB_PP6_Q0_NUM_HCW=0",
+                     "+LDB_PP7_Q0_NUM_HCW=0",
+
+                     "+LDB_PP0_HCW_DELAY=16",
+
+                     "+LDB_PP1_HCW_DELAY=16",
+
+                     "+LDB_PP2_HCW_DELAY=16",
+
+                     "+LDB_PP3_HCW_DELAY=16",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test2_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+
+     q4_dir_ldb_freq4_renqt_0 => {
+          -simv_args => [
+                     "+cmd_type_sel=1",	   
+                     "+DIR_PP0_Q0_NUM_HCW=256",
+                     "+DIR_PP1_Q0_NUM_HCW=256",
+                     "+DIR_PP2_Q0_NUM_HCW=256",
+                     "+DIR_PP3_Q0_NUM_HCW=256",
+                     "+DIR_PP4_Q0_NUM_HCW=0",
+                     "+DIR_PP5_Q0_NUM_HCW=0",
+                     "+DIR_PP6_Q0_NUM_HCW=0",
+                     "+DIR_PP7_Q0_NUM_HCW=0",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=24",
+
+                     "+DIR_PP1_HCW_DELAY=24",
+
+                     "+DIR_PP2_HCW_DELAY=24",
+
+                     "+DIR_PP3_HCW_DELAY=24",
+
+                     "+LDB_PP0_Q0_NUM_HCW=128",
+                     "+LDB_PP1_Q0_NUM_HCW=128",
+                     "+LDB_PP2_Q0_NUM_HCW=128",
+                     "+LDB_PP3_Q0_NUM_HCW=128",
+                     "+LDB_PP4_Q0_NUM_HCW=0",
+                     "+LDB_PP5_Q0_NUM_HCW=0",
+                     "+LDB_PP6_Q0_NUM_HCW=0",
+                     "+LDB_PP7_Q0_NUM_HCW=0",
+
+                     "+LDB_PP0_HCW_DELAY=24",
+
+                     "+LDB_PP1_HCW_DELAY=24",
+
+                     "+LDB_PP2_HCW_DELAY=24",
+
+                     "+LDB_PP3_HCW_DELAY=24",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test2_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+
+
+     q4_dir_ldb_freq4_renqt_1 => {
+          -simv_args => [
+                     "+cmd_type_sel=1",	   
+                     "+DIR_PP0_Q0_NUM_HCW=1024",
+                     "+DIR_PP1_Q0_NUM_HCW=1024",
+                     "+DIR_PP2_Q0_NUM_HCW=1024",
+                     "+DIR_PP3_Q0_NUM_HCW=1024",
+                     "+DIR_PP4_Q0_NUM_HCW=0",
+                     "+DIR_PP5_Q0_NUM_HCW=0",
+                     "+DIR_PP6_Q0_NUM_HCW=0",
+                     "+DIR_PP7_Q0_NUM_HCW=0",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=24",
+
+                     "+DIR_PP1_HCW_DELAY=24",
+
+                     "+DIR_PP2_HCW_DELAY=24",
+
+                     "+DIR_PP3_HCW_DELAY=24",
+
+                     "+LDB_PP0_Q0_NUM_HCW=512",
+                     "+LDB_PP1_Q0_NUM_HCW=512",
+                     "+LDB_PP2_Q0_NUM_HCW=512",
+                     "+LDB_PP3_Q0_NUM_HCW=512",
+                     "+LDB_PP4_Q0_NUM_HCW=0",
+                     "+LDB_PP5_Q0_NUM_HCW=0",
+                     "+LDB_PP6_Q0_NUM_HCW=0",
+                     "+LDB_PP7_Q0_NUM_HCW=0",
+
+                     "+LDB_PP0_HCW_DELAY=24",
+
+                     "+LDB_PP1_HCW_DELAY=24",
+
+                     "+LDB_PP2_HCW_DELAY=24",
+
+                     "+LDB_PP3_HCW_DELAY=24",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test2_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+                  
+
+     q4_dir_ldb_freq4_renqt_2 => {
+          -simv_args => [
+                     "+cmd_type_sel=1",	   
+                     "+DIR_PP0_Q0_NUM_HCW=2048",
+                     "+DIR_PP1_Q0_NUM_HCW=2048",
+                     "+DIR_PP2_Q0_NUM_HCW=2048",
+                     "+DIR_PP3_Q0_NUM_HCW=2048",
+                     "+DIR_PP4_Q0_NUM_HCW=0",
+                     "+DIR_PP5_Q0_NUM_HCW=0",
+                     "+DIR_PP6_Q0_NUM_HCW=0",
+                     "+DIR_PP7_Q0_NUM_HCW=0",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=24",
+
+                     "+DIR_PP1_HCW_DELAY=24",
+
+                     "+DIR_PP2_HCW_DELAY=24",
+
+                     "+DIR_PP3_HCW_DELAY=24",
+
+                     "+LDB_PP0_Q0_NUM_HCW=1024",
+                     "+LDB_PP1_Q0_NUM_HCW=1024",
+                     "+LDB_PP2_Q0_NUM_HCW=1024",
+                     "+LDB_PP3_Q0_NUM_HCW=1024",
+                     "+LDB_PP4_Q0_NUM_HCW=0",
+                     "+LDB_PP5_Q0_NUM_HCW=0",
+                     "+LDB_PP6_Q0_NUM_HCW=0",
+                     "+LDB_PP7_Q0_NUM_HCW=0",
+
+                     "+LDB_PP0_HCW_DELAY=24",
+
+                     "+LDB_PP1_HCW_DELAY=24",
+
+                     "+LDB_PP2_HCW_DELAY=24",
+
+                     "+LDB_PP3_HCW_DELAY=24",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test2_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+                        		                                
+      q8_short => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+
+                     "+DIR_PP0_Q0_NUM_HCW=128",
+                     "+DIR_PP1_Q0_NUM_HCW=128",
+                     "+DIR_PP2_Q0_NUM_HCW=128",
+                     "+DIR_PP3_Q0_NUM_HCW=128",
+                     "+DIR_PP4_Q0_NUM_HCW=128",
+                     "+DIR_PP5_Q0_NUM_HCW=128",
+                     "+DIR_PP6_Q0_NUM_HCW=128",
+                     "+DIR_PP7_Q0_NUM_HCW=128",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=31",
+                     "+DIR_PP1_HCW_DELAY=31",
+                     "+DIR_PP2_HCW_DELAY=31",
+                     "+DIR_PP3_HCW_DELAY=31",
+                     "+DIR_PP4_HCW_DELAY=31",
+                     "+DIR_PP5_HCW_DELAY=31",
+                     "+DIR_PP6_HCW_DELAY=31",
+                     "+DIR_PP7_HCW_DELAY=31",
+
+                     "+LDB_PP0_Q0_NUM_HCW=64",
+                     "+LDB_PP1_Q0_NUM_HCW=64",
+                     "+LDB_PP2_Q0_NUM_HCW=64",
+                     "+LDB_PP3_Q0_NUM_HCW=64",
+                     "+LDB_PP4_Q0_NUM_HCW=64",
+                     "+LDB_PP5_Q0_NUM_HCW=64",
+                     "+LDB_PP6_Q0_NUM_HCW=64",
+                     "+LDB_PP7_Q0_NUM_HCW=64",
+
+                     "+LDB_PP0_HCW_DELAY=31",
+                     "+LDB_PP1_HCW_DELAY=31",
+                     "+LDB_PP2_HCW_DELAY=31",
+                     "+LDB_PP3_HCW_DELAY=31",
+                     "+LDB_PP4_HCW_DELAY=31",
+                     "+LDB_PP5_HCW_DELAY=31",
+                     "+LDB_PP6_HCW_DELAY=31",
+                     "+LDB_PP7_HCW_DELAY=31",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test1_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      q8_sciov_short => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+
+                     "+DIR_PP0_Q0_NUM_HCW=128",
+                     "+DIR_PP1_Q0_NUM_HCW=128",
+                     "+DIR_PP2_Q0_NUM_HCW=128",
+                     "+DIR_PP3_Q0_NUM_HCW=128",
+                     "+DIR_PP4_Q0_NUM_HCW=128",
+                     "+DIR_PP5_Q0_NUM_HCW=128",
+                     "+DIR_PP6_Q0_NUM_HCW=128",
+                     "+DIR_PP7_Q0_NUM_HCW=128",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=31",
+                     "+DIR_PP1_HCW_DELAY=31",
+                     "+DIR_PP2_HCW_DELAY=31",
+                     "+DIR_PP3_HCW_DELAY=31",
+                     "+DIR_PP4_HCW_DELAY=31",
+                     "+DIR_PP5_HCW_DELAY=31",
+                     "+DIR_PP6_HCW_DELAY=31",
+                     "+DIR_PP7_HCW_DELAY=31",
+
+                     "+LDB_PP0_Q0_NUM_HCW=64",
+                     "+LDB_PP1_Q0_NUM_HCW=64",
+                     "+LDB_PP2_Q0_NUM_HCW=64",
+                     "+LDB_PP3_Q0_NUM_HCW=64",
+                     "+LDB_PP4_Q0_NUM_HCW=64",
+                     "+LDB_PP5_Q0_NUM_HCW=64",
+                     "+LDB_PP6_Q0_NUM_HCW=64",
+                     "+LDB_PP7_Q0_NUM_HCW=64",
+
+                     "+LDB_PP0_HCW_DELAY=31",
+                     "+LDB_PP1_HCW_DELAY=31",
+                     "+LDB_PP2_HCW_DELAY=31",
+                     "+LDB_PP3_HCW_DELAY=31",
+                     "+LDB_PP4_HCW_DELAY=31",
+                     "+LDB_PP5_HCW_DELAY=31",
+                     "+LDB_PP6_HCW_DELAY=31",
+                     "+LDB_PP7_HCW_DELAY=31",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_sciov_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      q8_cross_short => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+
+                     "+DIR_PP0_Q0_NUM_HCW=128",
+                     "+DIR_PP1_Q0_NUM_HCW=128",
+                     "+DIR_PP2_Q0_NUM_HCW=128",
+                     "+DIR_PP3_Q0_NUM_HCW=128",
+                     "+DIR_PP4_Q0_NUM_HCW=128",
+                     "+DIR_PP5_Q0_NUM_HCW=128",
+                     "+DIR_PP6_Q0_NUM_HCW=128",
+                     "+DIR_PP7_Q0_NUM_HCW=128",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=31",
+                     "+DIR_PP1_HCW_DELAY=31",
+                     "+DIR_PP2_HCW_DELAY=31",
+                     "+DIR_PP3_HCW_DELAY=31",
+                     "+DIR_PP4_HCW_DELAY=31",
+                     "+DIR_PP5_HCW_DELAY=31",
+                     "+DIR_PP6_HCW_DELAY=31",
+                     "+DIR_PP7_HCW_DELAY=31",
+
+                     "+DIR_PP0_QTYPE=QDIR",
+                     "+DIR_PP1_QTYPE=QUNO",
+                     "+DIR_PP2_QTYPE=QDIR",
+                     "+DIR_PP3_QTYPE=QUNO",
+                     "+DIR_PP4_QTYPE=QDIR",
+                     "+DIR_PP5_QTYPE=QDIR",
+                     "+DIR_PP6_QTYPE=QATM",
+                     "+DIR_PP7_QTYPE=QDIR",
+
+                     "+LDB_PP0_Q0_NUM_HCW=64",
+                     "+LDB_PP1_Q0_NUM_HCW=64",
+                     "+LDB_PP2_Q0_NUM_HCW=64",
+                     "+LDB_PP3_Q0_NUM_HCW=64",
+                     "+LDB_PP4_Q0_NUM_HCW=64",
+                     "+LDB_PP5_Q0_NUM_HCW=64",
+                     "+LDB_PP6_Q0_NUM_HCW=64",
+                     "+LDB_PP7_Q0_NUM_HCW=64",
+
+                     "+LDB_PP0_HCW_DELAY=31",
+                     "+LDB_PP1_HCW_DELAY=31",
+                     "+LDB_PP2_HCW_DELAY=31",
+                     "+LDB_PP3_HCW_DELAY=31",
+                     "+LDB_PP4_HCW_DELAY=31",
+                     "+LDB_PP5_HCW_DELAY=31",
+                     "+LDB_PP6_HCW_DELAY=31",
+                     "+LDB_PP7_HCW_DELAY=31",
+
+                     "+LDB_PP0_QTYPE=QATM",
+                     "+LDB_PP1_QTYPE=QDIR",
+                     "+LDB_PP2_QTYPE=QUNO",
+                     "+LDB_PP3_QTYPE=QDIR",
+                     "+LDB_PP4_QTYPE=QUNO",
+                     "+LDB_PP5_QTYPE=QATM",
+                     "+LDB_PP6_QTYPE=QDIR",
+                     "+LDB_PP7_QTYPE=QUNO",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test1_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      q8_short_msix => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+
+                     "+DIR_PP0_Q0_NUM_HCW=128",
+                     "+DIR_PP1_Q0_NUM_HCW=128",
+                     "+DIR_PP2_Q0_NUM_HCW=128",
+                     "+DIR_PP3_Q0_NUM_HCW=128",
+                     "+DIR_PP4_Q0_NUM_HCW=128",
+                     "+DIR_PP5_Q0_NUM_HCW=128",
+                     "+DIR_PP6_Q0_NUM_HCW=128",
+                     "+DIR_PP7_Q0_NUM_HCW=128",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=31",
+                     "+DIR_PP1_HCW_DELAY=31",
+                     "+DIR_PP2_HCW_DELAY=31",
+                     "+DIR_PP3_HCW_DELAY=31",
+                     "+DIR_PP4_HCW_DELAY=31",
+                     "+DIR_PP5_HCW_DELAY=31",
+                     "+DIR_PP6_HCW_DELAY=31",
+                     "+DIR_PP7_HCW_DELAY=31",
+
+                     "+DIR_PP0_CQ_POLL=0",
+                     "+DIR_PP1_CQ_POLL=0",
+                     "+DIR_PP2_CQ_POLL=0",
+                     "+DIR_PP3_CQ_POLL=0",
+                     "+DIR_PP4_CQ_POLL=0",
+                     "+DIR_PP5_CQ_POLL=0",
+                     "+DIR_PP6_CQ_POLL=0",
+                     "+DIR_PP7_CQ_POLL=0",
+                     "+DIR_PP8_CQ_POLL=0",
+                     "+DIR_PP9_CQ_POLL=0",
+                     "+DIR_PP10_CQ_POLL=0",
+                     "+DIR_PP11_CQ_POLL=0",
+                     "+DIR_PP12_CQ_POLL=0",
+                     "+DIR_PP13_CQ_POLL=0",
+                     "+DIR_PP14_CQ_POLL=0",
+                     "+DIR_PP15_CQ_POLL=0",
+
+                     "+LDB_PP0_Q0_NUM_HCW=64",
+                     "+LDB_PP1_Q0_NUM_HCW=64",
+                     "+LDB_PP2_Q0_NUM_HCW=64",
+                     "+LDB_PP3_Q0_NUM_HCW=64",
+                     "+LDB_PP4_Q0_NUM_HCW=64",
+                     "+LDB_PP5_Q0_NUM_HCW=64",
+                     "+LDB_PP6_Q0_NUM_HCW=64",
+                     "+LDB_PP7_Q0_NUM_HCW=64",
+
+                     "+LDB_PP0_HCW_DELAY=31",
+                     "+LDB_PP1_HCW_DELAY=31",
+                     "+LDB_PP2_HCW_DELAY=31",
+                     "+LDB_PP3_HCW_DELAY=31",
+                     "+LDB_PP4_HCW_DELAY=31",
+                     "+LDB_PP5_HCW_DELAY=31",
+                     "+LDB_PP6_HCW_DELAY=31",
+                     "+LDB_PP7_HCW_DELAY=31",
+
+                     "+LDB_PP0_CQ_POLL=0",
+                     "+LDB_PP1_CQ_POLL=0",
+                     "+LDB_PP2_CQ_POLL=0",
+                     "+LDB_PP3_CQ_POLL=0",
+                     "+LDB_PP4_CQ_POLL=0",
+                     "+LDB_PP5_CQ_POLL=0",
+                     "+LDB_PP6_CQ_POLL=0",
+                     "+LDB_PP7_CQ_POLL=0",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test2_cfg.cft",
+                     "+HQM_SEQ_CFG2=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test1_enable_msix.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      q8_sciov_ims_short => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+
+                     "+DIR_PP0_Q0_NUM_HCW=128",
+                     "+DIR_PP1_Q0_NUM_HCW=128",
+                     "+DIR_PP2_Q0_NUM_HCW=128",
+                     "+DIR_PP3_Q0_NUM_HCW=128",
+                     "+DIR_PP4_Q0_NUM_HCW=128",
+                     "+DIR_PP5_Q0_NUM_HCW=128",
+                     "+DIR_PP6_Q0_NUM_HCW=128",
+                     "+DIR_PP7_Q0_NUM_HCW=128",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=31",
+                     "+DIR_PP1_HCW_DELAY=31",
+                     "+DIR_PP2_HCW_DELAY=31",
+                     "+DIR_PP3_HCW_DELAY=31",
+                     "+DIR_PP4_HCW_DELAY=31",
+                     "+DIR_PP5_HCW_DELAY=31",
+                     "+DIR_PP6_HCW_DELAY=31",
+                     "+DIR_PP7_HCW_DELAY=31",
+
+                     "+DIR_PP0_CQ_POLL=0",
+                     "+DIR_PP1_CQ_POLL=0",
+                     "+DIR_PP2_CQ_POLL=0",
+                     "+DIR_PP3_CQ_POLL=0",
+                     "+DIR_PP4_CQ_POLL=0",
+                     "+DIR_PP5_CQ_POLL=0",
+                     "+DIR_PP6_CQ_POLL=0",
+                     "+DIR_PP7_CQ_POLL=0",
+                     "+DIR_PP8_CQ_POLL=0",
+                     "+DIR_PP9_CQ_POLL=0",
+                     "+DIR_PP10_CQ_POLL=0",
+                     "+DIR_PP11_CQ_POLL=0",
+                     "+DIR_PP12_CQ_POLL=0",
+                     "+DIR_PP13_CQ_POLL=0",
+                     "+DIR_PP14_CQ_POLL=0",
+                     "+DIR_PP15_CQ_POLL=0",
+
+                     "+LDB_PP0_Q0_NUM_HCW=64",
+                     "+LDB_PP1_Q0_NUM_HCW=64",
+                     "+LDB_PP2_Q0_NUM_HCW=64",
+                     "+LDB_PP3_Q0_NUM_HCW=64",
+                     "+LDB_PP4_Q0_NUM_HCW=64",
+                     "+LDB_PP5_Q0_NUM_HCW=64",
+                     "+LDB_PP6_Q0_NUM_HCW=64",
+                     "+LDB_PP7_Q0_NUM_HCW=64",
+
+                     "+LDB_PP0_HCW_DELAY=31",
+                     "+LDB_PP1_HCW_DELAY=31",
+                     "+LDB_PP2_HCW_DELAY=31",
+                     "+LDB_PP3_HCW_DELAY=31",
+                     "+LDB_PP4_HCW_DELAY=31",
+                     "+LDB_PP5_HCW_DELAY=31",
+                     "+LDB_PP6_HCW_DELAY=31",
+                     "+LDB_PP7_HCW_DELAY=31",
+
+                     "+LDB_PP0_CQ_POLL=0",
+                     "+LDB_PP1_CQ_POLL=0",
+                     "+LDB_PP2_CQ_POLL=0",
+                     "+LDB_PP3_CQ_POLL=0",
+                     "+LDB_PP4_CQ_POLL=0",
+                     "+LDB_PP5_CQ_POLL=0",
+                     "+LDB_PP6_CQ_POLL=0",
+                     "+LDB_PP7_CQ_POLL=0",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_sciov_cfg.cft",
+                     "+HQM_SEQ_CFG2=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_sciov_enable_ims.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      q8_wb_stress => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+
+                     "+DIR_PP0_BATCH_MIN=4",
+                     "+DIR_PP0_BATCH_MAX=4",
+                     "+DIR_PP1_BATCH_MIN=4",
+                     "+DIR_PP1_BATCH_MAX=4",
+                     "+DIR_PP2_BATCH_MIN=4",
+                     "+DIR_PP2_BATCH_MAX=4",
+                     "+DIR_PP3_BATCH_MIN=4",
+                     "+DIR_PP3_BATCH_MAX=4",
+                     "+DIR_PP4_BATCH_MIN=4",
+                     "+DIR_PP4_BATCH_MAX=4",
+                     "+DIR_PP5_BATCH_MIN=4",
+                     "+DIR_PP5_BATCH_MAX=4",
+                     "+DIR_PP6_BATCH_MIN=4",
+                     "+DIR_PP6_BATCH_MAX=4",
+                     "+DIR_PP7_BATCH_MIN=4",
+                     "+DIR_PP7_BATCH_MAX=4",
+
+                     "+DIR_PP0_Q0_HCW_TIME=20000",
+                     "+DIR_PP1_Q0_HCW_TIME=20000",
+                     "+DIR_PP2_Q0_HCW_TIME=20000",
+                     "+DIR_PP3_Q0_HCW_TIME=20000",
+                     "+DIR_PP4_Q0_HCW_TIME=20000",
+                     "+DIR_PP5_Q0_HCW_TIME=20000",
+                     "+DIR_PP6_Q0_HCW_TIME=20000",
+                     "+DIR_PP7_Q0_HCW_TIME=20000",
+
+                     "+DIR_PP0_HCW_DELAY=160",
+
+                     "+DIR_PP1_HCW_DELAY=160",
+
+                     "+DIR_PP2_HCW_DELAY=160",
+
+                     "+DIR_PP3_HCW_DELAY=160",
+
+                     "+DIR_PP4_HCW_DELAY=160",
+
+                     "+DIR_PP5_HCW_DELAY=160",
+
+                     "+DIR_PP6_HCW_DELAY=160",
+
+                     "+DIR_PP7_HCW_DELAY=160",
+
+                     "+LDB_PP0_BATCH_MIN=1",
+                     "+LDB_PP0_BATCH_MAX=4",
+                     "+LDB_PP1_BATCH_MIN=1",
+                     "+LDB_PP1_BATCH_MAX=4",
+                     "+LDB_PP2_BATCH_MIN=1",
+                     "+LDB_PP2_BATCH_MAX=4",
+                     "+LDB_PP3_BATCH_MIN=1",
+                     "+LDB_PP3_BATCH_MAX=4",
+                     "+LDB_PP4_BATCH_MIN=1",
+                     "+LDB_PP4_BATCH_MAX=4",
+                     "+LDB_PP5_BATCH_MIN=1",
+                     "+LDB_PP5_BATCH_MAX=4",
+                     "+LDB_PP6_BATCH_MIN=1",
+                     "+LDB_PP6_BATCH_MAX=4",
+                     "+LDB_PP7_BATCH_MIN=1",
+                     "+LDB_PP7_BATCH_MAX=4",
+
+                     "+LDB_PP0_Q0_HCW_TIME=20000",
+                     "+LDB_PP1_Q0_HCW_TIME=20000",
+                     "+LDB_PP2_Q0_HCW_TIME=20000",
+                     "+LDB_PP3_Q0_HCW_TIME=20000",
+                     "+LDB_PP4_Q0_HCW_TIME=20000",
+                     "+LDB_PP5_Q0_HCW_TIME=20000",
+                     "+LDB_PP6_Q0_HCW_TIME=20000",
+                     "+LDB_PP7_Q0_HCW_TIME=20000",
+
+                     "+LDB_PP0_HCW_DELAY=350",
+                     "+LDB_PP0_HCW_DELAY_MAX=1024",
+
+                     "+LDB_PP1_HCW_DELAY=350",
+                     "+LDB_PP1_HCW_DELAY_MAX=1024",
+
+                     "+LDB_PP2_HCW_DELAY=350",
+                     "+LDB_PP2_HCW_DELAY_MAX=1024",
+
+                     "+LDB_PP3_HCW_DELAY=350",
+                     "+LDB_PP3_HCW_DELAY_MAX=1024",
+
+                     "+LDB_PP4_HCW_DELAY=350",
+                     "+LDB_PP4_HCW_DELAY_MAX=1024",
+
+                     "+LDB_PP5_HCW_DELAY=350",
+                     "+LDB_PP4_HCW_DELAY_MAX=1024",
+
+                     "+LDB_PP6_HCW_DELAY=350",
+                     "+LDB_PP6_HCW_DELAY_MAX=1024",
+
+                     "+LDB_PP7_HCW_DELAY=350",
+                     "+LDB_PP7_HCW_DELAY_MAX=1024",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test1_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      q8_comp_msix => {
+          -simv_args => [
+                     "+hqm_pcie_init_stim_config::num_vfs=0",
+                     "+hqm_pcie_init_stim_config::skip_msix_cfg=1",
+                     "+hqm_pcie_init_stim_config::skip_msi_cfg=1",
+
+                     "+DIR_PP0_BATCH_MIN=1",
+                     "+DIR_PP0_BATCH_MAX=4",
+                     "+DIR_PP1_BATCH_MIN=1",
+                     "+DIR_PP1_BATCH_MAX=4",
+                     "+DIR_PP2_BATCH_MIN=1",
+                     "+DIR_PP2_BATCH_MAX=4",
+                     "+DIR_PP3_BATCH_MIN=1",
+                     "+DIR_PP3_BATCH_MAX=4",
+                     "+DIR_PP4_BATCH_MIN=1",
+                     "+DIR_PP4_BATCH_MAX=4",
+                     "+DIR_PP5_BATCH_MIN=1",
+                     "+DIR_PP5_BATCH_MAX=4",
+                     "+DIR_PP6_BATCH_MIN=1",
+                     "+DIR_PP6_BATCH_MAX=4",
+                     "+DIR_PP7_BATCH_MIN=1",
+                     "+DIR_PP7_BATCH_MAX=4",
+
+                     "+DIR_PP0_Q0_NUM_HCW=128",
+                     "+DIR_PP1_Q0_NUM_HCW=128",
+                     "+DIR_PP2_Q0_NUM_HCW=128",
+                     "+DIR_PP3_Q0_NUM_HCW=128",
+                     "+DIR_PP4_Q0_NUM_HCW=128",
+                     "+DIR_PP5_Q0_NUM_HCW=128",
+                     "+DIR_PP6_Q0_NUM_HCW=128",
+                     "+DIR_PP7_Q0_NUM_HCW=128",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_CQ_POLL=0",
+                     "+DIR_PP1_CQ_POLL=0",
+                     "+DIR_PP2_CQ_POLL=0",
+                     "+DIR_PP3_CQ_POLL=0",
+                     "+DIR_PP4_CQ_POLL=0",
+                     "+DIR_PP5_CQ_POLL=0",
+                     "+DIR_PP6_CQ_POLL=0",
+                     "+DIR_PP7_CQ_POLL=0",
+                     "+DIR_PP8_CQ_POLL=0",
+                     "+DIR_PP9_CQ_POLL=0",
+                     "+DIR_PP10_CQ_POLL=0",
+                     "+DIR_PP11_CQ_POLL=0",
+                     "+DIR_PP12_CQ_POLL=0",
+                     "+DIR_PP13_CQ_POLL=0",
+                     "+DIR_PP14_CQ_POLL=0",
+                     "+DIR_PP15_CQ_POLL=0",
+
+                     "+DIR_PP0_HCW_DELAY=16",
+
+                     "+DIR_PP1_HCW_DELAY=16",
+
+                     "+DIR_PP2_HCW_DELAY=16",
+
+                     "+DIR_PP3_HCW_DELAY=16",
+
+                     "+DIR_PP4_HCW_DELAY=16",
+
+                     "+DIR_PP5_HCW_DELAY=16",
+
+                     "+DIR_PP6_HCW_DELAY=16",
+
+                     "+DIR_PP7_HCW_DELAY=16",
+
+                     "+LDB_PP0_BATCH_MIN=1",
+                     "+LDB_PP0_BATCH_MAX=4",
+                     "+LDB_PP1_BATCH_MIN=1",
+                     "+LDB_PP1_BATCH_MAX=4",
+                     "+LDB_PP2_BATCH_MIN=1",
+                     "+LDB_PP2_BATCH_MAX=4",
+                     "+LDB_PP3_BATCH_MIN=1",
+                     "+LDB_PP3_BATCH_MAX=4",
+                     "+LDB_PP4_BATCH_MIN=1",
+                     "+LDB_PP4_BATCH_MAX=4",
+                     "+LDB_PP5_BATCH_MIN=1",
+                     "+LDB_PP5_BATCH_MAX=4",
+                     "+LDB_PP6_BATCH_MIN=1",
+                     "+LDB_PP6_BATCH_MAX=4",
+                     "+LDB_PP7_BATCH_MIN=1",
+                     "+LDB_PP7_BATCH_MAX=4",
+
+                     "+LDB_PP0_Q0_NUM_HCW=64",
+                     "+LDB_PP1_Q0_NUM_HCW=64",
+                     "+LDB_PP2_Q0_NUM_HCW=64",
+                     "+LDB_PP3_Q0_NUM_HCW=64",
+                     "+LDB_PP4_Q0_NUM_HCW=64",
+                     "+LDB_PP5_Q0_NUM_HCW=64",
+                     "+LDB_PP6_Q0_NUM_HCW=64",
+                     "+LDB_PP7_Q0_NUM_HCW=64",
+
+                     "+LDB_PP0_CQ_POLL=0",
+                     "+LDB_PP1_CQ_POLL=0",
+                     "+LDB_PP2_CQ_POLL=0",
+                     "+LDB_PP3_CQ_POLL=0",
+                     "+LDB_PP4_CQ_POLL=0",
+                     "+LDB_PP5_CQ_POLL=0",
+                     "+LDB_PP6_CQ_POLL=0",
+                     "+LDB_PP7_CQ_POLL=0",
+
+                     "+LDB_PP0_HCW_DELAY=32",
+
+                     "+LDB_PP1_HCW_DELAY=32",
+
+                     "+LDB_PP2_HCW_DELAY=32",
+
+                     "+LDB_PP3_HCW_DELAY=32",
+
+                     "+LDB_PP4_HCW_DELAY=32",
+
+                     "+LDB_PP5_HCW_DELAY=32",
+
+                     "+LDB_PP6_HCW_DELAY=32",
+
+                     "+LDB_PP7_HCW_DELAY=32",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test2_cfg.cft",
+                     "+HQM_SEQ_CFG2=aceroot/verif/tb/hqm/tests/enable_compressed_msix_mode.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      q8_short_b3 => {
+          -simv_args => [
+                     "+DIR_PP0_BATCH_MIN=3",
+                     "+DIR_PP0_BATCH_MAX=3",
+                     "+DIR_PP1_BATCH_MIN=3",
+                     "+DIR_PP1_BATCH_MAX=3",
+                     "+DIR_PP2_BATCH_MIN=3",
+                     "+DIR_PP2_BATCH_MAX=3",
+                     "+DIR_PP3_BATCH_MIN=3",
+                     "+DIR_PP3_BATCH_MAX=3",
+                     "+DIR_PP4_BATCH_MIN=3",
+                     "+DIR_PP4_BATCH_MAX=3",
+                     "+DIR_PP5_BATCH_MIN=3",
+                     "+DIR_PP5_BATCH_MAX=3",
+                     "+DIR_PP6_BATCH_MIN=3",
+                     "+DIR_PP6_BATCH_MAX=3",
+                     "+DIR_PP7_BATCH_MIN=3",
+                     "+DIR_PP7_BATCH_MAX=3",
+
+                     "+DIR_PP0_Q0_NUM_HCW=128",
+                     "+DIR_PP1_Q0_NUM_HCW=128",
+                     "+DIR_PP2_Q0_NUM_HCW=128",
+                     "+DIR_PP3_Q0_NUM_HCW=128",
+                     "+DIR_PP4_Q0_NUM_HCW=128",
+                     "+DIR_PP5_Q0_NUM_HCW=128",
+                     "+DIR_PP6_Q0_NUM_HCW=128",
+                     "+DIR_PP7_Q0_NUM_HCW=128",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=16",
+
+                     "+DIR_PP1_HCW_DELAY=16",
+
+                     "+DIR_PP2_HCW_DELAY=16",
+
+                     "+DIR_PP3_HCW_DELAY=16",
+
+                     "+DIR_PP4_HCW_DELAY=16",
+
+                     "+DIR_PP5_HCW_DELAY=16",
+
+                     "+DIR_PP6_HCW_DELAY=16",
+
+                     "+DIR_PP7_HCW_DELAY=16",
+
+                     "+LDB_PP0_BATCH_MIN=3",
+                     "+LDB_PP0_BATCH_MAX=3",
+                     "+LDB_PP1_BATCH_MIN=3",
+                     "+LDB_PP1_BATCH_MAX=3",
+                     "+LDB_PP2_BATCH_MIN=3",
+                     "+LDB_PP2_BATCH_MAX=3",
+                     "+LDB_PP3_BATCH_MIN=3",
+                     "+LDB_PP3_BATCH_MAX=3",
+                     "+LDB_PP4_BATCH_MIN=3",
+                     "+LDB_PP4_BATCH_MAX=3",
+                     "+LDB_PP5_BATCH_MIN=3",
+                     "+LDB_PP5_BATCH_MAX=3",
+                     "+LDB_PP6_BATCH_MIN=3",
+                     "+LDB_PP6_BATCH_MAX=3",
+                     "+LDB_PP7_BATCH_MIN=3",
+                     "+LDB_PP7_BATCH_MAX=3",
+
+                     "+LDB_PP0_Q0_NUM_HCW=64",
+                     "+LDB_PP1_Q0_NUM_HCW=64",
+                     "+LDB_PP2_Q0_NUM_HCW=64",
+                     "+LDB_PP3_Q0_NUM_HCW=64",
+                     "+LDB_PP4_Q0_NUM_HCW=64",
+                     "+LDB_PP5_Q0_NUM_HCW=64",
+                     "+LDB_PP6_Q0_NUM_HCW=64",
+                     "+LDB_PP7_Q0_NUM_HCW=64",
+
+                     "+LDB_PP0_HCW_DELAY=32",
+
+                     "+LDB_PP1_HCW_DELAY=32",
+
+                     "+LDB_PP2_HCW_DELAY=32",
+
+                     "+LDB_PP3_HCW_DELAY=32",
+
+                     "+LDB_PP4_HCW_DELAY=32",
+
+                     "+LDB_PP5_HCW_DELAY=32",
+
+                     "+LDB_PP6_HCW_DELAY=32",
+
+                     "+LDB_PP7_HCW_DELAY=32",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test1_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      q8 => {
+          -simv_args => [
+                     "+DIR_PP0_Q0_HCW_TIME=50000",
+                     "+DIR_PP1_Q0_HCW_TIME=50000",
+                     "+DIR_PP2_Q0_HCW_TIME=50000",
+                     "+DIR_PP3_Q0_HCW_TIME=50000",
+                     "+DIR_PP4_Q0_HCW_TIME=50000",
+                     "+DIR_PP5_Q0_HCW_TIME=50000",
+                     "+DIR_PP6_Q0_HCW_TIME=50000",
+                     "+DIR_PP7_Q0_HCW_TIME=50000",
+
+                     "+DIR_PP0_HCW_DELAY=32",
+
+                     "+DIR_PP1_HCW_DELAY=32",
+
+                     "+DIR_PP2_HCW_DELAY=32",
+
+                     "+DIR_PP3_HCW_DELAY=32",
+
+                     "+DIR_PP4_HCW_DELAY=32",
+
+                     "+DIR_PP5_HCW_DELAY=32",
+
+                     "+DIR_PP6_HCW_DELAY=32",
+
+                     "+DIR_PP7_HCW_DELAY=32",
+
+                     "+LDB_PP0_Q0_HCW_TIME=50000",
+                     "+LDB_PP1_Q0_HCW_TIME=50000",
+                     "+LDB_PP2_Q0_HCW_TIME=50000",
+                     "+LDB_PP3_Q0_HCW_TIME=50000",
+                     "+LDB_PP4_Q0_HCW_TIME=50000",
+                     "+LDB_PP5_Q0_HCW_TIME=50000",
+                     "+LDB_PP6_Q0_HCW_TIME=50000",
+                     "+LDB_PP7_Q0_HCW_TIME=50000",
+
+                     "+LDB_PP0_HCW_DELAY=64",
+
+                     "+LDB_PP1_HCW_DELAY=64",
+
+                     "+LDB_PP2_HCW_DELAY=64",
+
+                     "+LDB_PP3_HCW_DELAY=64",
+
+                     "+LDB_PP4_HCW_DELAY=64",
+
+                     "+LDB_PP5_HCW_DELAY=64",
+
+                     "+LDB_PP6_HCW_DELAY=64",
+
+                     "+LDB_PP7_HCW_DELAY=64",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test1_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      q8_10mtps => {
+          -simv_args => [
+                     "+DIR_PP0_Q0_HCW_TIME=50000",
+                     "+DIR_PP1_Q0_HCW_TIME=50000",
+                     "+DIR_PP2_Q0_HCW_TIME=50000",
+                     "+DIR_PP3_Q0_HCW_TIME=50000",
+                     "+DIR_PP4_Q0_HCW_TIME=50000",
+                     "+DIR_PP5_Q0_HCW_TIME=50000",
+                     "+DIR_PP6_Q0_HCW_TIME=50000",
+                     "+DIR_PP7_Q0_HCW_TIME=50000",
+
+                     "+DIR_PP0_HCW_DELAY=640",
+                     "+DIR_PP1_HCW_DELAY=640",
+                     "+DIR_PP2_HCW_DELAY=640",
+                     "+DIR_PP3_HCW_DELAY=640",
+                     "+DIR_PP4_HCW_DELAY=640",
+                     "+DIR_PP5_HCW_DELAY=640",
+                     "+DIR_PP6_HCW_DELAY=640",
+                     "+DIR_PP7_HCW_DELAY=640",
+
+                     "+LDB_PP0_Q0_HCW_TIME=50000",
+                     "+LDB_PP1_Q0_HCW_TIME=50000",
+                     "+LDB_PP2_Q0_HCW_TIME=50000",
+                     "+LDB_PP3_Q0_HCW_TIME=50000",
+                     "+LDB_PP4_Q0_HCW_TIME=50000",
+                     "+LDB_PP5_Q0_HCW_TIME=50000",
+                     "+LDB_PP6_Q0_HCW_TIME=50000",
+                     "+LDB_PP7_Q0_HCW_TIME=50000",
+
+                     "+LDB_PP0_QTYPE=QATM",
+                     "+LDB_PP1_QTYPE=QATM",
+                     "+LDB_PP2_QTYPE=QATM",
+                     "+LDB_PP3_QTYPE=QATM",
+                     "+LDB_PP4_QTYPE=QATM",
+                     "+LDB_PP5_QTYPE=QATM",
+                     "+LDB_PP6_QTYPE=QATM",
+                     "+LDB_PP7_QTYPE=QATM",
+
+                     "+LDB_PP0_HCW_DELAY=640",
+                     "+LDB_PP1_HCW_DELAY=640",
+                     "+LDB_PP2_HCW_DELAY=640",
+                     "+LDB_PP3_HCW_DELAY=640",
+                     "+LDB_PP4_HCW_DELAY=640",
+                     "+LDB_PP5_HCW_DELAY=640",
+                     "+LDB_PP6_HCW_DELAY=640",
+                     "+LDB_PP7_HCW_DELAY=640",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test1_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      q8_50mtps => {
+          -simv_args => [
+                     "+DIR_PP0_Q0_HCW_TIME=50000",
+                     "+DIR_PP1_Q0_HCW_TIME=50000",
+                     "+DIR_PP2_Q0_HCW_TIME=50000",
+                     "+DIR_PP3_Q0_HCW_TIME=50000",
+                     "+DIR_PP4_Q0_HCW_TIME=50000",
+                     "+DIR_PP5_Q0_HCW_TIME=50000",
+                     "+DIR_PP6_Q0_HCW_TIME=50000",
+                     "+DIR_PP7_Q0_HCW_TIME=50000",
+
+                     "+DIR_PP0_HCW_DELAY=128",
+                     "+DIR_PP1_HCW_DELAY=128",
+                     "+DIR_PP2_HCW_DELAY=128",
+                     "+DIR_PP3_HCW_DELAY=128",
+                     "+DIR_PP4_HCW_DELAY=128",
+                     "+DIR_PP5_HCW_DELAY=128",
+                     "+DIR_PP6_HCW_DELAY=128",
+                     "+DIR_PP7_HCW_DELAY=128",
+
+                     "+LDB_PP0_Q0_HCW_TIME=50000",
+                     "+LDB_PP1_Q0_HCW_TIME=50000",
+                     "+LDB_PP2_Q0_HCW_TIME=50000",
+                     "+LDB_PP3_Q0_HCW_TIME=50000",
+                     "+LDB_PP4_Q0_HCW_TIME=50000",
+                     "+LDB_PP5_Q0_HCW_TIME=50000",
+                     "+LDB_PP6_Q0_HCW_TIME=50000",
+                     "+LDB_PP7_Q0_HCW_TIME=50000",
+
+                     "+LDB_PP0_QTYPE=QATM",
+                     "+LDB_PP1_QTYPE=QATM",
+                     "+LDB_PP2_QTYPE=QATM",
+                     "+LDB_PP3_QTYPE=QATM",
+                     "+LDB_PP4_QTYPE=QATM",
+                     "+LDB_PP5_QTYPE=QATM",
+                     "+LDB_PP6_QTYPE=QATM",
+                     "+LDB_PP7_QTYPE=QATM",
+
+                     "+LDB_PP0_HCW_DELAY=128",
+                     "+LDB_PP1_HCW_DELAY=128",
+                     "+LDB_PP2_HCW_DELAY=128",
+                     "+LDB_PP3_HCW_DELAY=128",
+                     "+LDB_PP4_HCW_DELAY=128",
+                     "+LDB_PP5_HCW_DELAY=128",
+                     "+LDB_PP6_HCW_DELAY=128",
+                     "+LDB_PP7_HCW_DELAY=128",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test1_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      q8_100mtps => {
+          -simv_args => [
+                     "+DIR_PP0_Q0_HCW_TIME=50000",
+                     "+DIR_PP1_Q0_HCW_TIME=50000",
+                     "+DIR_PP2_Q0_HCW_TIME=50000",
+                     "+DIR_PP3_Q0_HCW_TIME=50000",
+                     "+DIR_PP4_Q0_HCW_TIME=50000",
+                     "+DIR_PP5_Q0_HCW_TIME=50000",
+                     "+DIR_PP6_Q0_HCW_TIME=50000",
+                     "+DIR_PP7_Q0_HCW_TIME=50000",
+
+                     "+DIR_PP0_HCW_DELAY=64",
+                     "+DIR_PP1_HCW_DELAY=64",
+                     "+DIR_PP2_HCW_DELAY=64",
+                     "+DIR_PP3_HCW_DELAY=64",
+                     "+DIR_PP4_HCW_DELAY=64",
+                     "+DIR_PP5_HCW_DELAY=64",
+                     "+DIR_PP6_HCW_DELAY=64",
+                     "+DIR_PP7_HCW_DELAY=64",
+
+                     "+LDB_PP0_Q0_HCW_TIME=50000",
+                     "+LDB_PP1_Q0_HCW_TIME=50000",
+                     "+LDB_PP2_Q0_HCW_TIME=50000",
+                     "+LDB_PP3_Q0_HCW_TIME=50000",
+                     "+LDB_PP4_Q0_HCW_TIME=50000",
+                     "+LDB_PP5_Q0_HCW_TIME=50000",
+                     "+LDB_PP6_Q0_HCW_TIME=50000",
+                     "+LDB_PP7_Q0_HCW_TIME=50000",
+
+                     "+LDB_PP0_QTYPE=QATM",
+                     "+LDB_PP1_QTYPE=QATM",
+                     "+LDB_PP2_QTYPE=QATM",
+                     "+LDB_PP3_QTYPE=QATM",
+                     "+LDB_PP4_QTYPE=QATM",
+                     "+LDB_PP5_QTYPE=QATM",
+                     "+LDB_PP6_QTYPE=QATM",
+                     "+LDB_PP7_QTYPE=QATM",
+
+                     "+LDB_PP0_HCW_DELAY=64",
+                     "+LDB_PP1_HCW_DELAY=64",
+                     "+LDB_PP2_HCW_DELAY=64",
+                     "+LDB_PP3_HCW_DELAY=64",
+                     "+LDB_PP4_HCW_DELAY=64",
+                     "+LDB_PP5_HCW_DELAY=64",
+                     "+LDB_PP6_HCW_DELAY=64",
+                     "+LDB_PP7_HCW_DELAY=64",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test1_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      q8_50pct => {
+          -simv_args => [
+                     "+DIR_PP0_Q0_HCW_TIME=50000",
+                     "+DIR_PP1_Q0_HCW_TIME=50000",
+                     "+DIR_PP2_Q0_HCW_TIME=50000",
+                     "+DIR_PP3_Q0_HCW_TIME=50000",
+                     "+DIR_PP4_Q0_HCW_TIME=50000",
+                     "+DIR_PP5_Q0_HCW_TIME=50000",
+                     "+DIR_PP6_Q0_HCW_TIME=50000",
+                     "+DIR_PP7_Q0_HCW_TIME=50000",
+
+                     "+DIR_PP0_HCW_DELAY=96",
+
+                     "+DIR_PP1_HCW_DELAY=96",
+
+                     "+DIR_PP2_HCW_DELAY=96",
+
+                     "+DIR_PP3_HCW_DELAY=96",
+
+                     "+DIR_PP4_HCW_DELAY=96",
+
+                     "+DIR_PP5_HCW_DELAY=96",
+
+                     "+DIR_PP6_HCW_DELAY=96",
+
+                     "+DIR_PP7_HCW_DELAY=96",
+
+                     "+LDB_PP0_Q0_HCW_TIME=50000",
+                     "+LDB_PP1_Q0_HCW_TIME=50000",
+                     "+LDB_PP2_Q0_HCW_TIME=50000",
+                     "+LDB_PP3_Q0_HCW_TIME=50000",
+                     "+LDB_PP4_Q0_HCW_TIME=50000",
+                     "+LDB_PP5_Q0_HCW_TIME=50000",
+                     "+LDB_PP6_Q0_HCW_TIME=50000",
+                     "+LDB_PP7_Q0_HCW_TIME=50000",
+
+                     "+LDB_PP0_HCW_DELAY=192",
+
+                     "+LDB_PP1_HCW_DELAY=192",
+
+                     "+LDB_PP2_HCW_DELAY=192",
+
+                     "+LDB_PP3_HCW_DELAY=192",
+
+                     "+LDB_PP4_HCW_DELAY=192",
+
+                     "+LDB_PP5_HCW_DELAY=192",
+
+                     "+LDB_PP6_HCW_DELAY=192",
+
+                     "+LDB_PP7_HCW_DELAY=192",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test1_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      q8_10pct => {
+          -simv_args => [
+                     "+DIR_PP0_Q0_HCW_TIME=50000",
+                     "+DIR_PP1_Q0_HCW_TIME=50000",
+                     "+DIR_PP2_Q0_HCW_TIME=50000",
+                     "+DIR_PP3_Q0_HCW_TIME=50000",
+                     "+DIR_PP4_Q0_HCW_TIME=50000",
+                     "+DIR_PP5_Q0_HCW_TIME=50000",
+                     "+DIR_PP6_Q0_HCW_TIME=50000",
+                     "+DIR_PP7_Q0_HCW_TIME=50000",
+
+                     "+DIR_PP0_HCW_DELAY=480",
+
+                     "+DIR_PP1_HCW_DELAY=480",
+
+                     "+DIR_PP2_HCW_DELAY=480",
+
+                     "+DIR_PP3_HCW_DELAY=480",
+
+                     "+DIR_PP4_HCW_DELAY=480",
+
+                     "+DIR_PP5_HCW_DELAY=480",
+
+                     "+DIR_PP6_HCW_DELAY=480",
+
+                     "+DIR_PP7_HCW_DELAY=480",
+
+                     "+LDB_PP0_Q0_HCW_TIME=50000",
+                     "+LDB_PP1_Q0_HCW_TIME=50000",
+                     "+LDB_PP2_Q0_HCW_TIME=50000",
+                     "+LDB_PP3_Q0_HCW_TIME=50000",
+                     "+LDB_PP4_Q0_HCW_TIME=50000",
+                     "+LDB_PP5_Q0_HCW_TIME=50000",
+                     "+LDB_PP6_Q0_HCW_TIME=50000",
+                     "+LDB_PP7_Q0_HCW_TIME=50000",
+
+                     "+LDB_PP0_HCW_DELAY=960",
+
+                     "+LDB_PP1_HCW_DELAY=960",
+
+                     "+LDB_PP2_HCW_DELAY=960",
+
+                     "+LDB_PP3_HCW_DELAY=960",
+
+                     "+LDB_PP4_HCW_DELAY=960",
+
+                     "+LDB_PP5_HCW_DELAY=960",
+
+                     "+LDB_PP6_HCW_DELAY=960",
+
+                     "+LDB_PP7_HCW_DELAY=960",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test1_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      ph_mode => {
+          -simv_args => [
+                         "+HQM_PROCHOT_INIT_VAL=1",
+                        ],
+      },
+      ph_high => {
+          -simv_args => [
+                         "+HQM_PROCHOT_INIT_VAL=1",
+                        ],
+      },
+      ph_high_to_low => {
+          -simv_args => [
+                         "+HQM_PH_MODE=deassert_ph",
+                         "+HQM_PROCHOT_INIT_VAL=1",
+                         "+HQM_PH_DLY1_MIN=500",
+                         "+HQM_PH_DLY1_MAX=2000",
+                        ],
+      },
+      ph_low_to_high => {
+          -simv_args => [
+                         "+HQM_PH_MODE=assert_ph",
+                         "+HQM_PH_DLY1_MIN=500",
+                         "+HQM_PH_DLY1_MAX=2000",
+                        ],
+      },
+      ph_tgl => {
+          -simv_args => [
+                         "+HQM_PH_MODE=ph_sequence",
+                         "+HQM_PH_DLY1_MIN=500",
+                         "+HQM_PH_DLY1_MAX=2000",
+                         "+HQM_PH_DLY2_MIN=1000",
+                         "+HQM_PH_DLY2_MAX=5000",
+                         "+HQM_PH_SEQ_NUM=10",
+                        ],
+      },
+      ph_tgl_prochot => {
+          -simv_args => [
+                         "+HQM_PWR_EN_PH_SEQ=hcw_perf_dir_ldb_test1_hcw_wrp_seq",
+                         "+hqm_pwr_prochot_user_data_seq_stim_config::ph_var=TOGGLE_PROCHOT",
+                        ],
+      },
+      ph_tgl_after_enq_dir => {
+          -simv_args => [
+                         "+HQM_PWR_EN_PH_SEQ=hcw_perf_dir_ldb_test1_hcw_wrp_seq",
+                         "+hqm_pwr_prochot_user_data_seq_stim_config::ph_var=TGL_PH_AFTER_ENQ_DIR",
+                         "+HQM_PWR_CQ_DIR_DIS",
+                        ],
+      },
+      ph_tgl_after_enq_ldb => {
+          -simv_args => [
+                         "+HQM_PWR_EN_PH_SEQ=hcw_perf_dir_ldb_test1_hcw_wrp_seq",
+                         "+hqm_pwr_prochot_user_data_seq_stim_config::ph_var=TGL_PH_AFTER_ENQ_LDB",
+                         "+HQM_PWR_CQ_LDB_DIS",
+                        ],
+      },
+      ph_tgl_after_deq_dir => {
+          -simv_args => [
+                         "+HQM_PWR_EN_PH_SEQ=hcw_perf_dir_ldb_test1_hcw_wrp_seq",
+                         "+hqm_pwr_prochot_user_data_seq_stim_config::ph_var=TGL_PH_AFTER_DEQ_DIR",
+                         "+HQM_PWR_CQ_DIR_DIS",
+                        ],
+      },
+      ph_tgl_after_deq_ldb => {
+          -simv_args => [
+                         "+HQM_PWR_EN_PH_SEQ=hcw_perf_dir_ldb_test1_hcw_wrp_seq",
+                         "+hqm_pwr_prochot_user_data_seq_stim_config::ph_var=TGL_PH_AFTER_DEQ_LDB",
+                         "+HQM_PWR_CQ_LDB_DIS",
+                        ],
+      },
+      ph_tgl_after_pcie_cfg_rd => {
+          -simv_args => [
+                         "+HQM_PWR_EN_PH_SEQ=hcw_perf_dir_ldb_test1_hcw_wrp_seq",
+                         "+hqm_pwr_prochot_user_data_seq_stim_config::ph_var=TGL_PH_AFTER_PCIE_CFG_RD",
+                        ],
+      },
+      ph_tgl_after_pcie_cfg_wr => {
+          -simv_args => [
+                         "+HQM_PWR_EN_PH_SEQ=hcw_perf_dir_ldb_test1_hcw_wrp_seq",
+                         "+hqm_pwr_prochot_user_data_seq_stim_config::ph_var=TGL_PH_AFTER_PCIE_CFG_WR",
+                        ],
+      },
+      ph_tgl_after_mmio_cfg_rd => {
+          -simv_args => [
+                         "+HQM_PWR_EN_PH_SEQ=hcw_perf_dir_ldb_test1_hcw_wrp_seq",
+                         "+hqm_pwr_prochot_user_data_seq_stim_config::ph_var=TGL_PH_AFTER_MMIO_CFG_RD",
+                        ],
+      },
+      ph_tgl_after_mmio_cfg_wr => {
+          -simv_args => [
+                         "+HQM_PWR_EN_PH_SEQ=hcw_perf_dir_ldb_test1_hcw_wrp_seq",
+                         "+hqm_pwr_prochot_user_data_seq_stim_config::ph_var=TGL_PH_AFTER_MMIO_CFG_WR",
+                        ],
+      },
+      ph_check_regs => {
+          -simv_args => [
+                         "+HQM_PWR_EN_PH_SEQ=hcw_perf_dir_ldb_test1_hcw_wrp_seq",
+                         "+hqm_pwr_prochot_user_data_seq_stim_config::check_phcnt_regs=1",
+                        ],
+      },
+      chk_excl_p_np_crd => {
+          -simv_args => [
+                         "+HQM_IOSF_SETGNTGAP +HQM_IOSF_EN_ORDERINGRULES +HQM_IOSF_GNT_DLY_MIN=50 +HQM_IOSF_GNT_DLY_MAX=100",
+                         "+HQM_IOSF_EN_RAND_CLKACKDLY +HQM_IOSF_CLK_ACK_DLY_MAX=10",
+                         "+hqm_iosf_prim_req_credits=3",
+                        ],
+      },
+      asyncGnt => {
+          -simv_args => [
+                         "+HQM_IOSF_EN_ASYNCGNT",
+                        ],
+      },
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

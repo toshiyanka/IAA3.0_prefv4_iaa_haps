@@ -1,0 +1,77 @@
+#!/usr/intel/bin/tcsh -f
+
+#########################################################
+# Remove existing enviroment variables setup
+#########################################################
+
+printf "\n\nRemoving existing environment variables....."
+unsetenv ACE*
+unsetenv NB*
+unsetenv LIB_AREA
+
+unsetenv NBPOOL
+unsetenv NBQSLOT
+unsetenv NBCLASS
+unsetenv DW_LICENSE_OVERRIDE
+unsetenv LM_LICENSE_FILE
+unsetenv SNPSLMD_LICENSE_FILE
+unsetenv LD_LIBRARY_PATH
+
+printf "Done\n\n\n"
+setenv SIP_PROJECT dfx
+
+if ( ! $?IP_ROOT ) then
+  echo "ERROR: Must set IP_ROOT env variable first"
+  exit 1
+endif
+
+printf "Setting up environment variables....."
+
+setenv ACE_PROJECT  dfxsecure_plugin
+
+setenv PROJECT_BASE ${IP_ROOT}
+
+setenv ACE_ENG ${PROJECT_BASE}
+
+setenv ACE_ENG_BASE ${PROJECT_BASE}
+
+# Required env var: points to the project's acerc
+setenv ACE_RC ${PROJECT_BASE}/ace/$ACE_PROJECT.acerc
+echo "ACE_RC = $ACE_RC"
+if (! -e $ACE_RC) then
+    echo "ERROR: Ace rc file '$ACE_RC' doesn't exist"
+    exit 1
+endif
+
+setenv LIB_AREA ${PROJECT_BASE}/verif/lib
+
+
+setenv ACE_RTL_SIM vcs
+setenv ACE_COLOR_ON
+setenv ACE_HELP_VERBOSE 2
+setenv ACE_HELP_LEVEL 3
+setenv ACE_DUMP_STATLOG 1
+
+# Debussy/Verdi variable to de-sensitize capitalization of VHDL instances in signal path
+setenv NOVAS_WAVE_CASE_INSENSITIVE
+setenv FSDB_ENV_MAX_GLITCH_NUM 0
+setenv DW_LICENSE_OVERRIDE DESIGNWARE-REGRESSION
+setenv BFM_BASE_DIR /p/sip/sim-env/sip/
+
+alias bsetup 'set ARGS =(\!*); source setupBFM' 
+alias ft '/usr/intel/bin/gvim -c "set nowrap" -c "set guioptions+=b" -c "set scrollopt=jump,hor" -c "set scrollbind" -c 3:sp -c "let @c='"'"'1000000j46ld'"'"'" -c "nnoremap <space> @c" '
+alias wave ${IP_ROOT}/scripts/wave.pl
+
+setenv GCC_LIB_VER gcc-4.2.2_64
+
+setenv LIRA_VER /p/com/eda/dt/linux_2.6.5_x86-64/lira/13.3_64
+#setenv LINTRA_VER /p/com/eda/dt/linux_2.6.5_x86-64/lintra/13.3p4_shOpt64
+setenv LIRA_VER 13.3_64
+setenv LINTRA_VER `basename $LINTRA`
+
+setenv ACE_SINGLE_TOP_MODULE ACE_SINGLE_TOP_MODULE
+setenv ACE_PWA_DIR pwa
+setenv SIP_QA_MODULE lintra
+setenv LINTRA_REPORT $IP_ROOT/tools/lint/lintra.rpt
+
+echo "cust_pre setup done \n"

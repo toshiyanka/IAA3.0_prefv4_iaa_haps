@@ -1,0 +1,214 @@
+# nolonger run lintrabuild and lintraelab
+# insted need to run 
+
+wash -n intelall soc socenv socrtl dk10nm hdk10nm hdk10nmproc siphdk fabric n7 n7fe s14nm n6 n6fe
+source /p/hdk/rtl/hdk.rc -cfg sip -reentrant
+setenv MODEL_ROOT $cwd
+
+NOTE ON PRE-VISA vs POST-VISA:
+   The following steps are the same for PRE-VISA vs POST-VISA
+   For POST-VISA, the following "Step 0" is required before "Step 1":
+    * run visa-insert (e.g., sbendpoint_runVisa_HDKn7) to generate the * <dut>.sv_visaInserted file (e.g., sbendpoint.sv_visaInserted).
+    * swap the visaInserted file with the preVisa version, e.g.,
+      > cd $MODEL_ROOT/source/rtl/iosfsbc/endpoint/
+      > mv sbendpoint.sv sbendpoint.sv_preVisa
+      > cp sbendpoint.sv_visaInserted sbendpoint.sv
+    * Now, the top-level file, sbendpoint.sv has all VISA inserted.
+      Following this, simply proceeded with the exact same steps as for the pre-Visa runs
+
+
+run compile
+simbuild -dut psf -1c -CUST <CUST> -1c- -ace_args -command "ace -c -config
+simbuild -dut sbe -ace_args ace -c -ace_args- -1c -CUST n7 -1c- -nf
+
+#test command
+simbuild -dut sbe -ace_args ace -c -x -t test01 -ace_args- -1c -CUST n7 -1c- -nf
+
+#2 stage FLG command
+
+febe -dut sbe -s all +s tophiergen -1c -CUST n7 -1c-
+febe -dut sbe -s all +s v2k_prep -1c -CUST n7 -1c-
+febe -dut sbe -s all +s .flg_v2k -1c -CUST n7 -1c-
+
+#generated flist
+$MODEL_ROOT/target/sbe/n7/mat1.6.1.p2_n7.0/aceroot/results/DC/sbendpoint/collateral/rtl/rtl_list_2stage.tcl
+
+#ISOF/spyglassdft
+
+febe -dut sbe -1c -CUST n7 -1c- -s all +s spyglass_build
+febe -dut sbe -1c -CUST n7 -1c- -s all +s sbendpoint.sgdft
+
+#gen_collateral command
+
+febe -dut sbe -s all +s .gen_collateral -1c -CUST n7 -1c-
+
+# Cheetah scope r2g (after this, cannot run FEBE gen_collateral in the same Xterm)
+
+https://wiki.ith.intel.com/pages/viewpage.action?spaceKey=cheetah&title=FEBE+%28Cheetah+R2G+flow%29+Cheat+sheet+and+FAQs 
+
+NOTE: as fo April 22nd, 2020, the latest Cheetah TFM release is 2019.12. 
+      However, CTH TFM 2019.12 has various DC issues, and the SB team have decided to use 2019.09 for PICr33
+
+open new xterm 
+
+1) /p/hdk/bin/cth_eps -groups siphdk,soc,n7,intelall,socenv,socrtl,fabric,n7fe,n6,n6fe -ward_root . \ -type private -wscfg sipn6 -ward_id sbe -scope sipcth,sipn6,a0,p00,2019.09,n7_tsmc_snps_h240_M13,scs
+
+2) pte_setup -wfs r2g_tools -stage all
+
+3) cth_r2g populate -id r2g -block sbendpoint -init cig-block -febe_output_path
+$MODEL_ROOT/target/sbe/n7/mat1.6.1.p6_n7.0/aceroot/results/DC/jignasap.febe/fe_collaterals
+
+4) cth_r2g prepare_batch -id r2g -block sbendpoint
+
+5) cth_r2g autorun -id r2g -block sbendpoint -run_flow dc_elaborate_baseline
+
+#To RUN full DC in cheeath follow the following steps
+
+  1) cd $MODEL_ROOT/jignasap.sbe/r2g.r2g/builds/sbendpoint/scripts_build/collateral
+     mkdir timing_common 
+     cp $MODEL_ROOT/jignasap.sbe/r2g.r2g/builds/sbendpoint/ext_inputs/fe_collateral/sbendpoint_constraints.tcl\
+        $MODEL_ROOT/jignasap.sbe/r2g.r2g/builds/sbendpoint/scripts_build/collateral/timing_common/
+
+  2) cd $MODEL_ROOT/jignasap.sbe/r2g.r2g/builds/sbendpoint/ext_inputs/fe_collateral/constraints/dft
+      mv sbendpoint.scan_config.cth_dc.tcl.REF sbendpoint.scan_config.cth_dc.tcl
+      mv sbendpoint.scan_exclusion.cth_dc.tcl.REF sbendpoint.scan_exclusion.cth_dc.tcl  
+      
+  3) cd $MODEL_ROOT/jignasap.sbe/r2g.r2g/builds/sbendpoint/scripts_build/conf
+     gvim constraints_power.tcl
+     add "set TEV(switching_format) TCL " on line 16
+     
+     cp -r $MODEL_ROOT/tools/syn/inputs/n7/sbendpoint/scripts/svar_values.tcl.REF svar_values.tcl 
+     
+     cth_r2g autorun -id r2g -block sbendpoint -run_flow dc_baseline 
+  
+  
+
+# Run FEV
+NOTE 1: As of April 22nd, 2020, the default FEV version, 19.20-s200_cth, hangs at the end of run on SLES 11 machines,
+        while SLES 12 is not yet supported in the CTH TFM flow. A workaround is to use FEV 19.10-s300.
+NOTE 2: A way to override a tool version in Cheetah R2G flow is currently described in the FAQ section to the
+        FEBE (Cheetah R2G flow) Cheat sheet
+https://wiki.ith.intel.com/display/cheetah/FEBE+%28Cheetah+R2G+flow%29+Cheat+sheet+and+FAQs#FEBE(CheetahR2Gflow)CheatsheetandFAQs-SAGEflowcheatsheet
+
+    cd $MODEL_ROOT/jignasap.sbe/r2g.r2g/builds/sbendpoint/scripts_build/fev_conformal/fev_r2syn
+    cp $MODEL_ROOT/tools/lec/inputs/n7/sbendpoint/scripts/user_lec.do .
+    cp $MODEL_ROOT/tools/lec/inputs/n7/sbendpoint/scripts/user_config.tcl .
+
+    cth_r2g autorun -id r2g -block sbendpoint -run_flow fev_r2syn
+
+# Run ATPG Stuckat and Atspeed
+    NOTE on setup before atpg run
+    12.1 details/FAQ site for ATPG is here
+      https://wiki.ith.intel.com/display/cheetah/FEBE+%28Cheetah+R2G+flow%29+Cheat+sheet+and+FAQs 
+    12.2 set SVAR(cht_dft,atpg,IP_INFO_FILE) "$SEV(builds_dir)/../../../../$SVAR(design_name)/collateral/dft/$SVAR(design_name).ip_info"; ## please change the value if you are not finding this relative paths, aceroot/results/DC/sb_i3c_lite/collateral/dft/sb_i3c_lite.ip_info
+    12.3 set SVAR(cht_dft,atpg,ATPG_FAULT_MODE) "stuckat" ##When doing autorun,
+      please remove/commented out this line; Lynx-manager run please retain/set this variable
+
+cth_r2g autorun -id r2g -block sbendpoint -run_flow atpg_sage_syn
+cth_r2g autorun -id r2g -block sbendpoint -run_flow atpg_sage_atspeed
+OR
+cth_r2g autorun -id r2g -block sbendpoint -run_flow atpg_sage_syn,atpg_sage_atspeed
+
+    NOTE 1 : on where to find the coverage results:
+       Coverage numbers can be found in sage/WORK/*_bypass/reports/*.coverage  , e.g.,
+       jignasap.sbe/r2g.r2g/builds/sbendpoint/sage/WORK/atspeed_bypass/reports/sbendpoint.byp.tr.xxxx.trans.x.detailed.fd.coverage
+
+# CALIBER
+
+cth_r2g autorun -id r2g -block sbendpoint -run_flow sta_syn_dmsa,syn_caliber
+
+# SGLINT (febe n7)
+
+simbuild -dut sbe -1c -CUST n7 -toolset mat1.6.1.p6 -1c- -s all +s sglint_build -sglint_build "-ASSIGN -mc=sglint_sbendpoint"
+simbuild -dut sbe -1c -CUST n7 -toolset mat1.6.1.p6 -1c- -s all +s sglint_test -sglint_test "-t spyglasslint/sbendpoint -noepi"
+
+# SGCDC (febe n7)
+    
+simbuild -dut sbe -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s sgcdc_build -sgcdc_build "-ASSIGN -mc=cdc_sbendpoint -vlog_opts +define+functional+IOSF_SB_PH2"
+simbuild -dut sbe -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s sgcdc_test -sgcdc_test "-t spyglasscdc/sbendpoint:SetupChk"
+simbuild -dut sbe -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s sgcdc_test -sgcdc_test "-t spyglasscdc/sbendpoint"
+
+# FISHTAIL
+    
+febe -dut sbe -1c -CUST n7 -toolset mat1.6.1.p6 -1c- -s all +s sbendpoint.fishtail
+
+# VCLP
+simbuild -dut sbe -1c -CUST n7 -toolset mat1.6.1.p6 -1c- -s all +s vclp_build -vclp_build "-ASSIGN -mc=cdc_sbendpoint"
+simbuild -dut sbe -1c -CUST n7 -toolset mat1.6.1.p6 -1c- -s all +s vclp_test -vclp_test "-t vclp/sbendpoint"
+
+# PowerArtist
+1)	project.sben7.pcfg (config file which has lib path and all)
+2)	runsbePACIFIC
+
+# How to run Power Artist 
+o	cd $MODEL_ROOT
+o	tools/powerartist/n7/runsbePACIFIC
+Note this needs to be run in simbuild created xterm or directly through simbuild, as it requires $IP_ROOT environment variable.
+
+# ZIRCON
+
+Upload to PEARL
+/p/hdk/rtl/proj_tools/zircon/master/2.10.09/bin/zirconQA -model_root . -output $MODEL_ROOT/zircon_logs -ovf tools/zirconqa/sbe_zirconqa_overrides_cheetah.ini -dssmsid 131244 -verbose -zirconqarules /p/hdk/rtl/proj_tools/zirconqarules/master/2.10.09 -ms 'RTL1P0' -alias sbe -auto  
+
+PEARL
+
+https://ipquality.swiss.intel.com/checklist?checklist=10&milestone=141217&mode=1&ip=88397 
+
+# OPENLATCH (WIP)
+1.	febe -dut sbe -1c -CUST n7 -toolset mat1.6.1.p6 -1c- -s all +s lintra_build
+    febe -dut sbe -1c -CUST n7 -toolset mat1.6.1.p6 -1c- -s all +s sbendpoint.lintra_elab       
+    sbendpoint_runLintra_HDKn7
+    simbuild -dut sbe -ace_args ace -ccolt -mc=cdc_sbendpoint -ace_args- -1c -CUST n7 -1c- -nf
+    simbuild -dut sbe -ace_args ace -sc -t openlatch/sbendpoint -ace_args- -1c -CUST n7 -1c-
+
+Openlatch has some dependencies on Lintra, which is why I ran step 1 first.
+
+The ccolt command gives errors on the n7 standard cells. 
+
+
+mat1.6.1.p2 -p1274
+------------------------------------
+MAT version: ToolConfig.pl show_tool_info onecfg -1c -CUST p1274 -toolset mat1.6.1.p2 -1c-
+simbuild -dut sbe -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -ace xterm &
+febe -dut sbe -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s lintra_build
+febe -dut sbe -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s sbendpoint.lintra_elab
+febe -dut sbe -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s gen_collateral +s build_blocksinfo +s sbendpoint.dc
+febe -dut sbe -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s sbendpoint.fv
+febe -dut sbe -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s sbendpoint.sgdft
+febe -dut sbe -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s sbendpoint.sage
+febe -dut sbe -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s spyglass_build
+febe -dut sbe -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s spyglass_build_lp
+febe -dut sbe -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s sbendpoint.spyglass_lp
+vclp
+simbuild -dut sbe -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s vclp_build -vclp_build "-ASSIGN -mc=cdc_sbendpoint"
+simbuild -dut sbe -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s vclp_test -vclp_test "-t vclp/sbendpoint"
+
+SGCDC
+simbuild -dut sbe -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s sgcdc_build -sgcdc_build "-ASSIGN -mc=cdc_sbendpoint -vlog_opts +define+functional+IOSF_SB_PH2"
+simbuild -dut sbe -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s sgcdc_test -sgcdc_test "-t spyglasscdc/sbendpoint:SetupChk"
+simbuild -dut sbe -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s sgcdc_test -sgcdc_test "-t spyglasscdc/sbendpoint"
+SGLINT
+simbuild -dut sbe -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s sglint_build -sglint_build "-ASSIGN -mc=sglint_sbendpoint"
+simbuild -dut sbe -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s sglint_test -sglint_test "-t spyglasslint/sbendpoint -noepi"
+CALIBER
+febe -dut sbe -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s sbendpoint.caliber
+FISHTAIL
+febe -dut sbe -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s sbendpoint.fishtail
+OPENLATCH
+mv ace/p1274_e05_stdcells.hdl ace/p1274_e05_stdcells.hdl.KEEP
+simbuild -dut sbe -ace_args ace -ccolt -mc=cdc_sbendpoint -ace_args- -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -nf
+simbuild -dut sbe -ace_args ace -sc -t openlatch/sbendpoint -ace_args- -1c
+-CUST p1274 -toolset mat1.6.1.p6 -1c- mv ace/p1274_e05_stdcells.hdl.KEEP ace/p1274_e05_stdcells.hdl
+CORETOOLS version
+ToolConfig.pl get_tool_version coretools -1c -CUST p1274 -toolset mat1.6.1.p6 -1c-
+ToolConfig.pl get_tool_version collage -1c -CUST p1274 -toolset mat1.6.1.p6 -1c-
+
+CALIBER
+$WARD/febe_debug/caliber.menu.csh
+Select option #1 for a new window of uesetup
+Use the popup window to debug or launch GUI
+In the popup window:
+$DUET/utils/UploadWaivers.tcl -from /nfs/fm/disks/fm_infrach_00003/TSA_PRIME/TGPLP_ASYNC_XBCOMBO_REL_PAR/workspace/sideband_network/tools/caliber/waivers/_Waivers.txt -type user_waivers_db -to /nfs/fm/disks/fm_infrach_00003/TSA_PRIME/TGPLP_ASYNC_XBCOMBO_REL_PAR/workspace/sideband_network/tools/caliber/new_waivers
+To launch GUI:
+syn_caliber_gui -cell sbendpoint
+

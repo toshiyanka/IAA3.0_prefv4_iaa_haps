@@ -1,0 +1,985 @@
+##+defaults -simv_args '"'+hqmproc_batch_max=4'"' -simv_args '"'+HQM_RELAXED_BATCH_MODE'"' -simv_args-
+
+########################################################################
+########################################################################
+########################################################################
+########################################################################
+#CIAL.occ + CIAL.timer +CWDT   tests seq
+########################################################################
+########################################################################
+########################################################################
+########################################################################
+#######################
+#CIAL + CWDT
+#######################
+#######################
+#### CIAL.occ (n-1) +CIAL.timer(last) + CWDT (*x) x=_CQINTR_RESP_WAITNUM_MIN
+#Add cq_intr_resp_delay  to get CIAL.occ (n-1) + CIAL.timer (last one) + x times of CWDT (x= _CQINTR_RESP_WAITNUM_MIN=x)
+#+has_cq_cwdt_ctrl=1
+####
+#ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly0
+#use the test w/ MSIX_PASSTHROUGH=1
+
+#run with MSIX_PASSTHROUGH=1
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_msix_passthrough -tv ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly0 -tv cialtimer_cwdt_intrv_low   -dirtag ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly0.msixpassthr  
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly0_intrv_low_msix_pt  -dirtag ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly0.msixpassthr  
+
+#ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly1
+
+#run with MSIX_PASSTHROUGH=1
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_msix_passthrough -tv ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly1 -tv cialtimer_cwdt_intrv_low   -dirtag ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly1.msixpassthr  
+
+
+#######################
+#+has_cq_cwdt_ctrl=0 (can't set +has_cq_cwdt_ctrl=1 when running with multiple CQs, because alarm doesn't provide cq info, and one alarm can be multiple report)
+#######################
+#LDB_PP0 and DIR_PP0 
+#ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly2
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly2 -tv cialtimer_cwdt_intrv_low   -dirtag ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly2  
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly2_intrv_low   -dirtag ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly2  
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_noclr -tv ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly2 -tv cialtimer_cwdt_intrv_low   -dirtag ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly2.cwintr_noclr  
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_noreena -tv ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly2 -tv cialtimer_cwdt_intrv_low   -dirtag ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly2.cwintr_noreena  
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_interval_ck -tv ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly2 -tv cialtimer_cwdt_intrv_low   -dirtag ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly2.intervalck  
+
+######################
+#LDB_PP0 + LDB_PP1
+#ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly3
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly3 -tv cialtimer_cwdt_intrv_low   -dirtag ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly3  
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_noclr -tv ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly3 -tv cialtimer_cwdt_intrv_low   -dirtag ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly3.cwintr_noclr  
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_noreena -tv ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly3 -tv cialtimer_cwdt_intrv_low   -dirtag ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly3.cwintr_noreena  
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_interval_ck -tv ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly3 -tv cialtimer_cwdt_intrv_low   -dirtag ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly3.intervalck  
+
+######################
+################# use this test to do +cwintr_b2b_ck
+#LDBCQ[0] +LDBCQ[1] + DIRPP[0] + DIRPP[1]
+#ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly4
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_b2b_ck -tv ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly4 -tv cialtimer_cwdt_intrv_low   -dirtag ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly4.cwintr_b2b_ck  
+
+#normal
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly4 -tv cialtimer_cwdt_intrv_low   -dirtag ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly4  
+
+#######################
+#4ldbPP+4dirPP
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_cqdep8_cqthres7_cial_test10_respdly1 -tv cialtimer_cwdt_intrv_low   -dirtag ldb4ppdir4pp_cqdep8_cqthres7_cial_test10_respdly1  
+
+#general setting
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb4ppdir4pp_cqdep168_cqthres157_trf_1 -tv cqintr_cqdep_cqthres_cial_cwdt_test0 -tv cialtimer_cwdt_intrv_low   -dirtag cqintr_ldb4ppdir4pp_cqdep168_cqthres157_trf_1_cial_cwdt_test0    
+
+###########################################################
+###########################################################
+#MSIX/IMS
+#64ldbCQ and 96dirCQ
+###########################################################
+###########################################################
+#############################
+#try 96dir
+#dir32-dir63
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_dir96m_cqdep168_cqthres157_trf_ims -tv cqintr_cqdep_cqthres_cial_test0 -tv cialtimer_cwdt_intrv_med   -dirtag cqintr_dir96m_cqdep168_cqthres157_trf_ims.dir_32m     
+
+#dir64-dir95
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_dir96h_cqdep168_cqthres157_trf_ims -tv cqintr_cqdep_cqthres_cial_test0 -tv cialtimer_cwdt_intrv_med   -dirtag cqintr_dir96h_cqdep168_cqthres157_trf_ims.dir_32h     
+
+
+
+####low32ldbcq+96dircq
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb32l_dir96_cqdep168_cqthres157_trf_ims -tv cqintr_cqdep_cqthres_cial_test0 -tv cialtimer_cwdt_intrv_med   -dirtag cqintr_ldb32l_dir96_cqdep168_cqthres157_trf_ims     
+
+####high32ldbcq+96dircq
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb32h_dir96_cqdep168_cqthres157_trf_ims -tv cqintr_cqdep_cqthres_cial_test0 -tv cialtimer_cwdt_intrv_med   -dirtag cqintr_ldb32h_dir96_cqdep168_cqthres157_trf_ims     
+
+########
+####all 64 ldbCQ, due to 32 QID olny, can't do interactive CIAL flow; +HQM_INT_ARM_CK_4 expect to see intr from every ldbCQs (64 CQ MSIX)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_arm_ck_4 -tv cqintr_ldb64_cqdep168_cqthres157_trf -tv cialtimer_cwdt_t0   -dirtag cqintr_ldb64_cqdep168_cqthres157_trf     
+
+####all lower 64 dirCQ (64 CQ MSIX)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_dir64_cqdep168_cqthres157_trf -tv cqintr_cqdep_cqthres_cial_test0 -tv cialtimer_cwdt_intrv_low   -dirtag cqintr_dir64_cqdep168_cqthres157_trf     
+
+####all higher 64 dirCQ (64 CQ MSIX)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_dir64h_cqdep168_cqthres157_trf -tv cqintr_cqdep_cqthres_cial_test0 -tv cialtimer_cwdt_intrv_low   -dirtag cqintr_dir64h_cqdep168_cqthres157_trf     
+
+
+
+###########################################################
+###########################################################
+#IMS
+###########################################################
+###########################################################
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb4ppdir4pp_cqdep8_cqthres7_trf_ims -tv cqintr_cqdep_cqthres_cial_test0   -dirtag IMS_ldb4ppdir4pp_cqintr_cqdep8_cqthres7_cial_test0    
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb4ppdir4pp_cqdep168_cqthres157_trf_ims -tv cqintr_cqdep_cqthres_cial_test0   -dirtag ldb4ppdir4pp_cqintr_cqdep168_cqthres157_cial_test0_ims    
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb4ppdir4pp_cqdep168_cqthres157_trf_msix_ims -tv cqintr_cqdep_cqthres_cial_test0   -dirtag ldb4ppdir4pp_cqintr_cqdep168_cqthres157_cial_test0_msix_ims    
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb4ppdir4pp_cqdep168_cqthres157_trf_ims -tv cqintr_cqdep_cqthres_cial_test1   -dirtag ldb4ppdir4pp_cqintr_cqdep168_cqthres157_cial_test1_ims   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb4ppdir4pp_cqdep168_cqthres157_trf_msix_ims -tv cqintr_cqdep_cqthres_cial_test1   -dirtag ldb4ppdir4pp_cqintr_cqdep168_cqthres157_cial_test1_msix_ims   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb4ppdir4pp_cqdep168_cqthres157_trf_ims -tv cqintr_cqdep_cqthres_cial_test2   -dirtag ldb4ppdir4pp_cqintr_cqdep168_cqthres157_cial_test2_ims    
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb4ppdir4pp_cqdep168_cqthres157_trf_msix_ims -tv cqintr_cqdep_cqthres_cial_test2   -dirtag ldb4ppdir4pp_cqintr_cqdep168_cqthres157_cial_test2_msix_ims    
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb4ppdir4pp_cqdep168_cqthres157_trf_ims -tv cqintr_cqdep_cqthres_cial_test3   -dirtag ldb4ppdir4pp_cqintr_cqdep168_cqthres157_cial_test3_ims    
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb4ppdir4pp_cqdep168_cqthres157_trf_msix_ims -tv cqintr_cqdep_cqthres_cial_test3   -dirtag ldb4ppdir4pp_cqintr_cqdep168_cqthres157_cial_test3_msix_ims    
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb8ppdir8pp_cqdep168_cqthres157_trf_ims -tv cqintr_cqdep_cqthres_cial_test0   -dirtag cqintr_ldb8ppdir8pp_cqdep168_cqthres157_cial_test0_ims    
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb8ppdir8pp_cqdep168_cqthres157_trf_msix_ims -tv cqintr_cqdep_cqthres_cial_test0   -dirtag cqintr_ldb8ppdir8pp_cqdep168_cqthres157_cial_test0_msix_ims    
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb8ppdir8pp_cqdep168_cqthres157_trf_ims -tv cqintr_cqdep_cqthres_cial_test1   -dirtag cqintr_ldb8ppdir8pp_cqdep168_cqthres157_cial_test1_ims    
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb8ppdir8pp_cqdep168_cqthres157_trf_msix_ims -tv cqintr_cqdep_cqthres_cial_test1   -dirtag cqintr_ldb8ppdir8pp_cqdep168_cqthres157_cial_test1_msix_ims    
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb8ppdir8pp_cqdep168_cqthres157_trf_ims -tv cqintr_cqdep_cqthres_cial_test2   -dirtag cqintr_ldb8ppdir8pp_cqdep168_cqthres157_cial_test2_ims    
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb8ppdir8pp_cqdep168_cqthres157_trf_msix_ims -tv cqintr_cqdep_cqthres_cial_test2   -dirtag cqintr_ldb8ppdir8pp_cqdep168_cqthres157_cial_test2_msix_ims    
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb8ppdir8pp_cqdep168_cqthres157_trf_ims -tv cqintr_cqdep_cqthres_cial_test3   -dirtag cqintr_ldb8ppdir8pp_cqdep168_cqthres157_cial_test3_ims    
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb8ppdir8pp_cqdep168_cqthres157_trf_msix_ims -tv cqintr_cqdep_cqthres_cial_test3   -dirtag cqintr_ldb8ppdir8pp_cqdep168_cqthres157_cial_test3_msix_ims    
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb16ppdir16pp_cqdep168_cqthres157_trf_ims -tv cqintr_cqdep_cqthres_cial_test0   -dirtag cqintr_ldb16ppdir16pp_cqdep168_cqthres157_cial_test0_ims    
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb16ppdir16pp_cqdep168_cqthres157_trf_msix_ims -tv cqintr_cqdep_cqthres_cial_test0   -dirtag cqintr_ldb16ppdir16pp_cqdep168_cqthres157_cial_test0_msix_ims    
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb16ppdir16pp_cqdep168_cqthres157_trf_ims -tv cqintr_cqdep_cqthres_cial_test1   -dirtag cqintr_ldb16ppdir16pp_cqdep168_cqthres157_cial_test1_ims    
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb16ppdir16pp_cqdep168_cqthres157_trf_msix_ims -tv cqintr_cqdep_cqthres_cial_test1   -dirtag cqintr_ldb16ppdir16pp_cqdep168_cqthres157_cial_test1_msix_ims    
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb16ppdir16pp_cqdep168_cqthres157_trf_ims -tv cqintr_cqdep_cqthres_cial_test2   -dirtag cqintr_ldb16ppdir16pp_cqdep168_cqthres157_cial_test2_ims    
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb16ppdir16pp_cqdep168_cqthres157_trf_msix_ims -tv cqintr_cqdep_cqthres_cial_test2   -dirtag cqintr_ldb16ppdir16pp_cqdep168_cqthres157_cial_test2_msix_ims    
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb16ppdir16pp_cqdep168_cqthres157_trf_ims -tv cqintr_cqdep_cqthres_cial_test3   -dirtag cqintr_ldb16ppdir16pp_cqdep168_cqthres157_cial_test3_ims    
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb16ppdir16pp_cqdep168_cqthres157_trf_msix_ims -tv cqintr_cqdep_cqthres_cial_test3   -dirtag cqintr_ldb16ppdir16pp_cqdep168_cqthres157_cial_test3_msix_ims    
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb32ppdir32pp_cqdep168_cqthres157_trf_ims -tv cqintr_cqdep_cqthres_cial_test0   -dirtag cqintr_ldb32ppdir32pp_cqdep168_cqthres157_cial_test0_ims    
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb32ppdir32pp_cqdep168_cqthres157_trf_msix_ims -tv cqintr_cqdep_cqthres_cial_test0   -dirtag cqintr_ldb32ppdir32pp_cqdep168_cqthres157_cial_test0_msix_ims    
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb32ppdir32pp_cqdep168_cqthres157_trf_ims -tv cqintr_cqdep_cqthres_cial_test1   -dirtag cqintr_ldb32ppdir32pp_cqdep168_cqthres157_cial_test1_ims    
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb32ppdir32pp_cqdep168_cqthres157_trf_msix_ims -tv cqintr_cqdep_cqthres_cial_test1   -dirtag cqintr_ldb32ppdir32pp_cqdep168_cqthres157_cial_test1_msix_ims    
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb32ppdir32pp_cqdep168_cqthres157_trf_ims -tv cqintr_cqdep_cqthres_cial_test2   -dirtag cqintr_ldb32ppdir32pp_cqdep168_cqthres157_cial_test2_ims    
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb32ppdir32pp_cqdep168_cqthres157_trf_msix_ims -tv cqintr_cqdep_cqthres_cial_test2   -dirtag cqintr_ldb32ppdir32pp_cqdep168_cqthres157_cial_test2_msix_ims    
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb32ppdir32pp_cqdep168_cqthres157_trf_ims -tv cqintr_cqdep_cqthres_cial_test3   -dirtag cqintr_ldb32ppdir32pp_cqdep168_cqthres157_cial_test3_ims    
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb32ppdir32pp_cqdep168_cqthres157_trf_msix_ims -tv cqintr_cqdep_cqthres_cial_test3   -dirtag cqintr_ldb32ppdir32pp_cqdep168_cqthres157_cial_test3_msix_ims    
+
+
+
+#########################
+#96dirpp
+#########################
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_dir96m_cqdep168_cqthres157_trf_ims -tv cqintr_cqdep_cqthres_cial_test0 -tv cialtimer_cwdt_intrv_med   -dirtag cqintr_dir96m_cqdep168_cqthres157_trf_ims.dir_32m     
+
+#dir64-dir95
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_dir96h_cqdep168_cqthres157_trf_ims -tv cqintr_cqdep_cqthres_cial_test0 -tv cialtimer_cwdt_intrv_med   -dirtag cqintr_dir96h_cqdep168_cqthres157_trf_ims.dir_32h     
+
+
+
+####low32ldbcq+96dircq
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb32l_dir96_cqdep168_cqthres157_trf_ims -tv cqintr_cqdep_cqthres_cial_test0 -tv cialtimer_cwdt_intrv_med   -dirtag cqintr_ldb32l_dir96_cqdep168_cqthres157_trf_ims     
+
+####high32ldbcq+96dircq
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb32h_dir96_cqdep168_cqthres157_trf_ims -tv cqintr_cqdep_cqthres_cial_test0 -tv cialtimer_cwdt_intrv_med   -dirtag cqintr_ldb32h_dir96_cqdep168_cqthres157_trf_ims     
+
+
+
+########################################################################
+########################################################################
+#ims_poll_mode
+########################################################################
+########################################################################
+############ims_poll_mode
+#cqintr_ldb4ppdir4pp_cqdep168_cqthres157_trf_ims_pollmode
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb4ppdir4pp_cqdep168_cqthres157_trf_ims_pollmode -tv cqintr_cqdep_cqthres_cial_test0   -dirtag ldb4ppdir4pp_cqintr_cqdep168_cqthres157_cial_test0_ims_pollmode      
+
+#cqintr_ldb8ppdir8pp_cqdep168_cqthres157_trf_ims_pollmode
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb8ppdir8pp_cqdep168_cqthres157_trf_ims_pollmode -tv cqintr_cqdep_cqthres_cial_test0   -dirtag cqintr_ldb8ppdir8pp_cqdep168_cqthres157_cial_test0_ims_pollmode      
+
+#cqintr_ldb16ppdir16pp_cqdep168_cqthres157_trf_ims_pollmode
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb16ppdir16pp_cqdep168_cqthres157_trf_ims_pollmode -tv cqintr_cqdep_cqthres_cial_test0   -dirtag cqintr_ldb16ppdir16pp_cqdep168_cqthres157_cial_test0_ims_pollmode      
+
+#cqintr_ldb32ppdir32pp_cqdep168_cqthres157_trf_ims_pollmode
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb32ppdir32pp_cqdep168_cqthres157_trf_ims_pollmode -tv cqintr_cqdep_cqthres_cial_test0   -dirtag cqintr_ldb32ppdir32pp_cqdep168_cqthres157_cial_test0_ims_pollmode      
+
+####high32ldbcq+96dircq
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb32h_dir96_cqdep168_cqthres157_trf_ims_pollmode -tv cqintr_cqdep_cqthres_cial_test0 -tv cialtimer_cwdt_intrv_med   -dirtag cqintr_ldb32h_dir96_cqdep168_cqthres157_trf_ims_pollmode    
+
+####low32ldbcq+96dircq
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb32l_dir96_cqdep168_cqthres157_trf_ims_pollmode -tv cqintr_cqdep_cqthres_cial_test0 -tv cialtimer_cwdt_intrv_med   -dirtag cqintr_ldb32l_dir96_cqdep168_cqthres157_trf_ims_pollmode     
+
+#dir32-dir63
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_dir96m_cqdep168_cqthres157_trf_ims_pollmode -tv cqintr_cqdep_cqthres_cial_test0 -tv cialtimer_cwdt_intrv_med   -dirtag cqintr_dir96m_cqdep168_cqthres157_trf_ims_pollmode.dir_32m     
+
+
+########################################################################
+########################################################################
+########################################################################
+########################################################################
+#CIAL general tests seq
+########################################################################
+########################################################################
+########################################################################
+########################################################################
+########################################################################
+########################################################################
+#4ldb+4dir
+########################################################################
+########################################################################
+#######################
+#CQDEP=8, CQTHRES=0
+#######################
+##### 4LDB 1map
+####
+#return 1 token, rearm; 
+#after return token, rearm has highest priority +LDB_PP0_CQREARM_CTRL=1
+#4dirCQ+4ldbCQ
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb4ppdir4pp_cqdep8_cqthres0_trf -tv cqintr_cqdep8_cqthres0_cial_test0 -tv cialtimer_cwdt_intrv_low   -dirtag ldb4ppdir4pp_cqintr_cqdep8_cqthres0_cial_test0    
+
+####
+#return 1 token, rearm; 
+#after return token, rearm doesn't have highest priority, it can issue new/renq/comp, before rearm +LDB_PP0_CQREARM_CTRL=0
+#4dirCQ+4ldbCQ
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb4ppdir4pp_cqdep8_cqthres0_trf -tv cqintr_cqdep8_cqthres0_cial_test1 -tv cialtimer_cwdt_intrv_low   -dirtag ldb4ppdir4pp_cqintr_cqdep8_cqthres0_cial_test1    
+
+########################################################################
+########################################################################
+#######################
+#CQDEP=8, CQTHRES=7
+#######################
+#test0
+#return all tokens, rearm; 
+#after return all tokens, rearm has highest priority +LDB_PP0_CQREARM_CTRL=3
+#after token num=8, and cq_int received, next is to return tokens with: new_t, renq_t, comp_t, bat_t
+#4ldbPP+4dirPP
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb4ppdir4pp_cqdep8_cqthres7_trf -tv cqintr_cqdep_cqthres_cial_test0   -dirtag ldb4ppdir4pp_cqintr_cqdep8_cqthres7_cial_test0    
+
+#4ldbPP+4dirPP (cq_dep:16/8; cq_thres:15/8)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb4ppdir4pp_cqdep168_cqthres157_trf -tv cqintr_cqdep_cqthres_cial_test0   -dirtag ldb4ppdir4pp_cqintr_cqdep168_cqthres157_cial_test0    
+
+#test1
+#return all tokens, rearm; 
+#after return all tokens, rearm has highest priority +LDB_PP0_CQREARM_CTRL=7
+#after token num=8, and cq_int received, next is to return tokens with: comp_t, bat_t
+#4ldbPP+4dirPP
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb4ppdir4pp_cqdep8_cqthres7_trf -tv cqintr_cqdep_cqthres_cial_test1   -dirtag ldb4ppdir4pp_cqintr_cqdep8_cqthres7_cial_test1    
+
+#4ldbPP+4dirPP (cq_dep:16/8; cq_thres:15/8)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb4ppdir4pp_cqdep168_cqthres157_trf -tv cqintr_cqdep_cqthres_cial_test1   -dirtag ldb4ppdir4pp_cqintr_cqdep168_cqthres157_cial_test1    
+
+#test2
+#return one token at a time until all tokens returned before rearm; 
+#after return all tokens, rearm has highest priority +LDB_PP0_CQREARM_CTRL=3
+#after token num=8, and cq_int received, next is to return tokens with: new_t, renq_t, comp_t, bat_t
+#4ldbPP+4dirPP
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb4ppdir4pp_cqdep8_cqthres7_trf -tv cqintr_cqdep_cqthres_cial_test2   -dirtag ldb4ppdir4pp_cqintr_cqdep8_cqthres7_cial_test2    
+
+#4ldbPP+4dirPP (cq_dep:16/8; cq_thres:15/8)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb4ppdir4pp_cqdep168_cqthres157_trf -tv cqintr_cqdep_cqthres_cial_test2   -dirtag ldb4ppdir4pp_cqintr_cqdep168_cqthres157_cial_test2    
+
+#test3
+#return one token at a time until all tokens returned before rearm; 
+#after return all tokens, rearm has highest priority +LDB_PP0_CQREARM_CTRL=7
+#after token num=8, and cq_int received, next is to return tokens with: comp_t, bat_t
+#4ldbPP+4dirPP
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb4ppdir4pp_cqdep8_cqthres7_trf -tv cqintr_cqdep_cqthres_cial_test3   -dirtag ldb4ppdir4pp_cqintr_cqdep8_cqthres7_cial_test3    
+
+#4ldbPP+4dirPP (cq_dep:16/8; cq_thres:15/8)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb4ppdir4pp_cqdep168_cqthres157_trf -tv cqintr_cqdep_cqthres_cial_test3   -dirtag ldb4ppdir4pp_cqintr_cqdep168_cqthres157_cial_test3    
+
+########################################################################
+########################################################################
+#################
+#CIAL.cq_occ + CIAL.cq_timer (at last)
+#################
+#4dirPP+4ldbPp
+#ldb4ppdir4pp_cqdep8_cqthres7_cial_occ_tim_test10+cialtimer_cwdt_intrv_med
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_cqdep8_cqthres7_cial_occ_tim_test0 -tv cqintr_ldb4ppdir4pp_cqdep8_cqthres7_cial_occ_tim_test0_trf -tv cialtimer_cwdt_intrv_med   -dirtag ldb4ppdir4pp_cqintr_cqdep8_cqthres7_cial_occ_tim_test0    
+
+#cq_dep=16/8; cq_thres=15/7
+#cqintr_ldb4ppdir4pp_cqdep168_cqthres157_cial_occ_tim_test0_trf
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_cqdep8_cqthres7_cial_occ_tim_test0 -tv cqintr_ldb4ppdir4pp_cqdep168_cqthres157_cial_occ_tim_test0_trf -tv cialtimer_cwdt_intrv_med   -dirtag ldb4ppdir4pp_cqintr_cqdep168_cqthres157_cial_occ_tim_test0    
+
+#################
+#CIAL.cq_occ + CIAL.cq_timer interleaved
+#################
+#4dirPP+4ldbPp
+#ldb4ppdir4pp_cqdep8_cqthres7_cial_occ_tim_test11+cialtimer_cwdt_intrv_low
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_cqdep8_cqthres7_cial_occ_tim_test1 -tv cqintr_ldb4ppdir4pp_cqdep8_cqthres7_cial_occ_tim_test1_trf -tv cialtimer_cwdt_intrv_low   -dirtag ldb4ppdir4pp_cqintr_cqdep8_cqthres7_cial_occ_tim_test1    
+
+#cq_dep=16/8; cq_thres=15/7
+#cqintr_ldb4ppdir4pp_cqdep168_cqthres157_cial_occ_tim_test1_trf
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_cqdep8_cqthres7_cial_occ_tim_test1 -tv cqintr_ldb4ppdir4pp_cqdep168_cqthres157_cial_occ_tim_test1_trf -tv cialtimer_cwdt_intrv_low   -dirtag ldb4ppdir4pp_cqintr_cqdep168_cqthres157_cial_occ_tim_test1    
+
+
+########################################################################
+########################################################################
+#8dirCQ+8ldbCQ
+########################################################################
+########################################################################
+#######################
+#CQDEP=8, CQTHRES=0
+#######################
+##### 8LDB 1map
+####
+#return 1 token, rearm; 
+#after return token, rearm has highest priority +LDB_PP0_CQREARM_CTRL=1
+#8dirCQ+8ldbCQ
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb8ppdir8pp_cqdep8_cqthres0_trf -tv cqintr_cqdep8_cqthres0_cial_test0 -tv cialtimer_cwdt_intrv_low   -dirtag cqintr_ldb8ppdir8pp_cqdep8_cqthres0_cial_test0    
+
+####
+#return 1 token, rearm; 
+#after return token, rearm doesn't have highest priority, it can issue new/renq/comp, before rearm +LDB_PP0_CQREARM_CTRL=0
+#8dirCQ+8ldbCQ
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb8ppdir8pp_cqdep8_cqthres0_trf -tv cqintr_cqdep8_cqthres0_cial_test1 -tv cialtimer_cwdt_intrv_low   -dirtag cqintr_ldb8ppdir8pp_cqdep8_cqthres0_cial_test1    
+
+########################################################################
+########################################################################
+#######################
+#CQDEP=8, CQTHRES=7
+#######################
+#test0
+#return all tokens, rearm; 
+#after return all tokens, rearm has highest priority +LDB_PP0_CQREARM_CTRL=3
+#after token num=8, and cq_int received, next is to return tokens with: new_t, renq_t, comp_t, bat_t
+#8dirCQ+8ldbCQ
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb8ppdir8pp_cqdep8_cqthres7_trf -tv cqintr_cqdep_cqthres_cial_test0   -dirtag cqintr_ldb8ppdir8pp_cqdep8_cqthres7_cial_test0    
+
+#8dirCQ+8ldbCQ (cq_dep:16/8; cq_thres:15/8)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb8ppdir8pp_cqdep168_cqthres157_trf -tv cqintr_cqdep_cqthres_cial_test0   -dirtag cqintr_ldb8ppdir8pp_cqdep168_cqthres157_cial_test0    
+
+
+#test1
+#return all tokens, rearm; 
+#after return all tokens, rearm has highest priority +LDB_PP0_CQREARM_CTRL=7
+#after token num=8, and cq_int received, next is to return tokens with: comp_t, bat_t
+#8dirCQ+8ldbCQ
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb8ppdir8pp_cqdep8_cqthres7_trf -tv cqintr_cqdep_cqthres_cial_test1   -dirtag cqintr_ldb8ppdir8pp_cqdep8_cqthres7_cial_test1    
+
+#8dirCQ+8ldbCQ (cq_dep:16/8; cq_thres:15/8)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb8ppdir8pp_cqdep168_cqthres157_trf -tv cqintr_cqdep_cqthres_cial_test1   -dirtag cqintr_ldb8ppdir8pp_cqdep168_cqthres157_cial_test1    
+
+
+
+#test2
+#return one token at a time until all tokens returned before rearm; 
+#after return all tokens, rearm has highest priority +LDB_PP0_CQREARM_CTRL=3
+#after token num=8, and cq_int received, next is to return tokens with: new_t, renq_t, comp_t, bat_t
+#8dirCQ+8ldbCQ
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb8ppdir8pp_cqdep8_cqthres7_trf -tv cqintr_cqdep_cqthres_cial_test2   -dirtag cqintr_ldb8ppdir8pp_cqdep8_cqthres7_cial_test2    
+
+#8dirCQ+8ldbCQ (cq_dep:16/8; cq_thres:15/8)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb8ppdir8pp_cqdep168_cqthres157_trf -tv cqintr_cqdep_cqthres_cial_test2   -dirtag cqintr_ldb8ppdir8pp_cqdep168_cqthres157_cial_test2    
+
+
+#test3
+#return one token at a time until all tokens returned before rearm; 
+#after return all tokens, rearm has highest priority +LDB_PP0_CQREARM_CTRL=7
+#after token num=8, and cq_int received, next is to return tokens with: comp_t, bat_t
+#8dirCQ+8ldbCQ
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb8ppdir8pp_cqdep8_cqthres7_trf -tv cqintr_cqdep_cqthres_cial_test3   -dirtag cqintr_ldb8ppdir8pp_cqdep8_cqthres7_cial_test3    
+
+#8dirCQ+8ldbCQ (cq_dep:16/8; cq_thres:15/8)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb8ppdir8pp_cqdep168_cqthres157_trf -tv cqintr_cqdep_cqthres_cial_test3   -dirtag cqintr_ldb8ppdir8pp_cqdep168_cqthres157_cial_test3    
+
+
+########################################################################
+########################################################################
+#################
+#CIAL.cq_occ + CIAL.cq_timer (at last)
+#################
+#8dirCQ+8ldbCQ
+#ldb4ppdir4pp_cqdep8_cqthres7_cial_occ_tim_test10+cialtimer_cwdt_intrv_med
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_cqdep8_cqthres7_cial_occ_tim_test0 -tv cqintr_ldb8ppdir8pp_cqdep8_cqthres7_cial_occ_tim_test0_trf -tv cialtimer_cwdt_intrv_med   -dirtag cqintr_ldb8ppdir8pp_cqdep8_cqthres7_cial_occ_tim_test0    
+
+#cq_dep=16/8; cq_thres=15/7
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_cqdep8_cqthres7_cial_occ_tim_test0 -tv cqintr_ldb8ppdir8pp_cqdep168_cqthres157_cial_occ_tim_test0_trf -tv cialtimer_cwdt_intrv_med   -dirtag cqintr_ldb8ppdir8pp_cqdep168_cqthres157_cial_occ_tim_test0    
+
+#################
+#CIAL.cq_occ + CIAL.cq_timer interleaved
+#################
+#8dirCQ+8ldbCQ
+#ldb4ppdir4pp_cqdep8_cqthres7_cial_occ_tim_test11+cialtimer_cwdt_intrv_low
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_cqdep8_cqthres7_cial_occ_tim_test1 -tv cqintr_ldb8ppdir8pp_cqdep8_cqthres7_cial_occ_tim_test1_trf -tv cialtimer_cwdt_intrv_low   -dirtag cqintr_ldb8ppdir8pp_cqdep8_cqthres7_cial_occ_tim_test1    
+
+#cq_dep=16/8; cq_thres=15/7
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_cqdep8_cqthres7_cial_occ_tim_test1 -tv cqintr_ldb8ppdir8pp_cqdep168_cqthres157_cial_occ_tim_test1_trf -tv cialtimer_cwdt_intrv_low   -dirtag cqintr_ldb8ppdir8pp_cqdep168_cqthres157_cial_occ_tim_test1    
+
+
+
+
+
+
+########################################################################
+########################################################################
+#16dirCQ+16ldbCQ
+########################################################################
+########################################################################
+#######################
+#CQDEP=8, CQTHRES=0
+#######################
+####
+#return 1 token, rearm; 
+#after return token, rearm has highest priority +LDB_PP0_CQREARM_CTRL=1
+#16dirCQ+16ldbCQ
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb16ppdir16pp_cqdep8_cqthres0_trf -tv cqintr_cqdep8_cqthres0_cial_test0 -tv cialtimer_cwdt_intrv_low   -dirtag cqintr_ldb16ppdir16pp_cqdep8_cqthres0_cial_test0    
+
+####
+#return 1 token, rearm; 
+#after return token, rearm doesn't have highest priority, it can issue new/renq/comp, before rearm +LDB_PP0_CQREARM_CTRL=0
+#16dirCQ+16ldbCQ
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb16ppdir16pp_cqdep8_cqthres0_trf -tv cqintr_cqdep8_cqthres0_cial_test1 -tv cialtimer_cwdt_intrv_low   -dirtag cqintr_ldb16ppdir16pp_cqdep8_cqthres0_cial_test1    
+
+########################################################################
+########################################################################
+#######################
+#CQDEP=8, CQTHRES=7
+#######################
+#test0
+#return all tokens, rearm; 
+#after return all tokens, rearm has highest priority +LDB_PP0_CQREARM_CTRL=3
+#after token num=8, and cq_int received, next is to return tokens with: new_t, renq_t, comp_t, bat_t
+#16dirCQ+16ldbCQ
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb16ppdir16pp_cqdep8_cqthres7_trf -tv cqintr_cqdep_cqthres_cial_test0   -dirtag cqintr_ldb16ppdir16pp_cqdep8_cqthres7_cial_test0    
+
+#16dirCQ+16ldbCQ (cq_dep:16/8; cq_thres:15/8)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb16ppdir16pp_cqdep168_cqthres157_trf -tv cqintr_cqdep_cqthres_cial_test0   -dirtag cqintr_ldb16ppdir16pp_cqdep168_cqthres157_cial_test0    
+
+
+#test1
+#return all tokens, rearm; 
+#after return all tokens, rearm has highest priority +LDB_PP0_CQREARM_CTRL=7
+#after token num=8, and cq_int received, next is to return tokens with: comp_t, bat_t
+#16dirCQ+16ldbCQ
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb16ppdir16pp_cqdep8_cqthres7_trf -tv cqintr_cqdep_cqthres_cial_test1   -dirtag cqintr_ldb16ppdir16pp_cqdep8_cqthres7_cial_test1    
+
+#16dirCQ+16ldbCQ (cq_dep:16/8; cq_thres:15/8)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb16ppdir16pp_cqdep168_cqthres157_trf -tv cqintr_cqdep_cqthres_cial_test1   -dirtag cqintr_ldb16ppdir16pp_cqdep168_cqthres157_cial_test1    
+
+
+
+#test2
+#return one token at a time until all tokens returned before rearm; 
+#after return all tokens, rearm has highest priority +LDB_PP0_CQREARM_CTRL=3
+#after token num=8, and cq_int received, next is to return tokens with: new_t, renq_t, comp_t, bat_t
+#16dirCQ+16ldbCQ
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb16ppdir16pp_cqdep8_cqthres7_trf -tv cqintr_cqdep_cqthres_cial_test2   -dirtag cqintr_ldb16ppdir16pp_cqdep8_cqthres7_cial_test2    
+
+#16dirCQ+16ldbCQ (cq_dep:16/8; cq_thres:15/8)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb16ppdir16pp_cqdep168_cqthres157_trf -tv cqintr_cqdep_cqthres_cial_test2   -dirtag cqintr_ldb16ppdir16pp_cqdep168_cqthres157_cial_test2    
+
+
+#test3
+#return one token at a time until all tokens returned before rearm; 
+#after return all tokens, rearm has highest priority +LDB_PP0_CQREARM_CTRL=7
+#after token num=8, and cq_int received, next is to return tokens with: comp_t, bat_t
+#16dirCQ+16ldbCQ
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb16ppdir16pp_cqdep8_cqthres7_trf -tv cqintr_cqdep_cqthres_cial_test3   -dirtag cqintr_ldb16ppdir16pp_cqdep8_cqthres7_cial_test3    
+
+#16dirCQ+16ldbCQ (cq_dep:16/8; cq_thres:15/8)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb16ppdir16pp_cqdep168_cqthres157_trf -tv cqintr_cqdep_cqthres_cial_test3   -dirtag cqintr_ldb16ppdir16pp_cqdep168_cqthres157_cial_test3    
+
+
+
+########################################################################
+########################################################################
+#################
+#CIAL.cq_occ + CIAL.cq_timer (at last)
+#################
+#16dirCQ+16ldbCQ
+#+cialtimer_cwdt_intrv_med
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_cqdep8_cqthres7_cial_occ_tim_test0 -tv cqintr_ldb16ppdir16pp_cqdep8_cqthres7_cial_occ_tim_test0_trf -tv cialtimer_cwdt_intrv_med   -dirtag cqintr_ldb16ppdir16pp_cqdep8_cqthres7_cial_occ_tim_test0    
+
+
+#cq_dep=16/8; cq_thres=15/7
+#cqintr_ldb16ppdir16pp_cqdep168_cqthres157_cial_occ_tim_test0_trf
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_cqdep8_cqthres7_cial_occ_tim_test0 -tv cqintr_ldb16ppdir16pp_cqdep168_cqthres157_cial_occ_tim_test0_trf -tv cialtimer_cwdt_intrv_med   -dirtag cqintr_ldb16ppdir16pp_cqdep168_cqthres157_cial_occ_tim_test0    
+
+#################
+#CIAL.cq_occ + CIAL.cq_timer interleaved
+#################
+#16dirCQ+16ldbCQ
+#+cialtimer_cwdt_intrv_low
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_cqdep8_cqthres7_cial_occ_tim_test1 -tv cqintr_ldb16ppdir16pp_cqdep8_cqthres7_cial_occ_tim_test1_trf -tv cialtimer_cwdt_intrv_low   -dirtag cqintr_ldb16ppdir16pp_cqdep8_cqthres7_cial_occ_tim_test1    
+
+
+#cq_dep=16/8; cq_thres=15/7
+#cqintr_ldb16ppdir16pp_cqdep168_cqthres157_cial_occ_tim_test1_trf
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_cqdep8_cqthres7_cial_occ_tim_test1 -tv cqintr_ldb16ppdir16pp_cqdep168_cqthres157_cial_occ_tim_test1_trf -tv cialtimer_cwdt_intrv_low   -dirtag cqintr_ldb16ppdir16pp_cqdep168_cqthres157_cial_occ_tim_test1    
+
+
+
+
+########################################################################
+########################################################################
+#32dirCQ+32ldbCQ
+########################################################################
+########################################################################
+#######################
+#CQDEP=8, CQTHRES=0
+#######################
+####
+#return 1 token, rearm; 
+#after return token, rearm has highest priority +LDB_PP0_CQREARM_CTRL=1
+#32dirCQ+32ldbCQ
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb32ppdir32pp_cqdep8_cqthres0_trf -tv cqintr_cqdep8_cqthres0_cial_test0 -tv cialtimer_cwdt_intrv_low   -dirtag cqintr_ldb32ppdir32pp_cqdep8_cqthres0_cial_test0    
+
+####
+#return 1 token, rearm; 
+#after return token, rearm doesn't have highest priority, it can issue new/renq/comp, before rearm +LDB_PP0_CQREARM_CTRL=0
+#32dirCQ+32ldbCQ
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb32ppdir32pp_cqdep8_cqthres0_trf -tv cqintr_cqdep8_cqthres0_cial_test1 -tv cialtimer_cwdt_intrv_low   -dirtag cqintr_ldb32ppdir32pp_cqdep8_cqthres0_cial_test1    
+
+########################################################################
+########################################################################
+#######################
+#CQDEP=8, CQTHRES=7
+#######################
+#test0
+#return all tokens, rearm; 
+#after return all tokens, rearm has highest priority +LDB_PP0_CQREARM_CTRL=3
+#after token num=8, and cq_int received, next is to return tokens with: new_t, renq_t, comp_t, bat_t
+#32dirCQ+32ldbCQ
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb32ppdir32pp_cqdep8_cqthres7_trf -tv cqintr_cqdep_cqthres_cial_test0   -dirtag cqintr_ldb32ppdir32pp_cqdep8_cqthres7_cial_test0    
+
+#32dirCQ+32ldbCQ (cq_dep:16/8; cq_thres:15/8)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb32ppdir32pp_cqdep168_cqthres157_trf -tv cqintr_cqdep_cqthres_cial_test0   -dirtag cqintr_ldb32ppdir32pp_cqdep168_cqthres157_cial_test0    
+
+
+#test1
+#return all tokens, rearm; 
+#after return all tokens, rearm has highest priority +LDB_PP0_CQREARM_CTRL=7
+#after token num=8, and cq_int received, next is to return tokens with: comp_t, bat_t
+#32dirCQ+32ldbCQ
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb32ppdir32pp_cqdep8_cqthres7_trf -tv cqintr_cqdep_cqthres_cial_test1   -dirtag cqintr_ldb32ppdir32pp_cqdep8_cqthres7_cial_test1    
+
+#32dirCQ+32ldbCQ (cq_dep:16/8; cq_thres:15/8)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb32ppdir32pp_cqdep168_cqthres157_trf -tv cqintr_cqdep_cqthres_cial_test1   -dirtag cqintr_ldb32ppdir32pp_cqdep168_cqthres157_cial_test1    
+
+
+
+#test2
+#return one token at a time until all tokens returned before rearm; 
+#after return all tokens, rearm has highest priority +LDB_PP0_CQREARM_CTRL=3
+#after token num=8, and cq_int received, next is to return tokens with: new_t, renq_t, comp_t, bat_t
+#32dirCQ+32ldbCQ
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb32ppdir32pp_cqdep8_cqthres7_trf -tv cqintr_cqdep_cqthres_cial_test2   -dirtag cqintr_ldb32ppdir32pp_cqdep8_cqthres7_cial_test2    
+
+#32dirCQ+32ldbCQ (cq_dep:16/8; cq_thres:15/8)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb32ppdir32pp_cqdep168_cqthres157_trf -tv cqintr_cqdep_cqthres_cial_test2   -dirtag cqintr_ldb32ppdir32pp_cqdep168_cqthres157_cial_test2    
+
+
+#test3
+#return one token at a time until all tokens returned before rearm; 
+#after return all tokens, rearm has highest priority +LDB_PP0_CQREARM_CTRL=7
+#after token num=8, and cq_int received, next is to return tokens with: comp_t, bat_t
+#32dirCQ+32ldbCQ
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb32ppdir32pp_cqdep8_cqthres7_trf -tv cqintr_cqdep_cqthres_cial_test3   -dirtag cqintr_ldb32ppdir32pp_cqdep8_cqthres7_cial_test3    
+
+#32dirCQ+32ldbCQ (cq_dep:16/8; cq_thres:15/8)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb32ppdir32pp_cqdep168_cqthres157_trf -tv cqintr_cqdep_cqthres_cial_test3   -dirtag cqintr_ldb32ppdir32pp_cqdep168_cqthres157_cial_test3    
+
+
+
+########################################################################
+########################################################################
+#################
+#CIAL.cq_occ + CIAL.cq_timer (at last)
+#################
+#32dirCQ+32ldbCQ
+#+cialtimer_cwdt_intrv_med
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_cqdep8_cqthres7_cial_occ_tim_test0 -tv cqintr_ldb32ppdir32pp_cqdep8_cqthres7_cial_occ_tim_test0_trf -tv cialtimer_cwdt_intrv_med   -dirtag cqintr_ldb32ppdir32pp_cqdep8_cqthres7_cial_occ_tim_test0    
+
+
+#cq_dep=16/8; cq_thres=15/7
+#cqintr_ldb32ppdir32pp_cqdep168_cqthres157_cial_occ_tim_test0_trf
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_cqdep8_cqthres7_cial_occ_tim_test0 -tv cqintr_ldb32ppdir32pp_cqdep168_cqthres157_cial_occ_tim_test0_trf -tv cialtimer_cwdt_intrv_med   -dirtag cqintr_ldb32ppdir32pp_cqdep168_cqthres157_cial_occ_tim_test0    
+
+
+#################
+#CIAL.cq_occ + CIAL.cq_timer interleaved
+#################
+#32dirCQ+32ldbCQ
+#+cialtimer_cwdt_intrv_low
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_cqdep8_cqthres7_cial_occ_tim_test1 -tv cqintr_ldb32ppdir32pp_cqdep8_cqthres7_cial_occ_tim_test1_trf -tv cialtimer_cwdt_intrv_low   -dirtag cqintr_ldb32ppdir32pp_cqdep8_cqthres7_cial_occ_tim_test1    
+
+
+#cq_dep=16/8; cq_thres=15/7
+#cqintr_ldb32ppdir32pp_cqdep168_cqthres157_cial_occ_tim_test1_trf
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_cqdep8_cqthres7_cial_occ_tim_test1 -tv cqintr_ldb32ppdir32pp_cqdep168_cqthres157_cial_occ_tim_test1_trf -tv cialtimer_cwdt_intrv_low   -dirtag cqintr_ldb32ppdir32pp_cqdep168_cqthres157_cial_occ_tim_test1    
+
+
+
+########################################################################
+########################################################################
+#CIAL Direct tests seq
+########################################################################
+########################################################################
+
+########################################################################
+########################################################################
+#######################
+#CQDEP=8, CQTHRES=0
+#######################
+##### 4LDB 1map
+####
+#return 1 token, rearm; 
+#after return token, rearm has highest priority +LDB_PP0_CQREARM_CTRL=1
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_cqdep8_cqthres0_cial_test0 -tv cialtimer_cwdt_intrv_low   -dirtag ldb4ppdir4pp_cial_smoke_cqdep8_cqthres0_cial_test0    
+
+#4dirCQ+4ldbCQ
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_cqdep8_cqthres0_cial_test10 -tv cialtimer_cwdt_intrv_low   -dirtag ldb4ppdir4pp_cial_smoke_cqdep8_cqthres0_cial_test10    
+
+####
+#return 1 token, rearm; 
+#after return token, rearm doesn't have highest priority, it can issue new/renq/comp, before rearm +LDB_PP0_CQREARM_CTRL=0
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_cqdep8_cqthres0_cial_test1 -tv cialtimer_cwdt_intrv_low   -dirtag ldb4ppdir4pp_cial_smoke_cqdep8_cqthres0_cial_test1    
+
+#4dirCQ+4ldbCQ
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_cqdep8_cqthres0_cial_test11 -tv cialtimer_cwdt_intrv_low   -dirtag ldb4ppdir4pp_cial_smoke_cqdep8_cqthres0_cial_test11    
+
+
+
+####
+#return any token, rearm; 
+#after return token, rearm has highest priority +LDB_PP0_CQREARM_CTRL=3
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_cqdep8_cqthres0_cial_test2 -tv cialtimer_cwdt_intrv_low   -dirtag ldb4ppdir4pp_cial_smoke_cqdep8_cqthres0_cial_test2    
+
+####
+#return any token, rearm; 
+#after return token, rearm doesn't have highest priority, it can issue new/renq/comp, before rearm +LDB_PP0_CQREARM_CTRL=2
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_cqdep8_cqthres0_cial_test3 -tv cialtimer_cwdt_intrv_low   -dirtag ldb4ppdir4pp_cial_smoke_cqdep8_cqthres0_cial_test3    
+
+
+
+####
+#rnd ldb4ppdir4pp_cqdep8_cqthres0_cial_rnd0
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_cqdep8_cqthres0_cial_rnd0 -tv cialtimer_cwdt_intrv_low   -dirtag ldb4ppdir4pp_cqdep8_cqthres0_cial_rnd0    
+
+########################################################################
+########################################################################
+#######################
+#CQDEP=8, CQTHRES=7
+#######################
+#test0
+#return all tokens, rearm; 
+#after return all tokens, rearm has highest priority +LDB_PP0_CQREARM_CTRL=3
+#after token num=8, and cq_int received, next is to return tokens with: new_t, renq_t, comp_t, bat_t
+#ldb4ppdir4pp_cqdep8_cqthres7_cial_test0
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_cqdep8_cqthres7_cial_test0   -dirtag ldb4ppdir4pp_cqdep8_cqthres7_cial_test0    
+
+#4ldbPP+4dirPP
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_cqdep8_cqthres7_cial_test10   -dirtag ldb4ppdir4pp_cqdep8_cqthres7_cial_test10    
+
+#4ldbPP+4dirPP (cq_dep:16/8; cq_thres:15/8)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_cqdep168_cqthres157_cial_test20   -dirtag ldb4ppdir4pp_cqdep168_cqthres157_cial_test20    
+
+
+#test1
+#return all tokens, rearm; 
+#after return all tokens, rearm has highest priority +LDB_PP0_CQREARM_CTRL=7
+#after token num=8, and cq_int received, next is to return tokens with: comp_t, bat_t
+#ldb4ppdir4pp_cqdep8_cqthres7_cial_test1
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_cqdep8_cqthres7_cial_test1   -dirtag ldb4ppdir4pp_cqdep8_cqthres7_cial_test1    
+
+#4ldbPP+4dirPP
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_cqdep8_cqthres7_cial_test11   -dirtag ldb4ppdir4pp_cqdep8_cqthres7_cial_test11    
+
+#4ldbPP+4dirPP (cq_dep:16/8; cq_thres:15/8)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_cqdep168_cqthres157_cial_test21   -dirtag ldb4ppdir4pp_cqdep168_cqthres157_cial_test21    
+
+
+
+#test2
+#return one token at a time until all tokens returned before rearm; 
+#after return all tokens, rearm has highest priority +LDB_PP0_CQREARM_CTRL=3
+#after token num=8, and cq_int received, next is to return tokens with: new_t, renq_t, comp_t, bat_t
+#ldb4ppdir4pp_cqdep8_cqthres7_cial_test0
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_cqdep8_cqthres7_cial_test2   -dirtag ldb4ppdir4pp_cqdep8_cqthres7_cial_test2    
+
+#4ldbPP+4dirPP
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_cqdep8_cqthres7_cial_test12   -dirtag ldb4ppdir4pp_cqdep8_cqthres7_cial_test12    
+
+#4ldbPP+4dirPP (cq_dep:16/8; cq_thres:15/8)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_cqdep168_cqthres157_cial_test22   -dirtag ldb4ppdir4pp_cqdep168_cqthres157_cial_test22    
+
+
+#test3
+#return one token at a time until all tokens returned before rearm; 
+#after return all tokens, rearm has highest priority +LDB_PP0_CQREARM_CTRL=7
+#after token num=8, and cq_int received, next is to return tokens with: comp_t, bat_t
+#ldb4ppdir4pp_cqdep8_cqthres7_cial_test1
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_cqdep8_cqthres7_cial_test3   -dirtag ldb4ppdir4pp_cqdep8_cqthres7_cial_test3    
+
+#4ldbPP+4dirPP
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_cqdep8_cqthres7_cial_test13   -dirtag ldb4ppdir4pp_cqdep8_cqthres7_cial_test13    
+
+#4ldbPP+4dirPP (cq_dep:16/8; cq_thres:15/8)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_cqdep168_cqthres157_cial_test23   -dirtag ldb4ppdir4pp_cqdep168_cqthres157_cial_test23    
+
+
+#######
+#
+#######
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_cqdep168_cqthres157_cial_test20  -dirtag ldb4ppdir4pp_cqdep168_cqthres157_cial_test20      
+
+########################################################################
+########################################################################
+#################
+#CIAL.cq_occ + CIAL.cq_timer (at last)
+#################
+#ldb4ppdir4pp_cqdep8_cqthres7_cial_occ_tim_test0+cialtimer_cwdt_intrv_med
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_cqdep8_cqthres7_cial_occ_tim_test0 -tv cialtimer_cwdt_intrv_med   -dirtag ldb4ppdir4pp_cqdep8_cqthres7_cial_occ_tim_test0    
+
+
+#4dirPP+4ldbPp
+#ldb4ppdir4pp_cqdep8_cqthres7_cial_occ_tim_test10+cialtimer_cwdt_intrv_med
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_cqdep8_cqthres7_cial_occ_tim_test10 -tv cialtimer_cwdt_intrv_med   -dirtag ldb4ppdir4pp_cqdep8_cqthres7_cial_occ_tim_test10    
+
+
+
+#################
+#CIAL.cq_occ + CIAL.cq_timer interleaved
+#################
+#ldb4ppdir4pp_cqdep8_cqthres7_cial_occ_tim_test1+cialtimer_cwdt_intrv_low
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_cqdep8_cqthres7_cial_occ_tim_test1 -tv cialtimer_cwdt_intrv_low   -dirtag ldb4ppdir4pp_cqdep8_cqthres7_cial_occ_tim_test1    
+
+#4dirPP+4ldbPp
+#ldb4ppdir4pp_cqdep8_cqthres7_cial_occ_tim_test11+cialtimer_cwdt_intrv_low
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_cqdep8_cqthres7_cial_occ_tim_test11 -tv cialtimer_cwdt_intrv_low   -dirtag ldb4ppdir4pp_cqdep8_cqthres7_cial_occ_tim_test11    
+
+
+
+
+
+########################################################################
+########################################################################
+#######################
+#Try CIAL/CWDT in general traffic tests
+#######################
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ordmix_rnd0 -tv cialtimer_cwdt_t0 -tv cwintr_normaltrf_t000   -dirtag ldb4ppdir4pp_4LDB4DIR_SMAP_ORDMIX_RENQTYPEM2_RENQIDM_RND0TEST201      
+
+#
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cialtimer_cwdt_t0 -tv ldb8ppdir8pp_qid1map_ordmix_rnd0 -tv cwintr_normaltrf_t001   -dirtag ldb8ppdir8pp_8LDB8DIR_SMAP_ORDMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202     
+
+#
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cialtimer_cwdt_t0 -tv ldb16ppdir16pp_qidmmap_ldbmix_rnd0 -tv cwintr_normaltrf_t002   -dirtag ldb16ppdir16pp_16LDB16DIR_MMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202     
+
+#
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cialtimer_cwdt_t0 -tv ldb32ppdir32pp_qid1map_ldbmix_rnd0 -tv cwintr_normaltrf_t003   -dirtag ldb32ppdir32pp_32LDB32DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202     
+
+#
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cialtimer_cwdt_t0 -tv ldb64ppdir64pp_qidmmap_ordmix_rnd0 -tv cwintr_normaltrf_t004   -dirtag ldb64ppdir64pp_64LDB64DIR_MMAP_ORDMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202    
+
+
+############################################################################
+############################################################################
+############################################################################
+############################################################################
+#CQ_INT_MASK tests
+############################################################################
+############################################################################
+
+############################################################################
+#parallel mode
+############################################################################
+################################
+#parallel  (mask/unmask CQ parallel flow)
+################################
+#ldb2831+dir9295
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cqintr_ldb2831_dir9295_cqdep168_cqthres157_trf_ims -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_ldb2832dir9296_smkh_paral   -dirtag MIRQ_cqintr_ldb2831_dir9295_cqdep168_cqthres157_trf_ims.maskl2.paral        
+
+#ldb2831+dir9295
+#run loop=4
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp4 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cqintr_ldb2831_dir9295_cqdep168_cqthres157_trf_ims -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_ldb2832dir9296_smkh_paral   -dirtag MIRQ_cqintr_ldb2831_dir9295_cqdep168_cqthres157_trf_ims.maskl2.paral.l4        
+
+##############################
+#parallel  (mask/unmask CQ parallel flow)
+#configuration: lower32 ldbcq + all 96 dircq 
+##############################
+#ldb07+dir6471
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_ldb07dir6471_paral_ims   -dirtag MIRQ_cqintr_mask_unmask_ldb07dir6471_paral_ims.paral        
+
+#ldb815+dir7279
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_ldb815dir7279_paral_ims   -dirtag MIRQ_cqintr_mask_unmask_ldb815dir7279_paral_ims.paral        
+
+#ldb1624+dir8087
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_ldb1623dir8087_paral_ims   -dirtag MIRQ_cqintr_mask_unmask_ldb1623dir8087_paral_ims.paral        
+
+#ldb2431+dir8895
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_ldb2431dir8895_paral_ims   -dirtag MIRQ_cqintr_mask_unmask_ldb2431dir8895_paral_ims.paral        
+
+#
+#ldb07+dir07
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_ldb07dir07_paral_ims   -dirtag MIRQ_cqintr_mask_unmask_ldb07dir07_paral_ims.paral        
+
+#ldb815+dir815
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_ldb815dir815_paral_ims   -dirtag MIRQ_cqintr_mask_unmask_ldb815dir815_paral_ims.paral        
+
+#ldb1624+dir1623
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_ldb1623dir1623_paral_ims   -dirtag MIRQ_cqintr_mask_unmask_ldb1623dir1623_paral_ims.paral        
+
+#ldb2431+dir2431
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_ldb2431dir2431_paral_ims   -dirtag MIRQ_cqintr_mask_unmask_ldb2431dir2431_paral_ims.paral        
+
+##############################
+#parallel  (mask/unmask CQ parallel flow)
+#configuration: upper32 ldbcq + all 96 dircq 
+##############################
+#ldb3239+dir6471
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_ldb3239_dir6471_paral_ims   -dirtag MIRQ_cqintr_mask_unmask_ldb3239_dir6471_paral_ims.paral        
+
+#ldb4047+dir7279
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_ldb4047_dir7279_paral_ims   -dirtag MIRQ_cqintr_mask_unmask_ldb4047_dir7279_paral_ims.paral        
+
+#ldb4855+dir8087
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_ldb4855_dir8087_paral_ims   -dirtag MIRQ_cqintr_mask_unmask_ldb4855_dir8087_paral_ims.paral        
+
+#ldb5663+dir8895
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_ldb5663_dir8895_paral_ims   -dirtag MIRQ_cqintr_mask_unmask_ldb5663_dir8895_paral_ims.paral        
+
+
+###
+#ldb3239+dir3239
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_ldb3239_dir3239_paral_ims   -dirtag MIRQ_cqintr_mask_unmask_ldb3239_dir3239_paral_ims.paral        
+
+#ldb4047+dir4047
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_ldb4047_dir4047_paral_ims   -dirtag MIRQ_cqintr_mask_unmask_ldb4047_dir4047_paral_ims.paral        
+
+#ldb4855+dir4855
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_ldb4855_dir4855_paral_ims   -dirtag MIRQ_cqintr_mask_unmask_ldb4855_dir4855_paral_ims.paral        
+
+#ldb5663+dir5663
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_ldb5663_dir5663_paral_ims   -dirtag MIRQ_cqintr_mask_unmask_ldb5663_dir5663_paral_ims.paral        
+
+
+
+############################################################################
+#non-parallel mode
+############################################################################
+##############################
+## 1ldb
+##03192021  hcw_enqtrf_hqmproc_test:g_intr_cwintr_maskunmask_lp1+cqintr_cqdep8_cqthres7_cial_occ_test1+cqintr_ldb1ppdir1pp_cqdep8_cqthres7_cial_occ_test1_trf_cqirqmask+cialtimer_cwdt_intrv_low+cqintr_mask_unmask_dirldb_smk   -dirtag MIRQ_ldb1pp_cqintr_cqdep8_cqthres7_cial_occ_l1      
+
+##03192021  hcw_enqtrf_hqmproc_test:g_intr_cwintr_maskunmask_lp2+cqintr_cqdep8_cqthres7_cial_occ_test1+cqintr_ldb1ppdir1pp_cqdep8_cqthres7_cial_occ_test1_trf_cqirqmask+cialtimer_cwdt_intrv_low+cqintr_mask_unmask_dirldb_smk   -dirtag MIRQ_ldb1pp_cqintr_cqdep8_cqthres7_cial_occ_l2      
+
+##03192021   hcw_enqtrf_hqmproc_test:g_intr_cwintr_maskunmask_lp3+cqintr_cqdep8_cqthres7_cial_occ_test1+cqintr_ldb1ppdir1pp_cqdep8_cqthres7_cial_occ_test1_trf_cqirqmask+cialtimer_cwdt_intrv_low+cqintr_mask_unmask_dirldb_smk   -dirtag MIRQ_ldb1pp_cqintr_cqdep8_cqthres7_cial_occ_l3     
+
+##03192021   hcw_enqtrf_hqmproc_test:g_intr_cwintr_maskunmask_lp4+cqintr_cqdep8_cqthres7_cial_occ_test1+cqintr_ldb1ppdir1pp_cqdep8_cqthres7_cial_occ_test1_trf_cqirqmask+cialtimer_cwdt_intrv_low+cqintr_mask_unmask_dirldb_smk   -dirtag MIRQ_ldb1pp_cqintr_cqdep8_cqthres7_cial_occ_l4      
+
+##################
+#2dir2ldb
+##03192021   hcw_enqtrf_hqmproc_test:g_intr_cwintr_maskunmask_lp2+cqintr_cqdep8_cqthres7_cial_occ_test1+cqintr_ldb2ppdir2pp_cqdep8_cqthres7_cial_occ_test1_trf_cqirqmask+cialtimer_cwdt_intrv_low+cqintr_mask_unmask_2dir2ldb_smk   -dirtag MIRQ_ldb2dir2pp_cqintr_cqdep8_cqthres7_cial_occ_maskl2      
+
+#2dir2ldb , only ldb[0] mask/unmask
+##03192021   hcw_enqtrf_hqmproc_test:g_intr_cwintr_maskunmask_lp2+cqintr_cqdep8_cqthres7_cial_occ_test1+cqintr_ldb2ppdir2pp_cqdep8_cqthres7_cial_occ_test1_trf_cqirqmask+cialtimer_cwdt_intrv_low+cqintr_mask_unmask_dirldb_smk   -dirtag MIRQ_ldb2dir2pp_cqintr_cqdep8_cqthres7_cial_occ_l2_ldb0      
+
+
+##################
+#4dir4ldb
+##03192021   hcw_enqtrf_hqmproc_test:g_intr_cwintr_maskunmask_lp2+cqintr_cqdep8_cqthres7_cial_occ_test1+cqintr_ldb4ppdir4pp_cqdep8_cqthres7_cial_occ_test1_trf_cqirqmask+cialtimer_cwdt_intrv_low+cqintr_mask_unmask_4dir4ldb_smk   -dirtag MIRQ_ldb4dir4pp_cqintr_cqdep8_cqthres7_cial_occ_maskl2      
+
+##03192021   hcw_enqtrf_hqmproc_test:g_intr_cwintr_maskunmask_lp2+cqintr_cqdep8_cqthres7_cial_occ_test1+cqintr_ldb4ppdir4pp_cqdep8_cqthres7_cial_occ_test1_trf_cqirqmask+cialtimer_cwdt_intrv_low+cqintr_mask_unmask_2dir2ldb_smk   -dirtag MIRQ_ldb4dir4pp_cqintr_cqdep8_cqthres7_cial_occ_maskl2_dir2ldb2      
+
+##03192021   hcw_enqtrf_hqmproc_test:g_intr_cwintr_maskunmask_lp2+cqintr_cqdep8_cqthres7_cial_occ_test1+cqintr_ldb4ppdir4pp_cqdep8_cqthres7_cial_occ_test1_trf_cqirqmask+cialtimer_cwdt_intrv_low+cqintr_mask_unmask_dirldb_smk   -dirtag MIRQ_ldb4dir4pp_cqintr_cqdep8_cqthres7_cial_occ_maskl2_ldb0      
+
+##################
+#8dir8ldb   (+cqintr_ldb8ppdir8pp_cqdep8_cqthres7_trf_cqirqmask
+##03192021   hcw_enqtrf_hqmproc_test:g_intr_cwintr_maskunmask_lp2+cqintr_cqdep8_cqthres7_cial_occ_test1+cqintr_ldb8ppdir8pp_cqdep8_cqthres7_trf+cialtimer_cwdt_intrv_low+cqintr_mask_unmask_8dir8ldb_smk40   -dirtag MIRQ_ldb8dir8pp_cqintr_cqdep8_cqthres7_cial_occ.smk40.maskl2      
+
+##03192021   hcw_enqtrf_hqmproc_test:g_intr_cwintr_maskunmask_lp2+cqintr_cqdep8_cqthres7_cial_occ_test1+cqintr_ldb8ppdir8pp_cqdep8_cqthres7_trf+cialtimer_cwdt_intrv_low+cqintr_mask_unmask_8dir8ldb_smk41   -dirtag MIRQ_ldb8dir8pp_cqintr_cqdep8_cqthres7_cial_occ.smk42.maskl2      
+
+
+##################
+#16dir16ldb    
+#MSIX
+##03192021   hcw_enqtrf_hqmproc_test:g_intr_cwintr_maskunmask_lp2+cqintr_cqdep8_cqthres7_cial_occ_test1+cqintr_ldb16ppdir16pp_cqdep8_cqthres7_trf+cialtimer_cwdt_intrv_low+cqintr_mask_unmask_16dir16ldb_smk40   -dirtag MIRQ_ldb16dir16pp_cqintr_cqdep8_cqthres7_cial_occ.smk40.maskl2      
+##03192021   hcw_enqtrf_hqmproc_test:g_intr_cwintr_maskunmask_lp2+cqintr_cqdep8_cqthres7_cial_occ_test1+cqintr_ldb16ppdir16pp_cqdep8_cqthres7_trf+cialtimer_cwdt_intrv_low+cqintr_mask_unmask_16dir16ldb_smk41   -dirtag MIRQ_ldb16dir16pp_cqintr_cqdep8_cqthres7_cial_occ.smk41.maskl2      
+##03192021   hcw_enqtrf_hqmproc_test:g_intr_cwintr_maskunmask_lp2+cqintr_cqdep8_cqthres7_cial_occ_test1+cqintr_ldb16ppdir16pp_cqdep8_cqthres7_trf+cialtimer_cwdt_intrv_low+cqintr_mask_unmask_16dir16ldb_smk42   -dirtag MIRQ_ldb16dir16pp_cqintr_cqdep8_cqthres7_cial_occ.smk42.maskl2      
+##03192021   hcw_enqtrf_hqmproc_test:g_intr_cwintr_maskunmask_lp2+cqintr_cqdep8_cqthres7_cial_occ_test1+cqintr_ldb16ppdir16pp_cqdep8_cqthres7_trf+cialtimer_cwdt_intrv_low+cqintr_mask_unmask_16dir16ldb_smk43   -dirtag MIRQ_ldb16dir16pp_cqintr_cqdep8_cqthres7_cial_occ.smk43.maskl2      
+
+#IMS
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cqintr_ldb16ppdir16pp_cqdep168_cqthres157_trf_ims -tv cialtimer_cwdt_intrv_low -tv cqintr_mask_unmask_16dir16ldb_smk40   -dirtag MIRQ_ldb16ppdir16pp_cqdep168_cqthres157_trf_ims_cial_occ.smk40.maskl2       
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cqintr_ldb16ppdir16pp_cqdep168_cqthres157_trf_ims -tv cialtimer_cwdt_intrv_low -tv cqintr_mask_unmask_16dir16ldb_smk41   -dirtag MIRQ_ldb16ppdir16pp_cqdep168_cqthres157_trf_ims_cial_occ.smk41.maskl2       
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cqintr_ldb16ppdir16pp_cqdep168_cqthres157_trf_ims -tv cialtimer_cwdt_intrv_low -tv cqintr_mask_unmask_16dir16ldb_smk42   -dirtag MIRQ_ldb16ppdir16pp_cqdep168_cqthres157_trf_ims_cial_occ.smk42.maskl2       
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cqintr_ldb16ppdir16pp_cqdep168_cqthres157_trf_ims -tv cialtimer_cwdt_intrv_low -tv cqintr_mask_unmask_16dir16ldb_smk43   -dirtag MIRQ_ldb16ppdir16pp_cqdep168_cqthres157_trf_ims_cial_occ.smk43.maskl2       
+
+
+##################
+#32dir32ldb   (+cqintr_ldb32ppdir32pp_cqdep8_cqthres7_trf 
+#4ldb4dirmask
+##03192021   hcw_enqtrf_hqmproc_test:g_intr_cwintr_maskunmask_lp2+cqintr_cqdep8_cqthres7_cial_occ_test1+cqintr_ldb32ppdir32pp_cqdep8_cqthres7_trf+cialtimer_cwdt_intrv_low+cqintr_mask_unmask_4dir4ldb_smk   -dirtag MIRQ_ldb32dir32pp_cqintr_cqdep8_cqthres7_cial_occ.4dir4ldb.maskl2       
+
+#MSIX
+#dirmask 4 at a time
+##03192021   hcw_enqtrf_hqmproc_test:g_intr_cwintr_maskunmask_lp2+cqintr_cqdep8_cqthres7_cial_occ_test1+cqintr_ldb32ppdir32pp_cqdep8_cqthres7_trf+cialtimer_cwdt_intrv_low+cqintr_mask_unmask_32dir_smk40   -dirtag MIRQ_ldb32dir32pp_cqintr_cqdep8_cqthres7_cial_occ.32dir40.maskl2       
+##03192021   hcw_enqtrf_hqmproc_test:g_intr_cwintr_maskunmask_lp2+cqintr_cqdep8_cqthres7_cial_occ_test1+cqintr_ldb32ppdir32pp_cqdep8_cqthres7_trf+cialtimer_cwdt_intrv_low+cqintr_mask_unmask_32dir_smk41   -dirtag MIRQ_ldb32dir32pp_cqintr_cqdep8_cqthres7_cial_occ.32dir41.maskl2       
+##03192021   hcw_enqtrf_hqmproc_test:g_intr_cwintr_maskunmask_lp2+cqintr_cqdep8_cqthres7_cial_occ_test1+cqintr_ldb32ppdir32pp_cqdep8_cqthres7_trf+cialtimer_cwdt_intrv_low+cqintr_mask_unmask_32dir_smk42   -dirtag MIRQ_ldb32dir32pp_cqintr_cqdep8_cqthres7_cial_occ.32dir42.maskl2       
+##03192021   hcw_enqtrf_hqmproc_test:g_intr_cwintr_maskunmask_lp2+cqintr_cqdep8_cqthres7_cial_occ_test1+cqintr_ldb32ppdir32pp_cqdep8_cqthres7_trf+cialtimer_cwdt_intrv_low+cqintr_mask_unmask_32dir_smk43   -dirtag MIRQ_ldb32dir32pp_cqintr_cqdep8_cqthres7_cial_occ.32dir43.maskl2       
+##03192021   hcw_enqtrf_hqmproc_test:g_intr_cwintr_maskunmask_lp2+cqintr_cqdep8_cqthres7_cial_occ_test1+cqintr_ldb32ppdir32pp_cqdep8_cqthres7_trf+cialtimer_cwdt_intrv_low+cqintr_mask_unmask_32dir_smk44   -dirtag MIRQ_ldb32dir32pp_cqintr_cqdep8_cqthres7_cial_occ.32dir44.maskl2       
+##03192021   hcw_enqtrf_hqmproc_test:g_intr_cwintr_maskunmask_lp2+cqintr_cqdep8_cqthres7_cial_occ_test1+cqintr_ldb32ppdir32pp_cqdep8_cqthres7_trf+cialtimer_cwdt_intrv_low+cqintr_mask_unmask_32dir_smk45   -dirtag MIRQ_ldb32dir32pp_cqintr_cqdep8_cqthres7_cial_occ.32dir45.maskl2       
+##03192021   hcw_enqtrf_hqmproc_test:g_intr_cwintr_maskunmask_lp2+cqintr_cqdep8_cqthres7_cial_occ_test1+cqintr_ldb32ppdir32pp_cqdep8_cqthres7_trf+cialtimer_cwdt_intrv_low+cqintr_mask_unmask_32dir_smk46   -dirtag MIRQ_ldb32dir32pp_cqintr_cqdep8_cqthres7_cial_occ.32dir46.maskl2       
+##03192021   hcw_enqtrf_hqmproc_test:g_intr_cwintr_maskunmask_lp2+cqintr_cqdep8_cqthres7_cial_occ_test1+cqintr_ldb32ppdir32pp_cqdep8_cqthres7_trf+cialtimer_cwdt_intrv_low+cqintr_mask_unmask_32dir_smk47   -dirtag MIRQ_ldb32dir32pp_cqintr_cqdep8_cqthres7_cial_occ.32smk47.maskl2       
+
+#MSIX
+#ldbmask 4 at a time
+##03192021  hcw_enqtrf_hqmproc_test:g_intr_cwintr_maskunmask_lp2+cqintr_cqdep8_cqthres7_cial_occ_test1+cqintr_ldb32ppdir32pp_cqdep8_cqthres7_trf+cialtimer_cwdt_intrv_low+cqintr_mask_unmask_32ldb_smk40   -dirtag MIRQ_ldb32dir32pp_cqintr_cqdep8_cqthres7_cial_occ.16ldbsmk40.maskl2       
+##03192021  hcw_enqtrf_hqmproc_test:g_intr_cwintr_maskunmask_lp2+cqintr_cqdep8_cqthres7_cial_occ_test1+cqintr_ldb32ppdir32pp_cqdep8_cqthres7_trf+cialtimer_cwdt_intrv_low+cqintr_mask_unmask_32ldb_smk41   -dirtag MIRQ_ldb32dir32pp_cqintr_cqdep8_cqthres7_cial_occ.16ldbsmk41.maskl2       
+##03192021  hcw_enqtrf_hqmproc_test:g_intr_cwintr_maskunmask_lp2+cqintr_cqdep8_cqthres7_cial_occ_test1+cqintr_ldb32ppdir32pp_cqdep8_cqthres7_trf+cialtimer_cwdt_intrv_low+cqintr_mask_unmask_32ldb_smk42   -dirtag MIRQ_ldb32dir32pp_cqintr_cqdep8_cqthres7_cial_occ.16ldbsmk42.maskl2       
+##03192021  hcw_enqtrf_hqmproc_test:g_intr_cwintr_maskunmask_lp2+cqintr_cqdep8_cqthres7_cial_occ_test1+cqintr_ldb32ppdir32pp_cqdep8_cqthres7_trf+cialtimer_cwdt_intrv_low+cqintr_mask_unmask_32ldb_smk43   -dirtag MIRQ_ldb32dir32pp_cqintr_cqdep8_cqthres7_cial_occ.16ldbsmk43.maskl2       
+##03192021  hcw_enqtrf_hqmproc_test:g_intr_cwintr_maskunmask_lp2+cqintr_cqdep8_cqthres7_cial_occ_test1+cqintr_ldb32ppdir32pp_cqdep8_cqthres7_trf+cialtimer_cwdt_intrv_low+cqintr_mask_unmask_32ldb_smk44   -dirtag MIRQ_ldb32dir32pp_cqintr_cqdep8_cqthres7_cial_occ.16ldbsmk44.maskl2       
+##03192021  hcw_enqtrf_hqmproc_test:g_intr_cwintr_maskunmask_lp2+cqintr_cqdep8_cqthres7_cial_occ_test1+cqintr_ldb32ppdir32pp_cqdep8_cqthres7_trf+cialtimer_cwdt_intrv_low+cqintr_mask_unmask_32ldb_smk45   -dirtag MIRQ_ldb32dir32pp_cqintr_cqdep8_cqthres7_cial_occ.16ldbsmk45.maskl2       
+##03192021  hcw_enqtrf_hqmproc_test:g_intr_cwintr_maskunmask_lp2+cqintr_cqdep8_cqthres7_cial_occ_test1+cqintr_ldb32ppdir32pp_cqdep8_cqthres7_trf+cialtimer_cwdt_intrv_low+cqintr_mask_unmask_32ldb_smk46   -dirtag MIRQ_ldb32dir32pp_cqintr_cqdep8_cqthres7_cial_occ.16ldbsmk46.maskl2       
+
+##03192021  hcw_enqtrf_hqmproc_test:g_intr_cwintr_maskunmask_lp2+cqintr_cqdep8_cqthres7_cial_occ_test1+cqintr_ldb32ppdir32pp_cqdep8_cqthres7_trf+cialtimer_cwdt_intrv_low+cqintr_mask_unmask_32ldb_smk47   -dirtag MIRQ_ldb32dir32pp_cqintr_cqdep8_cqthres7_cial_occ.16ldbsmk47.maskl2       
+
+
+##################################################   
+#############################
+#try 96dir
+#####
+#dir32-dir63 , mask 4 dir cqs at a time
+#####
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cqintr_dir96m_cqdep168_cqthres157_trf_ims -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_32dirm_smk40   -dirtag MIRQ_cqintr_dir96m_cqdep168_cqthres157_trf_ims.dir_32m_smk40.maskl2       
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cqintr_dir96m_cqdep168_cqthres157_trf_ims -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_32dirm_smk41   -dirtag MIRQ_cqintr_dir96m_cqdep168_cqthres157_trf_ims.dir_32m_smk41.maskl2       
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cqintr_dir96m_cqdep168_cqthres157_trf_ims -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_32dirm_smk42   -dirtag MIRQ_cqintr_dir96m_cqdep168_cqthres157_trf_ims.dir_32m_smk42.maskl2       
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cqintr_dir96m_cqdep168_cqthres157_trf_ims -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_32dirm_smk43   -dirtag MIRQ_cqintr_dir96m_cqdep168_cqthres157_trf_ims.dir_32m_smk43.maskl2       
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cqintr_dir96m_cqdep168_cqthres157_trf_ims -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_32dirm_smk44   -dirtag MIRQ_cqintr_dir96m_cqdep168_cqthres157_trf_ims.dir_32m_smk44.maskl2       
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cqintr_dir96m_cqdep168_cqthres157_trf_ims -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_32dirm_smk45   -dirtag MIRQ_cqintr_dir96m_cqdep168_cqthres157_trf_ims.dir_32m_smk45.maskl2       
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cqintr_dir96m_cqdep168_cqthres157_trf_ims -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_32dirm_smk46   -dirtag MIRQ_cqintr_dir96m_cqdep168_cqthres157_trf_ims.dir_32m_smk46.maskl2       
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cqintr_dir96m_cqdep168_cqthres157_trf_ims -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_32dirm_smk47   -dirtag MIRQ_cqintr_dir96m_cqdep168_cqthres157_trf_ims.dir_32m_smk47.maskl2       
+
+#####
+#dir64-dir95 , mask 4 dir cqs at a time
+#####
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cqintr_dir96h_cqdep168_cqthres157_trf_ims -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_32dirh_smk40   -dirtag MIRQ_cqintr_dir96h_cqdep168_cqthres157_trf_ims.dir_32h_smk40.maskl2       
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cqintr_dir96h_cqdep168_cqthres157_trf_ims -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_32dirh_smk41   -dirtag MIRQ_cqintr_dir96h_cqdep168_cqthres157_trf_ims.dir_32h_smk41.maskl2       
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cqintr_dir96h_cqdep168_cqthres157_trf_ims -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_32dirh_smk42   -dirtag MIRQ_cqintr_dir96h_cqdep168_cqthres157_trf_ims.dir_32h_smk42.maskl2       
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cqintr_dir96h_cqdep168_cqthres157_trf_ims -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_32dirh_smk43   -dirtag MIRQ_cqintr_dir96h_cqdep168_cqthres157_trf_ims.dir_32h_smk43.maskl2       
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cqintr_dir96h_cqdep168_cqthres157_trf_ims -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_32dirh_smk44   -dirtag MIRQ_cqintr_dir96h_cqdep168_cqthres157_trf_ims.dir_32h_smk44.maskl2       
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cqintr_dir96h_cqdep168_cqthres157_trf_ims -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_32dirh_smk45   -dirtag MIRQ_cqintr_dir96h_cqdep168_cqthres157_trf_ims.dir_32h_smk45.maskl2       
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cqintr_dir96h_cqdep168_cqthres157_trf_ims -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_32dirh_smk46   -dirtag MIRQ_cqintr_dir96h_cqdep168_cqthres157_trf_ims.dir_32h_smk46.maskl2       
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cqintr_dir96h_cqdep168_cqthres157_trf_ims -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_32dirh_smk47   -dirtag MIRQ_cqintr_dir96h_cqdep168_cqthres157_trf_ims.dir_32h_smk47.maskl2       
+
+
+###############################
+###Try this : small number of cqs
+#dircq92-95; ldbcq28-31
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cqintr_ldb2831_dir9295_cqdep168_cqthres157_trf_ims -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_ldb2832dir9296_smkh   -dirtag MIRQ_cqintr_ldb2831_dir9295_cqdep168_cqthres157_trf_ims.maskl2       
+
+
+############################
+####high32ldbcq+96dircq
+#mask upper 32 ldb CQs, mask 4 ldb cqs at a time
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cqintr_ldb32h_dir96_cqdep168_cqthres157_trf40_ims -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_32ldbh_smk40   -dirtag MIRQ_cqintr_ldb32h_dir96h_cqdep168_cqthres157_trf40_ims.ldb_32h_smk40.maskl2       
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cqintr_ldb32h_dir96_cqdep168_cqthres157_trf41_ims -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_32ldbh_smk41   -dirtag MIRQ_cqintr_ldb32h_dir96h_cqdep168_cqthres157_trf41_ims.ldb_32h_smk41.maskl2       
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cqintr_ldb32h_dir96_cqdep168_cqthres157_trf42_ims -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_32ldbh_smk42   -dirtag MIRQ_cqintr_ldb32h_dir96h_cqdep168_cqthres157_trf42_ims.ldb_32h_smk42.maskl2       
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cqintr_ldb32h_dir96_cqdep168_cqthres157_trf43_ims -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_32ldbh_smk43   -dirtag MIRQ_cqintr_ldb32h_dir96h_cqdep168_cqthres157_trf43_ims.ldb_32h_smk43.maskl2       
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cqintr_ldb32h_dir96_cqdep168_cqthres157_trf44_ims -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_32ldbh_smk44   -dirtag MIRQ_cqintr_ldb32h_dir96h_cqdep168_cqthres157_trf44_ims.ldb_32h_smk44.maskl2       
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cqintr_ldb32h_dir96_cqdep168_cqthres157_trf45_ims -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_32ldbh_smk45   -dirtag MIRQ_cqintr_ldb32h_dir96h_cqdep168_cqthres157_trf45_ims.ldb_32h_smk45.maskl2       
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cqintr_ldb32h_dir96_cqdep168_cqthres157_trf46_ims -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_32ldbh_smk46   -dirtag MIRQ_cqintr_ldb32h_dir96h_cqdep168_cqthres157_trf46_ims.ldb_32h_smk46.maskl2       
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv g_intr_cwintr_maskunmask_lp2 -tv cqintr_cqdep8_cqthres7_cial_occ_test1 -tv cqintr_ldb32h_dir96_cqdep168_cqthres157_trf47_ims -tv cialtimer_cwdt_intrv_med -tv cqintr_mask_unmask_32ldbh_smk47   -dirtag MIRQ_cqintr_ldb32h_dir96h_cqdep168_cqthres157_trf47_ims.ldb_32h_smk47.maskl2       
+
+
+#hcw_enqtrf_hqmproc_test:g_intr_cwintr_maskunmask_lp2+cqintr_cqdep8_cqthres7_cial_occ_test1+cqintr_ldb32h_dir96_cqdep168_cqthres157_trf_ims+cialtimer_cwdt_intrv_med+cqintr_mask_unmask_32ldbh_smk40   -dirtag MIRQ_cqintr_ldb32h_dir96h_cqdep168_cqthres157_trf_ims.ldb_32h_smk40.maskl2       
+# hcw_enqtrf_hqmproc_test:cqintr_ldb32h_dir96_cqdep168_cqthres157_trf_ims+cqintr_cqdep_cqthres_cial_test0+cialtimer_cwdt_intrv_med   -dirtag cqintr_ldb32h_dir96_cqdep168_cqthres157_trf_ims       
+
+########
+####all 64 ldbCQ, due to 32 QID olny, can't do interactive CIAL flow; +HQM_INT_ARM_CK_4 expect to see intr from every ldbCQs (64 CQ MSIX)
+# hcw_enqtrf_hqmproc_test:g_intr_cwintr_arm_ck_4+cqintr_ldb64_cqdep168_cqthres157_trf+cialtimer_cwdt_t0   -dirtag cqintr_ldb64_cqdep168_cqthres157_trf       
+
+
+
+
+
+##-defaults -simv_args '"'+hqmproc_batch_max=4'"' -simv_args '"'+HQM_RELAXED_BATCH_MODE'"' -simv_args-

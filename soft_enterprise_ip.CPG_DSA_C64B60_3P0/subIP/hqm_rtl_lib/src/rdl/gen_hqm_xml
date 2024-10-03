@@ -1,0 +1,29 @@
+osetup nebulon
+setenv PATH ${NEBULON_DIR}/bin:${PATH}
+mkdir ./output
+mkdir ./output/gen_xml
+
+nebulon -input hqm_pf_cfg_top.rdl -xml -I "$NEBULON_DATA/include . ../../subIP/sip/AW/src/rdl" -out_dir .
+
+if ($status != 0) then
+  echo "$0 Error: hqm_pf_cfg_top.rdl nebulon command failed"
+  exit
+endif
+cp ./output/xml/hqm_pf_cfg_map.xml ./output/gen_xml/.
+
+nebulon -input hqm_csr_bar.rdl -xml -I "$NEBULON_DATA/include . ../../subIP/sip/AW/src/rdl" -out_dir .
+
+if ($status != 0) then
+  echo "$0 Error: hqm_csr_bar.rdl nebulon command failed"
+  exit
+endif
+cp ./output/xml/hqm_csr_bar_map.xml ./output/gen_xml/.
+
+nebulon -input hqm_func_pf_bar.rdl -xml -I "$NEBULON_DATA/include . ../../subIP/sip/AW/src/rdl" -out_dir .
+
+if ($status != 0) then
+  echo "$0 Error: hqm_func_pf_bar.rdl nebulon command failed"
+  exit
+endif
+cp ./output/xml/hqm_func_pf_bar_map.xml ./output/gen_xml/.
+

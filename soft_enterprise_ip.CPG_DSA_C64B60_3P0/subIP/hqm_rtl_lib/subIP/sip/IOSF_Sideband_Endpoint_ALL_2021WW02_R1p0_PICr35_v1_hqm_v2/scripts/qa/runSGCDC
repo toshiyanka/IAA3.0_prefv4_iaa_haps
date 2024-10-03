@@ -1,0 +1,190 @@
+#!/bin/tcsh -f
+
+################################################################################
+# Source a script that is called at the start of each back-end 
+# scripts/qa/run* script
+################################################################################
+
+unsetenv SB_STDCELLS_HDL
+
+if ( $SB_ACE_FLOW ) then
+    source ./runPre -tool_name $0 $argv
+else
+    source ${MODEL_ROOT}/scripts/qa/runPre -tool_name $0 $argv
+endif
+
+if ( ${status} != 0 ) exit ${status}
+
+if ( "${config}" =~ "IOSF_Sideband_Endpoint" ) then
+    set sbrdir=${MODEL_ROOT}
+    source ${sbrdir}/scripts/qa/ephelper.csh -rtlcfg ${component} -topdir ${sbrdir} -gentool ${thisToolName} -tooldir spyglasscdc
+    setenv SBE_COMPONENT ${component}
+#dstooldir is $sbrdir/tools/spyglasscdc/$component
+    set sgcdcdir=${dsttooldir}
+
+# Create opt files and rtl tops for each component (config)
+
+    set compdir="$sbrdir/tools/spyglasscdc/$component"
+ 
+    if (((${component} != sbendpoint) && (${component} =~ "sbendpoint*"))||((${component} != sbebase) && (${component} =~ "sbebase*"))) then
+        if ( -d "$compdir" ) then
+            rm -rf "$compdir"
+        endif
+        mkdir $compdir
+        cp ${sbrdir}/tools/spyglasscdc/$rtltop/${rtltop}.opt $compdir/$component.opt
+        cp ${sbrdir}/tools/spyglasscdc/$rtltop/${rtltop}.sgdc $compdir/$component.sgdc
+        set origsgdc="tools\/spyglasscdc\/$rtltop\/$rtltop.sgdc"
+        set destsgdc="tools\/spyglasscdc\/$component\/$component.sgdc"
+        perl -pi -e "s/$origsgdc/$destsgdc/g" $compdir/$component.opt
+    endif
+    # Agent clock will need to be changed for all components/rtltops
+    cp $compdir/$component.sgdc $compdir/$component.sgdc_temp
+    if (${async_ep} == 0) then
+        echo "EP is sync"
+    else
+        perl -pi -e 's/setvar async 0/setvar async 1/g' $compdir/$component.sgdc
+        echo "EP is async"
+    endif
+    if (${rp_en} == 1) then
+        perl -pi -e 's/setvar rp 0/setvar rp 1/g' $compdir/$component.sgdc
+        echo "RP is enabled"
+    endif
+    if (${latch} == 1) then
+        perl -pi -e 's/setvar latch 0/setvar latch 1/g' $compdir/$component.sgdc
+        echo "Latch based FIFO is enabled"
+    endif
+
+# Override the config parameters in ${rtltop}.sv
+# The original ${rtltop}.sv file is saved as ${rtltop}.sv.orig, and restored at the end of this script run
+    set rtltopsv="${sbrdir}/source/rtl/iosfsbc/endpoint/${rtltop}.sv"
+   
+    cp ${rtltopsv} "${rtltopsv}_orig"
+    set parameters=""
+
+    if ( ${rtlparameterstring} != "" ) then
+        foreach param (${rtlparameterlist})
+        # Parameter override when calling vlog to compile the design
+            set parameters = "${parameters}-G ${param} "
+            set catch      = `echo ${param} | sed "s/=/ /g"`
+            set kvp        = ($catch)
+            set key        = $kvp[1]
+            set lkey       = `echo $key | tr '[A-Z]' '[a-z]'`
+            set value      = $kvp[2]
+            perl -pi -e "s/parameter\s+${key}\s+=\s+(\d+)/parameter ${key} = ${value}/" ${rtltopsv}
+        end
+    endif
+    set dut=sbe
+else
+    if (${dynopt} =~ "nonDyn") then
+        set rtltop="${component}"
+    else
+        set rtltop="${component}_sbr_generic"
+    endif
+    set dut=sbr
+endif
+#####################
+# Build #
+#####################
+set resdir="tools/spyglasscdc/results/${component}"
+
+# Keep a copy of the modified rtltop file for SBE
+if ( "${config}" =~ "IOSF_Sideband_Endpoint" ) then
+   set sgcdctop="$MODEL_ROOT/tools/spyglasscdc/$component"".sv"
+   cp ${rtltopsv} $sgcdctop
+endif
+
+if ( -d $resdir) then
+    rm -rf $resdir
+endif
+
+#####################
+# Run #
+#####################
+# This is the only way to print ":Setup" to the test
+
+set sgcdcsetup="replaceSetupChk"
+set sgcdcsetup=`echo $sgcdcsetup | sed "s/replace/:/g"`
+
+set rdc="replaceRDC"
+set rdc=`echo $rdc | sed "s/replace/:/g"`
+
+# set separate containers for each EP config. Router doesnt need those, cos they all are separate containers
+if ( "${config}" =~ "IOSF_Sideband_Endpoint" ) then
+    set additional_ep_switches="-target ${resdir} -logdir ${component} -logprefix ${component}"
+    set mc_model="cdc_${rtltop}"
+    set setuptest="-t spyglasscdc/${component}${sgcdcsetup}"
+    set testname="-t spyglasscdc/${component}"
+    set testnamerdc="-t spyglasscdc/${component}$rdc"
+# EP has spyglasscdc Router has spyglass_cdc
+    set prjfile="${ACE_UTILS_ROOT}/results/cdc/tests/spyglasscdc_${component}_SetupChk/${component}.prj"
+else
+    set additional_ep_switches=""
+    set mc_model="sbr_config_ipxact_workspace"
+    set full_component="${component}_sbr_generic"
+    set setuptest="-t spyglass_cdc/$full_component$sgcdcsetup" 
+    set testname="-t spyglass_cdc/$full_component"
+    set testnamerdc="-t spyglass_cdc/$full_component$rdc"
+    set prjfile="${ACE_UTILS_ROOT}/results/cdc/tests/spyglass_cdc_${full_component}_SetupChk/${full_component}.prj"
+
+endif 
+
+set toolset=$ONECFG_toolset
+
+echo "Executing..."
+echo "simbuild -dut $dut -1c -CUST $CUST -toolset $toolset -1c- -s all +s sgcdc_build -sgcdc_build '-ASSIGN -mc=$mc_model -vlog_opts +define+functional+IOSF_SB_PH2' $additional_ep_switches"
+simbuild -dut $dut -1c -CUST $CUST -toolset $toolset -1c- -s all +s sgcdc_build -sgcdc_build "-ASSIGN -mc=$mc_model -vlog_opts +define+functional+IOSF_SB_PH2" $additional_ep_switches
+
+set exitstatus=$status
+if ( ${exitstatus} ) then
+   echo "${thisToolName} -E- SGCDC Build Failed"
+   goto DONE
+endif
+
+echo "Executing..."
+echo "simbuild -dut $dut -1c -CUST $CUST -toolset $toolset -1c- -s all +s sgcdc_test -sgcdc_test "$setuptest" $additional_ep_switches"
+simbuild -dut $dut -1c -CUST $CUST -toolset $toolset -1c- -s all +s sgcdc_test -sgcdc_test "$setuptest" $additional_ep_switches
+
+set exitstatus=$status
+if ( ${exitstatus} ) then
+   echo "${thisToolName} -E- SG CDC Setup Failed"
+   echo "For the GUI use: simbuild -dut $dut -1c -CUST $CUST -toolset $toolset -1c- -s all +s sgcdc_gui -sgcdc_prj_file '$prjfile' $additional_ep_switches"
+   goto DONE
+endif
+
+if ( "${config}" =~ "IOSF_Sideband_Endpoint" ) then
+    set testprjfile="${ACE_UTILS_ROOT}/results/cdc/tests/spyglasscdc_${component}/${component}.prj"
+else
+    set testprjfile="${ACE_UTILS_ROOT}/results/cdc/tests/spyglass_cdc_${full_component}/${full_component}.prj"
+
+endif 
+echo "Executing..."
+echo "simbuild -dut $dut -1c -CUST $CUST -toolset $toolset -1c- -s all +s sgcdc_test -sgcdc_test "$testname" $additional_ep_switches"
+simbuild -dut $dut -1c -CUST $CUST -toolset $toolset -1c- -s all +s sgcdc_test -sgcdc_test "$testname" $additional_ep_switches
+simbuild -dut $dut -1c -CUST $CUST -toolset $toolset -1c- -s all +s sgcdc_test -sgcdc_test "$testnamerdc" $additional_ep_switches
+
+set exitstatus=$status
+if ( ${exitstatus} ) then
+   echo "${thisToolName} -E- SG CDC Test Failed"
+   echo "For the GUI use: simbuild -dut $dut -1c -CUST $CUST -toolset $toolset -1c- -s all +s sgcdc_gui -sgcdc_prj_file '$testprjfile' $additional_ep_switches"
+   goto DONE
+endif
+
+goto DONE
+
+#####################
+# GUI mode #
+#####################
+if ( ${guimode} ) then
+    echo "${thisToolName} -I- Opening GUI on SGCDC"
+    simbuild -dut $dut -1c -CUST $CUST -toolset $toolset -1c- -s all +s sgcdc_gui -sgcdc_prj_file "$prjfile" $additional_ep_switches
+endif
+
+DONE:
+    # Restore the rtltop file for SBE
+    if ( "${config}" =~ "IOSF_Sideband_Endpoint" ) then
+        mv "${rtltopsv}_orig" ${rtltopsv}
+    endif
+    if ((${component} == sbendpoint)||(${component} == sbebase)) then
+        mv ${compdir}/$component.sgdc_temp ${compdir}/$component.sgdc
+    endif
+    exit ${exitstatus}

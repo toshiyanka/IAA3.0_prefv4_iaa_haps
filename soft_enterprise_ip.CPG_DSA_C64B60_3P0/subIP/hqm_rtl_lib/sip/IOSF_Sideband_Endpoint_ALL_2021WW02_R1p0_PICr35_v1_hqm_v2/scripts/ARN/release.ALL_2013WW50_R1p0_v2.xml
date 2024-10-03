@@ -1,0 +1,121 @@
+<?xml version="1.0"?>
+<!-- Release file -->
+
+<sip_release>
+  <version>8.4 November 13, 2013</version>
+  <date>Fri Dec 13 12:48:06 PST 2013</date>
+  <user>jakrigel</user>
+  <sip_name>138</sip_name>
+  <sip_variation>528</sip_variation>
+  <sip_variation_id>528</sip_variation_id>
+  <sip_reldate>2013WW50</sip_reldate>
+  <sip_milestone>1p0</sip_milestone>
+  <sip_relver>v2</sip_relver>
+  <sip_relname>ALL_2013WW50_R1p0_v2</sip_relname>
+  <sip_owner>jakrigel</sip_owner>
+  <sip_dist>csg_sip_all@intel.com,csg_sip_proj_all@intel.com</sip_dist>
+  <sip_fixed></sip_fixed>
+  <sip_open></sip_open>
+  <sip_attachment>
+  </sip_attachment>
+  <sip_customers>
+      <sip_customer>20</sip_customer>
+  </sip_customers>
+  <sip_base>427</sip_base>
+  <sip_features>
+    <sip_feature>
+<![CDATA[
+HTML
+   <h2>RTL Updates:</h2>
+   <dl>
+      <dt>Assertion Fix: </dt>
+      <dd>All $display statements are now guarded by named assertions so they can be disabled. See HSD 5190985.</dd>
+      <dt>Bug Fix: </dt>
+      <dd>Fixed coding error in the virtual port that prevented the router from getting to a power gatable state after receiving a successful completion without data.</dd>
+      <dd><a href="https://hsdes.intel.com/home/default.html#article?id=1013433656
+"> </a></dd>
+      <dt>Coverage Group Fix: </dt>
+      <dd>Fixed coverage group for measuring empty to full conditions of the FIFOs.</dd>
+      <dt>Methodology Update: </dt>
+      <dd>sbc_map has been rewritten to meet the new CTECH methodology for SIP. Any customers that want the old format can find a unsupported version named sbc_map.legacy in the common source folder.</dd>
+      <dt>PCRS: <dt>
+      <dd>PCR 58001: Increased ingress queue size maximum to 31. sbcinqueue.sv was re-written to be move flexible.</dd>
+      <dd>PCR 58073: CTECH Methodology updated to match BXT. Any IPs seeking the old map file can find a copy in the common source folder.</dd>
+   </dl>
+
+   <h2>Dynamo/Collage Updates:</h2>
+   <dl>
+      <dt>General Updates: </dt>
+      <dd>Moved forward to Collage version 2.1.p11. Added a temporary hack to the custom_pre.setup file to work around a bug in tsetup for this version of Collage.</dd>
+      <dd>Reverted to an older version of coretools for corekit creation to avoid getting ahead of customer coretools versions.</dd>
+      <dd>The corekit was updated to correctly generate Collage interfaces for the variable number of async clocks and their req/ack signals.</dd>
+      <dd>Added consistency checks to SBR corekit.</dd>
+      <dd>Added ability to draw a graph of the SBR network. The graph can be found in sbr_network_graph.pdf, located next to the SBR workspace in the directory structure.</dd>
+      <dt>Fabric Spec Updates: </dt>
+      <dd>Removed constraints on VISA ULM ID. It can now be configured from the fabric spec files.</dd>
+      <dd>Updated the corekit so the number of VISA output lanes can be configured from the fabric spec files. Valid values range from 1 to 4. See HSD 5190617.</dd>
+      <dd>Updated the corekit so the number of bits in a VISA lane can be configured from the fabric spec files. Valid values are 8, 16, and 32. See HSD 5209817.</dd>
+      <dd><a href="https://hsdes.intel.com/home/default.html#article?id=1013433656">HSD 1013433656</a>VISA Lane Numbers Adjustable from Dynamo</dd>
+      <dd><a href="https://hsdes.intel.com/home/default.html#article?id=1014339509">HSD 1014339509</a>VISA Lane Width Adjustable from Dynamo</dd>
+      <dt>Interface Updates: </dt>
+      <dd>Added async clocks to Collage interfaces of type IOSF::SB::Clock with names of the form "async{clknum}_clk_src." This name was chosen because "async{clknum}_clk" was already taken for the clk request/ack interfaces.</dd>
+      <dd>Changed the Collage interface used for PGCB signals from COL::PGCB_Fabric to Fabric_Power_Gating.</dd>
+      <dd>Added pmc_sbr_restore_b to the Fabric_Power_Gating Collage interface.</dd>
+      <dd>Sideband Router has two collage interfaces for the PGCB signals (only use one):
+         <ul>
+            <li>pgcb_intf -- of type COL::PGCB_Fabric</li>
+            <li>pgcb_intf_fab_pwr_gtng -- of type Fabric_Power_Gating</li>
+         </ul>
+      </dd>
+   </dl>
+
+   <h2>Backend Updates:</h2>
+   <dl>
+      <dt>General Updates: </dt>
+      <dd>IP level backend runs after using the helper scripts will now generate a RTL list based on CTECH_LIB_NAME.</dd>
+      <dd>When running ACE the environment variable CTECH_LIB_NAME must be set to match the CTECH library name that will be used for backend testing.</dd>
+      <dt>ATPG: </dt>
+      <dd>Now runing both Stuck-At and At-Speed tests. At-speed is typically above 90%.</dd>
+      <dt>CDC: </dt>
+      <dd>ACE CDC TCL flow now supported. Configurable waivers had to be re-written. There may be some missing feature combinations, file an HSD if you suspect a waiver is missing at the IP level.</dd>
+      <dd>Waivers written to minimize Warnings in Chassis compliant router configurations.</dd>
+      <dd>Directory structure for CDC changed to workaround ACE limitations:
+      <ul>
+         <li>Input Collateral found at: ip_root/tools/cdc/tests/router_module_name/</li>
+         <li>Results found at: ip_root/tools/cdc/results/tests/router_module_name/</li>
+      </ul>
+      </dd>
+      <dt>LEC: </dt>
+      <dd>Retention cells are now fully supported in UPF enabled FV runs.</dd>
+      <dt>SpyglassLP: </dt>
+      <dd>Moved the SpyglassLP scripts from tools/upf to tools/spyglasslp.</dd>
+      <dt>SpyglassDFT: </dt>
+      <dd>Now supported. In the future ACE will be used.</dd>
+      <dt>UPF: </dt>
+      <dd>Removed UPF isolation on feed-through paths in the router. Affected signals include: enpirdy, epcirdy, npfence, pcdstvld, npdstvld. Added waivers from some "feed-through" paths that also went to an AON domain (Spyglass gets confused by these).</dd>
+   </dl>
+
+   <h2>Validation Updates:</h2>
+   <p>Functional Coverage: 96%</p>
+   <p>Line Coverage: 97%</p>]]>    </sip_feature>
+  </sip_features>
+  <sip_knissues>
+<![CDATA[]]>  </sip_knissues>
+  <sip_speccons>
+    <sip_speccon>
+<![CDATA[
+HTML
+   <h2>Integration Notes:</h2>
+   <p><b>NOTE:</b> CTECH_LIB_NAME must point to a valid synthesisable CTECH library when synthesising the IP.</p>
+   <p><b>NOTE:</b> CTECH_LIB_NAME must point to a valid behavior CTECH library when simulating the IP.</p>
+   <p>Migrated to Zircon 2013.3</p>]]>    </sip_speccon>
+  </sip_speccons>
+  <sip_specins>
+    <sip_specin>
+<![CDATA[
+HTML
+<p>For support file an <b>HSD</b> at <a href="https://hsdes.intel.com/home/default.html#magazine?id=101846185&contentId=1012194360">https://hsdes.intel.com/home/default.html#magazine?id=101846185&contentId=1012194360</a></p>]]>    </sip_specin>
+  </sip_specins>
+  <sip_models>
+  </sip_models>
+</sip_release>

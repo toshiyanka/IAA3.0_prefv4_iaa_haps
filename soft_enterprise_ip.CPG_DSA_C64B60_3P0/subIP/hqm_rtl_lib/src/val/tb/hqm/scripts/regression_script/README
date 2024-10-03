@@ -1,0 +1,43 @@
+Pre-Requisites:
+Shell in which the script is going to be launched, should have sourced the required files 
+e.g., source /p/hdk/rtl/hdk.rc -cfg shdk74
+For using urg command for drawing coverage, below setup is mandatory
+osetup vcs
+To check if vcs has been setup properly, enter below command and it should return vcs path
+which vcs
+
+Script takes minimum inputs and with that it will keep updating the user over mail as it advances in the process like compilation result, coverage result with and without group ratio. 
+Also to keep track of finer details which happen all over the process right from database creation till end of coverage generation, a separate log file gets created by name regression_script_tracker.log in directory where the script was launched.
+
+
+Working of script
+
+-----------------------------------------------------------------------
+Inputs to the script
+-----------------------------------------------------------------------
+
+At first,it asks for following inputs by user 
+
+1. If user wants to provide the path where database is to be run.
+   If user doesn't want to provide data, script will take the current 
+   path where script is present. 
+2. Database name. 
+   If database name provided by user is already present in the current path, script will
+   update the database name to <database_name>.1/<database_name>.2/... so on 
+   until the database with that name doesn't exist
+3. Regressions to be run.
+   If user doesn't wants to run all the regression lists present in reglist_path,   
+   he can provide the regressions which he wishes to launch.
+
+
+-----------------------------------------------------------------------
+Database generation and compilation
+-----------------------------------------------------------------------
+
+1. Script will create database with the name provided by user in database path 
+2. It will pull the latest database from TOT and will start compilation process
+3. Once compilation is done, script will check if it is clean. If compilation is clean,
+   mail will be sent to the user with the message that compilation has passed.
+   If compilation has failed, user will be notified through mail and script will end there
+   itself
+

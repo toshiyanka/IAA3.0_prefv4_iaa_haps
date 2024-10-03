@@ -1,0 +1,313 @@
+##--------------------------------------------------------------------------------
+## INTEL CONFIDENTIAL
+##
+## Copyright 2012 Intel Corporation All Rights Reserved.
+## The source code contained or described herein and all documents related to the
+## source code ("Material") are owned by Intel Corporation or its suppliers or
+## licensors. Title to the Material remains with Intel Corporation or its
+## suppliers and licensors. The Material contains trade secrets and proprietary
+## and confidential information of Intel or its suppliers and licensors. The
+## Material is protected by worldwide copyright and trade secret laws and treaty
+## provisions. No part of the Material may be used, copied, reproduced, modified,
+## published, uploaded, posted, transmitted, distributed, or disclosed in any way
+## without Intels prior express written permission.
+##
+## No license under any patent, copyright, trade secret or other intellectual
+## property right is granted to or conferred upon you by disclosure or delivery
+## of the Materials, either expressly, by implication, inducement, estoppel or
+## otherwise. Any license under such intellectual property rights must be express
+## and approved by Intel in writing.
+##
+##--------------------------------------------------------------------------------
+
+my $PROJECT = "stap";
+my $soc_generate = 1;
+if ($ENV{ACE_PROJECT} eq "stap"){
+    $soc_generate = 0;
+}
+
+my %ip_only_import = (
+                        dfxsecure_plugin => { libs => [!$soc_generate ?(qw( dfxsecure_plugin_pkg_lib dfxsecure_plugin_ti_lib)):()], },
+                        jtagbfm          => { libs => [!$soc_generate ?(qw( jtag_bfm_pkg_lib jtag_bfm_ti_lib converged_jtag_bfm_pkg_lib   )):()], },
+
+);
+
+%audf = (
+   HDLSpec => {
+	    -hdl_compiler => {
+            vcs => {
+                -iniContents    => <<'EOF',
+                --Simulation variables
+                TIMEBASE = PS
+                TIME_RESOLUTION = 1ps
+
+                --Mapping default work dir
+                work > stap_vcs_testlib
+                --Mapping system libraries
+				UPF  : $VCS_HOME/suse64/packages/upf
+            LPA  : $VCS_HOME/suse64/packages/lpa
+EOF
+            },
+        },
+      $PROJECT => {
+         ##--------------
+         import => {
+         },
+         
+         ##--------------
+         libs => {
+            uvm_pkg_lib               => { 
+               -tag                   =>   'nonsynth+nonemu+nonlint',
+               -vlog_files            => [ "$ENV{UVM_HOME}/src/uvm_pkg.sv", ],
+               -vlog_incdirs          => [ "$ENV{UVM_HOME}/src", ], 
+               -vlog_opts             => [ "-sverilog", ],
+            },
+
+            ovm_pkg_lib               => { 
+               -tag                   =>   'nonsynth+nonemu+nonlint',
+               -vlog_files            => [ "$ENV{OVM_HOME}/src/ovm_pkg.sv", ],
+               -vlog_incdirs          => [ "$ENV{OVM_HOME}/src", ], 
+               -vlog_opts             => [ "-sverilog", ],
+            },
+
+            xvm_pkg_lib               => { 
+               -tag                   =>   'nonsynth+nonemu+nonlint',
+               -vlog_files            => [ "$ENV{XVM_HOME}/src/xvm_pkg.sv", ],
+               -vlog_incdirs          => [ "$ENV{UVM_HOME}/src", "$ENV{OVM_HOME}/src", "$ENV{XVM_HOME}/src", "$ENV{XVM_HOME}/src/macros", ], 
+               -vlog_opts             => [ "-sverilog", ],
+            },
+
+            sla_pkg_lib               => { 
+               -tag                   =>   'nonsynth+nonemu+nonlint',
+               -hdl_spec              => [ "$ENV{SAOLA_HOME}/sla.hdl",],
+               -vlog_opts             => [ "-sverilog", ],
+               -dependent_libs        => [ "uvm_pkg_lib", "ovm_pkg_lib", "xvm_pkg_lib", ],
+            },
+
+            sip_shared_lib            => { 
+               -tag                   =>   'nonsynth+nonemu+nonlint',
+               -vlog_incdirs          => [ "$ENV{UVM_HOME}/src", "$ENV{OVM_HOME}/src", "$ENV{XVM_HOME}/src", "$ENV{XVM_HOME}/src/macros", ], 
+               -sub_libs              => [ "uvm_pkg_lib",
+                                           "ovm_pkg_lib",
+                                           "xvm_pkg_lib",
+                                           "sla_pkg_lib",
+                                           "dfxsecure_plugin_pkg_lib",
+                                           "dfxsecure_plugin_ti_lib",
+                                           "jtag_bfm_pkg_lib", 
+                                           "jtag_bfm_ti_lib", ],
+            },
+            sip_shared_lib_converged  => { 
+               -tag                   =>   'nonsynth+nonemu+nonlint',
+               -vlog_incdirs          => [ "$ENV{UVM_HOME}/src", "$ENV{OVM_HOME}/src", "$ENV{XVM_HOME}/src", "$ENV{XVM_HOME}/src/macros", ], 
+               -sub_libs              => [ "uvm_pkg_lib",
+                                           "ovm_pkg_lib",
+                                           "xvm_pkg_lib",
+                                           "sla_pkg_lib",
+                                           "dfxsecure_plugin_pkg_lib",
+                                           "dfxsecure_plugin_ti_lib",
+                                           "converged_jtag_bfm_pkg_lib",], 
+            },
+
+            stdcell_rtl_lib     => {
+                                      -vlog_files => [ 
+									                  'v/ln/e05_ln_core.v',
+                                                      'v/ln/d04_ln_core.v',
+                                                      #'v/ln/e05_ln_core_udp.v',
+                                                      #'v/ln/e05_pwr_ln_core_udp.v',
+                                                      'v/nn/d04_nn_core.v',
+                                                      'v/nn/e05_nn_core.v',
+                                                      #'v/nn/e05_nn_core_udp.v',
+													  'v/primitives/e05_primitive_verilog.v',
+													  'v/primitives/d04_primitive_verilog.v',
+                                         ],
+                                    -vlog_opts      => [ '\<vcs\>-timescale=1ps/1ps',
+                                                         '+define+functional',
+                                                        ],
+                                 },
+             
+            stap_cdc_lib              => {
+               -hdl_spec              => [ "source/rtl/stap_rtl.hdl", 
+                                         #  "tools/cdc/stap_cdc.hdl", 
+                                           ],
+               -vlog_opts             => [ "-sv","+define+INTEL_SVA_OFF+EMULATION","+libext+.sv+.v+.vs",], 
+               -sub_libs              => [
+			                              #"$ENV{CTECH_LIB_NAME}",
+			                              "stdcell_rtl_lib"], 
+            },
+
+            stap_rtl_lib              => {
+               -hdl_spec              => [ "source/rtl/stap_rtl.hdl", ],
+              # -sub_libs              => [ "$ENV{CTECH_LIB_NAME}", ], 
+              # -vlog_opts             => [ "-sv","+define+INTEL_SVA_OFF+EMULATION","+libext+.sv+.v+.vs",], 
+              # -vlog_opts             => [ "+define+INTEL_SIMONLY",], 
+            },
+
+            stap_lint_lib             => {
+               -hdl_spec              => [ "source/rtl/stap_rtl.hdl", ],
+              # -sub_libs              => [ "$ENV{CTECH_LIB_NAME}", ],
+               -vlog_opts             => [ "+define+EMULATION+INTEL_SVA_OFF" ],
+            },
+			stap_emul_lib             => {
+               -hdl_spec              => [ "source/rtl/stap_rtl.hdl", ],
+             #  -sub_libs              => [ "$ENV{CTECH_LIB_NAME}", ],
+               -vlog_opts             => [ "+define+EMULATION+INTEL_SVA_OFF" ],
+            },
+            stap_pkg_lib              => {
+               -tag                   =>   'nonsynth+nonemu+nonlint',
+               -hdl_spec              => [ "verif/tb/stap_pkg.hdl", ],
+               -vlog_incdirs          => [ "$ENV{UVM_HOME}/src/", "$ENV{OVM_HOME}/src/", "$ENV{XVM_HOME}/src/", "$ENV{XVM_HOME}/src/macros", ],
+               -dependent_libs        => [ "sip_shared_lib", ],
+            },
+
+            stap_ti_lib               => {
+               -tag                   =>   'nonsynth+nonemu+nonlint',
+               -hdl_spec              => [ "verif/tb/stap_ti.hdl", ],
+               -dependent_libs        => [ "sip_shared_lib", "stap_pkg_lib", ],
+            },
+
+            stap_tb_lib               => {
+               -tag                   =>   'nonsynth+nonemu+nonlint',
+               -hdl_spec              => [ "verif/tb/stap_tb.hdl", ],
+               -vlog_incdirs          => [ "$ENV{UVM_HOME}/src/", "$ENV{OVM_HOME}/src/", "$ENV{XVM_HOME}/src/", "$ENV{XVM_HOME}/src/macros", ],
+               -dependent_libs        => [ "sip_shared_lib", "stap_rtl_lib", "stap_pkg_lib", "stap_ti_lib", ],
+            },
+
+            stap_test_lib             => {
+               -tag                   =>   'nonsynth+nonemu+nonlint',
+               -vlog_incdirs          => [ "$ENV{UVM_HOME}/src", "$ENV{OVM_HOME}/src", "$ENV{XVM_HOME}/src", "$ENV{XVM_HOME}/src/macros", ], 
+               -hdl_spec              => [ "verif/tests/stap_tests.hdl", ],
+               -dependent_libs        => [ "sip_shared_lib", "stap_tb_lib", "stap_pkg_lib", ],
+            },
+            stap_pkg_lib_converged    => {
+               -tag                   =>   'nonsynth+nonemu+nonlint',
+               -hdl_spec              => [ "verif/tb/stap_pkg.hdl", ],
+               -vlog_incdirs          => [ "$ENV{UVM_HOME}/src/", "$ENV{OVM_HOME}/src/", "$ENV{XVM_HOME}/src/", "$ENV{XVM_HOME}/src/macros", ],
+               -dependent_libs        => [ "sip_shared_lib_converged", ],
+            },
+
+            stap_ti_lib_converged     => {
+               -tag                   =>   'nonsynth+nonemu+nonlint',
+               -vlog_incdirs          => [ "$ENV{UVM_HOME}/src", "$ENV{OVM_HOME}/src", "$ENV{XVM_HOME}/src", "$ENV{XVM_HOME}/src/macros", ], 
+               -hdl_spec              => [ "verif/tb/stap_ti.hdl", ],
+               -dependent_libs        => [ "sip_shared_lib_converged", "stap_pkg_lib_converged", ],
+            },
+
+            stap_tb_lib_converged     => {
+               -tag                   =>   'nonsynth+nonemu+nonlint',
+               -hdl_spec              => [ "verif/tb/stap_tb.hdl", ],
+               -vlog_incdirs          => [ "$ENV{UVM_HOME}/src/", "$ENV{OVM_HOME}/src/", "$ENV{XVM_HOME}/src/", "$ENV{XVM_HOME}/src/macros", ],
+               -dependent_libs        => [ "sip_shared_lib_converged", "stap_rtl_lib", "stap_pkg_lib_converged", "stap_ti_lib_converged", ],
+            },
+
+            stap_test_lib_converged   => {
+               -tag                   =>   'nonsynth+nonemu+nonlint',
+               -vlog_incdirs          => [ "$ENV{UVM_HOME}/src", "$ENV{OVM_HOME}/src", "$ENV{XVM_HOME}/src", "$ENV{XVM_HOME}/src/macros", ], 
+               -hdl_spec              => [ "verif/tests/stap_tests.hdl", ],
+               -dependent_libs        => [ "sip_shared_lib_converged", "stap_tb_lib_converged", "stap_pkg_lib_converged", ],
+            },
+         }, # end libs
+
+         ##--------------
+         models => {
+            stap_emulation_model      => {
+            top                       =>   "stap_emul_lib.stap",
+            use                     => ["CTECH:CTECH_model", ],
+            libs                      => [ "stap_emul_lib", ],
+            emubuild                  => {
+               -defines               => [ 'EMULATION', 'ASSERT_OFF', 'INTEL_SVA_OFF' ],
+               -remove_defines        => [ 'VCSSIM', 'VCS', 'ASSERT_ON' ],
+               -ana_vhdl_opts_remove  => { -comment_transoff_regions => undef, }, },
+            },
+
+           sgcdc_stap_model             => {
+              top                     =>   "stap_rtl_lib.stap",
+              use                     => ["CTECH:CTECH_model", ],
+              libs                    => [ "stap_cdc_lib","stap_rtl_lib","stdcell_rtl_lib" ],
+			  -defines               => [ qw(ASSERT_OFF  INTEL_SVA_OFF) ],
+           }, 
+           cdc_stap_model             => {
+              top                     =>   "stap_cdc_lib.stap",
+              use                     => ["CTECH:CTECH_model", ],
+              libs                    => [ "stap_cdc_lib", ],
+			  -defines               => [ qw(ASSERT_OFF  INTEL_SVA_OFF) ],
+           },
+           stap_syn_model             => {
+              top                     =>   "stap_rtl_lib.stap",
+              use                     => ["CTECH:CTECH_model", ],
+              libs                    => [ "stap_rtl_lib", ],
+              pli_libs                => [ '-PrintHier_pli', ],
+           },
+         
+           stap_model                 => {
+              top                     =>   'stap_tb_lib.top',
+              use                     => ["CTECH:CTECH_model", ],
+              libs                    => [ "sip_shared_lib",
+                                           "stap_rtl_lib",
+                                           "stap_pkg_lib",
+                                           "stap_ti_lib",
+                                           "stap_tb_lib",
+                                           "stap_test_lib", ],
+              pli_libs               => [qw(-debussy_pli_libs), '-PrintHier_pli',],
+              elab_scrag_recipe => "tools/elab/model_elab_scrag.recipe",
+              export                 => {
+              libs                => [ "stap_rtl_lib", ],},
+			  power_intent                 => {
+                                                     power_top          =>  "top.stap_top_inst",
+                                                     upf_files          => ["tools/upf/upf_2.0/stap.upf",],}, 
+				    },
+             
+           
+           stap_model_converged       => {
+              top                     =>   'stap_tb_lib_converged.top',
+              use                     => [ ],
+              libs                    => [ "sip_shared_lib_converged",
+                                           "stap_rtl_lib",
+                                           "stap_pkg_lib_converged",
+                                           "stap_ti_lib_converged",
+                                           "stap_tb_lib_converged",
+                                           "stap_test_lib_converged", ],
+              pli_libs               => [qw(-debussy_pli_libs), '-PrintHier_pli',],
+              elab_scrag_recipe => "tools/elab/model_elab_scrag.recipe",
+              export                 => {
+                 libs                => [ "stap_rtl_lib", ],
+              },
+           },
+
+
+
+        	stap_vclp_model => {
+                    top => "stap_rtl_lib.stap",
+                    use => ["CTECH:CTECH_model", ],
+                    libs => [
+                           "stap_rtl_lib",
+                           ],
+
+                     -test_vlog_opts => [
+                           default => 0,
+                           "-sverilog ",
+                           "-quiet",
+                           "-override_timescale=1ps/1ps",
+                           "-debug_all",
+                           "+define+NOTBV",
+                           ],
+                 power_intent        => {
+                 power_top           =>  "stap",
+                 upf_files           => ["tools/upf/stap.upf",], 
+                 },
+                     elab_opts => [
+                           "-debug_all",
+                           ],
+                 },
+
+           stap_lint_model            => {
+              top                     =>   "stap_lint_lib.stap",
+              use                     => ["CTECH:CTECH_model", ],
+              libs                    => [ "stap_lint_lib", ],
+           },
+
+         }, #end models
+      },
+   }, # end of HDLSpec
+);
+my %audf_import = %{$audf{HDLSpec }{$PROJECT}{import}};
+%{$audf{HDLSpec }{$PROJECT}{import}} = (%audf_import, (!$soc_generate ? %ip_only_import : ()));

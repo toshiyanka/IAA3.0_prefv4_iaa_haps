@@ -1,0 +1,23 @@
+lappend search_path $env(IP_ROOT)/source/rtl/include/assertions
+lappend search_path $env(IP_ROOT)/source/rtl/include
+lappend search_path $env(IP_ROOT)/subIP/DfxSecurePlugin/source/rtl/include/assertions
+lappend search_path $env(IP_ROOT)/subIP/DfxSecurePlugin/source/rtl/include
+
+set VERILOG_SOURCE_FILES ""
+lappend VERILOG_SOURCE_FILES $env(IP_ROOT)/source/rtl/cltapc/cltapc.sv
+lappend VERILOG_SOURCE_FILES $env(IP_ROOT)/source/rtl/cltapc/mtap_exi.sv
+lappend VERILOG_SOURCE_FILES $env(IP_ROOT)/source/rtl/cltapc/mtap_fsm.sv
+lappend VERILOG_SOURCE_FILES $env(IP_ROOT)/source/rtl/cltapc/mtap_irreg.sv
+lappend VERILOG_SOURCE_FILES $env(IP_ROOT)/source/rtl/cltapc/mtap_irdecoder.sv
+lappend VERILOG_SOURCE_FILES $env(IP_ROOT)/source/rtl/cltapc/mtap_decoder.sv
+lappend VERILOG_SOURCE_FILES $env(IP_ROOT)/source/rtl/cltapc/mtap_drreg.sv
+lappend VERILOG_SOURCE_FILES $env(IP_ROOT)/source/rtl/cltapc/mtap_data_reg.sv
+lappend VERILOG_SOURCE_FILES $env(IP_ROOT)/source/rtl/cltapc/mtap_tdomux.sv
+lappend VERILOG_SOURCE_FILES $env(IP_ROOT)/source/rtl/cltapc/mtap_glue.sv
+lappend VERILOG_SOURCE_FILES $env(IP_ROOT)/source/rtl/cltapc/mtap_bscan.sv
+lappend VERILOG_SOURCE_FILES /p/com/eda/intel/ctech/v14ww36e/source/p1273/d04/nn/ctech_lib_clk_buf.v
+lappend VERILOG_SOURCE_FILES /p/com/eda/intel/ctech/v14ww36e/source/p1273/d04/nn/ctech_lib_dq.v
+lappend VERILOG_SOURCE_FILES /p/com/eda/intel/ctech/v14ww36e/source/p1273/d04/nn/ctech_lib_clk_gate_te.v
+lappend VERILOG_SOURCE_FILES /p/com/eda/intel/ctech/v14ww36e/source/p1273/d04/nn/ctech_lib_clk_mux_2to1.v
+lappend VERILOG_SOURCE_FILES $env(IP_ROOT)/subIP/DfxSecurePlugin/source/rtl/dfxsecure_plugin/cltapc_dfxsecure_plugin.sv
+lappend VERILOG_SOURCE_FILES $env(IP_ROOT)/source/rtl/cltapc/mtap_tapnw.sv

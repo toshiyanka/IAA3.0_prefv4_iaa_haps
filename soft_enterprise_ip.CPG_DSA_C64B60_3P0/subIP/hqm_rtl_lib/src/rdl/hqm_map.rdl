@@ -1,0 +1,273 @@
+<%
+  $HQM_TB_HQM_MAP_BUILD         = 0;
+%>
+
+`include "lib_udp.rdl"
+`include "hqm_udp.rdl"
+
+<% use hqm_params; %>
+<% use security; %>
+<% my %Security_Props = security::GetSecurityInfo(); %>
+
+`include "hqm_common_reg_def.rdl"
+`include "hqm_AW_cfg_ring.rdl"
+`include "hqm_pf_cfg_bridge.rdl"
+`include "hqm_sif_csr_bridge.rdl"
+`include "hqm_system_csr_bridge.rdl"
+`include "hqm_credit_hist_pipe_bridge.rdl"
+`include "hqm_list_sel_pipe_bridge.rdl"
+`include "hqm_reorder_pipe_bridge.rdl"
+`include "hqm_nalb_pipe_bridge.rdl"
+`include "hqm_atm_pipe_bridge.rdl"
+`include "hqm_qed_pipe_bridge.rdl"
+`include "hqm_aqed_pipe_bridge.rdl"
+`include "hqm_dir_pipe_bridge.rdl"
+`include "hqm_master_bridge.rdl"
+`include "hqm_msix_mem_bridge.rdl"
+
+<%$HQM_MAP_MSG_PORT_ID="0x21";%>
+<%$HQM_MAP_MSG_SUBNET_ID="0x00";%>
+
+addrmap hqm_map {
+    Space = " MEM";
+    desc  = "hqm's Address Map";
+    ValRTLSignal= "";
+    DefaultValRTLSignal = "";
+    USER_SPECIFIED_UDP = "HqmIsFeatureReg = reg; diag_reg = reg";
+
+    // Instances of hqm PF top Registers.
+
+    hqm_pf_cfg_bridge hqm_pf_cfg_i;
+
+    hqm_pf_cfg_i.hqm_pf_cfg_MSG->SB_Fid                 = "0x0";
+
+    <% if ($HQM_TB_HQM_MAP_BUILD == 2) { %>
+      hqm_pf_cfg_i.hqm_pf_cfg_MSG->BaseAddress            = "<%=$HQM_MAP_MSG_PORT_ID%>";
+      hqm_pf_cfg_i.hqm_pf_cfg_MSG->SubnetPortID           = "<%=$HQM_MAP_MSG_SUBNET_ID%>";
+      hqm_pf_cfg_i.hqm_pf_cfg_CFG->BaseAddress            = "0/0/0";
+    <% } %>
+
+    hqm_msix_mem_bridge                         hqm_msix_mem            @0x01000000;
+    hqm_msix_mem->AliasAddress = "0x01000000";
+    hqm_msix_mem.hqm_msix_mem_MSG->SB_AddrLen   = 0x30;
+
+    hqm_msix_mem->Infix = "";
+    hqm_msix_mem.hqm_msix_mem_MEM->Infix = "";
+    hqm_msix_mem.hqm_msix_mem_MSG->Infix = "";
+
+    hqm_msix_mem.hqm_msix_mem_MEM->BaseAddress  = "{hqm_pf_cfg_i.FUNC_BAR_U,hqm_pf_cfg_i.FUNC_BAR_L,64'hFFFFFFFFFC000000}";
+
+    hqm_msix_mem.hqm_msix_mem_MSG->SB_Fid                       = "0x0";
+
+    hqm_msix_mem.hqm_msix_mem_MSG->SB_Bar                       = "0x0";
+
+    <% if ($HQM_TB_HQM_MAP_BUILD == 2) { %>
+      hqm_msix_mem.hqm_msix_mem_MSG->BaseAddress                  = "<%=$HQM_MAP_MSG_PORT_ID%>";
+      hqm_msix_mem.hqm_msix_mem_MSG->SubnetPortID                 = "<%=$HQM_MAP_MSG_SUBNET_ID%>";
+    <% } %>
+
+    // CSR_PF BAR Region
+
+    hqm_sif_csr_bridge                  hqm_sif_csr              @0x00000000;
+    hqm_sif_csr->AliasAddress                                   = "0x00000000";
+    hqm_sif_csr.hqm_sif_csr_MSG->SB_AddrLen                     = 0x30;
+
+    hqm_sif_csr->Infix = "";
+    hqm_sif_csr.hqm_sif_csr_MEM->Infix = "";
+    hqm_sif_csr.hqm_sif_csr_MSG->Infix = "";
+
+    hqm_sif_csr.hqm_sif_csr_MEM->BaseAddress                    = "{hqm_pf_cfg_i.CSR_BAR_U,hqm_pf_cfg_i.CSR_BAR_L,64'hFFFFFFFF00000000}";
+
+    hqm_system_csr_bridge               hqm_system_csr            @0x10000000;
+    hqm_system_csr->AliasAddress                                = "0x10000000";
+    hqm_system_csr.hqm_system_csr_MSG->SB_AddrLen               = 0x30;
+
+    hqm_system_csr->Infix = "";
+    hqm_system_csr.hqm_system_csr_MEM->Infix = "";
+    hqm_system_csr.hqm_system_csr_MSG->Infix = "";
+
+    hqm_system_csr.hqm_system_csr_MEM->BaseAddress              = "{hqm_pf_cfg_i.CSR_BAR_U,hqm_pf_cfg_i.CSR_BAR_L,64'hFFFFFFFF00000000}";
+
+    hqm_aqed_pipe_bridge                aqed_pipe               @0x20000000;
+    aqed_pipe->AliasAddress                                   = "0x20000000";
+    aqed_pipe.hqm_aqed_pipe_MSG->SB_AddrLen                   = 0x30;
+
+    aqed_pipe->Infix = "";
+    aqed_pipe.hqm_aqed_pipe_MEM->Infix = "";
+    aqed_pipe.hqm_aqed_pipe_MSG->Infix = "";
+
+    hqm_atm_pipe_bridge                 atm_pipe                @0x30000000;
+    atm_pipe->AliasAddress                                    = "0x30000000";
+    atm_pipe.hqm_atm_pipe_MSG->SB_AddrLen                     = 0x30;
+
+    atm_pipe->Infix = "";
+    atm_pipe.hqm_atm_pipe_MEM->Infix = "";
+    atm_pipe.hqm_atm_pipe_MSG->Infix = "";
+
+    hqm_credit_hist_pipe_bridge         credit_hist_pipe        @0x40000000;
+    credit_hist_pipe->AliasAddress                            = "0x40000000";
+    credit_hist_pipe.hqm_credit_hist_pipe_MSG->SB_AddrLen     = 0x30;
+
+    credit_hist_pipe->Infix = "";
+    credit_hist_pipe.hqm_credit_hist_pipe_MEM->Infix = "";
+    credit_hist_pipe.hqm_credit_hist_pipe_MSG->Infix = "";
+
+    hqm_dir_pipe_bridge                 direct_pipe             @0x50000000;
+    direct_pipe->AliasAddress                                 = "0x50000000";
+    direct_pipe.hqm_dir_pipe_MSG->SB_AddrLen                  = 0x30;
+
+    direct_pipe->Infix = "";
+    direct_pipe.hqm_dir_pipe_MEM->Infix = "";
+    direct_pipe.hqm_dir_pipe_MSG->Infix = "";
+
+    hqm_qed_pipe_bridge                 qed_pipe                @0x60000000;
+    qed_pipe->AliasAddress                                    = "0x60000000";
+    qed_pipe.hqm_qed_pipe_MSG->SB_AddrLen                     = 0x30;
+
+    qed_pipe->Infix = "";
+    qed_pipe.hqm_qed_pipe_MEM->Infix = "";
+    qed_pipe.hqm_qed_pipe_MSG->Infix = "";
+
+    hqm_nalb_pipe_bridge                nalb_pipe               @0x70000000;
+    nalb_pipe->AliasAddress                                   = "0x70000000";
+    nalb_pipe.hqm_nalb_pipe_MSG->SB_AddrLen                   = 0x30;
+
+    nalb_pipe->Infix = "";
+    nalb_pipe.hqm_nalb_pipe_MEM->Infix = "";
+    nalb_pipe.hqm_nalb_pipe_MSG->Infix = "";
+
+    hqm_reorder_pipe_bridge             reorder_pipe            @0x80000000;
+    reorder_pipe->AliasAddress                                = "0x80000000";
+    reorder_pipe.hqm_reorder_pipe_MSG->SB_AddrLen             = 0x30;
+
+    reorder_pipe->Infix = "";
+    reorder_pipe.hqm_reorder_pipe_MEM->Infix = "";
+    reorder_pipe.hqm_reorder_pipe_MSG->Infix = "";
+
+    hqm_list_sel_pipe_bridge            list_sel_pipe           @0x90000000;
+    list_sel_pipe->AliasAddress                               = "0x90000000";
+    list_sel_pipe.hqm_list_sel_pipe_MSG->SB_AddrLen           = 0x30;
+
+    list_sel_pipe->Infix = "";
+    list_sel_pipe.hqm_list_sel_pipe_MEM->Infix = "";
+    list_sel_pipe.hqm_list_sel_pipe_MSG->Infix = "";
+
+    hqm_config_master_bridge            config_master           @0xa0000000;
+    config_master->AliasAddress                               = "0xa0000000";
+    config_master.hqm_config_master_MSG->SB_AddrLen           = 0x30;
+
+    config_master->Infix = "";
+    config_master.hqm_config_master_MEM->Infix = "";
+    config_master.hqm_config_master_MSG->Infix = "";
+
+    list_sel_pipe.hqm_list_sel_pipe_MEM->BaseAddress                  = "{hqm_pf_cfg_i.CSR_BAR_U,hqm_pf_cfg_i.CSR_BAR_L,64'hFFFFFFFF00000000}";
+    direct_pipe.hqm_dir_pipe_MEM->BaseAddress                         = "{hqm_pf_cfg_i.CSR_BAR_U,hqm_pf_cfg_i.CSR_BAR_L,64'hFFFFFFFF00000000}";
+    qed_pipe.hqm_qed_pipe_MEM->BaseAddress                            = "{hqm_pf_cfg_i.CSR_BAR_U,hqm_pf_cfg_i.CSR_BAR_L,64'hFFFFFFFF00000000}";
+    nalb_pipe.hqm_nalb_pipe_MEM->BaseAddress                          = "{hqm_pf_cfg_i.CSR_BAR_U,hqm_pf_cfg_i.CSR_BAR_L,64'hFFFFFFFF00000000}";
+    atm_pipe.hqm_atm_pipe_MEM->BaseAddress                            = "{hqm_pf_cfg_i.CSR_BAR_U,hqm_pf_cfg_i.CSR_BAR_L,64'hFFFFFFFF00000000}";
+    aqed_pipe.hqm_aqed_pipe_MEM->BaseAddress                          = "{hqm_pf_cfg_i.CSR_BAR_U,hqm_pf_cfg_i.CSR_BAR_L,64'hFFFFFFFF00000000}";
+    reorder_pipe.hqm_reorder_pipe_MEM->BaseAddress                    = "{hqm_pf_cfg_i.CSR_BAR_U,hqm_pf_cfg_i.CSR_BAR_L,64'hFFFFFFFF00000000}";
+    credit_hist_pipe.hqm_credit_hist_pipe_MEM->BaseAddress            = "{hqm_pf_cfg_i.CSR_BAR_U,hqm_pf_cfg_i.CSR_BAR_L,64'hFFFFFFFF00000000}";
+    config_master.hqm_config_master_MEM->BaseAddress                  = "{hqm_pf_cfg_i.CSR_BAR_U,hqm_pf_cfg_i.CSR_BAR_L,64'hFFFFFFFF00000000}";
+
+    hqm_sif_csr.hqm_sif_csr_MSG->SB_Fid                             = "0x0";
+    hqm_system_csr.hqm_system_csr_MSG->SB_Fid                       = "0x0";
+    list_sel_pipe.hqm_list_sel_pipe_MSG->SB_Fid                     = "0x0";
+    direct_pipe.hqm_dir_pipe_MSG->SB_Fid                            = "0x0";
+    qed_pipe.hqm_qed_pipe_MSG->SB_Fid                               = "0x0";
+    nalb_pipe.hqm_nalb_pipe_MSG->SB_Fid                             = "0x0";
+    atm_pipe.hqm_atm_pipe_MSG->SB_Fid                               = "0x0";
+    aqed_pipe.hqm_aqed_pipe_MSG->SB_Fid                             = "0x0";
+    reorder_pipe.hqm_reorder_pipe_MSG->SB_Fid                       = "0x0";
+    credit_hist_pipe.hqm_credit_hist_pipe_MSG->SB_Fid               = "0x0";
+    config_master.hqm_config_master_MSG->SB_Fid                     = "0x0";
+
+    hqm_sif_csr.hqm_sif_csr_MSG->SB_Bar                             = "0x2";
+    hqm_system_csr.hqm_system_csr_MSG->SB_Bar                       = "0x2";
+    list_sel_pipe.hqm_list_sel_pipe_MSG->SB_Bar                     = "0x2";
+    direct_pipe.hqm_dir_pipe_MSG->SB_Bar                            = "0x2";
+    qed_pipe.hqm_qed_pipe_MSG->SB_Bar                               = "0x2";
+    nalb_pipe.hqm_nalb_pipe_MSG->SB_Bar                             = "0x2";
+    atm_pipe.hqm_atm_pipe_MSG->SB_Bar                               = "0x2";
+    aqed_pipe.hqm_aqed_pipe_MSG->SB_Bar                             = "0x2";
+    reorder_pipe.hqm_reorder_pipe_MSG->SB_Bar                       = "0x2";
+    credit_hist_pipe.hqm_credit_hist_pipe_MSG->SB_Bar               = "0x2";
+    config_master.hqm_config_master_MSG->SB_Bar                     = "0x2";
+
+    <% if ($HQM_TB_HQM_MAP_BUILD == 2) { %>
+      hqm_sif_csr.hqm_sif_csr_MSG->BaseAddress                        = "<%=$HQM_MAP_MSG_PORT_ID%>";
+      hqm_system_csr.hqm_system_csr_MSG->BaseAddress                  = "<%=$HQM_MAP_MSG_PORT_ID%>";
+      list_sel_pipe.hqm_list_sel_pipe_MSG->BaseAddress                = "<%=$HQM_MAP_MSG_PORT_ID%>";
+      direct_pipe.hqm_dir_pipe_MSG->BaseAddress                       = "<%=$HQM_MAP_MSG_PORT_ID%>";
+      qed_pipe.hqm_qed_pipe_MSG->BaseAddress                          = "<%=$HQM_MAP_MSG_PORT_ID%>";
+      nalb_pipe.hqm_nalb_pipe_MSG->BaseAddress                        = "<%=$HQM_MAP_MSG_PORT_ID%>";
+      atm_pipe.hqm_atm_pipe_MSG->BaseAddress                          = "<%=$HQM_MAP_MSG_PORT_ID%>";
+      aqed_pipe.hqm_aqed_pipe_MSG->BaseAddress                        = "<%=$HQM_MAP_MSG_PORT_ID%>";
+      reorder_pipe.hqm_reorder_pipe_MSG->BaseAddress                  = "<%=$HQM_MAP_MSG_PORT_ID%>";
+      credit_hist_pipe.hqm_credit_hist_pipe_MSG->BaseAddress          = "<%=$HQM_MAP_MSG_PORT_ID%>";
+      config_master.hqm_config_master_MSG->BaseAddress                = "<%=$HQM_MAP_MSG_PORT_ID%>";
+
+      hqm_sif_csr.hqm_sif_csr_MSG->SubnetPortID                       = "<%=$HQM_MAP_MSG_SUBNET_ID%>";
+      hqm_system_csr.hqm_system_csr_MSG->SubnetPortID                 = "<%=$HQM_MAP_MSG_SUBNET_ID%>";
+      list_sel_pipe.hqm_list_sel_pipe_MSG->SubnetPortID               = "<%=$HQM_MAP_MSG_SUBNET_ID%>";
+      direct_pipe.hqm_dir_pipe_MSG->SubnetPortID                      = "<%=$HQM_MAP_MSG_SUBNET_ID%>";
+      qed_pipe.hqm_qed_pipe_MSG->SubnetPortID                         = "<%=$HQM_MAP_MSG_SUBNET_ID%>";
+      nalb_pipe.hqm_nalb_pipe_MSG->SubnetPortID                       = "<%=$HQM_MAP_MSG_SUBNET_ID%>";
+      atm_pipe.hqm_atm_pipe_MSG->SubnetPortID                         = "<%=$HQM_MAP_MSG_SUBNET_ID%>";
+      aqed_pipe.hqm_aqed_pipe_MSG->SubnetPortID                       = "<%=$HQM_MAP_MSG_SUBNET_ID%>";
+      reorder_pipe.hqm_reorder_pipe_MSG->SubnetPortID                 = "<%=$HQM_MAP_MSG_SUBNET_ID%>";
+      credit_hist_pipe.hqm_credit_hist_pipe_MSG->SubnetPortID         = "<%=$HQM_MAP_MSG_SUBNET_ID%>";
+      config_master.hqm_config_master_MSG->SubnetPortID               = "<%=$HQM_MAP_MSG_SUBNET_ID%>";
+    <% } %>
+
+    //------------------------------------------------------------------------------------------------------------------------
+    // hqm_proc module regs are in the gated power domain (all except hqm_master) and are reset by
+    // hqm_inp_gated_rst_n which will be asserted for cold reset (powergood_rst_n/side_rst_b/prim_rst_b),
+    // warm reset (side_rst_b/prim_rst_b), a PF FLR, or a D0->D3 power state transition.
+
+    list_sel_pipe->ResetSignal                                                          = "hqm_inp_gated_rst_n powergood_rst_b";
+    direct_pipe->ResetSignal                                                            = "hqm_inp_gated_rst_n powergood_rst_b";
+    qed_pipe->ResetSignal                                                               = "hqm_inp_gated_rst_n powergood_rst_b";
+    nalb_pipe->ResetSignal                                                              = "hqm_inp_gated_rst_n powergood_rst_b";
+    atm_pipe->ResetSignal                                                               = "hqm_inp_gated_rst_n powergood_rst_b";
+    aqed_pipe->ResetSignal                                                              = "hqm_inp_gated_rst_n powergood_rst_b";
+    reorder_pipe->ResetSignal                                                           = "hqm_inp_gated_rst_n powergood_rst_b";
+    credit_hist_pipe->ResetSignal                                                       = "hqm_inp_gated_rst_n powergood_rst_b";
+
+    // Tool appears to also need this set here even though it is specified in the hqm_system_csr.rdl
+
+    hqm_system_csr->ResetSignal                                                         = "hqm_inp_gated_rst_n powergood_rst_b";
+
+    // Tool appears to also need this set here even though it is specified in the hqm_msix_mem.rdl
+
+    hqm_msix_mem->ResetSignal                                                           = "hqm_inp_gated_rst_n powergood_rst_b";
+
+    //------------------------------------------------------------------------------------------------------------------------
+    // hqm_master regs are only reset by a cold reset (powergood_rst_n/side_rst_b/prim_rst_b) or
+    // warm reset (side_rst_b/prim_rst_b) and not by a PF FLR or D0->D3 powerstate transition.
+
+    config_master->ResetSignal                                                          = "prim_gated_rst_b prim_gated_rst_b";
+
+    //------------------------------------------------------------------------------------------------------------------------
+    // hqm_sif CSR regs are reset by hqm_csr_mmio_rst_n which is asserted for a cold reset (powergood_rst_n/side_rst_b/prim_rst_b),
+    // warm reset (side_rst_b/prim_rst_b) or a PF FLR, but not for a D0->D3 powerstate transition.
+
+    // Tool appears to also need this set here even though it is specified in the hqm_sif_csr.rdl
+
+    hqm_sif_csr->ResetSignal                                                            = "hqm_csr_mmio_rst_n powergood_rst_b";
+
+    //------------------------------------------------------------------------------------------------------------------------
+    // hqm_sif non-sticky, non-FLR-resistant PF CFG regs are reset by hqm_csr_pf0_rst_n, which is asserted for a cold reset
+    // (powergood_rst_n/side_rst_b/prim_rst_b), warm reset (side_rst_b/prim_rst_b) or a PF FLR, but not for a D0->D3
+    // powerstate transition.
+    // hqm_sif sticky PF CFG regs are reset by hqm_csr_pf0_pwr_rst_n, which is asserted for a cold reset
+    // (powergood_rst_n/side_rst_b/prim_rst_b) only.
+    // hqm_sif FLR-resistant PF CFG fileds (MPS, VFARI, EXTSYNC, RCB, CCLKCFG, ASPMC, PORTNUM) are reset by hqm_csr_pf0_pwr_rst_n,
+    // which is asserted for a cold reset (powergood_rst_n/side_rst_b/prim_rst_b) only.  Those ResetSignals are set as a third
+    // separate reset type on the fields themselves in the hqm_pcie_*_reg_def.rdl that defines them.
+
+    // Tool appears to also need this set here even though it is specified in the hqm_pf_cfg.rdl
+
+    hqm_pf_cfg_i->ResetSignal="hqm_csr_pf0_rst_n hqm_csr_pf0_pwr_rst_n";
+
+};

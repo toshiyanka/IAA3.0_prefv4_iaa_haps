@@ -1,0 +1,20 @@
+## -- Setup LUTs used by HCWs
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+  msix_alarm 0 enable=0x1 addr=0xaaaa5555aaaa5555 data=0xaaaa5555
+
+  ## -- LDB PORT attached to a VAS with dir_credit_cnt=0x800 and ldb_credit_cnt=0x2000 (max. value supported)
+  dir qid 2
+  ldb qid 2 qid_ldb_inflight_limit=512
+  vas    VAS3:*    dir_qidv2=1 ldb_qidv2=1 credit_cnt=0x4000
+  ldb pp 4 vas=VAS3
+  ldb cq 4 cq_depth=1024 gpa=sm qidv0=1 qidix0=2 cq_ldb_inflight_limit=512 hist_list_limit=512 hist_list_base=0
+  dir pp 2 vas=VAS3
+  dir cq 2 cq_depth=1024 gpa=sm 
+
+cfg_end
+
+wr hqm_system_csr.ingress_alarm_enable 0xffffffff
+rd hqm_system_csr.ingress_alarm_enable 0x0000003f 0xffffffff

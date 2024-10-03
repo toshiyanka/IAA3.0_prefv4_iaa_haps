@@ -1,0 +1,166 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => ["+AW_CONTINUE_ON_ERROR", "+iosf_tracker_filename=iosf_trk", "-assert nopostproc", 
+                     "+HQMS_DEBUG", "+HQMI_DEBUG", "+HQM_PCIE_RC_VIP_PRESENT +HQM_PCIE_EP_VIP_ABSENT=0",
+                     "+EXP_UNWANTED_TXN_TO_HQM",
+                     "+SLA_FLUSH_PHASE_TIMEOUT=400000",
+                     "+SLA_MAX_RUN_CLOCK=400000",
+                     "+vcs+lic+wait",
+                     #NS: Need new cfts/seqs "+HQM_EXTRA_DATA_PHASE_CFG=aceroot/verif/tb/hqm/tests/hcw_test0_cfg.cft",
+                     #NS: Need new cfts/seqs "+HQM_EXTRA_DATA_PHASE_HCW=aceroot/verif/tb/hqm/tests/hcw_test0_hcw.cft",
+                    ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+     sec_6_2      =>  { -simv_args => [ "", ], },
+     sec_2_2_7      =>  { -simv_args => [ "", ], },
+     ur_nf_unmask =>  { -simv_args => [ "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/hqm_pcie_ur_nf_unmask.cft ", "+ovm_set_config_int=*\\,sev_mask_val\\,0", ], }, 
+     ur_nf_anfes_unmask =>  { -simv_args => [ "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/hqm_pcie_ur_nf_anfes_unmask.cft +HQM_PCIE_TXN +ERROR_CODE=48", "+ovm_set_config_int=*\\,sev_mask_val\\,4", ], }, 
+     ur_f_unmask =>   { -simv_args => [ "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/hqm_pcie_ur_f_unmask.cft +HQM_PCIE_TXN +ERROR_CODE=51", "+ovm_set_config_int=*\\,sev_mask_val\\,1", ], }, 
+     ur_nf_mask =>    { -simv_args => [ "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/hqm_pcie_ur_nf_mask.cft ", "+ovm_set_config_int=*\\,sev_mask_val\\,2", ], }, 
+     ur_f_mask =>     { -simv_args => [ "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/hqm_pcie_ur_f_mask.cft ", "+ovm_set_config_int=*\\,sev_mask_val\\,3", ], }, 
+
+     mtlp_nf_unmask => { -simv_args => ["+hqm_pcie_init_stim_config::mtlp_sev=0","+hqm_pcie_init_stim_config::mtlp_mask=0",  "+ovm_set_config_int=*\\,sev_mask_val\\,0", ], }, 
+     mtlp_f_unmask  => { -simv_args => ["+hqm_pcie_init_stim_config::mtlp_sev=1","+hqm_pcie_init_stim_config::mtlp_mask=0",  "+ovm_set_config_int=*\\,sev_mask_val\\,1", ], }, 
+     mtlp_nf_mask   => { -simv_args => ["+hqm_pcie_init_stim_config::mtlp_sev=0","+hqm_pcie_init_stim_config::mtlp_mask=1",  "+ovm_set_config_int=*\\,sev_mask_val\\,2", ], }, 
+     mtlp_f_mask    => { -simv_args => ["+hqm_pcie_init_stim_config::mtlp_sev=1","+hqm_pcie_init_stim_config::mtlp_mask=1",  "+ovm_set_config_int=*\\,sev_mask_val\\,3", ], }, 
+
+     ptlp_nf_unmask => { -simv_args => ["+HQM_PCIE_MEM_PTLP_ERR +HQM_PVC_AUTO_TAG_GEN_DIS +hqm_pcie_init_stim_config::ptlpr_sev=0","+hqm_pcie_init_stim_config::ptlpr_mask=0",  "+ovm_set_config_int=*\\,sev_mask_val\\,0", ], }, 
+     ptlp_f_unmask  => { -simv_args => ["+HQM_PCIE_MEM_PTLP_ERR +HQM_PVC_AUTO_TAG_GEN_DIS +hqm_pcie_init_stim_config::ptlpr_sev=1","+hqm_pcie_init_stim_config::ptlpr_mask=0",  "+ovm_set_config_int=*\\,sev_mask_val\\,1", ], }, 
+     ptlp_nf_mask   => { -simv_args => ["+HQM_PCIE_MEM_PTLP_ERR +HQM_PVC_AUTO_TAG_GEN_DIS +hqm_pcie_init_stim_config::ptlpr_sev=0","+hqm_pcie_init_stim_config::ptlpr_mask=1",  "+ovm_set_config_int=*\\,sev_mask_val\\,2", ], }, 
+     ptlp_f_mask    => { -simv_args => ["+HQM_PCIE_MEM_PTLP_ERR +HQM_PVC_AUTO_TAG_GEN_DIS +hqm_pcie_init_stim_config::ptlpr_sev=1","+hqm_pcie_init_stim_config::ptlpr_mask=1",  "+ovm_set_config_int=*\\,sev_mask_val\\,3", ], }, 
+     ptlp_nf_unmask_anfes  => { -simv_args => ["+HQM_PCIE_MEM_PTLP_ERR +HQM_PVC_AUTO_TAG_GEN_DIS +hqm_pcie_init_stim_config::anfes_mask=0 +hqm_pcie_init_stim_config::ptlpr_mask=0 +hqm_pcie_init_stim_config::ptlpr_sev=0", "+ovm_set_config_int=*\\,sev_mask_val\\,4",
+									],  },
+
+
+     ser_1 => {
+          -simv_args => [
+                         " +hqm_pcie_init_stim_config::ser=1",
+                        ],
+      },
+     ser_1_nere_fere_0 => {
+          -simv_args => [
+                         " +hqm_pcie_init_stim_config::ser=1", "+hqm_pcie_init_stim_config::fere=0", "+hqm_pcie_init_stim_config::nere=0",
+                        ],
+      },
+
+
+      ur_pf   => { -simv_args => ["+HQM_PCIE_ERROR_MSG_FUNC_NUM=0  +HQM_PCIE_MEM_UR_ERR_FUNC_NO=0",  ],  },
+      mtlp_pf => { -simv_args => ["+HQM_PCIE_ERROR_MSG_FUNC_NUM=0  +HQM_PCIE_MEM_MTLP_ERR",  ],  },
+
+      mtlp_4kb_cross_pf => { -simv_args => ["+HQM_PCIE_ERROR_MSG_FUNC_NUM=0  +HQM_PCIE_MEM_MTLP_4KB_CROSS_ERR +BLOCKING_IOSF_TXN +SKIP_HCW_CFG_SEQ", 
+                                            "+HQM_SEQ_CFG2=aceroot/verif/tb/hqm/tests/hcw_test0_4kbBoundaryCross_cfg.cft",
+                                            "+HQM_EXTRA_DATA_PHASE_HCW1=aceroot/verif/tb/hqm/tests/hcw_test0_4kbBoundaryCross_hcw.cft",],  },
+      mtlp_4kb_cross_pf_func_bar =>  { -simv_args => ["+HQM_PCIE_ERROR_MSG_FUNC_NUM=0  +HQM_PCIE_MEM_MTLP_4KB_CROSS_ERR +BLOCKING_IOSF_TXN +FUNC_BAR_CROSS_WRITE  +SKIP_HCW_CFG_SEQ",
+                              ],  },
+      ptlp_pf   => { -simv_args => [" +HQM_PCIE_ERROR_MSG_FUNC_NUM=0 ",],  },
+
+      ##-------------------------------------------------------
+      # Strap variation for PCIe ERR_MSG related SB msg fields
+      ##-------------------------------------------------------
+      ## strap_hqm_err_sb_sai[7:0]
+       gp_strap_err_sb_0a   => {
+           -simv_args => [  "+HQM_STRAP_ERR_SB_SAI=0x0a",
+                    ],
+       }, 
+       gp_strap_err_sb_20    => {
+           -simv_args => [  "+HQM_STRAP_ERR_SB_SAI=0x20",
+                    ],
+       }, 
+       gp_strap_err_sb_30    => {
+           -simv_args => [  "+HQM_STRAP_ERR_SB_SAI=0x30",
+                    ],
+       }, 
+       gp_strap_err_sb_4a    => {
+           -simv_args => [  "+HQM_STRAP_ERR_SB_SAI=0x4a",
+                    ],
+       }, 
+       gp_strap_err_sb_5b    => {
+           -simv_args => [  "+HQM_STRAP_ERR_SB_SAI=0x5b",
+                    ],
+       }, 
+       gp_strap_err_sb_6c    => {
+           -simv_args => [  "+HQM_STRAP_ERR_SB_SAI=0x6c",
+                    ],
+       }, 
+       gp_strap_err_sb_a0    => {
+           -simv_args => [  "+HQM_STRAP_ERR_SB_SAI=0xa0",
+                    ],
+       }, 
+       gp_strap_err_sb_b5    => {
+           -simv_args => [  "+HQM_STRAP_ERR_SB_SAI=0xb5",
+                    ],
+       }, 
+       gp_strap_err_sb_ce    => {
+           -simv_args => [  "+HQM_STRAP_ERR_SB_SAI=0xce",
+                    ],
+       }, 
+       gp_strap_err_sb_ee    => {
+           -simv_args => [  "+HQM_STRAP_ERR_SB_SAI=0xee",
+                    ],
+       }, 
+       gp_strap_err_sb_f0    => {
+           -simv_args => [  "+HQM_STRAP_ERR_SB_SAI=0xf0",
+                    ],
+       }, 
+
+## strap_hqm_err_sb_dstid[15:0]
+       gp_strap_err_sb_dstid_000a   => {
+           -simv_args => [  "+HQM_STRAP_ERR_SB_DSTID=0x000a",
+                    ],
+       }, 
+       gp_strap_err_sb_dstid_0020    => {
+           -simv_args => [  "+HQM_STRAP_ERR_SB_DSTID=0x0050",
+                    ],
+       }, 
+       gp_strap_err_sb_dstid_0030    => {
+           -simv_args => [  "+HQM_STRAP_ERR_SB_DSTID=0x0030",
+                    ],
+       }, 
+       gp_strap_err_sb_dstid_004a    => {
+           -simv_args => [  "+HQM_STRAP_ERR_SB_DSTID=0x004a",
+                    ],
+       }, 
+       gp_strap_err_sb_dstid_005b    => {
+           -simv_args => [  "+HQM_STRAP_ERR_SB_DSTID=0x005b",
+                    ],
+       }, 
+       gp_strap_err_sb_dstid_006c    => {
+           -simv_args => [  "+HQM_STRAP_ERR_SB_DSTID=0x006c",
+                    ],
+       }, 
+       gp_strap_err_sb_dstid_00a0    => {
+           -simv_args => [  "+HQM_STRAP_ERR_SB_DSTID=0x00a0",
+                    ],
+       }, 
+       gp_strap_err_sb_dstid_00b5    => {
+           -simv_args => [  "+HQM_STRAP_ERR_SB_DSTID=0x00b5",
+                    ],
+       }, 
+       gp_strap_err_sb_dstid_00ce    => {
+           -simv_args => [  "+HQM_STRAP_ERR_SB_DSTID=0x00ce",
+                    ],
+       }, 
+       gp_strap_err_sb_dstid_00ee    => {
+           -simv_args => [  "+HQM_STRAP_ERR_SB_DSTID=0x00ee",
+                    ],
+       }, 
+       gp_strap_err_sb_dstid_00f0    => {
+           -simv_args => [  "+HQM_STRAP_ERR_SB_DSTID=0x00f0",
+                    ],
+       }, 
+
+
+
+
+
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

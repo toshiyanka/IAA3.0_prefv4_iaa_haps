@@ -1,0 +1,77 @@
+PICr32: TSA 19.46.02, with mat1.6.1.p2 
+HDK1.6 is not supporting QCDC and Lintra
+
+source /p/hdk/rtl/hdk.rc -cfg sip -reentrant
+setenv MODEL_ROOT $cwd
+wash -n fabric soc socenv dk1273 siphdk hdk10nm dk10nm hdk10nmproc coe73 coe73lay soc73 datools hdk22nm hdk22nmproc s14nm
+
+  mat1.6.1.p2 - p1274
+------------------------------------
+MAT version: ToolConfig.pl show_tool_info onecfg -1c -CUST p1274 -toolset mat1.6.1.p2 -1c-
+simbuild -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p2 -1c- -ace xterm &
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p2 -1c- -s all +s lintra_build
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p2 -1c- -s all +s sbr0_sbr_generic.lintra_elab
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p2 -1c- -s all +s gen_collateral +s build_blocksinfo +s sbr0_sbr_generic.dc
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p2 -1c- -s all +s sbr0_sbr_generic.fv
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p2 -1c- -s all +s sbr0_sbr_generic.sgdft
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p2 -1c- -s all +s sbr0_sbr_generic.sage
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p2 -1c- -s all +s sbr0_sbr_generic.scan_audit
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p2 -1c- -s all +s spyglass_build
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p2 -1c- -s all +s spyglass_build_lp
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p2 -1c- -s all +s sbr0_sbr_generic.spyglass_lp
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p2 -1c- -s all +s vclp_build
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p2 -1c- -s all +s sbr0_sbr_generic.vclp_test
+SGCDC
+simbuild -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p2 -1c- -s all +s sgcdc_build -sgcdc_build "-ASSIGN -mc=sbr_config_ipxact_workspace -vlog_opts +define+functional+IOSF_SB_PH2"
+simbuild -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p2 -1c- -s all +s sgcdc_test -sgcdc_test "-t spyglass_cdc/sbr0_sbr_generic:SetupChk"
+simbuild -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p2 -1c- -s all +s sgcdc_test -sgcdc_test "-t spyglass_cdc/sbr0_sbr_generic"
+simbuild -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p2 -1c- -s all +s sgcdc_test -sgcdc_test "-t spyglass_cdc/sbr0_sbr_generic:RDC"
+SGLINT
+simbuild -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p2 -1c- -s all +s sglint_build -sglint_build "-ASSIGN -mc=sglint_sbr0_sbr_generic"
+simbuild -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p2 -1c- -s all +s sglint_test -sglint_test "-t spyglasslint/sbr0_sbr_generic -noepi"
+CALIBER
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p2 -1c- -s all +s sbr0_sbr_generic.caliber
+FISHTAIL
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p2 -1c- -s all +s sbr0_sbr_generic.fishtail
+OPENLATCH
+mv ace/p1274_e05_stdcells.hdl ace/p1274_e05_stdcells.hdl.KEEP
+simbuild -dut sbr -ace_args ace -ccolt -mc=sbr_config_ipxact_workspace -ace_args- -1c -CUST p1274 -toolset mat1.6.1.p2 -1c- -nf
+simbuild -dut sbr -ace_args ace -sc -t openlatch/sbr1_sbr_generic -ace_args- -1c -CUST p1274 -toolset mat1.6.1.p2 -1c-
+mv ace/p1274_e05_stdcells.hdl.KEEP ace/p1274_e05_stdcells.hdl
+CORETOOLS version
+ToolConfig.pl get_tool_version coretools -1c -CUST p1274 -toolset mat1.6.1.p2 -1c-
+ToolConfig.pl get_tool_version collage -1c -CUST p1274 -toolset mat1.6.1.p2 -1c-
+
+rdtsynsummaryfile = [model_root]/target/sbr/p1274/aceroot/results/DC/[alias]_sbr_generic/syn/reports/[alias]_sbr_generic.syn_final.ipds.summary
+
+POWER Artist run
+Once you have fsdb and flist results, run powerartist script
+cd $MODEL_ROOT
+tools/powerartist/p1274/runsbrPACIFIC
+
+
+CALIBER
+$WARD/febe_debug/caliber.menu.csh
+Select option #1 for a new window of uesetup
+Use the popup window to debug or launch GUI
+In the popup window:
+$DUET/utils/UploadWaivers.tcl -from /nfs/fm/disks/fm_infrach_00003/TSA_PRIME/TGPLP_ASYNC_XBCOMBO_REL_PAR/workspace/sideband_network/tools/caliber/waivers/_Waivers.txt -type user_waivers_db -to /nfs/fm/disks/fm_infrach_00003/TSA_PRIME/TGPLP_ASYNC_XBCOMBO_REL_PAR/workspace/sideband_network/tools/caliber/new_waivers
+To launch GUI:
+syn_caliber_gui -cell sbr0_sbr_generic
+
+Tool is not picking the waivers https://hsdes.intel.com/appstore/article/#/14010656847 
+
+FISHTAIL help
+https://wiki.ith.intel.com/display/hdk/Advanced+RTL+Analysis?preview=/1211324897/1211328691/SOC%20FishTail%20FAQ.docx#tool--1908600166 
+
+Scan_audit help
+
+https://hsdes.intel.com/appstore/article/#/1406934412
+
+for rule 10030 you need to run stuckat and atspeed both and rerun the scan_audit
+for rule 10021
+copy file from 
+target/sbr/p1274/aceroot/results/DC/sbr0_sbr_generic/collateral/dft/sbr0_sbr_generic_scan_config.tcl
+to
+target/sbr/p1274/mat1.6.1.p2_p1274.7/aceroot/results/DC/sbr0_sbr_generic/syn/scripts/sbr0_sbr_generic_scan_config.tcl
+ and re-run scan insertion.

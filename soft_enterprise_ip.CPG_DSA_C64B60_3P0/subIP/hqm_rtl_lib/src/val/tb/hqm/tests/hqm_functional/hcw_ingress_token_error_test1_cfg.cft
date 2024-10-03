@@ -1,0 +1,45 @@
+## -- Setup LUTs used by HCWs
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+  msix_alarm 0 enable=0x1 addr=0x5555aaaa5555aaaa data=0x5555aaaa
+
+  ldb qid 0 qid_ldb_inflight_limit=512
+  ldb qid 2 qid_ldb_inflight_limit=512 fid_cfg_v=1
+  ldb qid 4 qid_ldb_inflight_limit=512 sn_cfg_v=1 ord_slot=0 fid_cfg_v=1 ord_mode=3
+  ldb qid 8 qid_ldb_inflight_limit=512
+
+  dir qid 6
+  dir qid 48 
+  dir qid 15
+
+  vas 0 ldb_qidv0=1 credit_cnt=0x64
+
+  vas 8 ldb_qidv2=1 ldb_qidv4=1 dir_qidv6=1 ldb_qidv8=1 dir_qidv48=1 dir_qidv15=1 credit_cnt=0x12c
+
+  ldb pp 0  vas=0 
+  ldb cq 0  gpa=sm qidv0=1 qidix0=0
+
+  ldb pp 2  vas=8
+  ldb cq 2  gpa=sm qidv0=1 qidix0=2
+
+  ldb pp 4  vas=8
+  ldb cq 4  gpa=sm qidv0=1 qidix0=4 cq_ldb_inflight_limit=512 hist_list_base=0x120 hist_list_limit=0x31f
+
+  dir pp 6  vas=8
+  dir cq 6  gpa=sm
+
+  ldb pp 8  vas=8
+  ldb cq 8  gpa=sm qidv0=1 qidix0=8
+
+  dir pp 15 vas=8
+  dir cq 15 gpa=sm
+
+  dir pp 48 vas=8
+  dir cq 48 is_keep_pf_ppid=1 cq_depth=16 gpa=sm 
+
+cfg_end
+
+wr reorder_pipe.cfg_grp_sn_mode 0x3
+rd hqm_pf_cfg_i.vendor_id

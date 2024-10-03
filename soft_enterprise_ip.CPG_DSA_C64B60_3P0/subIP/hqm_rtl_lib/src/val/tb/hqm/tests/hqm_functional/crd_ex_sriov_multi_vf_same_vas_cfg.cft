@@ -1,0 +1,32 @@
+
+cfg_begin
+
+  msix_alarm 0 enable=0x1 addr=0xaaaa5555aaaa5555 data=0xaaaa5555
+
+  dir qid DQ_A:*
+  dir qid DQ_B:*
+  ldb qid LQ_A:* fid_cfg_v=1
+  ldb qid LQ_B:* sn_cfg_v=1  fid_cfg_v=1
+
+  vas VS:* ldb_qidv:LQ_A=1 ldb_qidv:LQ_B=1 dir_qidv:DQ_A=1 dir_qidv:DQ_B=1 credit_cnt=8
+
+  dir pp DQ_A    vas=VS 
+  dir cq DQ_A    cq_depth=1024 gpa=sm
+
+  dir pp DQ_B    vas=VS 
+  dir cq DQ_B    cq_depth=1024 gpa=sm
+
+  ldb pp LDB_PP_A:* vas=VS 
+  ldb cq LDB_PP_A   gpa=sm qidv0=1 qidix0=LQ_A
+
+  ldb pp LDB_PP_B:* vas=VS
+  ldb cq LDB_PP_B   gpa=sm qidv0=1 qidix0=LQ_B
+
+  vf VF_A:*  ldb_vpp0_pp=LDB_PP_A  ldb_vqid0_qid=LQ_A   dir_vpp0_pp=DQ_A dir_vqid0_qid=DQ_A
+  vf VF_B:*  ldb_vpp1_pp=LDB_PP_B  ldb_vqid1_qid=LQ_B   dir_vpp1_pp=DQ_B dir_vqid1_qid=DQ_B
+
+cfg_end
+
+wr hqm_system_csr.ingress_alarm_enable 0xffffffff
+rd hqm_system_csr.ingress_alarm_enable 0x0000003f
+

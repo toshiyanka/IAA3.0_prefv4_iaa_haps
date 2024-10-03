@@ -1,0 +1,2 @@
+module dfxsecure_plugin_waiver_ctrl;
+endmodule

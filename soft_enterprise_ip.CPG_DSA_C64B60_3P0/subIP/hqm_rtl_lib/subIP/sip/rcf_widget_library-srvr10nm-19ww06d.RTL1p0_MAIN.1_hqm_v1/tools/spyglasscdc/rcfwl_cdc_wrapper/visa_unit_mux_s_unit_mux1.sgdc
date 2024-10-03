@@ -1,0 +1,52 @@
+current_design visa_unit_mux_s
+clock -name "src_clk[0]"
+
+
+define_sgdc_severity_class -value IGNORE
+quasi_static -name bypass_cr_out
+quasi_static -name control_cr
+quasi_static -name control_tap
+quasi_static -name bypass_cr_in
+quasi_static -name bypass
+quasi_static -name centering_en
+quasi_static -name lane_cr
+quasi_static -name lane_tap
+quasi_static -name taken_cr
+quasi_static -name xbar_cr
+quasi_static -name xbar_tap
+quasi_static -name all_disable
+quasi_static -name customer_disable
+quasi_static -name global_bypass_in
+quasi_static -name extra_cr
+quasi_static -name clk_sel_out
+quasi_static -name given_cr
+quasi_static -name global_bypass_out
+end_sgdc_severity_class
+
+
+abstract_port  -path_logic buf  -ports "ss_clk_out" -related_ports "src_clk[0]"
+abstract_port  -ports "lane_out[0][7:0]" -clock "src_clk[0]"
+abstract_port  -ports "lane_out[1][7:0]" -clock "src_clk[0]"
+abstract_port  -path_logic buf  -ports "xbar_ss_clk_out" -related_ports "src_clk[0]"
+abstract_port  -ports "xbar_out[0]" -clock "src_clk[0]"
+clock -name "serial_cfg_in[0]"
+abstract_port -ports "serial_cfg_in[2:1]" -clock "serial_cfg_in[0]"
+abstract_port -path_logic buf -ports "serial_cfg_out[0]" -related_ports "serial_cfg_in[0]"
+abstract_port -ports "serial_cfg_out[2:1]" -clock "serial_cfg_in[0]"
+quasi_static -name reg_start_index
+quasi_static -name customer_disable
+quasi_static -name fscan_mode
+
+
+define_sgdc_severity_class -value IGNORE
+quasi_static -name visa_enabled
+end_sgdc_severity_class
+
+
+# Reset
+reset -name "visa_resetb" -async -value 0
+
+
+quasi_static -name all_disable
+quasi_static -name visa_unit_id
+abstract_port -ports "lane_in[1:0][7:0]" -clock "src_clk[0]"

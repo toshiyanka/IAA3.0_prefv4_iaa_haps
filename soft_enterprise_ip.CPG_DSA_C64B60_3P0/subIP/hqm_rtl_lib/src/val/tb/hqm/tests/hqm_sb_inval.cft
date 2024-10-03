@@ -1,0 +1,79 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable PF memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+###################################
+# Setup FUNC_VF BAR to a base address of 0x00000003_xxxxxxxx
+###################################
+# 16 VF
+###################################
+# Enable VFs but not VF memory operations
+###################################
+mwr 0x1ce1cebb1ce1ce80 0x83828180
+mwr 0x1ce1cebb1ce1ce84 0x87868584
+mwr 0x1ce1cebb1ce1ce88 0x8b8a8988
+mwr 0x1ce1cebb1ce1ce8c 0x8f8e8d8c
+mwr 0x1ce1cebb1ce1ce90 0x93929190
+mwr 0x1ce1cebb1ce1ce94 0x97969594
+mwr 0x1ce1cebb1ce1ce98 0x9b9a9998
+mwr 0x1ce1cebb1ce1ce9c 0x9f9e9d9c
+mwr 0x1ce1cebb1ce1cea0 0xa3a2a1a0
+mwr 0x1ce1cebb1ce1cea4 0xa7a6a5a4
+mwr 0x1ce1cebb1ce1cea8 0xabaaa9a8
+mwr 0x1ce1cebb1ce1ceac 0xafaeadac
+mwr 0x1ce1cebb1ce1ceb0 0xb3b2b1b0
+mwr 0x1ce1cebb1ce1ceb4 0xb7b6b5b4
+mwr 0x1ce1cebb1ce1ceb8 0xbbbab9b8
+mwr 0x1ce1cebb1ce1cebc 0xbfbebdbc
+mwr 0x0000000000000000 0xffffffff
+mwr 0x0000000000000004 0xffffffff
+mwr 0x0000000000000008 0x00000000
+mwr 0x000000000000000c 0x00000000
+mwr 0x0000000000000010 0xffffffff
+mwr 0x0000000000000014 0xffffffff
+mwr 0x0000000000000018 0x00000000
+mwr 0x000000000000001c 0x00000000
+mwr 0xffffffffffffff00 0x00000000
+mwr 0xffffffffffffff04 0x00000000
+mwr 0xffffffffffffff08 0xffffffff
+mwr 0xffffffffffffff0c 0xffffffff
+mwr 0xffffffffffffff10 0x00000000
+mwr 0xffffffffffffff14 0x00000000
+mwr 0xffffffffffffff18 0xffffffff
+mwr 0xffffffffffffff1c 0xffffffff
+###################################
+# Enable MSI-X
+wr hqm_pf_cfg_i.msix_cap_control 0x8000
+rd hqm_pf_cfg_i.msix_cap_control 0x8047
+idle 3000
+# Read Requests
+rd hqm_system_csr.hqm_system_cnt_12  0x000000c3
+rd hqm_system_csr.hqm_system_cnt_13  0x00000000
+# Read Responses
+rd hqm_system_csr.hqm_system_cnt_8   0x000000c3
+rd hqm_system_csr.hqm_system_cnt_9   0x00000000
+# Read Response Data Words
+rd hqm_system_csr.hqm_system_cnt_10  0x00000103
+rd hqm_system_csr.hqm_system_cnt_11  0x00000000
+# Read Requests Dropped
+rd hqm_system_csr.hqm_system_cnt_40  0x000000c3
+rd hqm_system_csr.hqm_system_cnt_41  0x00000000
+#
+rd hqm_system_csr.alarm_err          0x00008000
+rd hqm_system_csr.alarm_hw_synd      0xc0630001
+

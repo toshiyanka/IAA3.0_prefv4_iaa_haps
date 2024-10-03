@@ -1,0 +1,18 @@
+###################################
+# Setup LUTs used by HCWs
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+  ldb qid LQID0:*
+  vas 0 ldb_qidv:LQID0=1 credit_cnt=100 
+
+  ldb pp LPP0:*  vas=0 
+  ldb cq LPP0  cq_depth=512 gpa=sm qidv0=1 qidix0=LQID0
+cfg_end
+
+##ingress alarm enable
+wr hqm_system_csr.ingress_alarm_enable 0xffffffff
+rd hqm_system_csr.ingress_alarm_enable 0x0000003f
+

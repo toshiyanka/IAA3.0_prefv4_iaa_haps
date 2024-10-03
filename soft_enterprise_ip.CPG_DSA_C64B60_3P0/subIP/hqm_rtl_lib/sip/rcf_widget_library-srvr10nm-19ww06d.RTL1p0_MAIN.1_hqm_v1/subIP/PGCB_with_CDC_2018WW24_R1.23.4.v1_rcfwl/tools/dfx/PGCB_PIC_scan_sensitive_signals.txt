@@ -1,0 +1,80 @@
+// *********************************************************************************************************************
+// PGCB and ClockDomainController sub-IPs are instantiated by the IPs and any DFx and Scan control senstive information should
+// come from the IP directly
+//
+// This document is to provide some consideraton for scan when integrating PGCB and ClockDomainController.
+// The information is to be used as Refernce for IPs only !!!
+// *********************************************************************************************************************
+
+// Format:
+// For IP sensitive Inputs:                        require_stable_value  -name "cri_reset_b"      -value 0
+// For IP sensitive Outputs/internal signals       test_mode             -name "cri_reset_out"    -value 1
+//
+//
+//================================================================================================================
+// 1. pgcbunit.sv
+// PGCB DFx and Scan override information is in the PGCB Integration Guide.
+// Refer to "DFX requirements related to Power-gating" Section for more details.
+// The usage of USE_DFX_SEQ is determined by the IP integrating PGCB.
+// IP needs to provide sequence to put the PGCB in required DFx mode.
+//================================================================================================================
+
+// Following signal is for DFx override is used by scan.  
+// Refer to the integration guide for set up PGCB DFx override mode via sTAP.
+// IPs needs to ensure that the DFx is either in power up or down state.
+//input  logic fdfx_pgcb_bypass,                  // PGCB DFx Bypass Enable
+//input  logic fdfx_pgcb_ovr,                     // PGCB DFx Sequencer Control (1=Power Up, 2=Power Down)
+
+//-------------------------------------------------------------------
+require_stable_value  -name "pgcb_rst_b"             -value 1
+require_stable_value  -name "fdfx_powergood_rst_b"   -value 1
+
+
+// Following signals are for scan mode and should be fully controllable by the scan team.
+// Use only if checking for scan state
+// Reference only!!
+test_mode   -name "fscan_mode"             -value 1
+test_mode   -name "fscan_ret_ctrl"         -value 1
+test_mode   -name "fscan_isol_lat_ctrl"    -value 1
+test_mode   -name "fscan_isol_ctrl"        -value 1
+
+//Summary of PGCB and power-gating related signals that DFx needs to control in a non-functional test mode:
+// IPs should provide the correct scan senstive information
+//
+// -  pgcb_ip_fet_en_b: PFET enable (to control the actual power)
+// -  pgcb_isol_en_b: isolation control signal (to control whether signals flow naturally from the PGD or are isolated)
+// -  pgcb_force_rst_b: reset forcing control signal (to control whether the resets going into the PGD are 
+//    being forced asserted for power gating or de-asserted for power ungating)
+// -  pgcb_sleep: state retention control signal (SLEEP)
+//    a) In most of the test modes, DFx needs to ensure that the flops are in normal functional mode
+//       rather than retention mode
+//    b) In some test modes (i.e. SCAN retention testing), DFx needs to toggle SLEEP to test the flop
+//       in both modes
+
+//================================================================================================================
+// 2. ClockDomainController.sv
+//
+// The scan consideration depends on how IPs have configured the ClockDomainController.
+// All information should come from the IPs scan sensitive signals document.
+// Refer to "6.2 SCAN Considerations for CDC Usage (pre-SCC and post-SCC)" in the CDC sub-IP integration guide.
+//
+//================================================================================================================
+
+   require_stable_value  -name "pgcb_rst_b"             -value 1
+
+ //Test Controls
+ //Note Scan should have a full control over these.
+ // Reference only!!
+    test_mode   -name "fscan_clkungate"                  -value '1     //Test clock ungating control
+    test_mode   -name "fscan_rstbypen[RST+DRIVE_POK:0]"  -value '1     //Scan reset bypass enable
+    test_mode   -name "fscan_byprst_b[RST+DRIVE_POK:0]"  -value '1     //Scan reset bypass value
+    test_mode   -name "fscan_clkgenctrlen[1:0]"          -value 2'b11  //Scan clock bypass enable
+    test_mode   -name "fscan_clkgenctrl[1:0]"            -value 2'b11  //Scan clock bypass value
+
+// For CDC's that control IOSF Primary or Sideband clock domains
+// Assumes that clocks are running and scan has full control over the clock overrides.
+// Following signal state would force functional clocks to be running.
+    test_mode   -name "fismdfx_force_clkreq"       -value 1  //DFx force assert clkreq
+    test_mode   -name "fismdfx_clkgate_ovrd"       -value 1  //DFx force GATE gclock
+
+

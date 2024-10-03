@@ -1,0 +1,156 @@
+
+idle 500
+###############################
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_command
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+
+###################################
+# Enable memory and parity operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command 0x6
+
+wr config_master.cfg_pm_pmcsr_disable.disable 0x0
+rd config_master.cfg_pm_pmcsr_disable.disable 0x0
+
+#poll to Wait for reset to be done 
+poll config_master.cfg_diagnostic_reset_status 0x800003ff 0x800003ff 500
+#poll to Wait for unit_idle to be done 
+poll config_master.cfg_diagnostic_idle_status 0x0007ffff 0x0007ffff 500
+
+###################################
+# Setup FUNC_VF BAR to a base address of 0x00000000_xxxxxxxx
+wr hqm_pf_cfg_i.sriov_cap_func_bar_l 0x00000000
+wr hqm_pf_cfg_i.sriov_cap_func_bar_u 0x00000005
+###################################
+# 00 VFs
+wr hqm_pf_cfg_i.sriov_cap_num_vf 0x10
+###################################
+# Enable VF and VF memory operations
+wr hqm_pf_cfg_i.sriov_cap_control_status 0x9
+###################################
+
+###########################################
+# Test hqm_msix_mem
+wr hqm_msix_mem.msg_data[0] 0xffffffff
+rd hqm_msix_mem.msg_data[0] 0xffffffff
+
+wr hqm_msix_mem.msg_data[64] 0x5a5a5a5a
+rd hqm_msix_mem.msg_data[64] 0x5a5a5a5a
+
+###########################################
+# Test func_pf pf_to_vf_mailbox
+wr hqm_func_pf_per_vf[0].pf_to_vf_mailbox[0] 0xffffffff
+rd hqm_func_pf_per_vf[0].pf_to_vf_mailbox[0] 0xffffffff
+
+wr hqm_func_pf_per_vf[15].pf_to_vf_mailbox[15] 0x5a5a5a5a
+rd hqm_func_pf_per_vf[15].pf_to_vf_mailbox[15] 0x5a5a5a5a
+
+###########################################
+# Test func_vf vf_to_pf_mailbox
+
+wr hqm_func_vf_bar[0].vf_to_pf_mailbox[0] 0xffffffff
+rd hqm_func_vf_bar[0].vf_to_pf_mailbox[0] 0xffffffff
+
+wr hqm_func_vf_bar[15].vf_to_pf_mailbox[63] 0x5a5a5a5a
+rd hqm_func_vf_bar[15].vf_to_pf_mailbox[63] 0x5a5a5a5a
+
+###################################
+##FLR related## 
+rd hqm_pf_cfg_i.pcie_cap_device_control 0x0020 0x8000 
+poll hqm_pf_cfg_i.pcie_cap_device_status 0x0 0x00200000 10000
+
+#Disable MSI in order to avoid any unattended INT later##
+wr  hqm_pf_cfg_i.msix_cap_control 0x0000
+
+##Disable Bus Master, INTX and Mem Txn enable bit from device_command##
+wr  hqm_pf_cfg_i.device_command 0x400
+wr  hqm_pf_cfg_i.pcie_cap_device_control 0x8000
+
+## --------------------------------------- ## 
+## ---- Send MWr to PF BAR in FLR -------- ## 
+## --------------------------------------- ## 
+
+# Test hqm_msix_mem
+
+wr hqm_msix_mem.msg_data[0]   0xdddddddd
+wr hqm_msix_mem.msg_data[64]  0xcccccccc
+
+# Test func_pf pf_to_vf_mailbox
+wr hqm_func_pf_per_vf[0].pf_to_vf_mailbox[0]    0xaaaaaaaa
+wr hqm_func_pf_per_vf[15].pf_to_vf_mailbox[15]  0xbbbbbbbb
+
+# Test func_vf vf_to_pf_mailbox
+
+wr hqm_func_vf_bar[0].vf_to_pf_mailbox[0]   0xcccccccc
+wr hqm_func_vf_bar[15].vf_to_pf_mailbox[63] 0xeeeeeeee
+
+## --------------------------------------- ## 
+
+###################################
+##FLR RELATED##
+idle 7000
+rd hqm_pf_cfg_i.pcie_cap_device_control 0x0000 0x8000
+##FLR RELATED##
+###################################
+
+idle 500
+###############################
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_command
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+
+###################################
+# Enable memory and parity operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+
+wr config_master.cfg_pm_pmcsr_disable.disable 0x0
+rd config_master.cfg_pm_pmcsr_disable.disable 0x0
+
+#poll to Wait for reset to be done 
+poll config_master.cfg_diagnostic_reset_status 0x800003ff 0x800003ff 500
+#poll to Wait for unit_idle to be done 
+poll config_master.cfg_diagnostic_idle_status 0x0007ffff 0x0007ffff 500
+
+###################################
+# Setup FUNC_VF BAR to a base address of 0x00000000_xxxxxxxx
+wr hqm_pf_cfg_i.sriov_cap_func_bar_l 0x00000000
+wr hqm_pf_cfg_i.sriov_cap_func_bar_u 0x00000005
+###################################
+# 00 VFs
+wr hqm_pf_cfg_i.sriov_cap_num_vf 0x10
+###################################
+# Enable VF and VF memory operations
+wr hqm_pf_cfg_i.sriov_cap_control_status 0x9
+###################################
+
+###########################################
+# Test hqm_msix_mem
+rd hqm_msix_mem.msg_data[0]  0xffffffff
+rd hqm_msix_mem.msg_data[64] 0x5a5a5a5a
+
+###########################################
+# Test func_pf pf_to_vf_mailbox
+rd hqm_func_pf_per_vf[0].pf_to_vf_mailbox[0]   0xffffffff
+rd hqm_func_pf_per_vf[15].pf_to_vf_mailbox[15] 0x5a5a5a5a
+
+###########################################
+# Test func_vf vf_to_pf_mailbox
+rd hqm_func_vf_bar[0].vf_to_pf_mailbox[0]   0xcccccccc
+rd hqm_func_vf_bar[15].vf_to_pf_mailbox[63] 0xeeeeeeee
+

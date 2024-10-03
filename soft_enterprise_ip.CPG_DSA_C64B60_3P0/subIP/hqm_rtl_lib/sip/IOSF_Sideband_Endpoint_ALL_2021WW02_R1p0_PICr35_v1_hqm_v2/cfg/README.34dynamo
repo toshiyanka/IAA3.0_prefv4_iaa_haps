@@ -1,0 +1,47 @@
+need to follow the following steps to run Dynamo and Builder on SLES11 and on SLES12. 
+Note:- we moved from tsetup to hdksetup 
+
+wash -n intelall soc socenv socrtl dk10nm hdk10nm hdk10nmproc siphdk fabric n7 n7fe s14nm n6 n6fe
+
+FOR SLES12 (not needed for SLES11):
+        setenv RTL_PROJ_BIN_OVERRIDE /p/hdk/rtl/proj_tools/proj_binx/cds/latest
+        cfg/run_sles12.setup
+
+1) once you have corekit, source hdk
+    source /p/hdk/rtl/hdk.rc -cfg sip -reentrant
+
+2) open hdk xterm
+   simbuild -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p2 -1c- -ver $cwd -ace xterm &
+
+3)  cd corekit
+    source script/setup 
+
+    Note: script/setup is hdk setup, script/setup.tsetup is old tsetup
+
+3)  Cd work dir (where you want to gen network)
+    
+    ../script/Dynamo.pl -sbr1p0 -spec <path_2_fabric_spec_files> -workspace <wkspc> -batch
+
+
+# Folloing steps are for fabric team only
+   
+1)	Open fresh xterm, clone dynamo and ip-sbr repo
+source /p/sip/proj/sbr/setup.dynamo
+git clone /p/sip/proj/sbr/central_repos/ip-dynamo/
+git clone /p/sip/proj/sbr/central_repos/ip-sbr
+2)	source /p/hdk/rtl/hdk.rc -cfg sip -reentrant
+3)	Cd ip-sbr ( If you are on SLES12 run source  ~mhchin/sles12_sb.csh <target_sb_repo> and "source  ~mhchin/sles12.setup <target_sb_repo>" ,  this will do all required changes in the repo for SLES12)
+4)	Open hdk xterm 
+  simbuild -dut sbr -1c -CUST n6 -toolset mat1.6.1.p7 -1c- -ver $cwd -ace xterm &
+5)	In new hdk xterm create dir where you need to generate network 
+6)	Cd ip-dynamo
+7)	Source script/setup
+8)	Cd work dir (where you want to run builder and dynamo)
+9)	$DYNAMO_SCRIPTS_DIR/Builder.pl -sbr1p0 -cust_repos ../ip-sbr/
+10)	$DYNAMO_SCRIPTS_DIR/Dynamo.pl -sbr1p0 -clean -batch -spec ../ip-sbr/verif/tests/networks/cspecs/lv2_sbn_cfg_tgplp/iosf_sb_fabric_main/
+11)	Cd workspace/sidebandnetwork
+12)	simbuild -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p2 -1c- -ver $cwd -ace xterm &
+13)	Now in second hdk xterm you can run compile/BE tools/regression etc
+
+Note:- Original xterm is useless to run any job And in HDK xtrem is not supporting gvim  (it¿s a bug )
+

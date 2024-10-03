@@ -1,0 +1,204 @@
+#xparams_set_legacy_elab_mode         1
+#######################
+# HIERARCHIES         #
+#######################
+#xparams_set_pace_file                                   $PACIFIC_TECH_PATH/cdk.par_mc.ww46.tech
+#template                                  Physical_parent    instance                                  strip_path
+xparams_set_hierarchies_map [list \
+                                [list sbendpoint   sbendpoint sbendpoint tb_top.sbendpoint] \
+                          ]
+
+
+
+if {[xparams_get_vc_create_mode] == "" } {
+	xparams_set_vc_create_mode "dc"
+} else {
+    log_err "VC MODE [xparams_get_vc_create_mode] is not supported. Only 'dc' is supported"
+    exit 1
+}
+
+xparams_set_generate_sip_template_report 1
+
+# * * * RTL search path
+xparams_set_rtl_search_files_exts [list rtl_list.tcl ?hip_list.tcl ]
+xparams_set_rtl_search_path [list <MODEL_ROOT>/target/sbe/p1273/aceroot/results/DC/<CELL>/collateral/rtl ]
+#we need to add directories of RTL files to search path - since it seems that search path is not complete....
+xparams_set_strict_include_dirs 0
+
+#clock search files extentions - both these patterns should be present
+xparams_set_clock_search_files_exts [list <CELL>_clocks.tcl ] 
+xparams_set_clock_search_path [list <MODEL_ROOT>/tools/syn/inputs/p1273/<CELL>/scripts ]
+
+#enable/disable clock heuristics - #mode = 
+#0 disabled 
+#1 enable only if no clocks found
+#2 enable always (will append guessed clocks to user found clocks)
+#3 disable normal clocks extraction and use heuristics only 
+xparams_set_clock_heuristics_mode 2
+
+#prioritized clock patterns
+#xparams_set_clock_heuristics_include_pattern "gated_side_clk$|agent_side_clk$|agent_clk$" 
+xparams_set_clock_heuristics_include_pattern "side_clk$"                       
+#"ckgrid|clk$|clock$|tck$|x12clk|clk_in_0|CkLcpXPNB|^clk_in$|^adop_postclk|clk_free_in|side_clk"
+
+
+xparams_set_activity_analysis "disable"
+xparams_set_generate_rollup   1
+
+if {[string is digit $pa_major_ver] && ($pa_major_ver > 14)} {
+    #clock flags
+    xparams_set_clock_flags                "-mode infer -exclude_pad_power true -trace_domain false -gate_clock true -enhanced_cg true"
+} else {
+    #clock flags
+    xparams_set_clock_flags                "-mode infer -exclude_pad_power true -trace_domain true -gate_clock true -enhanced_cg true"
+}
+
+#######################
+# PROCESS AND DESIGN  #
+#######################
+# * * * PACE
+#xparams_set_pace_file /nfs/site/disks/slx_1329/work/gcfranci/FXR/PACE/fxr_hi_hifis_par__fxr-srvr10nm-17ww13e.tech
+
+#frequency in Hz 
+#xparams_set_freq                       2.33e+9
+
+#Define how the VC file is going to be created
+#xparams_set_vc_create_mode "manual"
+#xparams_set_manual_vc_proc "createVCFileSDG"
+xparams_set_invoke_strip_path_find 1
+
+#libraries names: "{ec0,ec5}" overrides TCL variable CTECH_TYPE  in rtl_list.tcl in -vc_mode dc
+xparams_set_lib_ctech_names    "d04"
+#library variants: i.e. "{nn,ln}"  - overrides TCL variable CTECH_VARIANT in rtl_list.tcl in -vc_mode dc
+xparams_set_lib_ctech_variants "nn"
+
+
+uplevel #0 {
+    proc set_libs {} {
+        pacific::pacific_set verilog_2001 true
+        pacific::pacific_set system_verilog true
+
+        #####################################################
+        # Process libraries
+        #####################################################
+
+
+        pacific::pacific_exec SetClockGatingStyle -clock_cell_attribute latch_posedge_precontrol -min_bit_width 4 -min_bit_width_ecg 4
+        # This project_setup.tcl came from: /nfs/pdx/disks/srvr10nm_0361/gcfranci/sandbox/powerartist_da-powerartist_da/cfg/default_project_setup.tcl
+    
+        # * * * Blackbox Modules
+        #pacific::pacific_set  black_box_modules { module1 module2 }
+    
+        # * * * Auto-Blackbox feature
+        #pacific::pacific_set elaborate_auto_black_box true
+    
+        # * * * Print out every possible reports
+        #pacific::pacific_set average_report_options 0acCdegimNpPrtuvVz
+        # * * * To add flop/memory (C = memory, c = flop) clock pin power to clock power 
+        pacific::pacific_set average_report_options Cc
+        
+        # * * * Legacy RTL Parser
+        #pacific::pacific_set use_legacy_elab 0
+    
+        # * * * Redundant Flop
+        pacific::pacific_set report_redundant_sequential_elements true
+    
+        # * * * Block Activity Report
+        #SetBAR -output_file reports/block_activity_report
+        #pacific::pacific_exec SetBAR -output_file pacific/report/block_activity_report -cols { total_power total_power_prcnt total_static_power total_dynamic_power clock_power clock_activity data_activity }
+        
+        # * * * Supress Messages
+        #pacific::pacific_set suppress_messages {UTL-72}
+    
+
+        # * * * Clock cells inside flops will be counted as clock power
+        #pacific::pacific_set report_redundant_sequential_elements true
+    
+        # * * * For SCGE calculation.  If your liberty files lack cell definition, use this
+        #pacific::pacific_exec DefineCell -type flop  -name {ec0f*}
+        #pacific::pacific_exec DefineCell -type latch -name {ec0l*}
+        #pacific::pacific_exec DefineCell -type mux -name {ec0mbn*} -pin { {data a*} {data b*} {data o*}{select sa}  }
+        
+        
+        pacific::pacific_set max_clock_depth 2000
+        
+        pacific::pacific_set skip_reduction_list { odc cec doi gmc lec lnr mem mux prism reg smw }
+
+        # * * * For Clock MUX
+        pacific::pacific_set mux_select_activity_based_clock_tracing true
+
+        # * * * Higher frequency gets traced
+        pacific::pacific_set frequency_dependent_clock_tracing true
+
+        # * * * Clock path reporting, see last portion of rtl_cg.rpt for the data
+        pacific::pacific_set reduction_report_hierarchical_clock_efficiency true
+
+
+        # * * * Set libraries
+        #set libs [list] ;# all common and module specific libraries will be added to this list
+        #lappend libs /p/hdk/cad/kits_p1273/p1273_1.4.0/stdcells/wlm/p1273_custom_wireload.lib
+        #set lib_dir "/nfs/site/disks/hdk.collateral.1/std/dc0collateral/SD1.0_v0/dc0collateral/stdcells/d04/hdk73/SD1.0_v0/lib_withpowerpincap"
+        # standard cell libs, all located in the directory $d4 
+        #foreach sc {
+        #    wn/d04_wn_p1273_1x1r3_tttt_0.75v_70.00c_max.lib
+        #    ln/d04_ln_p1273_1x1r3_tttt_0.75v_70.00c_max.lib
+        #    nn/d04_nn_p1273_1x1r3_tttt_0.75v_70.00c_max.lib
+        #    xn/d04_xn_p1273_1x1r3_tttt_0.75v_70.00c_max.lib
+        #} {
+        #    lappend libs "$lib_dir/$sc"
+        #}
+        # process all libraries
+        #foreach l $libs {
+        #    pacific::pacific_exec ReadLibrary -name $l
+        #}
+
+        set stdlib_path "/p/hdk/cad/stdcells/d04/17ww24.2_d04_k.1.p2_pch/lib"
+        pacific::pacific_exec ReadLibrary -name $stdlib_path/nn/d04_nn_1273_1x2r2_tttt_v075_t70_max.lib
+        pacific::pacific_exec ReadLibrary -name $stdlib_path/ln/d04_ln_1273_1x2r2_tttt_v075_t70_max.lib
+
+        
+        if {[xparams_get_pace_file]==""} {
+
+            #pacific::pacific_set wireload_library p1273_custom_wireload
+            pacific::pacific_set wireload_library d04_nn_1273_1x2r2_tttt_v075_t70_max 
+            pacific::pacific_exec SetWireLoadModel -name 10x10 -library d04_nn_1273_1x2r2_tttt_v075_t70_max -instance *
+            #pacific::pacific_exec SetClockBuffer -type root   -name d04gbf00ld0c0 -library d04_ln_p1273_1x1r3_tttt_0.75v_70.00c_max
+            #pacific::pacific_exec SetClockBuffer -type leaf   -name d04gbf00ld0c0 -library d04_ln_p1273_1x1r3_tttt_0.75v_70.00c_max
+            #pacific::pacific_exec SetClockBuffer -type branch -name d04gbf00ld0c0 -library d04_ln_p1273_1x1r3_tttt_0.75v_70.00c_max
+
+             pacific::pacific_exec SetClockBuffer -type root   -name d04gbf00nd0d0 -library d04_nn_1273_1x2r2_tttt_v075_t70_max 
+             pacific::pacific_exec SetClockBuffer -type leaf   -name d04gbf00nd0d0 -library d04_nn_1273_1x2r2_tttt_v075_t70_max 
+             pacific::pacific_exec SetClockBuffer -type branch -name d04gbf00nd0d0 -library d04_nn_1273_1x2r2_tttt_v075_t70_max 
+
+            #pacific::pacific_exec SetBuffer -type root   -name  d04bfn01ln0c0 -library d04_ln_p1273_1x1r3_tttt_0.75v_70.00c_max
+            #pacific::pacific_exec SetBuffer -type branch -name  d04bfn01ln0c0 -library d04_ln_p1273_1x1r3_tttt_0.75v_70.00c_max
+            #pacific::pacific_exec SetBuffer -type leaf   -name  d04bfn01ln0c0 -library d04_ln_p1273_1x1r3_tttt_0.75v_70.00c_max
+           
+              
+             pacific::pacific_exec SetClockBuffer -type root   -name d04bfn00nn0d0 -library d04_nn_1273_1x2r2_tttt_v075_t70_max 
+             pacific::pacific_exec SetClockBuffer -type leaf   -name d04bfn00nn0d0 -library d04_nn_1273_1x2r2_tttt_v075_t70_max 
+             pacific::pacific_exec SetClockBuffer -type branch -name d04bfn00nn0d0 -library d04_nn_1273_1x2r2_tttt_v075_t70_max 
+
+             pacific::pacific_exec SetClockBuffer -type root   -name d04cgc01ndsh0 -library d04_nn_1273_1x2r2_tttt_v075_t70_max 
+             pacific::pacific_exec SetClockBuffer -type leaf   -name d04cgc01ndsh0 -library d04_nn_1273_1x2r2_tttt_v075_t70_max 
+             pacific::pacific_exec SetClockBuffer -type branch -name d04cgc01ndsh0 -library d04_nn_1273_1x2r2_tttt_v075_t70_max
+
+            #pacific::pacific_exec SetBuffer -type root   -name  d04cgc01ndsh0 -library d04_ln_p1273_1x1r3_tttt_0.75v_70.00c_max
+            #pacific::pacific_exec SetBuffer -type branch -name  d04cgc01ndsh0 -library d04_ln_p1273_1x1r3_tttt_0.75v_70.00c_max
+            #pacific::pacific_exec SetBuffer -type leaf   -name  d04cgc01ndsh0 -library d04_ln_p1273_1x1r3_tttt_0.75v_70.00c_max
+            
+            #pacific::pacific_exec SetVoltageThreshold -group wn -pattern {*wd* *wn*}
+            pacific::pacific_exec SetVoltageThreshold -group ln -pattern {*ld* *ln*}
+            pacific::pacific_exec SetVoltageThreshold -group nn -pattern {*nd* *nn*}
+            #pacific::pacific_exec SetVoltageThreshold -group xn -pattern {*xd* *xn*}
+            
+            #pacific::pacific_exec SetVT -mode percentage -instance [xparams_get_cell] -vt_group {nn:50 ln:20 wn:30}
+            
+            #pacific::pacific_set wireload_library ec0_ln_p1274d2_tttt_v065_t100_max
+            #pacific::pacific_exec SetWireLoadModel -name 10x10 -library ec0_ln_p1274d2_tttt_v065_t100_max -instance *
+
+        }
+
+    }
+
+}; #uplevel

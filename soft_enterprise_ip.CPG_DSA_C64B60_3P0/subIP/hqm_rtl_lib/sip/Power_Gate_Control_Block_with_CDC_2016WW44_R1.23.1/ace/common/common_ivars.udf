@@ -1,0 +1,865 @@
+#----*-perl-*-------------------------------------------------------
+my $ip = lc($ENV{ACE_PROJECT});
+
+my $cpu_path0;
+my $cpu_path1;
+my $cpu_path2;
+my $user = `whoami`;
+chomp $user;
+
+if ( $ENV{VCS_TARGET_ARCH} =~ /suse64/ ) {
+    $cpu_path0 = 'Linux_x86_64';
+    $cpu_path1 = 'linux_em64';
+    $cpu_path2 = 'lib64';
+}
+else {
+    $cpu_path0 = 'Linux';
+    $cpu_path1 = 'linux';
+    $cpu_path2 = 'lib32';
+}
+
+%audf = (
+    InterfaceVars => {
+        # Ace performance optimization.
+        -library_make_opts => {
+            default => [
+                '-r',  # Refer to 'man make'; The 'make' argument '-r' disables the numerous "implicit" rules, which speeds up 'make' execution.
+            ],
+        },
+        -model_make_opts => {
+            default => [
+                '-r',  # Refer to 'man make'; The 'make' argument '-r' disables the numerous "implicit" rules, which speeds up 'make' execution.
+            ],
+        },
+        -vpd_dump => {
+            shortcut => "vpd",
+            alias => "-user_do_files_vcs $ENV{ACE_ENG}/$ENV{ACE_PWA_DIR}/ace/$ENV{ACE_PROJECT}/$ENV{ACE_PROJECT}_vpd_dump.do -use_my_do_files",
+            help => {
+              desc => "Enable VPD dumping in VCS using do file",
+              level => 1,
+            },
+        },
+        -getpaths => {
+            action => "getpaths",
+            default => 0,
+            help => {
+                group => "GETPATHS",
+                desc => "To obtain RTL files and include directories",
+            },
+        },
+        -getpaths_outdir => {
+            type => "SCALAR",
+            default => "",
+            help => {
+                group => "GETPATHS",
+                desc => "To define path to store getpaths output perl hash file",
+            },
+        },
+        -power => {
+            action => 'power',
+            default => 0,
+            help => {
+                group => 'CPEF',
+                desc => 'To enable power estimation flow',
+            },
+        },
+        -scenario => {
+            type => 'SCALAR',
+            default => '',
+            help => {
+                group => 'CPEF',
+                desc => 'To define scenario of power estimation flow, so it can pick the constraint files accordingly',
+            },
+        },
+        -ref_milestone => {
+            type => 'SCALAR',
+            default => '',
+            help => {
+                group => 'CPEF',
+                desc => 'To define reference model milestone, the reference model will be tagged with milestone provided in power database',
+            },
+        },
+        -power_en => {
+            type => 'SCALAR',
+            default => '0',
+            help => {
+                group => 'CPEF',
+                desc => 'This switch is for internal script use only, user should use -power to enable power estimation flow',
+            },
+        },
+        -include_mda => {
+            default => '0',
+            help => {
+                group => 'CPEF',
+                desc => 'To include +includemda option in vpd2vcd command line while generating saif file for power estimation flow',
+            },
+        },
+        -local => {
+            default => '0',
+            help => {
+                group => 'CPEF',
+                desc => 'To force all power estimation tasks to run in local machine, in sequent',
+            },
+        },
+        -debug_indicator => {
+            default => '0',
+            help => {
+                group => 'CPEF',
+                desc => 'a debug option to test the upload indicator to power db',
+            },
+        },
+        -syn_dir => {
+            type => 'SCALAR',
+            default => '',
+            help => {
+                group => 'CPEF',
+                desc => 'Existing synthesis output directory, synthesis will be skipped if the netlist is exists',
+            },
+        },
+        -spyguard => {
+            type => 'BOOLEAN',
+            default => '0',
+            help => {
+                desc => 'Enable spyguard script run, this will required lintra output files and also the rtl list dump by simulation(equicheck) ',
+                group => 'spyguard',
+            },
+        },
+        -spyguard_path => {
+            type => 'SCALAR',
+            default => '/p/cse/asic/GLS/a_ww48', 
+            help => {
+                desc => 'Path to spyguard scripts and path. Do not configure with latest pointer script path.',
+                group => 'spyguard',
+            },
+        },
+        -spyguard_email_list => {
+            type => 'SCALAR',
+            default => "$user",
+            help => {
+                desc => 'spyguard to send the report file to specific email address list, saperated by commas (,) with no space in between',
+                group => 'spyguard',
+            },
+        },
+        -spyguard_email => {
+            type => 'BOOLEAN',
+            default => '1',
+            help => {
+                desc => 'spyguard to send email',
+                group => 'spyguard',
+            },
+        },
+        -pre_sim => {
+            type => 'SCALAR',
+            default => '',
+            help => {
+                group => 'CPEF',
+                desc => "Directory which consists \$model::\$cfg::\$test that created by runsim_postsim_checks.pl, run_ptpx.pl can get the saif path from there and skip the RTL simulation",
+            },
+        },
+        -unit => {
+            type => 'ARRAY',
+            default => [],
+            help => {
+                group => 'CPEF',
+                desc => 'RTL unit(s) for power estimation run',
+            },
+        },
+        -pvt => {
+            type => 'SCALAR',
+            default => 'avg_pwr_tttt50',
+            help => {
+                group => 'CPEF',
+                desc => 'To define pvt for PTPX run, default is avg_pwr_tttt50',
+            },
+        },
+        -skip_elab => {
+            default => '0',
+            help => {
+                group => 'CPEF',
+                desc => 'To skip elaboration check for power estimation flow',
+            },
+        },
+        -home_site => {
+            type => 'SCALAR',
+            default => 'png',
+            help => {
+                desc => 'This is to specify which site is the home site for the cluster. Default to Penang. Each cluster should overwrite this value.',
+            },
+        },
+            -msv => {
+                    type => 'SCALAR',
+                    default => '',
+                    help => {
+                            desc => 'This switch enables msv and is used to locate the setup and spt files. Each cluster should overwrite this value.',
+                    },
+            },
+        -assertion_copy_back => {
+            type => 'SCALAR',
+            default => 0,
+            help => {
+                desc => 'This is internal switch to enable/disable the copy back for assertion indicators.',
+            },
+        },
+        -assertion_dir => {
+            type => 'SCALAR',
+            default => "/p/$ENV{PROJECT}/val/assertion/$ip",
+            help => {
+                desc => 'This is predefined path as assertion central area.',
+            }
+        },
+        -proj_name => {
+            type => 'SCALAR',
+            default => $ip,
+            help => {
+                    desc => 'This stores the project name(short form)'
+            },
+        },
+            -hvm_patgen => {
+                    type => 'ARRAY',
+                    default => '',
+                    help => {
+                            desc => 'This is special switch for PDE to keep track types of pattern generation used, this will be written into tinfo.pm',
+                    },
+            },
+
+
+    -test_include_path => {
+                    type => 'SCALAR',
+                    default => "verif/$ip/env",
+                    help => {
+                            desc => 'this will be default include path be used and linked to test regress directory. if it is set to empty this will be skipped',
+                    },
+    },
+
+        -verif_data_mgmt => {
+            action     => 'verification_manager',
+            shortcut   => 'vdm',
+            help       => {
+                desc => 'Enables verification management activities',
+                man => 'Enables verification management activities. Each activity has its own switch, but for that to have any effect, this ivar must be set (think of it as an overall kill-switch).',
+                group => 'VM',
+            },
+        },
+        -vm_cov_converter_opts  => {
+            default => ['--user-group user', '--covprop2fcpcov', '--noassert', '--ubcross'],
+        },
+        -vm_sv2proto => {
+            default => "/p/cse/asic/coral/x86-64_linux26/2.23.3p2/modules/sv2coral/sv2coral.$ENV{VCS_VER}",
+        },
+        -generate_assertion_reports  => {
+            type => 'BOOLEAN',
+            default => 0,
+            help => {
+                desc => 'Generate assertion text reports using urg for each test that has a vdb',
+                group => 'VM',
+            },
+        },
+        -notim => {
+            alias => '-notest_in_model',
+            shortcut => 'trad',
+            help => {
+                desc => 'Select the traditional or non-test-in-model flow for running a test.',
+                group => 'SIMULATION',
+            },
+        },
+        -enable_svcov => {
+            alias => '-vm_convert_coverage -verif_data_mgmt -generate_assertion_reports', #-vm_upload_test_data
+            shortcut => 'svcov',
+            help => {
+                desc => "Script that parses test.sv for `define seed_value <s>, and synchronises it in test.pl, asyncseed and test.seed.\n\t% <script> <full path to test.sv>\n",
+                group => 'VM',
+            },
+        },
+        -collect_data_svcov => {
+            alias => '-verif_data_mgmt -vm_upload_test_data -vm_move_cdb',
+            help => {
+                desc => "Upload test result to indicators database. This is related to verification manager.\n",
+                group => 'VM',
+            },
+        },
+        -vm_pcov_cleanup => {
+            help => {
+                desc => "Remove pcov file after successfully copy the pcov file to the central repo.\n",
+                group => 'VM',
+            },
+        },
+        -xt => {
+            alias => '-x -ace_mode deferred -rtt',
+            help => {
+                desc => 'Run test with /tmp/netbatch regardless if local or batch or GUI run',
+                group => 'SIMULATION',
+            },
+        },
+        #-vm_pcovdir => { default => "/p/$ENV{PROJECT}/val/coverage/$ip",  },
+		  -vm_pcovdir => { default => "/p/sip/proj/$ENV{PROJECT}/coverage/functional/$ip/$ENV{SIP_VARIATION}",  },  ## modified path dmeka 012213
+        -results          => { default => "<-eng>/<-pwa>/results/$ip", },
+        -nbfm_work_area    => { default => "<-eng>/<-pwa>/results/$ip/nbfm", }, ## newly introduced at 1.77.12
+        -model_compile_results_dir => {default => "<-eng>/<-pwa>/target/$ip"},
+        -help_verbose     => { default => 3, },
+        -enable_debussy   => { default => 0, },
+        -unbuffer         => { default => 0, },  # Let's reduce network loading, by allowing the output from Ace to be buffered naturally.  Our users will be smart enough to not think that Ace is hung.
+        -log_nb_stats     => { default => 1, },
+        -enable_exit_cleanup => { default => 1, },
+        -run_tests_in_tmp => { default => 1, },
+        -create_postmortem_file => { default => 1, },
+        -use_simple_testlog_names => { default => 1, },  # See https://vthsd.fm.intel.com/hsd/da_all/default.aspx#da_help/default.aspx?da_help_id=895944 for relevant information.
+
+        # The following three options control how Ace manages the +incdir arguments to vlogan: whether or not to use a standalone file to contain them, and whether to list all or reduce to the unique subset (which may remove some required ones in the process if there are commonly-named areas across different libraries like 'source' or 'common'.)
+        #-create_incdirlist_trigger => { default => 1000000, },  # ylai4 - HSD807898 - workaround to avoid ACE generates incorrect vlogan command line, to be fixed in ACE 1.749
+        -create_incdirlist_trigger => { default => 1, },
+        -use_incdir_fulldepth_searchpath => { default => 1, },
+
+        -dos2unix_logs => { default => 0, },  # Unnecessary, perhaps moreso when turning off the 'unbuffer' mode.
+        -enable_codecov => {
+            shortcut  => 'codecov',
+            default   => 0,
+            help      => {
+                desc  => 'Enable Code Coverage data collection in simulation.  Default is not to run',
+                group => 'CODECOVERAGE',
+            },
+            valid_test_option => 1,
+        },
+
+        -is_ovm => {
+            default   => 0,
+            help      => {
+                desc  => 'Experiment : to tell if it is running ovm simulation, due to come do file command need to be disabled.',
+                group => 'SIMULATION',
+            },
+            valid_test_option => 1,
+        },
+        -projectknobs => {
+            type => 'SCALAR',
+            default => 'PROJ_KNOBS_LPT_LP',
+            help => {
+                desc => 'USB3FE: Project to be used',
+                group => 'SIMULATION',
+            },
+            valid_test_option => 1,
+        },
+        -gen_verbosity => {
+            type    => 'SCALAR',
+            default => '300',
+            help    => {
+                desc  => 'Verbosity level to use for generator/reactor/include area. Default is 3.',
+                group => 'SIMULATION',
+            },
+            valid_test_option => 1,
+        },
+        -bfm_verbosity => {
+            type    => 'SCALAR',
+            default => '3',
+            help    => {
+                desc  => 'Verbosity level to use for all BFMs. Default is 3',
+                group => 'SIMULATION',
+            },
+            valid_test_option => 1,
+        },
+        -post_process_parser        => { default => "$ENV{ACE_HOME}/bin/ace_postsim.pl", },
+        -post_process_wait_times    => { default => [ 5, 10 ], },
+        #-post_process_pattern_file  => { default => "ace/$ip/$ip.pp", },
+        -vlog_opts    => {
+            default => [
+                '-sverilog',
+                '\<vcs\>-debug',               ## to enable SV macro debug capability in DVE, need ACE translator to support
+                '\<vcs\>-debug_all',               ## to enable SV macro debug capability in DVE, need ACE translator to support
+                #'\<vcs\>-cm_exclude_macro',    ## to exclude SV macro from code coverage metrics right from analysis phase, as URG has bug with SV macro
+                '+warn=noCLAWOL',
+                '+warn=noDLLIL-NS',     ## to supress warning for 'Duplicated library in liblist'
+                #'+warn=noSV-LCM-PPWI',  ## to supress warning for 'Package previously wildcard imported'
+                '+define+OVM',
+                '\<vcs\>+define+VCS',
+                '\<vcs\>+define+VCSSIM',
+                #'\<vcs\>+define+ASSERT_ON',
+                #'+define+VCS',
+                #'+define+ASSERT_ON',
+                #'+define+VCSSIM',
+                #'-assert svaext',      ## nhassa2 - comment out for now as VCSMX 2011.03-1 has a bug with usage of it
+                '+define+SVA_LIB_SVA2005',
+                '-timescale=1ps/1ps',
+            ],
+        },
+#        -test_type => {
+#            type    => 'SCALAR',
+#            default => 'avm',
+#            help    => {
+#                    desc    => 'This is to enable tell testbuilder what kind of model it is.(avm|ovm). Currently fc:testbuilder will handle this variables.',
+#                    group   => '',
+#            },
+#        },
+#        -ovm_testname => {
+#            type    => 'SCALAR',
+#            default => __FILE__ . "/" . __LINE__,
+#            help    => {
+#                    desc    => 'This is to specify the test name to be loaded.',
+#                    group   => 'OVM',
+#            },
+#            valid_test_option => 1,
+#        },
+        -create_pertest_list        => { default => 1, },
+        -clean_lib_before_recompile => { default => 1, },
+        -test_source_copy_not_link  => { default => 1, },
+        -pre_clean_test             => { default => 0, },
+        -delete_scrag_logs          => { default => 0, },
+        -elab_models                => { default => 0, },
+        -ignore_empty_testlists     => { default => 1, },
+        -max_num_make_processes     => { default => 1, },
+        -build_test_elab_disable => {
+            type     => 'BOOLEAN',
+            shortcut => 'bte',
+            default  => '0',  # TODO: how to turn off the separate test-compile stage?  This was originally '0' (in the PCH tradition), changing it to '1' appeared to have no effect; look in ace/lib/common/CommonTestBuilder.pm _finish_build_test() for its use, around line 182.
+            help     => {
+                desc  => 'Debug pre-elab test-building process',
+                group => 'PGCB HW SIP',
+            },
+        },
+        -debug_custom_modules => {
+            type     => 'BOOLEAN',
+            shortcut => 'dcm',
+            default  => '0',
+            help     => {
+                desc => 'Enable Debug print statements for custom work-modules',
+                group => 'PGCB HW SIP',
+            },
+        },
+        ## Runsim PORTED switches.
+
+        -vlog_gel => {
+            type        => 'ARRAY',
+                default => [
+         #           "cfg_env/$ip/gel/cfg<-cfg>.gel.vlog",   ## refer to each cluster's udf
+                ],
+            help => {
+                desc =>
+                  'verilog gel files',
+                group => 'SIMULATION',
+            },
+            valid_test_option => 1,
+        },
+        -vhdl_gel => {
+            type => 'ARRAY',
+            valid_test_option => 1,
+                      default => [
+    #       "cfg_env/$ip/gel/cfg<-cfg>.gel.vhdl", ## refer to each cluster's udf
+            ],
+            help    => {
+                desc  => 'VHDL gel files',
+                group => 'SIMULATION',
+            },
+        },
+
+        -cfg => {
+            type    => 'SCALAR',
+            default => '1',
+            help    => {
+                desc  => 'select a config',
+                group => 'SIMULATION',
+            },
+            valid_test_option => 1,
+        },
+        -dft_nf => {
+            type    => 'BOOLEAN',
+            default => 0,
+            help    => {
+                desc  => 'to determine it is dft non functional, to be used in FC under dft_nf model.',
+                group => 'SIMULATION',
+            },
+            valid_test_option => 1,
+        },
+        -dft_f => {
+            type    => 'BOOLEAN',
+            default => 0,
+            help    => {
+                desc  => 'to determine it is dft functional, to be used in FC under dft model.',
+                group => 'SIMULATION',
+            },
+            valid_test_option => 1,
+        },        
+
+        -codegen_debug => {
+            type     => 'SCALAR',
+            default  => '0',
+            help     => {
+                desc  => 'enable CodeGeneration debug  1 - prompt debug, 2 - load makepar with debugger',
+                group => 'PGCB HW SIP',
+            },
+        },
+
+        -visa_insert => {
+            type     => 'BOOLEAN',
+            default  => '0',
+            help     => {
+                desc  => 'run visa insertion during CodeGeneration stage',
+                group => 'PGCB HW SIP:TOP GENERATION',
+            },
+       },  
+
+       -visa_modules_xml => {
+            type     => 'SCALAR',
+            default  => "$ENV{IP_ROOT}/rtl/design_libs/ccg_visa/VisaModules.xml",
+            help     => {
+                desc  => 'visa insertion modules xml file',
+                group => 'PGCB HW SIP:TOP GENERATION',
+            },
+       },
+        
+       -visa_hier_map => {
+            type     => 'SCALAR',
+            default  => __FILE__ . '/' . __LINE__,
+            help     => {
+                desc  => 'visa insertion hierachy mapping , used for processing sig file path from cluster to fullchip hier path',
+                group => 'PGCB HW SIP:TOP GENERATION',
+            },
+       },
+	
+
+        -chefit => {
+            type     => 'BOOLEAN',
+            default  => '0',
+            help     => {
+                desc  => 'Experiment : enable CHEFIT run during CodeGeneration stage',
+                group => 'PGCB HW SIP:TOP GENERATION',
+            },
+        },
+
+        -ucli2config => {
+            type => 'BOOLEAN',
+            default => '0',
+            help => {
+                desc => 'enable VCSMX ucli2config mode for faster simulation, user needs to specify -vcs_hdl_xmr and -vcs_debug_mode at testname.opt, refer ./tests/fc/usb2/usb2_gk/usb2_gk.opt as example',
+            },
+            valid_test_option => 1,
+        },
+        -vcs_hdl_xmr => {
+            type    => 'SCALAR',
+            default => "-P $ENV{VCS_HOME}/include/hdl_xmr.tab",
+            help    => {
+                desc  => "enable VCSMX Cross Module Referencing system task \$hdl_xmr for mixed-language models ",
+                group => 'SIMULATION',
+            },
+            valid_test_option => 1,
+        },
+        # TODO: '-debug_all' is used to enable line-stepping through code in interactive mode; we should consider only enabling this for the "traditional" mode and not the "test-in-model" mode, so that the debug-instrumentation-cost-overhead is only incurred when running in "traditional" mode (as NetBatch regressions would use "test-in-model" mode.)
+        -vcs_debug_mode => {
+            type    => 'SCALAR',
+            #default => '-debug -vdbg_watch',
+            default => '-debug -debug_all -vdbg_watch',
+            help    => {
+                desc  => 'select optimization level for VCSMX',
+                group => 'SIMULATION',
+            },
+            valid_test_option => 1,
+        },
+        -gen_filelist => {
+            type    => 'SCALAR',
+            default => '0',
+            help    => {
+                desc  => 'Dump out RTL file list in format selected by user (e.g. equicheck, cdc, lintra, fishtail, fv)',
+                group => 'SIMULATION',
+            },
+            valid_test_option => 0,
+        },
+
+        __PROTOTYPES => { export => ['TEST'], },
+
+        -vm_move_cdb => {
+            type => 'BOOLEAN',
+            default => 0,
+            prototype => 'TEST',
+            help => {
+                desc => 'Move coverage db to some central location, specified by -vm_pcovdir',
+                group => 'VM',
+            },
+        },
+        -vm_upload_test_data => {
+            type => 'BOOLEAN',
+            default => 0,
+            prototype => 'TEST',
+            shortcut => 'vuted',
+            help => {
+                desc => 'upload basic test data to some db using <-vm_uploader_script>',
+                group => 'VM',
+            },
+        },
+        -vm_uploader_script => {
+            type => 'SCALAR',
+            #default => 'bin/common/upload_to_covdb.pl',
+            default => 'scripts/bin/common/upload_to_covdb.pl',  ## modified path for new model - dmeka 012213
+            help => {
+                param => 'file',
+                desc => 'script that uploads the contents of a tinfo_upload.txt file to SQL coverage db',
+                group => 'VM',
+            },
+        },
+        -remove_old_postsimlogs => {
+            default => 0,
+        },
+
+        -run_type => {  ## this is updates on the usage of dynamic switches that has problem with regress directory, remaining such as regress out would be at -test_subdir in ace/lib/common/Switches.pm
+            type    => 'SCALAR',
+            default => 'REGRESS_OUTPUT',
+            help    => {
+                desc  => 'specify type of simulation run (REGRESS_OUTPUT or INTERACTIVE)',
+                group => 'SIMULATION',
+            },
+            valid_test_option => 1,
+        },
+
+        -test_results_subdir => { default => '',  }, ## this is updates on the usage of dynamic switches that has problem with regress directory, remaining such as regress out would be at -test_subdir in ace/lib/common/Switches.pm
+
+
+        -inter => {
+            help => { desc => "bring up simulator's interactive GUI for simulation", },
+                alias   => '-sd gui -run_type INTERACTIVE -vcs_debug_mode -debug_all ', ## this is updates on the usage of dynamic switches that has problem with regress directory
+			## -elab_opts -assert,dve ##   temp workaround for huge skeleton_new.v file generated 
+        },
+        -nosim => {
+            help => { desc => 'build test and stop before elaboration', },
+            alias   => '-b -bte',
+        },
+
+        -ignored_faulty_hdl_compilers => { default => [ 'debussy', ], },
+
+        # TODO: scrub this.  We should remove legacy PCH-styled end-of-test collaterals management, and move to the pure-ACE way, whatever that is.
+        # Use custom ace_cleanup.pl so cleanup deletes links at <test run>/<tid> level
+        # and does not look for links below <test run>/<tid>/<dir>
+        #-cleanup_script => { default => 'ace/lib/common/ace_cleanup.pl', },
+        -cleanup_pattern_file => { default => 'ace/common/ace_cleanup.pp', },
+        -noclean => {
+            alias   => '-cleanup_mode keeptrk',
+            help => {
+                desc => 'Pick up cluster specific nocleanup ruleset',
+                group => 'PGCB HW SIP',
+            },
+        },
+        -ssl => {
+                alias => '-c -sl co -serial',
+            help => { desc => "Contact CCG DA (Lai, Yit Pin; Lee, Chong Lim; Tan, Lean Sing)\n", },
+        },
+          -sx => {
+            alias => '-x -kif -cpmf -unbuffer -tbt all',
+            help => { desc => "Contact CCG DA (Lai, Yit Pin; Lee, Chong Lim; Tan, Lean Sing)\n", },
+        },
+
+        -init_do => {
+            type => 'ARRAY',
+            valid_test_option => 1,
+            prototype         => 'TEST',
+            search => 0,
+            overridable => {
+                      default => ["verif/$ip/do_files/init.do", ],
+            },
+            clear_default => 1,
+            help => {
+                desc => 'list of user specified initalization DO file. Applied before simulations.',
+                man => 'List of do-files (relative paths allowed) that are passed to simulation cmd-line if is set. The do-files are passed in the order specified. If relative paths are used, the ace search path is used to find files.',
+                group => 'SIMULATION,DOFILES',
+            },
+
+        },
+        -post_do => {
+            type => 'ARRAY',
+            valid_test_option => 1,
+            prototype         => 'TEST',
+            search => 0,
+            overridable => {
+                      default => ["verif/$ip/do_files/post.do"],
+            },
+            clear_default => 1,
+            help => {
+                desc => 'list of user specified post-simulation DO file. Applied after simulations.',
+                man => 'List of do-files (relative paths allowed) that are passed to simulation cmd-line if is set. The do-files are passed in the order specified. If relative paths are used, the ace search path is used to find files.',
+                group => 'SIMULATION,DOFILES',
+            },
+
+        },
+        -sim_runlimit_algo => {
+            type              => 'SCALAR',
+            prototype         => 'TEST',
+            overridable       => { default => 'SUM', },
+            valid_test_option => 1,
+            help              => {
+                desc  => 'Simulation limit calculation algorithm, could be SUM or IF_THEN_ELSE, default is SUM. ',
+                group => 'SIMULATION',
+            },
+        },
+        -exit_trap_signals  => {
+            clear_default => 1,
+            default => ['2 9 10 11 15'], # ylai4 - HSD809854 - added signal-10 to assist debug on mysterious job kills in HD
+        },
+        -gcc_version => {
+            type => 'SCALAR',
+            default => "/usr/intel/pkgs/gcc/4.2.2/${cpu_path2}",
+            help => {desc => 'specify gcc version to be used in elab_opts',},
+        },
+        -elab_opts => {
+            default => [
+                '-licqueue',
+                '-ntb_opts ext+sv_fmt',
+                '-V',
+                '<-vcs_debug_mode>',
+                '-xlrm',
+                #'<-vcs_hdl_xmr>',
+                '+error+5000',  # Is there a downside to a large value here?
+                '-sverilog',
+                '-lca',
+                '+vcs+lic+wait',
+                '-picarchive',      ## this switch will replace -marchive starting 2011.03x
+
+                '+lint=TFIPC',   # Enable the display of additional unconnected ports information.
+                '+lint=PCWM',   # Enable the display of additional port-width-mismatch information.
+
+                # Elaboration options which specify which warnings to flag, which warnings to elevate to errors, and so on.
+                # Here is a sample of all those warnings seen in an ME cluster regression on LPT-H:
+                #      1        1 Warning-[IPC] Illegal high conn for port connect
+                #      2        1 Warning-[LCA_FEATURES_ENABLED] Usage warning
+                #      3        1 Warning-[NO-GENERIC-MATCH-FILE] Generic or parameter not found
+                #      4        1 Warning-[TMR] Text macro redefined
+                #      5        2 Warning-[DLLIL-NS] Duplicate logical library in liblist
+                #      6        2 Warning-[GENERICFILE-EMPTY] Generic file empty or invalid
+                #      7        4 Warning-[CPBRM] Precision or Sign Mismatch
+                #      8        4 Warning-[FILE_OPENED_WARN] File already opened
+                #      9        4 Warning-[PSBU] Invalid values in bin
+                #     10        7 Warning-[IDTS] Ignoring dynamic type sensitivity
+                #     11        7 Warning-[SVA-LCDNAWPSC] Lead and property/sequence clocks differ
+                #     12       11 Warning-[CFLL-NS] Cannot find logical library
+                #     13       20 Warning-[FCPSBU] Invalid values in bin
+                #     14       20 Warning-[FCPSM] Mismatch in bin range values
+                #     15       29 Warning-[ENUMASSIGN] Illegal assignment to enum variable
+                #     16       32 Warning-[OSVF-NPVIUFPI] Obsolete System Verilog feature
+                #     17       62 Warning-[PCWM-W] Port connection width mismatch
+                #     18      100 Warning-[SVA-OPTCOV-PABNE] Pass Action Blocks not executed
+                #     19      324 Warning-[SVA-LDRF] Large delay or repetition found.
+
+                # Elevate the following warnings to errors:  those that involve connectivity-related issues primarily.  Later on, we'll consider coverage- and assertion-related warnings for such elevation.
+                # NOTE: the following warning-promotions have been "pushed down" to each IP's _local_ivars.udf file, since some IPs such as CSE have errors (requiring work.)
+                #'+vcs+error=CFLL-NS',  # Cannot find logical library
+                #'+vcs+error=CPBRM',  # Precision or Sign Mismatch
+                #'+vcs+error=ENUMASSIGN',  # Illegal assignment to enum variable
+                #'+vcs+error=GENERICFILE-EMPTY',  # Generic file empty or invalid
+                #'+vcs+error=INAV',  # What is this one?
+                #'+vcs+error=IPC',  # Illegal high conn for port connect
+                #'+vcs+error=NO-GENERIC-MATCH-FILE',  # Generic or parameter not found
+                #'+vcs+error=PCWM-W',   # Port connection width mismatch
+                #'+vcs+error=SVA-LCDNAWPSC',  # Lead and property/sequence clocks differ
+                #'+vcs+error=TFIPC-L',  # Elevate this "Warning-[TFIPC-L] Too few instance port connections" coding-error to an actual error.  Combats the growth of this issue.
+                #'+vcs+error=ETLIIC',   # Elevate the "Warning-[ETLIIC] Extended this/super lookup" warning.  This can arise when someone uses 'this.<member>' within an inline-constraint, and that member doesn't belong to the class being randomized, but rather a member of the class containing the randomize call.  VCS can handle this, but will deprecate that at some future time.
+
+                #'-fastcomp=all',   ## ylai4 - HSD795574 - =all is causing Null Object Access error, comment out for now
+                '-fastcomp',
+                '-ilcg_vdbg',
+                '-ilcg_coverage',
+                '-assert delayopt+cov1stMatch+first_match_all+enable_rep_opt=200',
+                '-j8',
+                '-L<-gcc_version>',
+                '-lstdc++',
+                '-assert enable_hier',
+                '-assert enable_diag',  ## ylai4 - HSD809251 - Enables further control of SystemVerilog assertions result reporting with runtime options.
+                #'-assert svaext+delayopt+make_infinite',
+                '-assert delayopt+make_infinite',
+                '-fsdb',
+                #'-config_verbose', #show which library loaded or `setenv VCS_DISPLAY_DB_NAME 1`
+            ],
+        },
+        -elab_fsdb_opts => { default => [ '+vpi', '+vcsd', '+memcbk', ], },
+        -simv_args => {
+            default => [
+                '+nowarn=TMDHN',
+                '-licqueue',
+                '-assert nopostproc',
+                '-assert optcov+warnLargeMem=20',
+                '-assert maxfail=1500',      ## Changing it more than 100 WAIP for  https://vthsd.fm.intel.com/hsd/da_all/da_help/default.aspx?da_help_id=810050 - Assertions failed to print else statements..
+                '-covg_cont_on_error',
+                '+ntb_report_cnst_xzsve_as_warning=1',
+                '+ntb_solver_no_error_missing_index=1',
+                '+ntb_stop_on_constraint_solver_error=1',
+                (exists $ENV{PCH_USE_PRECOMP_LIBS}) ? '' : '+vcs+flush+all',
+                #'-hdlxmr_error',
+                #'-ucli',  # Remove this if using TIM, as no do file is created (-ucli and no do file equals hang-at-ucli-prompt.)
+                #'-cm line+cond+branch+fsm+tgl+assert -cm_dir coverage.vdb',  # The '-cm_dir <vdb_dir>' value here specifies the directory used by VCS to store the functional/code-coverage "data" from a simulation.
+                '+vcs+learn+pli',   ## dump out pli_learn.tab for potential reuse
+                '+ENABLE_RAL_MONITOR',  # Enable the RAL monitor's tracker in all our environments.  This is optional, no MOATs currently use this for example.  But it is informative, and justifies being enabled by default.
+                '+SLA_SM_ADDR_CHECK_FATAL',  # Introduced in Saola release v20130225, this plusarg enables triggering a fatal error upon SM accesses outside a region (prevously, such accesses would be silently dropped.)
+            ],
+        },
+        -enable_single_top_module => {
+            default => 1,
+        },
+    }, #InterfaceVars
+
+    # NOTE: this CheckerData section was moved into each IP's _hdl.udf file, in order to promote the re-use of this post-simulation script execution.
+    #CheckerData => {
+    #    $ip => {
+    #        # The exit-status of each "script" will contribute to the pass/fail status of the test.  For example, use '/bin/false' to fail the test always.
+    #        # NOTE: three severe limitations exist for this otherwise flexible Ace facility: 
+    #        #  1) The "script" specified in the array is assumed to be a stand-alone executable (or script), but not a shell invocation.
+    #        #     For example, you could not simply do 'grep ^ERROR mt_*.out && /bin/false || /bin/true' as a simple way of failing the test
+    #        #     upon detecting an error in some arbitrary stand-alone file.  Ace will try to find a command whose name is that entire string,
+    #        #     which naturally won't exist.  So, the implication is that you would wrap that up in some script, and specify that.
+    #        #  2) The 'scripts' string is executed with its output (both STDOUT and STDERR?) redirected to a file whose name is created
+    #        #     by Ace: if a path is specified, the last item in the path (i.e. the executable's file name) is taken as the output filename root,
+    #        #     with the suffix of '.out' added.  So, for example, if you use 'scripts => ['/bin/false']' as a very simple example, then the 
+    #        #     output of that will be redirected to 'false.out'.  Yeah, that's extremely limiting, in terms of re-use across environments.
+    #        #     Lean Sing in DA will work with Vlad to enhance this so that the output file name can be specified here.
+    #        #  3) Ace will summarize the results (exit-code and output) in the postmortem.log file, using the upper-case version of that same
+    #        #     root ('FALSE' in the above example.)
+    #        # Implications of the above are that you must go through some contortions in order to "uniquify" the strings as this collateral is
+    #        # re-used across environments.  Otherwise you'll find conflicts at some point, between IPs within an SoC environment.
+    #        post_simulation => {
+    #            #scripts             => [ 'scripts/bin/common/postsim_checks.pl: ', ],
+    #            #scripts             => [ '/bin/false', ],
+    #            -enable_flag        => '-enable_runsim_postsim_checks',
+    #            -error_if_not_found => 1,
+    #        },
+    #    },
+    #}, #CheckerData
+
+    HDLSpec => {
+        -src_type => {
+            SystemVerilog => {
+                -extension => '/\.(sv|svh|sva|vs)$/', #this to support both svh and sva changes detection for ACE
+            },
+        },
+        -hdl_compiler => {
+            vcs => {
+                 -vlogToolArgs   => '-sverilog',
+                 -iniContents    => <<'EOF',
+------------------------------------------------
+-- Common VCSMX parameters
+------------------------------------------------
+TIME_RESOLUTION = 1PS
+TIMEBASE        = PS
+XLRM_TIME       = TRUE
+XLRM            = TRUE
+ASSERT_STOP     = NOSTOP
+LIBRARY_ALIAS   = TRUE
+LIBRARY_SCAN    = TRUE
+MAX_DELTA       = 100000
+
+UPF  : $VCS_HOME/$VCS_TARGET_ARCH/packages/upf
+LPA  : $VCS_HOME/$VCS_TARGET_ARCH/packages/lpa
+EOF
+            },
+
+            debussy => {
+                 -vcomToolArgs   => '-93 -onfatalerrorcontinue -stdout',
+                 -vlogToolArgs   => '-ignorekwd_config -cunit -stdout +systemverilogext+.sv',
+            },
+
+        },
+        -filter => {
+		    -tag_definitions => {
+			    visainsert => {
+		            default => 'nonvisainsert',
+			    },
+		    },
+	 	    # Filter Definition
+            VisaInsertion => {
+                -tags        => ['visainsert'],
+                -macros      => undef,
+                -dump_format => 'pl',
+                -modules     => ['Ace::Filters::Tag'],
+            },
+		},
+    },  # HDLSpec
+);

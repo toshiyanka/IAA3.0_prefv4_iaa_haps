@@ -1,0 +1,50 @@
+#--*-perl-*------------------
+
+%audf = (
+   HDLSpec => {
+      # Suggested by Russ Jackson (Ace developer) in https://vthsd.fm.intel.com/hsd/da_all/da_help/default.aspx?da_help_id=577466, to support Ace detecting changes in source files, and recompiling as necessary.
+      -src_type => {
+         SystemVerilog => {
+            # Add .svh file suffix.  (Ace doesn't look at .svh files' timestamps by default, like it does for .v and .sv.)
+            -extension => '/\.svh$/',
+         },
+      },
+      pgcb_collection => {
+         libs => {
+            pgcb_randtb_lib => {
+               -hdl_spec => [ 'verif/randtb/randtb.hdl', ],
+               -dependent_libs => [ 'ClockDomainController', 'pgcbunit', 'pcguunit', ],
+               -sub_libs => [ "$ENV{CTECH_LIB_NAME}" ],
+            },
+         },
+         models => {
+#            cdc_pgcbunit => {
+#               top => 'pgcbunit.pgcbunit',
+#               use => [
+#                  'pgcbunit:pgcbunit',
+#               ],
+#            },
+            pgcb_collection => {
+               top => 'pgcb_randtb_lib.RandTestbench',
+               use => [
+                  'pgcbunit:pgcbunit',
+                  'ClockDomainController:ClockDomainController',
+                  'pcguunit:pcguunit',
+               ],
+               libs => [
+                  'pgcb_randtb_lib',
+               ],
+               import => {
+               },
+               export => {
+                  libs => [
+                     'ClockDomainController',
+                     'pcguunit',
+                     'pgcbunit'
+                  ]
+               }
+            },
+         }, #end models
+      },
+   }, # end of HDLSpec
+);

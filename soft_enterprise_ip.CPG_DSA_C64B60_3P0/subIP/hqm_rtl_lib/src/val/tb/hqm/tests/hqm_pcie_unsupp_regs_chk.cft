@@ -1,0 +1,1505 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+
+###################################
+# Wait for reset to be done (including hardware memory init)
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+
+
+###################################
+# Test 1: ACS regs
+###################################
+wr hqm_pf_cfg_i.acs_cap_control 0xffffffff
+rd hqm_pf_cfg_i.acs_cap_control 0x0 0xffffffff
+wr hqm_pf_cfg_i.acs_cap_control 0x55555555
+rd hqm_pf_cfg_i.acs_cap_control 0x0 0xffffffff
+wr hqm_pf_cfg_i.acs_cap_control 0xaaaaaaaa
+rd hqm_pf_cfg_i.acs_cap_control 0x0 0xffffffff
+wr hqm_pf_cfg_i.acs_cap_control 0x0
+rd hqm_pf_cfg_i.acs_cap_control 0x0 0xffffffff
+
+###################################
+# Test 2: VF_Migration regs
+###################################
+
+
+
+###################################
+# Test 3: PM regs
+###################################
+
+wr hqm_pf_cfg_i.pm_cap_control_status 0x55555555
+rd hqm_pf_cfg_i.pm_cap_control_status 0x9 0xffffffff
+
+rd config_master.cfg_diagnostic_reset_status 
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[0].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[1].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[2].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[3].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[4].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[5].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[6].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[7].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[8].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[9].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[10].vf_to_pf_mailbox[0]
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[11].vf_to_pf_mailbox[0]
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[12].vf_to_pf_mailbox[0]
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[13].vf_to_pf_mailbox[0]
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[14].vf_to_pf_mailbox[0]
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[15].vf_to_pf_mailbox[0]
+
+wr hqm_pf_cfg_i.pm_cap_control_status 0xaaaaaaaa
+rd hqm_pf_cfg_i.pm_cap_control_status 0xa 0xffffffff
+
+
+rd config_master.cfg_diagnostic_reset_status 
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[0].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[1].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[2].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[3].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[4].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[5].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[6].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[7].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[8].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[9].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[10].vf_to_pf_mailbox[0]
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[11].vf_to_pf_mailbox[0]
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[12].vf_to_pf_mailbox[0]
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[13].vf_to_pf_mailbox[0]
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[14].vf_to_pf_mailbox[0]
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[15].vf_to_pf_mailbox[0]
+
+wr hqm_pf_cfg_i.pm_cap_control_status 0xffffffff
+rd hqm_pf_cfg_i.pm_cap_control_status 0xb 0xffffffff
+idle 1000
+
+rde config_master.cfg_diagnostic_reset_status 
+####AY_RM_VF_V30  rde hqm_func_vf_bar[0].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  rde hqm_func_vf_bar[1].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  rde hqm_func_vf_bar[2].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  rde hqm_func_vf_bar[3].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  rde hqm_func_vf_bar[4].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  rde hqm_func_vf_bar[5].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  rde hqm_func_vf_bar[6].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  rde hqm_func_vf_bar[7].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  rde hqm_func_vf_bar[8].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  rde hqm_func_vf_bar[9].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  rde hqm_func_vf_bar[10].vf_to_pf_mailbox[0]
+####AY_RM_VF_V30  rde hqm_func_vf_bar[11].vf_to_pf_mailbox[0]
+####AY_RM_VF_V30  rde hqm_func_vf_bar[12].vf_to_pf_mailbox[0]
+####AY_RM_VF_V30  rde hqm_func_vf_bar[13].vf_to_pf_mailbox[0]
+####AY_RM_VF_V30  rde hqm_func_vf_bar[14].vf_to_pf_mailbox[0]
+####AY_RM_VF_V30  rde hqm_func_vf_bar[15].vf_to_pf_mailbox[0]
+
+wr hqm_pf_cfg_i.pm_cap_control_status 0x55555555
+rd hqm_pf_cfg_i.pm_cap_control_status 0x9 0xffffffff
+
+rde config_master.cfg_diagnostic_reset_status 
+####AY_RM_VF_V30  rde hqm_func_vf_bar[0].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  rde hqm_func_vf_bar[1].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  rde hqm_func_vf_bar[2].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  rde hqm_func_vf_bar[3].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  rde hqm_func_vf_bar[4].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  rde hqm_func_vf_bar[5].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  rde hqm_func_vf_bar[6].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  rde hqm_func_vf_bar[7].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  rde hqm_func_vf_bar[8].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  rde hqm_func_vf_bar[9].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  rde hqm_func_vf_bar[10].vf_to_pf_mailbox[0]
+####AY_RM_VF_V30  rde hqm_func_vf_bar[11].vf_to_pf_mailbox[0]
+####AY_RM_VF_V30  rde hqm_func_vf_bar[12].vf_to_pf_mailbox[0]
+####AY_RM_VF_V30  rde hqm_func_vf_bar[13].vf_to_pf_mailbox[0]
+####AY_RM_VF_V30  rde hqm_func_vf_bar[14].vf_to_pf_mailbox[0]
+####AY_RM_VF_V30  rde hqm_func_vf_bar[15].vf_to_pf_mailbox[0]
+
+wr hqm_pf_cfg_i.pm_cap_control_status 0xaaaaaaaa
+rd hqm_pf_cfg_i.pm_cap_control_status 0xa 0xffffffff
+
+rde config_master.cfg_diagnostic_reset_status 
+####AY_RM_VF_V30  rde hqm_func_vf_bar[0].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  rde hqm_func_vf_bar[1].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  rde hqm_func_vf_bar[2].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  rde hqm_func_vf_bar[3].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  rde hqm_func_vf_bar[4].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  rde hqm_func_vf_bar[5].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  rde hqm_func_vf_bar[6].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  rde hqm_func_vf_bar[7].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  rde hqm_func_vf_bar[8].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  rde hqm_func_vf_bar[9].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  rde hqm_func_vf_bar[10].vf_to_pf_mailbox[0]
+####AY_RM_VF_V30  rde hqm_func_vf_bar[11].vf_to_pf_mailbox[0]
+####AY_RM_VF_V30  rde hqm_func_vf_bar[12].vf_to_pf_mailbox[0]
+####AY_RM_VF_V30  rde hqm_func_vf_bar[13].vf_to_pf_mailbox[0]
+####AY_RM_VF_V30  rde hqm_func_vf_bar[14].vf_to_pf_mailbox[0]
+####AY_RM_VF_V30  rde hqm_func_vf_bar[15].vf_to_pf_mailbox[0]
+
+###################################
+## Induce a PF FLR to enter D0act state ##
+###################################
+wr hqm_pf_cfg_i.pm_cap_control_status 0x0
+idle 200
+idle 1200
+
+###################################
+##FLR related## 
+##rd hqm_pf_cfg_i.pcie_cap_device_control 0x0020 0x8000 
+##poll hqm_pf_cfg_i.pcie_cap_device_status 0x0 0x00200000 10000
+##
+###Disable MSI in order to avoid any unattended INT later##
+##wr  hqm_pf_cfg_i.msix_cap_control 0x0000
+##
+####Disable Bus Master, INTX and Mem Txn enable bit from device_command##
+##wr  hqm_pf_cfg_i.device_command 0x400
+##wr  hqm_pf_cfg_i.pcie_cap_device_control 0x8000
+##idle 1200
+##rd hqm_pf_cfg_i.pcie_cap_device_control 0x0000 0x8000
+##
+##FLR related## 
+###################################
+
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+###################################
+# Setup FUNC_VF BAR to a base address of 0x00000000_xxxxxxxx
+###################################
+# 00 VFs
+###################################
+# Enable VF and VF memory operations
+###################################
+
+###################################
+# Wait for reset to be done (including hardware memory init)
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+
+sai hostia_boot_sai     # Should be SAI index 4
+
+########################################
+#read all HQM CSR policy register 
+wr hqm_sif_csr.hqm_csr_cp_lo 0xFFFFFFFF
+wr hqm_sif_csr.hqm_csr_cp_hi 0xFFFFFFFF
+rd hqm_sif_csr.hqm_csr_cp_lo 0xFFFFFFFF
+rd hqm_sif_csr.hqm_csr_cp_hi 0xFFFFFFFF
+
+sai hostia_ucode_sai    # Should be SAI index 1
+############################################
+#HQM CSR Read Access Policy Low Register
+wr hqm_sif_csr.hqm_csr_rac_lo 0xFFFFFFFF
+wr hqm_sif_csr.hqm_csr_rac_hi 0xFFFFFFFF
+rd hqm_sif_csr.hqm_csr_rac_lo 0xFFFFFFFF
+rd hqm_sif_csr.hqm_csr_rac_hi 0xFFFFFFFF
+
+idle 500
+rd config_master.cfg_diagnostic_reset_status 
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[0].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[1].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[2].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[3].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[4].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[5].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[6].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[7].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[8].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[9].vf_to_pf_mailbox[0] 
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[10].vf_to_pf_mailbox[0]
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[11].vf_to_pf_mailbox[0]
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[12].vf_to_pf_mailbox[0]
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[13].vf_to_pf_mailbox[0]
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[14].vf_to_pf_mailbox[0]
+####AY_RM_VF_V30  #### rd hqm_func_vf_bar[15].vf_to_pf_mailbox[0]
+
+### ------------------------------------------ ###
+### ---- Read the status registers per VF ---- ###
+### ------------------------------------------ ###
+idle 100
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].PCIE_CAP_DEVICE_STATUS 0x0
+
+idle 100
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].AER_CAP_UNCORR_ERR_STATUS 0x000000
+
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].AER_CAP_CORR_ERR_STATUS 0x0000
+
+### ------------------------------------------ ###
+
+### ------------------------------------------ ###
+### ----------- VF FLR related --------------- ### 
+### ------------------------------------------ ###
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].pcie_cap_device_control 0x0000 0x8020 
+poll hqm_vf_cfg_i[0].pcie_cap_device_status 0x0 0x00000020 10000
+
+##Disable Bus Master, INTX and Mem Txn enable bit from device_command##
+wr  hqm_vf_cfg_i[0].device_command 0x400
+wr  hqm_vf_cfg_i[0].pcie_cap_device_control 0x8000
+idle 1200
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].pcie_cap_device_control 0x0000 0x8000
+
+### ----------- VF FLR related --------------- ### 
+### ------------------------------------------ ###
+
+### ------------------------------------------ ###
+idle 100
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].PCIE_CAP_DEVICE_STATUS 0x0
+
+idle 100
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].AER_CAP_UNCORR_ERR_STATUS 0x000000
+
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].AER_CAP_CORR_ERR_STATUS 0x0000
+
+### ------------------------------------------ ###
+
+### ------------------------------------------ ###
+### ----------- VF FLR related --------------- ### 
+### ------------------------------------------ ###
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].pcie_cap_device_control 0x0000 0x8020 
+poll hqm_vf_cfg_i[1].pcie_cap_device_status 0x0 0x00000020 10000
+
+##Disable Bus Master, INTX and Mem Txn enable bit from device_command##
+wr  hqm_vf_cfg_i[1].device_command 0x400
+wr  hqm_vf_cfg_i[1].pcie_cap_device_control 0x8000
+idle 1200
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].pcie_cap_device_control 0x0000 0x8000
+
+### ----------- VF FLR related --------------- ### 
+### ------------------------------------------ ###
+
+### ------------------------------------------ ###
+idle 100
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].PCIE_CAP_DEVICE_STATUS 0x0
+
+idle 100
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].AER_CAP_UNCORR_ERR_STATUS 0x000000
+
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].AER_CAP_CORR_ERR_STATUS 0x0000
+
+### ------------------------------------------ ###
+
+### ------------------------------------------ ###
+### ----------- VF FLR related --------------- ### 
+### ------------------------------------------ ###
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].pcie_cap_device_control 0x0000 0x8020 
+poll hqm_vf_cfg_i[2].pcie_cap_device_status 0x0 0x00000020 10000
+
+##Disable Bus Master, INTX and Mem Txn enable bit from device_command##
+wr  hqm_vf_cfg_i[2].device_command 0x400
+wr  hqm_vf_cfg_i[2].pcie_cap_device_control 0x8000
+idle 1200
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].pcie_cap_device_control 0x0000 0x8000
+
+### ----------- VF FLR related --------------- ### 
+### ------------------------------------------ ###
+
+### ------------------------------------------ ###
+idle 100
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].PCIE_CAP_DEVICE_STATUS 0x0
+
+idle 100
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].AER_CAP_UNCORR_ERR_STATUS 0x000000
+
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].AER_CAP_CORR_ERR_STATUS 0x0000
+
+### ------------------------------------------ ###
+
+
+### ------------------------------------------ ###
+### ----------- VF FLR related --------------- ### 
+### ------------------------------------------ ###
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].pcie_cap_device_control 0x0000 0x8020 
+poll hqm_vf_cfg_i[3].pcie_cap_device_status 0x0 0x00000020 10000
+
+##Disable Bus Master, INTX and Mem Txn enable bit from device_command##
+wr  hqm_vf_cfg_i[3].device_command 0x400
+wr  hqm_vf_cfg_i[3].pcie_cap_device_control 0x8000
+idle 1200
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].pcie_cap_device_control 0x0000 0x8000
+
+### ----------- VF FLR related --------------- ### 
+### ------------------------------------------ ###
+
+### ------------------------------------------ ###
+idle 100
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].PCIE_CAP_DEVICE_STATUS 0x0
+
+idle 100
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].AER_CAP_UNCORR_ERR_STATUS 0x000000
+
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].AER_CAP_CORR_ERR_STATUS 0x0000
+
+### ------------------------------------------ ###
+
+
+### ------------------------------------------ ###
+### ----------- VF FLR related --------------- ### 
+### ------------------------------------------ ###
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].pcie_cap_device_control 0x0000 0x8020 
+poll hqm_vf_cfg_i[4].pcie_cap_device_status 0x0 0x00000020 10000
+
+##Disable Bus Master, INTX and Mem Txn enable bit from device_command##
+wr  hqm_vf_cfg_i[4].device_command 0x400
+wr  hqm_vf_cfg_i[4].pcie_cap_device_control 0x8000
+idle 1200
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].pcie_cap_device_control 0x0000 0x8000
+
+### ----------- VF FLR related --------------- ### 
+### ------------------------------------------ ###
+
+### ------------------------------------------ ###
+idle 100
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].PCIE_CAP_DEVICE_STATUS 0x0
+
+idle 100
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].AER_CAP_UNCORR_ERR_STATUS 0x000000
+
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].AER_CAP_CORR_ERR_STATUS 0x0000
+
+### ------------------------------------------ ###
+
+
+### ------------------------------------------ ###
+### ----------- VF FLR related --------------- ### 
+### ------------------------------------------ ###
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].pcie_cap_device_control 0x0000 0x8020 
+poll hqm_vf_cfg_i[5].pcie_cap_device_status 0x0 0x00000020 10000
+
+##Disable Bus Master, INTX and Mem Txn enable bit from device_command##
+wr  hqm_vf_cfg_i[5].device_command 0x400
+wr  hqm_vf_cfg_i[5].pcie_cap_device_control 0x8000
+idle 1200
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].pcie_cap_device_control 0x0000 0x8000
+
+### ----------- VF FLR related --------------- ### 
+### ------------------------------------------ ###
+
+### ------------------------------------------ ###
+idle 100
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].PCIE_CAP_DEVICE_STATUS 0x0
+
+idle 100
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].AER_CAP_UNCORR_ERR_STATUS 0x000000
+
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].AER_CAP_CORR_ERR_STATUS 0x0000
+
+### ------------------------------------------ ###
+
+
+### ------------------------------------------ ###
+### ----------- VF FLR related --------------- ### 
+### ------------------------------------------ ###
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].pcie_cap_device_control 0x0000 0x8020 
+poll hqm_vf_cfg_i[6].pcie_cap_device_status 0x0 0x00000020 10000
+
+##Disable Bus Master, INTX and Mem Txn enable bit from device_command##
+wr  hqm_vf_cfg_i[6].device_command 0x400
+wr  hqm_vf_cfg_i[6].pcie_cap_device_control 0x8000
+idle 1200
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].pcie_cap_device_control 0x0000 0x8000
+
+### ----------- VF FLR related --------------- ### 
+### ------------------------------------------ ###
+
+### ------------------------------------------ ###
+idle 100
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].PCIE_CAP_DEVICE_STATUS 0x0
+
+idle 100
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].AER_CAP_UNCORR_ERR_STATUS 0x000000
+
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].AER_CAP_CORR_ERR_STATUS 0x0000
+
+### ------------------------------------------ ###
+
+
+### ------------------------------------------ ###
+### ----------- VF FLR related --------------- ### 
+### ------------------------------------------ ###
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].pcie_cap_device_control 0x0000 0x8020 
+poll hqm_vf_cfg_i[7].pcie_cap_device_status 0x0 0x00000020 10000
+
+##Disable Bus Master, INTX and Mem Txn enable bit from device_command##
+wr  hqm_vf_cfg_i[7].device_command 0x400
+wr  hqm_vf_cfg_i[7].pcie_cap_device_control 0x8000
+idle 1200
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].pcie_cap_device_control 0x0000 0x8000
+
+### ----------- VF FLR related --------------- ### 
+### ------------------------------------------ ###
+
+### ------------------------------------------ ###
+idle 100
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].PCIE_CAP_DEVICE_STATUS 0x0
+
+idle 100
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].AER_CAP_UNCORR_ERR_STATUS 0x000000
+
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].AER_CAP_CORR_ERR_STATUS 0x0000
+
+### ------------------------------------------ ###
+
+
+### ------------------------------------------ ###
+### ----------- VF FLR related --------------- ### 
+### ------------------------------------------ ###
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].pcie_cap_device_control 0x0000 0x8020 
+poll hqm_vf_cfg_i[8].pcie_cap_device_status 0x0 0x00000020 10000
+
+##Disable Bus Master, INTX and Mem Txn enable bit from device_command##
+wr  hqm_vf_cfg_i[8].device_command 0x400
+wr  hqm_vf_cfg_i[8].pcie_cap_device_control 0x8000
+idle 1200
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].pcie_cap_device_control 0x0000 0x8000
+
+### ----------- VF FLR related --------------- ### 
+### ------------------------------------------ ###
+
+### ------------------------------------------ ###
+idle 100
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].PCIE_CAP_DEVICE_STATUS 0x0
+
+idle 100
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].AER_CAP_UNCORR_ERR_STATUS 0x000000
+
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].AER_CAP_CORR_ERR_STATUS 0x0000
+
+### ------------------------------------------ ###
+
+
+### ------------------------------------------ ###
+### ----------- VF FLR related --------------- ### 
+### ------------------------------------------ ###
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].pcie_cap_device_control 0x0000 0x8020 
+poll hqm_vf_cfg_i[9].pcie_cap_device_status 0x0 0x00000020 10000
+
+##Disable Bus Master, INTX and Mem Txn enable bit from device_command##
+wr  hqm_vf_cfg_i[9].device_command 0x400
+wr  hqm_vf_cfg_i[9].pcie_cap_device_control 0x8000
+idle 1200
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].pcie_cap_device_control 0x0000 0x8000
+
+### ----------- VF FLR related --------------- ### 
+### ------------------------------------------ ###
+
+### ------------------------------------------ ###
+idle 100
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].PCIE_CAP_DEVICE_STATUS 0x0
+
+idle 100
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].AER_CAP_UNCORR_ERR_STATUS 0x000000
+
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].AER_CAP_CORR_ERR_STATUS 0x0000
+
+### ------------------------------------------ ###
+
+
+### ------------------------------------------ ###
+### ----------- VF FLR related --------------- ### 
+### ------------------------------------------ ###
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].pcie_cap_device_control 0x0000 0x8020 
+poll hqm_vf_cfg_i[10].pcie_cap_device_status 0x0 0x00000020 10000
+
+##Disable Bus Master, INTX and Mem Txn enable bit from device_command##
+wr  hqm_vf_cfg_i[10].device_command 0x400
+wr  hqm_vf_cfg_i[10].pcie_cap_device_control 0x8000
+idle 1200
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].pcie_cap_device_control 0x0000 0x8000
+
+### ----------- VF FLR related --------------- ### 
+### ------------------------------------------ ###
+
+### ------------------------------------------ ###
+idle 100
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].PCIE_CAP_DEVICE_STATUS 0x0
+
+idle 100
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].AER_CAP_UNCORR_ERR_STATUS 0x000000
+
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].AER_CAP_CORR_ERR_STATUS 0x0000
+
+### ------------------------------------------ ###
+
+
+### ------------------------------------------ ###
+### ----------- VF FLR related --------------- ### 
+### ------------------------------------------ ###
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].pcie_cap_device_control 0x0000 0x8020 
+poll hqm_vf_cfg_i[11].pcie_cap_device_status 0x0 0x00000020 10000
+
+##Disable Bus Master, INTX and Mem Txn enable bit from device_command##
+wr  hqm_vf_cfg_i[11].device_command 0x400
+wr  hqm_vf_cfg_i[11].pcie_cap_device_control 0x8000
+idle 1200
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].pcie_cap_device_control 0x0000 0x8000
+
+### ----------- VF FLR related --------------- ### 
+### ------------------------------------------ ###
+
+### ------------------------------------------ ###
+idle 100
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].PCIE_CAP_DEVICE_STATUS 0x0
+
+idle 100
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].AER_CAP_UNCORR_ERR_STATUS 0x000000
+
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].AER_CAP_CORR_ERR_STATUS 0x0000
+
+### ------------------------------------------ ###
+
+
+### ------------------------------------------ ###
+### ----------- VF FLR related --------------- ### 
+### ------------------------------------------ ###
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].pcie_cap_device_control 0x0000 0x8020 
+poll hqm_vf_cfg_i[12].pcie_cap_device_status 0x0 0x00000020 10000
+
+##Disable Bus Master, INTX and Mem Txn enable bit from device_command##
+wr  hqm_vf_cfg_i[12].device_command 0x400
+wr  hqm_vf_cfg_i[12].pcie_cap_device_control 0x8000
+idle 1200
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].pcie_cap_device_control 0x0000 0x8000
+
+### ----------- VF FLR related --------------- ### 
+### ------------------------------------------ ###
+
+### ------------------------------------------ ###
+idle 100
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].PCIE_CAP_DEVICE_STATUS 0x0
+
+idle 100
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].AER_CAP_UNCORR_ERR_STATUS 0x000000
+
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].AER_CAP_CORR_ERR_STATUS 0x0000
+
+### ------------------------------------------ ###
+
+
+### ------------------------------------------ ###
+### ----------- VF FLR related --------------- ### 
+### ------------------------------------------ ###
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].pcie_cap_device_control 0x0000 0x8020 
+poll hqm_vf_cfg_i[13].pcie_cap_device_status 0x0 0x00000020 10000
+
+##Disable Bus Master, INTX and Mem Txn enable bit from device_command##
+wr  hqm_vf_cfg_i[13].device_command 0x400
+wr  hqm_vf_cfg_i[13].pcie_cap_device_control 0x8000
+idle 1200
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].pcie_cap_device_control 0x0000 0x8000
+
+### ----------- VF FLR related --------------- ### 
+### ------------------------------------------ ###
+
+### ------------------------------------------ ###
+idle 100
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].PCIE_CAP_DEVICE_STATUS 0x0
+
+idle 100
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].AER_CAP_UNCORR_ERR_STATUS 0x000000
+
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].AER_CAP_CORR_ERR_STATUS 0x0000
+
+### ------------------------------------------ ###
+
+
+### ------------------------------------------ ###
+### ----------- VF FLR related --------------- ### 
+### ------------------------------------------ ###
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].pcie_cap_device_control 0x0000 0x8020 
+poll hqm_vf_cfg_i[14].pcie_cap_device_status 0x0 0x00000020 10000
+
+##Disable Bus Master, INTX and Mem Txn enable bit from device_command##
+wr  hqm_vf_cfg_i[14].device_command 0x400
+wr  hqm_vf_cfg_i[14].pcie_cap_device_control 0x8000
+idle 1200
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].pcie_cap_device_control 0x0000 0x8000
+
+### ----------- VF FLR related --------------- ### 
+### ------------------------------------------ ###
+
+### ------------------------------------------ ###
+idle 100
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].PCIE_CAP_DEVICE_STATUS 0x0
+
+idle 100
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].AER_CAP_UNCORR_ERR_STATUS 0x000000
+
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].AER_CAP_CORR_ERR_STATUS 0x0000
+
+### ------------------------------------------ ###
+
+### ------------------------------------------ ###
+### ----------- VF FLR related --------------- ### 
+### ------------------------------------------ ###
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].pcie_cap_device_control 0x0000 0x8020 
+poll hqm_vf_cfg_i[15].pcie_cap_device_status 0x0 0x00000020 10000
+
+##Disable Bus Master, INTX and Mem Txn enable bit from device_command##
+wr  hqm_vf_cfg_i[15].device_command 0x400
+wr  hqm_vf_cfg_i[15].pcie_cap_device_control 0x8000
+idle 1200
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].pcie_cap_device_control 0x0000 0x8000
+
+### ----------- VF FLR related --------------- ### 
+### ------------------------------------------ ###
+
+### ------------------------------------------ ###
+idle 100
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].PCIE_CAP_DEVICE_STATUS 0x0
+
+idle 100
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].AER_CAP_UNCORR_ERR_STATUS 0x000000
+
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[0].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[1].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[2].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[3].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[4].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[5].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[6].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[7].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[8].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[9].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[10].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[11].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[12].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[13].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[14].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### rd hqm_vf_cfg_i[15].AER_CAP_CORR_ERR_STATUS 0x0000
+
+### ------------------------------------------ ###
+
+idle 100
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[0].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[1].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[2].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[3].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[4].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[5].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[6].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[7].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[8].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[9].PCIE_CAP_DEVICE_STATUS 0x0 
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[10].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[11].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[12].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[13].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[14].PCIE_CAP_DEVICE_STATUS 0x0
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[15].PCIE_CAP_DEVICE_STATUS 0x0
+
+idle 100
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[0].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[1].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[2].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[3].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[4].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[5].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[6].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[7].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[8].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[9].AER_CAP_UNCORR_ERR_STATUS 0x000000 
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[10].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[11].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[12].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[13].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[14].AER_CAP_UNCORR_ERR_STATUS 0x000000
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[15].AER_CAP_UNCORR_ERR_STATUS 0x000000
+
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[0].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[1].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[2].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[3].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[4].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[5].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[6].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[7].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[8].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[9].AER_CAP_CORR_ERR_STATUS 0x0000 
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[10].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[11].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[12].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[13].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[14].AER_CAP_CORR_ERR_STATUS 0x0000
+####AY_RM_VF_V30  #### wr hqm_vf_cfg_i[15].AER_CAP_CORR_ERR_STATUS 0x0000
+
+### ------------------------------------------ ###
+

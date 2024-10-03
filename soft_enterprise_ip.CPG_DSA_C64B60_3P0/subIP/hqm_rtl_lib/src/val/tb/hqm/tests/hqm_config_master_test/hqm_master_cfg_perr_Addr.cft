@@ -1,0 +1,431 @@
+#The syndrome code depends on the CFG operation that follows setting the error injection bits.
+#
+#The 8-bit syndrome code is made up of the following:
+#{4'd0,hqm_csr_ext_mmio_ack.read_valid,hqm_csr_ext_mmio_ack.write_valid,hqm_csr_ext_mmio_ack_err[1:0]}
+#
+#The hqm_csr_ext_mmio_ack_err[1:0] signal is broken down as follows:
+#Bit 1 indicates a pslverr from the hqm_proc     - This would be ADDR or WDATA parity error
+#Bit 0 indicates a read data parity error        - This would be RDATA parity error ONLY
+#
+#
+#So the single error injection bit cases would look like this:
+# 
+#
+#But the bits can be modeled somewhat independently.
+#
+#synd[3:2] can either be   2¿b10 for the error occurring on a cfg_rd
+#               or they can be    2¿b01 for the error occurring on a cfg_wr  
+#
+#synd[1:0] can either be   2¿b10 for ADDR err (cfg_wr or cfg_rd)
+#                                             2¿b10 for WDATA err ONLY if cfg_wr
+#                                             2¿b01 for RDATA err ONLY if cfg_rd
+#
+#So the only possible values expected due to parity errors on a cfg access are,
+#0x6,0x9,0xA,0xB
+#
+#Where 0xB is the case of ADDR err & RDATA err inj bits set followed by a cfg_rd.  Which results in a plsverr AND an RDATA parity error
+#
+#Please let me know if you have any further questions!
+#
+#Thanks,
+#Jamison
+#
+
+
+idle 300
+
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+
+# Enable PF memory operations
+wr hqm_pf_cfg_i.device_command 0x46
+
+rd config_master.cfg_pm_pmcsr_disable
+wr config_master.cfg_pm_pmcsr_disable.disable 0
+rd config_master.cfg_pm_pmcsr_disable
+
+rd config_master.cfg_pm_override
+rd config_master.cfg_diagnostic_reset_status
+idle 500
+
+####################################
+#poll to Wait for reset to be done 
+poll config_master.cfg_diagnostic_reset_status 0x80000bff 0x80000bff 1000
+
+#poll to Wait for unit_idle to be done
+poll config_master.cfg_diagnostic_idle_status 0x9d0fffff 0x9d0fffff 1000
+
+#Access config_master
+rd config_master.cfg_diagnostic_reset_status
+rd config_master.cfg_diagnostic_idle_status
+rd config_master.cfg_pm_pmcsr_disable
+rd config_master.cfg_pm_override
+rd config_master.cfg_pm_status
+#rd config_master.cfg_hqm_pgcb_cdc_lock
+rd config_master.cfg_hqm_pgcb_control
+rd config_master.cfg_hqm_cdc_control
+rd config_master.cfg_clk_on_cnt_l
+rd config_master.cfg_clk_on_cnt_h
+rd config_master.cfg_proc_on_cnt_l
+rd config_master.cfg_proc_on_cnt_h
+rd config_master.cfg_prochot_cnt_l
+rd config_master.cfg_prochot_cnt_h
+rd config_master.cfg_prochot_event_cnt_l 
+rd config_master.cfg_prochot_event_cnt_h
+rd config_master.cfg_clk_cnt_disable 
+rd config_master.cfg_ts_control
+rd config_master.cfg_control_general
+rd config_master.cfg_mstr_internal_timeout
+rd config_master.cfg_diagnostic_status_1
+rd config_master.cfg_diagnostic_syndrome
+rd config_master.cfg_flr_count_l
+rd config_master.cfg_flr_count_h
+
+#Access hqm_system_csr 
+idle 100
+rd hqm_system_csr.sys_idle_status
+
+
+wr hqm_system_csr.ingress_alarm_enable 0x17
+rd hqm_system_csr.ingress_alarm_enable 0x17
+
+# qm_master errinj
+wr config_master.cfg_control_general.CFG_ENABLE_INJ_PAR_ERR_ADDR    0x1
+rd config_master.cfg_control_general
+
+wr hqm_system_csr.ingress_alarm_enable 0x3f
+rde hqm_system_csr.ingress_alarm_enable 0x3f
+
+# hqm_master parity error status check
+rd config_master.cfg_diagnostic_status_1 0x8
+rd config_master.cfg_control_general
+wr config_master.cfg_diagnostic_status_1 0x8
+rd config_master.cfg_diagnostic_status_1 0x0
+
+rd hqm_system_csr.sys_idle_status
+
+wr hqm_system_csr.ingress_alarm_enable 0x3f
+rd hqm_system_csr.ingress_alarm_enable 0x3f
+
+rd hqm_sif_csr.sif_alarm_err.CFGM_TARGET_ERR 0x1
+wr hqm_sif_csr.sif_alarm_err.CFGM_TARGET_ERR 0x1
+rd hqm_sif_csr.sif_alarm_err.CFGM_TARGET_ERR 0x0
+
+# Interrupt.xls -- Valid/More=1/0, Source=2(sif), Unit=0, AID=0x7, Class=2(Uncorrectable), Alarm=Alarm Interrupt, Syndrome
+rd hqm_system_csr.alarm_hw_synd 0x88068406 0xffffffff
+wr hqm_system_csr.alarm_hw_synd 0x88068406
+rd hqm_system_csr.alarm_hw_synd 0x08068406 0xffffffff
+
+#Access aqed_pipe 
+idle 100
+rd aqed_pipe.cfg_unit_version
+rd aqed_pipe.cfg_control_general
+rd aqed_pipe.cfg_unit_timeout
+wr aqed_pipe.cfg_unit_timeout 0x1020305f
+rd aqed_pipe.cfg_unit_timeout 0x1020305f
+rd aqed_pipe.cfg_patch_control
+wr aqed_pipe.cfg_patch_control 0xb
+
+#hqm_master errinj
+wr config_master.cfg_control_general.CFG_ENABLE_INJ_PAR_ERR_ADDR    0x1
+rd config_master.cfg_control_general
+
+rde aqed_pipe.cfg_patch_control 0xb
+
+# hqm_master parity error status check
+rd config_master.cfg_diagnostic_status_1 0x8
+rd config_master.cfg_control_general
+wr config_master.cfg_diagnostic_status_1 0x8
+rd config_master.cfg_diagnostic_status_1 0x0
+
+wr aqed_pipe.cfg_patch_control 0xb
+rd aqed_pipe.cfg_patch_control 0xb
+
+rd hqm_sif_csr.sif_alarm_err.CFGM_TARGET_ERR 0x1
+wr hqm_sif_csr.sif_alarm_err.CFGM_TARGET_ERR 0x1
+rd hqm_sif_csr.sif_alarm_err.CFGM_TARGET_ERR 0x0
+
+# Interrupt.xls -- Valid/More=1/0, Source=2(sif), Unit=0, AID=0x7, Class=2(Uncorrectable), Alarm=Alarm Interrupt, Syndrome
+rd hqm_system_csr.alarm_hw_synd 0x8806840a 0xffffffff
+wr hqm_system_csr.alarm_hw_synd 0x8806840a
+rd hqm_system_csr.alarm_hw_synd 0x0806840a 0xffffffff
+
+#Access atm_pipe 
+idle 100
+rd atm_pipe.cfg_unit_version
+rd atm_pipe.cfg_control_general
+rd atm_pipe.cfg_unit_timeout
+wr atm_pipe.cfg_unit_timeout 0x1120305f
+
+#hqm_master errinj
+wr config_master.cfg_control_general.CFG_ENABLE_INJ_PAR_ERR_ADDR    0x1
+rd config_master.cfg_control_general
+
+rde atm_pipe.cfg_unit_timeout 0x1120305f
+
+# hqm_master parity error status check
+rd config_master.cfg_diagnostic_status_1 0x8
+rd config_master.cfg_control_general
+wr config_master.cfg_diagnostic_status_1 0x8
+rd config_master.cfg_diagnostic_status_1 0x0
+
+
+rd atm_pipe.cfg_patch_control
+wr atm_pipe.cfg_patch_control 0xd
+rd atm_pipe.cfg_patch_control 0xd
+
+wr atm_pipe.cfg_unit_timeout 0x1120305f
+rd atm_pipe.cfg_unit_timeout 0x1120305f
+
+rd hqm_sif_csr.sif_alarm_err.CFGM_TARGET_ERR 0x1
+wr hqm_sif_csr.sif_alarm_err.CFGM_TARGET_ERR 0x1
+rd hqm_sif_csr.sif_alarm_err.CFGM_TARGET_ERR 0x0
+
+# Interrupt.xls -- Valid/More=1/0, Source=2(sif), Unit=0, AID=0x7, Class=2(Uncorrectable), Alarm=Alarm Interrupt, Syndrome
+rd hqm_system_csr.alarm_hw_synd 0x8806840a 0xffffffff
+wr hqm_system_csr.alarm_hw_synd 0x8806840a
+rd hqm_system_csr.alarm_hw_synd 0x0806840a 0xffffffff
+
+#Access direct_pipe 
+idle 100
+rd direct_pipe.cfg_unit_version
+rd direct_pipe.cfg_control_general
+rd direct_pipe.cfg_unit_timeout
+wr direct_pipe.cfg_unit_timeout 0x1220305f
+rd direct_pipe.cfg_unit_timeout 0x1220305f
+rd direct_pipe.cfg_patch_control
+wr direct_pipe.cfg_patch_control 0xa
+
+#hqm_master errinj
+wr config_master.cfg_control_general.CFG_ENABLE_INJ_PAR_ERR_ADDR    0x1
+rd config_master.cfg_control_general
+
+rde direct_pipe.cfg_patch_control 0xa
+
+# hqm_master parity error status check
+rd config_master.cfg_diagnostic_status_1 0x8
+rd config_master.cfg_control_general
+wr config_master.cfg_diagnostic_status_1 0x8
+rd config_master.cfg_diagnostic_status_1 0x0
+
+
+wr direct_pipe.cfg_patch_control 0xa
+rd direct_pipe.cfg_patch_control 0xa
+
+rd hqm_sif_csr.sif_alarm_err.CFGM_TARGET_ERR 0x1
+wr hqm_sif_csr.sif_alarm_err.CFGM_TARGET_ERR 0x1
+rd hqm_sif_csr.sif_alarm_err.CFGM_TARGET_ERR 0x0
+
+# Interrupt.xls -- Valid/More=1/0, Source=2(sif), Unit=0, AID=0x7, Class=2(Uncorrectable), Alarm=Alarm Interrupt, Syndrome
+rd hqm_system_csr.alarm_hw_synd 0x8806840a 0xffffffff
+wr hqm_system_csr.alarm_hw_synd 0x8806840a
+rd hqm_system_csr.alarm_hw_synd 0x0806840a 0xffffffff
+
+#Access qed_pipe 
+idle 100
+rd qed_pipe.cfg_unit_version
+rd qed_pipe.cfg_control_general
+rd qed_pipe.cfg_unit_timeout
+wr qed_pipe.cfg_unit_timeout 0x1420305f
+rd qed_pipe.cfg_unit_timeout 0x1420305f
+rd qed_pipe.cfg_patch_control
+wr qed_pipe.cfg_patch_control 0x1
+rd qed_pipe.cfg_patch_control 0x1
+
+#hqm_master errinj
+wr config_master.cfg_control_general.CFG_ENABLE_INJ_PAR_ERR_ADDR    0x1
+rd config_master.cfg_control_general
+
+rde qed_pipe.cfg_patch_control 0x1
+
+# hqm_master parity error status check
+rd config_master.cfg_diagnostic_status_1 0x8
+wr config_master.cfg_diagnostic_status_1 0x8
+rd config_master.cfg_diagnostic_status_1 0x0
+rd config_master.cfg_control_general
+
+
+wr qed_pipe.cfg_patch_control 0x1
+rd qed_pipe.cfg_patch_control 0x1
+
+rd hqm_sif_csr.sif_alarm_err.CFGM_TARGET_ERR 0x1
+wr hqm_sif_csr.sif_alarm_err.CFGM_TARGET_ERR 0x1
+rd hqm_sif_csr.sif_alarm_err.CFGM_TARGET_ERR 0x0
+
+# Interrupt.xls -- Valid/More=1/0, Source=2(sif), Unit=0, AID=0x7, Class=2(Uncorrectable), Alarm=Alarm Interrupt, Syndrome
+rd hqm_system_csr.alarm_hw_synd 0x8806840a 0xffffffff
+wr hqm_system_csr.alarm_hw_synd 0x8806840a
+rd hqm_system_csr.alarm_hw_synd 0x0806840a 0xffffffff
+
+#Access nalb_pipe 
+idle 100
+rd nalb_pipe.cfg_unit_version
+rd nalb_pipe.cfg_control_general
+rd nalb_pipe.cfg_unit_timeout
+wr nalb_pipe.cfg_unit_timeout 0x1520305f
+
+#hqm_master errinj
+wr config_master.cfg_control_general.CFG_ENABLE_INJ_PAR_ERR_ADDR    0x1
+rd config_master.cfg_control_general
+
+rde nalb_pipe.cfg_unit_timeout 0x1520305f
+
+# hqm_master parity error status check
+rd config_master.cfg_diagnostic_status_1 0x8
+wr config_master.cfg_diagnostic_status_1 0x8
+rd config_master.cfg_diagnostic_status_1 0x0
+rd config_master.cfg_control_general
+
+rd nalb_pipe.cfg_patch_control
+wr nalb_pipe.cfg_patch_control 0x2
+rd nalb_pipe.cfg_patch_control 0x2
+rd nalb_pipe.cfg_patch_control 0x2
+
+wr nalb_pipe.cfg_unit_timeout 0x1520305f
+rd nalb_pipe.cfg_unit_timeout 0x1520305f
+
+
+rd hqm_sif_csr.sif_alarm_err.CFGM_TARGET_ERR 0x1
+wr hqm_sif_csr.sif_alarm_err.CFGM_TARGET_ERR 0x1
+rd hqm_sif_csr.sif_alarm_err.CFGM_TARGET_ERR 0x0
+
+# Interrupt.xls -- Valid/More=1/0, Source=2(sif), Unit=0, AID=0x7, Class=2(Uncorrectable), Alarm=Alarm Interrupt, Syndrome
+rd hqm_system_csr.alarm_hw_synd 0x8806840a 0xffffffff
+wr hqm_system_csr.alarm_hw_synd 0x8806840a
+rd hqm_system_csr.alarm_hw_synd 0x0806840a 0xffffffff
+
+
+#Access reorder_pipe 
+idle 100
+rd reorder_pipe.cfg_unit_version
+rd reorder_pipe.cfg_control_general_0
+rd reorder_pipe.cfg_unit_timeout
+wr reorder_pipe.cfg_unit_timeout 0x1620305f
+
+#hqm_master errinj
+wr config_master.cfg_control_general.CFG_ENABLE_INJ_PAR_ERR_ADDR    0x1
+rd config_master.cfg_control_general
+
+rde reorder_pipe.cfg_unit_timeout 0x1620305f
+
+# hqm_master parity error status check
+rd config_master.cfg_diagnostic_status_1 0x8
+wr config_master.cfg_diagnostic_status_1 0x8
+rd config_master.cfg_diagnostic_status_1 0x0
+rd config_master.cfg_control_general
+
+rd reorder_pipe.cfg_patch_control
+wr reorder_pipe.cfg_patch_control 0x3
+rd reorder_pipe.cfg_patch_control 0x3
+rd reorder_pipe.cfg_patch_control 0x3
+
+wr reorder_pipe.cfg_unit_timeout 0x1620305f
+rd reorder_pipe.cfg_unit_timeout 0x1620305f
+
+rd hqm_sif_csr.sif_alarm_err.CFGM_TARGET_ERR 0x1
+wr hqm_sif_csr.sif_alarm_err.CFGM_TARGET_ERR 0x1
+rd hqm_sif_csr.sif_alarm_err.CFGM_TARGET_ERR 0x0
+
+# Interrupt.xls -- Valid/More=1/0, Source=2(sif), Unit=0, AID=0x7, Class=2(Uncorrectable), Alarm=Alarm Interrupt, Syndrome
+rd hqm_system_csr.alarm_hw_synd 0x8806840a 0xffffffff
+wr hqm_system_csr.alarm_hw_synd 0x8806840a
+rd hqm_system_csr.alarm_hw_synd 0x0806840a 0xffffffff
+
+#Access list_sel_pipe 
+idle 100
+rd list_sel_pipe.cfg_unit_version
+rd list_sel_pipe.cfg_control_general_0
+rd list_sel_pipe.cfg_unit_timeout
+wr list_sel_pipe.cfg_unit_timeout 0x1720305f
+
+#hqm_master errinj
+wr config_master.cfg_control_general.CFG_ENABLE_INJ_PAR_ERR_ADDR    0x1
+rd config_master.cfg_control_general
+
+rde list_sel_pipe.cfg_unit_timeout 0x1720305f
+
+# hqm_master parity error status check
+rd config_master.cfg_diagnostic_status_1 0x8
+wr config_master.cfg_diagnostic_status_1 0x8
+rd config_master.cfg_diagnostic_status_1 0x0
+rd config_master.cfg_control_general
+
+rd list_sel_pipe.cfg_patch_control
+wr list_sel_pipe.cfg_patch_control 0x4
+rd list_sel_pipe.cfg_patch_control 0x4
+rd list_sel_pipe.cfg_patch_control 0x4
+
+wr list_sel_pipe.cfg_unit_timeout 0x1720305f
+rd list_sel_pipe.cfg_unit_timeout 0x1720305f
+
+rd hqm_sif_csr.sif_alarm_err.CFGM_TARGET_ERR 0x1
+wr hqm_sif_csr.sif_alarm_err.CFGM_TARGET_ERR 0x1
+rd hqm_sif_csr.sif_alarm_err.CFGM_TARGET_ERR 0x0
+
+# Interrupt.xls -- Valid/More=1/0, Source=2(sif), Unit=0, AID=0x7, Class=2(Uncorrectable), Alarm=Alarm Interrupt, Syndrome
+rd hqm_system_csr.alarm_hw_synd 0x8806840a 0xffffffff
+wr hqm_system_csr.alarm_hw_synd 0x8806840a
+rd hqm_system_csr.alarm_hw_synd 0x0806840a 0xffffffff
+
+#Access credit_hist_pipe 
+idle 100
+rd credit_hist_pipe.cfg_unit_version 
+rd credit_hist_pipe.cfg_unit_timeout
+wr credit_hist_pipe.cfg_unit_timeout 0x1820305f
+
+#hqm_master errinj
+wr config_master.cfg_control_general.CFG_ENABLE_INJ_PAR_ERR_ADDR    0x1
+rd config_master.cfg_control_general
+
+rde credit_hist_pipe.cfg_unit_timeout 0x1820305f
+
+# hqm_master parity error status check
+rd config_master.cfg_diagnostic_status_1 0x8
+wr config_master.cfg_diagnostic_status_1 0x8
+rd config_master.cfg_diagnostic_status_1 0x0
+rd config_master.cfg_control_general
+
+rd credit_hist_pipe.cfg_patch_control
+wr credit_hist_pipe.cfg_patch_control 0x5
+rd credit_hist_pipe.cfg_patch_control 0x5
+
+wr credit_hist_pipe.cfg_unit_timeout 0x1820305f
+rd credit_hist_pipe.cfg_unit_timeout 0x1820305f
+
+rd hqm_sif_csr.sif_alarm_err.CFGM_TARGET_ERR 0x1
+wr hqm_sif_csr.sif_alarm_err.CFGM_TARGET_ERR 0x1
+rd hqm_sif_csr.sif_alarm_err.CFGM_TARGET_ERR 0x0
+
+# Interrupt.xls -- Valid/More=1/0, Source=2(sif), Unit=0, AID=0x7, Class=2(Uncorrectable), Alarm=Alarm Interrupt, Syndrome
+rd hqm_system_csr.alarm_hw_synd 0x8806840a 0xffffffff
+wr hqm_system_csr.alarm_hw_synd 0x8806840a
+rd hqm_system_csr.alarm_hw_synd 0x0806840a 0xffffffff
+
+
+#hqm_master errinj
+wr config_master.cfg_control_general.CFG_ENABLE_INJ_PAR_ERR_ADDR    0x1
+rd config_master.cfg_control_general
+
+wr credit_hist_pipe.cfg_patch_control 0x5
+rde credit_hist_pipe.cfg_patch_control 0x5
+
+# hqm_master parity error status check
+rd config_master.cfg_diagnostic_status_1 0x8
+wr config_master.cfg_diagnostic_status_1 0x8
+rd config_master.cfg_diagnostic_status_1 0x0
+rd config_master.cfg_control_general
+
+rd hqm_sif_csr.sif_alarm_err.CFGM_TARGET_ERR 0x1
+wr hqm_sif_csr.sif_alarm_err.CFGM_TARGET_ERR 0x1
+rd hqm_sif_csr.sif_alarm_err.CFGM_TARGET_ERR 0x0
+
+# Interrupt.xls -- Valid/More=1/0, Source=2(sif), Unit=0, AID=0x7, Class=2(Uncorrectable), Alarm=Alarm Interrupt, Syndrome
+rd hqm_system_csr.alarm_hw_synd 0x88068406 0xffffffff
+wr hqm_system_csr.alarm_hw_synd 0x88068406
+rd hqm_system_csr.alarm_hw_synd 0x08068406 0xffffffff
+

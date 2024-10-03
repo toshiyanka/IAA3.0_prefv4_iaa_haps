@@ -1,0 +1,107 @@
+#!/bin/tcsh -f
+
+echo "Running custom PRE"
+
+setenv SIP_PROJECT pgcb_collection
+
+set curdir          = `pwd`
+set curdir2         = `\dirname $curdir`
+set ace_eng         = `\dirname $curdir2`
+set ace_pwa_dir     = `\basename $curdir2`
+
+
+#################  Basic environment checking  ###########
+    if ( ! $?EC_OU ) then
+        echo "ERROR: EC_OU is not set"
+                echo "** Please set this environment variable manually based on your machine location"
+                echo "** For FM : setenv EC_OU fm"
+                echo "** For PG : setenv EC_OU png"
+                echo "** For HD : setenv EC_OU hd"
+        exit 1
+    endif
+
+    if ( ! $?EC_SITECODE ) then
+        echo "ERROR: EC_SITECODE is not set"
+                echo "** Please set this environment variable in your ~/.cshrc based on your machine location"
+                echo "** This is needed for jobs running properly in RR/SC sites (DCV)"
+                echo "** For FM : setenv EC_SITECODE FM"
+                echo "** For PG : setenv EC_SITECODE PG    <-- IMPORTANT: take note this is PG, not png"
+                echo "** For HD : setenv EC_SITECODE MC    <-- IMPORTANT: take note this is MC, not hd"
+        exit 1
+    endif
+
+
+################# Set ACE variables ###############################
+    setenv ACE_ENG          $ace_eng
+    setenv ACE_PWA_DIR      $ace_pwa_dir
+
+    setenv MODEL_ROOT		$ACE_ENG/$ACE_PWA_DIR
+    setenv IP_ROOT          $MODEL_ROOT 	
+
+    echo "MODEL_ROOT = $MODEL_ROOT"
+    echo "Setting ACE_PWA_DIR = $ACE_PWA_DIR"
+    echo "Setting ACE_ENG = $ACE_ENG"
+
+    setenv ACE_PROJECT      $SIP_PROJECT
+    setenv TMP              /netbatch
+    setenv ACE_RTL_SIM      vcs
+
+    ## this var is to enable DCV
+    setenv ACE_TOOL_LOGDIR      /tmp/$USER
+    setenv _ACE_NB_MAX_NUM_JOBS 5000
+
+# Set the required ACE_RC env variable
+if (-e $ACE_ENG/$ACE_PWA_DIR/ace/$ACE_PROJECT.acerc) then
+    setenv ACE_RC $ACE_ENG/$ACE_PWA_DIR/ace/$ACE_PROJECT.acerc
+else
+    echo "ERROR:  Can not setup Ace -- could not find $ACE_PROJECT.acerc file at either:"
+    echo "\t- $ACE_ENG/$ACE_PWA_DIR/ace/$ACE_PROJECT.acerc"
+    exit 1
+endif
+
+   setenv CTECH_LIB_NAME CTECH_v_rtl_lib
+   #setenv GLOBAL_CTECH_ROOT /p/com/eda/intel/ctech/v14ww24e/
+   setenv GLOBAL_CTECH_ROOT /p/com/eda/intel/ctech/v15ww38d/
+
+   # Used by the CDC run only
+   setenv CTECH_LIB_NAME_CDC CTECH_p1273_d04_ln_rtl_lib
+   
+   setenv CDC_PROCESS  p1273
+   setenv CDC_RELEASE  /p/com/eda/intel/cdc/v20140603
+
+   #---------------------------------------------------
+   # Setup Reggie
+   #---------------------------------------------------
+   source /p/sip/syn/reggie/latest/scripts/setup
+   #---------------------------------------------------
+   # Setup Synthesis
+   #---------------------------------------------------
+   setenv SYNTH /p/sip/syn/scripts
+   # design top name
+   setenv UNIT pgcbunit
+   # process name to identify kit path
+   setenv PROCESS p1273
+   # project name to identify filtering list (if any)
+##   setenv PROJ CSG_sptlp
+#   setenv SIP_VARIATION CSG_sptlp
+   # for customization/modification - will be used if milestone version different from default
+#   setenv MILESTONE RTL0.8
+   # library name
+#   setenv LIBRARY_TYPE b05.8
+   # library voltage
+   setenv LIBRARY_VOLTAGE 0.74
+   # vt type
+   setenv VT_TYPE wn
+##   setenv INST <HIER PATH TO TOP LEVEL>
+
+   source $SYNTH/syn_setup.csh
+
+#################  check on valid platform ########################
+
+#setenv platform  `uname -m`
+#if (($platform == "i686") && ($tool_bits == "64")) then
+#  echo ">>>> Cannot use 64-bit binaries in 32-bit machine: Exiting..."
+#  exit;
+#endif
+
+exit 0

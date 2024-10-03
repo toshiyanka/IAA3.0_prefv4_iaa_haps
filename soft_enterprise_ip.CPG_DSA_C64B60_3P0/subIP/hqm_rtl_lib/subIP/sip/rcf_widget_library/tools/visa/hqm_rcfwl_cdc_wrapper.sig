@@ -1,0 +1,2 @@
+`include hqm_rcfwl_cdc_wrapper_x4.visa_sig
+`include hqm_rcfwl_cdc_wrapper_x12.visa_sig

@@ -1,0 +1,171 @@
+## Inject MB ECC
+## hw_synd: valid=1, source=0, unit[25:22]=1, aid[21:16]=0, cls[15:14]=2, is_ldb[13], VF_PF_MB[12], CWS[11]=0, alarm[10]=1, rtype[9:8]=1 [7:0]=cq
+##Steve: Any MB ECC error on an egress (write buffer) HCW will still write the HCW but set the hcw_error flag in the HCW.
+#########################################################################################################################
+# Inject MB ECC errors
+wr hqm_system_csr.ecc_ctl.INJ_MB_ECC_WBUF_W1_MS 1
+rd hqm_system_csr.ecc_ctl.INJ_MB_ECC_WBUF_W1_MS 1
+
+##No ingress drop expected, ingress_drop set to avoide checking of hcw
+HCW DIR:6  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=6  dsi=0x300 ingress_drop=1
+idle 500
+HCW DIR:2  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=2  dsi=0x300
+HCW DIR:13 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=13 dsi=0x300 
+HCW DIR:51 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=51 dsi=0x300 
+
+HCW DIR:6  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=6  dsi=0x300 
+HCW DIR:2  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=2  dsi=0x300
+HCW DIR:13 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=13 dsi=0x300 
+HCW DIR:51 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=51 dsi=0x300 
+
+HCW DIR:6  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=6  dsi=0x300 
+HCW DIR:2  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=2  dsi=0x300
+HCW DIR:13 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=13 dsi=0x300 
+HCW DIR:51 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=51 dsi=0x300 
+
+HCW DIR:6  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=6  dsi=0x300 
+HCW DIR:2  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=2  dsi=0x300
+HCW DIR:13 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=13 dsi=0x300 
+HCW DIR:51 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=51 dsi=0x300 
+
+poll_sch dir:2  0x4 200 100
+poll_sch dir:6  0x4 200 100
+poll_sch dir:13 0x4 200 100
+poll_sch dir:51 0x4 200 100
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_mb_ecc_err   0x00000008
+rd hqm_system_csr.alarm_hw_synd      0x80488506 0xffffffff  
+wr hqm_system_csr.alarm_hw_synd      0x80000000
+##clear 
+wr hqm_system_csr.alarm_mb_ecc_err   0x00000008
+rd hqm_system_csr.alarm_mb_ecc_err   0x00000000
+wr hqm_system_csr.msix_ack.MSIX_0_ACK 1
+rd hqm_system_csr.msix_ack.MSIX_0_ACK 0
+
+## Now reset the sb ecc, send hcw
+wr hqm_system_csr.ecc_ctl.INJ_MB_ECC_WBUF_W1_MS 0
+rd hqm_system_csr.ecc_ctl.INJ_MB_ECC_WBUF_W1_MS 0
+idle 100
+
+HCW LDB:2  vf_num=0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=3   dsi=0x300
+HCW LDB:20 vf_num=7  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=30 dsi=0x300
+HCW LDB:21 vf_num=10 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=31 dsi=0x300
+HCW LDB:31 vf_num=15 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=11 dsi=0x300
+
+HCW LDB:2  vf_num=0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=3   dsi=0x300
+HCW LDB:20 vf_num=7  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=30 dsi=0x300
+HCW LDB:21 vf_num=10 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=31 dsi=0x300
+HCW LDB:31 vf_num=15 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=11 dsi=0x300
+
+HCW LDB:2  vf_num=0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=3   dsi=0x300
+HCW LDB:20 vf_num=7  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=30 dsi=0x300
+HCW LDB:21 vf_num=10 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=31 dsi=0x300
+HCW LDB:31 vf_num=15 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=11 dsi=0x300
+
+HCW LDB:2  vf_num=0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=3   dsi=0x300
+HCW LDB:20 vf_num=7  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=30 dsi=0x300
+HCW LDB:21 vf_num=10 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=31 dsi=0x300
+HCW LDB:31 vf_num=15 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=11 dsi=0x300
+
+
+HCW DIR:6  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=6  dsi=0x300
+HCW DIR:6  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=6  dsi=0x300
+HCW DIR:6  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=6  dsi=0x300
+HCW DIR:6  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=6  dsi=0x300
+
+
+poll_sch ldb:40 0x4 200 100
+poll_sch ldb:41 0x4 200 100
+poll_sch ldb:62 0x4 200 100
+poll_sch ldb:63 0x4 200 100
+poll_sch dir:6  0x8 200 100
+
+rd hqm_system_csr.alarm_mb_ecc_err   0x00000000
+
+##set mb ecc
+wr hqm_system_csr.ecc_ctl.INJ_MB_ECC_WBUF_W1_MS 1
+rd hqm_system_csr.ecc_ctl.INJ_MB_ECC_WBUF_W1_MS 1
+
+HCW LDB:2  vf_num=0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=3   dsi=0x300 ingress_drop=1
+idle 500
+HCW LDB:20 vf_num=7  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=30 dsi=0x300
+HCW LDB:21 vf_num=10 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=31 dsi=0x300
+HCW LDB:31 vf_num=15 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=11 dsi=0x300
+
+HCW LDB:2  vf_num=0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=3   dsi=0x300
+HCW LDB:20 vf_num=7  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=30 dsi=0x300
+HCW LDB:21 vf_num=10 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=31 dsi=0x300
+HCW LDB:31 vf_num=15 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=11 dsi=0x300
+
+HCW LDB:2  vf_num=0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=3   dsi=0x300
+HCW LDB:20 vf_num=7  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=30 dsi=0x300
+HCW LDB:21 vf_num=10 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=31 dsi=0x300
+HCW LDB:31 vf_num=15 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=11 dsi=0x300
+
+HCW LDB:2  vf_num=0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=3   dsi=0x300
+HCW LDB:20 vf_num=7  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=30 dsi=0x300
+HCW LDB:21 vf_num=10 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=31 dsi=0x300
+HCW LDB:31 vf_num=15 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=uno qid=11 dsi=0x300
+
+poll_sch ldb:40 0x8 200 100
+poll_sch ldb:41 0x8 200 100
+poll_sch ldb:62 0x8 200 100
+poll_sch ldb:63 0x8 200 100
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_mb_ecc_err   0x00000008
+rd hqm_system_csr.alarm_hw_synd      0x80488528 0xffffffff  # v=1 m=0 src=0 unit=1 aid=00 cls=1 alarm=1 rtype=1 rid=cq
+
+##toekn return 
+HCW DIR:2  qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x03 msgtype=0 qpri=0 qtype=dir qid=2  dsi=0x300
+HCW DIR:6  qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x07 msgtype=0 qpri=0 qtype=dir qid=6  dsi=0x300
+HCW DIR:13 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x03 msgtype=0 qpri=0 qtype=dir qid=13 dsi=0x300
+HCW DIR:51 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x03 msgtype=0 qpri=0 qtype=dir qid=51 dsi=0x300
+## token and completion return
+HCW LDB:2  vf_num=0  qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=3  dsi=0x300
+HCW LDB:20 vf_num=7  qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=30 dsi=0x300
+HCW LDB:21 vf_num=10 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=31 dsi=0x300
+HCW LDB:31 vf_num=15 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=11 dsi=0x300
+
+HCW LDB:2  vf_num=0  qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=3  dsi=0x300
+HCW LDB:20 vf_num=7  qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=30 dsi=0x300
+HCW LDB:21 vf_num=10 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=31 dsi=0x300
+HCW LDB:31 vf_num=15 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=11 dsi=0x300
+
+HCW LDB:2  vf_num=0  qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=3  dsi=0x300
+HCW LDB:20 vf_num=7  qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=30 dsi=0x300
+HCW LDB:21 vf_num=10 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=31 dsi=0x300
+HCW LDB:31 vf_num=15 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=11 dsi=0x300
+
+HCW LDB:2  vf_num=0  qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=3  dsi=0x300
+HCW LDB:20 vf_num=7  qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=30 dsi=0x300
+HCW LDB:21 vf_num=10 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=31 dsi=0x300
+HCW LDB:31 vf_num=15 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=11 dsi=0x300
+
+HCW LDB:2  vf_num=0  qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=3  dsi=0x300
+HCW LDB:20 vf_num=7  qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=30 dsi=0x300
+HCW LDB:21 vf_num=10 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=31 dsi=0x300
+HCW LDB:31 vf_num=15 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=11 dsi=0x300
+
+HCW LDB:2  vf_num=0  qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=3  dsi=0x300
+HCW LDB:20 vf_num=7  qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=30 dsi=0x300
+HCW LDB:21 vf_num=10 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=31 dsi=0x300
+HCW LDB:31 vf_num=15 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=11 dsi=0x300
+
+HCW LDB:2  vf_num=0  qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=3  dsi=0x300
+HCW LDB:20 vf_num=7  qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=30 dsi=0x300
+HCW LDB:21 vf_num=10 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=31 dsi=0x300
+HCW LDB:31 vf_num=15 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=11 dsi=0x300
+
+##HCW LDB:2  vf_num=0  qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=3  dsi=0x300
+HCW LDB:2  vf_num=0  qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=3  dsi=0x300
+HCW LDB:20 vf_num=7  qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=30 dsi=0x300
+HCW LDB:21 vf_num=10 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=31 dsi=0x300
+HCW LDB:31 vf_num=15 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=11 dsi=0x300
+
+## clear msix
+wr hqm_system_csr.msix_ack.MSIX_0_ACK 1
+rd hqm_system_csr.msix_ack.MSIX_0_ACK 0
+wr hqm_system_csr.alarm_mb_ecc_err   0x00000008
+rd hqm_system_csr.alarm_mb_ecc_err   0x00000000
+idle 1000
+

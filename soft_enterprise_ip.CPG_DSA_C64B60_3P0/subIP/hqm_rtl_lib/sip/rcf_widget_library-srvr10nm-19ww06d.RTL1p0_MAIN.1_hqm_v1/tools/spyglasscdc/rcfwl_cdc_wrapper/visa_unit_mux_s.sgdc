@@ -1,0 +1,39 @@
+current_design visa_unit_mux_s
+
+#Input Clocks
+clock -name "src_clk[0]" -period 2496 -edge { 0 1248 }
+clock -name "serial_cfg_in[0]" -period 2496 -edge { 0 1248 }
+
+#Output clocks
+clock -name "ss_clk_out[0]" -domain VISA_SSCLK_GROUP -tag VISA_SSCLK_GROUP
+clock -name "xbar_ss_clk_out[0]" -domain VISA_XBAR_SSCLK_GROUP -tag VISA_XBAR_SSCLK_GROUP
+abstract_port  -path_logic buf -ports "serial_cfg_out[0]" -related_ports "serial_cfg_in[0]"
+
+#Reset
+reset -name "visa_resetb" -async -value 0
+
+#Stable Inputs
+quasi_static -name "reg_start_index"
+quasi_static -name "fscan_mode"
+quasi_static -name "customer_disable"
+quasi_static -name "all_disable"
+quasi_static -name "visa_unit_id"
+
+#Stable Outputs
+quasi_static -name "visa_enabled"
+
+#Input Ports (@src_clk[]) //lane-specific mapping
+abstract_port -direction  input -ports "lane_in" -clock "src_clk[0]"
+
+#Input Ports (@serial_cfg_in[0])
+abstract_port -direction  input -ports "serial_cfg_in[1:2]" -clock "serial_cfg_in[0]"
+
+#Output Ports (@serial_cfg_out[0]) //use serial_cfg_in[0]
+abstract_port -direction output -ports "serial_cfg_out[1:2]" -clock "serial_cfg_in[0]"
+
+#Output Ports (@ss_clk_out[0])
+abstract_port -direction output -ports "lane_out" -clock "ss_clk_out[0]"
+
+#Output Ports (@xbar_ss_clk_out[0]) 
+abstract_port -direction output -ports "xbar_out" -clock "xbar_ss_clk_out[0]"
+

@@ -1,0 +1,237 @@
+
+idle 500
+###############################
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_command
+###############################
+wr hqm_pf_cfg_i.func_bar_l 0xFFFFFFFF
+wr hqm_pf_cfg_i.func_bar_u 0xFFFFFFFF
+wr hqm_pf_cfg_i.csr_bar_l 0xFFFFFFFF
+wr hqm_pf_cfg_i.csr_bar_u 0xFFFFFFFF
+##
+rd hqm_pf_cfg_i.func_bar_l
+rd hqm_pf_cfg_i.func_bar_u
+rd hqm_pf_cfg_i.csr_bar_l 
+rd hqm_pf_cfg_i.csr_bar_u 
+##
+#####################################
+### Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+#####################################
+### Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+##
+#####################################
+### Enable memory and parity operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command 0x6
+##
+rd config_master.cfg_pm_pmcsr_disable.disable 0x0
+##
+###poll to Wait for reset to be done 
+poll config_master.cfg_diagnostic_reset_status 0x80000bff 0x80000bff 500
+###poll to Wait for unit_idle to be done 
+poll config_master.cfg_diagnostic_idle_status 0x0007ffff 0x0007ffff 500
+##
+sai hostia_boot_sai     # Should be SAI index 4
+##
+##########################################
+###read all HQM CSR policy register 
+##wr hqm_sif_csr.hqm_csr_cp_lo 0xFFFFFFFF
+##wr hqm_sif_csr.hqm_csr_cp_hi 0xFFFFFFFF
+##rd hqm_sif_csr.hqm_csr_cp_lo 0xFFFFFFFF
+##rd hqm_sif_csr.hqm_csr_cp_hi 0xFFFFFFFF
+##
+##
+##sai hostia_ucode_sai    # Should be SAI index 1
+##############################################
+###HQM CSR Read Access Policy Low Register
+##wr hqm_sif_csr.hqm_csr_rac_lo 0xFFFFFFFF
+##wr hqm_sif_csr.hqm_csr_rac_hi 0xFFFFFFFF
+##rd hqm_sif_csr.hqm_csr_rac_lo 0xFFFFFFFF
+##rd hqm_sif_csr.hqm_csr_rac_hi 0xFFFFFFFF
+####################################################
+###HQM CSR Write Access Policy Low Register
+##wr hqm_sif_csr.hqm_csr_wac_lo 0xFFFFFFFF
+##wr hqm_sif_csr.hqm_csr_wac_hi 0xFFFFFFFF
+##rd hqm_sif_csr.hqm_csr_wac_lo 0xFFFFFFFF
+##rd hqm_sif_csr.hqm_csr_wac_hi 0xFFFFFFFF
+##
+##
+#############################################
+### Test hqm_msix_mem
+##rd hqm_msix_mem.msg_data[0] 0x00000000
+##wr hqm_msix_mem.msg_data[0] 0xffffffff
+##rd hqm_msix_mem.msg_data[0] 0xffffffff
+##
+##rd hqm_msix_mem.msg_data[64] 0x00000000
+##wr hqm_msix_mem.msg_data[64] 0x5a5a5a5a
+##rd hqm_msix_mem.msg_data[64] 0x5a5a5a5a
+##
+#############################################
+### Test func_pf pf_to_vf_mailbox
+##rd hqm_func_pf_per_vf[0].pf_to_vf_mailbox[0] 0x00000000
+##wr hqm_func_pf_per_vf[0].pf_to_vf_mailbox[0] 0xffffffff
+##rd hqm_func_pf_per_vf[0].pf_to_vf_mailbox[0] 0xffffffff
+##
+##rd hqm_func_pf_per_vf[15].pf_to_vf_mailbox[15] 0x00000000
+##wr hqm_func_pf_per_vf[15].pf_to_vf_mailbox[15] 0x5a5a5a5a
+##rd hqm_func_pf_per_vf[15].pf_to_vf_mailbox[15] 0x5a5a5a5a
+##
+#####################################
+### Setup FUNC_VF BAR to a base address of 0x00000000_xxxxxxxx
+#####################################
+### 00 VFs
+#####################################
+### Enable VF and VF memory operations
+#####################################
+##
+#####################################
+######### Access VF cfg space #######
+#####################################
+###### wr hqm_vf_cfg_i[0].device_command  0x4
+###### wr hqm_vf_cfg_i[1].device_command  0x4
+###### wr hqm_vf_cfg_i[2].device_command  0x4
+###### wr hqm_vf_cfg_i[3].device_command  0x4
+###### wr hqm_vf_cfg_i[4].device_command  0x4
+###### wr hqm_vf_cfg_i[5].device_command  0x4
+###### wr hqm_vf_cfg_i[6].device_command  0x4
+###### wr hqm_vf_cfg_i[7].device_command  0x4
+###### wr hqm_vf_cfg_i[8].device_command  0x4
+###### wr hqm_vf_cfg_i[9].device_command  0x4
+###### wr hqm_vf_cfg_i[10].device_command 0x4
+###### wr hqm_vf_cfg_i[11].device_command 0x4
+###### wr hqm_vf_cfg_i[12].device_command 0x4
+###### wr hqm_vf_cfg_i[13].device_command 0x4
+###### wr hqm_vf_cfg_i[14].device_command 0x4
+###### wr hqm_vf_cfg_i[15].device_command 0x4
+#####################################
+###### wr hqm_vf_cfg_i[0].int_line  0xa5
+###### wr hqm_vf_cfg_i[1].int_line  0xa5
+###### wr hqm_vf_cfg_i[2].int_line  0xa5
+###### wr hqm_vf_cfg_i[3].int_line  0xa5
+###### wr hqm_vf_cfg_i[4].int_line  0xa5
+###### wr hqm_vf_cfg_i[5].int_line  0xa5
+###### wr hqm_vf_cfg_i[6].int_line  0xa5
+###### wr hqm_vf_cfg_i[7].int_line  0xa5
+###### wr hqm_vf_cfg_i[8].int_line  0xa5
+###### wr hqm_vf_cfg_i[9].int_line  0xa5
+###### wr hqm_vf_cfg_i[10].int_line 0xa5
+###### wr hqm_vf_cfg_i[11].int_line 0xa5
+###### wr hqm_vf_cfg_i[12].int_line 0xa5
+###### wr hqm_vf_cfg_i[13].int_line 0xa5
+###### wr hqm_vf_cfg_i[14].int_line 0xa5
+###### wr hqm_vf_cfg_i[15].int_line 0xa5
+#####################################
+###
+##idle 20
+###### rd hqm_vf_cfg_i[0].device_command          0x4
+###### rd hqm_vf_cfg_i[1].device_command          0x4
+###### rd hqm_vf_cfg_i[2].device_command          0x4
+###### rd hqm_vf_cfg_i[3].device_command          0x4
+###### rd hqm_vf_cfg_i[4].device_command          0x4
+###### rd hqm_vf_cfg_i[5].device_command          0x4
+###### rd hqm_vf_cfg_i[6].device_command          0x4
+###### rd hqm_vf_cfg_i[7].device_command          0x4
+###### rd hqm_vf_cfg_i[8].device_command          0x4
+###### rd hqm_vf_cfg_i[9].device_command          0x4
+###### rd hqm_vf_cfg_i[10].device_command         0x4
+###### rd hqm_vf_cfg_i[11].device_command         0x4
+###### rd hqm_vf_cfg_i[12].device_command         0x4
+###### rd hqm_vf_cfg_i[13].device_command         0x4
+###### rd hqm_vf_cfg_i[14].device_command         0x4
+###### rd hqm_vf_cfg_i[15].device_command         0x4
+###
+#####################################
+###### rd hqm_vf_cfg_i[0].int_line  0
+###### rd hqm_vf_cfg_i[1].int_line  0
+###### rd hqm_vf_cfg_i[2].int_line  0
+###### rd hqm_vf_cfg_i[3].int_line  0
+###### rd hqm_vf_cfg_i[4].int_line  0
+###### rd hqm_vf_cfg_i[5].int_line  0
+###### rd hqm_vf_cfg_i[6].int_line  0
+###### rd hqm_vf_cfg_i[7].int_line  0
+###### rd hqm_vf_cfg_i[8].int_line  0
+###### rd hqm_vf_cfg_i[9].int_line  0
+###### rd hqm_vf_cfg_i[10].int_line 0
+###### rd hqm_vf_cfg_i[11].int_line 0
+###### rd hqm_vf_cfg_i[12].int_line 0
+###### rd hqm_vf_cfg_i[13].int_line 0
+###### rd hqm_vf_cfg_i[14].int_line 0
+###### rd hqm_vf_cfg_i[15].int_line 0
+##
+#####################################
+####### Access PF and VF BAR  #######
+#####################################
+##
+##rd hqm_func_pf_per_vf[0].pf_to_vf_mailbox[0]
+##
+###### rd hqm_func_vf_bar[0].vf_to_pf_mailbox_isr 
+###### rd hqm_func_vf_bar[1].vf_to_pf_mailbox_isr 
+###### rd hqm_func_vf_bar[2].vf_to_pf_mailbox_isr 
+###### rd hqm_func_vf_bar[3].vf_to_pf_mailbox_isr 
+###### rd hqm_func_vf_bar[4].vf_to_pf_mailbox_isr 
+###### rd hqm_func_vf_bar[5].vf_to_pf_mailbox_isr 
+###### rd hqm_func_vf_bar[6].vf_to_pf_mailbox_isr 
+###### rd hqm_func_vf_bar[7].vf_to_pf_mailbox_isr 
+###### rd hqm_func_vf_bar[8].vf_to_pf_mailbox_isr 
+###### rd hqm_func_vf_bar[9].vf_to_pf_mailbox_isr 
+###### rd hqm_func_vf_bar[10].vf_to_pf_mailbox_isr 
+###### rd hqm_func_vf_bar[11].vf_to_pf_mailbox_isr 
+###### rd hqm_func_vf_bar[12].vf_to_pf_mailbox_isr 
+###### rd hqm_func_vf_bar[13].vf_to_pf_mailbox_isr 
+###### rd hqm_func_vf_bar[14].vf_to_pf_mailbox_isr 
+###### rd hqm_func_vf_bar[15].vf_to_pf_mailbox_isr 
+##
+###### rd hqm_func_vf_bar[0].vf_msi_isr_pend 
+###### rd hqm_func_vf_bar[1].vf_msi_isr_pend 
+###### rd hqm_func_vf_bar[2].vf_msi_isr_pend 
+###### rd hqm_func_vf_bar[3].vf_msi_isr_pend 
+###### rd hqm_func_vf_bar[4].vf_msi_isr_pend 
+###### rd hqm_func_vf_bar[5].vf_msi_isr_pend 
+###### rd hqm_func_vf_bar[6].vf_msi_isr_pend 
+###### rd hqm_func_vf_bar[7].vf_msi_isr_pend 
+###### rd hqm_func_vf_bar[8].vf_msi_isr_pend 
+###### rd hqm_func_vf_bar[9].vf_msi_isr_pend 
+###### rd hqm_func_vf_bar[10].vf_msi_isr_pend 
+###### rd hqm_func_vf_bar[11].vf_msi_isr_pend 
+###### rd hqm_func_vf_bar[12].vf_msi_isr_pend 
+###### rd hqm_func_vf_bar[13].vf_msi_isr_pend 
+###### rd hqm_func_vf_bar[14].vf_msi_isr_pend 
+###### rd hqm_func_vf_bar[15].vf_msi_isr_pend 
+##
+#############################################
+### Test func_vf vf_to_pf_mailbox
+###### rd hqm_func_vf_bar[0].vf_to_pf_mailbox[0] 0x00000000
+###### wr hqm_func_vf_bar[0].vf_to_pf_mailbox[0] 0xffffffff
+###### rd hqm_func_vf_bar[0].vf_to_pf_mailbox[0] 0xffffffff
+##
+###### rd hqm_func_vf_bar[15].vf_to_pf_mailbox[63] 0x00000000
+###### wr hqm_func_vf_bar[15].vf_to_pf_mailbox[63] 0x5a5a5a5a
+###### rd hqm_func_vf_bar[15].vf_to_pf_mailbox[63] 0x5a5a5a5a
+##
+#####################################
+####### Access hqm unit nodes #######
+#####################################
+##
+##rd list_sel_pipe.cfg_unit_version     0x0
+##
+##rd direct_pipe.cfg_unit_version       0x0
+##
+####rd qed_pipe.cfg_unit_version          0x0
+##
+##rd nalb_pipe.cfg_unit_version         0x0
+##
+###rd aqed_pipe.cfg_unit_version         0x0
+##
+##rd atm_pipe.cfg_unit_version          0x0
+##
+##rd reorder_pipe.cfg_unit_version      0x0
+##
+##rd credit_hist_pipe.cfg_unit_version  0x0
+##
+####wr hqm_system_csr.ingress_alarm_enable 0x1
+####rd hqm_system_csr.ingress_alarm_enable 0x1
+##

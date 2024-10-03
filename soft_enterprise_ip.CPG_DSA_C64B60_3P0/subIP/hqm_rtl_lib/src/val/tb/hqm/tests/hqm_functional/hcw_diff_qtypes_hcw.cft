@@ -1,0 +1,114 @@
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302 batch=1
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+########################################################################
+# Enqueueing two DIR HCWs into one... Cannot club two diff PP into 1
+########################################################################
+HCW LDB:PP qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=atm qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=atm qid=LQ dsi=0x302 
+IDLE 300
+##########################################################################################
+###  Enqueueing two atm qtype HCWs and two uno qtype HCWs in a single MWr (i.e., batch)###
+##########################################################################################
+HCW LDB:PP qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=atm qid=LQ dsi=0x302 batch=1
+HCW LDB:PP qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=atm qid=LQ dsi=0x302 batch=1 
+IDLE 300
+IDLE 300
+HCW LDB:PP qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302 batch=1
+HCW LDB:PP qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302 batch=1
+##########################################################################################
+###  Done enqueueing two atm qtype HCWs and two uno qtype HCWs in a single MWr (batch) ###
+##########################################################################################
+
+HCW LDB:PP qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+
+poll_sch  ldb:PP  0x8   1000 20
+
+
+## -- BAT_T command - return tokens
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x007 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+
+## -- COMP command - indicate completions
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302 
+
+poll_sch  dir:DQ_A  0x4   1000 20
+
+HCW DIR:DQ_A qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x003 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+#####################################################################################################################
+
+
+#####################################################################################################################
+# TEST 2
+#####################################################################################################################
+IDLE 300
+IDLE 300
+IDLE 300
+
+##########################################################################################
+###  Enqueueing two dir qtype, one uno qtype and one atm qtype HCWs in a single batch MWr#
+##########################################################################################
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302 batch=1
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302 batch=1
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=atm qid=LQ dsi=0x302 batch=1
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302 batch=1
+##########################################################################################
+# Done enqueueing two dir qtype, one uno qtype and one atm qtype HCWs in a single batch  #
+##########################################################################################
+IDLE 300
+IDLE 300
+
+poll_sch  ldb:PP  0xa   1000 20
+
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x001 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+# COMP command - indicate completions
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+
+poll_sch  dir:DQ_A  0x6   1000 20
+
+HCW DIR:DQ_A qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x001 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+IDLE 300
+#####################################################################################################################
+
+
+#####################################################################################################################
+# TEST 3
+#####################################################################################################################
+IDLE 300
+IDLE 300
+IDLE 300
+
+##########################################################################################
+##  Enqueueing two uno qtype, one dir qtype and one atm qtype HCWs in a single batch MWr #
+##########################################################################################
+HCW LDB:PP qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302 batch=1
+HCW LDB:PP qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302 batch=1
+HCW LDB:PP qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=atm qid=LQ dsi=0x302 batch=1
+HCW LDB:PP qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302 batch=1
+##########################################################################################
+# Done enqueueing two uno qtype, one dir qtype and one atm qtype HCWs in a single batch  #
+##########################################################################################
+
+poll_sch  ldb:PP  0xd   1000 20
+
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x002 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+# COMP command - indicate completions
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+IDLE 300
+
+poll_sch  dir:DQ_A  0x7   1000 20
+
+HCW DIR:DQ_A qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+IDLE 300
+#####################################################################################################################

@@ -1,0 +1,196 @@
+<% use hqm_params; %>
+
+reg hqm_vf_pf_mailbox_r {
+  HqmClassification="SxIOV_RUNTIME_SLOWP_REG_NA_64";
+        name = "Hqm Vf Pf Mailbox";
+        desc = "VF/PF mailbox";
+        regwidth = 32;
+        shared;
+        HandCoded=true;
+        IntelRsvd = false;
+        ResetSignal = "hqm_inp_gated_rst_n powergood_rst_b";
+
+        field { name = "Msg"; desc = "Message"; PowerWell="vcccfn_gated"; AccessType = "RW"; }
+                MSG [31:0] = 32'h00000000;
+};
+
+reg hqm_vf_to_pf_mailbox_src_isr_r {
+  HqmClassification="SxIOV_RUNTIME_SLOWP_REG_NA_1";
+        name = "Hqm Vf To Pf Mailbox Src Isr";
+        desc = "VF mailbox send interrupt to PF";
+        regwidth = 32;
+        shared;
+        HandCoded=true;
+        IntelRsvd = false;
+        ResetSignal = "hqm_inp_gated_rst_n powergood_rst_b";
+
+        field { name = "Isr"; desc = "Send interrupt if set to 1, cleared by hardware when interrupt processing complete.";
+                PowerWell="vcccfn_gated"; AccessType = "RW/1S/V"; }
+                ISR [0:0] = 1'h0;
+};
+
+reg hqm_pf_to_vf_mailbox_src_isr_r {
+  HqmClassification="SxIOV_RUNTIME_SLOWP_REG_NA_1";
+        name = "Hqm Pf To Vf Mailbox Src Isr";
+        desc = "PF mailbox send interrupt to VF";
+        regwidth = 32;
+        shared;
+        HandCoded=true;
+        IntelRsvd = false;
+        ResetSignal = "hqm_inp_gated_rst_n powergood_rst_b";
+
+        <% for ($i=0; $i<16; $i++) { %>
+        field { name = "Vf<%=$i%> Isr"; desc = "Send interrupt to VF<%=$i%>. Cleared by hardware when interrupt processing complete.";
+                PowerWell="vcccfn_gated"; AccessType = "RW/1S/V"; SyncResetSignal="hqm_csr_vf_rst_n[<%=$i%>]"; }
+                VF<%=$i%>_ISR [<%=$i%>:<%=$i%>] = 1'b0;
+        <% } %>
+};
+
+reg hqm_vf_to_pf_mailbox_dst_isr_r {
+  HqmClassification="SxIOV_RUNTIME_SLOWP_REG_NA_1";
+        name = "Hqm Pf Mailbox Dst Isr";
+        desc = "VF mailbox interrupt status to PF";
+        regwidth = 32;
+        shared;
+        HandCoded=true;
+        IntelRsvd = false;
+        ResetSignal = "hqm_inp_gated_rst_n powergood_rst_b";
+
+        <% for ($i=0; $i<16; $i++) { %>
+        field { name = "Vf<%=$i%> Isr"; desc = "Interrupt requested by VF. A bit is set when a 1 is written to the corresponding
+                hqm_vf_mailbox_isr register and cleared when a 1 is written to this register.";
+                PowerWell="vcccfn_gated"; AccessType = "RW/1C/V"; SyncResetSignal="hqm_csr_vf_rst_n[<%=$i%>]"; } 
+                VF<%=$i%>_ISR [<%=$i%>:<%=$i%>] = 1'b0;
+        <% } %>
+};
+
+reg hqm_vf_to_pf_flr_dst_isr_r {
+  HqmClassification="SxIOV_RUNTIME_SLOWP_REG_NA_1";
+        name = "Hqm Pf Flr Dst Isr";
+        desc = "VF function level reset interrupt status to PF";
+        regwidth = 32;
+        shared;
+        HandCoded=true;
+        IntelRsvd = false;
+        ResetSignal = "hqm_inp_gated_rst_n powergood_rst_b";
+
+        <% for ($i=0; $i<16; $i++) { %>
+        field { name = "Vf<%=$i%> Isr"; desc = "Interrupt requested by VF.  A bit is set when a 1 is written to the corresponding
+                hqm_vf_flr_isr register and cleared when a 1 is written to this register.";
+                PowerWell="vcccfn_gated"; AccessType = "RW/1C/V"; SyncResetSignal="hqm_csr_vf_rst_n[<%=$i%>]"; }
+                VF<%=$i%>_ISR [<%=$i%>:<%=$i%>] = 1'b0;
+        <% } %>
+};
+
+reg hqm_pf_to_vf_mailbox_dst_isr_r {
+  HqmClassification="SxIOV_RUNTIME_SLOWP_REG_NA_1";
+        name = "Hqm Vf To Pf Mailbox Dst Isr";
+        desc = "PF mailbox interrupt status to VF";
+        regwidth = 32;
+        shared;
+        HandCoded=true;
+        IntelRsvd = false;
+        ResetSignal = "hqm_inp_gated_rst_n powergood_rst_b";
+
+        field { name = "Pf Isr"; desc = "Interrupt requested by PF. A bit is set when a 1 is written to the corresponding
+                pf_to_vf_mailbox_src_isr register and cleared when a 1 is written to this register.";
+                PowerWell="vcccfn_gated"; AccessType = "RW/1C/V"; SyncResetSignal="hqm_csr_vf_rst_n"; }
+                PF_ISR [0:0] = 1'h0;
+};
+
+reg hqm_vf_to_pf_isr_pend_r {
+  HqmClassification="SxIOV_RUNTIME_SLOWP_REG_NA_1";
+        name = "Hqm Vf To Pf Isr Pend";
+        desc = "VF interrupt pending to PF";
+        regwidth = 32;
+        shared;
+        HandCoded=true;
+        IntelRsvd = false;
+        ResetSignal = "hqm_inp_gated_rst_n powergood_rst_b";
+
+        field { name = "Isr Pend"; desc = "If set to 1, a VF initiated an MSI-X interrupt (either mailbox or function level reset)
+                has been sent and is pending.  Clear by writing a 1 to this bit.";
+                PowerWell="vcccfn_gated"; AccessType = "RW/1C/V"; }
+                ISR_PEND [0:0] = 1'h0;
+};
+
+reg hqm_vf_msi_isr_pend_r {
+  HqmClassification="SxIOV_RUNTIME_SLOWP_REG_NA_1";
+        name = "Hqm Vf Msi Isr Pend";
+        desc = "MSI interrupt pending to VF";
+        regwidth = 32;
+        shared;
+        HandCoded=true;
+        IntelRsvd = false;
+        ResetSignal = "hqm_inp_gated_rst_n powergood_rst_b";
+
+        field { name = "Isr Pend"; desc = "If set to 1 a MSI interrupt has been sent and is pending.
+                Clear by writing a 1 to this bit.";
+                PowerWell="vcccfn_gated"; AccessType = "RW/1C/V"; SyncResetSignal="hqm_csr_vf_rst_n"; }
+                ISR_PEND [31:0] = 32'h00000000;
+};
+
+reg hqm_msix_pba_r {
+  HqmClassification="SxIOV_RUNTIME_SLOWP_REG_NA_1";
+        name = "Hqm Msix Pba";
+        desc = "MSIX Pending Bit Array";
+        regwidth = 32;
+        shared;
+        IntelRsvd = false;
+        ResetSignal = "hqm_inp_gated_rst_n powergood_rst_b";
+
+        field { name = "Pending"; desc = "Pending Bits"; PowerWell="vcccfn_gated"; AccessType = "RO/V"; }
+                PENDING [31:0] = 32'h00000000;
+};
+
+reg pf_vf_reset_in_progress_r {
+  HqmClassification="SxIOV_RUNTIME_SLOWP_REG_NA_1";
+        name = "Pf Vf Reset In Progress";
+        desc = "VF Reset In Progress";
+        regwidth = 32;
+        shared;
+        HandCoded=true;
+        IntelRsvd = false;
+        ResetSignal = "hqm_inp_gated_rst_n powergood_rst_b";
+
+        <% for ($i=0; $i<16; $i++) { %>
+        field { name = "Vf<%=$i%> Reset In Progress"; desc = "VF<%=$i%> reset in progress";
+                PowerWell="vcccfn_gated"; AccessType = "RW/1C/V"; SyncResetSignal="hqm_csr_vf_rst_n[<%=$i%>]"; }
+               VF<%=$i%>_RESET_IN_PROGRESS[<%=$i%>:<%=$i%>] = 1'b1;
+        <% } %>
+};
+
+reg vf_reset_in_progress_r {
+  HqmClassification="SxIOV_RUNTIME_SLOWP_REG_NA_1";
+        name = "Vf Reset In Progress";
+        desc = "VF Reset In Progress";
+        regwidth = 32;
+        shared;
+        HandCoded=true;
+        IntelRsvd = false;
+        ResetSignal = "hqm_inp_gated_rst_n powergood_rst_b";
+
+        field { name = "Reset In Progress"; desc = "Reset in progress for this VF";
+                PowerWell="vcccfn_gated"; AccessType = "RO/V"; SyncResetSignal="hqm_csr_vf_rst_n";}
+                RESET_IN_PROGRESS [0:0] = 1'h1;
+};
+
+reg hqm_vf_msi_isr_r {
+  HqmClassification="SxIOV_RUNTIME_SLOWP_REG_NA_1";
+        name = "Hqm VF MSI Isr";
+        desc = "VF MSI interrupt status";
+        regwidth = 32;
+        shared;
+        HandCoded=true;
+        donttest=true;
+        IntelRsvd = false;
+        ResetSignal = "hqm_inp_gated_rst_n powergood_rst_b";
+
+        field { name = "Vf Msi Isr";
+                desc = "Interrupt requested by VF. Bit N of register corresponds to VF's MSI N.
+                        A bit is set when the source for a particular MSI interrupt indicates a new interrupt.
+                        A bit is cleared when a 1 is written to the corresponding bit in this register.";
+                PowerWell="vcccfn_gated"; AccessType = "RW/1C/V"; SyncResetSignal="hqm_csr_vf_rst_n";}
+                VF_MSI_ISR [31:0] = 32'h00000000;
+};
+

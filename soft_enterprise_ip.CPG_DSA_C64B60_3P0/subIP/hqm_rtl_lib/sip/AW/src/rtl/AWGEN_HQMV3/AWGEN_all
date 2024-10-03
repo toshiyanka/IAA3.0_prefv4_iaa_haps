@@ -1,0 +1,36 @@
+
+# Remove old files
+
+/bin/rm -rf VCS/build_hqm*
+/bin/rm -rf VCS/hqm*
+/bin/rm -rf VCS/*.log
+
+/bin/rm -rf AW_SOLUTION.hash.txt
+/bin/rm -rf hqm_AW_sr*.sv
+/bin/rm -rf hqm_AW_rf*.sv
+/bin/rm -rf AWGEN.log
+
+# Generate logical to physical mapping files (AWGEN.HQMV3.*.scr)
+# and other flow collateral files (see AWGEN.pl for details).
+
+./AWGEN.pl |& tee AWGEN.log
+
+# Generate the un-uniquified AW memory wrappers.
+# MEMGEN references these to convert them into the uniquified versions.
+# Also generating the testbenches for each wrapper and the associated build script.
+# The hqm_full_AW_regression script will run all the builds and sims.
+
+printf "#!/bin/ksh\n" > VCS/hqm_full_AW_regression
+printf "/bin/rm -f *.log\n" >> VCS/hqm_full_AW_regression
+
+./AWGEN.HQMV3.rf.scr |& tee -a AWGEN.log
+./AWGEN.HQMV3.sr.scr |& tee -a AWGEN.log
+
+grep ERROR AWGEN.log
+
+printf "/bin/rm -Rf vc_hdrs.h simv csrc simv.daidir simv.vdb ucli.key DVEfiles dump.vpd\n" >> VCS/hqm_full_AW_regression
+printf "/bin/grep -w -i error regression_model_build.log\n" >> VCS/hqm_full_AW_regression
+printf "/bin/grep    -i error regression_sim.log\n\n" >> VCS/hqm_full_AW_regression
+
+printf "\nTo test AW wrappers: (have vcs enabled and then) cd VCS; ./hqm_full_AW_regression\n\n"
+

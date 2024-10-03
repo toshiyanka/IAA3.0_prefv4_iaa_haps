@@ -1,0 +1,549 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable PF memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+###################################
+# Setup FUNC_VF BAR to a base address of 0x00000003_xxxxxxxx
+###################################
+# 16 VF
+###################################
+# Enable VF and VF memory operations
+###################################
+wr config_master.cfg_pm_pmcsr_disable.disable 0x0
+rd config_master.cfg_pm_pmcsr_disable.disable 0x0
+##
+###poll to Wait for reset to be done 
+poll config_master.cfg_diagnostic_reset_status 0x800003ff 0x800003ff 500
+###poll to Wait for unit_idle to be done 
+poll config_master.cfg_diagnostic_idle_status 0x0007ffff 0x0007ffff 500
+###################################
+# Setup LUTs
+# lut_dir_cq_isr
+# Setting these up as even CQs -> MSI, odd CQs -> MSIX, same vec for pairs of even/odd
+# Bump VF every 8 CQs
+# So we should get 64 (32 dir and 32 ldb) MSI-X interrupts and 64 MSI interrupts
+wr hqm_system_csr.dir_cq_isr[0]   0x408
+wr hqm_system_csr.dir_cq_isr[1]   0x808
+wr hqm_system_csr.dir_cq_isr[2]   0x409
+wr hqm_system_csr.dir_cq_isr[3]   0x809
+wr hqm_system_csr.dir_cq_isr[4]   0x40a
+wr hqm_system_csr.dir_cq_isr[5]   0x80a
+wr hqm_system_csr.dir_cq_isr[6]   0x40b
+wr hqm_system_csr.dir_cq_isr[7]   0x80b
+wr hqm_system_csr.dir_cq_isr[8]   0x44c
+wr hqm_system_csr.dir_cq_isr[9]   0x84c
+wr hqm_system_csr.dir_cq_isr[10]  0x44d
+wr hqm_system_csr.dir_cq_isr[11]  0x84d
+wr hqm_system_csr.dir_cq_isr[12]  0x44e
+wr hqm_system_csr.dir_cq_isr[13]  0x84e
+wr hqm_system_csr.dir_cq_isr[14]  0x44f
+wr hqm_system_csr.dir_cq_isr[15]  0x84f
+wr hqm_system_csr.dir_cq_isr[16]  0x490
+wr hqm_system_csr.dir_cq_isr[17]  0x890
+wr hqm_system_csr.dir_cq_isr[18]  0x491
+wr hqm_system_csr.dir_cq_isr[19]  0x891
+wr hqm_system_csr.dir_cq_isr[20]  0x492
+wr hqm_system_csr.dir_cq_isr[21]  0x892
+wr hqm_system_csr.dir_cq_isr[22]  0x493
+wr hqm_system_csr.dir_cq_isr[23]  0x893
+wr hqm_system_csr.dir_cq_isr[24]  0x4d4
+wr hqm_system_csr.dir_cq_isr[25]  0x8d4
+wr hqm_system_csr.dir_cq_isr[26]  0x4d5
+wr hqm_system_csr.dir_cq_isr[27]  0x8d5
+wr hqm_system_csr.dir_cq_isr[28]  0x4d6
+wr hqm_system_csr.dir_cq_isr[29]  0x8d6
+wr hqm_system_csr.dir_cq_isr[30]  0x4d7
+wr hqm_system_csr.dir_cq_isr[31]  0x8d7
+wr hqm_system_csr.dir_cq_isr[32]  0x518
+wr hqm_system_csr.dir_cq_isr[33]  0x918
+wr hqm_system_csr.dir_cq_isr[34]  0x519
+wr hqm_system_csr.dir_cq_isr[35]  0x919
+wr hqm_system_csr.dir_cq_isr[36]  0x51a
+wr hqm_system_csr.dir_cq_isr[37]  0x91a
+wr hqm_system_csr.dir_cq_isr[38]  0x51b
+wr hqm_system_csr.dir_cq_isr[39]  0x91b
+wr hqm_system_csr.dir_cq_isr[40]  0x55c
+wr hqm_system_csr.dir_cq_isr[41]  0x95c
+wr hqm_system_csr.dir_cq_isr[42]  0x55d
+wr hqm_system_csr.dir_cq_isr[43]  0x95d
+wr hqm_system_csr.dir_cq_isr[44]  0x55e
+wr hqm_system_csr.dir_cq_isr[45]  0x95e
+wr hqm_system_csr.dir_cq_isr[46]  0x55f
+wr hqm_system_csr.dir_cq_isr[47]  0x95f
+wr hqm_system_csr.dir_cq_isr[48]  0x5a0
+wr hqm_system_csr.dir_cq_isr[49]  0x9a0
+wr hqm_system_csr.dir_cq_isr[50]  0x5a1
+wr hqm_system_csr.dir_cq_isr[51]  0x9a1
+wr hqm_system_csr.dir_cq_isr[52]  0x5a2
+wr hqm_system_csr.dir_cq_isr[53]  0x9a2
+wr hqm_system_csr.dir_cq_isr[54]  0x5a3
+wr hqm_system_csr.dir_cq_isr[55]  0x9a3
+wr hqm_system_csr.dir_cq_isr[56]  0x5e4
+wr hqm_system_csr.dir_cq_isr[57]  0x9e4
+wr hqm_system_csr.dir_cq_isr[58]  0x5e5
+wr hqm_system_csr.dir_cq_isr[59]  0x9e5
+wr hqm_system_csr.dir_cq_isr[60]  0x5e6
+wr hqm_system_csr.dir_cq_isr[61]  0x9e6
+wr hqm_system_csr.dir_cq_isr[62]  0x5e7
+wr hqm_system_csr.dir_cq_isr[63]  0x9e7
+# lut_ldb_cq_isr
+wr hqm_system_csr.ldb_cq_isr[0]   0x628
+wr hqm_system_csr.ldb_cq_isr[1]   0xa28
+wr hqm_system_csr.ldb_cq_isr[2]   0x629
+wr hqm_system_csr.ldb_cq_isr[3]   0xa29
+wr hqm_system_csr.ldb_cq_isr[4]   0x62a
+wr hqm_system_csr.ldb_cq_isr[5]   0xa2a
+wr hqm_system_csr.ldb_cq_isr[6]   0x62b
+wr hqm_system_csr.ldb_cq_isr[7]   0xa2b
+wr hqm_system_csr.ldb_cq_isr[8]   0x66c
+wr hqm_system_csr.ldb_cq_isr[9]   0xa6c
+wr hqm_system_csr.ldb_cq_isr[10]  0x66d
+wr hqm_system_csr.ldb_cq_isr[11]  0xa6d
+wr hqm_system_csr.ldb_cq_isr[12]  0x66e
+wr hqm_system_csr.ldb_cq_isr[13]  0xa6e
+wr hqm_system_csr.ldb_cq_isr[14]  0x66f
+wr hqm_system_csr.ldb_cq_isr[15]  0xa6f
+wr hqm_system_csr.ldb_cq_isr[16]  0x6b0
+wr hqm_system_csr.ldb_cq_isr[17]  0xab0
+wr hqm_system_csr.ldb_cq_isr[18]  0x6b1
+wr hqm_system_csr.ldb_cq_isr[19]  0xab1
+wr hqm_system_csr.ldb_cq_isr[20]  0x6b2
+wr hqm_system_csr.ldb_cq_isr[21]  0xab2
+wr hqm_system_csr.ldb_cq_isr[22]  0x6b3
+wr hqm_system_csr.ldb_cq_isr[23]  0xab3
+wr hqm_system_csr.ldb_cq_isr[24]  0x6f4
+wr hqm_system_csr.ldb_cq_isr[25]  0xaf4
+wr hqm_system_csr.ldb_cq_isr[26]  0x6f5
+wr hqm_system_csr.ldb_cq_isr[27]  0xaf5
+wr hqm_system_csr.ldb_cq_isr[28]  0x6f6
+wr hqm_system_csr.ldb_cq_isr[29]  0xaf6
+wr hqm_system_csr.ldb_cq_isr[30]  0x6f7
+wr hqm_system_csr.ldb_cq_isr[31]  0xaf7
+wr hqm_system_csr.ldb_cq_isr[32]  0x738
+wr hqm_system_csr.ldb_cq_isr[33]  0xb38
+wr hqm_system_csr.ldb_cq_isr[34]  0x739
+wr hqm_system_csr.ldb_cq_isr[35]  0xb39
+wr hqm_system_csr.ldb_cq_isr[36]  0x73a
+wr hqm_system_csr.ldb_cq_isr[37]  0xb3a
+wr hqm_system_csr.ldb_cq_isr[38]  0x73b
+wr hqm_system_csr.ldb_cq_isr[39]  0xb3b
+wr hqm_system_csr.ldb_cq_isr[40]  0x77c
+wr hqm_system_csr.ldb_cq_isr[41]  0xb7c
+wr hqm_system_csr.ldb_cq_isr[42]  0x77d
+wr hqm_system_csr.ldb_cq_isr[43]  0xb7d
+wr hqm_system_csr.ldb_cq_isr[44]  0x77e
+wr hqm_system_csr.ldb_cq_isr[45]  0xb7e
+wr hqm_system_csr.ldb_cq_isr[46]  0x77f
+wr hqm_system_csr.ldb_cq_isr[47]  0xb7f
+wr hqm_system_csr.ldb_cq_isr[48]  0x780
+wr hqm_system_csr.ldb_cq_isr[49]  0xb80
+wr hqm_system_csr.ldb_cq_isr[50]  0x781
+wr hqm_system_csr.ldb_cq_isr[51]  0xb81
+wr hqm_system_csr.ldb_cq_isr[52]  0x782
+wr hqm_system_csr.ldb_cq_isr[53]  0xb82
+wr hqm_system_csr.ldb_cq_isr[54]  0x783
+wr hqm_system_csr.ldb_cq_isr[55]  0xb83
+wr hqm_system_csr.ldb_cq_isr[56]  0x7c4
+wr hqm_system_csr.ldb_cq_isr[57]  0xbc4
+wr hqm_system_csr.ldb_cq_isr[58]  0x7c5
+wr hqm_system_csr.ldb_cq_isr[59]  0xbc5
+wr hqm_system_csr.ldb_cq_isr[60]  0x7c6
+wr hqm_system_csr.ldb_cq_isr[61]  0xbc6
+wr hqm_system_csr.ldb_cq_isr[62]  0x7c7
+wr hqm_system_csr.ldb_cq_isr[63]  0xbc7
+###################################
+# Enable MSIs
+#### wr hqm_vf_cfg_i[0].msi_cap_addr_l       0x76543f00
+#### wr hqm_vf_cfg_i[0].msi_cap_addr_u       0xfedcba98
+#### wr hqm_vf_cfg_i[0].msi_cap_msg_data     0xf000
+#### wr hqm_vf_cfg_i[0].msi_cap_msg_mask     0x00000000
+#### wr hqm_vf_cfg_i[0].msi_cap_msg_control  0x0051
+#### wr hqm_vf_cfg_i[1].msi_cap_addr_l       0x76543f10
+#### wr hqm_vf_cfg_i[1].msi_cap_addr_u       0xfedcba98
+#### wr hqm_vf_cfg_i[1].msi_cap_msg_data     0xf100
+#### wr hqm_vf_cfg_i[1].msi_cap_msg_mask     0x00000000
+#### wr hqm_vf_cfg_i[1].msi_cap_msg_control  0x0051
+#### wr hqm_vf_cfg_i[2].msi_cap_addr_l       0x76543f20
+#### wr hqm_vf_cfg_i[2].msi_cap_addr_u       0xfedcba98
+#### wr hqm_vf_cfg_i[2].msi_cap_msg_data     0xf200
+#### wr hqm_vf_cfg_i[2].msi_cap_msg_mask     0x00000000
+#### wr hqm_vf_cfg_i[2].msi_cap_msg_control  0x0051
+#### wr hqm_vf_cfg_i[3].msi_cap_addr_l       0x76543f30
+#### wr hqm_vf_cfg_i[3].msi_cap_addr_u       0xfedcba98
+#### wr hqm_vf_cfg_i[3].msi_cap_msg_data     0xf300
+#### wr hqm_vf_cfg_i[3].msi_cap_msg_mask     0x00000000
+#### wr hqm_vf_cfg_i[3].msi_cap_msg_control  0x0051
+#### wr hqm_vf_cfg_i[4].msi_cap_addr_l       0x76543f40
+#### wr hqm_vf_cfg_i[4].msi_cap_addr_u       0xfedcba98
+#### wr hqm_vf_cfg_i[4].msi_cap_msg_data     0xf400
+#### wr hqm_vf_cfg_i[4].msi_cap_msg_mask     0x00000000
+#### wr hqm_vf_cfg_i[4].msi_cap_msg_control  0x0051
+#### wr hqm_vf_cfg_i[5].msi_cap_addr_l       0x76543f50
+#### wr hqm_vf_cfg_i[5].msi_cap_addr_u       0xfedcba98
+#### wr hqm_vf_cfg_i[5].msi_cap_msg_data     0xf500
+#### wr hqm_vf_cfg_i[5].msi_cap_msg_mask     0x00000000
+#### wr hqm_vf_cfg_i[5].msi_cap_msg_control  0x0051
+#### wr hqm_vf_cfg_i[6].msi_cap_addr_l       0x76543f60
+#### wr hqm_vf_cfg_i[6].msi_cap_addr_u       0xfedcba98
+#### wr hqm_vf_cfg_i[6].msi_cap_msg_data     0xf600
+#### wr hqm_vf_cfg_i[6].msi_cap_msg_mask     0x00000000
+#### wr hqm_vf_cfg_i[6].msi_cap_msg_control  0x0051
+#### wr hqm_vf_cfg_i[7].msi_cap_addr_l       0x76543f70
+#### wr hqm_vf_cfg_i[7].msi_cap_addr_u       0xfedcba98
+#### wr hqm_vf_cfg_i[7].msi_cap_msg_data     0xf700
+#### wr hqm_vf_cfg_i[7].msi_cap_msg_mask     0x00000000
+#### wr hqm_vf_cfg_i[7].msi_cap_msg_control  0x0051
+#### wr hqm_vf_cfg_i[8].msi_cap_addr_l       0x76543f80
+#### wr hqm_vf_cfg_i[8].msi_cap_addr_u       0xfedcba98
+#### wr hqm_vf_cfg_i[8].msi_cap_msg_data     0xf800
+#### wr hqm_vf_cfg_i[8].msi_cap_msg_mask     0x00000000
+#### wr hqm_vf_cfg_i[8].msi_cap_msg_control  0x0051
+#### wr hqm_vf_cfg_i[9].msi_cap_addr_l       0x76543f90
+#### wr hqm_vf_cfg_i[9].msi_cap_addr_u       0xfedcba98
+#### wr hqm_vf_cfg_i[9].msi_cap_msg_data     0xf900
+#### wr hqm_vf_cfg_i[9].msi_cap_msg_mask     0x00000000
+#### wr hqm_vf_cfg_i[9].msi_cap_msg_control  0x0051
+#### wr hqm_vf_cfg_i[10].msi_cap_addr_l      0x76543fa0
+#### wr hqm_vf_cfg_i[10].msi_cap_addr_u      0xfedcba98
+#### wr hqm_vf_cfg_i[10].msi_cap_msg_data    0xfa00
+#### wr hqm_vf_cfg_i[10].msi_cap_msg_mask    0x00000000
+#### wr hqm_vf_cfg_i[10].msi_cap_msg_control 0x0051
+#### wr hqm_vf_cfg_i[11].msi_cap_addr_l      0x76543fb0
+#### wr hqm_vf_cfg_i[11].msi_cap_addr_u      0xfedcba98
+#### wr hqm_vf_cfg_i[11].msi_cap_msg_data    0xfb00
+#### wr hqm_vf_cfg_i[11].msi_cap_msg_mask    0x00000000
+#### wr hqm_vf_cfg_i[11].msi_cap_msg_control 0x0051
+#### wr hqm_vf_cfg_i[12].msi_cap_addr_l      0x76543fc0
+#### wr hqm_vf_cfg_i[12].msi_cap_addr_u      0xfedcba98
+#### wr hqm_vf_cfg_i[12].msi_cap_msg_data    0xfc00
+#### wr hqm_vf_cfg_i[12].msi_cap_msg_mask    0x00000000
+#### wr hqm_vf_cfg_i[12].msi_cap_msg_control 0x0051
+#### wr hqm_vf_cfg_i[13].msi_cap_addr_l      0x76543fd0
+#### wr hqm_vf_cfg_i[13].msi_cap_addr_u      0xfedcba98
+#### wr hqm_vf_cfg_i[13].msi_cap_msg_data    0xfd00
+#### wr hqm_vf_cfg_i[13].msi_cap_msg_mask    0x00000000
+#### wr hqm_vf_cfg_i[13].msi_cap_msg_control 0x0051
+#### wr hqm_vf_cfg_i[14].msi_cap_addr_l      0x76543fe0
+#### wr hqm_vf_cfg_i[14].msi_cap_addr_u      0xfedcba98
+#### wr hqm_vf_cfg_i[14].msi_cap_msg_data    0xfe00
+#### wr hqm_vf_cfg_i[14].msi_cap_msg_mask    0x00000000
+#### wr hqm_vf_cfg_i[14].msi_cap_msg_control 0x0051
+#### wr hqm_vf_cfg_i[15].msi_cap_addr_l      0x76543ff0
+#### wr hqm_vf_cfg_i[15].msi_cap_addr_u      0xfedcba98
+#### wr hqm_vf_cfg_i[15].msi_cap_msg_data    0xff00
+#### wr hqm_vf_cfg_i[15].msi_cap_msg_mask    0x00000000
+#### wr hqm_vf_cfg_i[15].msi_cap_msg_control 0x0051
+###################################
+# Setup MSI-X Table entries
+wr hqm_msix_mem.msg_addr_l[0]   0x12345678
+wr hqm_msix_mem.msg_addr_u[0]   0xc0ded000
+wr hqm_msix_mem.msg_data[0]     0xd40c0ded
+wr hqm_msix_mem.vector_ctrl[0]  0x00000000
+wr hqm_msix_mem.msg_addr_l[1]   0x12345678
+wr hqm_msix_mem.msg_addr_u[1]   0xc0ded010
+wr hqm_msix_mem.msg_data[1]     0xd01c0ded
+wr hqm_msix_mem.vector_ctrl[1]  0x00000000
+wr hqm_msix_mem.msg_addr_l[2]   0x12345678
+wr hqm_msix_mem.msg_addr_u[2]   0xc0ded020
+wr hqm_msix_mem.msg_data[2]     0xd02c0ded
+wr hqm_msix_mem.vector_ctrl[2]  0x00000000
+wr hqm_msix_mem.msg_addr_l[3]   0x12345678
+wr hqm_msix_mem.msg_addr_u[3]   0xc0ded030
+wr hqm_msix_mem.msg_data[3]     0xd03c0ded
+wr hqm_msix_mem.vector_ctrl[3]  0x00000000
+wr hqm_msix_mem.msg_addr_l[4]   0x12345678
+wr hqm_msix_mem.msg_addr_u[4]   0xc0ded040
+wr hqm_msix_mem.msg_data[4]     0xd04c0ded
+wr hqm_msix_mem.vector_ctrl[4]  0x00000000
+wr hqm_msix_mem.msg_addr_l[5]   0x12345678
+wr hqm_msix_mem.msg_addr_u[5]   0xc0ded050
+wr hqm_msix_mem.msg_data[5]     0xd05c0ded
+wr hqm_msix_mem.vector_ctrl[5]  0x00000000
+wr hqm_msix_mem.msg_addr_l[6]   0x12345678
+wr hqm_msix_mem.msg_addr_u[6]   0xc0ded060
+wr hqm_msix_mem.msg_data[6]     0xd06c0ded
+wr hqm_msix_mem.vector_ctrl[6]  0x00000000
+wr hqm_msix_mem.msg_addr_l[7]   0x12345678
+wr hqm_msix_mem.msg_addr_u[7]   0xc0ded070
+wr hqm_msix_mem.msg_data[7]     0xd07c0ded
+wr hqm_msix_mem.vector_ctrl[7]  0x00000000
+wr hqm_msix_mem.msg_addr_l[8]   0x12345678
+wr hqm_msix_mem.msg_addr_u[8]   0xc0ded080
+wr hqm_msix_mem.msg_data[8]     0xd08c0ded
+wr hqm_msix_mem.vector_ctrl[8]  0x00000000
+wr hqm_msix_mem.msg_addr_l[9]   0x12345678
+wr hqm_msix_mem.msg_addr_u[9]   0xc0ded090
+wr hqm_msix_mem.msg_data[9]     0xd09c0ded
+wr hqm_msix_mem.vector_ctrl[9]  0x00000000
+wr hqm_msix_mem.msg_addr_l[10]  0x12345678
+wr hqm_msix_mem.msg_addr_u[10]  0xc0ded0a0
+wr hqm_msix_mem.msg_data[10]    0xd0ac0ded
+wr hqm_msix_mem.vector_ctrl[10] 0x00000000
+wr hqm_msix_mem.msg_addr_l[11]  0x12345678
+wr hqm_msix_mem.msg_addr_u[11]  0xc0ded0b0
+wr hqm_msix_mem.msg_data[11]    0xd0bc0ded
+wr hqm_msix_mem.vector_ctrl[11] 0x00000000
+wr hqm_msix_mem.msg_addr_l[12]  0x12345678
+wr hqm_msix_mem.msg_addr_u[12]  0xc0ded0c0
+wr hqm_msix_mem.msg_data[12]    0xd0cc0ded
+wr hqm_msix_mem.vector_ctrl[12] 0x00000000
+wr hqm_msix_mem.msg_addr_l[13]  0x12345678
+wr hqm_msix_mem.msg_addr_u[13]  0xc0ded0d0
+wr hqm_msix_mem.msg_data[13]    0xd0dc0ded
+wr hqm_msix_mem.vector_ctrl[13] 0x00000000
+wr hqm_msix_mem.msg_addr_l[14]  0x12345678
+wr hqm_msix_mem.msg_addr_u[14]  0xc0ded0e0
+wr hqm_msix_mem.msg_data[14]    0xd0ec0ded
+wr hqm_msix_mem.vector_ctrl[14] 0x00000000
+wr hqm_msix_mem.msg_addr_l[15]  0x12345678
+wr hqm_msix_mem.msg_addr_u[15]  0xc0ded0f0
+wr hqm_msix_mem.msg_data[15]    0xd0fc0ded
+wr hqm_msix_mem.vector_ctrl[15] 0x00000000
+wr hqm_msix_mem.msg_addr_l[16]  0x12345678
+wr hqm_msix_mem.msg_addr_u[16]  0xc0ded100
+wr hqm_msix_mem.msg_data[16]    0xd10c0ded
+wr hqm_msix_mem.vector_ctrl[16] 0x00000000
+wr hqm_msix_mem.msg_addr_l[17]  0x12345678
+wr hqm_msix_mem.msg_addr_u[17]  0xc0ded110
+wr hqm_msix_mem.msg_data[17]    0xd11c0ded
+wr hqm_msix_mem.vector_ctrl[17] 0x00000000
+wr hqm_msix_mem.msg_addr_l[18]  0x12345678
+wr hqm_msix_mem.msg_addr_u[18]  0xc0ded120
+wr hqm_msix_mem.msg_data[18]    0xd12c0ded
+wr hqm_msix_mem.vector_ctrl[18] 0x00000000
+wr hqm_msix_mem.msg_addr_l[19]  0x12345678
+wr hqm_msix_mem.msg_addr_u[19]  0xc0ded130
+wr hqm_msix_mem.msg_data[19]    0xd13c0ded
+wr hqm_msix_mem.vector_ctrl[19] 0x00000000
+wr hqm_msix_mem.msg_addr_l[20]  0x12345678
+wr hqm_msix_mem.msg_addr_u[20]  0xc0ded140
+wr hqm_msix_mem.msg_data[20]    0xd14c0ded
+wr hqm_msix_mem.vector_ctrl[20] 0x00000000
+wr hqm_msix_mem.msg_addr_l[21]  0x12345678
+wr hqm_msix_mem.msg_addr_u[21]  0xc0ded150
+wr hqm_msix_mem.msg_data[21]    0xd15c0ded
+wr hqm_msix_mem.vector_ctrl[21] 0x00000000
+wr hqm_msix_mem.msg_addr_l[22]  0x12345678
+wr hqm_msix_mem.msg_addr_u[22]  0xc0ded160
+wr hqm_msix_mem.msg_data[22]    0xd16c0ded
+wr hqm_msix_mem.vector_ctrl[22] 0x00000000
+wr hqm_msix_mem.msg_addr_l[23]  0x12345678
+wr hqm_msix_mem.msg_addr_u[23]  0xc0ded170
+wr hqm_msix_mem.msg_data[23]    0xd17c0ded
+wr hqm_msix_mem.vector_ctrl[23] 0x00000000
+wr hqm_msix_mem.msg_addr_l[24]  0x12345678
+wr hqm_msix_mem.msg_addr_u[24]  0xc0ded180
+wr hqm_msix_mem.msg_data[24]    0xd18c0ded
+wr hqm_msix_mem.vector_ctrl[24] 0x00000000
+wr hqm_msix_mem.msg_addr_l[25]  0x12345678
+wr hqm_msix_mem.msg_addr_u[25]  0xc0ded190
+wr hqm_msix_mem.msg_data[25]    0xd19c0ded
+wr hqm_msix_mem.vector_ctrl[25] 0x00000000
+wr hqm_msix_mem.msg_addr_l[26]  0x12345678
+wr hqm_msix_mem.msg_addr_u[26]  0xc0ded1a0
+wr hqm_msix_mem.msg_data[26]    0xd1ac0ded
+wr hqm_msix_mem.vector_ctrl[26] 0x00000000
+wr hqm_msix_mem.msg_addr_l[27]  0x12345678
+wr hqm_msix_mem.msg_addr_u[27]  0xc0ded1b0
+wr hqm_msix_mem.msg_data[27]    0xd1bc0ded
+wr hqm_msix_mem.vector_ctrl[27] 0x00000000
+wr hqm_msix_mem.msg_addr_l[28]  0x12345678
+wr hqm_msix_mem.msg_addr_u[28]  0xc0ded1c0
+wr hqm_msix_mem.msg_data[28]    0xd1cc0ded
+wr hqm_msix_mem.vector_ctrl[28] 0x00000000
+wr hqm_msix_mem.msg_addr_l[29]  0x12345678
+wr hqm_msix_mem.msg_addr_u[29]  0xc0ded1d0
+wr hqm_msix_mem.msg_data[29]    0xd1dc0ded
+wr hqm_msix_mem.vector_ctrl[29] 0x00000000
+wr hqm_msix_mem.msg_addr_l[30]  0x12345678
+wr hqm_msix_mem.msg_addr_u[30]  0xc0ded1e0
+wr hqm_msix_mem.msg_data[30]    0xd1ec0ded
+wr hqm_msix_mem.vector_ctrl[30] 0x00000000
+wr hqm_msix_mem.msg_addr_l[31]  0x12345678
+wr hqm_msix_mem.msg_addr_u[31]  0xc0ded1f0
+wr hqm_msix_mem.msg_data[31]    0xd1fc0ded
+wr hqm_msix_mem.vector_ctrl[31] 0x00000000
+wr hqm_msix_mem.msg_addr_l[32]  0x12345678
+wr hqm_msix_mem.msg_addr_u[32]  0xc0ded200
+wr hqm_msix_mem.msg_data[32]    0xd20c0ded
+wr hqm_msix_mem.vector_ctrl[32] 0x00000000
+wr hqm_msix_mem.msg_addr_l[33]  0x12345678
+wr hqm_msix_mem.msg_addr_u[33]  0xc0ded210
+wr hqm_msix_mem.msg_data[33]    0xd21c0ded
+wr hqm_msix_mem.vector_ctrl[33] 0x00000000
+wr hqm_msix_mem.msg_addr_l[34]  0x12345678
+wr hqm_msix_mem.msg_addr_u[34]  0xc0ded220
+wr hqm_msix_mem.msg_data[34]    0xd22c0ded
+wr hqm_msix_mem.vector_ctrl[34] 0x00000000
+wr hqm_msix_mem.msg_addr_l[35]  0x12345678
+wr hqm_msix_mem.msg_addr_u[35]  0xc0ded230
+wr hqm_msix_mem.msg_data[35]    0xd23c0ded
+wr hqm_msix_mem.vector_ctrl[35] 0x00000000
+wr hqm_msix_mem.msg_addr_l[36]  0x12345678
+wr hqm_msix_mem.msg_addr_u[36]  0xc0ded240
+wr hqm_msix_mem.msg_data[36]    0xd24c0ded
+wr hqm_msix_mem.vector_ctrl[36] 0x00000000
+wr hqm_msix_mem.msg_addr_l[37]  0x12345678
+wr hqm_msix_mem.msg_addr_u[37]  0xc0ded250
+wr hqm_msix_mem.msg_data[37]    0xd25c0ded
+wr hqm_msix_mem.vector_ctrl[37] 0x00000000
+wr hqm_msix_mem.msg_addr_l[38]  0x12345678
+wr hqm_msix_mem.msg_addr_u[38]  0xc0ded260
+wr hqm_msix_mem.msg_data[38]    0xd26c0ded
+wr hqm_msix_mem.vector_ctrl[38] 0x00000000
+wr hqm_msix_mem.msg_addr_l[39]  0x12345678
+wr hqm_msix_mem.msg_addr_u[39]  0xc0ded270
+wr hqm_msix_mem.msg_data[39]    0xd27c0ded
+wr hqm_msix_mem.vector_ctrl[39] 0x00000000
+wr hqm_msix_mem.msg_addr_l[40]  0x12345678
+wr hqm_msix_mem.msg_addr_u[40]  0xc0ded280
+wr hqm_msix_mem.msg_data[40]    0xd28c0ded
+wr hqm_msix_mem.vector_ctrl[40] 0x00000000
+wr hqm_msix_mem.msg_addr_l[41]  0x12345678
+wr hqm_msix_mem.msg_addr_u[41]  0xc0ded290
+wr hqm_msix_mem.msg_data[41]    0xd29c0ded
+wr hqm_msix_mem.vector_ctrl[41] 0x00000000
+wr hqm_msix_mem.msg_addr_l[42]  0x12345678
+wr hqm_msix_mem.msg_addr_u[42]  0xc0ded2a0
+wr hqm_msix_mem.msg_data[42]    0xd2ac0ded
+wr hqm_msix_mem.vector_ctrl[42] 0x00000000
+wr hqm_msix_mem.msg_addr_l[43]  0x12345678
+wr hqm_msix_mem.msg_addr_u[43]  0xc0ded2b0
+wr hqm_msix_mem.msg_data[43]    0xd2bc0ded
+wr hqm_msix_mem.vector_ctrl[43] 0x00000000
+wr hqm_msix_mem.msg_addr_l[44]  0x12345678
+wr hqm_msix_mem.msg_addr_u[44]  0xc0ded2c0
+wr hqm_msix_mem.msg_data[44]    0xd2cc0ded
+wr hqm_msix_mem.vector_ctrl[44] 0x00000000
+wr hqm_msix_mem.msg_addr_l[45]  0x12345678
+wr hqm_msix_mem.msg_addr_u[45]  0xc0ded2d0
+wr hqm_msix_mem.msg_data[45]    0xd2dc0ded
+wr hqm_msix_mem.vector_ctrl[45] 0x00000000
+wr hqm_msix_mem.msg_addr_l[46]  0x12345678
+wr hqm_msix_mem.msg_addr_u[46]  0xc0ded2e0
+wr hqm_msix_mem.msg_data[46]    0xd2ec0ded
+wr hqm_msix_mem.vector_ctrl[46] 0x00000000
+wr hqm_msix_mem.msg_addr_l[47]  0x12345678
+wr hqm_msix_mem.msg_addr_u[47]  0xc0ded2f0
+wr hqm_msix_mem.msg_data[47]    0xd2fc0ded
+wr hqm_msix_mem.vector_ctrl[47] 0x00000000
+wr hqm_msix_mem.msg_addr_l[48]  0x12345678
+wr hqm_msix_mem.msg_addr_u[48]  0xc0ded300
+wr hqm_msix_mem.msg_data[48]    0xd30c0ded
+wr hqm_msix_mem.vector_ctrl[48] 0x00000000
+wr hqm_msix_mem.msg_addr_l[49]  0x12345678
+wr hqm_msix_mem.msg_addr_u[49]  0xc0ded310
+wr hqm_msix_mem.msg_data[49]    0xd31c0ded
+wr hqm_msix_mem.vector_ctrl[49] 0x00000000
+wr hqm_msix_mem.msg_addr_l[50]  0x12345678
+wr hqm_msix_mem.msg_addr_u[50]  0xc0ded320
+wr hqm_msix_mem.msg_data[50]    0xd32c0ded
+wr hqm_msix_mem.vector_ctrl[50] 0x00000000
+wr hqm_msix_mem.msg_addr_l[51]  0x12345678
+wr hqm_msix_mem.msg_addr_u[51]  0xc0ded330
+wr hqm_msix_mem.msg_data[51]    0xd33c0ded
+wr hqm_msix_mem.vector_ctrl[51] 0x00000000
+wr hqm_msix_mem.msg_addr_l[52]  0x12345678
+wr hqm_msix_mem.msg_addr_u[52]  0xc0ded340
+wr hqm_msix_mem.msg_data[52]    0xd34c0ded
+wr hqm_msix_mem.vector_ctrl[52] 0x00000000
+wr hqm_msix_mem.msg_addr_l[53]  0x12345678
+wr hqm_msix_mem.msg_addr_u[53]  0xc0ded350
+wr hqm_msix_mem.msg_data[53]    0xd35c0ded
+wr hqm_msix_mem.vector_ctrl[53] 0x00000000
+wr hqm_msix_mem.msg_addr_l[54]  0x12345678
+wr hqm_msix_mem.msg_addr_u[54]  0xc0ded360
+wr hqm_msix_mem.msg_data[54]    0xd36c0ded
+wr hqm_msix_mem.vector_ctrl[54] 0x00000000
+wr hqm_msix_mem.msg_addr_l[55]  0x12345678
+wr hqm_msix_mem.msg_addr_u[55]  0xc0ded370
+wr hqm_msix_mem.msg_data[55]    0xd37c0ded
+wr hqm_msix_mem.vector_ctrl[55] 0x00000000
+wr hqm_msix_mem.msg_addr_l[56]  0x12345678
+wr hqm_msix_mem.msg_addr_u[56]  0xc0ded380
+wr hqm_msix_mem.msg_data[56]    0xd38c0ded
+wr hqm_msix_mem.vector_ctrl[56] 0x00000000
+wr hqm_msix_mem.msg_addr_l[57]  0x12345678
+wr hqm_msix_mem.msg_addr_u[57]  0xc0ded390
+wr hqm_msix_mem.msg_data[57]    0xd39c0ded
+wr hqm_msix_mem.vector_ctrl[57] 0x00000000
+wr hqm_msix_mem.msg_addr_l[58]  0x12345678
+wr hqm_msix_mem.msg_addr_u[58]  0xc0ded3a0
+wr hqm_msix_mem.msg_data[58]    0xd3ac0ded
+wr hqm_msix_mem.vector_ctrl[58] 0x00000000
+wr hqm_msix_mem.msg_addr_l[59]  0x12345678
+wr hqm_msix_mem.msg_addr_u[59]  0xc0ded3b0
+wr hqm_msix_mem.msg_data[59]    0xd3bc0ded
+wr hqm_msix_mem.vector_ctrl[59] 0x00000000
+wr hqm_msix_mem.msg_addr_l[60]  0x12345678
+wr hqm_msix_mem.msg_addr_u[60]  0xc0ded3c0
+wr hqm_msix_mem.msg_data[60]    0xd3cc0ded
+wr hqm_msix_mem.vector_ctrl[60] 0x00000000
+wr hqm_msix_mem.msg_addr_l[61]  0x12345678
+wr hqm_msix_mem.msg_addr_u[61]  0xc0ded3d0
+wr hqm_msix_mem.msg_data[61]    0xd3dc0ded
+wr hqm_msix_mem.vector_ctrl[61] 0x00000000
+wr hqm_msix_mem.msg_addr_l[62]  0x12345678
+wr hqm_msix_mem.msg_addr_u[62]  0xc0ded3e0
+wr hqm_msix_mem.msg_data[62]    0xd3ec0ded
+wr hqm_msix_mem.vector_ctrl[62] 0x00000000
+wr hqm_msix_mem.msg_addr_l[63]  0x12345678
+wr hqm_msix_mem.msg_addr_u[63]  0xc0ded3f0
+wr hqm_msix_mem.msg_data[63]    0xd3fc0ded
+wr hqm_msix_mem.vector_ctrl[63] 0x00000000
+wr hqm_msix_mem.msg_addr_l[64]  0x12345678
+wr hqm_msix_mem.msg_addr_u[64]  0xc0ded400
+wr hqm_msix_mem.msg_data[64]    0xd40c0ded
+wr hqm_msix_mem.vector_ctrl[64] 0x00000000
+###################################
+# Set VF BM enables
+#### wr hqm_vf_cfg_i[0].device_command  0x4
+#### wr hqm_vf_cfg_i[1].device_command  0x4
+#### wr hqm_vf_cfg_i[2].device_command  0x4
+#### wr hqm_vf_cfg_i[3].device_command  0x4
+#### wr hqm_vf_cfg_i[4].device_command  0x4
+#### wr hqm_vf_cfg_i[5].device_command  0x4
+#### wr hqm_vf_cfg_i[6].device_command  0x4
+#### wr hqm_vf_cfg_i[7].device_command  0x4
+#### wr hqm_vf_cfg_i[8].device_command  0x4
+#### wr hqm_vf_cfg_i[9].device_command  0x4
+#### wr hqm_vf_cfg_i[10].device_command 0x4
+#### wr hqm_vf_cfg_i[11].device_command 0x4
+#### wr hqm_vf_cfg_i[12].device_command 0x4
+#### wr hqm_vf_cfg_i[13].device_command 0x4
+#### wr hqm_vf_cfg_i[14].device_command 0x4
+#### wr hqm_vf_cfg_i[15].device_command 0x4
+#########################################################
+# Setup the SMON to count IOSF writes
+wr hqm_system_csr.aw_smon_configuration0[0] 0x00000991
+wr hqm_system_csr.aw_smon_configuration1[0] 0x00001b1b
+wr hqm_system_csr.aw_smon_compare0[0]       0x00000000
+wr hqm_system_csr.aw_smon_compare1[0]       0x00000080
+wr hqm_system_csr.aw_smon_comp_mask0[0]     0x00000080
+wr hqm_system_csr.aw_smon_comp_mask1[0]     0x00000080
+wr hqm_system_csr.aw_smon_configuration0[1] 0x00000991
+wr hqm_system_csr.aw_smon_configuration1[1] 0x00001a1a
+wr hqm_system_csr.aw_smon_compare0[1]       0x00000000
+wr hqm_system_csr.aw_smon_compare1[1]       0x00000d00
+wr hqm_system_csr.aw_smon_comp_mask0[1]     0x00000f00
+wr hqm_system_csr.aw_smon_comp_mask1[1]     0x00000f00
+###################################
+# Enable MSI-X
+idle 100
+wr hqm_pf_cfg_i.msix_cap_control 0x8000
+rd hqm_pf_cfg_i.msix_cap_control 0x8040

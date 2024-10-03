@@ -1,0 +1,26 @@
+cd $IP_ROOT
+\rm pwa/*.log
+
+source scripts/run_all_test_default
+grep -ir status pwa/results/tests/*/postsim.log > pwa/default.log
+
+source scripts/run_all_test_1S 
+grep -ir status pwa/results/tests/*/postsim.log > pwa/1S.log
+
+source scripts/run_all_test_2S
+grep -ir status pwa/results/tests/*/postsim.log > pwa/2S.log
+
+source scripts/run_all_hier
+grep -ir status pwa/results/tests/*/postsim.log > pwa/hier.log
+
+source scripts/run_all_hier_hybrid
+grep -ir status pwa/results/tests/*/postsim.log > pwa/hier_hybrid.log
+
+source scripts/run_all_linear
+grep -ir status pwa/results/tests/*/postsim.log > pwa/linear.log
+
+cd $IP_ROOT
+grep -i fail  $IP_ROOT/pwa/*.log
+grep -i error $IP_ROOT/pwa/*.log
+
+

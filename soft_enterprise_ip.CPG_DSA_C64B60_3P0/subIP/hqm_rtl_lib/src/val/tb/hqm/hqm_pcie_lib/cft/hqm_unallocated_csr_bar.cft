@@ -1,0 +1,93 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+
+###################################
+#TEST 1
+###################################
+#Normal Operation with BARS set. 
+#No UR expected
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable PF memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command 0x6
+###################################
+# Setup FUNC_VF BAR to a base address of 0x00000000_xxxxxxxx
+wr hqm_pf_cfg_i.sriov_cap_func_bar_l 0x00000000
+wr hqm_pf_cfg_i.sriov_cap_func_bar_u 0x00000005
+###################################
+# 00 VFs
+wr hqm_pf_cfg_i.sriov_cap_num_vf 0x10
+###################################
+# Enable VF and VF memory operations
+wr hqm_pf_cfg_i.sriov_cap_control_status 0x19
+###################################
+# Initial values
+rd hqm_func_vf_bar[0].vf_to_pf_mailbox[0] 
+rd hqm_func_pf_per_vf[0].vf_to_pf_mailbox_isr 
+rd list_sel_pipe.cfg_counter_enq_atq
+rd hqm_func_vf_bar[15].vf_to_pf_mailbox[0]
+
+
+###################################
+#TEST 2
+###################################
+# CSR_BAR not set. 
+# UR expected for CSR_BAR access
+###################################
+idle 100
+###################################
+##sysrst flr=pf
+#FLR RELATED## 
+rd hqm_pf_cfg_i.pcie_cap_device_control 0x0020 0x8000 
+#Disable MSI in order to avoid any unattended INT later##
+wr  hqm_pf_cfg_i.msix_cap_control 0x0000
+
+##Disable Bus Master, INTX and Mem Txn enable bit from device_command##
+wr  hqm_pf_cfg_i.device_command 0x400
+wr  hqm_pf_cfg_i.pcie_cap_device_control 0x8000
+#FLR RELATED## 
+###################################
+
+idle 500
+rd hqm_pf_cfg_i.device_command
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Enable PF memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command 0x6
+###################################
+# Setup FUNC_VF BAR to a base address of 0x00000000_xxxxxxxx
+wr hqm_pf_cfg_i.sriov_cap_func_bar_u 0x00000006
+###################################
+wr hqm_pf_cfg_i.sriov_cap_num_vf 0x10
+###################################
+# Enable VF and VF memory operations
+wr hqm_pf_cfg_i.sriov_cap_control_status 0x19
+###################################
+#rde credit_hist_pipe.cfg_dir_pp_dir_credit_count[0]
+rd hqm_func_pf_per_vf[0].vf_to_pf_mailbox_isr 
+rde list_sel_pipe.cfg_counter_enq_atq
+rd hqm_func_vf_bar[0].vf_to_pf_mailbox[0] 
+
+idle 300
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+idle 300
+

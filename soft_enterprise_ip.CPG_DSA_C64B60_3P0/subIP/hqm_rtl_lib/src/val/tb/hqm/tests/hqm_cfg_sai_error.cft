@@ -1,0 +1,79 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+###################################
+# Enable error reporting
+cfg_begin
+wr hqm_pf_cfg_i.pcie_cap_device_control.cere 0x1
+wr hqm_pf_cfg_i.pcie_cap_device_control.nere 0x1
+wr hqm_pf_cfg_i.pcie_cap_device_control.fere 0x1
+wr hqm_pf_cfg_i.pcie_cap_device_control.urro 0x1
+cfg_end
+###################################
+# Test hqm_system LUTs
+sai HOSTIA_SUNPASS_SAI
+wr hqm_system_csr.hqm_csr_wac_lo 0      # disable all SAIs for writes
+wr hqm_system_csr.hqm_csr_wac_hi 0
+# write should fail
+rd hqm_system_csr.aw_smon_compare0[0] 0
+wr hqm_system_csr.aw_smon_compare0[0] 0x55
+rd hqm_system_csr.aw_smon_compare0[0] 0
+#
+wr hqm_system_csr.hqm_csr_wac_lo 0xffffffff      # enable all SAIs for writes
+wr hqm_system_csr.hqm_csr_wac_hi 0xffffffff
+# write should succeed
+wr hqm_system_csr.aw_smon_compare0[0] 0xaa
+rd hqm_system_csr.aw_smon_compare0[0] 0xaa
+#
+wr hqm_system_csr.hqm_csr_rac_lo 0      # disable all SAIs for reads
+wr hqm_system_csr.hqm_csr_rac_hi 0
+#
+rd hqm_system_csr.aw_smon_compare0[0] 0x00     # SAI error should return 0's
+#
+rd hqm_pf_cfg_i.vendor_id
+wr hqm_msix_mem.msg_addr_l[0] 0x33cc33cc
+rd hqm_msix_mem.msg_addr_l[0] 0x33cc33cc
+rd hqm_system_csr.hcw_enq_fifo_status 0x10
+ord hqm_system_csr.pf_meas_latency 0x4 0x0
+#
+wr hqm_system_csr.hqm_csr_rac_lo 0      # disable all SAIs for OS_W reads
+wr hqm_system_csr.hqm_csr_rac_hi 0
+wr hqm_system_csr.hqm_csr_wac_lo 0      # disable all SAIs for OS_W writes
+wr hqm_system_csr.hqm_csr_wac_hi 0
+#
+rd hqm_pf_cfg_i.vendor_id 0x00000000                   # return 0's
+rd hqm_msix_mem.msg_addr_l[0] 0x0                      # SAI error should return 0's
+rd hqm_system_csr.hcw_enq_fifo_status 0x0              # SAI error should return 0's
+owr hqm_system_csr.pf_meas_latency 0x4 0x1
+ord hqm_system_csr.pf_meas_latency 0x4 0x0
+
+wr hqm_system_csr.hqm_csr_rac_lo 0xffffffff             # enable all SAIs for OS_W reads
+wr hqm_system_csr.hqm_csr_rac_hi 0xffffffff
+#
+wr hqm_system_csr.hqm_csr_wac_lo 0xffffffff      # enable all SAIs for OS_W writes
+wr hqm_system_csr.hqm_csr_wac_hi 0xffffffff
+###################################
+# Check that no errors were generated
+rd hqm_pf_cfg_i.pcie_cap_device_status.ced 0x0
+rd hqm_pf_cfg_i.pcie_cap_device_status.ned 0x0
+rd hqm_pf_cfg_i.pcie_cap_device_status.fed 0x0
+rd hqm_pf_cfg_i.pcie_cap_device_status.urd 0x0
+rd hqm_pf_cfg_i.aer_cap_uncorr_err_status  0x0
+rd hqm_pf_cfg_i.aer_cap_corr_err_status    0x0
+###################################

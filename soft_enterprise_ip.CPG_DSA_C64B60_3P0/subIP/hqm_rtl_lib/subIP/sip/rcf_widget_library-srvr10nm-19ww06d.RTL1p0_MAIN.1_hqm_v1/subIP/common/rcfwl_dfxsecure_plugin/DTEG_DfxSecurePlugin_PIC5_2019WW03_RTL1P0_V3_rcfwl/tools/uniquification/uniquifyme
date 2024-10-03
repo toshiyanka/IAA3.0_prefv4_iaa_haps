@@ -1,0 +1,68 @@
+#! /usr/intel/pkgs/perl/5.14.1/bin/perl
+
+my $modelRoot = $ARGV[0]; 
+my $prefix = $ARGV[1];
+my $checker_mode = $ARGV[2];
+
+if(!-e $modelRoot) {
+    print "-E- first arg should be a valid IP_ROOT path\n";
+    exit 1;
+}
+
+if (!defined $prefix) {
+    print "-E- second arg, a valid prefix, should also be provided\n";
+    exit 1;
+}
+
+if (!defined $checker_mode) {
+    $checker_mode = "";
+} elsif ($checker_mode ne "checker_mode") {
+    print "-E- third argument specified should be \"checker_mode\"\n";
+    exit 1;
+}
+
+print "-I- Uniquifying $modelRoot with prefix $prefix\n";
+#`cd $modelRoot`;
+my $error = 0;
+## First run uniquification of subIPs
+if ( -e "$modelRoot/subIP" ) {
+    my $subIPdir = "$modelRoot/subIP/";
+    opendir(SRCDIR, $subIPdir);
+    my @files = grep { !/^\.{1,2}$/ } readdir (SRCDIR);
+    close(SRCDIR);
+    print "-I- Found $modelRoot/subIP, recursing\n";
+    foreach my $subip (@files) {
+        $subip = "$subIPdir/$subip";
+        if (!-d $subip) { next;}        
+	    if ( -f "$subip/tools/uniquification/uniquifyme" ) {
+	        my $status = system("$subip/tools/uniquification/uniquifyme $subip $prefix $checker_mode");
+	        if ( $status ) {
+    	    	$error = 1;
+	        }
+	    } else {
+	        print "-W- Did not find $subip/tools/uniquification/uniquifyme\n";
+	        #$error = 1;
+	    }
+    }
+}
+
+my $cmd = "$modelRoot/tools/uniquification/scripts/uniquify.pl ";
+$cmd .= " -prefix $prefix";
+$cmd .= " -model_root $modelRoot";
+$cmd .= " -f tools/uniquification/inputs/IP.puni_switches.txt";
+if ($checker_mode ne "") {
+    $cmd .= " -$checker_mode";
+}
+
+
+my $status = system($cmd);
+
+
+#Custom code for stuff not handled by PUNI
+#for example:
+#$status |= system("sed -i "s/spk_top #/$prefix\_spk_top #/g" verif/tb/tb_top/spk_tb_top.sv");
+
+if ($status) {
+    $error = $status;
+}
+exit $error;

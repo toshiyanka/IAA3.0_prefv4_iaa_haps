@@ -1,0 +1,21 @@
+
+cfg_begin
+
+  dir qid DQ_A:*
+  dir pool 0 credit_cnt=0xfff credit_limit=0x1000 freelist_base=0 freelist_limit=0xfff
+  ldb pool 0 credit_cnt=0x4000 credit_limit=0x4000 freelist_base=0 freelist_limit=0x3fff
+  vas 0 dir_qidv:DQ_A=1
+  dir pp DQ_A  gpa=sm vas=0 dir_pool=0 ldb_pool=0 dir_credit_count=0x1 dir_min_credit_quanta=0x300 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x500 dir_credit_lwm=0x200
+  dir cq DQ_A  gpa=sm
+
+cfg_end
+
+rd hqm_pf_cfg_i.vendor_id
+idle 300
+
+#runtst pkt_enq:seq shuffle_pkts=1
+#runtst pkt_enq:seq pool=DQ_A gen_count=901
+#runtst pkt_enq:seq shuffle_pkts=0
+idle 5000
+#HCW DIR:DQ_A qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=900 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302 ptr=0
+idle 300

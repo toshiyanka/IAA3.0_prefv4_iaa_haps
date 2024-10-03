@@ -1,0 +1,534 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup FUNC_VF BAR to a base address of 0x00000003_xxxxxxxx
+#### wr hqm_pf_cfg_i.sriov_cap_func_bar_l 0x00000000
+#### wr hqm_pf_cfg_i.sriov_cap_func_bar_u 0x00000003
+###################################
+# Enable PF memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+###################################
+wr config_master.cfg_pm_pmcsr_disable.disable 0x0
+rd config_master.cfg_pm_pmcsr_disable.disable 0x0
+##
+###poll to Wait for reset to be done
+poll config_master.cfg_diagnostic_reset_status 0x800003ff 0x800003ff 500
+###poll to Wait for unit_idle to be done
+poll config_master.cfg_diagnostic_idle_status 0x0007ffff 0x0007ffff 500
+###################################
+
+
+###################################
+# Setup LUTs used by HCWs
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+##########################
+#Configurations
+##########################
+#64 dirPP
+#64 ldbPP
+#
+#64 dirQID
+#
+#32ldbQID
+#qid2cq mapping: 
+#one-to-one mapping QID[0]  => CQ[0]
+#
+#                   QID[31] => CQ[31]
+#                   QID[0]  => CQ[32]
+#
+#                   QID[31] => CQ[63] 
+#
+####
+#
+####
+#cq_depth=1024
+
+cfg_begin
+   #MSIX programming
+   msix_alarm 0 addr=0xbeefcafe0000110 data=0xbeefcace enable=1
+  								    
+   
+   msix_cq  1  addr=0x2000cafebebc000 data=0xbb331000 is_ldb=1 cq=0
+   msix_cq  2  addr=0x2010cafebebc010 data=0xbb331001 is_ldb=1 cq=1
+   msix_cq  3  addr=0x2020cafebebc020 data=0xbb331002 is_ldb=1 cq=2
+   msix_cq  4  addr=0x2030cafebebc030 data=0xbb331003 is_ldb=1 cq=3
+   msix_cq  5  addr=0x2040cafebebc040 data=0xbb331004 is_ldb=1 cq=4
+   msix_cq  6  addr=0x2050cafebebc050 data=0xbb331005 is_ldb=1 cq=5
+   msix_cq  7  addr=0x2060cafebebc060 data=0xbb331006 is_ldb=1 cq=6
+   msix_cq  8  addr=0x2070cafebebc070 data=0xbb331007 is_ldb=1 cq=7
+   msix_cq  9  addr=0x2080cafebebc080 data=0xbb331008 is_ldb=1 cq=8
+   msix_cq 10  addr=0x2090cafebebc090 data=0xbb331009 is_ldb=1 cq=9
+   msix_cq 11  addr=0x2100cafebebc100 data=0xbb331010 is_ldb=1 cq=10
+   msix_cq 12  addr=0x2110cafebebc110 data=0xbb331011 is_ldb=1 cq=11
+   msix_cq 13  addr=0x2120cafebebc120 data=0xbb331012 is_ldb=1 cq=12
+   msix_cq 14  addr=0x2130cafebebc130 data=0xbb331013 is_ldb=1 cq=13
+   msix_cq 15  addr=0x2140cafebebc140 data=0xbb331014 is_ldb=1 cq=14
+   msix_cq 16  addr=0x2150cafebebc150 data=0xbb331015 is_ldb=1 cq=15
+   msix_cq 17  addr=0x2160cafebebc160 data=0xbb331016 is_ldb=1 cq=16
+   msix_cq 18  addr=0x2170cafebebc170 data=0xbb331017 is_ldb=1 cq=17
+   msix_cq 19  addr=0x2180cafebebc180 data=0xbb331018 is_ldb=1 cq=18
+   msix_cq 20  addr=0x2190cafebebc190 data=0xbb331019 is_ldb=1 cq=19
+   msix_cq 21  addr=0x2200cafebebc200 data=0xbb331020 is_ldb=1 cq=20
+   msix_cq 22  addr=0x2210cafebebc210 data=0xbb331021 is_ldb=1 cq=21
+   msix_cq 23  addr=0x2220cafebebc220 data=0xbb331022 is_ldb=1 cq=22
+   msix_cq 24  addr=0x2230cafebebc230 data=0xbb331023 is_ldb=1 cq=23
+   msix_cq 25  addr=0x2240cafebebc240 data=0xbb331024 is_ldb=1 cq=24
+   msix_cq 26  addr=0x2250cafebebc250 data=0xbb331025 is_ldb=1 cq=25
+   msix_cq 27  addr=0x2260cafebebc260 data=0xbb331026 is_ldb=1 cq=26
+   msix_cq 28  addr=0x2270cafebebc270 data=0xbb331027 is_ldb=1 cq=27
+   msix_cq 29  addr=0x2280cafebebc280 data=0xbb331028 is_ldb=1 cq=28
+   msix_cq 30  addr=0x2290cafebebc290 data=0xbb331029 is_ldb=1 cq=29
+   msix_cq 31  addr=0x2300cafebebc300 data=0xbb331030 is_ldb=1 cq=30
+   msix_cq 32  addr=0x2310cafebebc310 data=0xbb331031 is_ldb=1 cq=31
+ 								    
+   msix_cq 33 addr=0xab001111bce0000 data=0x55aa5a00 is_ldb=0 cq=0  
+   msix_cq 34 addr=0xab011111cde0100 data=0x55aa5a01 is_ldb=0 cq=1   
+   msix_cq 35 addr=0xab021111bce0200 data=0x55aa5a02 is_ldb=0 cq=2   
+   msix_cq 36 addr=0xab031111cde0300 data=0x55aa5a03 is_ldb=0 cq=3   
+   msix_cq 37 addr=0xab041111bce0400 data=0x55aa5a04 is_ldb=0 cq=4   
+   msix_cq 38 addr=0xab051111cde0500 data=0x55aa5a05 is_ldb=0 cq=5   
+   msix_cq 39 addr=0xab061111bce0600 data=0x55aa5a06 is_ldb=0 cq=6   
+   msix_cq 40 addr=0xab071111cde0700 data=0x55aa5a07 is_ldb=0 cq=7   
+   msix_cq 41 addr=0xab081111bce0800 data=0x55aa5a08 is_ldb=0 cq=8   
+   msix_cq 42 addr=0xab091111cde0900 data=0x55aa5a09 is_ldb=0 cq=9   
+   msix_cq 43 addr=0xab101111bce1000 data=0x55aa5a10 is_ldb=0 cq=10  
+   msix_cq 44 addr=0xab111111cde1100 data=0x55aa5a11 is_ldb=0 cq=11  
+   msix_cq 45 addr=0xab121111bce1200 data=0x55aa5a12 is_ldb=0 cq=12  
+   msix_cq 46 addr=0xab131111cde1300 data=0x55aa5a13 is_ldb=0 cq=13  
+   msix_cq 47 addr=0xab141111bce1400 data=0x55aa5a14 is_ldb=0 cq=14  
+   msix_cq 48 addr=0xab151111cde1500 data=0x55aa5a15 is_ldb=0 cq=15  
+   msix_cq 49 addr=0xab161111bce1600 data=0x55aa5a16 is_ldb=0 cq=16  
+   msix_cq 50 addr=0xab171111cde1700 data=0x55aa5a17 is_ldb=0 cq=17  
+   msix_cq 51 addr=0xab181111bce1800 data=0x55aa5a18 is_ldb=0 cq=18  
+   msix_cq 52 addr=0xab191111cde1900 data=0x55aa5a19 is_ldb=0 cq=19  
+   msix_cq 53 addr=0xab201111bce2000 data=0x55aa5a20 is_ldb=0 cq=20  
+   msix_cq 54 addr=0xab211111cde2100 data=0x55aa5a21 is_ldb=0 cq=21  
+   msix_cq 55 addr=0xab221111bce2200 data=0x55aa5a22 is_ldb=0 cq=22  
+   msix_cq 56 addr=0xab231111cde2300 data=0x55aa5a23 is_ldb=0 cq=23  
+   msix_cq 57 addr=0xab241111bce2400 data=0x55aa5a24 is_ldb=0 cq=24  
+   msix_cq 58 addr=0xab251111cde2500 data=0x55aa5a25 is_ldb=0 cq=25  
+   msix_cq 59 addr=0xab261111bce2600 data=0x55aa5a26 is_ldb=0 cq=26  
+   msix_cq 60 addr=0xab271111cde2700 data=0x55aa5a27 is_ldb=0 cq=27  
+   msix_cq 61 addr=0xab281111bce2800 data=0x55aa5a28 is_ldb=0 cq=28  
+   msix_cq 62 addr=0xab291111cde2900 data=0x55aa5a29 is_ldb=0 cq=29  
+   msix_cq 63 addr=0xab301111bce3000 data=0x55aa5a30 is_ldb=0 cq=30  
+   msix_cq 64 addr=0xab311111cde3100 data=0x55aa5a31 is_ldb=0 cq=31  
+  								    
+   
+  ####64 dirQIDs  
+  dir qid  0
+  dir qid  1 
+  dir qid  2 
+  dir qid  3
+  dir qid  4
+  dir qid  5 
+  dir qid  6 
+  dir qid  7	 
+  dir qid  8 
+  dir qid  9 
+  dir qid 10 
+  dir qid 11 
+  dir qid 12 
+  dir qid 13 
+  dir qid 14 
+  dir qid 15 
+  dir qid 16 
+  dir qid 17 
+  dir qid 18 
+  dir qid 19 
+  dir qid 20 
+  dir qid 21 
+  dir qid 22 
+  dir qid 23 
+  dir qid 24 
+  dir qid 25 
+  dir qid 26 
+  dir qid 27 
+  dir qid 28 
+  dir qid 29 
+  dir qid 30 
+  dir qid 31   
+  dir qid 32
+  dir qid 33
+  dir qid 34
+  dir qid 35
+  dir qid 36
+  dir qid 37
+  dir qid 38
+  dir qid 39
+  dir qid 40
+  dir qid 41
+  dir qid 42
+  dir qid 43
+  dir qid 44
+  dir qid 45
+  dir qid 46
+  dir qid 47
+  dir qid 48
+  dir qid 49
+  dir qid 50
+  dir qid 51
+  dir qid 52
+  dir qid 53
+  dir qid 54
+  dir qid 55
+  dir qid 56
+  dir qid 57
+  dir qid 58
+  dir qid 59
+  dir qid 60
+  dir qid 61
+  dir qid 62
+  dir qid 63
+   
+  ####32 ldbQIDs (2K)
+  ldb qid  0 qid_ldb_inflight_limit=64 fid_cfg_v=1 #  aqed_freelist_base=0x000 aqed_freelist_limit=0x03f ord_mode=0 ord_slot=0  ord_grp=0 sn_cfg_v=1
+  ldb qid  1 qid_ldb_inflight_limit=64 fid_cfg_v=1 #  aqed_freelist_base=0x040 aqed_freelist_limit=0x07f ord_mode=0 ord_slot=1  ord_grp=0 sn_cfg_v=1
+  ldb qid  2 qid_ldb_inflight_limit=64 fid_cfg_v=1 #  aqed_freelist_base=0x080 aqed_freelist_limit=0x0bf ord_mode=0 ord_slot=2  ord_grp=0 sn_cfg_v=1
+  ldb qid  3 qid_ldb_inflight_limit=64 fid_cfg_v=1 #  aqed_freelist_base=0x0c0 aqed_freelist_limit=0x0ff ord_mode=0 ord_slot=3  ord_grp=0 sn_cfg_v=1
+  ldb qid  4 qid_ldb_inflight_limit=64 fid_cfg_v=1 #  aqed_freelist_base=0x100 aqed_freelist_limit=0x13f ord_mode=0 ord_slot=4  ord_grp=0 sn_cfg_v=1
+  ldb qid  5 qid_ldb_inflight_limit=64 fid_cfg_v=1 #  aqed_freelist_base=0x140 aqed_freelist_limit=0x17f ord_mode=0 ord_slot=5  ord_grp=0 sn_cfg_v=1
+  ldb qid  6 qid_ldb_inflight_limit=64 fid_cfg_v=1 #  aqed_freelist_base=0x180 aqed_freelist_limit=0x1bf ord_mode=0 ord_slot=6  ord_grp=0 sn_cfg_v=1
+  ldb qid  7 qid_ldb_inflight_limit=64 fid_cfg_v=1 #  aqed_freelist_base=0x1c0 aqed_freelist_limit=0x1ff ord_mode=0 ord_slot=7  ord_grp=0 sn_cfg_v=1
+  ldb qid  8 qid_ldb_inflight_limit=64 fid_cfg_v=1 #  aqed_freelist_base=0x200 aqed_freelist_limit=0x23f ord_mode=0 ord_slot=8  ord_grp=0 sn_cfg_v=1
+  ldb qid  9 qid_ldb_inflight_limit=64 fid_cfg_v=1 #  aqed_freelist_base=0x240 aqed_freelist_limit=0x27f ord_mode=0 ord_slot=9  ord_grp=0 sn_cfg_v=1 
+  ldb qid 10 qid_ldb_inflight_limit=64 fid_cfg_v=1 #  aqed_freelist_base=0x280 aqed_freelist_limit=0x2bf ord_mode=0 ord_slot=10 ord_grp=0 sn_cfg_v=1
+  ldb qid 11 qid_ldb_inflight_limit=64 fid_cfg_v=1 #  aqed_freelist_base=0x2c0 aqed_freelist_limit=0x2ff ord_mode=0 ord_slot=11 ord_grp=0 sn_cfg_v=1   
+  ldb qid 12 qid_ldb_inflight_limit=64 fid_cfg_v=1 #  aqed_freelist_base=0x300 aqed_freelist_limit=0x33f ord_mode=0 ord_slot=12 ord_grp=0 sn_cfg_v=1
+  ldb qid 13 qid_ldb_inflight_limit=64 fid_cfg_v=1 #  aqed_freelist_base=0x340 aqed_freelist_limit=0x37f ord_mode=0 ord_slot=13 ord_grp=0 sn_cfg_v=1
+  ldb qid 14 qid_ldb_inflight_limit=64 fid_cfg_v=1 #  aqed_freelist_base=0x380 aqed_freelist_limit=0x3bf ord_mode=0 ord_slot=14 ord_grp=0 sn_cfg_v=1
+  ldb qid 15 qid_ldb_inflight_limit=64 fid_cfg_v=1 #  aqed_freelist_base=0x3c0 aqed_freelist_limit=0x3ff ord_mode=0 ord_slot=15 ord_grp=0 sn_cfg_v=1
+  ldb qid 16 qid_ldb_inflight_limit=64 fid_cfg_v=1 #  aqed_freelist_base=0x400 aqed_freelist_limit=0x43f ord_mode=0 ord_slot=0  ord_grp=1 sn_cfg_v=1
+  ldb qid 17 qid_ldb_inflight_limit=64 fid_cfg_v=1 #  aqed_freelist_base=0x440 aqed_freelist_limit=0x47f ord_mode=0 ord_slot=1  ord_grp=1 sn_cfg_v=1
+  ldb qid 18 qid_ldb_inflight_limit=64 fid_cfg_v=1 #  aqed_freelist_base=0x480 aqed_freelist_limit=0x4bf ord_mode=0 ord_slot=2  ord_grp=1 sn_cfg_v=1
+  ldb qid 19 qid_ldb_inflight_limit=64 fid_cfg_v=1 #  aqed_freelist_base=0x4c0 aqed_freelist_limit=0x4ff ord_mode=0 ord_slot=3  ord_grp=1 sn_cfg_v=1
+  ldb qid 20 qid_ldb_inflight_limit=64 fid_cfg_v=1 #  aqed_freelist_base=0x500 aqed_freelist_limit=0x53f ord_mode=0 ord_slot=4  ord_grp=1 sn_cfg_v=1
+  ldb qid 21 qid_ldb_inflight_limit=64 fid_cfg_v=1 #  aqed_freelist_base=0x540 aqed_freelist_limit=0x57f ord_mode=0 ord_slot=5  ord_grp=1 sn_cfg_v=1  
+  ldb qid 22 qid_ldb_inflight_limit=64 fid_cfg_v=1 #  aqed_freelist_base=0x580 aqed_freelist_limit=0x5bf ord_mode=0 ord_slot=6  ord_grp=1 sn_cfg_v=1
+  ldb qid 23 qid_ldb_inflight_limit=64 fid_cfg_v=1 #  aqed_freelist_base=0x5c0 aqed_freelist_limit=0x5ff ord_mode=0 ord_slot=7  ord_grp=1 sn_cfg_v=1
+  ldb qid 24 qid_ldb_inflight_limit=64 fid_cfg_v=1 #  aqed_freelist_base=0x600 aqed_freelist_limit=0x63f ord_mode=0 ord_slot=8  ord_grp=1 sn_cfg_v=1
+  ldb qid 25 qid_ldb_inflight_limit=64 fid_cfg_v=1 #  aqed_freelist_base=0x640 aqed_freelist_limit=0x67f ord_mode=0 ord_slot=9  ord_grp=1 sn_cfg_v=1
+  ldb qid 26 qid_ldb_inflight_limit=64 fid_cfg_v=1 #  aqed_freelist_base=0x680 aqed_freelist_limit=0x6bf ord_mode=0 ord_slot=10 ord_grp=1 sn_cfg_v=1
+  ldb qid 27 qid_ldb_inflight_limit=64 fid_cfg_v=1 #  aqed_freelist_base=0x6c0 aqed_freelist_limit=0x6ff ord_mode=0 ord_slot=11 ord_grp=1 sn_cfg_v=1
+  ldb qid 28 qid_ldb_inflight_limit=64 fid_cfg_v=1 #  aqed_freelist_base=0x700 aqed_freelist_limit=0x73f ord_mode=0 ord_slot=12 ord_grp=1 sn_cfg_v=1
+  ldb qid 29 qid_ldb_inflight_limit=64 fid_cfg_v=1 #  aqed_freelist_base=0x740 aqed_freelist_limit=0x77f ord_mode=0 ord_slot=13 ord_grp=1 sn_cfg_v=1
+  ldb qid 30 qid_ldb_inflight_limit=64 fid_cfg_v=1 #  aqed_freelist_base=0x780 aqed_freelist_limit=0x7bf ord_mode=0 ord_slot=14 ord_grp=1 sn_cfg_v=1
+  ldb qid 31 qid_ldb_inflight_limit=64 fid_cfg_v=1 #  aqed_freelist_base=0x7c0 aqed_freelist_limit=0x7ff ord_mode=0 ord_slot=15 ord_grp=1 sn_cfg_v=1	 
+    
+
+  
+  ####VAS[0]  
+  vas 0 credit_cnt=[255:16384] 
+
+  vas 0 dir_qidv0=1  dir_qidv1=1  dir_qidv2=1  dir_qidv3=1  dir_qidv4=1  dir_qidv5=1  dir_qidv6=1  dir_qidv7=1  dir_qidv8=1  dir_qidv9=1 
+  vas 0 dir_qidv10=1 dir_qidv11=1 dir_qidv12=1 dir_qidv13=1 dir_qidv14=1 dir_qidv15=1 dir_qidv16=1 dir_qidv17=1 dir_qidv18=1 dir_qidv19=1 
+  vas 0 dir_qidv20=1 dir_qidv21=1 dir_qidv22=1 dir_qidv23=1 dir_qidv24=1 dir_qidv25=1 dir_qidv26=1 dir_qidv27=1 dir_qidv28=1 dir_qidv29=1 
+  vas 0 dir_qidv30=1 dir_qidv31=1 dir_qidv32=1 dir_qidv33=1 dir_qidv34=1 dir_qidv35=1 dir_qidv36=1 dir_qidv37=1 dir_qidv38=1 dir_qidv39=1 
+  vas 0 dir_qidv40=1 dir_qidv41=1 dir_qidv42=1 dir_qidv43=1 dir_qidv44=1 dir_qidv45=1 dir_qidv46=1 dir_qidv47=1 dir_qidv48=1 dir_qidv49=1 
+  vas 0 dir_qidv50=1 dir_qidv51=1 dir_qidv52=1 dir_qidv53=1 dir_qidv54=1 dir_qidv55=1 dir_qidv56=1 dir_qidv57=1 dir_qidv58=1 dir_qidv59=1 
+  vas 0 dir_qidv60=1 dir_qidv61=1 dir_qidv62=1 dir_qidv63=1   
+  
+  vas 0 ldb_qidv0=1  ldb_qidv1=1  ldb_qidv2=1  ldb_qidv3=1  ldb_qidv4=1  ldb_qidv5=1  ldb_qidv6=1  ldb_qidv7=1  ldb_qidv8=1  ldb_qidv9=1
+  vas 0 ldb_qidv10=1 ldb_qidv11=1 ldb_qidv12=1 ldb_qidv13=1 ldb_qidv14=1 ldb_qidv15=1 ldb_qidv16=1 ldb_qidv17=1 ldb_qidv18=1 ldb_qidv19=1
+  vas 0 ldb_qidv20=1 ldb_qidv21=1 ldb_qidv22=1 ldb_qidv23=1 ldb_qidv24=1 ldb_qidv25=1 ldb_qidv26=1 ldb_qidv27=1 ldb_qidv28=1 ldb_qidv29=1
+  vas 0 ldb_qidv30=1 ldb_qidv31=1
+ 
+  #### 64dirPP
+  dir pp  0  vas=0  
+  dir pp  1  vas=0  
+  dir pp  2  vas=0  
+  dir pp  3  vas=0  
+  dir pp  4  vas=0  
+  dir pp  5  vas=0  
+  dir pp  6  vas=0  
+  dir pp  7  vas=0   
+  dir pp  8  vas=0 
+  dir pp  9  vas=0 
+  dir pp 10  vas=0 
+  dir pp 11  vas=0 
+  dir pp 12  vas=0 
+  dir pp 13  vas=0 
+  dir pp 14  vas=0 
+  dir pp 15  vas=0 
+  dir pp 16  vas=0 
+  dir pp 17  vas=0 
+  dir pp 18  vas=0 
+  dir pp 19  vas=0   
+  dir pp 20  vas=0 
+  dir pp 21  vas=0 
+  dir pp 22  vas=0 
+  dir pp 23  vas=0 
+  dir pp 24  vas=0 
+  dir pp 25  vas=0 
+  dir pp 26  vas=0 
+  dir pp 27  vas=0 
+  dir pp 28  vas=0 
+  dir pp 29  vas=0   
+  dir pp 30  vas=0 
+  dir pp 31  vas=0 
+  dir pp 32  vas=0 
+  dir pp 33  vas=0 
+  dir pp 34  vas=0 
+  dir pp 35  vas=0 
+  dir pp 36  vas=0 
+  dir pp 37  vas=0 
+  dir pp 38  vas=0 
+  dir pp 39  vas=0           
+  dir pp 40  vas=0 
+  dir pp 41  vas=0 
+  dir pp 42  vas=0 
+  dir pp 43  vas=0 
+  dir pp 44  vas=0 
+  dir pp 45  vas=0 
+  dir pp 46  vas=0 
+  dir pp 47  vas=0 
+  dir pp 48  vas=0 
+  dir pp 49  vas=0   	
+  dir pp 50  vas=0 
+  dir pp 51  vas=0 
+  dir pp 52  vas=0 
+  dir pp 53  vas=0 
+  dir pp 54  vas=0 
+  dir pp 55  vas=0 
+  dir pp 56  vas=0 
+  dir pp 57  vas=0 
+  dir pp 58  vas=0 
+  dir pp 59  vas=0   
+  dir pp 60  vas=0 
+  dir pp 61  vas=0 
+  dir pp 62  vas=0 
+  dir pp 63  vas=0   
+  	
+  #### 64dirCQ, cq_depth=1024	
+  dir cq  0       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq  1       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1 
+  dir cq  2       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq  3       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1 
+  dir cq  4       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq  5       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1 
+  dir cq  6       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq  7       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1 
+  dir cq  8       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq  9       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1 
+  dir cq 10       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq 11       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1 
+  dir cq 12       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq 13       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1 
+  dir cq 14       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq 15       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1 
+  dir cq 16       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq 17       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1 
+  dir cq 18       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq 19       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1 
+  dir cq 20       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq 21       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1 
+  dir cq 22       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq 23       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1 
+  dir cq 24       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq 25       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1 
+  dir cq 26       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq 27       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1 
+  dir cq 28       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq 29       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1 
+  dir cq 30       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq 31       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1 
+  dir cq 32       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq 33       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1 
+  dir cq 34       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq 35       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1 
+  dir cq 36       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq 37       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1 
+  dir cq 38       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq 39       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1 
+  dir cq 40       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq 41       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1 
+  dir cq 42       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq 43       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1 
+  dir cq 44       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq 45       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1 
+  dir cq 46       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq 47       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1 
+  dir cq 48       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq 49       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1 
+  dir cq 50       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq 51       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1 
+  dir cq 52       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq 53       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1 
+  dir cq 54       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq 55       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1 
+  dir cq 56       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq 57       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1 
+  dir cq 58       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq 59       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1 
+  dir cq 60       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq 61       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1 
+  dir cq 62       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq 63       cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1  
+
+ 
+  #### 64ldbPP
+  ldb pp  0  vas=0  
+  ldb pp  1  vas=0  
+  ldb pp  2  vas=0  
+  ldb pp  3  vas=0  
+  ldb pp  4  vas=0  
+  ldb pp  5  vas=0  
+  ldb pp  6  vas=0  
+  ldb pp  7  vas=0   
+  ldb pp  8  vas=0 
+  ldb pp  9  vas=0 
+  ldb pp 10  vas=0 
+  ldb pp 11  vas=0 
+  ldb pp 12  vas=0 
+  ldb pp 13  vas=0 
+  ldb pp 14  vas=0 
+  ldb pp 15  vas=0 
+  ldb pp 16  vas=0 
+  ldb pp 17  vas=0 
+  ldb pp 18  vas=0 
+  ldb pp 19  vas=0   
+  ldb pp 20  vas=0 
+  ldb pp 21  vas=0 
+  ldb pp 22  vas=0 
+  ldb pp 23  vas=0 
+  ldb pp 24  vas=0 
+  ldb pp 25  vas=0 
+  ldb pp 26  vas=0 
+  ldb pp 27  vas=0 
+  ldb pp 28  vas=0 
+  ldb pp 29  vas=0   
+  ldb pp 30  vas=0 
+  ldb pp 31  vas=0 
+  ldb pp 32  vas=0 
+  ldb pp 33  vas=0 
+  ldb pp 34  vas=0 
+  ldb pp 35  vas=0 
+  ldb pp 36  vas=0 
+  ldb pp 37  vas=0 
+  ldb pp 38  vas=0 
+  ldb pp 39  vas=0           
+  ldb pp 40  vas=0 
+  ldb pp 41  vas=0 
+  ldb pp 42  vas=0 
+  ldb pp 43  vas=0 
+  ldb pp 44  vas=0 
+  ldb pp 45  vas=0 
+  ldb pp 46  vas=0 
+  ldb pp 47  vas=0 
+  ldb pp 48  vas=0 
+  ldb pp 49  vas=0   	
+  ldb pp 50  vas=0 
+  ldb pp 51  vas=0 
+  ldb pp 52  vas=0 
+  ldb pp 53  vas=0 
+  ldb pp 54  vas=0 
+  ldb pp 55  vas=0 
+  ldb pp 56  vas=0 
+  ldb pp 57  vas=0 
+  ldb pp 58  vas=0 
+  ldb pp 59  vas=0   
+  ldb pp 60  vas=0 
+  ldb pp 61  vas=0 
+  ldb pp 62  vas=0 
+  ldb pp 63  vas=0 
+  
+  #### 64ldbCQ :  2K    
+   ldb cq  0       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x000 hist_list_limit=0x01f qidv0=1 qidix0=0  pri0=0 qidv1=1 qidix1=1  pri1=1 qidv2=1 qidix2=2  pri2=2 qidv3=1 qidix3=3  pri3=3 qidv4=1 qidix4=4  pri4=4 qidv5=1 qidix5=5  pri5=5 qidv6=1 qidix6=6  pri6=6 qidv7=1 qidix7=7  pri7=7   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq  1       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x020 hist_list_limit=0x03f qidv0=1 qidix0=1  pri0=0 qidv1=1 qidix1=2  pri1=1 qidv2=1 qidix2=3  pri2=2 qidv3=1 qidix3=4  pri3=3 qidv4=1 qidix4=5  pri4=4 qidv5=1 qidix5=6  pri5=5 qidv6=1 qidix6=7  pri6=6 qidv7=1 qidix7=0  pri7=7   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq  2       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x040 hist_list_limit=0x05f qidv0=1 qidix0=2  pri0=0 qidv1=1 qidix1=3  pri1=1 qidv2=1 qidix2=4  pri2=2 qidv3=1 qidix3=5  pri3=3 qidv4=1 qidix4=6  pri4=4 qidv5=1 qidix5=7  pri5=5 qidv6=1 qidix6=0  pri6=6 qidv7=1 qidix7=1  pri7=7   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq  3       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x060 hist_list_limit=0x07f qidv0=1 qidix0=3  pri0=0 qidv1=1 qidix1=4  pri1=1 qidv2=1 qidix2=5  pri2=2 qidv3=1 qidix3=6  pri3=3 qidv4=1 qidix4=7  pri4=4 qidv5=1 qidix5=0  pri5=5 qidv6=1 qidix6=1  pri6=6 qidv7=1 qidix7=2  pri7=7   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq  4       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x080 hist_list_limit=0x09f qidv0=1 qidix0=4  pri0=0 qidv1=1 qidix1=5  pri1=1 qidv2=1 qidix2=6  pri2=2 qidv3=1 qidix3=7  pri3=3 qidv4=1 qidix4=0  pri4=4 qidv5=1 qidix5=1  pri5=5 qidv6=1 qidix6=2  pri6=6 qidv7=1 qidix7=3  pri7=7   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq  5       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x0a0 hist_list_limit=0x0bf qidv0=1 qidix0=5  pri0=0 qidv1=1 qidix1=6  pri1=1 qidv2=1 qidix2=7  pri2=2 qidv3=1 qidix3=0  pri3=3 qidv4=1 qidix4=1  pri4=4 qidv5=1 qidix5=2  pri5=5 qidv6=1 qidix6=3  pri6=6 qidv7=1 qidix7=4  pri7=7   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq  6       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x0c0 hist_list_limit=0x0df qidv0=1 qidix0=6  pri0=0 qidv1=1 qidix1=7  pri1=1 qidv2=1 qidix2=0  pri2=2 qidv3=1 qidix3=1  pri3=3 qidv4=1 qidix4=2  pri4=4 qidv5=1 qidix5=3  pri5=5 qidv6=1 qidix6=4  pri6=6 qidv7=1 qidix7=5  pri7=7   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq  7       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x0e0 hist_list_limit=0x0ff qidv0=1 qidix0=7  pri0=0 qidv1=1 qidix1=0  pri1=1 qidv2=1 qidix2=1  pri2=2 qidv3=1 qidix3=2  pri3=3 qidv4=1 qidix4=3  pri4=4 qidv5=1 qidix5=4  pri5=5 qidv6=1 qidix6=5  pri6=6 qidv7=1 qidix7=6  pri7=7   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+		   								  
+   ldb cq  8       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x100 hist_list_limit=0x11f qidv0=1 qidix0=8  pri0=0 qidv1=1 qidix1=9  pri1=1 qidv2=1 qidix2=10 pri2=2 qidv3=1 qidix3=11 pri3=3 qidv4=1 qidix4=12 pri4=4 qidv5=1 qidix5=13 pri5=5 qidv6=1 qidix6=14 pri6=6 qidv7=1 qidix7=15 pri7=7   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq  9       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x120 hist_list_limit=0x13f qidv0=1 qidix0=9  pri0=0 qidv1=1 qidix1=10 pri1=1 qidv2=1 qidix2=11 pri2=2 qidv3=1 qidix3=12 pri3=3 qidv4=1 qidix4=13 pri4=4 qidv5=1 qidix5=14 pri5=5 qidv6=1 qidix6=15 pri6=6 qidv7=1 qidix7=8  pri7=7   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 10       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x140 hist_list_limit=0x15f qidv0=1 qidix0=10 pri0=0 qidv1=1 qidix1=11 pri1=1 qidv2=1 qidix2=12 pri2=2 qidv3=1 qidix3=13 pri3=3 qidv4=1 qidix4=14 pri4=4 qidv5=1 qidix5=15 pri5=5 qidv6=1 qidix6=8  pri6=6 qidv7=1 qidix7=9  pri7=7   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 11       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x160 hist_list_limit=0x17f qidv0=1 qidix0=11 pri0=0 qidv1=1 qidix1=12 pri1=1 qidv2=1 qidix2=13 pri2=2 qidv3=1 qidix3=14 pri3=3 qidv4=1 qidix4=15 pri4=4 qidv5=1 qidix5=8  pri5=5 qidv6=1 qidix6=9  pri6=6 qidv7=1 qidix7=10 pri7=7   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 12       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x180 hist_list_limit=0x19f qidv0=1 qidix0=12 pri0=0 qidv1=1 qidix1=13 pri1=1 qidv2=1 qidix2=14 pri2=2 qidv3=1 qidix3=15 pri3=3 qidv4=1 qidix4=8  pri4=4 qidv5=1 qidix5=9  pri5=5 qidv6=1 qidix6=10 pri6=6 qidv7=1 qidix7=11 pri7=7   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 13       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x1a0 hist_list_limit=0x1bf qidv0=1 qidix0=13 pri0=0 qidv1=1 qidix1=14 pri1=1 qidv2=1 qidix2=15 pri2=2 qidv3=1 qidix3=8  pri3=3 qidv4=1 qidix4=9  pri4=4 qidv5=1 qidix5=10 pri5=5 qidv6=1 qidix6=11 pri6=6 qidv7=1 qidix7=12 pri7=7   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 14       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x1c0 hist_list_limit=0x1df qidv0=1 qidix0=14 pri0=0 qidv1=1 qidix1=15 pri1=1 qidv2=1 qidix2=8  pri2=2 qidv3=1 qidix3=9  pri3=3 qidv4=1 qidix4=10 pri4=4 qidv5=1 qidix5=11 pri5=5 qidv6=1 qidix6=12 pri6=6 qidv7=1 qidix7=13 pri7=7   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 15       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x1e0 hist_list_limit=0x1ff qidv0=1 qidix0=15 pri0=0 qidv1=1 qidix1=8  pri1=1 qidv2=1 qidix2=9  pri2=2 qidv3=1 qidix3=10 pri3=3 qidv4=1 qidix4=11 pri4=4 qidv5=1 qidix5=12 pri5=5 qidv6=1 qidix6=13 pri6=6 qidv7=1 qidix7=14 pri7=7   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+
+   ldb cq 16       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x200 hist_list_limit=0x21f qidv0=1 qidix0=16 pri0=0 qidv1=1 qidix1=17 pri1=1 qidv2=1 qidix2=18 pri2=2 qidv3=1 qidix3=19 pri3=3 qidv4=1 qidix4=20 pri4=4 qidv5=1 qidix5=21 pri5=5 qidv6=1 qidix6=22 pri6=6 qidv7=1 qidix7=23 pri7=7   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 17       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x220 hist_list_limit=0x23f qidv0=1 qidix0=17 pri0=0 qidv1=1 qidix1=18 pri1=1 qidv2=1 qidix2=19 pri2=2 qidv3=1 qidix3=20 pri3=3 qidv4=1 qidix4=21 pri4=4 qidv5=1 qidix5=22 pri5=5 qidv6=1 qidix6=23 pri6=6 qidv7=1 qidix7=16 pri7=7   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 18       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x240 hist_list_limit=0x25f qidv0=1 qidix0=18 pri0=0 qidv1=1 qidix1=19 pri1=1 qidv2=1 qidix2=20 pri2=2 qidv3=1 qidix3=21 pri3=3 qidv4=1 qidix4=22 pri4=4 qidv5=1 qidix5=23 pri5=5 qidv6=1 qidix6=16 pri6=6 qidv7=1 qidix7=17 pri7=7   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 19       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x260 hist_list_limit=0x27f qidv0=1 qidix0=19 pri0=0 qidv1=1 qidix1=20 pri1=1 qidv2=1 qidix2=21 pri2=2 qidv3=1 qidix3=22 pri3=3 qidv4=1 qidix4=23 pri4=4 qidv5=1 qidix5=16 pri5=5 qidv6=1 qidix6=17 pri6=6 qidv7=1 qidix7=18 pri7=7   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 20       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x280 hist_list_limit=0x29f qidv0=1 qidix0=20 pri0=0 qidv1=1 qidix1=21 pri1=1 qidv2=1 qidix2=22 pri2=2 qidv3=1 qidix3=23 pri3=3 qidv4=1 qidix4=16 pri4=4 qidv5=1 qidix5=17 pri5=5 qidv6=1 qidix6=18 pri6=6 qidv7=1 qidix7=19 pri7=7   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 21       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x2a0 hist_list_limit=0x2bf qidv0=1 qidix0=21 pri0=0 qidv1=1 qidix1=22 pri1=1 qidv2=1 qidix2=23 pri2=2 qidv3=1 qidix3=16 pri3=3 qidv4=1 qidix4=17 pri4=4 qidv5=1 qidix5=18 pri5=5 qidv6=1 qidix6=19 pri6=6 qidv7=1 qidix7=20 pri7=7   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 22       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x2c0 hist_list_limit=0x2df qidv0=1 qidix0=22 pri0=0 qidv1=1 qidix1=23 pri1=1 qidv2=1 qidix2=16 pri2=2 qidv3=1 qidix3=17 pri3=3 qidv4=1 qidix4=18 pri4=4 qidv5=1 qidix5=19 pri5=5 qidv6=1 qidix6=20 pri6=6 qidv7=1 qidix7=21 pri7=7   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 23       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x2e0 hist_list_limit=0x2ff qidv0=1 qidix0=23 pri0=0 qidv1=1 qidix1=16 pri1=1 qidv2=1 qidix2=17 pri2=2 qidv3=1 qidix3=18 pri3=3 qidv4=1 qidix4=19 pri4=4 qidv5=1 qidix5=20 pri5=5 qidv6=1 qidix6=21 pri6=6 qidv7=1 qidix7=22 pri7=7   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+		   								  
+   ldb cq 24       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x300 hist_list_limit=0x31f qidv0=1 qidix0=24 pri0=0 qidv1=1 qidix1=25 pri1=1 qidv2=1 qidix2=26 pri2=2 qidv3=1 qidix3=27 pri3=3 qidv4=1 qidix4=28 pri4=4 qidv5=1 qidix5=29 pri5=5 qidv6=1 qidix6=30 pri6=6 qidv7=1 qidix7=31 pri7=7   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 25       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x320 hist_list_limit=0x33f qidv0=1 qidix0=25 pri0=0 qidv1=1 qidix1=26 pri1=1 qidv2=1 qidix2=27 pri2=2 qidv3=1 qidix3=28 pri3=3 qidv4=1 qidix4=29 pri4=4 qidv5=1 qidix5=30 pri5=5 qidv6=1 qidix6=31 pri6=6 qidv7=1 qidix7=24 pri7=7   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 26       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x340 hist_list_limit=0x35f qidv0=1 qidix0=26 pri0=0 qidv1=1 qidix1=27 pri1=1 qidv2=1 qidix2=28 pri2=2 qidv3=1 qidix3=29 pri3=3 qidv4=1 qidix4=30 pri4=4 qidv5=1 qidix5=31 pri5=5 qidv6=1 qidix6=24 pri6=6 qidv7=1 qidix7=25 pri7=7   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 27       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x360 hist_list_limit=0x37f qidv0=1 qidix0=27 pri0=0 qidv1=1 qidix1=28 pri1=1 qidv2=1 qidix2=29 pri2=2 qidv3=1 qidix3=30 pri3=3 qidv4=1 qidix4=31 pri4=4 qidv5=1 qidix5=24 pri5=5 qidv6=1 qidix6=25 pri6=6 qidv7=1 qidix7=26 pri7=7   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 28       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x380 hist_list_limit=0x39f qidv0=1 qidix0=28 pri0=0 qidv1=1 qidix1=29 pri1=1 qidv2=1 qidix2=30 pri2=2 qidv3=1 qidix3=31 pri3=3 qidv4=1 qidix4=24 pri4=4 qidv5=1 qidix5=25 pri5=5 qidv6=1 qidix6=26 pri6=6 qidv7=1 qidix7=27 pri7=7   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 29       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x3a0 hist_list_limit=0x3bf qidv0=1 qidix0=29 pri0=0 qidv1=1 qidix1=30 pri1=1 qidv2=1 qidix2=31 pri2=2 qidv3=1 qidix3=24 pri3=3 qidv4=1 qidix4=25 pri4=4 qidv5=1 qidix5=26 pri5=5 qidv6=1 qidix6=27 pri6=6 qidv7=1 qidix7=28 pri7=7   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 30       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x3c0 hist_list_limit=0x3df qidv0=1 qidix0=30 pri0=0 qidv1=1 qidix1=31 pri1=1 qidv2=1 qidix2=24 pri2=2 qidv3=1 qidix3=25 pri3=3 qidv4=1 qidix4=26 pri4=4 qidv5=1 qidix5=27 pri5=5 qidv6=1 qidix6=28 pri6=6 qidv7=1 qidix7=29 pri7=7   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 31       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x3e0 hist_list_limit=0x3ff qidv0=1 qidix0=31 pri0=0 qidv1=1 qidix1=24 pri1=1 qidv2=1 qidix2=25 pri2=2 qidv3=1 qidix3=26 pri3=3 qidv4=1 qidix4=27 pri4=4 qidv5=1 qidix5=28 pri5=5 qidv6=1 qidix6=29 pri6=6 qidv7=1 qidix7=30 pri7=7   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+
+   ldb cq 32       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x400 hist_list_limit=0x41f qidv0=1 qidix0=0  pri0=7 qidv1=1 qidix1=1  pri1=6 qidv2=1 qidix2=2  pri2=5 qidv3=1 qidix3=3  pri3=4 qidv4=1 qidix4=4  pri4=3 qidv5=1 qidix5=5  pri5=2 qidv6=1 qidix6=6  pri6=1 qidv7=1 qidix7=7  pri7=0   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 33       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x420 hist_list_limit=0x43f qidv0=1 qidix0=1  pri0=7 qidv1=1 qidix1=2  pri1=6 qidv2=1 qidix2=3  pri2=5 qidv3=1 qidix3=4  pri3=4 qidv4=1 qidix4=5  pri4=3 qidv5=1 qidix5=6  pri5=2 qidv6=1 qidix6=7  pri6=1 qidv7=1 qidix7=0  pri7=0   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 34       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x440 hist_list_limit=0x45f qidv0=1 qidix0=2  pri0=7 qidv1=1 qidix1=3  pri1=6 qidv2=1 qidix2=4  pri2=5 qidv3=1 qidix3=5  pri3=4 qidv4=1 qidix4=6  pri4=3 qidv5=1 qidix5=7  pri5=2 qidv6=1 qidix6=0  pri6=1 qidv7=1 qidix7=1  pri7=0   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 35       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x460 hist_list_limit=0x47f qidv0=1 qidix0=3  pri0=7 qidv1=1 qidix1=4  pri1=6 qidv2=1 qidix2=5  pri2=5 qidv3=1 qidix3=6  pri3=4 qidv4=1 qidix4=7  pri4=3 qidv5=1 qidix5=0  pri5=2 qidv6=1 qidix6=1  pri6=1 qidv7=1 qidix7=2  pri7=0   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 36       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x480 hist_list_limit=0x49f qidv0=1 qidix0=4  pri0=7 qidv1=1 qidix1=5  pri1=6 qidv2=1 qidix2=6  pri2=5 qidv3=1 qidix3=7  pri3=4 qidv4=1 qidix4=0  pri4=3 qidv5=1 qidix5=1  pri5=2 qidv6=1 qidix6=2  pri6=1 qidv7=1 qidix7=3  pri7=0   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 37       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x4a0 hist_list_limit=0x4bf qidv0=1 qidix0=5  pri0=7 qidv1=1 qidix1=6  pri1=6 qidv2=1 qidix2=7  pri2=5 qidv3=1 qidix3=0  pri3=4 qidv4=1 qidix4=1  pri4=3 qidv5=1 qidix5=2  pri5=2 qidv6=1 qidix6=3  pri6=1 qidv7=1 qidix7=4  pri7=0   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 38       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x4c0 hist_list_limit=0x4df qidv0=1 qidix0=6  pri0=7 qidv1=1 qidix1=7  pri1=6 qidv2=1 qidix2=0  pri2=5 qidv3=1 qidix3=1  pri3=4 qidv4=1 qidix4=2  pri4=3 qidv5=1 qidix5=3  pri5=2 qidv6=1 qidix6=4  pri6=1 qidv7=1 qidix7=5  pri7=0   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 39       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x4e0 hist_list_limit=0x4ff qidv0=1 qidix0=7  pri0=7 qidv1=1 qidix1=0  pri1=6 qidv2=1 qidix2=1  pri2=5 qidv3=1 qidix3=2  pri3=4 qidv4=1 qidix4=3  pri4=3 qidv5=1 qidix5=4  pri5=2 qidv6=1 qidix6=5  pri6=1 qidv7=1 qidix7=6  pri7=0   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+		   								  
+   ldb cq 40       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x500 hist_list_limit=0x51f qidv0=1 qidix0=8  pri0=7 qidv1=1 qidix1=9  pri1=6 qidv2=1 qidix2=10 pri0=5 qidv3=1 qidix3=11 pri3=4 qidv4=1 qidix4=12 pri4=3 qidv5=1 qidix5=13 pri5=2 qidv6=1 qidix6=14 pri6=1 qidv7=1 qidix7=15 pri7=0   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 41       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x520 hist_list_limit=0x53f qidv0=1 qidix0=9  pri0=7 qidv1=1 qidix1=10 pri1=6 qidv2=1 qidix2=11 pri0=5 qidv3=1 qidix3=12 pri3=4 qidv4=1 qidix4=13 pri4=3 qidv5=1 qidix5=14 pri5=2 qidv6=1 qidix6=15 pri6=1 qidv7=1 qidix7=8  pri7=0   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 42       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x540 hist_list_limit=0x55f qidv0=1 qidix0=10 pri0=7 qidv1=1 qidix1=11 pri1=6 qidv2=1 qidix2=12 pri0=5 qidv3=1 qidix3=13 pri3=4 qidv4=1 qidix4=14 pri4=3 qidv5=1 qidix5=15 pri5=2 qidv6=1 qidix6=8  pri6=1 qidv7=1 qidix7=9  pri7=0   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 43       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x560 hist_list_limit=0x57f qidv0=1 qidix0=11 pri0=7 qidv1=1 qidix1=12 pri1=6 qidv2=1 qidix2=13 pri0=5 qidv3=1 qidix3=14 pri3=4 qidv4=1 qidix4=15 pri4=3 qidv5=1 qidix5=8  pri5=2 qidv6=1 qidix6=9  pri6=1 qidv7=1 qidix7=10 pri7=0   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 44       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x580 hist_list_limit=0x59f qidv0=1 qidix0=12 pri0=7 qidv1=1 qidix1=13 pri1=6 qidv2=1 qidix2=14 pri0=5 qidv3=1 qidix3=15 pri3=4 qidv4=1 qidix4=8  pri4=3 qidv5=1 qidix5=9  pri5=2 qidv6=1 qidix6=10 pri6=1 qidv7=1 qidix7=11 pri7=0   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 45       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x5a0 hist_list_limit=0x5bf qidv0=1 qidix0=13 pri0=7 qidv1=1 qidix1=14 pri1=6 qidv2=1 qidix2=15 pri0=5 qidv3=1 qidix3=8  pri3=4 qidv4=1 qidix4=9  pri4=3 qidv5=1 qidix5=10 pri5=2 qidv6=1 qidix6=11 pri6=1 qidv7=1 qidix7=12 pri7=0   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 46       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x5c0 hist_list_limit=0x5df qidv0=1 qidix0=14 pri0=7 qidv1=1 qidix1=15 pri1=6 qidv2=1 qidix2=8  pri0=5 qidv3=1 qidix3=9  pri3=4 qidv4=1 qidix4=10 pri4=3 qidv5=1 qidix5=11 pri5=2 qidv6=1 qidix6=12 pri6=1 qidv7=1 qidix7=13 pri7=0   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 47       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x5e0 hist_list_limit=0x5ff qidv0=1 qidix0=15 pri0=7 qidv1=1 qidix1=8  pri1=6 qidv2=1 qidix2=9  pri0=5 qidv3=1 qidix3=10 pri3=4 qidv4=1 qidix4=11 pri4=3 qidv5=1 qidix5=12 pri5=2 qidv6=1 qidix6=13 pri6=1 qidv7=1 qidix7=14 pri7=0   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+
+   ldb cq 48       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x600 hist_list_limit=0x61f qidv0=1 qidix0=16 pri0=7 qidv1=1 qidix1=17 pri1=6 qidv2=1 qidix2=18 pri2=5 qidv3=1 qidix3=19 pri3=4 qidv4=1 qidix4=20 pri4=3 qidv5=1 qidix5=21 pri5=2 qidv6=1 qidix6=22 pri6=1 qidv7=1 qidix7=23 pri7=0   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 49       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x620 hist_list_limit=0x63f qidv0=1 qidix0=17 pri0=7 qidv1=1 qidix1=18 pri1=6 qidv2=1 qidix2=19 pri2=5 qidv3=1 qidix3=20 pri3=4 qidv4=1 qidix4=21 pri4=3 qidv5=1 qidix5=22 pri5=2 qidv6=1 qidix6=23 pri6=1 qidv7=1 qidix7=16 pri7=0   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 50       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x640 hist_list_limit=0x65f qidv0=1 qidix0=18 pri0=7 qidv1=1 qidix1=19 pri1=6 qidv2=1 qidix2=20 pri2=5 qidv3=1 qidix3=21 pri3=4 qidv4=1 qidix4=22 pri4=3 qidv5=1 qidix5=23 pri5=2 qidv6=1 qidix6=16 pri6=1 qidv7=1 qidix7=17 pri7=0   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 51       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x660 hist_list_limit=0x67f qidv0=1 qidix0=19 pri0=7 qidv1=1 qidix1=20 pri1=6 qidv2=1 qidix2=21 pri2=5 qidv3=1 qidix3=22 pri3=4 qidv4=1 qidix4=23 pri4=3 qidv5=1 qidix5=16 pri5=2 qidv6=1 qidix6=17 pri6=1 qidv7=1 qidix7=18 pri7=0   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 52       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x680 hist_list_limit=0x69f qidv0=1 qidix0=20 pri0=7 qidv1=1 qidix1=21 pri1=6 qidv2=1 qidix2=22 pri2=5 qidv3=1 qidix3=23 pri3=4 qidv4=1 qidix4=16 pri4=3 qidv5=1 qidix5=17 pri5=2 qidv6=1 qidix6=18 pri6=1 qidv7=1 qidix7=19 pri7=0   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 53       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x6a0 hist_list_limit=0x6bf qidv0=1 qidix0=21 pri0=7 qidv1=1 qidix1=22 pri1=6 qidv2=1 qidix2=23 pri2=5 qidv3=1 qidix3=16 pri3=4 qidv4=1 qidix4=17 pri4=3 qidv5=1 qidix5=18 pri5=2 qidv6=1 qidix6=19 pri6=1 qidv7=1 qidix7=20 pri7=0   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 54       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x6c0 hist_list_limit=0x6df qidv0=1 qidix0=22 pri0=7 qidv1=1 qidix1=23 pri1=6 qidv2=1 qidix2=16 pri2=5 qidv3=1 qidix3=17 pri3=4 qidv4=1 qidix4=18 pri4=3 qidv5=1 qidix5=19 pri5=2 qidv6=1 qidix6=20 pri6=1 qidv7=1 qidix7=21 pri7=0   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 55       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x6e0 hist_list_limit=0x6ff qidv0=1 qidix0=23 pri0=7 qidv1=1 qidix1=16 pri1=6 qidv2=1 qidix2=17 pri2=5 qidv3=1 qidix3=18 pri3=4 qidv4=1 qidix4=19 pri4=3 qidv5=1 qidix5=20 pri5=2 qidv6=1 qidix6=21 pri6=1 qidv7=1 qidix7=22 pri7=0   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+		   								  
+   ldb cq 56       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x700 hist_list_limit=0x71f qidv0=1 qidix0=24 pri0=7 qidv1=1 qidix1=25 pri1=6 qidv2=1 qidix2=26 pri2=5 qidv3=1 qidix3=27 pri3=4 qidv4=1 qidix4=28 pri4=3 qidv5=1 qidix5=29 pri5=2 qidv6=1 qidix6=30 pri6=1 qidv7=1 qidix7=31 pri7=0   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 57       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x720 hist_list_limit=0x73f qidv0=1 qidix0=25 pri0=7 qidv1=1 qidix1=26 pri1=6 qidv2=1 qidix2=27 pri2=5 qidv3=1 qidix3=28 pri3=4 qidv4=1 qidix4=29 pri4=3 qidv5=1 qidix5=30 pri5=2 qidv6=1 qidix6=31 pri6=1 qidv7=1 qidix7=24 pri7=0   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 58       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x740 hist_list_limit=0x75f qidv0=1 qidix0=26 pri0=7 qidv1=1 qidix1=27 pri1=6 qidv2=1 qidix2=28 pri2=5 qidv3=1 qidix3=29 pri3=4 qidv4=1 qidix4=30 pri4=3 qidv5=1 qidix5=31 pri5=2 qidv6=1 qidix6=24 pri6=1 qidv7=1 qidix7=25 pri7=0   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 59       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x760 hist_list_limit=0x77f qidv0=1 qidix0=27 pri0=7 qidv1=1 qidix1=28 pri1=6 qidv2=1 qidix2=29 pri2=5 qidv3=1 qidix3=30 pri3=4 qidv4=1 qidix4=31 pri4=3 qidv5=1 qidix5=24 pri5=2 qidv6=1 qidix6=25 pri6=1 qidv7=1 qidix7=26 pri7=0   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 60       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x780 hist_list_limit=0x79f qidv0=1 qidix0=28 pri0=7 qidv1=1 qidix1=29 pri1=6 qidv2=1 qidix2=30 pri2=5 qidv3=1 qidix3=31 pri3=4 qidv4=1 qidix4=24 pri4=3 qidv5=1 qidix5=25 pri5=2 qidv6=1 qidix6=26 pri6=1 qidv7=1 qidix7=27 pri7=0   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 61       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x7a0 hist_list_limit=0x7bf qidv0=1 qidix0=29 pri0=7 qidv1=1 qidix1=30 pri1=6 qidv2=1 qidix2=31 pri2=5 qidv3=1 qidix3=24 pri3=4 qidv4=1 qidix4=25 pri4=3 qidv5=1 qidix5=26 pri5=2 qidv6=1 qidix6=27 pri6=1 qidv7=1 qidix7=28 pri7=0   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 62       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x7c0 hist_list_limit=0x7df qidv0=1 qidix0=30 pri0=7 qidv1=1 qidix1=31 pri1=6 qidv2=1 qidix2=24 pri2=5 qidv3=1 qidix3=25 pri3=4 qidv4=1 qidix4=26 pri4=3 qidv5=1 qidix5=27 pri5=2 qidv6=1 qidix6=28 pri6=1 qidv7=1 qidix7=29 pri7=0   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+   ldb cq 63       wu_limit=[63:8191] wu_limit_tolerance=40   cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x7e0 hist_list_limit=0x7ff qidv0=1 qidix0=31 pri0=7 qidv1=1 qidix1=24 pri1=6 qidv2=1 qidix2=25 pri2=5 qidv3=1 qidix3=26 pri3=4 qidv4=1 qidix4=27 pri4=3 qidv5=1 qidix5=28 pri5=2 qidv6=1 qidix6=29 pri6=1 qidv7=1 qidix7=30 pri7=0   cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,3,4,7,8,15,16,31,32,63,64,127,128] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+
+
+  
+
+
+cfg_end
+
+##ingress alarm enable
+#wr hqm_system_csr.ingress_alarm_enable 0xffffffff
+#rd hqm_system_csr.ingress_alarm_enable 0x0000003f
+
+
+

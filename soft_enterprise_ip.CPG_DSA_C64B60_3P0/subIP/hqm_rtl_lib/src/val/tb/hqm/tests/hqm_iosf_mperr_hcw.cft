@@ -1,0 +1,42 @@
+# CFG write completion should be good
+idle 50
+wr hqm_pf_cfg_i.func_bar_u 0x12345678
+# Enable command parity error
+idle 50
+wr hqm_sif_csr.parity_ctl.INJ_SIF_MCPERR   1
+# Should get parity error on the CFG write completion header
+idle 50
+wre hqm_pf_cfg_i.func_bar_u 0x12345678
+# Should not get parity error on the CFG write completion header
+idle 50
+wr hqm_pf_cfg_i.func_bar_u 0x12345678
+# Reenable command parity error
+idle 50
+wr hqm_sif_csr.parity_ctl.INJ_SIF_MCPERR   0
+wr hqm_sif_csr.parity_ctl.INJ_SIF_MCPERR   1
+# Should get parity error on the CFG read completion header
+idle 50
+rde hqm_pf_cfg_i.func_bar_u
+# Should not get parity error on the CFG read completion header
+idle 50
+rd hqm_pf_cfg_i.func_bar_u 0x12345678
+# Enable data parity error
+idle 50
+wr hqm_sif_csr.parity_ctl.INJ_SIF_MDPERR   1
+# Should get parity error on the CFG read completion data
+idle 50
+rde hqm_pf_cfg_i.func_bar_u
+# Should not get parity error on the CFG read completion data
+idle 50
+rd hqm_pf_cfg_i.func_bar_u 0x12345678
+# Reenable data parity error
+idle 50
+wr hqm_sif_csr.parity_ctl.INJ_SIF_MDPERR   0
+wr hqm_sif_csr.parity_ctl.INJ_SIF_MDPERR   1
+# Should get parity error on the CFG read completion data
+idle 50
+rde hqm_pf_cfg_i.func_bar_u
+# Should not get parity error on the CFG read completion data
+idle 50
+rd hqm_pf_cfg_i.func_bar_u 0x12345678
+

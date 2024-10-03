@@ -1,0 +1,27 @@
+cd $IP_ROOT
+rm -rf pwa/results .acetestinfo.log
+
+\cp source/rtl/include/configs/stap_params_include_wtapnw_parallel_swcomp.inc source/rtl/include/stap_params_include.inc
+\cp verif/tb/include/configs/tb_param_wtapnw_parallel_swcomp.inc              verif/tb/include/tb_param.inc
+\cp verif/tb/include/configs/STapTop_wtapnw_parallel_ext_lb.sv         verif/tb/STapTop.sv
+
+ace -cc -pwa pwa_wtapnw_parallel_swcomp
+ace -x TapTestOnlyBypass \
+       TapTestOnlySLVIDCODE \
+       TapTestBypass \
+       TapTestRegisterAccess \
+       TapTestRegisterAccess_EnDebug \
+       TapTestFsmStates \
+       TapTestTmsGlitch \
+       TapTestNetworkRegisterAccess \
+       TapTestRandom \
+       TapTestBoundaryRegisterAccess \
+       TapTestReservedOpcodeAccess \
+       TapTestOrangeGreenRegisterAccess \
+       TapTestGreenRegisterAccess -pwa pwa_wtapnw_parallel_swcomp -nb -nbmon
+
+grep -ir status pwa/results/tests/*/postsim.log
+
+\cp source/rtl/include/configs/stap_params_include_default_swcomp.inc         source/rtl/include/stap_params_include.inc
+\cp verif/tb/include/configs/tb_param_default_swcomp.inc                      verif/tb/include/tb_param.inc
+\cp verif/tb/include/configs/STapTop_def_ext_lb.sv                     verif/tb/STapTop.sv

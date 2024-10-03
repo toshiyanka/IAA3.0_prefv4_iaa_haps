@@ -1,0 +1,528 @@
+#!/usr/intel/bin/perl
+my $SCOPE = "hqm_IOSF_SBC_EP";
+
+
+my $sla_platform;
+#my $xvm_define = &get_ace_xvm();
+
+if ($ENV{VCS_TARGET_ARCH} eq 'suse64') {
+   $sla_platform = "Linux_x86_64",
+} elsif ($ENV{VCS_TARGET_ARCH} eq 'suse32') {
+   $sla_platform = "Linux",
+}
+# Enlist All common models use by the sbc_ep model 
+my @sbc_ep_models_use = (
+                      "ovm:ovm",                 
+                      "uvm:uvm",                
+                      "xvm:xvm",                
+                      "saola:saola",              
+                      "AVCShared:AVCShared",           
+                      "IOSF_SVC:IOSF_SVC",           
+                      #"IOSF_PVC:IOSF_PVC",           
+                      "sipmanager:sipmanager",         
+                      #"crest_utils:crest_utils",        
+                      "ccu_vc:ccu_vc",             
+                      "ChassisPowerGatingVC:ChassisPowerGatingVC",
+                      "VccModeling:VccModeling",        
+                      );
+
+%audf = (
+   HDLSpec => {
+      $SCOPE => {
+         # Define all the libraries which could be compiled
+         libs => {
+             sip_shared_lib => {
+               -vlog_files => ["verif/tb/sip_shared_lib_dummy.sv",],
+               -tag  =>  'nonsynth',
+               -dependent_libs => [
+                   "IOSF_SVC_val_lib",
+                   "sipmanager_val_lib",
+                   "ccu_vc_val_lib",
+                   "ChassisPowerGatingVC_val_lib",
+                   "ovm_val_lib",
+                   "uvm_val_lib",
+                   "xvm_val_lib",
+                   "saola_val_lib",
+                ],
+                },
+           # ovm  => {
+           #    -tag => 'nonsynth',
+           #    -hdl_spec => [
+           #       "$ENV{SAOLA_HOME}/sla.hdl",
+           #       "ace/ovm.hdl",
+           #    ],
+           # },
+           # 
+           # uvm  => {
+           #    -tag => 'nonsynth',
+           #    -hdl_spec => [
+           #       "ace/uvm.hdl",
+           #    ],
+           # },
+           # 
+           # xvm  => {
+           #    -tag => 'nonsynth',
+           #    -hdl_spec => [
+           #       "$ENV{XVM_HOME}/xvm.hdl",
+           #    ],
+           #    -dependent_libs => [
+           #         "uvm",
+           #         "ovm",
+           #    ],
+           # },
+             
+            iosf_sbc_ep_rtl_lib => {
+               -hdl_spec       => [
+                   "ace/iosf_sbc_ep.hdl",
+                   ($ENV{SB_STDCELLS_HDL} =~ /SB_STDCELLS_HDL/) ? "ace/$ENV{KIT_HDL}" : "",
+               ],
+            },
+            iosf_sbc_ep_rtl_sglint_lib => {
+               -hdl_spec       => [
+                   "ace/iosf_sbc_ep.hdl",
+               ],
+            },            
+            #added by mabdraz1 duplicate the iosf_sbc_ep_rtl_lib
+            sbebase_lib => {
+                -hdl_spec       => [
+                   "$ENV{VISAROOT}/rtl/visa_modules.hdl",
+                   "ace/iosf_sbc_ep.hdl",
+                   ($ENV{SB_STDCELLS_HDL} =~ /SB_STDCELLS_HDL/) ? "ace/$ENV{KIT_HDL}" : "",
+               ],
+            },
+            sbebase_async_lib => {
+                -hdl_spec       => [
+                   "$ENV{VISAROOT}/rtl/visa_modules.hdl",
+                   "ace/iosf_sbc_ep.hdl",
+                   ($ENV{SB_STDCELLS_HDL} =~ /SB_STDCELLS_HDL/) ? "ace/$ENV{KIT_HDL}" : "",
+               ],
+            },
+            sbendpoint_lib => {
+                -hdl_spec       => [
+                   "$ENV{VISAROOT}/rtl/visa_modules.hdl",
+                   "ace/iosf_sbc_ep.hdl",
+                   ($ENV{SB_STDCELLS_HDL} =~ /SB_STDCELLS_HDL/) ? "ace/$ENV{KIT_HDL}" : "",
+               ],
+            },
+            sbendpoint_async_lib => {
+                -hdl_spec       => [
+                   "ace/iosf_sbc_ep.hdl",
+                   "$ENV{VISAROOT}/rtl/visa_modules.hdl",
+                   ($ENV{SB_STDCELLS_HDL} =~ /SB_STDCELLS_HDL/) ? "ace/$ENV{KIT_HDL}" : "",
+               ],
+            },
+            #end of duplicate
+
+# vnandaku: Added during PCR:1404395529 , all simulations should use behavioural model of CTECH
+# All tools (synthesis/cdc etc) should use process specific synthesizable (aka backend) verilog RTL of CTECH cells
+            iosf_sbc_ep_sim_lib => {
+               -hdl_spec       => [
+                   "ace/iosf_sbc_ep.hdl",
+                   ($ENV{SB_STDCELLS_HDL} =~ /SB_STDCELLS_HDL/) ? "ace/$ENV{KIT_HDL}" : "",
+               ],
+            },
+# GLS
+            iosf_sbc_ep_gls_lib => {
+               -hdl_spec       => [
+                   "ace/iosf_sbc_ep_gls.hdl",
+                   ($ENV{SB_STDCELLS_HDL} =~ /SB_STDCELLS_HDL/) ? "ace/$ENV{KIT_HDL}" : "",
+               ],
+            },
+
+             iosf_svc_ep => {
+                -tag => 'nonsynth',
+                #-vlog_files     => ["$ENV{IOSF_SVC_ROOT}/tb/env/iosfsbm_ip_env_pkg.sv"],
+                -vlog_opts      =>  [
+                                                        '-sverilog',
+                                   ],
+                -hdl_spec       => [
+                   "ace/iosf_svc_ep.hdl",
+                   #"verif/bfm/ccu_vc/verif/ccu-vc/ccu_vc_pkg.hdl",
+                   #"verif/bfm/ccu_vc/verif/lib/sip_vintf_manager/sip_vintf_manager.hdl",
+                ],
+                -dependent_libs => [
+                 'sip_shared_lib',
+                ],
+             }, 
+   
+            iosf_sbc_ep_tb  => {
+               -tag => 'nonsynth',
+               -hdl_spec       => [
+                  "ace/iosf_sbc_ep_tb.hdl",
+               ],
+               -dependent_libs => [
+               'iosf_svc_ep', 'sip_shared_lib',
+               ],
+            }, 
+   
+            iosf_sbc_ep_ti_lib  => {
+               -tag => 'nonsynth',
+               -hdl_spec => [
+                    "ace/iosf_sbc_ep_ti.hdl",
+               ],
+               -dependent_libs => [
+                 'sip_shared_lib',
+               ],
+            # Added by Gaurav Mathur for HSD: 1409277457               
+               "-tools" => "-sglp_createlib" ,
+            },
+   
+            lp_checker_lib  => {
+               -tag => 'nonsynth',
+               -hdl_spec => [
+                  "ace/lp_checker_lib.hdl",
+               ],
+            },
+            
+            sbebase_lib_VISA_INSERTION => {
+                -generated       => 1,
+                -gen_config      => "hqm_IOSF_SBC_EP::sbebase_lib_VISA_INSERTION",
+                -forward_results => "sbebase_lib",
+                -hdl_spec        => ["GenRTL/$SCOPE/hqm_sbebase_lib_VISA_INSERTION/hqm_sbebase_lib_visa.hdl"],
+            },
+            sbebase_async_lib_VISA_INSERTION => {
+                -generated       => 1,
+                -gen_config      => "hqm_IOSF_SBC_EP::sbebase_async_lib_VISA_INSERTION",
+                -forward_results => "sbebase_async_lib",
+                -hdl_spec        => ["GenRTL/$SCOPE/hqm_sbebase_async_lib_VISA_INSERTION/hqm_sbebase_async_lib_visa.hdl"],
+            },
+            sbendpoint_lib_VISA_INSERTION => {
+                -generated       => 1,
+                -gen_config      => "hqm_IOSF_SBC_EP::sbendpoint_lib_VISA_INSERTION",
+                -forward_results => "sbendpoint_lib",
+                -hdl_spec        => ["GenRTL/$SCOPE/hqm_sbendpoint_lib_VISA_INSERTION/hqm_sbendpoint_lib_visa.hdl"],
+            },
+            sbendpoint_async_lib_VISA_INSERTION => {
+                -generated       => 1,
+                -gen_config      => "hqm_IOSF_SBC_EP::sbendpoint_async_lib_VISA_INSERTION",
+                -forward_results => "sbendpoint_async_lib",
+                -hdl_spec        => ["GenRTL/$SCOPE/hqm_sbendpoint_async_lib_VISA_INSERTION/hqm_sbendpoint_async_lib_visa.hdl"],
+            },
+            sbebase_visa_validate_tb_lib => {
+                -generated      => 1,
+                -gen_config     => "hqm_IOSF_SBC_EP::sbebase_lib_VISA_INSERTION",
+                -vlog_files     => ["GenRTL/$SCOPE/sbebase_lib_VISA_INSERTION/sbebase_visa_test.sv"],
+                -vlog_opts      => ["-sverilog"],
+            },
+            sbebase_async_visa_validate_tb_lib => {
+                -generated      => 1,
+                -gen_config     => "hqm_IOSF_SBC_EP::sbebase_async_lib_VISA_INSERTION",
+                -vlog_files     => ["GenRTL/$SCOPE/sbebase_async_lib_VISA_INSERTION/sbebase_visa_test.sv"],
+                -vlog_opts      => ["-sverilog"],
+            },
+            sbendpoint_visa_validate_tb_lib => {
+                -generated      => 1,
+                -gen_config     => "hqm_IOSF_SBC_EP::sbendpoint_lib_VISA_INSERTION",
+                -vlog_files     => ["GenRTL/$SCOPE/sbendpoint_lib_VISA_INSERTION/sbendpoint_visa_test.sv"],
+                -vlog_opts      => ["-sverilog"],
+            },
+            sbendpoint_async_visa_validate_tb_lib => {
+                -generated      => 1,
+                -gen_config     => "hqm_IOSF_SBC_EP::sbendpoint_async_lib_VISA_INSERTION",
+                -vlog_files     => ["GenRTL/$SCOPE/sbendpoint_async_lib_VISA_INSERTION/sbendpoint_visa_test.sv"],
+                -vlog_opts      => ["-sverilog"],
+                -hdl_spec       => ["GenRTL/$SCOPE/hqm_sbendpoint_async_lib_VISA_INSERTION/hqm_sbendpoint_async_lib_visa.hdl"],
+            },
+            visa_rtl_lib => {
+                -hdl_spec       => ["$ENV{VISAROOT}/rtl/visa_modules.hdl"],
+            },
+         }, # end libs
+
+         models => {
+            cdc_sbendpoint => {
+               top       => "iosf_sbc_ep_rtl_lib.sbendpoint",
+               libs      => [
+                  "iosf_sbc_ep_rtl_lib",
+               ],
+# This power intent added for EFFM with UPF
+                power_intent => {
+                  enable_pwr_intent => 1,
+                  power_top => 'iosf_sbc_ep_tb.tb_top',
+                  upf_files => ["tools/upf/sbendpoint/sbendpoint.upf",],
+                  lpa_bind_file => 'tools/upf/sbendpoint/lpa_bind.tcl',
+                },
+               use       => ['CTECH:CTECH_model',],
+               elab_opts => ["+vpi+cli+1 $ENV{SAOLA_HOME}/libs/$sla_platform/libsla.so"],
+            },
+            cdc_sbebase => {
+# This power intent added for EFFM with UPF
+               top       => "iosf_sbc_ep_rtl_lib.sbebase",
+               libs      => [
+                  "iosf_sbc_ep_rtl_lib",
+               ],
+               power_intent => {
+                  enable_pwr_intent => 1,
+                  power_top => 'iosf_sbc_ep_tb.tb_top',
+                  upf_files => ["tools/upf/sbendpoint/sbendpoint.upf",],
+                  lpa_bind_file => 'tools/upf/sbendpoint/lpa_bind.tcl',
+                },
+               use       => ['CTECH:CTECH_model',],
+               elab_opts => ["+vpi+cli+1 $ENV{SAOLA_HOME}/libs/$sla_platform/libsla.so"],
+            },
+# sglint
+            sglint_sbendpoint => {
+               top       => "iosf_sbc_ep_rtl_sglint_lib.sbendpoint",
+               libs      => [
+                  "iosf_sbc_ep_rtl_sglint_lib",
+               ],
+                power_intent => {
+                  enable_pwr_intent => 1,
+                  power_top => 'iosf_sbc_ep_tb_lib.tb_top',
+                  upf_files => ["tools/upf/sbendpoint/sbendpoint.upf",],
+                },
+               use       => ['CTECH:CTECH_model',],
+               elab_opts => ["+vpi+cli+1 $ENV{SAOLA_HOME}/libs/$sla_platform/libsla.so"],
+            },
+            sglint_sbebase => {
+               top       => "iosf_sbc_ep_rtl_sglint_lib.sbebase",
+               libs      => [
+                  "iosf_sbc_ep_rtl_sglint_lib",
+               ],
+               power_intent => {
+                  enable_pwr_intent => 1,
+                  power_top => 'iosf_sbc_ep_tb_lib.tb_top',
+                  upf_files => ["tools/upf/sbendpoint/sbendpoint.upf",],
+                },
+               use       => ['CTECH:CTECH_model',],
+               elab_opts => ["+vpi+cli+1 $ENV{SAOLA_HOME}/libs/$sla_platform/libsla.so"],
+            },
+            sbendpoint_gls => {
+               top         =>  "iosf_sbc_ep_tb.tb_top",
+               libs => [
+                  "iosf_svc_ep",
+                 'sip_shared_lib',
+                  "iosf_sbc_ep_gls_lib",
+                  "iosf_sbc_ep_tb",
+               ],
+               pli_libs => ['-debussy_pli_libs',
+               ],
+               export => {
+                  libs => [
+                     "iosf_sbc_ep_gls_lib",
+                     "iosf_sbc_ep_ti_lib",
+                  ],
+               },
+               use       => ['CTECH:CTECH_model',@sbc_ep_models_use,],
+               elab_opts => ["+vpi+cli+1 $ENV{SAOLA_HOME}/libs/$sla_platform/libsla.so",
+                             " -CFLAGS -DVCS -CFLAGS -I$ENV{VCS_HOME}/include -CFLAGS -I$ENV{UVM_HOME}/src/dpi $ENV{UVM_HOME}/src/dpi/uvm_dpi.cc",
+                             " -error=SIOB",
+                             " -error=IPDW",
+                            ],
+# Do not disable this xprop check.  If this check fails, fix the issue (by either changing the RTL or file ticket on PDS vcs/xprop owners for help. But do not disable this check.
+               elab_scrag_recipe => 'ace/xprop_scrag.recipe',
+                            
+            },
+             
+# used in ep regress (should use sim_lib)
+            sbe_cfg => {
+               top         =>  "iosf_sbc_ep_tb.tb_top",
+               libs => [
+                # "ovm",
+                # "uvm",
+                # "xvm",
+                  "iosf_svc_ep",
+                  "iosf_sbc_ep_rtl_lib",
+                  "iosf_sbc_ep_tb",
+                  "sip_shared_lib"
+               ],
+               pli_libs => ['-debussy_pli_libs',
+               ],
+               export => {
+                  libs => [
+                     "iosf_sbc_ep_rtl_lib",
+                     "iosf_sbc_ep_ti_lib",
+                  ],
+               },
+               use       => ['CTECH:CTECH_model',@sbc_ep_models_use,],
+               elab_opts => ["+vpi+cli+1 $ENV{SAOLA_HOME}/libs/$sla_platform/libsla.so",
+                             " -CFLAGS -DVCS -CFLAGS -I$ENV{VCS_HOME}/include -CFLAGS -I$ENV{UVM_HOME}/src/dpi $ENV{UVM_HOME}/src/dpi/uvm_dpi.cc",
+
+                            ],
+            }, # end sbe_cfg
+
+            IosfSbEpTestbench => {
+               top         =>  "iosf_sbc_ep_tb.tb_top",
+               libs => [
+                  "iosf_svc_ep",
+                 'sip_shared_lib',
+                  "iosf_sbc_ep_sim_lib",
+                  "iosf_sbc_ep_tb",
+               ],
+               pli_libs => ['-debussy_pli_libs',
+               ],
+               export => {
+                  libs => [
+                     "iosf_sbc_ep_sim_lib",
+                     "iosf_sbc_ep_ti_lib",
+                  ],
+               },
+               use       => ['CTECH:CTECH_model',@sbc_ep_models_use,],
+               elab_opts => ["+vpi+cli+1 $ENV{SAOLA_HOME}/libs/$sla_platform/libsla.so",
+                             " -CFLAGS -DVCS -CFLAGS -I$ENV{VCS_HOME}/include -CFLAGS -I$ENV{UVM_HOME}/src/dpi $ENV{UVM_HOME}/src/dpi/uvm_dpi.cc",
+                             " -error=SIOB",
+                             " -error=IPDW",
+                            ],
+# Do not disable this xprop check.  If this check fails, fix the issue (by either changing the RTL or file ticket on PDS vcs/xprop owners for help. But do not disable this check.
+               elab_scrag_recipe => 'ace/xprop_scrag.recipe',
+            }, # end IosfSbEpTestbench
+            Ep_pa => {
+               top => 'iosf_sbc_ep_tb.tb_top',
+               libs => [
+                  "iosf_svc_ep",
+                  "iosf_sbc_ep_sim_lib",
+                  "iosf_sbc_ep_tb",
+                  "lp_checker_lib",
+                  "sip_shared_lib",
+               ],
+               pli_libs => ['-debussy_pli_libs',
+               ],
+               export => {
+                  libs => [
+                     "iosf_sbc_ep_sim_lib",
+                     "iosf_sbc_ep_ti_lib",
+                  ],
+               },
+               power_intent => {
+                   enable_pwr_intent => 1,
+                   power_top => 'tb_top',
+                   upf_files => ['tools/upf/sbendpoint/sbendpoint.upf'],
+                   lpa_bind_file => 'tools/upf/sbendpoint/lpa_bind.tcl',
+               },
+               testcase_globals => {
+                  -pwr_elab_opts_vcs => [
+                     "-liblist UPF+LPA",
+                     "-power=dccompat_gen_separator",
+                     "-power=coverage",
+                     "-power=always_on",
+                  ],
+                  -simv_args => [
+                     '+en_pwr'
+                  ],
+               },
+               use       => ['CTECH:CTECH_model',@sbc_ep_models_use,],
+               elab_opts => ["+vpi+cli+1 $ENV{SAOLA_HOME}/libs/$sla_platform/libsla.so"],
+            }, # end Ep_pa
+            sbebase_visa_validate_tb_model => {
+                top => 'sbebase_visa_validate_tb_lib.visa_top_test',
+                libs => ['sbebase_lib', 'sbebase_visa_validate_tb_lib', 'sbebase_lib_VISA_INSERTION', 'visa_rtl_lib',],
+                use       => ['CTECH:CTECH_model',],
+            },
+            sbebase_async_visa_validate_tb_model => {
+                top => 'sbebase_async_visa_validate_tb_lib.visa_top_test',
+                libs => ['sbebase_async_lib', 'sbebase_async_visa_validate_tb_lib', 'sbebase_async_lib_VISA_INSERTION', 'visa_rtl_lib',],
+                use       => ['CTECH:CTECH_model',],
+            },
+            sbendpoint_visa_validate_tb_model => {
+                top => 'sbendpoint_visa_validate_tb_lib.visa_top_test',
+                libs => ['sbendpoint_lib', 'sbendpoint_visa_validate_tb_lib', 'sbendpoint_lib_VISA_INSERTION', 'visa_rtl_lib',],
+                use       => ['CTECH:CTECH_model',],
+            },
+            sbendpoint_async_visa_validate_tb_model => {
+                top => 'sbendpoint_async_visa_validate_tb_lib.visa_top_test',
+                libs => ['sbendpoint_async_lib', 'sbendpoint_async_visa_validate_tb_lib', 'sbendpoint_async_lib_VISA_INSERTION', 'visa_rtl_lib',],
+                use       => ['CTECH:CTECH_model',],
+            },
+         }, # end models
+      }, # end $SCOPE
+   }, # end HDLSpec
+   InterfaceVars => {
+      -add_flag_dump            => {default => 1, },
+      -dump_rtl_include_prereqs => {default => 1, },
+      -enable_generate_rtl      => {default => 1, },
+      -dump_compiler_tags       => {default => 1, },
+      -en__hqm_sbebase_lib_VISA_INSERTION => { # used in tools/visa/run_sbep_new for ace visa
+            type => 'BOOLEAN',
+            default => 0,
+            help => {
+                desc => "STAGE 'sbebase_lib_VISA_INSERTION' enable",
+                group => "GENERATE",
+            },
+       },
+      -en__hqm_sbebase_async_lib_VISA_INSERTION => { # used in tools/visa/run_sbep_new for ace visa
+            type => 'BOOLEAN',
+            default => 0,
+            help => {
+                desc => "STAGE 'sbebase_async_lib_VISA_INSERTION' enable",
+                group => "GENERATE",
+            },
+       },
+      -en__hqm_sbendpoint_lib_VISA_INSERTION => { # used in tools/visa/run_sbep_new for ace visa
+            type => 'BOOLEAN',
+            default => 0,
+            help => {
+                desc => "STAGE 'sbendpoint_lib_VISA_INSERTION' enable",
+                group => "GENERATE",
+            },
+       },
+      -en__hqm_sbendpoint_async_lib_VISA_INSERTION => { # used in tools/visa/run_sbep_new for ace visa
+            type => 'BOOLEAN',
+            default => 0,
+            help => {
+                desc => "STAGE 'sbendpoint_async_lib_VISA_INSERTION' enable",
+                group => "GENERATE",
+            },
+       },
+    }, # end InterfaceVars
+
+    GenRTL => {
+        $SCOPE => {
+            -config => {
+                sbebase_lib_VISA_INSERTION => {
+                    enable_config => '<-en__hqm_sbebase_lib_VISA_INSERTION>',
+                    dump_rtl => 'L:hqm_sbebase_lib',
+                    filter => 'Synthesis',
+                    gen_commands => [
+                        "/usr/intel/bin/perl $ENV{VISAFLOW_ROOT}/bin/VisaFlow.pl ".
+                        "-metadata \${META_DATA} --sigfile=FIND_FILE:tools/visa/sbebase/sbebase_visa.cfg ".
+                        "--vlogsupopts \"+librescan\" --top_module sbebase ".
+                        "--insert_opts=\" -M -DNODE=logic -DINTEL_SVA_OFF \" ".
+                        " --lint_opts=-r --lint_opts=FIND_FILE:tools/visa/visa_lint_waivers.xml ".
+                        "--modellib=hqm_sbebase_lib"
+                    ],# end gen_commands
+                },# end sbebase_lib_VISA_INSERTION
+                sbebase_async_lib_VISA_INSERTION => {
+                    enable_config => '<-en__hqm_sbebase_async_lib_VISA_INSERTION>',
+                    dump_rtl => 'L:hqm_sbebase_async_lib',
+                    filter => 'Synthesis',
+                    gen_commands => [
+                        "/usr/intel/bin/perl $ENV{VISAFLOW_ROOT}/bin/VisaFlow.pl ".
+                        "-metadata \${META_DATA} --sigfile=FIND_FILE:tools/visa/sbebase/sbebase_async_visa.cfg ".
+                        "--vlogsupopts \"+librescan\" --top_module sbebase ".
+                        "--insert_opts=\" -M -DNODE=logic -DINTEL_SVA_OFF \" ".
+                        " --lint_opts=-r --lint_opts=FIND_FILE:tools/visa/visa_lint_waivers.xml ".
+                        "--modellib=hqm_sbebase_async_lib"
+                    ],# end gen_commands
+                },# end sbebase_async_lib_VISA_INSERTION
+                sbendpoint_lib_VISA_INSERTION => {
+                    enable_config => '<-en__hqm_sbendpoint_lib_VISA_INSERTION>',
+                    dump_rtl => 'L:hqm_sbendpoint_lib',
+                    filter => 'Synthesis',
+                    gen_commands => [
+                        "/usr/intel/bin/perl $ENV{VISAFLOW_ROOT}/bin/VisaFlow.pl ".
+                        "-metadata \${META_DATA} --sigfile=FIND_FILE:tools/visa/sbendpoint/sbendpoint_visa.cfg ".
+                        "--vlogsupopts \"+librescan\" --top_module sbendpoint ".
+                        "--insert_opts=\" -M -DNODE=logic -DINTEL_SVA_OFF \" ".
+                        " --lint_opts=-r --lint_opts=FIND_FILE:tools/visa/visa_lint_waivers.xml ".
+                        "--modellib=hqm_sbendpoint_lib"
+                    ],# end gen_commands
+                },# end sbendpoint_lib_VISA_INSERTION
+                sbendpoint_async_lib_VISA_INSERTION => {
+                    enable_config => '<-en__hqm_sbendpoint_async_lib_VISA_INSERTION>',
+                    dump_rtl => 'L:hqm_sbendpoint_async_lib',
+                    filter => 'Synthesis',
+                    gen_commands => [
+                        "/usr/intel/bin/perl $ENV{VISAFLOW_ROOT}/bin/VisaFlow.pl ".
+                        "-metadata \${META_DATA} --sigfile=FIND_FILE:tools/visa/sbendpoint/sbendpoint_async_visa.cfg ".
+                        "--vlogsupopts \"+librescan\" --top_module sbendpoint ".
+                        "--insert_opts=\" -M -DNODE=logic -DINTEL_SVA_OFF \" ".
+                        " --lint_opts=-r --lint_opts=FIND_FILE:tools/visa/visa_lint_waivers.xml ".
+                        "--modellib=hqm_sbendpoint_async_lib"
+                    ],# end gen_commands
+                },# end sbendpoint_async_lib_VISA_INSERTION
+            },# end config
+        },# end SCOPE
+    },# end GenRTL
+     
+); # end %audf 
+
+#            power_top => 'tb_top/genblk1/genblk1/sbendpoint',

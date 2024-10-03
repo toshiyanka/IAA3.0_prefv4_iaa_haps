@@ -1,0 +1,1 @@
+syn_set_option enable_dw 1

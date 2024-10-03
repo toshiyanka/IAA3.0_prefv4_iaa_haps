@@ -1,0 +1,121 @@
+idle 400
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+
+###################################
+# Setup FUNC_VF BAR to a base address of 0x00000003_xxxxxxxx
+###################################
+# 16 VF
+###################################
+# Enable VF and VF memory operations
+#### wr hqm_vf_cfg_i[1].device_command 0x4
+#### wr hqm_vf_cfg_i[3].device_command 0x4
+#### wr hqm_vf_cfg_i[5].device_command 0x4
+#### wr hqm_vf_cfg_i[7].device_command 0x4
+#### wr hqm_vf_cfg_i[9].device_command 0x4
+###################################
+# Wait for reset to be done (including hardware memory init)
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+
+###################################
+# Setup LUTs used by HCWs
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+  dir qid 0
+  dir qid 1
+  dir qid 2
+  dir qid 3
+  dir qid 4
+  dir qid 5
+  dir qid 6
+  dir qid 7
+
+  dir qid 72 dvas=8
+  dir qid 73 dvas=9
+
+  ldb qid 0 qid_ldb_inflight_limit=512
+  ldb qid 1 qid_ldb_inflight_limit=512
+  ldb qid 2 qid_ldb_inflight_limit=512 fid_cfg_v=1
+  ldb qid 3 qid_ldb_inflight_limit=512 fid_cfg_v=1
+  ldb qid 4 qid_ldb_inflight_limit=32 sn_cfg_v=1 ord_slot=0 fid_cfg_v=1
+  ldb qid 5 qid_ldb_inflight_limit=32 sn_cfg_v=1 ord_slot=1 fid_cfg_v=1
+  ldb qid 8 qid_ldb_inflight_limit=512
+  ldb qid 9 qid_ldb_inflight_limit=512
+
+  ldb pool 0 credit_cnt=0x7ec credit_limit=0x0800 freelist_base=0x0000 freelist_limit=0x07ff
+  ldb pool 1 credit_cnt=0x7ec credit_limit=0x0800 freelist_base=0x0800 freelist_limit=0x0fff
+  ldb pool 2 credit_cnt=0x7ec credit_limit=0x0800 freelist_base=0x1000 freelist_limit=0x17ff
+  ldb pool 3 credit_cnt=0x7ec credit_limit=0x0800 freelist_base=0x1800 freelist_limit=0x1fff
+  ldb pool 4 credit_cnt=0x7fc credit_limit=0x0800 freelist_base=0x2000 freelist_limit=0x27ff
+  ldb pool 5 credit_cnt=0x7fc credit_limit=0x0800 freelist_base=0x2800 freelist_limit=0x2fff
+  ldb pool 8 credit_cnt=0x7fc credit_limit=0x0800 freelist_base=0x3000 freelist_limit=0x37ff
+  ldb pool 9 credit_cnt=0x7fc credit_limit=0x0800 freelist_base=0x3800 freelist_limit=0x3fff
+
+  dir pool 6 credit_cnt=0x3dc credit_limit=0x400 freelist_base=0x000 freelist_limit=0x3ff
+  dir pool 7 credit_cnt=0x3dc credit_limit=0x400 freelist_base=0x400 freelist_limit=0x7ff
+  dir pool 8 credit_cnt=0x3ec credit_limit=0x400 freelist_base=0x800 freelist_limit=0xbff
+  dir pool 9 credit_cnt=0x3ec credit_limit=0x400 freelist_base=0xc00 freelist_limit=0xfff
+
+  vas 0 ldb_qidv0=1
+  vas 1 ldb_qidv1=1 ldb_qidv2=1 ldb_qidv3=1 ldb_qidv4=1 ldb_qidv5=1 ldb_qidv8=1 ldb_qidv9=1 dir_qidv6=1 dir_qidv7=1 dir_qidv72=1 dir_qidv73=1
+  vas 8 ldb_qidv8=1 dir_qidv72=1 is_pa=1 r0_pa=0 r0_va=0 r0_len=VPA_16MB hbm_256_hptr=0 hbm_2k_hptr=0 hbm_256_base=0xa0100000 hbm_2k_base=0xb0100000 hbm_256_len=RING_32K hbm_2k_len=RING_16K hbm_256_init=24576 hbm_2k_init=24576
+  vas 9 ldb_qidv9=1 dir_qidv73=1 is_pa=1 r0_pa=0 r0_va=0 r0_len=VPA_16MB hbm_256_hptr=0 hbm_2k_hptr=0 hbm_256_base=0xc0100000 hbm_2k_base=0xd0100000 hbm_256_len=RING_32K hbm_2k_len=RING_16K hbm_256_init=24576 hbm_2k_init=24576
+
+  ldb pp 0  gpa=sm vas=0 dir_pool=6 ldb_pool=0 dir_credit_count=16 ldb_credit_count=0x4 dir_min_credit_quanta=0x20 dir_credit_hwm=0x40 dir_credit_lwm=0x01 ldb_min_credit_quanta=0x40 ldb_credit_hwm=0x80 ldb_credit_lwm=0x40 nq_pa=sm nq_sz=NQ_8K exp_ill_hcw_cmd=1
+  ldb cq 0  gpa=sm qidv0=1 qidix0=0
+
+  ldb pp 1  gpa=sm vas=1 dir_pool=7 ldb_pool=1 dir_credit_count=16 ldb_credit_count=0x4 dir_min_credit_quanta=0x20 dir_credit_hwm=0x40 dir_credit_lwm=0x01 ldb_min_credit_quanta=0x40 ldb_credit_hwm=0x80 ldb_credit_lwm=0x40 nq_pa=sm nq_sz=NQ_8K exp_ill_hcw_cmd=1
+  ldb cq 1  gpa=sm qidv0=1 qidix0=1
+
+  ldb pp 2  gpa=sm vas=1 dir_pool=8 ldb_pool=2 dir_credit_count=16 ldb_credit_count=0x4 dir_min_credit_quanta=0x20 dir_credit_hwm=0x40 dir_credit_lwm=0x01 ldb_min_credit_quanta=0x40 ldb_credit_hwm=0x80 ldb_credit_lwm=0x40 nq_pa=sm nq_sz=NQ_8K exp_ill_hcw_cmd=1
+  ldb cq 2  gpa=sm qidv0=1 qidix0=2
+
+  ldb pp 3  gpa=sm vas=1 dir_pool=9 ldb_pool=3 dir_credit_count=16 ldb_credit_count=0x4 dir_min_credit_quanta=0x20 dir_credit_hwm=0x40 dir_credit_lwm=0x01 ldb_min_credit_quanta=0x40 ldb_credit_hwm=0x80 ldb_credit_lwm=0x40 nq_pa=sm nq_sz=NQ_8K exp_ill_hcw_cmd=1
+  ldb cq 3  gpa=sm qidv0=1 qidix0=3
+
+  ldb pp 4  gpa=sm vas=1 dir_pool=6 ldb_pool=4 dir_credit_count=16 ldb_credit_count=0x4 dir_min_credit_quanta=0x20 dir_credit_hwm=0x40 dir_credit_lwm=0x01 ldb_min_credit_quanta=0x40 ldb_credit_hwm=0x80 ldb_credit_lwm=0x40 nq_pa=sm nq_sz=NQ_8K exp_ill_hcw_cmd=1
+  ldb cq 4  gpa=sm qidv0=1 qidix0=4
+
+  ldb pp 5  gpa=sm vas=1 dir_pool=7 ldb_pool=5 dir_credit_count=16 ldb_credit_count=0x4 dir_min_credit_quanta=0x20 dir_credit_hwm=0x40 dir_credit_lwm=0x01 ldb_min_credit_quanta=0x40 ldb_credit_hwm=0x80 ldb_credit_lwm=0x40 nq_pa=sm nq_sz=NQ_8K exp_ill_hcw_cmd=1
+  ldb cq 5  gpa=sm qidv0=1 qidix0=5
+
+  dir pp 6  gpa=sm vas=1 dir_pool=6 ldb_pool=0 dir_credit_count=0x4 ldb_credit_count=16 dir_min_credit_quanta=0x40 dir_credit_hwm=0x80 dir_credit_lwm=0x40 ldb_min_credit_quanta=0x20 ldb_credit_hwm=0x40 ldb_credit_lwm=0x01 exp_ill_hcw_cmd=1
+  dir cq 6  gpa=sm
+
+  dir pp 7  gpa=sm vas=1 dir_pool=7 ldb_pool=1 dir_credit_count=0x4 ldb_credit_count=16 dir_min_credit_quanta=0x40 dir_credit_hwm=0x80 dir_credit_lwm=0x40 ldb_min_credit_quanta=0x20 ldb_credit_hwm=0x40 ldb_credit_lwm=0x01 exp_ill_hcw_cmd=1
+  dir cq 7  gpa=sm
+
+  ldb pp 8  gpa=sm vas=8 dir_pool=8 ldb_pool=2 dir_credit_count=0x4 ldb_credit_count=16 dir_min_credit_quanta=0x40 dir_credit_hwm=0x80 dir_credit_lwm=0x40 ldb_min_credit_quanta=0x20 ldb_credit_hwm=0x40 ldb_credit_lwm=0x01 nq_pa=sm nq_sz=NQ_8K exp_ill_hcw_cmd=1
+  ldb cq 8  gpa=sm qidv0=1 qidix0=8
+
+  ldb pp 9  gpa=sm vas=9 dir_pool=9 ldb_pool=3 dir_credit_count=0x4 ldb_credit_count=16 dir_min_credit_quanta=0x40 dir_credit_hwm=0x80 dir_credit_lwm=0x40 ldb_min_credit_quanta=0x20 ldb_credit_hwm=0x40 ldb_credit_lwm=0x01 nq_pa=sm nq_sz=NQ_8K exp_ill_hcw_cmd=1
+  ldb cq 9  gpa=sm qidv0=1 qidix0=9
+
+  dir pp 72 gpa=0x02008f00 vas=8 dir_pool=0 ldb_pool=8 ldb_credit_count=0x4 dir_min_credit_quanta=0x100 ldb_min_credit_quanta=0x40 ldb_credit_hwm=0x80 ldb_credit_lwm=0x40 mb_dm=1
+  dir cq 72 gpa=sm is_keep_pf_ppid=1 cq_depth=16
+
+  dir pp 73 gpa=0x02009f00 vas=9 dir_pool=0 ldb_pool=9 ldb_credit_count=0x4 dir_min_credit_quanta=0x100 ldb_min_credit_quanta=0x40 ldb_credit_hwm=0x80 ldb_credit_lwm=0x40 mb_dm=1
+  dir cq 73 gpa=sm is_keep_pf_ppid=1 cq_depth=16
+
+  vf 1 ldb_vpp1_pp=1 ldb_vqid1_qid=1
+  vf 3 ldb_vpp3_pp=3 ldb_vqid3_qid=3
+  vf 5 ldb_vpp5_pp=5 ldb_vqid5_qid=5
+  vf 7 ldb_vpp9_pp=9 ldb_vqid9_qid=9 dir_vqid73_qid=73
+  vf 9 dir_vpp7_pp=7 dir_vqid7_qid=7
+
+cfg_end
+
+rd hqm_pf_cfg_i.vendor_id

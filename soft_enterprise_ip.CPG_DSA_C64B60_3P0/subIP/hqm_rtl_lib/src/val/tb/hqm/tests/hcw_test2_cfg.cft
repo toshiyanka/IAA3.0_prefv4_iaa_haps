@@ -1,0 +1,61 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+###################################
+# Test hqm_system LUTs
+rd hqm_system_csr.vf_dir_vpp_v[0]
+wr hqm_system_csr.vf_dir_vpp_v[0] 0x1
+rd hqm_system_csr.vf_dir_vpp_v[0] 0x1
+wr hqm_system_csr.vf_dir_vpp_v[0] 0x0
+rd hqm_system_csr.vf_dir_vpp_v[0] 0x0
+###################################
+# Test hqm_core registers
+rd credit_hist_pipe.cfg_dir_pp_dir_credit_count[0]
+wr credit_hist_pipe.cfg_dir_pp_dir_credit_count[0] 0x1234
+rd credit_hist_pipe.cfg_dir_pp_dir_credit_count[0] 0x1234
+
+###################################
+# Wait for reset to be done (including hardware memory init)
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+
+###################################
+# Setup LUTs used by HCWs
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+dir qid 0
+dir pool 0
+dir pool 0 credit_cnt=0xff0 credit_limit=0x1000 freelist_base=0 freelist_limit=0xfff
+ldb pool 0 credit_cnt=0x4000 credit_limit=0x4000 freelist_base=0 freelist_limit=0x3fff
+dir pp 0 gpa=0x0123456789abcdef dir_pool=0 ldb_pool=0 dir_credit_count=0x10
+dir pp 1
+vas 0 dir_qidv0=1
+dir cq 0 gpa=0xfedcba9876543210 rid=0xc3
+
+cfg_end
+
+rd hqm_pf_cfg_i.vendor_id
+
+HCW DIR:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302
+HCW DIR:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302
+HCW DIR:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302
+HCW DIR:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302
+IDLE 500

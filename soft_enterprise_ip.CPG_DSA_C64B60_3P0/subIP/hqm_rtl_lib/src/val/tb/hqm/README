@@ -1,0 +1,285 @@
+#########################################
+##      database creation commands     ##
+#########################################
+#v25 db path:/nfs/sc/disks/sdg74_3368/users/
+source /p/hdk/rtl/hdk.rc -cfg shdk74
+git clone $GIT_REPOS/ip/hqm-srvr10nm-wave4/ .
+
+## trunin command
+turnin -c hqm  -s srvr10nm-wave4 -comment "<turnin_comment>" 
+
+
+#########################################
+##           Build command             ##
+#########################################
+bman -dut hqm -mc hqm  -rundeps vcs
+
+#build HQM at each level (default is TYP): 
+bman -dut hqm -mc hqm       -rundeps vcs         [Typ model]                                                                                                                                                     
+##change my $soc_generate = 1; in ./cfg/hqm_hdl.udf 
+
+bman -dut hqm -mc hqm_mid   -rundeps vcs         [Mid model]                                                                                                                                                     
+bman -dut hqm -mc hqm_base  -rundeps vcs         [Base model]
+
+## Build for only TB changes
+bman -dut hqm -mc hqm -s all +s bman.hqm.vcs.vlogan_hqm_typ_tb_lib +s elab_hqm
+bman -dut hqm -mc hqm -s all +s bman.hqm.vcs.vlogan_hqm_typ_tb_lib +s elab_hqm +s vlogan_hqm_integ_lib
+
+####################################################################
+##  HQM V25 build configuration to support two different vcs builds: 
+## 1 supporting power simulation, xprop and congruency, 
+## and 1 without those features enabled
+####################################################################
+## command to build both versions
+bman -dut hqm -mc hqm -btb hqm:mpp
+
+##coverage build command
+bman -dut hqm -mc hqm -nodelete_flow_data -code_cov -hqm_fcov -btb hqm:mpp
+
+## Trex and simregress command to run a regression and specify MPP power version 
+% trex ... -vcsvariant mpp
+
+% simregress ... -trex -vcsvariant mpp -trex-
+
+
+
+#########################################
+##        Test run command             ##
+#########################################
+trex hcw_perf_dir_ldb_test1:q1_short -dirtag q1_short -model hqm -dut hqm 
+
+##hqm_functional simregress command
+simregress -l ./verif/tb/hqm/reglist/hqm_functional/hqm_functional.list -model hqm -dut hqm 
+
+#########################################
+##       Disable BG/AGI/PROC_HOT Mode  ##
+#########################################
+simv args to 
+Disable BG_CFG          => "+HQM_DISABLE_BACKGROUND_CFG_GEN_SEQ"
+Disable AGI             => "+HQM_SKIP_AGITATE_SEQ +HQM_NO_PRE_FLUSH_PHASE +HQM_SKIP_HCW_WR_RDY_AGITATE"
+Disable Proc_Hot        => "+HQM_DISABLE_PROCHOT_DRIVE"
+Disable Prim ISM delay  => "+HQM_DIS_PRIM_ISM_DLY_OVERRIDE"
+#########################################
+
+
+#########################################
+##  Getting RTL Tiedoff  information   ##
+#########################################
+Synopsys provided a utility to get the list of Tied-off from RTL
+Please refer following README for detailed information.
+
+Refer ./verif/tb/hqm/scripts/tied_off_list_gen/README.tiedoff
+#########################################
+
+
+
+#################################################
+##        Test run acress all regression mode  ##
+#################################################
+## once a functionaltest bringup and clean on normal regression mode test owner can run it acroess all functional mode 
+## e.g Normal, BG, AGI, BG+AGI, Prochot high mode
+##include test in ./verif/tb/hqm/reglist/hqm_functional/hqmv25_smoke_test.list
+## % simregress -l ./verif/tb/hqm/reglist/hqm_functional/test_run_all_mode.list -model hqm -dut hqm 
+
+
+
+
+
+#########################################
+##      Granite regression modes       ##
+#########################################
+  HQMv25 compliance regression modes
+  S.No. |  Granite regression mode   |           list path
+  1.    |   hqmv25_pcie_regr         | ./verif/tb/hqm/reglist/hqm_compliance/hqm_pcie_test.list
+  2.    |   hqmv25_iosf_regr         | ./verif/tb/hqm/reglist/hqm_compliance/hqm_iosf_test.list
+  3.    |   hqmv25_prim_ism_dly_regr | ./verif/tb/hqm/reglist/hqm_compliance/hqm_comp_rand_prim_ism_dly.list
+ 
+ HQMv25 Functional regression modes 
+  S.No. |  Granite regression mode          |           list path
+  1.    |  hqmv25_normal_regr               | ./verif/tb/hqm/reglist/hqm_functional/hqm_functional.list
+  2.    |  hqmv25_bg_regr                   | ./verif/tb/hqm/reglist/hqm_functional/hqm_functional.list [-pre_args -hqm_bg_cfg_en ]
+  3.    |  hqmv25_agi_regr                  | ./verif/tb/hqm/reglist/hqm_functional/hqm_functional.list [-pre_args -hqm_agitate_rand_en -hqm_agitate_wdata 0x04000802  -ace_args -simv_args '"' +agitate_hcw_wr_rdy=1:40:1:10  +SLA_MAX_RUN_CLOCK=60000000 +SLA_USER_DATA_PHASE_TIMEOUT=60000000  +SLA_PRE_FLUSH_PHASE_TIMEOUT=400000 +SLA_RANDOM_DATA_PHASE_TIMEOUT=20000000 '"' -ace_args- ]
+  4.    |  hqmv25_bg_agi_regr               | ./verif/tb/hqm/reglist/hqm_functional/hqm_functional.list [-pre_args -hqm_bg_cfg_en -hqm_agitate_rand_en -hqm_agitate_wdata 0x04000802  -ace_args -simv_args '"'+agitate_hcw_wr_rdy=1:40:1:10  +SLA_PRE_FLUSH_PHASE_TIMEOUT=400000 '"' -ace_args- ]
+  5.    |  hqmv25_pwr_regr                  | ./verif/tb/hqm/reglist/hqm_functional/hqm_pwr_test.list & run with variant power, xprop, congurancy
+  6.    |  hqmv25_pa_rand_corrupt_regr      | ./verif/tb/hqm/reglist/hqm_functional/hqm_pa_random_corrupt.list & run with variant power, xprop, congurancy
+  7.    |  hqmv25_pwr_switch_regr           | ./verif/tb/hqm/reglist/hqm_functional/hqmv25_pwr_switching_tests.list & run with variant power, xprop, congurancy
+  8.    |  hqmv25_ph_tgl_mode_regr          | ./verif/tb/hqm/reglist/hqm_functional/hqm_functional.list [-pre_args -hqm_prochot_enable -hqm_prochot_tgl]
+  9.    |  hqmv25_ph_high_mode_regr         | ./verif/tb/hqm/reglist/hqm_functional/hqm_functional.list [-pre_args -hqm_prochot_enable -hqm_prochot_high]
+ 10.    |  hqmv25_ph_hi2lo_mode_regr        | ./verif/tb/hqm/reglist/hqm_functional/hqm_functional.list [-pre_args -hqm_prochot_enable -hqm_prochot_high2low]
+ 11.    |  hqmv25_ph_lo2hi_mode_regr        | ./verif/tb/hqm/reglist/hqm_functional/hqm_functional.list [-pre_args -hqm_prochot_enable -hqm_prochot_low2high]
+ 12.    |  hqmv25_ph_tgl_hi_mode_regr       | ./verif/tb/hqm/reglist/hqm_functional/hqm_functional.list [-pre_args -hqm_prochot_enable -hqm_prochot_high -hqm_prochot_tgl]
+ 13.    |  hqmv25_functional_mpp_mode_regr  | ./verif/tb/hqm/reglist/hqm_functional/hqm_functional.list [-pre_args -vcsvariant mpp]
+
+ HQMv25 Register regression modes 
+  S.No. |  Granite regression mode   |           list path
+    1   | hqmv25_reg_regr            | ./verif/tb/hqm/reglist/hqm_reg/hqm_reg_tests.list
+    2   | hqmv25_reg_reset_regr      | ./verif/tb/hqm/reglist/hqm_reg/hqm_reg_reset_tests.list
+
+
+#########################################
+##       regression command            ##
+#########################################
+## Normal Mode
+simregress -l verif/tb/hqm/reglist/hqm_functional/hqm_functional.list	-model hqm -dut hqm -notify 
+## BG mode
+simregress -l verif/tb/hqm/reglist/hqm_functional/hqm_functional.list	-model hqm -dut hqm  -notify -trex -hqm_bg_cfg_en -- 
+## Agitate mode
+simregress -l verif/tb/hqm/reglist/hqm_functional/hqm_functional.list -model hqm -dut hqm  -trex -hqm_agitate_rand_en -hqm_agitate_wdata 0x04000802  -ace_args -simv_args '"' +agitate_hcw_wr_rdy=1:40:1:10  +SLA_MAX_RUN_CLOCK=60000000 +SLA_USER_DATA_PHASE_TIMEOUT=60000000  +SLA_PRE_FLUSH_PHASE_TIMEOUT=400000 +SLA_RANDOM_DATA_PHASE_TIMEOUT=20000000 '"' -ace_args- --
+
+## BG+AGI mode
+simregress -l verif/tb/hqm/reglist/hqm_functional/hqm_functional.list -model hqm -dut hqm  -trex -hqm_bg_cfg_en -hqm_agitate_rand_en -hqm_agitate_wdata 0x04000802  -ace_args -simv_args '"'+agitate_hcw_wr_rdy=1:40:1:10  +SLA_PRE_FLUSH_PHASE_TIMEOUT=400000 '"' -ace_args- --
+##power 
+simregress -l verif/tb/hqm/reglist/hqm_functional/hqm_pwr_test.list	-model hqm -dut hqm  -notify -trex -vcsvariant mpp -trex-
+##pcie
+simregress -l verif/tb/hqm/reglist/hqm_compliance/hqm_pcie_test.list 	-model hqm -dut hqm  -notify
+##IOSF
+simregress -l verif/tb/hqm/reglist/hqm_compliance/hqm_iosf_test.list  -model hqm -dut hqm  -notify
+##reg regr
+simregress -l verif/tb/hqm/reglist/hqm_reg/hqm_reg_tests.list  -model hqm -dut hqm  -notify
+##reg reset 
+simregress -l verif/tb/hqm/reglist/hqm_reg/hqm_reg_reset_tests.list  -model hqm -dut hqm -notify 
+## rand_prim_ism_dly 
+simregress -l verif/tb/hqm/reglist/hqm_compliance/hqm_comp_rand_prim_ism_dly.list  -model hqm -dut hqm -notify 
+
+## PA_random corrupt mode
+
+## prochot mode
+
+#In HQM V25, We are running these regression in mpp mode.
+
+#Prochot is asserted (1) for entire test.:
+simregress -l ./verif/tb/hqm/reglist/hqm_functional/hqm_functional.list -model hqm -dut hqm -trex   -hqm_prochot_enable -hqm_prochot_high  -dirtag ph_high --
+
+#Prochot is asserted (1) initially and then after some random time is de-asserted (0):
+simregress -l ./verif/tb/hqm/reglist/hqm_functional/hqm_functional.list -model hqm -dut hqm -trex -hqm_prochot_enable -hqm_prochot_high2low  --
+
+#Prochot is de-asserted (0) initially and then after some random time is asserted (1):
+simregress -l ./verif/tb/hqm/reglist/hqm_functional/hqm_functional.list -model hqm -dut hqm -trex  -hqm_prochot_enable -hqm_prochot_low2high --
+
+#Sequence in which prochot is toggled multiple times during a test:
+simregress -l ./verif/tb/hqm/reglist/hqm_functional/hqm_functional.list -model hqm -dut hqm -trex  -hqm_prochot_enable -hqm_prochot_tgl  --
+
+#Variation of above (e) with initially Prochot asserted/de-asserted:
+simregress -l ./verif/tb/hqm/reglist/hqm_functional/hqm_functional.list -model hqm -dut hqm -trex  -hqm_prochot_enable -hqm_prochot_high -hqm_prochot_tgl --
+
+
+-hqm_fcov 
+#########################################
+##   hqmv25 Coverage Command           ##
+#########################################
+% bman -dut hqm -mc hqm -nodelete_flow_data -code_cov -btb hqm:mpp -hqm_fcov 
+## All coverage can be run with ./run.sh
+% copy run.sh from ./verif/tb/hqm/cov_gen/script/run.sh at $MODEL_ROOT/.
+% ./run.sh [ This will run all coverage regression modes]
+## Normal Mode
+simregress -dut hqm -model hqm -save -notify -trex  -code_cov -vcsvariant mpp -trex- -l ./verif/tb/hqm/reglist/hqm_functional/hqm_functional.list
+## BG mode
+simregress -dut hqm -model hqm -save -notify -trex  -code_cov -vcsvariant mpp -hqm_bg_cfg_en -trex- -l ./verif/tb/hqm/reglist/hqm_functional/hqm_functional.list
+## Agitate mode
+simregress -dut hqm -model hqm -save -notify -trex  -code_cov -vcsvariant mpp -hqm_agitate_rand_en -hqm_agitate_wdata 0x04000802  -ace_args -simv_args '"' +agitate_hcw_wr_rdy=1:40:1:10  +SLA_MAX_RUN_CLOCK=60000000 +SLA_USER_DATA_PHASE_TIMEOUT=60000000  +SLA_PRE_FLUSH_PHASE_TIMEOUT=400000 +SLA_RANDOM_DATA_PHASE_TIMEOUT=20000000 '"' -ace_args- -trex- -l ./verif/tb/hqm/reglist/hqm_functional/hqm_functional.list
+## BG+AGI mode
+simregress -model hqm -dut hqm -save -notify -trex  -code_cov -vcsvariant mpp -hqm_bg_cfg_en -hqm_agitate_rand_en -hqm_agitate_wdata 0x04000802  -ace_args -simv_args '"'+agitate_hcw_wr_rdy=1:40:1:10  +SLA_PRE_FLUSH_PHASE_TIMEOUT=400000 '"' -ace_args- -trex- -l ./verif/tb/hqm/reglist/hqm_functional/hqm_functional.list
+##power mode
+simregress -dut hqm -model hqm -save -notify -trex  -code_cov -vcsvariant mpp -trex- -l ./verif/tb/hqm/reglist/hqm_functional/hqm_pwr_test.list  
+simregress -dut hqm -model hqm -save -notify -trex  -code_cov -vcsvariant mpp -trex- -l ./verif/tb/hqm/reglist/hqm_functional/hqm_pa_random_corrupt.list 
+simregress -dut hqm -model hqm -save -notify -trex  -code_cov -vcsvariant mpp -trex- -l ./verif/tb/hqm/reglist/hqm_functional/hqmv25_pwr_switching_tests.list 
+
+##compliance
+simregress -dut hqm -model hqm -save -notify -trex  -code_cov -vcsvariant mpp -trex- -l ./verif/tb/hqm/reglist/hqm_compliance/hqm_pcie_test.list 
+simregress -dut hqm -model hqm -save -notify -trex  -code_cov -vcsvariant mpp -trex- -l ./verif/tb/hqm/reglist/hqm_compliance/hqm_iosf_test.list
+simregress -dut hqm -model hqm -save -notify -trex  -code_cov -vcsvariant mpp -trex- -l ./verif/tb/hqm/reglist/hqm_compliance/hqm_comp_rand_prim_ism_dly.list 
+
+##register test
+simregress -dut hqm -model hqm -save -notify -trex  -code_cov -vcsvariant mpp -trex- -l ./verif/tb/hqm/reglist/hqm_reg/hqm_reg_tests.list
+simregress -dut hqm -model hqm -save -notify -trex  -code_cov -vcsvariant mpp -trex- -l ./verif/tb/hqm/reglist/hqm_reg/hqm_reg_reset_tests.list
+
+##coverage generation command
+% cd $MODEL_ROOT
+% osetup vcs
+% ./verif/tb/hqm/cov_gen/script/cov_gen.pl <data_base_path> 
+## merged report and vdb generated for all regression modes (hqm_merged_all) and hqm_merged_func (register test list not used for merging coverage]
+
+## pre-regression command
+## -trex -code_cov -casa_args -local_only -casa_args- -trex- 
+
+#########################################
+##  functional coverage casa           ##
+#########################################
+## functional coverage generated by casa for granite regressions
+## Path: /nfs/pdx/disks/srvr10nm_0346/coverage/casa/results/hdk/wave3/sprhqm/sprhqm_hqm/
+% scp -r vijayaga@plxd3484.pdx.intel.com:/nfs/pdx/disks/srvr10nm_0346/coverage/casa/results/hdk/wave3/sprhqm/sprhqm_hqm/4w.vdb 
+## command to check urg report 
+% urg -dir 4w.vdb -show ratios -plan <MODEL_ROOT>/verif/coverage/cfg/hqmv2_func_coverage.hvp -elfilelist <MODEL_ROOT>/verif/coverage/cfg/hqmv2_func_cov_excl.list
+or check at 
+http://ontrak5.intel.com/ip?formfactor=Desktop&repositoryItemId=f83ec00d-e375-412d-881e-cffb0d45b539 
+ 
+
+
+
+
+#########################################
+##       addtional run command         ##
+#########################################
+# dump : -fsdb 
+# simv args: -ace_args -simv_args '"' <arg1>, <args2> '"' -ace_args-
+# +OVM_VERBOSITY=OVM_DEBUG
+
+
+
+
+
+
+
+
+
+# To run a basic test that does some CFG accesses and HCW enqueue requests, run the following command in the hqm-srv10nm directory.
+# This will generate log files and a vpd file in the hqm_iosf_prim_ral_test[.N]
+#       (.N refers to subsequent run where N increments for each run if the base directory name exists)
+# The file iosf_trk will have the IOSF primary tracking information.
+# The file IOSF_SB_TRK.out will have the IOSF sideband tracking information.
+trex hqm_cfg_test:hcw -dut hqm -model hqm -fsdb
+
+# To run the test in interactive mode add the following option
+#       -gui
+
+# To have the CFG accesses done using the IOSF sideband interface add the following option.
+#       -sideband
+
+# To run a regression use the following command from the repositories top level directory
+#
+# simregress -l verif/tb/hqm/reglist/hqm_cfg_system.list
+
+# To run a regression with agitation
+#
+# simregress -l verif/tb/hqm/reglist/full_smoke_agitate.list -trex -hqm_agitate_rand_en -hqm_agitate_wdata 0x04000802 -- 
+
+# This test example uses the hqm_cfg_test test.
+#
+# 
+
+# This test example uses the hqm_iosf_sb_file_test test.
+#
+# trex hqm_iosf_sb_file_test:test0 -dut hqm -model hqm_tb
+
+#################################################
+##############   EP mode HQM  ###################
+#################################################
+
+#
+# Build related steps as below:
+# Edit the file src/rdl/hqm_pf_cfg.rdl by setting the variable '$HQM_PF_CFG_REG_EP' within the file to '1'.
+# Edit the file src/rdl/hqm_vf_cfg.rdl by setting the variable '$HQM_VF_CFG_REG_EP' within the file to '1'.
+# Build the database using below command:
+# bman -dut hqm -mc hqm
+# This would ensure that the build consists registers for EP within RAL classes.
+#
+
+#
+# Running a test:
+# Use plusarg +hqm_is_reg_ep=1  while running tests for EP mode.
+# E.g. command:
+# trex hqm_cfg_test:hcw -dut hqm -model hqm -ace_args -simv_args '"' +hqm_is_reg_ep=1 '"' -ace_args-
+#
+
+#################################################
+

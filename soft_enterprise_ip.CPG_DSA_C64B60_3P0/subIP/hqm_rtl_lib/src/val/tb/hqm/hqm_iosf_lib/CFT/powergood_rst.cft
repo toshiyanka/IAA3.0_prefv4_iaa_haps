@@ -1,0 +1,76 @@
+
+idle 500
+
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command 0x0000
+rd hqm_pf_cfg_i.device_status 0x0010
+rd hqm_pf_cfg_i.func_bar_l 0x0000000C
+rd hqm_pf_cfg_i.func_bar_u 0x00000000
+rd hqm_pf_cfg_i.csr_bar_l 0x0000000C
+rd hqm_pf_cfg_i.csr_bar_u 0x00000000
+
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000000
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable memory and parity operations
+wr hqm_pf_cfg_i.device_command 0x46
+rd hqm_pf_cfg_i.device_command
+
+###################################
+# Wait for reset to be done (including hardware memory init)
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+
+#Write in sticy register 
+wr hqm_system_csr.Alarm_Lut_Perr 0xFFFFFFFF
+wr hqm_system_csr.egress_lut_err 0xFFFFFFFF
+wr hqm_system_csr.Ingress_Lut_Err 0xFFFFFFFF
+wr hqm_system_csr.Alarm_Err 0xFFFFFFFF
+wr hqm_system_csr.Alarm_Mb_Ecc_Err 0xFFFFFFFF
+wr hqm_system_csr.Alarm_Sb_Ecc_Err 0xFFFFFFFF
+#wr hqm_system_csr.Service_Int_Synd 0xFFFFFFFF
+wr hqm_system_csr.RI_PARITY_ERR 0xFFFFFFFF
+wr hqm_system_csr.TI_PARITY_ERR 0xFFFFFFFF
+
+idle 200
+
+#force prim_rst_b
+idle 400
+force hqm_tb_top.prim_rst_b 0
+idle 20
+
+#FORCE Powergood_rst
+
+idle 400
+force hqm_tb_top.powergood_rst_b 0
+idle 20
+release hqm_tb_top.powergood_rst_b
+force hqm_tb_top.powergood_rst_b 1
+idle 400
+
+
+#release prim_rst_b
+release hqm_tb_top.prim_rst_b
+force hqm_tb_top.prim_rst_b 1
+idle 400
+
+
+###########################################################################
+idle 500
+#sticky register check clear or not
+rd hqm_system_csr.Alarm_Lut_Perr 0x00000000
+rd hqm_system_csr.Egress_Lut_err 0x00000000
+rd hqm_system_csr.Ingress_Lut_Err 0x00000000
+rd hqm_system_csr.Alarm_Err 0x00000000
+rd hqm_system_csr.Alarm_Mb_Ecc_Err 0x00000000
+rd hqm_system_csr.Alarm_Sb_Ecc_Err 0x00000000
+#rd hqm_system_csr.Service_Int_Synd 0x00000000
+rd hqm_system_csr.RI_PARITY_ERR 0x00000000
+rd hqm_system_csr.TI_PARITY_ERR 0x00000000

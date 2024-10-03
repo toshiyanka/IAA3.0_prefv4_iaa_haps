@@ -1,0 +1,62 @@
+#!/bin/csh
+
+## Original script was from DA - Soumya Hulikal & Ankur1 Sharma
+## Modified by vnandaku to fit both EP and RTR
+
+## This script needs the legacy sourcing (source scripts/setup -x ep_proc/rtr_proj before its run
+## because it uses the ACE_PROJECT env variable to differentiate between EP/RTR
+
+## Do not run this tool in an xterm with other RTL Lintra/other tools sourced environment or vice versa (do not run RTL Lintra/other tools sourced
+## environment xterm and then this tool)
+## because this script resets all the lintra settings.
+
+
+unsetenv LINTRA
+unsetenv LINTRA_VER
+unsetenv LIRA
+unsetenv LIRA_VER
+unsetenv LINTRARULES 
+
+
+setenv LINTRA /p/hdk/rtl/cad/x86-64_linux26/dt/lintra/16.1p16_shOpt64
+setenv LINTRA_VER 16.1p16_shOpt64
+setenv LIRA /p/hdk/rtl/cad/x86-64_linux26/dt/lira/16.1p15_64
+setenv LIRA_VER 16.1p15_64
+setenv LINTRARULES /p/hdk/rtl/cad/x86-64_linux26/intel/lintra-rules/1.10.03.16_1
+setenv CAD_ROOT /p/hdk/rtl/cad/x86-64_linux26/dt
+unsetenv LINTRA_CAD_ROOT_OVERRIDE
+
+source $LINTRA/bin/setup
+
+if ("${ACE_PROJECT}" =~ "IOSF_SBC_EP") then
+    ace -ccolt -mcrd "<-results>/svtb" -lira_compile_opts "-mfcu -vcs" -lt_g="svtb" -lira_use_filter "Identity" |& tee $MODEL_ROOT/ace_ccolt.log
+    ace -sc -t $MODEL_ROOT/tools/svtb_lintra/sbe_test -mcrd "<-results>/svtb" -noepi -lira_use_filter "Identity" -trsd svtb_lint |& tee $MODEL_ROOT/ace_sc.log
+else if ("${ACE_PROJECT}" =~ "IOSF_SBC_RTR") then
+    ace -ccolt -mcrd "<-results>/svtb" -lira_compile_opts "-mfcu -vcs -ipr -nsm -dw -l vhdl93 +define+CHASSIS_JTAGBFM_USE_PARAMETERIZED_CLASS" -lt_g="svtb"  -lira_use_filter "Identity" |& tee $MODEL_ROOT/ace_ccolt.log
+    ace -sc -t $MODEL_ROOT/tools/svtb_lintra/sbr_test  -mcrd "<-results>/svtb" -noepi -lira_use_filter "Identity" -trsd svtb_lint |& tee $MODEL_ROOT/ace_sc.log
+else 
+    echo "Environment not sourced correctly"
+    echo "Run source/scripts -x ep_proj or source scripts -x rtr_proj appropriately"
+    exit (-1)
+endif
+
+if(-e $MODEL_ROOT/ace_ccolt.log) then
+    set ccpassed = `grep -c -w "FAIL" $MODEL_ROOT/ace_ccolt.log`
+    set ccerror = `grep -c -w "ERROR" $MODEL_ROOT/ace_ccolt.log`
+    if(($ccpassed != 0) || ($ccerror != 0)) then
+        echo "\n\n***** Compilation FAILED ***** \n"
+        exit 1
+    else
+        echo "\n\n***** Compilation PASSED ***** \n"
+    endif
+endif
+
+if(-e $MODEL_ROOT/ace_sc.log) then
+    set scpass = `grep -c -w "CompilerFatal"  $MODEL_ROOT/ace_sc.log`
+    if($scpass != 0) then
+        echo "\n\nElaboration FAILS with Compiler FATALS\n\n"
+        exit 1
+    else
+        echo "\n\n**Elaboration PASSES without any Compiler FATALS **\n \n"
+    endif
+endif

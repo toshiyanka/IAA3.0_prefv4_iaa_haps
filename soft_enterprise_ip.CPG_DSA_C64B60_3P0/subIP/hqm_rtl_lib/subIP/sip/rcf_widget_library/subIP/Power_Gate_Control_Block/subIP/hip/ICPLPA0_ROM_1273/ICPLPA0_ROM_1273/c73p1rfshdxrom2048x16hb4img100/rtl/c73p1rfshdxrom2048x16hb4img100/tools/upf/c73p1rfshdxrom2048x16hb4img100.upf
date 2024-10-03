@@ -1,0 +1,78 @@
+
+source $::env(UPF_INSTALL_DIR)/upf_global_defines.tcl
+
+##---------------------
+## Create Power Domain
+##---------------------
+
+create_power_domain pd_ebb
+
+##---------------------
+# Always-on supply port
+##---------------------
+create_supply_port vccd_1p0 -direction in -domain pd_ebb
+
+##---------------------
+# Always-on supply net
+##---------------------
+create_supply_net vccd_1p0 -domain pd_ebb
+
+##------------------------------------------------------
+# Connect Always-on supply net to Always-on supply port
+##------------------------------------------------------
+connect_supply_net vccd_1p0 -ports vccd_1p0
+
+##---------------------
+# Always-on ground net
+##---------------------
+create_supply_net vss -domain pd_ebb
+
+##---------------------
+# Always-on ground port
+##---------------------
+create_supply_port vss -direction in -domain pd_ebb
+
+##------------------------------------------------------
+# Connect Always-on ground net to Always-on ground port
+##------------------------------------------------------
+connect_supply_net vss -ports vss
+
+##---------------------
+# Switched supply net
+##---------------------
+create_supply_net vccdgt_1p0 -domain pd_ebb
+set_domain_supply_net pd_ebb -primary_power_net vccdgt_1p0 -primary_ground_net vss
+
+##---------------------
+# Create power switch
+##---------------------
+create_power_switch ebb_power_sw \
+-domain pd_ebb \
+-input_supply_port "$PS_CELL_UNGATED_IN vccd_1p0" \
+-output_supply_port "$PS_CELL_GATED_OUT vccdgt_1p0" \
+-control_port "$PS_CELL_ENABLE ipwreninb" \
+-ack_port "$PS_CELL_ACK opwrenoutb \"$PS_CELL_ENABLE\"" \
+-on_state "state1 $PS_CELL_UNGATED_IN \"!$PS_CELL_ENABLE\""
+
+##------------------------------------------------------
+# Map power switch to a library cell 
+##------------------------------------------------------
+map_power_switch ebb_power_sw -domain pd_ebb -lib_cells "$PS_CELL"
+
+##------------------------------------------------------
+# Define Output isolation strategy
+##------------------------------------------------------
+
+##------------------------------------------------------
+# Add state information to the supply ports
+##------------------------------------------------------
+add_port_state vccd_1p0 -state "EbbHighVoltage $SOC_VCC_NOM"
+add_port_state vccd_1p0 -state "EbbOff off"
+add_port_state ebb_power_sw/$PS_CELL_GATED_OUT -state "SwEbbHighVoltage $SOC_VCC_NOM "
+add_port_state ebb_power_sw/$PS_CELL_GATED_OUT -state "pd_ebb_OFF off"
+
+create_pst pd_ebb_pst -supplies [list vccd_1p0 vccdgt_1p0]
+add_pst_state pd_all_on   -pst pd_ebb_pst  -state {EbbHighVoltage SwEbbHighVoltage}
+add_pst_state pd_ebb_off  -pst pd_ebb_pst  -state {EbbHighVoltage pd_ebb_OFF}
+add_pst_state pd_all_off  -pst pd_ebb_pst  -state {EbbOff pd_ebb_OFF}
+

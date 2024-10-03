@@ -1,0 +1,28 @@
+idle 400
+
+## Enabling MSIX ##
+wr hqm_pf_cfg_i.msix_cap_control 0x8047
+rd hqm_pf_cfg_i.msix_cap_control
+
+
+##     Enable HQM DM msix_interrupt vector ##
+wr hqm_msix_mem.msg_addr_l[0] 0x0100_0000
+wr hqm_msix_mem.msg_addr_u[0] 0x11
+wr hqm_msix_mem.msg_data[0]   0x40
+wr hqm_msix_mem.vector_ctrl[0]        0x0
+
+## Configure completion timeout value ##
+
+################################
+## Range B: value 16ms to 55ms
+################################
+wr hqm_pf_cfg_i.pcie_cap_device_control_2 0x5
+rd hqm_pf_cfg_i.pcie_cap_device_control_2
+
+wr hqm_pf_cfg_i.aer_cap_uncorr_err_sev	0x4000
+
+## Forcing timeout value to 8 clks ##
+sai hostia_ucode_sai 
+wr hqm_system_csr.sb_debug_ctl 0x0800
+rd hqm_system_csr.sb_debug_ctl 0x0800
+

@@ -1,0 +1,137 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => [
+            "+AW_CONTINUE_ON_ERROR", "+iosf_tracker_filename=iosf_trk", "-assert nopostproc", "+hqm_ral_rand_bus_id=1",  "+HQMS_DEBUG", "+HQMI_DEBUG", "+vcs+lic+wait", "+SLA_FLUSH_PHASE_TIMEOUT=400000", "+SLA_USER_DATA_PHASE_TIMEOUT=600000", "+SLA_MAX_RUN_CLOCK=4000000",
+            ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+
+      hdr_fp_behavior_ptlpr_mask_ue_unmask   => { 
+          -simv_args => ["+HQM_SLA_PCIE_CFG_AER_HEADER_FP_BEHAVIOR_MASKED_ERROR_SEQ +HQM_PVC_AUTO_TAG_GEN_DIS +EXP_UNWANTED_TXN_TO_HQM +hqm_pcie_init_stim_config::ptlpr_mask=1 +hqm_pcie_init_stim_config::ptlpr_sev=1 ",
+                     "+SLA_CONFIG_PHASE_TIMEOUT=200000",
+                     "+SLA_PCIE_FLUSH_PHASE_TIMEOUT=30000000",
+                     "+OVM_GLOBAL_TIMEOUT=30000ms", 
+ ],  
+ },
+
+      sticky_chk_after_warm_rst   => { 
+          -simv_args => ["+HQM_SLA_PCIE_CFG_POISON_ERR_SEQ +HQM_PVC_AUTO_TAG_GEN_DIS +STICKY_CHK_AFTER_WARM_RST +hqm_pcie_init_stim_config::ptlpr_mask=0 +hqm_pcie_init_stim_config::ptlpr_sev=1 +hqm_reset_init_sequence_stim_config::skip_pcie_init=0", "+ovm_set_config_int=*\\,sev_mask_val\\,99",
+                                                      " +eot_pf +pcie_ptlpr +pcie_en_H_FP_check +pcie_tfep=12 +pcie_exp_header_log_0=0x44084001 +pcie_exp_header_log_1=0x0000010F +pcie_exp_header_log_2=0x0100000C +pcie_exp_header_log_3=0x00000000, +HQM_DISABLE_BACKGROUND_CFG_GEN_SEQ ",
+									],  
+                                    },
+
+      num_x_cycles  => {
+          -simv_args => ["+NUM_X_CYCLES=11", ],  
+          },
+      num_2_cycles  => {
+          -simv_args => ["+NUM_X_CYCLES=2",],  
+          }, 
+
+      nf_unmask_pf_ptlp  => { 
+          -simv_args => ["+HQM_SLA_PCIE_CFG_POISON_ERR_SEQ +HQM_PVC_AUTO_TAG_GEN_DIS   +hqm_pcie_init_stim_config::ptlpr_mask=0 +hqm_pcie_init_stim_config::ptlpr_sev=0", "+ovm_set_config_int=*\\,sev_mask_val\\,0", 
+									],  
+                                    },
+      f_unmask_pf_ptlp   => { 
+          -simv_args => ["+HQM_SLA_PCIE_CFG_POISON_ERR_SEQ +HQM_PVC_AUTO_TAG_GEN_DIS   +hqm_pcie_init_stim_config::ptlpr_mask=0 +hqm_pcie_init_stim_config::ptlpr_sev=1", "+ovm_set_config_int=*\\,sev_mask_val\\,1",
+									],  
+                                    },
+      nf_mask_pf_ptlp   => { 
+          -simv_args => ["+HQM_SLA_PCIE_CFG_POISON_ERR_SEQ +HQM_PVC_AUTO_TAG_GEN_DIS   +hqm_pcie_init_stim_config::ptlpr_mask=1 +hqm_pcie_init_stim_config::ptlpr_sev=0", "+ovm_set_config_int=*\\,sev_mask_val\\,2",
+									],  },
+      f_mask_pf_ptlp   => { -simv_args => ["+HQM_SLA_PCIE_CFG_POISON_ERR_SEQ +HQM_PVC_AUTO_TAG_GEN_DIS   +hqm_pcie_init_stim_config::ptlpr_mask=1 +hqm_pcie_init_stim_config::ptlpr_sev=1", "+ovm_set_config_int=*\\,sev_mask_val\\,3",
+									],  
+                                    },
+      nf_unmask_anfes_unmask_pf_ptlp  => { 
+          -simv_args => ["+HQM_SLA_PCIE_CFG_POISON_ERR_SEQ +HQM_PVC_AUTO_TAG_GEN_DIS   +hqm_pcie_init_stim_config::anfes_mask=0 +hqm_pcie_init_stim_config::ptlpr_mask=0 +hqm_pcie_init_stim_config::ptlpr_sev=0", "+ovm_set_config_int=*\\,sev_mask_val\\,4", 
+									],  
+                                    },
+      ptlp_txn_type_cfgRd   => { 
+          -simv_args => ["+PTLP_TXN_TYPE=1, +SKIP_AER_CHECKS",],  
+          },
+      ptlp_txn_type_cfgWrRd   => { 
+          -simv_args => ["+PTLP_TXN_TYPE=2",],  
+          },
+      b2b_ptlp_pur_npur_ec_txn   => { 
+          -simv_args => ["+PTLP_TXN_TYPE=3", "+hqm_pcie_init_stim_config::ec_mask=0 +hqm_pcie_init_stim_config::ec_sev=1", "+hqm_pcie_init_stim_config::ptlpr_mask=0 +hqm_pcie_init_stim_config::ptlpr_sev=1", " +EXP_UNWANTED_TXN_TO_HQM  +UR_TXN +pcie_urd +pcie_anfes +pcie_ced  +pcie_ur_unc +pcie_ned +pcie_ec +pcie_fed ",],  
+          },
+      ptlp_bus_change   => { 
+          -simv_args => ["+PTLP_BUS_CHANGE=1",],  
+      },
+      sec_6_2   => { 
+          -simv_args => ["",],  
+          },
+      sec_2_2_9 => { 
+          -simv_args => ["",],  
+          },
+      pf   => { 
+          -simv_args => [" +HQM_PCIE_CFG_ERR_FUNC_NO=0 ",],  
+          },
+
+      serr_en => { 
+          -simv_args => [" +hqm_pcie_init_stim_config::ser=1 +HQM_SERR_EN",],  
+          },
+
+      ur_bus_chng  =>  { 
+          -simv_args => [" +HQM_SLA_PCIE_CFG_BUSNUM_SEQ  ",],  
+          },
+      ur_nf_unmask =>  {
+          -simv_args => [ "+hqm_pcie_init_stim_config::ur_mask=0 +hqm_pcie_init_stim_config::ur_sev=0 ", "+ovm_set_config_int=*\\,sev_mask_val\\,0", ], 
+          }, 
+      ur_nf_anfes_unmask =>  { 
+          -simv_args => [ "+HQM_SEQ_CFG97=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/hqm_pcie_ur_uncorr_clr.cft +HQM_SEQ_CFG99=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/hqm_pcie_ur_nf_anfes_unmask.cft ",  "+hqm_pcie_init_stim_config::ur_mask=0 +hqm_pcie_init_stim_config::ur_sev=0 +hqm_pcie_init_stim_config::anfes_mask=0 +HQM_PCIE_TXN +ERROR_CODE=48", "+ovm_set_config_int=*\\,sev_mask_val\\,4", ], 
+          }, 
+      ur_f_unmask =>   {
+          -simv_args => [ "+HQM_SEQ_CFG97=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/hqm_pcie_ur_uncorr_clr.cft +HQM_SEQ_CFG99=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/hqm_pcie_ur_f_unmask.cft ", "+hqm_pcie_init_stim_config::ur_mask=0 +hqm_pcie_init_stim_config::ur_sev=1 +HQM_PCIE_TXN +ERROR_CODE=51", "+ovm_set_config_int=*\\,sev_mask_val\\,1", ], 
+          }, 
+      ur_nf_mask =>    {
+          -simv_args => [ "+hqm_pcie_init_stim_config::ur_mask=1 +hqm_pcie_init_stim_config::ur_sev=0 ", "+ovm_set_config_int=*\\,sev_mask_val\\,2", ], 
+          }, 
+      ur_f_mask =>     {
+          -simv_args => [ "+hqm_pcie_init_stim_config::ur_mask=1 +hqm_pcie_init_stim_config::ur_sev=1 ", "+ovm_set_config_int=*\\,sev_mask_val\\,3", ], 
+          }, 
+
+      en_busnum_seq   => { 
+          -simv_args => [" +HQM_SLA_PCIE_CFG_BUSNUM_SEQ   +hqm_pcie_init_stim_config::ptlpr_mask=0 +hqm_pcie_init_stim_config::ptlpr_sev=0",],  
+          },
+
+      ur_pf   => { 
+          -simv_args => ["+HQM_PCIE_ERROR_MSG_FUNC_NUM=0  +HQM_PCIE_MEM_UR_ERR_FUNC_NO=0",  ],  
+          },
+      ur_unimp => { 
+          -simv_args => ["+EXP_UNWANTED_TXN_TO_HQM +HQM_CFG_BUSNUM_UNIMP_FUNC +eot_pf +pcie_urd +pcie_ced +pcie_anfes", ],  
+          },
+
+nf_unmask_pf_badparitytlp  => { 
+    -simv_args => ["+UR_TXN +HQM_SLA_PCIE_CFG_BADPARITY_ERR_SEQ +HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/hqm_pcie_badparity_aer_non_fatal_unmasked.cft +HQM_PVC_AUTO_TAG_GEN_DIS", "+ovm_set_config_int=*\\,sev_mask_val\\,0","-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_error.waiver", 
+									], 
+                                    }, 
+f_unmask_pf_badparitytlp   => { 
+    -simv_args => ["+UR_TXN +HQM_SLA_PCIE_CFG_BADPARITY_ERR_SEQ +HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/hqm_pcie_badparity_aer_fatal_unmasked.cft +HQM_PCIE_TXN +HQM_PVC_AUTO_TAG_GEN_DIS +HQM_PF_EXP_FATAL_MSG_CNT=1", "+ovm_set_config_int=*\\,sev_mask_val\\,1","-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_error.waiver",
+									],  
+                                    },
+nf_mask_pf_badparitytlp   => { 
+    -simv_args => ["+UR_TXN +HQM_SLA_PCIE_CFG_BADPARITY_ERR_SEQ +HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/hqm_pcie_badparity_aer_non_fatal_masked.cft +HQM_PVC_AUTO_TAG_GEN_DIS", "+ovm_set_config_int=*\\,sev_mask_val\\,2","-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_error.waiver",
+									],  
+                                    },
+f_mask_pf_badparitytlp   => {
+    -simv_args => ["+UR_TXN +HQM_SLA_PCIE_CFG_BADPARITY_ERR_SEQ +HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/hqm_pcie_badparity_aer_fatal_masked.cft +HQM_PVC_AUTO_TAG_GEN_DIS", "+ovm_set_config_int=*\\,sev_mask_val\\,3","-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_error.waiver",
+									],  
+                                    },
+nf_unmask_anfes_unmask_pf_badparitytlp  => { 
+    -simv_args => ["+UR_TXN +HQM_SLA_PCIE_CFG_BADPARITY_ERR_SEQ +HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/hqm_pcie_badparity_aer_non_fatal_unmasked_anfes_unmasked.cft +HQM_PCIE_TXN +HQM_PVC_AUTO_TAG_GEN_DIS +HQM_PF_EXP_CORR_MSG_CNT=1", "+ovm_set_config_int=*\\,sev_mask_val\\,4","-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_error.waiver", 
+									],  
+                                    },
+
+
+
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

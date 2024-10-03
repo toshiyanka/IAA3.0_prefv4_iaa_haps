@@ -1,0 +1,20 @@
+wr hqm_sif_csr.ri_phdr_fifo_ctl 0x05
+rd hqm_sif_csr.ri_phdr_fifo_ctl 0x05
+
+#Forcing poison bit of cbd header to be 1 to generate parity error on cbd header
+force hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_sif.i_hqm_sif_core.i_hqm_ri.i_ri_cds.cbd_hdr.poison 1 
+
+
+idle 400
+wr hqm_sif_csr.ri_phdr_fifo_ctl 0x01
+idle 400
+
+release hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_sif.i_hqm_sif_core.i_hqm_ri.i_ri_cds.cbd_hdr.poison 
+
+rd hqm_system_csr.alarm_hw_synd 0x88048400  ##Add field info
+rd hqm_sif_csr.sif_alarm_err    0x00000010  ##RI Parity Error
+rd hqm_sif_csr.ri_parity_err    0x00000100  ##CBD Header Parity Error
+rd hqm_sif_csr.sif_parity_err   0x00000000  ##No TI Parity error injected
+rd hqm_sif_csr.hqm_sif_cnt_10   0x00000000
+
+rd hqm_sif_csr.ri_phdr_fifo_ctl 0x05

@@ -1,0 +1,55 @@
+//set_context dft -rtl
+set_context patterns -ijtag
+
+///### loading ICL
+read_icl $env(DUVE_M_HOME)/icl_gen/icl_src/intel_tap_common.icl
+read_icl icl/*.icl
+
+///### loading IP top level file only (included files should exist too)
+//### if necessary, specify relative/absolute paths to dirs with included files
+//set sv_args "-force -ignore_synthesis_off_sections On -vcs_compatibility -mfcu -no_duplicate_modules_warnings -verbose -format sv2009"
+//set_design_include_directories ../rtl/include
+//read_verilog ../rtl/ip.sv $sv_args
+//read_verilog ../rtl/ip.sv
+
+///### setting design
+set_current_design ip
+add_black_boxes -auto 
+
+///### setting IJTAG context
+set_context patterns -ijtag
+set_system_mode analysis
+
+///### opening/configuring pattern set
+open_pattern_set ip_test 
+set_ijtag_retargeting_options -iapply_target_annotations full
+
+///### Design-specific preamble
+//iForcePort fdfx_secure_policy[3:0] 0b0000
+//iApply
+//iWrite fdfx_powergood 0b1
+//iApply
+//iWrite fdfx_powergood 0b0
+//iApply
+//iWrite fdfx_powergood 0b1
+//iApply
+
+iReset
+
+//iForcePort fdfx_secure_policy[3:0] 0b0010 // iForcePort doesn't support SECURITY_UNLOCKED 
+//iApply
+
+iRunLoop 1
+
+///### generation of verification pattern
+
+create_icl_verification_patterns  
+
+close_pattern_set
+
+report_pattern_set
+
+///### writing patterns
+//write_patterns patterns/ip_tb.v -verilog -pattern_set ip_test -replace
+write_patterns patterns/ip_test.pdl -pdl -pattern_set ip_test -replace
+

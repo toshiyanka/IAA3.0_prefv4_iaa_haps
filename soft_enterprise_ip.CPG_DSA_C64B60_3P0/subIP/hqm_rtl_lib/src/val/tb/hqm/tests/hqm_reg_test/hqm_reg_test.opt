@@ -1,0 +1,1353 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => [
+                     "+AW_CONTINUE_ON_ERROR",
+                     "+iosf_tracker_filename=iosf_trk",
+                     "-assert nopostproc",
+                     "-assert maxfail=9000",
+                     "-assert finish_maxfail=9000",
+                     "-assert global_finish_maxfail=9000",
+                     "+vcs+lic+wait",
+                     "+SLA_USER_DATA_PHASE_TIMEOUT=0",
+                     "+SLA_POST_RESET_DATA_PHASE_TIMEOUT=0",
+                     "+OVM_GLOBAL_TIMEOUT=100000000000",
+                     "+SLA_MAX_RUN_CLOCK=0",
+                     "+SERVER_SIM_GPSB_RAL_ABORTED_CFG_WR_POST_1_1",
+                     "+HQM_LSP_CQ_QID_CFG_CHECK_DIS",
+                     "+OVM_MAX_ERRCNT=9000",
+                     "+SLA_ENABLE_RAL_MONITOR",
+                     "+SLA_RAL_MONITOR_ALL_ACCESS",
+                     "+SLA_RAL_STATUS_CHECK_ENABLE",
+                     "+hqm_pcie_init_stim_config::num_vfs=0",
+                     "+hqm_pcie_init_stim_config::skip_msix_cfg=1",
+                     "+hqm_pcie_init_stim_config::skip_msi_cfg=1",
+					 "+SLA_CONFIG_PHASE_TIMEOUT=300000",
+                     "+hqm_tb_hcw_eot_file_mode_seq_stim_config::do_eot_rd_seq=0",
+                     "+hqm_tb_hcw_eot_file_mode_seq_stim_config::do_eot_status_seq=0",
+                     "+hqm_tb_hcw_eot_file_mode_seq_stim_config::do_wait_clkreq_deassert_seq=0",
+             
+                    ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+
+      ############################################################
+      ############################################################
+      #HQMV30: Support Cheetah2 flow 
+      ############################################################
+      non_std_warm_rst_seq => {
+          -simv_args => [
+                     "+HQM_NON_STD_WARM_RST_SEQ",
+                        ],
+      },
+      prochot_dis => {
+          -simv_args => [
+                     "+HQM_DISABLE_PROCHOT_DRIVE",
+                        ],
+      },
+      no_pre_flush_phase => {
+          -simv_args => [
+                     "+HQM_NO_PRE_FLUSH_PHASE",
+                        ],
+      },
+
+      ############################################################
+      ############################################################
+
+
+      aqed_pipe => {
+          -simv_args => ["+hraisrfn=aqed_pipe",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      aqed_pipe_pgc => {
+          -simv_args => ["+hraisrfn=aqed_pipe",
+                         "+hraisseg=1",
+                         "+hraisrcnt=1",
+                         "+hraispgc=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      aqed_pipe_pth => {
+          -simv_args => ["+hraisrfn=aqed_pipe",
+                         "+hraisseg=1",
+                         "+hraisrcnt=10",
+                         "+hraispth=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      aqed_pipe_CCAWTA0 => {
+          -simv_args => ["+hraisrfn=aqed_pipe",
+                         "+hraisrgn=CFG_CONTROL_ARB_WEIGHTS_TQPRI_ATM_0",
+                         "+hraisseg=1",
+                         "+hraisrcnt=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_pgc => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=1",
+                         "+hraisrcnt=10",
+                         "+hraispgc=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_pth => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=1",
+                         "+hraisrcnt=10",
+                         "+hraispth=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg1 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=1",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg2 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=2",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg3 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=3",
+                         "+hraisrcnt=250",
+                         "+hraisfin=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg04 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=4",
+                         "+hraisrcnt=250",
+                         "+hraisfin=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg05 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=5",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg06 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=6",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg07 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=7",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg08 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=8",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg09 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=9",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg10=> {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=10",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg11 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=11",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg12 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=12",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg13 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=13",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg14 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=14",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg15 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=15",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg16 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=16",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg17 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=17",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg18 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=18",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg19 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=19",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg20=> {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=20",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg21 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=21",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg22 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=22",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg23 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=23",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg24 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=24",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg25 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=25",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg26 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=26",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg27 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=27",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg28 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=28",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg29 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=29",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg30=> {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=30",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg31 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=31",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg32 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=32",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg33 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=33",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg34 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=34",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg35 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=35",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg36 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=36",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg37 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=37",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg38 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=38",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg39 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=39",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg40 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=40",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg41 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=41",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg42 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=42",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg43 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=43",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg44 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=44",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg45 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=45",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg46 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=46",
+                         "+hraisrcnt=250",
+                         "+hraisfin=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg47 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=47",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      atm_pipe_seg48 => {
+          -simv_args => ["+hraisrfn=atm_pipe",
+                         "+hraisseg=48",
+                         "+hraisrcnt=250",
+                         "+hraisfna=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      credit_hist_pipe_pgc => {
+          -simv_args => ["+hraisrfn=credit_hist_pipe",
+                         "+hraisseg=1",
+                         "+hraisrcnt=10",
+                         "+hraispgc=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      credit_hist_pipe_pth => {
+          -simv_args => ["+hraisrfn=credit_hist_pipe",
+                         "+hraisseg=1",
+                         "+hraisrcnt=10",
+                         "+hraispth=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      credit_hist_pipe_POP_PTR => {
+          -simv_args => ["+hraisrfn=credit_hist_pipe",
+                         "+hraisrgn=CFG_HIST_LIST_POP_PTR[0]",
+                         "+hraisrcnt=1",
+                         "+hraiswrcnt=1",
+                         "+hraisrestm=0",
+                         "+hraistsm=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      credit_hist_pipe_restm => {
+          -simv_args => ["+hraisrfn=credit_hist_pipe",
+                         "+hraisseg=1",
+                         "+hraisrcnt=250",
+                         "+hraistsm=0",
+                         "+hraisrestm=1",
+                         "+hraisdtrbna=*DIR_CQ_INTR_ARMED*",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      credit_hist_pipe_wom0_seg1 => {
+          -simv_args => ["+hraisrfn=credit_hist_pipe",
+                         "+hraisseg=1",
+                         "+hraisrcnt=250",
+                         "+hraistsm=0",
+                         "+hraiswom=0",
+                         "+hraisdtrbna=*DIR_CQ_INT_ENB*",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_cfg_dir_cq_int_enb.cft",],
+      },
+      credit_hist_pipe_stsm => {
+          -simv_args => ["+hraisrfn=credit_hist_pipe",
+                         "+hraisseg=4",
+                         "+hraisrcnt=250",
+                         "+hraistsm=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      credit_hist_pipe_svc0_seg04 => {
+          -simv_args => ["+hraisrfn=credit_hist_pipe",
+                         "+hraisseg=4",
+                         "+hraisrcnt=250",
+                         "+hraissvc=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_system_csr_svc0_seg1 => {
+          -simv_args => ["+hraisrfn=hqm_system_csr",
+                         "+hraisseg=1",
+                         "+hraissvc=0",
+                         "+hraisrcnt=250",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      credit_hist_pipe_wom0_seg1 => {
+          -simv_args => ["+hraisrfn=credit_hist_pipe",
+                         "+hraisseg=1",
+                         "+hraisrcnt=250",
+                         "+hraiswom=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      credit_hist_pipe_wom0_seg38 => {
+          -simv_args => ["+hraisrfn=credit_hist_pipe",
+                         "+hraisdtrbna=*LDB_CQ_INT_ENB*",
+                         "+hraisseg=38",
+                         "+hraisrcnt=250",
+                         "+hraiswom=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_cfg_ldb_cq_int_enb.cft",],
+      },
+
+      #credit_hist_pipe_seg38 => {
+      #    -simv_args => ["+hraisrfn=credit_hist_pipe",
+      #                   "+hraisseg=38",
+      #                   "+hraisrcnt=250",
+      #                   "+hraisdtrbna=*LDB_CQ_INTR_ARMED*",
+      #                   "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      #},
+      
+      direct_pipe_pth => {
+          -simv_args => ["+hraisrfn=direct_pipe",
+                         "+hraisseg=1",
+                         "+hraisrcnt=7",
+                         "+hraispth=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      direct_pipe_seg1 => {
+          -simv_args => ["+hraisrfn=direct_pipe",
+                         "+hraisseg=1",
+                         "+hraisrcnt=500",
+                         "+HQM_TB_HQMCORE_DIR_EOT_CHECK_DISABLE",
+                         "+hraisfin=1",
+                         "+hraisfna=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      dqed_pipe_pgc => {
+          -simv_args => ["+hraisrfn=dqed_pipe",
+                         "+hraisseg=1",
+                         "+hraisrcnt=10",
+                         "+hraispgc=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      dqed_pipe_pth => {
+          -simv_args => ["+hraisrfn=dqed_pipe",
+                         "+hraisseg=1",
+                         "+hraisrcnt=10",
+                         "+hraispth=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      dqed_pipe_seg01 => {
+          -simv_args => ["+hraisrfn=dqed_pipe",
+                         "+hraisseg=1",
+                         "+hraisrcnt=1000",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      dqed_pipe_seg02 => {
+          -simv_args => ["+hraisrfn=dqed_pipe",
+                         "+hraisseg=2",
+                         "+hraisrcnt=1000",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      dqed_pipe_seg03 => {
+          -simv_args => ["+hraisrfn=dqed_pipe",
+                         "+hraisseg=3",
+                         "+hraisrcnt=1000",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      dqed_pipe_seg04 => {
+          -simv_args => ["+hraisrfn=dqed_pipe",
+                         "+hraisseg=4",
+                         "+hraisrcnt=1000",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      dqed_pipe_seg05 => {
+          -simv_args => ["+hraisrfn=dqed_pipe",
+                         "+hraisseg=5",
+                         "+hraisrcnt=1000",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      dqed_pipe_seg06 => {
+          -simv_args => ["+hraisrfn=dqed_pipe",
+                         "+hraisseg=6",
+                         "+hraisrcnt=1000",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      dqed_pipe_seg07 => {
+          -simv_args => ["+hraisrfn=dqed_pipe",
+                         "+hraisseg=7",
+                         "+hraisrcnt=1000",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      dqed_pipe_seg08 => {
+          -simv_args => ["+hraisrfn=dqed_pipe",
+                         "+hraisseg=8",
+                         "+hraisrcnt=1000",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      dqed_pipe_seg09 => {
+          -simv_args => ["+hraisrfn=dqed_pipe",
+                         "+hraisseg=9",
+                         "+hraisrcnt=1000",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      dqed_pipe_seg10 => {
+          -simv_args => ["+hraisrfn=dqed_pipe",
+                         "+hraisseg=10",
+                         "+hraisrcnt=1000",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      dqed_pipe_seg11 => {
+          -simv_args => ["+hraisrfn=dqed_pipe",
+                         "+hraisseg=11",
+                         "+hraisrcnt=1000",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      dqed_pipe_seg12 => {
+          -simv_args => ["+hraisrfn=dqed_pipe",
+                         "+hraisseg=12",
+                         "+hraisrcnt=1000",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      dqed_pipe_seg13 => {
+          -simv_args => ["+hraisrfn=dqed_pipe",
+                         "+hraisseg=13",
+                         "+hraisrcnt=1000",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      dqed_pipe_seg14 => {
+          -simv_args => ["+hraisrfn=dqed_pipe",
+                         "+hraisseg=14",
+                         "+hraisrcnt=1000",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      dqed_pipe_seg15 => {
+          -simv_args => ["+hraisrfn=dqed_pipe",
+                         "+hraisseg=15",
+                         "+hraisrcnt=1000",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      dqed_pipe_seg16 => {
+          -simv_args => ["+hraisrfn=dqed_pipe",
+                         "+hraisseg=16",
+                         "+hraisrcnt=1000",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      dqed_pipe_seg17 => {
+          -simv_args => ["+hraisrfn=dqed_pipe",
+                         "+hraisseg=17",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=1",
+                         "+hraisfna=1",
+                         "+hraistsm=0",
+                         "+HQM_TB_HQMCORE_DQED_EOT_CHECK_DISABLE",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      dqed_pipe_wom0_seg17 => {
+          -simv_args => ["+hraisrfn=dqed_pipe",
+                         "+hraisseg=17",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=1",
+                         "+hraisfna=1",
+                         "+hraistsm=0",
+                         "+hraiswom=0",
+                         "+HQM_TB_HQMCORE_DQED_EOT_CHECK_DISABLE",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      dqed_pipe_seg18 => {
+          -simv_args => ["+hraisrfn=dqed_pipe",
+                         "+hraisseg=18",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=1",
+                         "+hraisfna=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      list_sel_pipe_pgc => {
+          -simv_args => ["+hraisrfn=list_sel_pipe",
+                         "+hraisseg=1",
+                         "+hraisrcnt=10",
+                         "+hraispgc=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      list_sel_pipe_pth => {
+          -simv_args => ["+hraisrfn=list_sel_pipe",
+                         "+hraisseg=1",
+                         "+hraisrcnt=10",
+                         "+hraispth=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      list_sel_pipe_CFG_CQ2QID1 => {
+                     -simv_args => ["+hraisrfn=list_sel_pipe",
+                                    "+hraisrgn=CFG_CQ2QID1[63]",
+                                    "+hraisrcnt=1",
+                                    "+hraistsm=0",
+                                    "+HQM_TB_HQMCORE_LSP_EOT_CHECK_DISABLE",
+                                    "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      list_sel_pipe_CFG_QID_DIR_REPLAY_COUNT => {
+               -simv_args => ["+hraisrfn=list_sel_pipe",
+                              "+hraisrgn=CFG_QID_DIR_REPLAY_COUNT[31]",
+                              "+hraisrcnt=1",
+                              "+hraistsm=0",
+                              "+HQM_TB_HQMCORE_LSP_EOT_CHECK_DISABLE",
+                              "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      list_sel_pipe_wom0_seg04 => {
+               -simv_args => ["+hraisrfn=list_sel_pipe",
+                              "+hraisseg=4",
+                              "+hraisrcnt=200",
+                              "+hraiswom=0",
+                              "+hraissvc=0",
+                              "+HQM_TB_HQMCORE_LSP_EOT_CHECK_DISABLE",
+                              "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      qed_pipe_pth => {
+          -simv_args => ["+hraisrfn=qed_pipe",
+                         "+hraisseg=1",
+                         "+hraisrcnt=10",
+                         "+hraispth=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      qed_pipe_seg01 => {
+          -simv_args => ["+hraisrfn=qed_pipe",
+                         "+hraisseg=1",
+                         "+hraisrcnt=1000",
+                         "+HQM_TB_HQMCORE_QED_EOT_CHECK_DISABLE",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      qed_pipe_wom0_seg1 => {
+          -simv_args => ["+hraisrfn=qed_pipe",
+                         "+hraisseg=1",
+                         "+hraisrcnt=31",
+                         "+hraiswom=0",
+                         "+HQM_TB_HQMCORE_QED_EOT_CHECK_DISABLE",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      nalb_pipe_pth => {
+          -simv_args => ["+hraisrfn=nalb_pipe",
+                         "+hraisseg=1",
+                         "+hraisrcnt=10",
+                         "+hraispth=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      nalb_pipe_seg1 => {
+          -simv_args => ["+hraisrfn=nalb_pipe",
+                         "+hraisseg=1",
+                         "+hraisrcnt=500",
+                         "+hraisfin=1",
+                         "+hraisfna=1",
+                         "+HQM_TB_HQMCORE_NALB_EOT_CHECK_DISABLE",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      nalb_pipe_wom0_seg1 => {
+          -simv_args => ["+hraisrfn=nalb_pipe",
+                         "+hraisseg=1",
+                         "+hraisrcnt=500",
+                         "+hraiswom=0",
+                         "+HQM_TB_HQMCORE_NALB_EOT_CHECK_DISABLE",
+                         "+hraisfin=1",
+                         "+hraisfna=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      nalb_pipe_seg02 => {
+          -simv_args => ["+hraisrfn=nalb_pipe",
+                         "+hraisseg=2",
+                         "+hraisrcnt=500",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      nalb_pipe_seg03 => {
+          -simv_args => ["+hraisrfn=nalb_pipe",
+                         "+hraisseg=3",
+                         "+hraisrcnt=500",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      nalb_pipe_seg04 => {
+          -simv_args => ["+hraisrfn=nalb_pipe",
+                         "+hraisseg=4",
+                         "+hraisrcnt=500",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      nalb_pipe_seg05 => {
+          -simv_args => ["+hraisrfn=nalb_pipe",
+                         "+hraisseg=5",
+                         "+hraisrcnt=500",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      nalb_pipe_seg06 => {
+          -simv_args => ["+hraisrfn=nalb_pipe",
+                         "+hraisseg=6",
+                         "+hraisrcnt=500",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      nalb_pipe_seg07 => {
+          -simv_args => ["+hraisrfn=nalb_pipe",
+                         "+hraisseg=7",
+                         "+hraisrcnt=500",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      nalb_pipe_seg08 => {
+          -simv_args => ["+hraisrfn=nalb_pipe",
+                         "+hraisseg=8",
+                         "+hraisrcnt=500",
+                         "+hraisfin=1",
+                         "+hraisfna=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      nalb_pipe_1000_cfg_reset => {
+          -simv_args => ["+hraisrfn=nalb_pipe",
+                         "+hraisrgn=CFG_RESET_VF_START",
+                         "+hraisrcnt=1000",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      nalb_pipe_1000_cfg_control => {
+          -simv_args => ["+hraisrfn=nalb_pipe",
+                         "+hraisrgn=CFG_CONTROL_ARB_WEIGHTS_TQPRI_REPLAY_0",
+                         "+hraisrcnt=1000",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      reorder_pipe_pgc => {
+          -simv_args => ["+hraisrfn=reorder_pipe",
+                         "+hraisseg=1",
+                         "+hraisrcnt=10",
+                         "+hraispgc=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      reorder_pipe_pth => {
+          -simv_args => ["+hraisrfn=reorder_pipe",
+                         "+hraisseg=1",
+                         "+hraisrcnt=10",
+                         "+hraispth=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      reorder_pipe_wom0_seg1 => {
+          -simv_args => ["+hraisrfn=reorder_pipe",
+                         "+hraisseg=1",
+                         "+hraisrcnt=250",
+                         "+hraiswom=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      config_master_pgc => {
+          -simv_args => ["+hraisrfn=config_master",
+                         "+hraisseg=1",
+                         "+hraisrcnt=1",
+                         "+hraispgc=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      config_master_rxc => {
+          -simv_args => ["+hraisrfn=config_master",
+                         "+hraisseg=1",
+                         "+hraisrcnt=1",
+                         "+hraisrxc=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      config_master_pth => {
+          -simv_args => ["+hraisrfn=config_master",
+                         "+hraisseg=1",
+                         "+hraisrcnt=1",
+                         "+hraispth=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      config_master_seg1 => {
+          -simv_args => ["+hraisrfn=config_master",
+                         "+hraisseg=1",
+                         "+hraisrcnt=1000",
+                         "+hraistsm=0",
+                         "+hraisdtrbnrs3=*CFG_PM_OVERRIDE*",
+                         "+hraisfin=1",
+                         "+hraisfna=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      config_master_svc0_seg01 => {
+          -simv_args => ["+hraisrfn=config_master",
+                         "+hraisseg=1",
+                         "+hraisrcnt=1000",
+                         "+hraistsm=0",
+                         "+hraisdtrbnrs3=*CFG_PM_OVERRIDE*",
+                         "+hraissvc=0",
+                         "+hraisfin=1",
+                         "+hraisfna=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_msix_mem_pth => {
+          -simv_args => ["+hraisrfn=hqm_msix_mem",
+                         "+hraisseg=1",
+                         "+hraisrcnt=1",
+                         "+hraispth=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_msix_mem => {
+          -simv_args => ["+hraisrfn=hqm_msix_mem",
+                         "+hraisseg=1",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=1",
+                         "+hraisfna=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_sif_csr_pth => {
+          -simv_args => ["+hraisrfn=hqm_sif_csr",
+                         "+hraisseg=1",
+                         "+hraisrcnt=1",
+                         "+hraispth=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_sif_csr_1_TIFC_wom0 => {
+          -simv_args => ["+hraisrfn=hqm_sif_csr",
+                         "+hraisrgn=TI_IOQ_FIFO_CTL",
+                         "+hraisrcnt=1",
+                         "+hraiswom=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_sif_csr_1_TIFC => {
+          -simv_args => ["+hraisrfn=hqm_sif_csr",
+                         "+hraisrgn=TI_IOQ_FIFO_CTL",
+                         "+hraisrcnt=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_sif_csr_seg1 => {
+          -simv_args => ["+hraisrfn=hqm_sif_csr",
+                         "+hraisseg=1",
+                         "+hraisrcnt=500",
+                         "+hraisdtrbna=TI_IOQ_FIFO_CTL",
+                         "+hraisdtpr=1",
+                         "+hraistsm=0",
+                         "+hraisfin=1",
+                         "+hraisfna=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_sif_csr_NFC_seg01 => {
+          -simv_args => ["+hraisrfn=hqm_sif_csr",
+                         "+hraisseg=1",
+                         "+hraisrcnt=500",
+                         "+hraisdtrbna=*FIFO_CTL",
+                         "+hraisdtpr=1",
+                         "+hraisfin=1",
+                         "+hraisfna=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_sif_csr_NFS_seg01 => {
+          -simv_args => ["+hraisrfn=hqm_sif_csr",
+                         "+hraisseg=1",
+                         "+hraisrcnt=500",
+                         "+hraisdtrbn=*FIFO_STATUS",
+                         "+hraisdtpr=1",
+                         "+hraisfin=1",
+                         "+hraisfna=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_sif_csr_seg01_tpr => {
+          -simv_args => ["+hraisrfn=hqm_sif_csr",
+                         "+hraisseg=1",
+                         "+hraisrcnt=500",
+                         "+hraisdtpr=0",
+                         "+hraistsm=0",
+                         "+hraisfin=1",
+                         "+hraisfna=1",
+                         "+hraisdtrbn=*CSR_CP_*:*CSR_RAC_*:*CSR_WAC_*",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_system_csr_1_ASC => {
+          -simv_args => ["+hraisrfn=hqm_system_csr",
+                         "+hraisrgn=AW_SMON_COMPARE1[0]",
+                         "+hraisrcnt=1",
+                         "+hraiswrcnt=64",
+                         "+hraissaigm=RANDC",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_system_csr_1_PSC => {
+          -simv_args => ["+hraisrfn=hqm_system_csr",
+                         "+hraisrgn=PERF_SMON_COMPARE0",
+                         "+hraisrcnt=1",
+                         "+hraiswrcnt=64",
+                         "+hraissaigm=RANDC",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_system_csr_1_IAFC => {
+          -simv_args => ["+hraisrfn=hqm_system_csr",
+                         "+hraisrgn=SIF_ALARM_FIFO_CTL",
+                         "+hraisrcnt=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_system_csr_300_cfg => {
+          -simv_args => ["+hraisrfn=hqm_system_csr",
+                         "+hraisrgn=CFG_MASTER_TIMEOUT",
+                         "+hraisrcnt=300",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_system_csr_pth => {
+          -simv_args => ["+hraisrfn=hqm_system_csr",
+                         "+hraisseg=1",
+                         "+hraisrcnt=1",
+                         "+hraispth=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_system_csr_wom0_seg1 => {
+             -simv_args => ["+hraisrfn=hqm_system_csr",
+                            "+hraisseg=1",
+                            "+hraisrcnt=250",
+                            "+hraiswom=0",
+                            "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_system_csr_svc0_seg20 => {
+          -simv_args => ["+hraisrfn=hqm_system_csr",
+                         "+hraisseg=20",
+                         "+hraisrcnt=250",
+                         "+hraissvc=0",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      aqed_pipe_wom0_seg52 => {
+                -simv_args => ["+hraisrfn=aqed_pipe",
+                               "+hraisseg=52",
+                               "+hraisrcnt=200",
+                               "+hraiswom=0",
+                               "+hraisfin=1",
+                               "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_system_csr_seg48 => {
+          -simv_args => ["+hraisrfn=hqm_system_csr",
+                         "+hraisseg=48",
+                         "+hraisrcnt=250",
+                         "+hraisdtrbna=*_FIFO_CTL*",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_pf_cfg_i => {
+          -simv_args => ["+hraisrfn=hqm_pf_cfg_i",],
+      },
+      hqm_pf_cfg_i_AER_CAP_CONTROL => {
+          -simv_args => ["+hraisrfn=hqm_pf_cfg_i",
+                         "+hraisrcnt=1",
+                         "+hraiswom=0",
+                         "+hraistsm=0",
+                         "+hraisrestm=0",
+                         "+hraiswrcnt=1",
+                         "+hraisrgn=AER_CAP_CONTROL",
+                         "+OVM_VERBOSITY=OVM_LOW",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_pf_cfg_i_SRIOV_CAP_CONTROL_STATUS => {
+          -simv_args => ["+hraisrfn=hqm_pf_cfg_i",
+                         "+hraisrcnt=1",
+                         "+hraiswom=0",
+                         "+hraistsm=0",
+                         "+hraisrestm=0",
+                         "+hraiswrcnt=1",
+                         "+hraisrgn=SRIOV_CAP_CONTROL_STATUS",
+                         "+OVM_VERBOSITY=OVM_LOW",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_pf_cfg_i_seg1 => {
+          -simv_args => ["+hraisrfn=hqm_pf_cfg_i",
+                         "+hraisseg=1",
+                         "+hraisdtrbnrs3=*DEVICE_COMMAND*",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=1",
+                         "+hraisfna=1",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_pf_cfg_i_no_AER_CAP_CONTROL_seg01 => {
+          -simv_args => ["+hraisrfn=hqm_pf_cfg_i",
+                         "+hraisseg=1",
+                         "+hraisdtrbn=AER_CAP_CONTROL",
+                         "+hraisdtrbnrs3=*DEVICE_COMMAND*",
+                         "+hraisrcnt=500",
+                         "+hraisfin=1",
+                         "+hraisfna=1",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_pf_cfg_i_vfe_seg01 => {
+          -simv_args => ["+hraisrfn=hqm_pf_cfg_i",
+                         "+hraisseg=1",
+                         "+hraisno_recfg_p=1",
+                         "+hraisdtrbna=*SRIOV_CAP_CONTROL_STATUS*",
+                         "+hraisdtrbnrs3=*DEVICE_COMMAND*",
+                         "+hraisrcnt=500",
+                         "+hraisfin=1",
+                         "+hraisfna=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_pf_cfg_i_vfe_4_seg01 => {
+          -simv_args => ["+hraisrfn=hqm_pf_cfg_i",
+                         "+hraisseg=1",
+                         "+hraisno_recfg_p=1",
+                         "+hraisrcnt=4",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_pf_cfg_i_vfe_4_seg02 => {
+          -simv_args => ["+hraisrfn=hqm_pf_cfg_i",
+                         "+hraisseg=2",
+                         "+hraisno_recfg_p=1",
+                         "+hraisrcnt=4",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_pf_cfg_i_vfe_4_seg03 => {
+          -simv_args => ["+hraisrfn=hqm_pf_cfg_i",
+                         "+hraisseg=3",
+                         "+hraisno_recfg_p=1",
+                         "+hraisrcnt=4",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_pf_cfg_i_vfe_4_seg04 => {
+          -simv_args => ["+hraisrfn=hqm_pf_cfg_i",
+                         "+hraisseg=4",
+                         "+hraisno_recfg_p=1",
+                         "+hraisrcnt=4",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_pf_cfg_i_vfe_4_seg05 => {
+          -simv_args => ["+hraisrfn=hqm_pf_cfg_i",
+                         "+hraisseg=5",
+                         "+hraisno_recfg_p=1",
+                         "+hraisrcnt=4",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_pf_cfg_i_vfe_4_seg06 => {
+          -simv_args => ["+hraisrfn=hqm_pf_cfg_i",
+                         "+hraisseg=6",
+                         "+hraisno_recfg_p=1",
+                         "+hraisrcnt=4",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_pf_cfg_i_vfe_4_seg07 => {
+          -simv_args => ["+hraisrfn=hqm_pf_cfg_i",
+                         "+hraisseg=7",
+                         "+hraisno_recfg_p=1",
+                         "+hraisdtrbna=DEVICE_COMMAND",
+                         "+hraisrcnt=4",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_pf_cfg_i_vfe_4_seg08 => {
+          -simv_args => ["+hraisrfn=hqm_pf_cfg_i",
+                         "+hraisseg=8",
+                         "+hraisno_recfg_p=1",
+                         "+hraisrcnt=4",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_pf_cfg_i_vfe_4_seg09 => {
+          -simv_args => ["+hraisrfn=hqm_pf_cfg_i",
+                         "+hraisseg=9",
+                         "+hraisno_recfg_p=1",
+                         "+hraisrcnt=4",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_pf_cfg_i_vfe_4_seg10 => {
+          -simv_args => ["+hraisrfn=hqm_pf_cfg_i",
+                         "+hraisseg=10",
+                         "+hraisno_recfg_p=1",
+                         "+hraisrcnt=4",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_pf_cfg_i_vfe_4_seg11 => {
+          -simv_args => ["+hraisrfn=hqm_pf_cfg_i",
+                         "+hraisseg=11",
+                         "+hraisno_recfg_p=1",
+                         "+hraisrcnt=4",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_pf_cfg_i_vfe_4_seg12 => {
+          -simv_args => ["+hraisrfn=hqm_pf_cfg_i",
+                         "+hraisseg=12",
+                         "+hraisno_recfg_p=1",
+                         "+hraisrcnt=4",
+                         "+hraisdtrbna=PASID_CONTROL",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_pf_cfg_i_vfe_4_seg13 => {
+          -simv_args => ["+hraisrfn=hqm_pf_cfg_i",
+                         "+hraisseg=13",
+                         "+hraisno_recfg_p=1",
+                         "+hraisrcnt=4",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_pf_cfg_i_vfe_4_seg14 => {
+          -simv_args => ["+hraisrfn=hqm_pf_cfg_i",
+                         "+hraisseg=14",
+                         "+hraisno_recfg_p=1",
+                         "+hraisrcnt=4",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_pf_cfg_i_vfe_4_seg15 => {
+          -simv_args => ["+hraisrfn=hqm_pf_cfg_i",
+                         "+hraisseg=15",
+                         "+hraisno_recfg_p=1",
+                         "+hraisrcnt=4",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_pf_cfg_i_vfe_4_seg16 => {
+          -simv_args => ["+hraisrfn=hqm_pf_cfg_i",
+                         "+hraisseg=16",
+                         "+hraisno_recfg_p=1",
+                         "+hraisrcnt=4",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_pf_cfg_i_vfe_4_seg17 => {
+          -simv_args => ["+hraisrfn=hqm_pf_cfg_i",
+                         "+hraisseg=17",
+                         "+hraisno_recfg_p=1",
+                         "+hraisrcnt=4",
+                         "+hraisdtrbna=SRIOV_CAP_CONTROL_STATUS",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_pf_cfg_i_vfe_4_seg18 => {
+          -simv_args => ["+hraisrfn=hqm_pf_cfg_i",
+                         "+hraisseg=18",
+                         "+hraisno_recfg_p=1",
+                         "+hraisrcnt=4",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_pf_cfg_i_vfe_4_seg19 => {
+          -simv_args => ["+hraisrfn=hqm_pf_cfg_i",
+                         "+hraisseg=19",
+                         "+hraisno_recfg_p=1",
+                         "+hraisrcnt=4",
+                         "+hraisdtrbna=*SRIOV_CAP_NUM_VF",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_pf_cfg_i_vfe_4_seg20 => {
+          -simv_args => ["+hraisrfn=hqm_pf_cfg_i",
+                         "+hraisseg=20",
+                         "+hraisno_recfg_p=1",
+                         "+hraisrcnt=4",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_pf_cfg_i_vfe_4_seg21 => {
+          -simv_args => ["+hraisrfn=hqm_pf_cfg_i",
+                         "+hraisseg=21",
+                         "+hraisno_recfg_p=1",
+                         "+hraisrcnt=4",
+                         "+hraisfin=1",
+                         "+hraisfna=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_pf_cfg_i_pth => {
+          -simv_args => ["+hraisrfn=hqm_pf_cfg_i",
+                         "+hraisseg=1",
+                         "+hraisrcnt=1",
+                         "+hraispth=1",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+      hqm_pf_cfg_i_5_device => {
+          -simv_args => ["+hraisrfn=hqm_pf_cfg_i",
+                         "+hraisrgn=DEVICE_COMMAND",
+                         "+hraisrcnt=5",],
+      },
+      hqm_pf_cfg_i_vfe_1_vendor_id => {
+          -simv_args => ["+hraisrfn=hqm_pf_cfg_i",
+                         "+hraisrgn=VENDOR_ID",
+                         "+hraisrcnt=1",
+                         "+hraisfin=1",
+                         "+hraisfna=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",],
+      },
+   );
+
+   my $aqed_reg_count          = 10340;
+   my $fin_seg                 = 0;
+   my $aqed_reg_count_per_seg  = 517;  #20 segments of 517 registers each
+   my $aqed_seg_count          = $aqed_reg_count/$aqed_reg_count_per_seg;
+   for(my $i=1; $i<=$aqed_seg_count; $i++) { 
+     my $test_str    = "aqed_pipe_seg$i"; 
+     if($i == $aqed_seg_count) { 
+       $fin_seg = 1;
+     }  
+       
+     $runModes{"$test_str"} = {
+       -simv_args => [
+                        "+hraisrfn=aqed_pipe",
+                        "+hraisseg=$i",
+                        "+hraisrcnt=$aqed_reg_count_per_seg",
+                        "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",
+                        "+hraisfin=$fin_seg",
+                     ], 
+     };
+   }
+
+   my $credit_hist_pipe_reg_count          = 2340;
+   my $fin_seg                             = 0;
+   my $credit_hist_pipe_reg_count_per_seg  = 585;  #5 segments of 500 registers each
+   my $credit_hist_pipe_seg_count          = $credit_hist_pipe_reg_count/$credit_hist_pipe_reg_count_per_seg;
+   for(my $i=1; $i<=$credit_hist_pipe_seg_count; $i++) { 
+     my $test_str    = "credit_hist_pipe_seg$i"; 
+     if($i == $credit_hist_pipe_seg_count) { 
+       $fin_seg = 1;
+     }  
+
+     $runModes{"$test_str"} = {
+       -simv_args => [
+                        "+hraisrfn=credit_hist_pipe",
+                        "+hraisseg=$i",
+                        "+hraisrcnt=$credit_hist_pipe_reg_count_per_seg",
+                        "+hraisdtrbna=*_CQ_INTR_ARMED*",
+                        #"+hraisdtrbn=*_CQ_INTR_ARMED*:CFG_INTERFACE_STATUS:CFG_ORD_QID_SN*",
+                        "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",
+                        "+hraisfin=$fin_seg",
+                     ], 
+     };
+   }
+
+   my $hqm_system_csr_reg_count          = 16500;
+   my $fin_seg                           = 0;
+   my $hqm_system_csr_reg_count_per_seg  = 500;  
+   my $hqm_system_csr_seg_count          = $hqm_system_csr_reg_count/$hqm_system_csr_reg_count_per_seg;
+   for(my $i=1; $i<=$hqm_system_csr_seg_count; $i++) { 
+     my $test_str    = "hqm_system_csr_seg$i"; 
+     if($i == $hqm_system_csr_seg_count) { 
+       $fin_seg = 1;
+     }  
+     my $my_hraisdtrbna = "xxxsillyxxx";       # register name(s) to ignore
+     if($i == 10) { 
+       $my_hraisdtrbna = "SIF_ALARM_FIFO_CTL";
+     }  
+
+     $runModes{"$test_str"} = {
+       -simv_args => [
+                        "+hraisrfn=hqm_system_csr",
+                        "+hraisseg=$i",
+                        "+hraisrcnt=$hqm_system_csr_reg_count_per_seg",
+                        "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",
+                        "+hraisfin=$fin_seg",
+                        "+hraisdtrbna=$my_hraisdtrbna",
+                        "+hraisdtrbn=*_FIFO_CTL",
+                     ], 
+     };
+   }
+
+   my $list_sel_pipe_reg_count          = 3500;
+   my $fin_seg                           = 0;
+   my $list_sel_pipe_reg_count_per_seg  = 500;  
+   my $list_sel_pipe_seg_count          = $list_sel_pipe_reg_count/$list_sel_pipe_reg_count_per_seg;
+   for(my $i=1; $i<=$list_sel_pipe_seg_count; $i++) { 
+     my $test_str    = "list_sel_pipe_seg$i"; 
+     if($i == $list_sel_pipe_seg_count) { 
+       $fin_seg = 1;
+     }  
+
+     $runModes{"$test_str"} = {
+       -simv_args => [
+                        "+hraisrfn=list_sel_pipe",
+                        "+hraisseg=$i",
+                        "+hraisrcnt=$list_sel_pipe_reg_count_per_seg",
+                        "+HQM_TB_HQMCORE_LSP_EOT_CHECK_DISABLE",
+                        "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",
+                        "+hraisfin=$fin_seg",
+                     ], 
+     };
+   }
+
+   my $qed_pipe_reg_count          = 31;
+   my $fin_seg                     = 0;
+   my $qed_pipe_reg_count_per_seg  = 31; 
+   my $qed_pipe_seg_count          = $qed_pipe_reg_count/$qed_pipe_reg_count_per_seg;
+   for(my $i=1; $i<=$qed_pipe_seg_count; $i++) { 
+     my $test_str    = "qed_pipe_seg$i"; 
+     if($i == $qed_pipe_seg_count) { 
+       $fin_seg = 1;
+     }  
+
+     $runModes{"$test_str"} = {
+       -simv_args => [
+                        "+hraisrfn=qed_pipe",
+                        "+hraisseg=$i",
+                        "+hraisrcnt=$qed_pipe_reg_count_per_seg",
+                        "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",
+                        "+hraisfin=$fin_seg",
+                        "+hraisdtrbn=CFG_DIAGNOSTIC_AW_STATUS:CFG_PATCH_CONTROL",
+                     ], 
+     };
+   }
+
+   my $reorder_pipe_reg_count          = 12500;
+   my $fin_seg                         = 0;
+   my $reorder_pipe_reg_count_per_seg  = 500;  
+   my $reorder_pipe_seg_count          = $reorder_pipe_reg_count/$reorder_pipe_reg_count_per_seg;
+   for(my $i=1; $i<=$reorder_pipe_seg_count; $i++) { 
+     my $test_str    = "reorder_pipe_seg$i"; 
+     if($i == $reorder_pipe_seg_count) { 
+       $fin_seg = 1;
+     }  
+
+     $runModes{"$test_str"} = {
+       -simv_args => [
+                        "+hraisrfn=reorder_pipe",
+                        "+hraisseg=$i",
+                        "+hraisrcnt=$reorder_pipe_reg_count_per_seg",
+                        "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_enable.cft",
+                        "+hraisfin=$fin_seg",
+                         "+hraisfna=$fin_seg",
+                     ], 
+     };
+   }
+
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

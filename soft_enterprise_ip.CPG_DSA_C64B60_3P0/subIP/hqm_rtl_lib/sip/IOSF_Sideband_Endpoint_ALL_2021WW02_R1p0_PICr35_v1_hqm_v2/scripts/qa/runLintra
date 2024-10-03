@@ -1,0 +1,235 @@
+#!/bin/tcsh -f
+# name: runLintra
+
+######################################################################################################################################
+# Legacy lintra executable cannot be run in an HDK sourced xterm and HDK lintra executable cannot be run in legacy sourced environment
+######################################################################################################################################
+
+################################################################################
+# Source a script that is called at the start of each back-end 
+# scripts/qa/run* script
+################################################################################
+if ( $SB_ACE_FLOW ) then
+   source ./runPre -tool_name $0 $argv 
+else
+   source ${MODEL_ROOT}/scripts/qa/runPre -tool_name $0 $argv 
+endif
+
+if( $status != 0 ) exit $status
+
+set mainDebug=${debug};
+#####################################################
+# Run commands
+#####################################################
+
+set rtldir="${sbrdir}/source/rtl/iosfsbc/common/*.sv"
+set incdir="+incdir+${sbrdir}/source/rtl/iosfsbc/common"
+set ace_network=""
+
+if ("${config}" =~ "IOSF_Sideband_Endpoint") then
+#   if ( $SB_ACE_FLOW == 0 ) then
+#       if ($SIMBUILDTOOLDRUN) then
+#           set sbrdir=${sbrdir}/aceroot
+#       endif
+#   endif
+   set sbrdir=${ACE_UTILS_ROOT}
+   source ${MODEL_ROOT}/scripts/qa/ephelper.csh -rtlcfg ${component} \
+                                            -topdir ${sbrdir} \
+                                            -gentool ${thisToolName} \
+                                            -tooldir lintra
+   set rtl_list=${sbrdir}/tools/lintra/${component}/rtl_list.f
+   set rtldir="${rtldir} ${sbrdir}/source/rtl/iosfsbc/endpoint/*.sv"
+   set rtldir="-cfg ${rtl_list}"
+   set incdir=""
+   set rptname="${rtltop}_lint"
+   set generic_params=""
+   if( $rtlparameterstring != "" ) then
+      set generic_params="-gp ${rtlparameterstring}"
+   endif
+   set wf="-wf iosf_sbc_ep_waivers.xml"
+else
+   if ($DYN_OPT =~ "nonDyn") then
+      set rtltop=`echo "${component}"`
+   else
+      set rtltop=`echo "${component}_sbr_generic"`
+   endif
+   
+   set rtl_list=${sbrdir}/tools/lintra/${component}/rtl_list.f
+   set lintradir = "${sbrdir}/tools/lintra/${component}_sbr_generic"
+
+
+   set rtldir="${rtldir} ${sbrdir}/source/rtl/iosfsbc/router/*.sv"
+   set rtldir="${rtldir} ${sbrdir}/subIP/pgcb/source/rtl/pgcbunit/*.sv"
+   set rtldir="${rtldir} ${sbrdir}/subIP/dfx_secure_plugin/source/rtl/dfxsecure_plugin/*.sv"
+   set incdir="${incdir} +incdir+${sbrdir}/subIP/pgcb/source/rtl/pgcbunit"
+   set incdir="${incdir} +incdir+${sbrdir}/subIP/dfx_secure_plugin/source/rtl/include"
+
+   set rtldir="-cfg ${rtl_list}"
+   set incdir=""
+
+   set wf="-wf iosf_sbc_rtr_waivers.xml -wf pgcbunit_waivers.f"
+
+   if ( $SB_ACE_FLOW ) then
+      #set dsttooldir=${sbrdir}/tools/lintra/${component}
+      set dsttooldir=${sbrdir}/tools/lintra/${rtltop}
+   else
+      if ("${config}" =~ "IOSF_Sideband_Endpoint") then
+          set dsttooldir=${sbrdir}/$CUST/aceroot/tools/lintra/${rtltop}
+      else
+          set dsttooldir=${ACE_UTILS_ROOT}/tools/lintra/${component}/${rtltop}
+      endif
+   endif
+
+   #set rptname="${component}_lint"
+   set rptname="${rtltop}"
+   set generic_params=""
+
+   set ace_network="-ace_network $config"
+
+
+endif
+
+#######################
+# Generate Collateral #
+#######################
+
+if ( ${generate_collateral} ) then
+   echo "${thisToolName} -I- Generating ACE Lintra Collateral for Router ${component} with ${config} configuration."
+   set tempdir="${sbrdir}/unsupported/export/${config}_${rtltop}_${thisToolName}"
+   mkdir ${tempdir} -p
+   pushd ${tempdir}
+   echo "PWD $PWD ${tempdir}"
+
+   mkdir -p ${lintradir}
+
+   set puni_prefix=`echo $puniprefix | sed -e 's/_$//'`
+
+   set basecmd="${sbrdir}/unsupported/export/parseXml --ipxact_file ${sbrdir}/verif/tests/networks/${config}.xml -q"
+   if ( "${dynopt}" != "nonDyn" ) then
+      set basecmd="${basecmd} -dynamo -prefix ${puni_prefix}"
+   endif
+
+   set collateral_list=(\
+      "lintra_test_unit_name.opt" \
+   )
+
+   foreach collateral_file ( ${collateral_list} )
+      set basecmd="${basecmd} -t ${sbrdir}/unsupported/export/data/xml/${collateral_file}"
+      echo "BASECMD ${basecmd}"
+      ${basecmd} -t ${sbrdir}/unsupported/export/data/xml/${collateral_file}
+      if ( $mainDebug ) echo "${thisToolName} -D- Generated ${tempdir}/${component}_${collateral_file}"
+   end
+
+   #mv ${tempdir}/${component}_lintra_test_unit_name.opt ${lintradir}/${rtltop}.opt
+   set mvcmd = "mv ${component}_lintra_test_unit_name.opt ${lintradir}/${rtltop}.opt"
+   echo "MVCMD ${mvcmd}"
+   mv ${component}_lintra_test_unit_name.opt ${lintradir}/${rtltop}.opt
+
+   #rm ${tempdir} -rf
+   popd
+
+   echo "${thisToolName} -I- Generated ACE Lintra Collateral for Router ${component} with ${config} configuration."
+
+endif
+
+###############
+# Prevent Run #
+###############
+
+if ( ${no_run} ) then
+   exit 0
+endif
+
+
+unsetenv SB_STDCELLS_HDL
+# This is opposite of Localtooldata_p1273, where CTECH_LIB points to backend versions of CTECH_CELLS and CTECH_SIM_LIB points to behavioral (non synthesizable) versions of CTECH. But Lintra will work only when CTECH_LIB and CTECH_SIM_LIB both point to the behavioral code.
+
+setenv CTECH_LIB_NAME ${CTECH_SIM_LIB_NAME}
+
+if ("${config}" =~ "IOSF_Sideband_Endpoint") then
+     ${MODEL_ROOT}/scripts/qa/get_filelist.pl \
+         -run_ace \
+         -ace_model cdc_${rtltop} \
+         -ace_filter Synthesis \
+         -format lintra \
+         -output_file ${rtl_list} \
+         $ace_network
+      
+     pushd ${dsttooldir}
+    
+     if ($SB_ACE_FLOW == 0) then # HDK flow doesnt need LINTRACFG overrides
+        lintra  -top ${rtltop}              \
+             -rep ${rptname}.rpt         \
+             -wd  ${sbrdir}/tools/lintra \
+             -cfg ${LINTRARULES}/cfg/LintraSoCConfig_WF.xml \
+             ${wf}                       \
+             --report_rules :full:xml    \
+             -lira                       \
+             ${generic_params}           \
+             ${rtldir}                   \
+             ${incdir}                   | tee ${rptname}.log
+     else       #non HDK flow can use LINTRACFG overrides
+        lintra  -top ${rtltop}              \
+             -rep ${rptname}.rpt         \
+             -cfg ${LINTRACFG}           \
+             -wd  ${sbrdir}/tools/lintra \
+             ${wf}                       \
+             -lira                       \
+             ${generic_params}           \
+             ${rtldir}                   \
+             ${incdir}                   | tee ${rptname}.log
+     endif
+     set exitStatus=$status
+     popd
+else
+
+
+# Lintra compile
+set MCRD = "${IP_ROOT}/tools/lintra/${component}/${rtltop}.LIB"
+ace -rrsc lintra_comp -mcrd ${MCRD}
+  set exitStatus=$status
+  # Verification
+  if ($exitStatus) then
+     echo "${thisToolName} -E- Failed lintra compile. (${thisToolName})"
+     exit $exitStatus
+  endif
+
+# Lintra compile
+#ace -rrsc lintra_flg -nocleanup
+mkdir -p ${IP_ROOT}/tools/lintra/${component}/${rtltop}_FLG
+ace -t ${rtltop}:FLG -rrsc lintra_args -mcrd ${MCRD}  -custom_test_results_dir ${IP_ROOT}/tools/lintra/${component}/${rtltop}_FLG -nocleanup 
+  set exitStatus=$status
+  # Verification
+  if ($exitStatus) then
+     echo "${thisToolName} -E- Failed lintra FLG . (${thisToolName})"
+     exit $exitStatus
+  endif
+
+# Lintra execute
+#ace -rrsc lintra_exe -nocleanup 
+mkdir -p ${IP_ROOT}/tools/lintra/${component}/${rtltop}
+ace -t ${rtltop} -rrsc lintra_args -mcrd ${MCRD} -custom_test_results_dir ${IP_ROOT}/tools/lintra/${component}/${rtltop} -nocleanup -use_simple_testlog_names
+  set exitStatus=$status
+  # Verification
+  if ($exitStatus) then
+     echo "${thisToolName} -E- Failed lintra Lint Check . (${thisToolName})"
+     exit $exitStatus
+  endif
+endif
+
+# Verification
+if ($exitStatus) then
+   echo "${thisToolName} -E- Failed lintra. (${thisToolName})"
+   exit $exitStatus
+endif
+
+#There is no equalent HDK path for checklogfile. Better to copy in local area and use.
+/p/com/eda/intel/siputils/prod/bin/checkLogFile ${dsttooldir}/${rptname}.log -st 'Violations were found:' -pc '^severity:.*not waived: 0$' -fc '^severity:.*not waived: [^0]'
+set exitStatus=$status
+
+if ($exitStatus) then
+   echo "${thisToolName} -E- Failed lintra, non-waivered violations were detected"
+   exit $exitStatus
+endif
+
+echo "${thisToolName} -I- Lintra passed"

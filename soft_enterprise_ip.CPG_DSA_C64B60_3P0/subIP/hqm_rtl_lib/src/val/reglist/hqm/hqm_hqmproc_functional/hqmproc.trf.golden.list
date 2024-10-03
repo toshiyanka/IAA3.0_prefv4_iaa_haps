@@ -1,0 +1,1607 @@
+
++defaults  -simv_args '"' +hqmproc_batch_max=4 '"' -simv_args-
+####################################################################################################
+####################################################################################################
+#HQMV30_PALB
+####################################################################################################
+####################################################################################################
+##+has_qtype_sel_mode=12 (ATM)
+##+has_qtype_sel_mode=13 (UNO)
+###################
+#+rtn_tok_m0_rnddly0
+#+rtn_tok_m0_rnddly1
+#+rtn_tok_m1_rnddly0
+#+rtn_tok_m1_rnddly1
+###################
+##########
+#PALB.ENABLE=0
+##########
+#1QID => 8CQs
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb8ppdir8pp_qidmmap_palb0_test0 -tv dtrf_palb_t00   -dirtag 8LDB_MMAP_PALB0_T00    
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb8ppdir8pp_qidmmap_palb0_test0 -tv rtn_tok_m1_rnddly1 -tv dtrf_palb_t00   -dirtag 8LDB_MMAP_PALB0_T00 -dirtag TOKM1DLY1    
+
+
+#8QIDs => 8CQs
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb8ppdir8pp_qidmmap_palb0_test1 -tv dtrf_palb_t01   -dirtag 8LDB_MMAP_PALB0_T01    
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb8ppdir8pp_qidmmap_palb0_test1 -tv rtn_tok_m1_rnddly1 -tv dtrf_palb_t01   -dirtag 8LDB_MMAP_PALB0_T01 -dirtag TOKM1DLY1    
+
+##########
+#PALB.ENABLE=1
+##########
+#############
+###### PALB Enabled with hcw_enqtrf_hqmproc_8cqqid_mmap_palb1_cfg.cft Only CQ[7] gets SCHED HCWs
+#############
+#test0
+#1QID => 8CQs
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb8ppdir8pp_qidmmap_palb1_test0 -tv dtrf_palb_t10   -dirtag 8LDB_MMAP_PALB1_TEST00 
+
+#test1
+#8QIDs => 8CQs
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb8ppdir8pp_qidmmap_palb1_test1 -tv dtrf_palb_t10   -dirtag 8LDB_MMAP_PALB1_TEST01 
+
+#############
+#############
+###### PALB Enabled with hcw_enqtrf_hqmproc_8cqqid_mmap_palb1_cfg1.cft : CQ0/CQ2/CQ4/CQ6/CQ7 get traffics
+#############
+#############
+#test2
+#1QID => 8CQs
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb8ppdir8pp_qidmmap_palb1_test2 -tv dtrf_palb_t20   -dirtag 8LDB_MMAP_PALB1_TEST02 
+#8QIDs => 8CQs
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb8ppdir8pp_qidmmap_palb1_test3 -tv dtrf_palb_t20   -dirtag 8LDB_MMAP_PALB1_TEST03 
+
+
+
+
+##########################################################################################################################################################################################
+##########################################################################################################################################################################################
+##########################################################################################################################################################################################
+##########################################################################################################################################################################################
+###########
+###########
+#hcw_pf_test:q1+perf_dir_100pct_short running with prochot
+###########
+####CTH2_TMP_OUT####  $WORKAREA/src/val/tof/hcw_pf_test -tv q1 -tv perf_dir_100pct_short           -dirtag perf_q1_dir_100pct_short.prochot.high           -simv_args +HQM_CFG_BACKDOOR_CFG -simv_args-   -hqm_prochot_enable -hqm_prochot_high 
+#100pct_short running with -hqm_prochot_high and -hqm_prochot_cfgdis 
+####CTH2_TMP_OUT####  $WORKAREA/src/val/tof/hcw_pf_test -tv q1 -tv perf_dir_100pct_short     -dirtag perf_q1_dir_100pct_short.prochot.high.prochotdis      -simv_args +HQM_CFG_BACKDOOR_CFG -simv_args-   -hqm_prochot_enable -hqm_prochot_high  -hqm_prochot_cfgdis   
+
+#############################################################################################
+###########
+###########
+##### 1DIR QID, fixed prio (whitebox coverage)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_smoke -tv qe_prio_fixed -tv dtrf_dirqid1_fixedprio   -dirtag ldb4ppdir4pp_smoke_1DIR_SMKTEST000.QEPRIOFIX 
+
+##### 1LDB QID, fixed QE.prio, multiple CQs
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4pp_1qid_smoke -tv qe_prio_fixed   -dirtag ldb4pp_1qid_SMKTEST000.QEPRIOFIX  
+
+###########
+###########
+#####smoke test  running with system.INGRESS_CTL bit1/2/3/4/
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_smoke -tv dtrf_1dir1ldb_dt0000 -tv surv_ingress_holdhcw_w   -dirtag ldb4ppdir4pp_smoke_1DIR1LDB_SMKTEST000.surv1  
+
+#+hqmproc_sys_ingress_single_step_enq=1
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_smoke -tv dtrf_1dir1ldb_dt0000 -tv surv_ingress_single_step_enq   -dirtag ldb4ppdir4pp_smoke_1DIR1LDB_SMKTEST000.surv2  
+
+
+#+hqmproc_sys_ingress_single_step_hcw_w=1
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_smoke -tv dtrf_1dir1ldb_dt0000 -tv surv_ingress_single_step_hcw_w   -dirtag ldb4ppdir4pp_smoke_1DIR1LDB_SMKTEST000.surv3  
+
+
+#+hqmproc_sys_ingress_enable_debug
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_smoke -tv dtrf_1dir1ldb_dt0000 -tv surv_ingress_enable_debug   -dirtag ldb4ppdir4pp_smoke_1DIR1LDB_SMKTEST000.surv4 
+
+
+####################################################
+####################################################
+#64ldbPP/CQ
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cialtimer_cwdt_t0 -tv ldb64ppdir64pp_qidmmap_ldbmix_rnd0 -tv dtrf_64dir64ldb_dt0000   -dirtag ldb64ppdir64pp_64LDB64DIR_MMAP_LDBMIX_RENQTYPEM2_RENQIDM_RND0TEST202    -simv_args +HQM_CFG_BACKDOOR_CFG -simv_args- 
+
+#64ldbPP/CQ running with inflight_threshold settings
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cialtimer_cwdt_t0 -tv ldb64ppdir64pp_qidmmap_ldbmix_inflightthres_rnd0 -tv dtrf_64dir64ldb_dt0000   -dirtag ldb64ppdir64pp_64LDB64DIR_MMAP_LDBMIX_RENQTYPEM2_RENQIDM_RND0_INFLIGHTTHRES_TEST202   -simv_args +HQM_CFG_BACKDOOR_CFG -simv_args- 
+
+####################################################
+####################################################
+####################################################
+####################################################
+#QE.prio Test  
+####################################################
+####################################################
+####################################################
+####################################################
+####################################
+############# QE.qprio
+####################################
+#hqm_perf_qeprio.list
+
+####################################
+#The following tests remove perf check  +HQMPROC_BYPASS_CHECK_QE_PRIO
+####################################
+############
+####### 4CQ
+############
+#+dist_qpri_7_highprob
+#+prio_4slot_4bins_same
+$WORKAREA/src/val/tof/hcw_pf_test -tv q4_ldb -tv perf_ldb_200pct_short -tv dist_qpri_7_highprob -tv prio_4slot_4bins_same -tv g_bypass_ck_qeprio         -dirtag q4_ldb_200pct_short_dist_qpri_7_highprob_prio_4slot_4bins_same  
+
+#LDB
+$WORKAREA/src/val/tof/hcw_pf_test -tv q4_ldb -tv perf_ldb_200pct_exlong -tv dist_qpri_7_highprob -tv prio_4slot_4bins_same -tv g_bypass_ck_qeprio         -dirtag q4_ldb_200pct_exlong_dist_qpri_7_highprob_prio_4slot_4bins_same  
+
+$WORKAREA/src/val/tof/hcw_pf_test -tv q4_ldb -tv perf_ldb_100pct_exlong -tv dist_qpri_7_highprob -tv prio_4slot_4bins_same -tv g_bypass_ck_qeprio         -dirtag q4_ldb_100pct_exlong_dist_qpri_7_highprob_prio_4slot_4bins_same  
+
+#### DIR
+$WORKAREA/src/val/tof/hcw_pf_test -tv q4_dir -tv perf_dir_200pct_exlong -tv dist_qpri_7_highprob -tv prio_4slot_4bins_same -tv g_bypass_ck_qeprio         -dirtag q4_dir_200pct_exlong_dist_qpri_7_highprob_prio_4slot_4bins_same  
+
+#### LDB+DIR
+$WORKAREA/src/val/tof/hcw_pf_test -tv q4 -tv perf_dir_ldb_200pct_exlong -tv dist_qpri_7_highprob -tv prio_4slot_4bins_same -tv g_bypass_ck_qeprio         -dirtag q4_200pct_exlong_dist_qpri_7_highprob_prio_4slot_4bins_same  
+
+############
+####### 1CQ +dist_qpri_7_highprob
+############
+#LDB
+$WORKAREA/src/val/tof/hcw_pf_test -tv q1_ldb -tv perf_ldb_200pct_exlong -tv dist_qpri_7_highprob -tv prio_4slot_4bins_same -tv g_bypass_ck_qeprio         -dirtag q1_ldb_200pct_exlong_dist_qpri_7_highprob_prio_4slot_4bins_same  
+
+$WORKAREA/src/val/tof/hcw_pf_test -tv q1_ldb -tv perf_ldb_100pct_exlong -tv dist_qpri_7_highprob -tv prio_4slot_4bins_same -tv g_bypass_ck_qeprio         -dirtag q1_ldb_100pct_exlong_dist_qpri_7_highprob_prio_4slot_4bins_same  
+
+#### DIR
+$WORKAREA/src/val/tof/hcw_pf_test -tv q1_dir -tv perf_dir_200pct_exlong -tv dist_qpri_7_highprob -tv prio_4slot_4bins_same -tv g_bypass_ck_qeprio         -dirtag q1_dir_200pct_exlong_dist_qpri_7_highprob_prio_4slot_4bins_same  
+
+#### LDB+DIR
+$WORKAREA/src/val/tof/hcw_pf_test -tv q1 -tv perf_dir_ldb_200pct_exlong -tv dist_qpri_7_highprob -tv prio_4slot_4bins_same -tv g_bypass_ck_qeprio         -dirtag q1_200pct_exlong_dist_qpri_7_highprob_prio_4slot_4bins_same  
+
+############
+####### 1CQ +dist_qpri_5_highprob
+############
+#LDB
+$WORKAREA/src/val/tof/hcw_pf_test -tv q1_ldb -tv perf_ldb_200pct_exlong -tv dist_qpri_5_highprob -tv prio_4slot_4bins_same -tv g_bypass_ck_qeprio         -dirtag q1_ldb_200pct_exlong_dist_qpri_5_highprob_prio_4slot_4bins_same  
+
+$WORKAREA/src/val/tof/hcw_pf_test -tv q1_ldb -tv perf_ldb_100pct_exlong -tv dist_qpri_5_highprob -tv prio_4slot_4bins_same -tv g_bypass_ck_qeprio         -dirtag q1_ldb_100pct_exlong_dist_qpri_5_highprob_prio_4slot_4bins_same  
+
+#### DIR
+$WORKAREA/src/val/tof/hcw_pf_test -tv q1_dir -tv perf_dir_200pct_exlong -tv dist_qpri_5_highprob -tv prio_4slot_4bins_same -tv g_bypass_ck_qeprio         -dirtag q1_dir_200pct_exlong_dist_qpri_5_highprob_prio_4slot_4bins_same  
+
+#### LDB+DIR
+$WORKAREA/src/val/tof/hcw_pf_test -tv q1 -tv perf_dir_ldb_200pct_exlong -tv dist_qpri_5_highprob -tv prio_4slot_4bins_same -tv g_bypass_ck_qeprio         -dirtag q1_200pct_exlong_dist_qpri_5_highprob_prio_4slot_4bins_same  
+
+############
+####### 1CQ +dist_qpri_3_highprob
+############
+#LDB
+$WORKAREA/src/val/tof/hcw_pf_test -tv q1_ldb -tv perf_ldb_200pct_exlong -tv dist_qpri_3_highprob -tv prio_4slot_4bins_same -tv g_bypass_ck_qeprio         -dirtag q1_ldb_200pct_exlong_dist_qpri_3_highprob_prio_4slot_4bins_same  
+
+$WORKAREA/src/val/tof/hcw_pf_test -tv q1_ldb -tv perf_ldb_100pct_exlong -tv dist_qpri_3_highprob -tv prio_4slot_4bins_same -tv g_bypass_ck_qeprio         -dirtag q1_ldb_100pct_exlong_dist_qpri_3_highprob_prio_4slot_4bins_same  
+
+#### DIR
+$WORKAREA/src/val/tof/hcw_pf_test -tv q1_dir -tv perf_dir_200pct_exlong -tv dist_qpri_3_highprob -tv prio_4slot_4bins_same -tv g_bypass_ck_qeprio         -dirtag q1_dir_200pct_exlong_dist_qpri_3_highprob_prio_4slot_4bins_same  
+
+#### LDB+DIR
+$WORKAREA/src/val/tof/hcw_pf_test -tv q1 -tv perf_dir_ldb_200pct_exlong -tv dist_qpri_3_highprob -tv prio_4slot_4bins_same -tv g_bypass_ck_qeprio         -dirtag q1_200pct_exlong_dist_qpri_3_highprob_prio_4slot_4bins_same  
+
+
+
+
+
+
+####################################################
+####################################################
+####################################################
+####################################################
+#WU Test
+####################################################
+####################################################
+####################################################
+####################################################
+###############
+##### 1QID => 4LDBCQ WU Test
+#4CQs have different WU_LIMIT settings
+###############
+######
+######
+#QID[0] => CQ[0][1][2][3]; 
+#CQ[0].wu_limit small
+#CQ[1].wu_limit large
+#CQ[2].wu_limit small
+#CQ[3].wu_limit large
+#PP[0] sends out QID[0] traffics and get to CQ[0][1][2][3]; 
+#PP[1]/[2]/[3] only does return, and use _COMP_RETURN_DELAY_MODE=0 _COMP_RETURN_DELAY=60000
+#Try UNO
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldbqid0_4cq_wu_test0 -tv dtrf_wu_t000   -dirtag 1qid4cq_wu_test0_TEST000    
+
+#Try ATM with multiple lockid
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldbqid0_4cq_wu_test0 -tv dtrf_wu_t001   -dirtag 1qid4cq_wu_test0_TEST001    
+
+#CQ[0].wu_limit large
+#CQ[1].wu_limit small
+#CQ[2].wu_limit large
+#CQ[3].wu_limit small
+#Try UNO
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldbqid0_4cq_wu_test1 -tv dtrf_wu_t002   -dirtag 1qid4cq_wu_test1_TEST000    
+
+#Try ATM with  lockid=0 (because it's ATM and lockid=0 one lockid, the atomicity puts {qid, lockid} to CQ[0] and because CQ[0] doesn't get wu_limit, the other CQs don't get SCHED HCW or only get limited number of HCWs
+#In this test, CQ[1] get small number of HCWs, and CQ[2]/CQ[3] don't get any HCWs
+#05292019 Jim's email
+#The test is using only atomic traffic, using a single qid (0), and is not returning completions for a while in order to let the wu_count build up.  But this keeps the flow/qid on the slist tied to the same CQ (CQ 0) for most of the test.
+#
+#In the log I can see the following:
+#-       LSP schedules qid 0 to cq 0, using the RLIST, which changes the state of the flow/qid to "scheduled" - at this point it's tied to that CQ until all of the completions are received
+#-       LSP schedules 511 more HCW from qid 0 to cq 0 from the SLIST - it's only allowed to schedule to CQ 0 while in this state
+#-       The TB starts returning completions -  while it returns 528 completions LSP schedules 16 more HCW, still all to CQ 0 because it's still in the "scheduled" state
+#-       At this point completions have been returned for all 528 HCW, and so it goes back to the "ready" state
+#-       LSP schedules 1 HCW from qid, this time to cq 1, which changes the state of the flow/qid to "scheduled", this time tying it to CQ 1
+#-       While the LSP schedules the remaining 495 HCW, the TB is returning the completions fairly quickly and so the work unit count almost never has a chance to build up to the configured limit
+#
+#This behavior hasn't changed recently so I don't understand how this test could have passed before.  If this was UNO traffic LSP would have had a chance to schedule to the other CQs and the WU feature could have kicked in.  Or if there were multiple QIDs used LSP might have had a chance to schedule the "other" qids to different CQs - although they would get stuck with their respective CQs until all of their completions were returned.
+#
+ #REVIEW# hcw_enqtrf_hqmproc_test:ldbqid0_4cq_wu_test1+dtrf_wu_t003   -dirtag 1qid4cq_wu_test1_TEST001    
+
+#Try ATM with multiple lockid, use ldbqid0_4cq_wu_test2 (aqed limit setting: 0x200 for each QID), lockidsel=17
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldbqid0_4cq_wu_test2 -tv dtrf_wu_t004   -dirtag 1qid4cq_wu_test2_TEST002    
+
+######
+######
+#QID[0] => CQ[0][1][2][3]; 
+#QID[1] => CQ[0][1][2][3]; 
+#QID[2] => CQ[0][1][2][3]; 
+#QID[3] => CQ[0][1][2][3]; 
+#CQ[0].wu_limit small
+#CQ[1].wu_limit large
+#CQ[2].wu_limit small
+#CQ[3].wu_limit large
+#PP[0] sends out QID[0] traffics and get to CQ[0][1][2][3]; 
+#PP[1] sends out QID[1] traffics and get to CQ[0][1][2][3]; 
+#PP[2] sends out QID[2] traffics and get to CQ[0][1][2][3]; 
+#PP[3] sends out QID[3] traffics and get to CQ[0][1][2][3]; 
+#Try UNO
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldbqid4_4cq_wu_test0 -tv dtrf_wu_t005   -dirtag 4qid4cq_wu_test0_TEST000    
+
+
+#Try ATM with one lockid
+####0801 temp  hcw_enqtrf_hqmproc_test:ldbqid4_4cq_wu_test0+dtrf_wu_t006   -dirtag 4qid4cq_wu_test0_TEST001    
+
+#Try ATM with 8 lockid
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldbqid4_4cq_wu_test0 -tv dtrf_wu_t007   -dirtag 4qid4cq_wu_test0_TEST002    
+
+#CQ[0].wu_limit large
+#CQ[1].wu_limit small
+#CQ[2].wu_limit large
+#CQ[3].wu_limit small
+#Try UNO 
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldbqid4_4cq_wu_test1 -tv dtrf_wu_t008   -dirtag 4qid4cq_wu_test1_TEST000    
+
+#Try ATM with 1 lockid
+####TBFIXED  hcw_enqtrf_hqmproc_test:ldbqid4_4cq_wu_test1+dtrf_wu_t009   -dirtag 4qid4cq_wu_test1_TEST001    
+
+#Try ATM with 8 lockid
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldbqid4_4cq_wu_test1 -tv dtrf_wu_t010   -dirtag 4qid4cq_wu_test1_TEST002    
+
+
+####################################################
+####################################################
+####################################################
+####################################################
+#cmd=RELEASE Test
+####################################################
+####################################################
+####################################################
+####################################################
+###############################
+###############################
+#RELEASE Flow with 4pp
+###############################
+###############################
+#ldbPP[0] ATM, QID[0] => CQ[1]                                      :: (N      )HCWs
+#ldbPP[1] wait for sched QID[0], QATM, QID[1],  sending to CQ[2]    :: (N*F    )HCWs 
+#ldbPP[2] wait for sched QID[1], QATM, QID[2],  sending to CQ[3]    :: (N*F + N) HCWs if fragnum=1; otherwise, (N*F*fragnum + N ) HCWs
+#ldbPP[3] should return comp/tok 
+#### $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_rel_test0 -tv dtrf_rels_t000   -dirtag hqmproc_enqtrf_ldb4ppdir4pp_smoke_4LDB4DIR_RELTEST000_0   
+
+#ldbpp[0]: 8
+#ldbpp[1]: 8*4
+#ldbpp[2]: 8*4*7+8=232
+#### $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_rel_test0 -tv dtrf_rels_t001   -dirtag hqmproc_enqtrf_ldb4ppdir4pp_smoke_4LDB4DIR_RELSTEST000_1    
+
+
+#ldbpp[0]: 128
+#ldbpp[1]: 128*4=512
+#ldbpp[2]: 128*4*7+128=3712
+#### $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_rel_test1   -dirtag hqmproc_enqtrf_ldb4ppdir4pp_smoke_4LDB4DIR_RELSTEST001    
+
+###############################
+#RELEASE Flow with two sets, 8pp
+###############################
+#ldbPP[0] ATM, QID[0] => CQ[1]                                      :: (N      )HCWs
+#ldbPP[1] wait for sched QID[0], QATM, QID[1],  sending to CQ[2]    :: (N*F    )HCWs 
+#ldbPP[2] wait for sched QID[1], QATM, QID[2],  sending to CQ[3]    :: (N*F + N) HCWs if fragnum=1; otherwise, (N*F*fragnum + N ) HCWs
+#ldbPP[3] should return comp/tok 
+
+#ldbPP[4] ATM, QID[4] => CQ[5]                                      :: (N      )HCWs
+#ldbPP[5] wait for sched QID[4], QATM, QID[5],  sending to CQ[6]    :: (N*F    )HCWs 
+#ldbPP[6] wait for sched QID[5], QATM, QID[6],  sending to CQ[7]    :: (N*F + N) HCWs if fragnum=1; otherwise, (N*F*fragnum + N ) HCWs
+#ldbPP[7] should return comp/tok
+#### $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb8ppdir8pp_qid1map_rel_test1   -dirtag hqmproc_enqtrf_ldb8ppdir8pp_smoke_8LDB8DIR_RELSTEST001  
+
+#cmd=RELEASE qType=UNO/ORD
+#### $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb8ppdir8pp_qid1map_rel_qtypeunoord_test1   -dirtag hqmproc_enqtrf_ldb8ppdir8pp_smoke_8LDB8DIR_RELSUNOORDTEST001
+#### $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb8ppdir8pp_qid1map_rel_qtypernd_test1      -dirtag hqmproc_enqtrf_ldb8ppdir8pp_smoke_8LDB8DIR_RELSQTYPERNDTEST001
+
+#ldb8ppdir8pp_qid1map_rel_test1_unexprels0 (qid0 alarm)
+#### $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb8ppdir8pp_qid1map_rel_test1_unexprels0   -dirtag hqmproc_enqtrf_ldb8ppdir8pp_smoke_8LDB8DIR_RELS_UNEXPRELSTEST000  
+
+#ldb8ppdir8pp_qid1map_rel_test1_unexprels1 (qid4 alarm) 
+#### $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb8ppdir8pp_qid1map_rel_test1_unexprels1   -dirtag hqmproc_enqtrf_ldb8ppdir8pp_smoke_8LDB8DIR_RELS_UNEXPRELSTEST001  
+
+
+
+####################################################
+#Try Scenario4 ord replay test 
+##################
+#scenario 4, test support ord replay test
+##################
+#ldbPP[0]/QID0 => CQ[0].dep=8 + CQ[4].dep=1K 
+#2nd pass : +ldbPP[4] sending out 504*1frag 
+#         : then ldbPP[0] sending out 8 *1 frag
+#=> older ORD are held in ldbPP[0]
+#=> newer ORD are doing replay from ldbPP[4]
+#=> SCHED : when ldbPP[0] start replay(enq), all ldbPP[4] enq HCWs are stalled in HQM
+
+#ldbPP[1]/QID1 => CQ[1].dep=8 + CQ[5].dep=1K 
+#2nd pass : +ldbPP[5] sending out 504*1frag 
+#         : then ldbPP[1] sending out 8 *1 frag
+#=> older ORD are held in ldbPP[1]
+#=> newer ORD are doing replay from ldbPP[5]
+#=> SCHED : when ldbPP[1] start replay(enq), all ldbPP[5] enq HCWs are stalled in HQM
+####################################################
+####################################################
+#one flow
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen4_smk00    -dirtag replay_scen4_ordfrag_SMK00   
+
+#two flows
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen4_smk01    -dirtag replay_scen4_ordfrag_SMK01  
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen4_frag16_smk01    -dirtag replay_scen4_ordfrag16_SMK01  
+
+####################################################
+####################################################
+#run with bgcfg to 
+#CFG_PIPE_HEALTH_SEQNUM_STATE_GRP0 (32x32)
+#CFG_PIPE_HEALTH_SEQNUM_STATE_GRP1 (32x32)
+# +hqmproc_bgcfg_grp_sel=0 
+#  +hqmproc_bgcfg_grp_min=0   hqmproc_bgcfg_grp_max=32
+##  +hqmproc_bgcfg_grprnd_sel=0
+####################################################
+####################################################
+########################################################
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen4_smk00 -tv surv_bgcfg_ena2    -dirtag replay_scen4_ordfrag_SMK00.BGCFGSNSTATERND  
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen4_smk01 -tv surv_bgcfg_ena2    -dirtag replay_scen4_ordfrag_SMK01.BGCFGSNSTATERND   
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen4_frag16_smk01 -tv surv_bgcfg_ena2    -dirtag replay_scen4_ordfrag16_SMK01.BGCFGSNSTATERND   
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen4_smk00 -tv surv_bgcfg_ena2    -dirtag replay_scen4_ordfrag_SMK00.BGCFGSNSTATE 
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen4_smk01 -tv surv_bgcfg_ena2    -dirtag replay_scen4_ordfrag_SMK01.BGCFGSNSTATE   
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen4_frag16_smk01 -tv surv_bgcfg_ena2   -dirtag replay_scen4_ordfrag16_SMK01.BGCFGSNSTATE   
+
+####################################################
+#Try Scenario5 seqnum test 
+##################
+#scenario 5, test support ord seqnum capacity test
+##################
+#ldbPP[0]/QID0 => CQ[0].dep=1K 
+#2nd pass : +ldbPP[0] wait to receive all 512 ORD before sending out 512*frag 
+
+#ldbPP[1]/QID1 => CQ[1].dep=1K 
+#2nd pass : +ldbPP[1] wait to receive all 512 ORD before sending out 512*frag 
+
+#ldbPP[2]/QID2 => CQ[2].dep=1K 
+#2nd pass : +ldbPP[2] wait to receive all 512 ORD before sending out 512*frag 
+
+#ldbPP[3]/QID3 => CQ[3].dep=1K 
+#2nd pass : +ldbPP[3] wait to receive all 512 ORD before sending out 512*frag 
+####################################################
+####################################################
+#one flow
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv seqnum_scen5_smk00    -dirtag seqnum_scen5_ordfrag_SMK00  
+
+#two flows
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv seqnum_scen5_smk01    -dirtag seqnum_scen5_ordfrag_SMK01  
+
+#four flows frag=1
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv seqnum_scen5_smk02    -dirtag seqnum_scen5_ordfrag_SMK02  
+
+#four flows frag=16
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv seqnum_scen5_frag16_smk02    -dirtag seqnum_scen5_ordfrag16_SMK02  
+
+####################################################
+####################################################
+#scen5 running with bgcfg to 
+#CFG_PIPE_HEALTH_SEQNUM_STATE_GRP0 (32x32)
+#CFG_PIPE_HEALTH_SEQNUM_STATE_GRP1 (32x32)
+####################################################
+####################################################
+# +hqmproc_bgcfg_grp_sel=0 
+#  +hqmproc_bgcfg_grp_min=0   hqmproc_bgcfg_grp_max=32
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv seqnum_scen5_smk00 -tv surv_bgcfg_ena2    -dirtag seqnum_scen5_ordfrag_SMK00.BGCFGSNSTATE   
+
+#two flows
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv seqnum_scen5_smk01 -tv surv_bgcfg_ena2    -dirtag seqnum_scen5_ordfrag_SMK01.BGCFGSNSTATE   
+
+#four flows frag=1
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv seqnum_scen5_smk02 -tv surv_bgcfg_ena2    -dirtag seqnum_scen5_ordfrag_SMK02.BGCFGSNSTATE   
+
+#four flows frag=16
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv seqnum_scen5_frag16_smk02 -tv surv_bgcfg_ena2    -dirtag seqnum_scen5_ordfrag16_SMK02.BGCFGSNSTATE   
+
+
+####################################################
+#Try Scenario6 seqnum test 
+##################
+#scenario 6, test support freqnum counter 32K
+#
+#                                1st PASS                                         2nd PASS (DIR)    
+#
+#ldbPP[0]/QID[0]   mapping to  CQ[0].cq_dep=1                  ==> #2  ldbPP[0]  sending 1*16-frag with  DIRQID[8]  
+#                  mapping to  CQ[4].cq_dep=1024               ==> #1  ldbPP[4]  sending 1023*16-frag with  DIRQID[8]    
+#
+#ldbPP[1]/QID[1]   mapping to  CQ[1].cq_dep=1                  ==> #2  ldbPP[1]  sending 1*16-frag with  DIRQID[9]  
+#                  mapping to  CQ[5].cq_dep=1023               ==> #1  ldbPP[5]  sending 1023*16-frag with  DIRQID[9]    
+#
+#
+##################
+####################################################
+#################################################### 
+#one flow
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen6_smk00                       -dirtag replay_scen6_ordfrag_SMK00  
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen6_withholdcomp_smk00 -tv g_bypass_cq_inflight_ext          -dirtag replay_scen6_ordfrag_withholdcomp_SMK00  
+
+#two flows
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen6_smk01                       -dirtag replay_scen6_ordfrag4_SMK01  
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen6_withholdcomp_smk01 -tv g_bypass_cq_inflight_ext          -dirtag replay_scen6_ordfrag4_withholdcomp_SMK01    
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen6_frag8_smk01                 -dirtag replay_scen6_ordfrag8_SMK01  
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen6_withholdcomp_frag8_smk01 -tv g_bypass_cq_inflight_ext    -dirtag replay_scen6_ordfrag8_withholdcomp_SMK01   
+
+#####################################################################
+#scen4/5/6 running with QE.prio
+#####################################################################
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen4_smk00 -tv dist_qpri_1_highprob    -dirtag replay_scen4_ordfrag_qeprio1hprob_SMK00   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen4_smk01 -tv dist_qpri_1_highprob    -dirtag replay_scen4_ordfrag_qeprio1hprob_SMK01   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen4_frag16_smk01 -tv dist_qpri_1_highprob    -dirtag replay_scen4_ordfrag16_qeprio1hprob_SMK01   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv seqnum_scen5_smk00 -tv dist_qpri_1_highprob    -dirtag seqnum_scen5_ordfrag_qeprio1hprob_SMK00   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv seqnum_scen5_smk01 -tv dist_qpri_1_highprob    -dirtag seqnum_scen5_ordfrag_qeprio1hprob_SMK01   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv seqnum_scen5_smk02 -tv dist_qpri_1_highprob    -dirtag seqnum_scen5_ordfrag_qeprio1hprob_SMK02   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv seqnum_scen5_frag16_smk02 -tv dist_qpri_1_highprob    -dirtag seqnum_scen5_ordfrag16_qeprio1hprob_SMK02   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen6_smk00 -tv dist_qpri_1_highprob    -dirtag replay_scen6_ordfrag_qeprio1hprob_SMK00   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen6_withholdcomp_smk00 -tv dist_qpri_1_highprob -tv g_bypass_cq_inflight_ext    -dirtag replay_scen6_ordfrag_withholdcomp_qeprio1hprob_SMK00   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen6_smk01 -tv dist_qpri_1_highprob    -dirtag replay_scen6_ordfrag4_qeprio1hprob_SMK01   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen6_withholdcomp_smk01 -tv dist_qpri_1_highprob -tv g_bypass_cq_inflight_ext    -dirtag replay_scen6_ordfrag4_withholdcomp_qeprio1hprob_SMK01   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen6_frag8_smk01 -tv dist_qpri_1_highprob    -dirtag replay_scen6_ordfrag8_qeprio1hprob_SMK01   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen6_withholdcomp_frag8_smk01 -tv dist_qpri_1_highprob -tv g_bypass_cq_inflight_ext    -dirtag replay_scen6_ordfrag8_withholdcomp_qeprio1hprob_SMK01   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen6_withholdcomp_frag8_smk01 -tv dist_qpri_1_highprob -tv g_bypass_cq_inflight_ext  -dirtag replay_scen6_ordfrag8_withholdcomp_qeprio1hprob_SMK01   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen4_smk00 -tv dist_qpri_3_highprob    -dirtag replay_scen4_ordfrag_qeprio3hprob_SMK00   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen4_smk01 -tv dist_qpri_3_highprob    -dirtag replay_scen4_ordfrag_qeprio3hprob_SMK01   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen4_frag16_smk01 -tv dist_qpri_3_highprob    -dirtag replay_scen4_ordfrag16_qeprio3hprob_SMK01   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv seqnum_scen5_smk00 -tv dist_qpri_3_highprob    -dirtag seqnum_scen5_ordfrag_qeprio3hprob_SMK00   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv seqnum_scen5_smk01 -tv dist_qpri_3_highprob    -dirtag seqnum_scen5_ordfrag_qeprio3hprob_SMK01   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv seqnum_scen5_smk02 -tv dist_qpri_3_highprob    -dirtag seqnum_scen5_ordfrag_qeprio3hprob_SMK02   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv seqnum_scen5_frag16_smk02 -tv dist_qpri_3_highprob    -dirtag seqnum_scen5_ordfrag16_qeprio3hprob_SMK02   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen6_smk00 -tv dist_qpri_3_highprob    -dirtag replay_scen6_ordfrag_qeprio3hprob_SMK00   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen6_withholdcomp_smk00 -tv dist_qpri_3_highprob -tv g_bypass_cq_inflight_ext    -dirtag replay_scen6_ordfrag_withholdcomp_qeprio3hprob_SMK00   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen6_smk01 -tv dist_qpri_3_highprob    -dirtag replay_scen6_ordfrag4_qeprio3hprob_SMK01   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen6_withholdcomp_smk01 -tv dist_qpri_3_highprob -tv g_bypass_cq_inflight_ext    -dirtag replay_scen6_ordfrag4_withholdcomp_qeprio3hprob_SMK01   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen6_frag8_smk01 -tv dist_qpri_3_highprob    -dirtag replay_scen6_ordfrag8_qeprio3hprob_SMK01   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen6_withholdcomp_frag8_smk01 -tv dist_qpri_3_highprob -tv g_bypass_cq_inflight_ext    -dirtag replay_scen6_ordfrag8_withholdcomp_qeprio3hprob_SMK01   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen6_withholdcomp_frag8_smk01 -tv dist_qpri_3_highprob -tv g_bypass_cq_inflight_ext   -dirtag replay_scen6_ordfrag8_withholdcomp_qeprio3hprob_SMK01    
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen4_smk00 -tv dist_qpri_5_highprob    -dirtag replay_scen4_ordfrag_qeprio5hprob_SMK00   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen4_smk01 -tv dist_qpri_5_highprob    -dirtag replay_scen4_ordfrag_qeprio5hprob_SMK01   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen4_frag16_smk01 -tv dist_qpri_5_highprob    -dirtag replay_scen4_ordfrag16_qeprio5hprob_SMK01   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv seqnum_scen5_smk00 -tv dist_qpri_5_highprob    -dirtag seqnum_scen5_ordfrag_qeprio5hprob_SMK00   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv seqnum_scen5_smk01 -tv dist_qpri_5_highprob    -dirtag seqnum_scen5_ordfrag_qeprio5hprob_SMK01   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv seqnum_scen5_smk02 -tv dist_qpri_5_highprob    -dirtag seqnum_scen5_ordfrag_qeprio5hprob_SMK02   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv seqnum_scen5_frag16_smk02 -tv dist_qpri_5_highprob    -dirtag seqnum_scen5_ordfrag16_qeprio5hprob_SMK02   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen6_smk00 -tv dist_qpri_5_highprob    -dirtag replay_scen6_ordfrag_qeprio5hprob_SMK00   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen6_withholdcomp_smk00 -tv dist_qpri_5_highprob -tv g_bypass_cq_inflight_ext    -dirtag replay_scen6_ordfrag_withholdcomp_qeprio5hprob_SMK00   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen6_smk01 -tv dist_qpri_5_highprob    -dirtag replay_scen6_ordfrag4_qeprio5hprob_SMK01   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen6_withholdcomp_smk01 -tv dist_qpri_5_highprob -tv g_bypass_cq_inflight_ext    -dirtag replay_scen6_ordfrag4_withholdcomp_qeprio5hprob_SMK01   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen6_frag8_smk01 -tv dist_qpri_5_highprob    -dirtag replay_scen6_ordfrag8_qeprio5hprob_SMK01   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen6_withholdcomp_frag8_smk01 -tv dist_qpri_5_highprob -tv g_bypass_cq_inflight_ext    -dirtag replay_scen6_ordfrag8_withholdcomp_qeprio5hprob_SMK01   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen6_withholdcomp_frag8_smk01 -tv dist_qpri_5_highprob -tv g_bypass_cq_inflight_ext   -dirtag replay_scen6_ordfrag8_withholdcomp_qeprio5hprob_SMK01    
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen4_smk00 -tv dist_qpri_7_highprob    -dirtag replay_scen4_ordfrag_qeprio7hprob_SMK00   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen4_smk01 -tv dist_qpri_7_highprob    -dirtag replay_scen4_ordfrag_qeprio7hprob_SMK01   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen4_frag16_smk01 -tv dist_qpri_7_highprob    -dirtag replay_scen4_ordfrag16_qeprio7hprob_SMK01   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv seqnum_scen5_smk00 -tv dist_qpri_7_highprob    -dirtag seqnum_scen5_ordfrag_qeprio7hprob_SMK00   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv seqnum_scen5_smk01 -tv dist_qpri_7_highprob    -dirtag seqnum_scen5_ordfrag_qeprio7hprob_SMK01   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv seqnum_scen5_smk02 -tv dist_qpri_7_highprob    -dirtag seqnum_scen5_ordfrag_qeprio7hprob_SMK02   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv seqnum_scen5_frag16_smk02 -tv dist_qpri_7_highprob    -dirtag seqnum_scen5_ordfrag16_qeprio7hprob_SMK02   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen6_smk00 -tv dist_qpri_7_highprob    -dirtag replay_scen6_ordfrag_qeprio7hprob_SMK00   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen6_withholdcomp_smk00 -tv dist_qpri_7_highprob -tv g_bypass_cq_inflight_ext    -dirtag replay_scen6_ordfrag_withholdcomp_qeprio7hprob_SMK00   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen6_smk01 -tv dist_qpri_7_highprob    -dirtag replay_scen6_ordfrag4_qeprio7hprob_SMK01   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen6_withholdcomp_smk01 -tv dist_qpri_7_highprob -tv g_bypass_cq_inflight_ext    -dirtag replay_scen6_ordfrag4_withholdcomp_qeprio7hprob_SMK01   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen6_frag8_smk01 -tv dist_qpri_7_highprob    -dirtag replay_scen6_ordfrag8_qeprio7hprob_SMK01   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen6_withholdcomp_frag8_smk01 -tv dist_qpri_7_highprob -tv g_bypass_cq_inflight_ext    -dirtag replay_scen6_ordfrag8_withholdcomp_qeprio7hprob_SMK01   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv replay_scen6_withholdcomp_frag8_smk01 -tv dist_qpri_7_highprob -tv g_bypass_cq_inflight_ext   -dirtag replay_scen6_ordfrag8_withholdcomp_qeprio7hprob_SMK01     
+
+
+
+####################################################
+####################################################
+####################################################
+####################################################
+#qType=ATM/UNO, sending FRAG/FRAG_T Test
+####################################################
+####################################################
+####################################################
+####################################################
+####################################################
+####################################################
+#This is doing NEW/NEW_T replaced by FRAG/FRAG_T with  +LDB_PP0_TRFFRAG_NEW_CTRL=1  +LDB_PP0_TRFFRAG_NEW_PROB=<100>
+####################################################
+####################################################
+#this is regular one with Fragments using QDIR  +has_renq_qtype_sel_mode=15
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ordmix_test0 -tv dtrf_frag2new_t000   -dirtag ldb4ppdir4pp_4LDB4DIR_SMAP_ORDMIXFRAGM11_FRAGDIR_TEST202    
+
+
+####
+###This is doing NEW/NEW_T replaced by FRAG/FRAG_T with  +LDB_PP0_TRFFRAG_NEW_CTRL=1  +LDB_PP0_TRFFRAG_NEW_PROB=100
+#1map  +has_qid_sel_mode=3
+#  +LDB_PP0_TRFFRAG_NEW_CTRL=1  +LDB_PP0_TRFFRAG_NEW_PROB=100 
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_test0 -tv dtrf_frag2new_t001   -dirtag ldb4ppdir4pp_4LDB4DIR_SMAP_FRAGNEW_TEST200    
+
+##
+#  +has_frag_new_ctrl=1  +has_frag_new_prob=100 apply to all pp
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_test0 -tv dtrf_frag2new_t002   -dirtag ldb4ppdir4pp_4LDB4DIR_SMAP_FRAGNEWALL_TEST200    
+
+#1map  +has_qid_sel_mode=3  +has_qtype_sel_mode=4
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_test0 -tv dtrf_frag2new_t003   -dirtag ldb4ppdir4pp_4LDB4DIR_SMAP_FRAGNEWALL_TEST201    
+
+
+#mmap  +has_qid_sel_mode=3
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qidmmap_test0 -tv dtrf_frag2new_t004   -dirtag ldb4ppdir4pp_4LDB4DIR_MMAP_FRAGNEWALL_TEST200    
+
+#mmap  +has_qid_sel_mode=3  +has_qtype_sel_mode=4
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qidmmap_test0 -tv dtrf_frag2new_t005   -dirtag ldb4ppdir4pp_4LDB4DIR_MMAP_FRAGNEWALL_TEST201  
+
+#######################
+#ORDMIX case, change NEW/NEW_T to FRAG/FRAG_T for any (DIR/UNO/ATM/ORD) when it's sending from ldbPP
+#######################
+#Change NEW/NEWT to FRAG/FRAG_T when HCW.qtype=ORD
+#ldbPP[0] QID[0] ATM => CQ[0]
+#ldbPP[1] QID[1] ORD => CQ[1]
+#ldbPP[2] QID[2] ORD => CQ[2] because 1st pass qType=ORD,  +LDB_PP2_TRFFRAG_NEW_CTRL=1  will cause excess fragment (CHP alarm & assertion are expected)
+#ldbPP[3] QID[3] UNO => CQ[3]
+#
+#for ldbPP[2] with ORD QID[2] flow, run with zero-frag/one-frag case RENQ 
+#ldbPP[2] renqQID[3] renqqType=ATM
+# hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_ordmix_test0+dtrf_frag2new_t006   -dirtag ldb4ppdir4pp_4LDB4DIR_SMAP_ORDMIX_ORDFRAGNEW_TEST202    
+
+
+
+#Change NEW/NEWT to FRAG/FRAG_T when HCW.qtype=ATM/DIR
+#ldbPP[0] QID[0] ATM => CQ[0]
+#ldbPP[1] QID[1] ORD => CQ[1]
+#ldbPP[2] QID[2] ORD => CQ[2]
+#ldbPP[3] QID[3] DIR => CQ[3]
+#
+#for ldbPP[2] with ORD QID[2] flow, run with zero-frag/one-frag case RENQ 
+#ldbPP[2] renqQID[3] renqqType=ATM
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ordmix_test0 -tv dtrf_frag2new_t007   -dirtag ldb4ppdir4pp_4LDB4DIR_SMAP_ORDMIX_FRAGNEW_TEST202    
+
+#ldbPP[0] QID[0] ATM => CQ[0]
+#ldbPP[1] QID[1] UNO => CQ[1]
+#ldbPP[2] QID[2] ORD => CQ[2]
+#ldbPP[3] QID[3] DIR => CQ[3]
+#
+#for ldbPP[2] with ORD QID[2] flow, run with zero-frag/one-frag case RENQ 
+#ldbPP[2] renqQID[3] renqqType=ATM
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_test1 -tv dtrf_frag2new_t008   -dirtag ldb4ppdir4pp_4LDB4DIR_SMAP_ORDMIX_FRAGNEW_TEST203    
+
+
+
+#ldbPP[0] ORD, QID[0] => CQ[1] , and change NEW/NEW_T to FRAG/FRAG_T when sending ORD HCWs
+#ldbPP[1] first pass QID[1], QATM, sending to CQ[1]  // and return comp/token for this 1st pass
+#ldbPP[1] 2nd pass   QID[2], QDIR, sending to CQ[2]
+#ldbPP[2] should return comp/tok for 2nd pass
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ord_test1 -tv dtrf_frag2new_t009   -dirtag FRAGM11NUMRND_hqmproc_enqtrf_ldb4ppdir4pp_smoke_4LDB4DIR_FRAGNEW_FRAGTEST003   
+
+
+###############
+#Streaming sequence 
+##### 8DIRPP+8LDBPP QID1MAP and QIDMMAP Test
+###############
+#_TRF_QID_SELMODE=1 (qid: {0,1})
+#_TRF_QID_SELMODE=2 (qid: {0,1,2})
+#_TRF_QID_SELMODE=3 (qid: {0,1,2,3})
+#_TRF_QID_SELMODE=4 (qid: {0,1,2,3,4,5,6,7})
+#
+# +LDB_PP0_TRF_QTYPE_SELMODE=1 (DIR/UNO)
+#                            2 (DIR/ATM)
+#                            3 (UNO/ATM)  
+#                            4 (DIR/UNO/ATM)
+#                            5 (ORD/ATM/DIR)
+#                            6 (ORD/ATM/UNO)
+#                            7 (ORD/ATM/UNO/DIR)
+#
+####Try Streaming sequence
+#ldb8ppdir8pp_qid1map_stream_test0
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb8ppdir8pp_qid1map_stream_test0   -dirtag ldb8ppdir8pp_8LDB8DIR_SMAP_STREAMTEST000  
+
+#ldb8ppdir8pp_qid1map_stream_ord_test0
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb8ppdir8pp_qid1map_stream_ord_test0   -dirtag ldb8ppdir8pp_8LDB8DIR_SMAP_STREAMORDTEST000  
+
+#ldb8ppdir8pp_qid1map_stream_ordfrag_test0
+####HQMV30_STREAMORD_TEMP_REVISIT####    $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb8ppdir8pp_qid1map_stream_ordfrag_test0   -dirtag ldb8ppdir8pp_8LDB8DIR_SMAP_STREAMORDFRAGTEST000  
+
+#ldb8ppdir8pp_qid1map_stream_ordfrag_test1
+####HQMV30_STREAMORD_TEMP_REVISIT####    $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb8ppdir8pp_qid1map_stream_ordfrag_test1   -dirtag ldb8ppdir8pp_8LDB8DIR_SMAP_STREAMORDFRAGTEST001  
+
+
+#############################
+#############################
+#### FID  2k limit
+#############################
+#############################
+###############
+#### try FID 2K in use
+####FID 2K in use
+###############
+#1map  
+#1QID unique lockid (dec)
+#ldb1ppdir1pp_qid1map_atm2kfid_test1 (disable CQ and send in 2K ATM HCWs, enable CQ, send another 2K ATM HCWs RENQ_T, then 2K COMP_T)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb1ppdir1pp_qid1map_atm2kfid_test1  -dirtag 1LDB_SMAP_ATM_2KFIDINUSE_TEST01   
+
+##running the above test with COMPRESS_CODE=1:7
+#2K FID run with COMPRESS_CODE=1
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb1ppdir1pp_qid1map_atm2kfid_compcode1_test1  -dirtag 1LDB_SMAP_ATM_2KFIDINUSE_COMPCODE1_TEST01    
+
+#2K FID run with COMPRESS_CODE=2
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb1ppdir1pp_qid1map_atm2kfid_compcode2_test1  -dirtag 1LDB_SMAP_ATM_2KFIDINUSE_COMPCODE2_TEST01    
+
+#2K FID run with COMPRESS_CODE=3
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb1ppdir1pp_qid1map_atm2kfid_compcode3_test1  -dirtag 1LDB_SMAP_ATM_2KFIDINUSE_COMPCODE3_TEST01    
+
+#2K FID run with COMPRESS_CODE=4
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb1ppdir1pp_qid1map_atm2kfid_compcode4_test1  -dirtag 1LDB_SMAP_ATM_2KFIDINUSE_COMPCODE4_TEST01    
+
+#2K FID run with COMPRESS_CODE=5
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb1ppdir1pp_qid1map_atm2kfid_compcode5_test1  -dirtag 1LDB_SMAP_ATM_2KFIDINUSE_COMPCODE5_TEST01    
+
+#2K FID run with COMPRESS_CODE=6
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb1ppdir1pp_qid1map_atm2kfid_compcode6_test1  -dirtag 1LDB_SMAP_ATM_2KFIDINUSE_COMPCODE6_TEST01    
+
+#2K FID run with COMPRESS_CODE=7
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb1ppdir1pp_qid1map_atm2kfid_compcode7_test1  -dirtag 1LDB_SMAP_ATM_2KFIDINUSE_COMPCODE7_TEST01    
+
+
+
+####
+#1QID unique lockid (dec)
+#ldb1ppdir1pp_qid1map_atm2kfid_test2 (disable CQ and send in 4K ATM HCWs, enable CQ, send another 4K ATM HCWs)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb1ppdir1pp_qid1map_atm2kfid_test2  -dirtag 1LDB_SMAP_ATM_2KFIDINUSE_TEST02   
+
+######
+#32QID unique lockid (dec)
+#ldb32ppdir32pp_32qid1map_atm2kfid_test1 (disable CQ and send in 2K ATM HCWs, enable CQ, send another 2K ATM HCWs RENQ_T, then 2K COMP_T)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb32ppdir32pp_32qid1map_atm2kfid_test1  -dirtag 1LDB_SMAP_ATM_2KFIDINUSE_TEST03   
+
+#32QID unique lockid (dec)
+#ldb32ppdir32pp_32qid1map_atm2kfid_test2 (disable CQ and send in 4K ATM HCWs, enable CQ, send another 4K ATM HCWs RENQ_T, then 2K COMP_T)
+#add: +HQM_DISABLE_PROCHOT_DRIVE (this test checks BCAM FULL with +has_aqed_bcam_full_ck)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb32ppdir32pp_32qid1map_atm2kfid_test2 -tv g_prohot_dis  -dirtag 1LDB_SMAP_ATM_2KFIDINUSE_TEST04   
+
+#run with compress_code 1:7
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb32ppdir32pp_32qid1map_atm2kfid_compcode1_test2  -dirtag 1LDB_SMAP_ATM_2KFIDINUSE_compcode1_TEST04 
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb32ppdir32pp_32qid1map_atm2kfid_compcode2_test2  -dirtag 1LDB_SMAP_ATM_2KFIDINUSE_compcode2_TEST04 
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb32ppdir32pp_32qid1map_atm2kfid_compcode3_test2  -dirtag 1LDB_SMAP_ATM_2KFIDINUSE_compcode3_TEST04 
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb32ppdir32pp_32qid1map_atm2kfid_compcode4_test2  -dirtag 1LDB_SMAP_ATM_2KFIDINUSE_compcode4_TEST04 
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb32ppdir32pp_32qid1map_atm2kfid_compcode5_test2  -dirtag 1LDB_SMAP_ATM_2KFIDINUSE_compcode5_TEST04 
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb32ppdir32pp_32qid1map_atm2kfid_compcode6_test2  -dirtag 1LDB_SMAP_ATM_2KFIDINUSE_compcode6_TEST04 
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb32ppdir32pp_32qid1map_atm2kfid_compcode7_test2  -dirtag 1LDB_SMAP_ATM_2KFIDINUSE_compcode7_TEST04 
+
+###############
+#### try ATM 2k limit using holding comp 
+###############
+#ldb1ppdir1pp_qid1map_atm2k_test0
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb1ppdir1pp_qid1map_atm2k_test0  -dirtag 1LDB_SMAP_ATM_2KFID_TEST000   
+
+#then running with COMPRESS_CODE=1:7
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb1ppdir1pp_qid1map_atm2k_compcode1_test0  -dirtag 1LDB_SMAP_ATM_2KFID_compcode1_TEST000
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb1ppdir1pp_qid1map_atm2k_compcode2_test0  -dirtag 1LDB_SMAP_ATM_2KFID_compcode2_TEST000
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb1ppdir1pp_qid1map_atm2k_compcode3_test0  -dirtag 1LDB_SMAP_ATM_2KFID_compcode3_TEST000
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb1ppdir1pp_qid1map_atm2k_compcode4_test0  -dirtag 1LDB_SMAP_ATM_2KFID_compcode4_TEST000
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb1ppdir1pp_qid1map_atm2k_compcode5_test0  -dirtag 1LDB_SMAP_ATM_2KFID_compcode5_TEST000
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb1ppdir1pp_qid1map_atm2k_compcode6_test0  -dirtag 1LDB_SMAP_ATM_2KFID_compcode6_TEST000
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb1ppdir1pp_qid1map_atm2k_compcode7_test0  -dirtag 1LDB_SMAP_ATM_2KFID_compcode7_TEST000
+
+
+#ldb1ppdir1pp_4qidmmap_atm2k_test0 this test moved to errinj, this test can't run with clkoff agitation and some other agitations, because LSP may not do schedule as QID0/1/2/3, thus the 2048 cannot be reached. See email on 08/27/2019 from Jim
+# hcw_enqtrf_hqmproc_test:ldb1ppdir1pp_4qidmmap_atm2k_test0+g_bgcfg_dis  -dirtag 1CQ4QID_SMAP_ATM_2KFID_TEST000   
+
+#ldb1ppdir1pp_4cq1qid1map_atm2k_test0
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb1ppdir1pp_4cq1qid1map_atm2k_test0 -tv g_bypass_cq_inflight_ext  -dirtag 4CQ1QID_SMAP_ATM_2KFID_TEST000   
+
+
+
+
+
+
+#############################
+#############################
+#Inflight 2k limit
+#############################
+#############################
+###############
+#  ldb1ppdir1pp_qid1map_uno2kcqinflight_test0
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb1ppdir1pp_qid1map_uno2kcqinflight_test0  -dirtag UNO_2KINFLIGHT_TEST00   
+
+#  ldb1ppdir1pp_qid1map_unototinflight_test0
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb1ppdir1pp_qid1map_unototinflight_test0  -dirtag UNO_TOTINFLIGHT_TEST00   
+
+# ldb1ppdir1pp_4qidmmap_uno2kcqinflight_test0 
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb1ppdir1pp_4qidmmap_uno2kcqinflight_test0  -dirtag 4QID1CQ_UNO_2KCQINFLIGHT_TEST00   
+
+# ldb1ppdir1pp_4cq1qid1map_uno2kqidinflight_test0
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb1ppdir1pp_4cq1qid1map_uno2kqidinflight_test0  -dirtag 1QID4CQ_UNO_2KQIDINFLIGHT_TEST00   
+
+##############
+######cq_inflight_limit=2k, add cq_ldb_inflight_threshold test
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb1ppdir1pp_4qidmmap_uno2kcqinflight_cqinflightthres_test0  -dirtag 4QID1CQ_UNO_2KCQINFLIGHT_INFLIGHTTHRES1024_TEST00
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb1ppdir1pp_4qidmmap_uno2kcqinflight_cqinflightthres2047_test0  -dirtag 4QID1CQ_UNO_2KCQINFLIGHT_INFLIGHTTHRES2047_TEST00
+
+######################################################################
+############################################################# cq_ldb_inflight_threshold tests using CQ inflight_limit test with 4 QIDs => 2 CQs, 
+######################################################################
+######cq_inflight_limit=2k, add cq_ldb_inflight_threshold test
+####ldb2pp_4qidmmap_uno2kcqinflight_cqinflightthresh_test0: 4QID => CQ[0]/CQ[1], try CQ[0]=1K and CQ[1]=1K inflight limit + add cq_ldb_inflight_threshold test
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2pp_4qidmmap_uno2kcqinflight_cqinflightthresh_test0 -tv g_bypass_cq_inflight_ext  -dirtag 4QID2CQ_UNO_2KCQINFLIGHT_CQINFLIGHTTHRES_TEST00 
+
+####ldb2pp_4qidmmap_uno2kcqinflight_cqinflightthresh_test1: 4QID => CQ[0]/CQ[1], try CQ[0]=1K and CQ[1]=1K inflight limit + add cq_ldb_inflight_threshold test
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2pp_4qidmmap_uno2kcqinflight_cqinflightthresh_test1 -tv g_bypass_cq_inflight_ext  -dirtag 4QID2CQ_UNO_2KCQINFLIGHT_CQINFLIGHTTHRES_TEST01 
+
+####ldb2uppp_4qidmmap_uno2kcqinflight_cqinflightthresh_test0: 4QID => CQ[62]/CQ[63], try CQ[62]=1K and CQ[63]=1K inflight limit + add cq_ldb_inflight_threshold test
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2uppp_4qidmmap_uno2kcqinflight_cqinflightthresh_test0 -tv g_bypass_cq_inflight_ext  -dirtag 4QID2UPCQ_UNO_2KCQINFLIGHT_CQINFLIGHTTHRES_TEST00 
+
+####ldb2uppp_4qidmmap_uno2kcqinflight_cqinflightthresh_test1: 4QID => CQ[62]/CQ[63], try CQ[62]=1K and CQ[63]=1K inflight limit + add cq_ldb_inflight_threshold test
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2uppp_4qidmmap_uno2kcqinflight_cqinflightthresh_test1 -tv g_bypass_cq_inflight_ext  -dirtag 4QID2UPCQ_UNO_2KCQINFLIGHT_CQINFLIGHTTHRES_TEST01 
+
+
+#############################
+#############################
+###############
+#### try cq_depth 1k limit  +LDB_PP0_RTNTOKCTRL_SELMODE=1 +LDB_PP0_RTNTOKCTRL_NUM=1024
+###############
+#############################
+#############################
+#1map 
+#ldb1ppdir1pp_qid1map_ldbcqdep1k_test0
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb1ppdir1pp_qid1map_ldbcqdep1k_test0  -dirtag UNO_1KLDBCQDEP_TEST00  
+
+
+#ldb1ppdir1pp_qid1map_dirldbcqdep1k_test0
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb1ppdir1pp_qid1map_dirldbcqdep1k_test0  -dirtag 1KDIR1KLDBCQDEP_TEST00  
+
+
+
+
+##############################
+#Te's email on 05152019 DEQUEUE Interface stress tests
+#Please open a new PVIM to test the new dequeue interface between chp <-> lsp
+#I think all we need is 1 bursty ldb traffic stream(may be 1 background very slow rate ldb and 1 dir traffic stream)
+#Set chp cfg_control_general_01.lsp_deq_pipe_credit_hwm to a very low value (1 to 4) 
+#The goal is to make sure that the chp does not miss a credit return(chp_lsp_deq_taken) from lsp (chp clock is somehow shut off prematurely?)
+#
+##############################
+#ldb2ppdir2pp_qid1map_test2
+#05222019
+#Ldb cq depth 64, inflight limit 128
+#Send in a burst of 128 hcws as quickly as possible, wait for 64 hcw_sched, don¿t return token/completion (BAT_TOKEN 64, follows by RENQ) for a while(hqm should go idle and hqm_clk should go off)
+#Repeat the above 20 times
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2ppdir2pp_qid1map_test1   -dirtag HQMPROC_ldb2ppdir2pp_qid1map_test2  
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2ppdir2pp_qid1map_test2   -dirtag HQMPROC_ldb2ppdir2pp_qid1map_test3  
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2ppdir2pp_qid1map_test4   -dirtag HQMPROC_ldb2ppdir2pp_qid1map_test4  
+
+
+
+
+#ldb4ppdir4pp_4cq_wus0_test00
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_4cq_wus0_test00   -dirtag HQMPROC_ldb4ppdir4pp_4cq_wus0_test00  
+
+
+
+######################
+#delta cq_dep=1~7 rnd; dir  ldb 
+######################
+#ldb4ppdir4pp_1cq_cqdepmin_test00
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_1cq_cqdepmin_test00   -dirtag HQMPROC_ldb4ppdir4pp_1cq_cqdepmin_test00  
+
+#ldb4ppdir4pp_4cq_cqdepmin_test00
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_4cq_cqdepmin_test00   -dirtag HQMPROC_ldb4ppdir4pp_4cq_cqdepmin_test00  
+
+
+
+######################
+#delta cq_dep=1 dir (1024-1023) ldb (1024-1023)
+######################
+#ldb4ppdir4pp_1cq_cqdepmin1_test00
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_1cq_cqdepmin1_test00   -dirtag HQMPROC_ldb4ppdir4pp_1cq_cqdepmin1_test00  
+
+#ldb4ppdir4pp_4cq_cqdepmin1_test00
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_4cq_cqdepmin1_test00   -dirtag HQMPROC_ldb4ppdir4pp_4cq_cqdepmin1_test00  
+
+######################
+#delta cq_dep=7 dir (1024-1017) ldb (1024-1017)
+######################
+#ldb4ppdir4pp_1cq_cqdepmin7_test00
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_1cq_cqdepmin7_test00   -dirtag HQMPROC_ldb4ppdir4pp_1cq_cqdepmin7_test00  
+
+#ldb4ppdir4pp_4cq_cqdepmin7_test00
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_4cq_cqdepmin7_test00   -dirtag HQMPROC_ldb4ppdir4pp_4cq_cqdepmin7_test00  
+
+
+
+###################################
+###################################
+#FLID stress tests
+###################################
+###################################
+#ldb4ppdir4pp_4cq_flidstress_test00 (UNO)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_4cq_flidstress_test00   -dirtag HQMPROC_ldb4ppdir4pp_4cq_flidstress_test00  
+
+#ldb4ppdir4pp_4cq_flidstress_test00+rtn_tok_rnddly0
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_4cq_flidstress_test00 -tv rtn_tok_rnddly0 -tv g_prohot_dis   -dirtag HQMPROC_RTNDLY0_ldb4ppdir4pp_4cq_flidstress_test00  
+
+
+#ldb4ppdir4pp_4cq_flidstress_test01 (ATM and lockid decr)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_4cq_flidstress_test01   -dirtag HQMPROC_ldb4ppdir4pp_4cq_flidstress_test01  
+
+#ldb4ppdir4pp_4cq_flidstress_test01+rtn_tok_rnddly0
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_4cq_flidstress_test01 -tv rtn_tok_rnddly0 -tv g_prohot_dis   -dirtag HQMPROC_RTNDLY0_ldb4ppdir4pp_4cq_flidstress_test01  
+
+
+
+##############################
+##############################
+#WU stress tests
+##############################
+##############################
+#05292019
+####
+##2CQ2QID
+####
+#ldb2ppdir2pp_qid1map_wustress_test0 (one QID => one CQ) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2ppdir2pp_qid1map_wustress_test0   -dirtag HQMPROC_ldb2ppdir2pp_qid1map_wustress_test0  
+
+#ldb2ppdir2pp_qid1map_wustress_test1 (two QID => two CQ) (QID[0] UNO; QID[1] ATM) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2ppdir2pp_qid1map_wustress_test1   -dirtag HQMPROC_ldb2ppdir2pp_qid1map_wustress_test1  
+
+#bgcfg added
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2ppdir2pp_qid1map_wustress_test1 -tv bgcfg_wuregs_t0   -dirtag HQMPROC_BGCFGWUREG_ldb2ppdir2pp_qid1map_wustress_test1  
+
+
+############
+####UNO-trf
+############
+####qeddeqhwmlow and qeddeqhwmhi
+#ldb2ppdir2pp_qid1map_wustress_qeddeqhwmlow_test1 (two QID => two CQ) (QID[0] UNO; QID[1] UNO) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2ppdir2pp_qid1map_wustress_qeddeqhwmlow_test1   -dirtag HQMPROC_ldb2ppdir2pp_qid1map_wustress_qeddeqhwmlow_test1  
+
+#ldb2ppdir2pp_qid1map_wustress_qeddeqhwmhi_test1 (two QID => two CQ) (QID[0] UNO; QID[1] UNO) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2ppdir2pp_qid1map_wustress_qeddeqhwmhi_test1   -dirtag HQMPROC_ldb2ppdir2pp_qid1map_wustress_qeddeqhwmhi_test1  
+
+####aqeddeqhwmlow and aqeddeqhwmhi
+#ldb2ppdir2pp_qid1map_wustress_aqeddeqhwmlow_test1 (two QID => two CQ) (QID[0] UNO; QID[1] UNO) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2ppdir2pp_qid1map_wustress_aqeddeqhwmlow_test1   -dirtag HQMPROC_ldb2ppdir2pp_qid1map_wustress_aqeddeqhwmlow_test1  
+
+#ldb2ppdir2pp_qid1map_wustress_aqeddeqhwmhi_test1 (two QID => two CQ) (QID[0] UNO; QID[1] UNO) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2ppdir2pp_qid1map_wustress_aqeddeqhwmhi_test1   -dirtag HQMPROC_ldb2ppdir2pp_qid1map_wustress_aqeddeqhwmhi_test1  
+
+############
+####ATM-trf
+############
+####qeddeqhwmlow and qeddeqhwmhi
+#ldb2ppdir2pp_qid1map_wustress_qeddeqhwmlow_test2 (two QID => two CQ) (QID[0] ATM; QID[1] ATM) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2ppdir2pp_qid1map_wustress_qeddeqhwmlow_test2   -dirtag HQMPROC_ldb2ppdir2pp_qid1map_wustress_qeddeqhwmlow_test2  
+
+#ldb2ppdir2pp_qid1map_wustress_qeddeqhwmhi_test2 (two QID => two CQ) (QID[0] ATM; QID[1] ATM) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2ppdir2pp_qid1map_wustress_qeddeqhwmhi_test2   -dirtag HQMPROC_ldb2ppdir2pp_qid1map_wustress_qeddeqhwmhi_test2  
+
+####aqeddeqhwmlow and aqeddeqhwmhi
+#ldb2ppdir2pp_qid1map_wustress_aqeddeqhwmlow_test2 (two QID => two CQ) (QID[0] ATM; QID[1] ATM) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2ppdir2pp_qid1map_wustress_aqeddeqhwmlow_test2   -dirtag HQMPROC_ldb2ppdir2pp_qid1map_wustress_aqeddeqhwmlow_test2  
+
+#ldb2ppdir2pp_qid1map_wustress_aqeddeqhwmhi_test2 (two QID => two CQ) (QID[0] ATM; QID[1] ATM) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2ppdir2pp_qid1map_wustress_aqeddeqhwmhi_test2   -dirtag HQMPROC_ldb2ppdir2pp_qid1map_wustress_aqeddeqhwmhi_test2  
+
+
+####
+##4CQ4QID
+####
+#ldb4ppdir4pp_qid1map_wustress_test1 (four QID => four CQ) (QID[0] UNO; QID[1] ATM; QID[2] UNO; QID[3] ATM) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_wustress_test1   -dirtag HQMPROC_ldb4ppdir4pp_qid1map_wustress_test1  
+
+############
+####UNO-trf
+############
+####qeddeqhwmlow and qeddeqhwmhi
+#ldb4ppdir4pp_qid1map_wustress_qeddeqhwmlow_test1 (two QID => two CQ) (QID[0] UNO; QID[1] UNO) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_wustress_qeddeqhwmlow_test1   -dirtag HQMPROC_ldb4ppdir4pp_qid1map_wustress_qeddeqhwmlow_test1  
+
+#ldb4ppdir4pp_qid1map_wustress_qeddeqhwmhi_test1 (two QID => two CQ) (QID[0] UNO; QID[1] UNO) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_wustress_qeddeqhwmhi_test1   -dirtag HQMPROC_ldb4ppdir4pp_qid1map_wustress_qeddeqhwmhi_test1  
+
+####aqeddeqhwmlow and aqeddeqhwmhi
+#ldb4ppdir4pp_qid1map_wustress_aqeddeqhwmlow_test1 (two QID => two CQ) (QID[0] UNO; QID[1] UNO) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_wustress_aqeddeqhwmlow_test1   -dirtag HQMPROC_ldb4ppdir4pp_qid1map_wustress_aqeddeqhwmlow_test1  
+
+#ldb4ppdir4pp_qid1map_wustress_aqeddeqhwmhi_test1 (two QID => two CQ) (QID[0] UNO; QID[1] UNO) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_wustress_aqeddeqhwmhi_test1   -dirtag HQMPROC_ldb4ppdir4pp_qid1map_wustress_aqeddeqhwmhi_test1  
+
+############
+####ATM-trf
+############
+####qeddeqhwmlow and qeddeqhwmhi
+#ldb4ppdir4pp_qid1map_wustress_qeddeqhwmlow_test2 (two QID => two CQ) (QID[0] ATM; QID[1] ATM) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_wustress_qeddeqhwmlow_test2   -dirtag HQMPROC_ldb4ppdir4pp_qid1map_wustress_qeddeqhwmlow_test2  
+
+#ldb4ppdir4pp_qid1map_wustress_qeddeqhwmhi_test2 (two QID => two CQ) (QID[0] ATM; QID[1] ATM) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_wustress_qeddeqhwmhi_test2   -dirtag HQMPROC_ldb4ppdir4pp_qid1map_wustress_qeddeqhwmhi_test2  
+
+####aqeddeqhwmlow and aqeddeqhwmhi
+#ldb4ppdir4pp_qid1map_wustress_aqeddeqhwmlow_test2 (two QID => two CQ) (QID[0] ATM; QID[1] ATM) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_wustress_aqeddeqhwmlow_test2   -dirtag HQMPROC_ldb4ppdir4pp_qid1map_wustress_aqeddeqhwmlow_test2  
+
+#ldb4ppdir4pp_qid1map_wustress_aqeddeqhwmhi_test2 (two QID => two CQ) (QID[0] ATM; QID[1] ATM) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_wustress_aqeddeqhwmhi_test2   -dirtag HQMPROC_ldb4ppdir4pp_qid1map_wustress_aqeddeqhwmhi_test2  
+
+
+##############################
+##############################
+#WU stress tests  +bgcfg_wuregs_t0 (BGCFGWUREG)
+##############################
+##############################
+####
+##2CQ2QID
+####
+#ldb2ppdir2pp_qid1map_wustress_test0 (one QID => one CQ) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2ppdir2pp_qid1map_wustress_test0 -tv bgcfg_wuregs_t0   -dirtag HQMPROC_BGCFGWUREG_ldb2ppdir2pp_qid1map_wustress_test0  
+
+#ldb2ppdir2pp_qid1map_wustress_test1 (two QID => two CQ) (QID[0] UNO; QID[1] ATM) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2ppdir2pp_qid1map_wustress_test1 -tv bgcfg_wuregs_t0   -dirtag HQMPROC_BGCFGWUREG_ldb2ppdir2pp_qid1map_wustress_test1  
+
+#bgcfg added
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2ppdir2pp_qid1map_wustress_test1 -tv bgcfg_wuregs_t0 -tv bgcfg_wuregs_t0   -dirtag HQMPROC_BGCFGWUREG_BGCFGWUREG_ldb2ppdir2pp_qid1map_wustress_test1  
+
+
+############
+####UNO-trf
+############
+####qeddeqhwmlow and qeddeqhwmhi
+#ldb2ppdir2pp_qid1map_wustress_qeddeqhwmlow_test1 (two QID => two CQ) (QID[0] UNO; QID[1] UNO) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2ppdir2pp_qid1map_wustress_qeddeqhwmlow_test1 -tv bgcfg_wuregs_t0   -dirtag HQMPROC_BGCFGWUREG_ldb2ppdir2pp_qid1map_wustress_qeddeqhwmlow_test1  
+
+#ldb2ppdir2pp_qid1map_wustress_qeddeqhwmhi_test1 (two QID => two CQ) (QID[0] UNO; QID[1] UNO) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2ppdir2pp_qid1map_wustress_qeddeqhwmhi_test1 -tv bgcfg_wuregs_t0   -dirtag HQMPROC_BGCFGWUREG_ldb2ppdir2pp_qid1map_wustress_qeddeqhwmhi_test1  
+
+####aqeddeqhwmlow and aqeddeqhwmhi
+#ldb2ppdir2pp_qid1map_wustress_aqeddeqhwmlow_test1 (two QID => two CQ) (QID[0] UNO; QID[1] UNO) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2ppdir2pp_qid1map_wustress_aqeddeqhwmlow_test1 -tv bgcfg_wuregs_t0   -dirtag HQMPROC_BGCFGWUREG_ldb2ppdir2pp_qid1map_wustress_aqeddeqhwmlow_test1  
+
+#ldb2ppdir2pp_qid1map_wustress_aqeddeqhwmhi_test1 (two QID => two CQ) (QID[0] UNO; QID[1] UNO) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2ppdir2pp_qid1map_wustress_aqeddeqhwmhi_test1 -tv bgcfg_wuregs_t0   -dirtag HQMPROC_BGCFGWUREG_ldb2ppdir2pp_qid1map_wustress_aqeddeqhwmhi_test1  
+
+############
+####ATM-trf
+############
+####qeddeqhwmlow and qeddeqhwmhi
+#ldb2ppdir2pp_qid1map_wustress_qeddeqhwmlow_test2 (two QID => two CQ) (QID[0] ATM; QID[1] ATM) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2ppdir2pp_qid1map_wustress_qeddeqhwmlow_test2 -tv bgcfg_wuregs_t0   -dirtag HQMPROC_BGCFGWUREG_ldb2ppdir2pp_qid1map_wustress_qeddeqhwmlow_test2  
+
+#ldb2ppdir2pp_qid1map_wustress_qeddeqhwmhi_test2 (two QID => two CQ) (QID[0] ATM; QID[1] ATM) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2ppdir2pp_qid1map_wustress_qeddeqhwmhi_test2 -tv bgcfg_wuregs_t0   -dirtag HQMPROC_BGCFGWUREG_ldb2ppdir2pp_qid1map_wustress_qeddeqhwmhi_test2  
+
+####aqeddeqhwmlow and aqeddeqhwmhi
+#ldb2ppdir2pp_qid1map_wustress_aqeddeqhwmlow_test2 (two QID => two CQ) (QID[0] ATM; QID[1] ATM) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2ppdir2pp_qid1map_wustress_aqeddeqhwmlow_test2 -tv bgcfg_wuregs_t0   -dirtag HQMPROC_BGCFGWUREG_ldb2ppdir2pp_qid1map_wustress_aqeddeqhwmlow_test2  
+
+#ldb2ppdir2pp_qid1map_wustress_aqeddeqhwmhi_test2 (two QID => two CQ) (QID[0] ATM; QID[1] ATM) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2ppdir2pp_qid1map_wustress_aqeddeqhwmhi_test2 -tv bgcfg_wuregs_t0   -dirtag HQMPROC_BGCFGWUREG_ldb2ppdir2pp_qid1map_wustress_aqeddeqhwmhi_test2  
+
+
+####
+##4CQ4QID
+####
+#ldb4ppdir4pp_qid1map_wustress_test1 (four QID => four CQ) (QID[0] UNO; QID[1] ATM; QID[2] UNO; QID[3] ATM) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_wustress_test1 -tv bgcfg_wuregs_t0   -dirtag HQMPROC_BGCFGWUREG_ldb4ppdir4pp_qid1map_wustress_test1  
+
+############
+####UNO-trf
+############
+####qeddeqhwmlow and qeddeqhwmhi
+#ldb4ppdir4pp_qid1map_wustress_qeddeqhwmlow_test1 (two QID => two CQ) (QID[0] UNO; QID[1] UNO) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_wustress_qeddeqhwmlow_test1 -tv bgcfg_wuregs_t0   -dirtag HQMPROC_BGCFGWUREG_ldb4ppdir4pp_qid1map_wustress_qeddeqhwmlow_test1  
+
+#ldb4ppdir4pp_qid1map_wustress_qeddeqhwmhi_test1 (two QID => two CQ) (QID[0] UNO; QID[1] UNO) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_wustress_qeddeqhwmhi_test1 -tv bgcfg_wuregs_t0   -dirtag HQMPROC_BGCFGWUREG_ldb4ppdir4pp_qid1map_wustress_qeddeqhwmhi_test1  
+
+####aqeddeqhwmlow and aqeddeqhwmhi
+#ldb4ppdir4pp_qid1map_wustress_aqeddeqhwmlow_test1 (two QID => two CQ) (QID[0] UNO; QID[1] UNO) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_wustress_aqeddeqhwmlow_test1 -tv bgcfg_wuregs_t0   -dirtag HQMPROC_BGCFGWUREG_ldb4ppdir4pp_qid1map_wustress_aqeddeqhwmlow_test1  
+
+#ldb4ppdir4pp_qid1map_wustress_aqeddeqhwmhi_test1 (two QID => two CQ) (QID[0] UNO; QID[1] UNO) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_wustress_aqeddeqhwmhi_test1 -tv bgcfg_wuregs_t0   -dirtag HQMPROC_BGCFGWUREG_ldb4ppdir4pp_qid1map_wustress_aqeddeqhwmhi_test1  
+
+############
+####ATM-trf
+############
+####qeddeqhwmlow and qeddeqhwmhi
+#ldb4ppdir4pp_qid1map_wustress_qeddeqhwmlow_test2 (two QID => two CQ) (QID[0] ATM; QID[1] ATM) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_wustress_qeddeqhwmlow_test2 -tv bgcfg_wuregs_t0   -dirtag HQMPROC_BGCFGWUREG_ldb4ppdir4pp_qid1map_wustress_qeddeqhwmlow_test2  
+
+#ldb4ppdir4pp_qid1map_wustress_qeddeqhwmhi_test2 (two QID => two CQ) (QID[0] ATM; QID[1] ATM) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_wustress_qeddeqhwmhi_test2 -tv bgcfg_wuregs_t0   -dirtag HQMPROC_BGCFGWUREG_ldb4ppdir4pp_qid1map_wustress_qeddeqhwmhi_test2  
+
+####aqeddeqhwmlow and aqeddeqhwmhi
+#ldb4ppdir4pp_qid1map_wustress_aqeddeqhwmlow_test2 (two QID => two CQ) (QID[0] ATM; QID[1] ATM) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_wustress_aqeddeqhwmlow_test2 -tv bgcfg_wuregs_t0   -dirtag HQMPROC_BGCFGWUREG_ldb4ppdir4pp_qid1map_wustress_aqeddeqhwmlow_test2  
+
+#ldb4ppdir4pp_qid1map_wustress_aqeddeqhwmhi_test2 (two QID => two CQ) (QID[0] ATM; QID[1] ATM) (control completions as hold-release-hold-release loop)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_wustress_aqeddeqhwmhi_test2 -tv bgcfg_wuregs_t0   -dirtag HQMPROC_BGCFGWUREG_ldb4ppdir4pp_qid1map_wustress_aqeddeqhwmhi_test2  
+
+
+
+
+###############################
+#surv_delay_clockoff 0
+###############################
+#  +hqmproc_surv_delayclkoff_enable=1
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qidmmap_ldbmix_test0 -tv dtrf_surv_delay_clockoff_t000   -dirtag SURV_delayclockoff0_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_MMAP_LDBMIX_TEST202  
+
+###############################
+# -hqm_sparse_cq_ldb_en
+###############################
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qidmmap_ldbmix_test0 -tv dtrf_4dir4ldb_dt0001   -dirtag SPARSELDB_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_MMAP_LDBMIX_TEST202 -simv_args '"' +HQM_LDB_CQ_SINGLE_HCW_PER_CL +HQM_SATURATE_CQ_DEPTH_OK '"' -simv_args- 
+
+###############################
+# -hqm_sparse_cq_dir_en
+###############################
+#qtype use DIR
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qidmmap_ldbmix_test0 -tv dtrf_4dir4ldb_dt0002   -dirtag SPARSEDIR_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_MMAP_LDBMIX_TEST202 -simv_args '"' +HQM_DIR_CQ_SINGLE_HCW_PER_CL '"' -simv_args-  
+
+
+###############################
+# -hqm_sparse_cq_dir_ldb_en
+###############################
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qidmmap_ldbmix_test0 -tv dtrf_4dir4ldb_dt0003   -dirtag SPARSEDIRLDB_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_MMAP_LDBMIX_TEST202  -simv_args '"' ++HQM_DIR_CQ_SINGLE_HCW_PER_CL +HQM_LDB_CQ_SINGLE_HCW_PER_CL +HQM_SATURATE_CQ_DEPTH_OK '"' -simv_args- 
+
+
+
+
+############################################################################################################
+############################################################################################################
+#Congestion tests using enqtrf seq
+############################################################################################################
+############################################################################################################
+###############
+#2PP/2CQ/2QID
+###############
+#1map
+#2PP(2QID): disable dirCQ[0], send traffic, then enable dirCQ[0] 
+#ldb2ppdir2pp_congestion_t2_dir_thresh000_cqdep1024
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2ppdir2pp_congestion_t2_dir_thresh000_cqdep1024   -dirtag ldb2ppdir2pp_congestion_t2_dir_thresh000_cqdep1024_TEST200   
+
+#dirCQ[0] disable wb
+#ldb2ppdir2pp_congestion_t2_dir_diswb_thresh000_cqdep1024
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2ppdir2pp_congestion_t2_dir_diswb_thresh000_cqdep1024   -dirtag ldb2ppdir2pp_congestion_t2_dir_diswb_thresh000_cqdep1024_TEST200   
+
+#2PP(2QID): disable ldbCQ[0], send traffic, then enable ldbCQ[0] 
+#ldb2ppdir2pp_congestion_t2_uno_thresh000_cqdep1024
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2ppdir2pp_congestion_t2_uno_thresh000_cqdep1024   -dirtag ldb2ppdir2pp_congestion_t2_uno_thresh000_cqdep1024_TEST200   
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2ppdir2pp_congestion_t2_atm_thresh000_cqdep1024   -dirtag ldb2ppdir2pp_congestion_t2_atm_thresh000_cqdep1024_TEST200   
+
+
+########
+#Try with pri +has_qpri_sel_mode=9 (qpri: 0~7)
+########
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2ppdir2pp_congestion_t2_dir_thresh000_cqdep1024 -tv g_qpri_sel_mode9   -dirtag ldb2ppdir2pp_congestion_t2_dir_thresh000_qprirnd_cqdep1024_TEST200   
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2ppdir2pp_congestion_t2_dir_diswb_thresh000_cqdep1024 -tv g_qpri_sel_mode9   -dirtag ldb2ppdir2pp_congestion_t2_dir_diswb_thresh000_qprirnd_cqdep1024_TEST200   
+
+#2PP(2QID): disable ldbCQ[0], send traffic, then enable ldbCQ[0] 
+#ldb2ppdir2pp_congestion_t2_uno_thresh000_cqdep1024
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2ppdir2pp_congestion_t2_uno_thresh000_cqdep1024 -tv g_qpri_sel_mode9   -dirtag ldb2ppdir2pp_congestion_t2_uno_thresh000_qprirnd_cqdep1024_TEST200   
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb2ppdir2pp_congestion_t2_atm_thresh000_cqdep1024 -tv g_qpri_sel_mode9   -dirtag ldb2ppdir2pp_congestion_t2_atm_thresh000_qprirnd_cqdep1024_TEST200   
+
+
+############################
+############################
+#congestion rnd tests
+#hqmproc.trfsmk.ordmixfrag.congestion.rnd.pri0.list
+#hqmproc.trfsmk.ordmixfrag.congestion.rnd.prirnd.list
+#hqmproc.trfsmk.ordmixfrag.congestion.rnd.tokdly.pri0.list
+#hqmproc.trfsmk.ordmixfrag.congestion.rnd.tokdly.prirnd.list
+############################
+############################
+#  +hqmproc_lsp_qidthreshold_enable=1
+#  +hqm_lsp_qid_depthres_rnd  +hqm_lsp_qid_depth_thresh_qidmax=4
+#hold tok returns for a while then return tok    +rtn_tok_rnddly0
+#run with fixed priority and rnd priority (  +has_qpri_sel_mode=9 (rndpri [0:7])
+
+#use  ldb4ppdir4pp cases
+#1map
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_rnd0 -tv dtrf_congestion_4dir4ldb_dt00   -dirtag QIDDEPRND_ldb4ppdir4pp_4LDB4DIR_SMAP_RND0TEST201   
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ordmix_rnd0 -tv dtrf_congestion_4dir4ldb_dt01   -dirtag CONGEST_PRI0_ldb4ppdir4pp_4LDB4DIR_SMAP_ORDMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202    
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ordmix_rnd0 -tv dtrf_congestion_4dir4ldb_dt02   -dirtag CONGEST_PRIRND_ldb4ppdir4pp_4LDB4DIR_SMAP_ORDMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202    
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ordmix_rnd0 -tv rtn_tok_rnddly0 -tv dtrf_congestion_4dir4ldb_dt03   -dirtag CONGEST_RTNDLY0_PRI0_ldb4ppdir4pp_4LDB4DIR_SMAP_ORDMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202    
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ordmix_rnd0 -tv rtn_tok_rnddly0 -tv dtrf_congestion_4dir4ldb_dt04   -dirtag CONGEST_RTNDLY0_PRIRND_ldb4ppdir4pp_4LDB4DIR_SMAP_ORDMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202    
+
+
+############################################################################################################
+############################################################################################################
+#COS test using enqtrf seq
+#TB monitors the performance of each COS and expects/checks:
+#+ sched HCW rate of CQs in the same COS is same (approximately same)
+#+ sched HCW rate of CQs in the COS(s) with high priority is higher than the ones in the COS(s) with lower priority.
+#  +perfck_sel=11  +perfck_tolerance_0=1000
+#+perfck_tolerance_0=1000, the diff tolerance inside one bin
+#+perfck_tolerance_1=2000, the diff tolerance btw two bins expecting same latency  (diff_val > perfck_tolerance_1, fail)
+#+perfck_tolerance_2=3000, the diff tolerance btw two bins expecting different latency (diff_val < perfck_tolerance_2, fail)
+
+#in regression, make +perfck_tolerance_0=2800 to relex checking
+############################################################################################################
+############################################################################################################
+#1/ four COS have the same setting of range: 64/256          _T0000
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb64qid_1map_COSCASE_C4 -tv dtrf_cos_ldb64_dt000   -dirtag ldb64qid_1map_COSCASE_C4_T0000     
+#2/ COS0 and COS1 both have range=32/256;  COS2 and COS3 both have range=96/256    _T0011
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb64qid_1map_COSCASE_C4 -tv dtrf_cos_ldb64_dt001   -dirtag ldb64qid_1map_COSCASE_C4_T0011      
+
+
+#3/ COS0 and COS1 both have range=96/256;  COS2 and COS3 both have range=32/256   _T1100
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb64qid_1map_COSCASE_C4 -tv dtrf_cos_ldb64_dt002   -dirtag ldb64qid_1map_COSCASE_C4_T1100      
+#4/ COS0/1/2 all have range 32/256; COS3 has range=160/256   _T1110
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb64qid_1map_COSCASE_C4 -tv dtrf_cos_ldb64_dt003   -dirtag ldb64qid_1map_COSCASE_C4_T1110      
+#5/ COS0 has range=160/256; COS1/2/3 all have range 32/256   _T0111
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb64qid_1map_COSCASE_C4 -tv dtrf_cos_ldb64_dt004   -dirtag ldb64qid_1map_COSCASE_C4_T0111      
+#6/ COS0 range=112/256; COS1 range=80/256; COS2 range=48/256; COS3 range=16/256   _T0123
+#hqm_proc_trf_smoke_test_TSTsmk_dtg_82_COSCASE_C4_T0123.1 
+# 
+#From TB monitored rate, the sched HCW output rate of COS0 and COS1 are similar; 
+#Rate.COS0 and Rate.COS1 > Rate.COS2 > Rate.COS3
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb64qid_1map_COSCASE_C4 -tv dtrf_cos_ldb64_dt005   -dirtag ldb64qid_1map_COSCASE_C4_T0123      
+#7/ range setting is reversed of #6     _T3210
+#hqm_proc_trf_smoke_test_TSTsmk_dtg_82_COSCASE_C4_T3210.1
+#
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb64qid_1map_COSCASE_C4 -tv dtrf_cos_ldb64_dt006   -dirtag ldb64qid_1map_COSCASE_C4_T3210      
+
+
+
+#################
+#DynamicCfg#
+#################
+#  +hqmproc_lsp_coscfg_enable=1
+#  +hqmproc_lsp_cosrecfg_waitnum=300
+#  +hqmproc_lsp_cosrecfg_hcwnum=2048
+#  +hqm_lsp_range_cosrecfg_0_val=
+#  +hqm_lsp_range_cosrecfg_1_val=
+#  +hqm_lsp_range_cosrecfg_2_val=
+#  +hqm_lsp_range_cosrecfg_3_val=
+#
+#2/ COS0 and COS1 both have range=32/256;  COS2 and COS3 both have range=96/256    _T0011
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb64qid_1map_COSCASE_C4 -tv dtrf_cos_ldb64_dt010   -dirtag ldb64qid_1map_COSRECFGCASE00_C4_T0011      
+
+#with +hqmproc_lsp_coscfg_enable=1,  expect bin0/1/2/3 performance the same   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb64qid_1map_COSCASE_C4 -tv dtrf_cos_ldb64_dt011   -dirtag ldb64qid_1map_COSRECFGCASE01_C4_T0011      
+
+
+
+#3/ COS0 and COS1 both have range=96/256;  COS2 and COS3 both have range=32/256   _T1100
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb64qid_1map_COSCASE_C4 -tv dtrf_cos_ldb64_dt012   -dirtag ldb64qid_1map_COSRECFGCASE00_C4_T1100      
+#with +hqmproc_lsp_coscfg_enable=1,  expect bin0/1/2/3 performance the same   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb64qid_1map_COSCASE_C4 -tv dtrf_cos_ldb64_dt013   -dirtag ldb64qid_1map_COSRECFGCASE01_C4_T1100      
+
+#4/ COS0/1/2 all have range 32/256; COS3 has range=160/256   _T1110
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb64qid_1map_COSCASE_C4 -tv dtrf_cos_ldb64_dt014   -dirtag ldb64qid_1map_COSRECFGCASE00_C4_T1110      
+#with +hqmproc_lsp_coscfg_enable=1,  expect bin0/3 performs better than bin1/2 +perfck_sel=17
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb64qid_1map_COSCASE_C4 -tv dtrf_cos_ldb64_dt015   -dirtag ldb64qid_1map_COSRECFGCASE01_C4_T1110      
+
+
+#5/ COS0 has range=160/256; COS1/2/3 all have range 32/256   _T0111
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb64qid_1map_COSCASE_C4 -tv dtrf_cos_ldb64_dt016   -dirtag ldb64qid_1map_COSRECFGCASE00_C4_T0111      
+#with +hqmproc_lsp_coscfg_enable=1,  expect bin0/3 performs better than bin1/2  +perfck_sel=17
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb64qid_1map_COSCASE_C4 -tv dtrf_cos_ldb64_dt017   -dirtag ldb64qid_1map_COSRECFGCASE01_C4_T0111      
+
+
+#6/ COS0 range=112/256; COS1 range=80/256; COS2 range=48/256; COS3 range=16/256   _T0123
+#hqm_proc_trf_smoke_test_TSTsmk_dtg_82_COSCASE_C4_T0123.1 
+# 
+#From TB monitored rate, the sched HCW output rate of COS0 and COS1 are similar; 
+#Rate.COS0 and Rate.COS1 > Rate.COS2 > Rate.COS3
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb64qid_1map_COSCASE_C4 -tv dtrf_cos_ldb64_dt018   -dirtag ldb64qid_1map_COSRECFGCASE00_C4_T0123      
+#7/ range setting is reversed of #6     _T3210
+#hqm_proc_trf_smoke_test_TSTsmk_dtg_82_COSCASE_C4_T3210.1
+#
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb64qid_1map_COSCASE_C4 -tv dtrf_cos_ldb64_dt019   -dirtag ldb64qid_1map_COSRECFGCASE00_C4_T3210      
+
+
+###############################################
+#bgcfg2
+###############################################
+#added +bgcfg_hqmproc_t0 
+#+hqmproc_bgcfg_sel=10 qed ram
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt020   -dirtag BGCFG2T10_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+
+#+hqmproc_bgcfg_sel=11 atm CFG_QID_LDB_QID2CQIDIX_00 -  CFG_QID_LDB_QID2CQIDIX_15 ram
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt021   -dirtag BGCFG2T11_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+
+#+hqmproc_bgcfg_sel=12 lsp CFG_QID_LDB_QID2CQIDIX_00 -  CFG_QID_LDB_QID2CQIDIX_15 ram
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt022   -dirtag BGCFG2T12_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+
+#group run1
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt023   -dirtag BGCFG2G1_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt024   -dirtag BGCFG2G2_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt025   -dirtag BGCFG2G3_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt026   -dirtag BGCFG2G4_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt027   -dirtag BGCFG2G5_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+
+#group run2
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt028   -dirtag BGCFG2G1_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt029   -dirtag BGCFG2G2_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt030   -dirtag BGCFG2G3_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt031   -dirtag BGCFG2G4_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt032   -dirtag BGCFG2G5_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+
+#group run3
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt033   -dirtag BGCFG2G1_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt034   -dirtag BGCFG2G2_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt035   -dirtag BGCFG2G3_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt036   -dirtag BGCFG2G4_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt037   -dirtag BGCFG2G5_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+
+#group run4
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt038   -dirtag BGCFG2G1_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt039   -dirtag BGCFG2G2_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt040   -dirtag BGCFG2G3_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt041   -dirtag BGCFG2G4_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt042   -dirtag BGCFG2G5_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+
+#group run5
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt043   -dirtag BGCFG2G1_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt044   -dirtag BGCFG2G2_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt045   -dirtag BGCFG2G3_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt046   -dirtag BGCFG2G4_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt047   -dirtag BGCFG2G5_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+
+
+#group run6
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt048   -dirtag BGCFG2G1_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt049   -dirtag BGCFG2G2_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt050   -dirtag BGCFG2G3_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt051   -dirtag BGCFG2G4_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt052   -dirtag BGCFG2G5_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+
+##rnd
+#added +bgcfg_hqmproc_t0 
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt053   -dirtag BGCFG2_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt054   -dirtag BGCFG2_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt055   -dirtag BGCFG2_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt056   -dirtag BGCFG2_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt057   -dirtag BGCFG2_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt058   -dirtag BGCFG2_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt059   -dirtag BGCFG2_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt060   -dirtag BGCFG2_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt061   -dirtag BGCFG2_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt062   -dirtag BGCFG2_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv bgcfg_hqmproc_t0 -tv dtrf_bgcfg_4dir4ldb_dt063   -dirtag BGCFG2_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202      
+
+
+#############################
+#UNIT_IDLE direct test
+#############################
+#unit_idle_direct_test_1
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv unit_idle_direct_test_1 -tv g_prohot_bgcfg_agi_dis   -dirtag unit_idle_direct_test_1_TEST00       
+
+#unit_idle_direct_test_20 4KHCW(from dirPP[0])+1KHCW(from ldbPP[0])+4KHCW(from dirPP[1])
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv unit_idle_direct_test_20 -tv g_prohot_bgcfg_agi_dis    -dirtag unit_idle_direct_test_20_TEST00       
+
+#unit_idle_direct_test_21 1KHCW(from dirPP[0])+1KHCW(from ldbPP[0])+1KHCW(from dirPP[1])
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv unit_idle_direct_test_21 -tv g_prohot_bgcfg_agi_dis    -dirtag unit_idle_direct_test_21_TEST00      
+
+#unit_idle_direct_test_22 cq_inflight=16  for each LDBCQ; after all available tokens returns, the CQ inflight limit reached is the only condition causes unit_idle
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv unit_idle_direct_test_22 -tv g_prohot_bgcfg_agi_dis    -dirtag unit_idle_direct_test_22_TEST00     
+
+#unit_idle_direct_test_23 qid_inflight=16 for each LDBQID; after all available tokens returns, the QID inflight limit reached is the only condition causes unit_idle
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv unit_idle_direct_test_23 -tv g_prohot_bgcfg_agi_dis    -dirtag unit_idle_direct_test_23_TEST00      
+
+#unit_idle_direct_test_24    1KHCW (from dirPP[0])+1KHCW(from ldbPP[0])+1KHCW(from dirPP[1]) ; set tot inflight limit
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv unit_idle_direct_test_24 -tv g_prohot_bgcfg_agi_dis    -dirtag unit_idle_direct_test_24_TEST00       
+
+#unit_idle_direct_test_30 cq_depth=8
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv unit_idle_direct_test_30 -tv g_prohot_bgcfg_agi_dis    -dirtag unit_idle_direct_test_30_TEST00      
+
+#############################
+#############################
+#MEAS
+#############################
+#############################
+######################
+#pick up a rnd test
+######################
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv dtrf_meas_4dir4ldb_dt000   -dirtag hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202     
+
+######################
+##MEAS turned on
+#  +hqmproc_sys_qidits_enable=1 
+######################
+#IDSI_CTRL=0
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv dtrf_meas_4dir4ldb_dt001   -dirtag hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202_MEASRND_DSICTRL0_T00     
+
+
+#IDSI_CTRL=1
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv dtrf_meas_4dir4ldb_dt002   -dirtag hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202_MEASRND_DSICTRL1_T00   
+
+#IDSI_CTRL=2
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv dtrf_meas_4dir4ldb_dt003   -dirtag hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202_MEASRND_DSICTRL2_T00   
+
+#IDSI_CTRL=3
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv dtrf_meas_4dir4ldb_dt004   -dirtag hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202_MEASRND_DSICTRL3_T00   
+
+
+#############################
+#############################
+#QE.prio
+#############################
+#############################
+######################
+#+has_qpri_sel_mode=1 (rnd {0:1})
+#
+#
+#+has_qpri_sel_mode=9 (rnd {0:7})
+######################
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv dtrf_qeprio_4dir4ldb_dt000   -dirtag hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202_QPRIMODE1    
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv dtrf_qeprio_4dir4ldb_dt001   -dirtag hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202_QPRIMODE2    
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv dtrf_qeprio_4dir4ldb_dt002   -dirtag hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202_QPRIMODE3    
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv dtrf_qeprio_4dir4ldb_dt003   -dirtag hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202_QPRIMODE4    
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv dtrf_qeprio_4dir4ldb_dt004   -dirtag hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202_QPRIMODE5   
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv dtrf_qeprio_4dir4ldb_dt005   -dirtag hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202_QPRIMODE6 
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv dtrf_qeprio_4dir4ldb_dt006   -dirtag hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202_QPRIMODE7
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv dtrf_qeprio_4dir4ldb_dt007   -dirtag hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202_QPRIMODE8    
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ldbmix_rnd0 -tv dtrf_qeprio_4dir4ldb_dt008   -dirtag hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202_QPRIMODE9   
+
+
+###############
+##### 8LDB 1map Scenario 2 Test
+###############
+#####
+#ldbPP[8] sends out QID 0/1/2 QATM
+#ldbPP[9] sends out QID 4/5/6 QORD
+#dirPP[4] sends out QID 0/1/2 QDIR
+#QID[0] => CQ[0]        QATM
+#QID[1] => CQ[2]        QATM
+#QID[2] => CQ[2]        QATM
+#QID[3] => CQ[3]        QUNO
+#QID[4] => CQ[4]        QORD
+#QID[5] => CQ[5]        QORD
+#QID[6] => CQ[6]        QORD
+#QID[7] => CQ[7]        QUNO
+#
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb10pp8cqdir8pp_1map_scen2_smk00_flow -tv ldb10pp8cqdir8pp_1map_scen2_smk00_cfg   -dirtag ldb10pp8cqdir8pp_1map_scen2_SMK00    
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb10pp8cqdir8pp_1map_scen2_smk01 -tv g_rtnflow   -dirtag ldb10pp8cqdir8pp_1map_scen2_SMK01    
+
+
+####HQMV30_VASRESET_TEMP_REVISIT####        ##########################
+####HQMV30_VASRESET_TEMP_REVISIT####        ##########################
+####HQMV30_VASRESET_TEMP_REVISIT####        #Scenario 1 
+####HQMV30_VASRESET_TEMP_REVISIT####        #8VAS, VASRST 
+####HQMV30_VASRESET_TEMP_REVISIT####        ##########################
+####HQMV30_VASRESET_TEMP_REVISIT####        ##########################
+####HQMV30_VASRESET_TEMP_REVISIT####        #VAS[0] UNO
+####HQMV30_VASRESET_TEMP_REVISIT####        $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv vasrst_vas0uno_t0 -tv ldb8ppdir8pp_qid1map_mvas_stream_ord_test0 -tv ldb8ppdir8pp_qid1map_mvas_cfg0 -tv scen1_vasrst_test0   -dirtag VASRST_VAS0UNO_STREAMORDTEST000   
+####HQMV30_VASRESET_TEMP_REVISIT####        
+####HQMV30_VASRESET_TEMP_REVISIT####        #VAS[1] UNO
+####HQMV30_VASRESET_TEMP_REVISIT####        $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv vasrst_vas1uno_t0 -tv ldb8ppdir8pp_qid1map_mvas_stream_ord_test0 -tv ldb8ppdir8pp_qid1map_mvas_cfg0 -tv scen1_vasrst_test0   -dirtag VASRST_VAS1UNO_STREAMORDTEST000  
+####HQMV30_VASRESET_TEMP_REVISIT####        
+####HQMV30_VASRESET_TEMP_REVISIT####        #VAS[2] ATM
+####HQMV30_VASRESET_TEMP_REVISIT####        $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv vasrst_vas2atm_t0 -tv ldb8ppdir8pp_qid1map_mvas_stream_ord_test0 -tv ldb8ppdir8pp_qid1map_mvas_cfg0 -tv scen1_vasrst_test0   -dirtag VASRST_VAS2ATM_STREAMORDTEST000   
+####HQMV30_VASRESET_TEMP_REVISIT####        
+####HQMV30_VASRESET_TEMP_REVISIT####        #VAS[3] ATM
+####HQMV30_VASRESET_TEMP_REVISIT####        $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv vasrst_vas3atm_t0 -tv ldb8ppdir8pp_qid1map_mvas_stream_ord_test0 -tv ldb8ppdir8pp_qid1map_mvas_cfg0 -tv scen1_vasrst_test0   -dirtag VASRST_VAS3ATM_STREAMORDTEST000  
+####HQMV30_VASRESET_TEMP_REVISIT####        
+####HQMV30_VASRESET_TEMP_REVISIT####        
+####HQMV30_VASRESET_TEMP_REVISIT####        #VAS[4] ORD
+####HQMV30_VASRESET_TEMP_REVISIT####        $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv vasrst_vas4ord_t0 -tv ldb8ppdir8pp_qid1map_mvas_stream_ord_test0 -tv ldb8ppdir8pp_qid1map_mvas_cfg0 -tv scen1_vasrst_test0   -dirtag VASRST_VAS4ORD_STREAMORDTEST000   
+####HQMV30_VASRESET_TEMP_REVISIT####        
+####HQMV30_VASRESET_TEMP_REVISIT####        #VAS[5] ORD
+####HQMV30_VASRESET_TEMP_REVISIT####        $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv vasrst_vas5ord_t0 -tv ldb8ppdir8pp_qid1map_mvas_stream_ord_test0 -tv ldb8ppdir8pp_qid1map_mvas_cfg0 -tv scen1_vasrst_test0   -dirtag VASRST_VAS5ORD_STREAMORDTEST000   
+####HQMV30_VASRESET_TEMP_REVISIT####        
+####HQMV30_VASRESET_TEMP_REVISIT####        #VAS[6] DIR
+####HQMV30_VASRESET_TEMP_REVISIT####        $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv vasrst_vas6dir_t0 -tv ldb8ppdir8pp_qid1map_mvas_stream_ord_test0 -tv ldb8ppdir8pp_qid1map_mvas_cfg0 -tv scen1_vasrst_test0   -dirtag VASRST_VAS6DIR_STREAMORDTEST000   
+####HQMV30_VASRESET_TEMP_REVISIT####        
+####HQMV30_VASRESET_TEMP_REVISIT####        #VAS[1] UNO
+####HQMV30_VASRESET_TEMP_REVISIT####        $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv vasrst_vas1uno_t0 -tv ldb8ppdir8pp_qid1map_mvas_stream_ord_test0 -tv ldb8ppdir8pp_qid1map_mvas_cfg0 -tv scen1_vasrst_test0   -dirtag VASRST_VAS1UNO_STREAMORDTEST000   
+####HQMV30_VASRESET_TEMP_REVISIT####        
+####HQMV30_VASRESET_TEMP_REVISIT####        #VAS[2] ATM
+####HQMV30_VASRESET_TEMP_REVISIT####        $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv vasrst_vas2atm_t0 -tv ldb8ppdir8pp_qid1map_mvas_stream_ord_test0 -tv ldb8ppdir8pp_qid1map_mvas_cfg0 -tv scen1_vasrst_test0   -dirtag VASRST_VAS2ATM_STREAMORDTEST000   
+####HQMV30_VASRESET_TEMP_REVISIT####        
+####HQMV30_VASRESET_TEMP_REVISIT####        #VAS[3] ATM
+####HQMV30_VASRESET_TEMP_REVISIT####        $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv vasrst_vas3atm_t0 -tv ldb8ppdir8pp_qid1map_mvas_stream_ord_test0 -tv ldb8ppdir8pp_qid1map_mvas_cfg0 -tv scen1_vasrst_test0   -dirtag VASRST_VAS3ATM_STREAMORDTEST000   
+####HQMV30_VASRESET_TEMP_REVISIT####        
+####HQMV30_VASRESET_TEMP_REVISIT####        
+####HQMV30_VASRESET_TEMP_REVISIT####        #VAS[4] ORD
+####HQMV30_VASRESET_TEMP_REVISIT####        $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv vasrst_vas4ord_t0 -tv ldb8ppdir8pp_qid1map_mvas_stream_ord_test0 -tv ldb8ppdir8pp_qid1map_mvas_cfg0 -tv scen1_vasrst_test0   -dirtag VASRST_VAS4ORD_STREAMORDTEST000   
+####HQMV30_VASRESET_TEMP_REVISIT####        
+####HQMV30_VASRESET_TEMP_REVISIT####        #VAS[5] ORD
+####HQMV30_VASRESET_TEMP_REVISIT####        $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv vasrst_vas5ord_t0 -tv ldb8ppdir8pp_qid1map_mvas_stream_ord_test0 -tv ldb8ppdir8pp_qid1map_mvas_cfg0 -tv scen1_vasrst_test0   -dirtag VASRST_VAS5ORD_STREAMORDTEST000   
+####HQMV30_VASRESET_TEMP_REVISIT####        
+####HQMV30_VASRESET_TEMP_REVISIT####        #VAS[6] DIR
+####HQMV30_VASRESET_TEMP_REVISIT####        $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv vasrst_vas6dir_t0 -tv ldb8ppdir8pp_qid1map_mvas_stream_ord_test0 -tv ldb8ppdir8pp_qid1map_mvas_cfg0 -tv scen1_vasrst_test0   -dirtag VASRST_VAS6DIR_STREAMORDTEST000   
+####HQMV30_VASRESET_TEMP_REVISIT####        
+####HQMV30_VASRESET_TEMP_REVISIT####        #VAS[7] DIR
+####HQMV30_VASRESET_TEMP_REVISIT####        $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv vasrst_vas7dir_t0 -tv ldb8ppdir8pp_qid1map_mvas_stream_ord_test0 -tv ldb8ppdir8pp_qid1map_mvas_cfg0 -tv scen1_vasrst_test0   -dirtag VASRST_VAS7DIR_STREAMORDTEST000   
+####HQMV30_VASRESET_TEMP_REVISIT####        
+####HQMV30_VASRESET_TEMP_REVISIT####        #VAS[7] DIR
+####HQMV30_VASRESET_TEMP_REVISIT####        $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv vasrst_vas7dir_t0 -tv ldb8ppdir8pp_qid1map_mvas_stream_ord_test0 -tv ldb8ppdir8pp_qid1map_mvas_cfg0 -tv scen1_vasrst_test0   -dirtag VASRST_VAS7DIR_STREAMORDTEST000   
+####HQMV30_VASRESET_TEMP_REVISIT####        
+####HQMV30_VASRESET_TEMP_REVISIT####        ##########################
+####HQMV30_VASRESET_TEMP_REVISIT####        ##########################
+####HQMV30_VASRESET_TEMP_REVISIT####        #VASRST + reprogramming  +has_vasrst_reprogram  +has_vasrst_counter_poll  +HQM_BYPASS_CQ_CHECK
+####HQMV30_VASRESET_TEMP_REVISIT####        ##########################
+####HQMV30_VASRESET_TEMP_REVISIT####        ##########################
+####HQMV30_VASRESET_TEMP_REVISIT####        #VAS[0] UNO
+####HQMV30_VASRESET_TEMP_REVISIT####        $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv vasrst_vas0uno_t0 -tv vasrst_reprog -tv ldb8ppdir8pp_qid1map_mvas_stream_ord_test0 -tv ldb8ppdir8pp_qid1map_mvas_cfg0 -tv scen1_vasrst_test0   -dirtag VASRSTRECFG_VAS0UNO_STREAMORDTEST000   
+####HQMV30_VASRESET_TEMP_REVISIT####        
+####HQMV30_VASRESET_TEMP_REVISIT####        #VAS[1] UNO
+####HQMV30_VASRESET_TEMP_REVISIT####        $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv vasrst_vas1uno_t0 -tv vasrst_reprog -tv ldb8ppdir8pp_qid1map_mvas_stream_ord_test0 -tv ldb8ppdir8pp_qid1map_mvas_cfg0 -tv scen1_vasrst_test0   -dirtag VASRSTRECFG_VAS1UNO_STREAMORDTEST000   
+####HQMV30_VASRESET_TEMP_REVISIT####        
+####HQMV30_VASRESET_TEMP_REVISIT####        #VAS[2] ATM
+####HQMV30_VASRESET_TEMP_REVISIT####        $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv vasrst_vas2atm_t0 -tv vasrst_reprog -tv ldb8ppdir8pp_qid1map_mvas_stream_ord_test0 -tv ldb8ppdir8pp_qid1map_mvas_cfg0 -tv scen1_vasrst_test0   -dirtag VASRSTRECFG_VAS2ATM_STREAMORDTEST000  
+####HQMV30_VASRESET_TEMP_REVISIT####        
+####HQMV30_VASRESET_TEMP_REVISIT####        #VAS[3] ATM
+####HQMV30_VASRESET_TEMP_REVISIT####        $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv vasrst_vas3atm_t0 -tv vasrst_reprog -tv ldb8ppdir8pp_qid1map_mvas_stream_ord_test0 -tv ldb8ppdir8pp_qid1map_mvas_cfg0 -tv scen1_vasrst_test0   -dirtag VASRSTRECFG_VAS3ATM_STREAMORDTEST000   
+####HQMV30_VASRESET_TEMP_REVISIT####        
+####HQMV30_VASRESET_TEMP_REVISIT####        
+####HQMV30_VASRESET_TEMP_REVISIT####        #VAS[4] ORD
+####HQMV30_VASRESET_TEMP_REVISIT####        $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv vasrst_vas4ord_t0 -tv vasrst_reprog -tv ldb8ppdir8pp_qid1map_mvas_stream_ord_test0 -tv ldb8ppdir8pp_qid1map_mvas_cfg0 -tv scen1_vasrst_test0   -dirtag VASRSTRECFG_VAS4ORD_STREAMORDTEST000  
+####HQMV30_VASRESET_TEMP_REVISIT####        
+####HQMV30_VASRESET_TEMP_REVISIT####        #VAS[5] ORD
+####HQMV30_VASRESET_TEMP_REVISIT####        $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv vasrst_vas5ord_t0 -tv vasrst_reprog -tv ldb8ppdir8pp_qid1map_mvas_stream_ord_test0 -tv ldb8ppdir8pp_qid1map_mvas_cfg0 -tv scen1_vasrst_test0   -dirtag VASRSTRECFG_VAS5ORD_STREAMORDTEST000  
+####HQMV30_VASRESET_TEMP_REVISIT####        
+####HQMV30_VASRESET_TEMP_REVISIT####        #VAS[6] DIR
+####HQMV30_VASRESET_TEMP_REVISIT####        $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv vasrst_vas6dir_t0 -tv vasrst_reprog -tv ldb8ppdir8pp_qid1map_mvas_stream_ord_test0 -tv ldb8ppdir8pp_qid1map_mvas_cfg0 -tv scen1_vasrst_test0   -dirtag VASRSTRECFG_VAS6DIR_STREAMORDTEST000   
+####HQMV30_VASRESET_TEMP_REVISIT####        
+####HQMV30_VASRESET_TEMP_REVISIT####        #VAS[7] DIR
+####HQMV30_VASRESET_TEMP_REVISIT####        $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv vasrst_vas7dir_t0 -tv vasrst_reprog -tv ldb8ppdir8pp_qid1map_mvas_stream_ord_test0 -tv ldb8ppdir8pp_qid1map_mvas_cfg0 -tv scen1_vasrst_test0   -dirtag VASRSTRECFG_VAS7DIR_STREAMORDTEST000   
+####HQMV30_VASRESET_TEMP_REVISIT####        
+
+
+########################
+#######Alarm tests
+# CWDT alarm
+# ingress alarm (ORD programming)
+# hw alarm (AQED parity error)
+########################
+#ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly4_alarm
+#ldbPP[2] running ORD, (not programmed)  +hqmsys_ingalenable  +HQM_EOT_RD_SEQ_BYPASS_CREDIT_CHECK
+#ldbPP[3] running ATM
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly4_alarm -tv cialtimer_cwdt_intrv_low_misc_alarm -tv dtrf_cwdt_dt000   -dirtag ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly4_alarm_T00 
+
+
+#Inject DQED parity error by
+#  +hqmproc_hwerrinj_enable=1  +hqmproc_hwerrinj_waitnum=100  +hqmproc_hwerrinj_loopnum=100  +has_chp_dqed_parerr_inj  +HQM_CHP_FLID_PARITY_ERROR_INJECTION_TEST
+#
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_cqdep8_cqthres7_cial_test0_respdly4_alarm_t01 -tv cialtimer_cwdt_intrv_low_misc_alarm -tv dtrf_dqed_parerr_dt000   -dirtag cial_respdly4_alarm_T01  
+
+
+######################################################################################### 03302020 try rop surv controls
+#########################################################################################
+#  +hqmproc_surv_enable=1  +hqmproc_surv_ctrl_sel=10  +hqmproc_surv_rop_sel=100 
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ordmix_test0 -tv survrop_dtrf_4dir4ldb_dt000   -dirtag ldb4ppdir4pp_4LDB4DIR_SMAP_ORDMIXFRAGM11_FRAGDIR_TEST202.ropsurv0    
+
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ordmix_test0 -tv survrop_dtrf_4dir4ldb_dt001   -dirtag ldb4ppdir4pp_4LDB4DIR_SMAP_ORDMIXFRAGM11_FRAGDIR_TEST202.ropsurv1    
+
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ordmix_test0 -tv survrop_dtrf_4dir4ldb_dt002   -dirtag ldb4ppdir4pp_4LDB4DIR_SMAP_ORDMIXFRAGM11_FRAGDIR_TEST202.ropsurv2    
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ordmix_test0 -tv survrop_dtrf_4dir4ldb_dt003   -dirtag ldb4ppdir4pp_4LDB4DIR_SMAP_ORDMIXFRAGM11_FRAGDIR_TEST202.ropsurv3    
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ordmix_test0 -tv survrop_dtrf_4dir4ldb_dt004   -dirtag ldb4ppdir4pp_4LDB4DIR_SMAP_ORDMIXFRAGM11_FRAGDIR_TEST202.ropsurv4    
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ordmix_test0 -tv survrop_dtrf_4dir4ldb_dt005   -dirtag ldb4ppdir4pp_4LDB4DIR_SMAP_ORDMIXFRAGM11_FRAGDIR_TEST202.ropsurv5    
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ordmix_test0 -tv survrop_dtrf_4dir4ldb_dt006   -dirtag ldb4ppdir4pp_4LDB4DIR_SMAP_ORDMIXFRAGM11_FRAGDIR_TEST202.ropsurv6    
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ordmix_test0 -tv survrop_dtrf_4dir4ldb_dt007   -dirtag ldb4ppdir4pp_4LDB4DIR_SMAP_ORDMIXFRAGM11_FRAGDIR_TEST202.ropsurv7    
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ordmix_test0 -tv survrop_dtrf_4dir4ldb_dt008   -dirtag ldb4ppdir4pp_4LDB4DIR_SMAP_ORDMIXFRAGM11_FRAGDIR_TEST202.ropsurv8    
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ordmix_test0 -tv survrop_dtrf_4dir4ldb_dt009   -dirtag ldb4ppdir4pp_4LDB4DIR_SMAP_ORDMIXFRAGM11_FRAGDIR_TEST202.ropsurv9    
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ordmix_test0 -tv survrop_dtrf_4dir4ldb_dt010   -dirtag ldb4ppdir4pp_4LDB4DIR_SMAP_ORDMIXFRAGM11_FRAGDIR_TEST202.ropsurv10    
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ordmix_test0 -tv survrop_dtrf_4dir4ldb_dt011   -dirtag ldb4ppdir4pp_4LDB4DIR_SMAP_ORDMIXFRAGM11_FRAGDIR_TEST202.ropsurv11    
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ordmix_test0 -tv survrop_dtrf_4dir4ldb_dt012   -dirtag ldb4ppdir4pp_4LDB4DIR_SMAP_ORDMIXFRAGM11_FRAGDIR_TEST202.ropsurv12    
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ordmix_test0 -tv survrop_dtrf_4dir4ldb_dt013   -dirtag ldb4ppdir4pp_4LDB4DIR_SMAP_ORDMIXFRAGM11_FRAGDIR_TEST202.ropsurv13    
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ordmix_test0 -tv survrop_dtrf_4dir4ldb_dt014   -dirtag ldb4ppdir4pp_4LDB4DIR_SMAP_ORDMIXFRAGM11_FRAGDIR_TEST202.ropsurv14    
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ordmix_test0 -tv survrop_dtrf_4dir4ldb_dt015   -dirtag ldb4ppdir4pp_4LDB4DIR_SMAP_ORDMIXFRAGM11_FRAGDIR_TEST202.ropsurv15    
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ordmix_test0 -tv survrop_dtrf_4dir4ldb_dt016   -dirtag ldb4ppdir4pp_4LDB4DIR_SMAP_ORDMIXFRAGM11_FRAGDIR_TEST202.ropsurv16    
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ordmix_test0 -tv survrop_dtrf_4dir4ldb_dt017   -dirtag ldb4ppdir4pp_4LDB4DIR_SMAP_ORDMIXFRAGM11_FRAGDIR_TEST202.ropsurv17    
+
+######surv chp  +hqmproc_surv_ctrl_sel=7 
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb4ppdir4pp_cqdep168_cqthres157_trf_1 -tv cqintr_cqdep_cqthres_cial_cwdt_test0 -tv cialtimer_cwdt_intrv_low -tv survchp_dtrf_4dir4ldb_dt000   -model hqm  -dirtag CIAL_cqintr_ldb4ppdir4pp_cqdep168_cqthres157_trf_1_cial_cwdt_test0.surv7.chpsel1   
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb4ppdir4pp_cqdep168_cqthres157_trf_1 -tv cqintr_cqdep_cqthres_cial_cwdt_test0 -tv cialtimer_cwdt_intrv_low -tv survchp_dtrf_4dir4ldb_dt001   -model hqm  -dirtag CIAL_cqintr_ldb4ppdir4pp_cqdep168_cqthres157_trf_1_cial_cwdt_test0.surv7.chpsel0   
+
+
+######################################################################################### 11162020 try lsp surv controls
+#########################################################################################
+#  +hqmproc_surv_enable=1  +hqmproc_surv_ctrl_sel=3  +hqmproc_surv_rop_sel=22   CFG_CONTROL_PIPELINE_CREDITS.QED_DEQ_PIPE_CREDITS=1 (default 0x18)
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv ldb4ppdir4pp_qid1map_ordmix_test0 -tv survlsp_dtrf_4dir4ldb_dt000   -dirtag ldb4ppdir4pp_4LDB4DIR_SMAP_ORDMIXFRAGM11_FRAGDIR_TEST202.lspsurv22 
+
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb4ppdir4pp_cqdep8_cqthres7_trf_ims -tv cqintr_cqdep_cqthres_cial_test0 -tv survlsp_selt00   -dirtag CIAL_IMS_ldb4ppdir4pp_cqintr_cqdep8_cqthres7_cial_test0.lspsurv22 
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb4ppdir4pp_cqdep168_cqthres157_trf_ims -tv cqintr_cqdep_cqthres_cial_test0 -tv survlsp_selt00   -dirtag CIAL_ldb4ppdir4pp_cqintr_cqdep168_cqthres157_cial_test0_ims.lspsurv22    
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb4ppdir4pp_cqdep168_cqthres157_trf_msix_ims -tv cqintr_cqdep_cqthres_cial_test0 -tv survlsp_selt00   -dirtag CIAL_ldb4ppdir4pp_cqintr_cqdep168_cqthres157_cial_test0_msix_ims.lspsurv22    
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb4ppdir4pp_cqdep168_cqthres157_trf_ims -tv cqintr_cqdep_cqthres_cial_test1 -tv survlsp_selt00   -dirtag CIAL_ldb4ppdir4pp_cqintr_cqdep168_cqthres157_cial_test1_ims.lspsurv22  
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb4ppdir4pp_cqdep168_cqthres157_trf_msix_ims -tv cqintr_cqdep_cqthres_cial_test1 -tv survlsp_selt00   -dirtag CIAL_ldb4ppdir4pp_cqintr_cqdep168_cqthres157_cial_test1_msix_ims.lspsurv22   
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb4ppdir4pp_cqdep168_cqthres157_trf_ims -tv cqintr_cqdep_cqthres_cial_test2 -tv survlsp_selt00   -dirtag CIAL_ldb4ppdir4pp_cqintr_cqdep168_cqthres157_cial_test2_ims.lspsurv22   
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb4ppdir4pp_cqdep168_cqthres157_trf_msix_ims -tv cqintr_cqdep_cqthres_cial_test2 -tv survlsp_selt00   -dirtag CIAL_ldb4ppdir4pp_cqintr_cqdep168_cqthres157_cial_test2_msix_ims.lspsurv22 
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb4ppdir4pp_cqdep168_cqthres157_trf_ims -tv cqintr_cqdep_cqthres_cial_test3 -tv survlsp_selt00   -dirtag CIAL_ldb4ppdir4pp_cqintr_cqdep168_cqthres157_cial_test3_ims.lspsurv22    
+
+$WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test -tv cqintr_ldb4ppdir4pp_cqdep168_cqthres157_trf_msix_ims -tv cqintr_cqdep_cqthres_cial_test3 -tv survlsp_selt00   -dirtag CIAL_ldb4ppdir4pp_cqintr_cqdep168_cqthres157_cial_test3_msix_ims.lspsurv22    
+
+-defaults  -simv_args '"' +hqmproc_batch_max=4 '"' -simv_args-

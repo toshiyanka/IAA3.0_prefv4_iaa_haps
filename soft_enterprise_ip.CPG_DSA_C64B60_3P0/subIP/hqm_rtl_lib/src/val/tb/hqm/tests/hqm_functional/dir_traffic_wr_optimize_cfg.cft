@@ -1,0 +1,50 @@
+##################################################
+## PVIM:1604738569
+## Write Optimization for DIR traffic
+## scenario
+## Configure 4 DIR Producer Ports DIR PP[3:0]
+## DIR PP[0] enqueues 1 UNO HCW w/QID==0 every 32 clocks (16B at  a time ) 
+## DIR PP[1] enqueues 1 UNO HCW w/QID==1 every 32 clocks (16B at a  time) 
+## DIR PP[2] enqueues 1 UNO HCW w/QID==2 every 32 clocks (16B at a  time) 
+## DIR PP[3] enqueues 1 UNO HCW w/QID==3 every 32 clocks (16B at a time)
+## Configure 1 LDB Producer Port  LDB PP[0]
+## LDB PP[0] enqueues 4 DIR HCW w/QID[4] 
+## (to DIR CQ[4]) every 32 clocks (64B every 32 clocks).
+## Validate that > 40% of DIR QEs are in posted 
+## write payloads of 32B/2QE, 48B/3QE, or 64B/4 QE.  
+##################################################
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+  ldb qid 0
+  ldb qid 1
+  ldb qid 2
+  ldb qid 3
+  dir qid 4
+
+  vas VAS0:* credit_cnt=1024 ldb_qidv0=1 ldb_qidv1=1 ldb_qidv2=1 ldb_qidv3=1 dir_qidv4=1
+
+  dir pp 0 vas=VAS0
+  dir pp 1 vas=VAS0
+  dir pp 2 vas=VAS0
+  dir pp 3 vas=VAS0
+  ldb pp 0 vas=VAS0
+
+  ldb pp 0 vas=VAS0  
+  ldb pp 1 vas=VAS0
+  ldb pp 2 vas=VAS0
+  ldb pp 3 vas=VAS0
+  dir pp 4 vas=VAS0
+  
+  ldb cq 0 gpa=sm qidv0=1 qidix0=0 
+  ldb cq 1 gpa=sm qidv0=1 qidix0=1
+  ldb cq 2 gpa=sm qidv0=1 qidix0=2
+  ldb cq 3 gpa=sm qidv0=1 qidix0=3
+  dir cq 4 cq_depth=1024 gpa=sm 
+  
+
+cfg_end
+
+rd hqm_pf_cfg_i.vendor_id

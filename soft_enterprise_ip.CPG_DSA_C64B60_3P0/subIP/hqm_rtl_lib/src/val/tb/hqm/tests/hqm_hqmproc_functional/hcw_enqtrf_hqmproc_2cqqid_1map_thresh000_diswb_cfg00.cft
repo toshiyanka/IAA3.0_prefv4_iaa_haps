@@ -1,0 +1,110 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup FUNC_VF BAR to a base address of 0x00000003_xxxxxxxx
+#### wr hqm_pf_cfg_i.sriov_cap_func_bar_l 0x00000000
+#### wr hqm_pf_cfg_i.sriov_cap_func_bar_u 0x00000003
+###################################
+# Enable PF memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+###################################
+wr config_master.cfg_pm_pmcsr_disable.disable 0x0
+rd config_master.cfg_pm_pmcsr_disable.disable 0x0
+##
+###poll to Wait for reset to be done
+poll config_master.cfg_diagnostic_reset_status 0x800003ff 0x800003ff 500
+###poll to Wait for unit_idle to be done
+poll config_master.cfg_diagnostic_idle_status 0x0007ffff 0x0007ffff 500
+###################################
+
+
+
+##########################
+#Configurations
+##########################
+#2dirPP
+#2ldbPP
+#2dirQID
+#2ldbQID
+#qid2cq mapping: 
+#QID[0]=>CQ[0]
+#QID[1]=>CQ[1] 
+####
+#ORD setting: 2QIDs using mode4
+####
+####
+#set dir_qid_dpth_thrsh
+#set atm_qid_dpth_thrsh
+#set nalb_qid_dpth_thrsh
+####
+#cq_depth=1024
+###########################
+###########################
+
+
+###################################
+# Setup LUTs used by HCWs
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+   #MSIX programming
+   msix_alarm 0 addr=0xbeefcafe0000110 data=0xbeefcace enable=1
+  								    
+   
+   msix_cq  1  addr=0x2000cafebebc000 data=0xbb331000 is_ldb=1 cq=0
+   msix_cq  2  addr=0x2010cafebebc010 data=0xbb331001 is_ldb=1 cq=1 
+ 								    
+   msix_cq 33 addr=0xab001111bce0000 data=0x55aa5a00 is_ldb=0 cq=0  
+   msix_cq 34 addr=0xab011111cde0100 data=0x55aa5a01 is_ldb=0 cq=1  
+     
+								    
+  dir qid 0 dir_qid_depth_thresh=256
+  dir qid 1 dir_qid_depth_thresh=64
+ 
+  ldb qid 0 qid_ldb_inflight_limit=512 fid_cfg_v=1  atm_qid_depth_thresh=500  nalb_qid_depth_thresh=256
+  ldb qid 1 qid_ldb_inflight_limit=512 fid_cfg_v=1  atm_qid_depth_thresh=128  nalb_qid_depth_thresh=64
+   
+  
+  vas 0  credit_cnt=4096 
+  vas 0  dir_qidv0=1 dir_qidv1=1 
+  vas 0  ldb_qidv0=1 ldb_qidv1=1  	
+
+  dir pp 0  vas=0  
+  dir pp 1  vas=0  
+   
+  dir cq 0  cq_depth=1024 gpa=sm cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 disable_wb_opt=1
+  dir cq 1  cq_depth=1024 gpa=sm cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 
+
+  ldb pp 0  vas=0   
+  ldb pp 1  vas=0 
+  
+  ldb cq 0  cq_depth=1024 hist_list_base=0x000 hist_list_limit=0x3ff qidv0=1 qidix0=0 pri0=0 qidv1=0 qidix1=1 pri1=0 qidv2=0 qidix2=2 pri0=0 qidv3=0 qidix3=3 pri3=0 gpa=sm cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1
+  ldb cq 1  cq_depth=1024 hist_list_base=0x400 hist_list_limit=0x7ff qidv0=0 qidix0=0 pri0=0 qidv1=1 qidix1=1 pri1=0 qidv2=0 qidix2=2 pri0=0 qidv3=0 qidix3=3 pri3=0 gpa=sm cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1
+    
+
+     
+
+cfg_end
+
+##ingress alarm enable
+#wr hqm_system_csr.ingress_alarm_enable 0xffffffff
+#rd hqm_system_csr.ingress_alarm_enable 0x0000003f
+
+
+

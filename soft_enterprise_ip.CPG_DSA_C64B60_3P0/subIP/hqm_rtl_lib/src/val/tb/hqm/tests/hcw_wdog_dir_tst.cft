@@ -1,0 +1,88 @@
+# Configure WD timer for CQ[4]
+
+wr credit_hist_pipe.cfg_dir_cq_timer_ctl        0x102
+wr credit_hist_pipe.cfg_dir_wd_enb_interval     0x10000010
+wr credit_hist_pipe.cfg_dir_wd_disable0         0xffffffff
+wr credit_hist_pipe.cfg_dir_wd_disable1         0xffffffff
+wr credit_hist_pipe.cfg_dir_wd_disable2         0xffffffff
+wr credit_hist_pipe.cfg_dir_wd_disable3         0xffffffff
+
+wr credit_hist_pipe.cfg_dir_cq_wd_enb[3]        0x01
+wr credit_hist_pipe.cfg_dir_cq_wd_enb[4]        0x01
+wr credit_hist_pipe.cfg_dir_cq_wd_enb[5]        0x01
+
+rd credit_hist_pipe.cfg_dir_cq_wd_enb[4]
+rd credit_hist_pipe.cfg_dir_cq_wd_enb[5]
+
+# check that no INTR when no hcw enqued (CQ empty & no activity at PP)
+IDLE 15000
+
+poll credit_hist_pipe.cfg_dir_wd_irq0  0x00  0xffffffff 100 
+poll credit_hist_pipe.cfg_dir_wd_irq1  0x00  0xffffffff 100 
+poll credit_hist_pipe.cfg_dir_wd_irq2  0x00  0xffffffff 100 
+poll credit_hist_pipe.cfg_dir_wd_irq3  0x00  0xffffffff 100 
+
+rd hqm_pf_cfg_i.vendor_id
+
+# enqueue HCWs & delay the token return
+HCW DIR:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=QID_4 dsi=0x302
+HCW DIR:1 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=QID_4 dsi=0x302
+HCW DIR:2 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=QID_4 dsi=0x302
+HCW DIR:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=QID_4 dsi=0x302
+HCW DIR:2 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=QID_4 dsi=0x302
+HCW DIR:3 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=QID_4 dsi=0x302
+HCW DIR:1 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=QID_4 dsi=0x302
+HCW DIR:2 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=QID_4 dsi=0x302
+HCW DIR:1 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=QID_4 dsi=0x302
+HCW DIR:2 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=QID_4 dsi=0x302
+HCW DIR:3 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=QID_4 dsi=0x302
+HCW DIR:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=QID_4 dsi=0x302
+HCW DIR:1 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=QID_4 dsi=0x302
+HCW DIR:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=QID_4 dsi=0x302
+HCW DIR:1 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=QID_4 dsi=0x302
+HCW DIR:3 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=QID_4 dsi=0x302
+HCW DIR:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=QID_4 dsi=0x302
+HCW DIR:1 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=QID_4 dsi=0x302
+HCW DIR:3 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=QID_4 dsi=0x302
+HCW DIR:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=QID_4 dsi=0x302
+HCW DIR:1 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=QID_4 dsi=0x302
+HCW DIR:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=QID_4 dsi=0x302
+HCW DIR:2 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=QID_4 dsi=0x302
+HCW DIR:3 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=QID_4 dsi=0x302
+
+HCW DIR:2 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=QID_3 dsi=0x302
+HCW DIR:3 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=QID_3 dsi=0x302
+
+idle 3000
+
+#Empty CQ 3 should not generate WDTO
+HCW DIR:QID_3 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=1 msgtype=0 qpri=0 qtype=dir qid=QID_3 dsi=0x302
+
+rd hqm_pf_cfg_i.vendor_id
+
+ poll credit_hist_pipe.cfg_dir_wdto_0       0x10   0xffffffff   10
+ poll credit_hist_pipe.cfg_dir_wdto_1       0x00   0xffffffff   10 
+ poll credit_hist_pipe.cfg_dir_wdto_2       0x00   0xffffffff   10 
+ poll credit_hist_pipe.cfg_dir_wdto_3       0x00   0xffffffff   10 
+
+ rd credit_hist_pipe.cfg_dir_wd_irq0
+ rd credit_hist_pipe.cfg_dir_wd_irq1
+ rd credit_hist_pipe.cfg_dir_wd_irq2
+ rd credit_hist_pipe.cfg_dir_wd_irq3
+
+ wr credit_hist_pipe.cfg_dir_wdto_0         0x10
+ poll credit_hist_pipe.cfg_dir_wdto_0       0x00   0xffffffff   10
+
+ poll credit_hist_pipe.cfg_dir_wd_disable0  0x10   0xffffffff   100
+ poll credit_hist_pipe.cfg_dir_wd_disable1  0x00   0xffffffff   100
+ poll credit_hist_pipe.cfg_dir_wd_disable2  0x00   0xffffffff   100
+ poll credit_hist_pipe.cfg_dir_wd_disable3  0x00   0xffffffff   100
+
+wr credit_hist_pipe.cfg_dir_wd_disable0     0x10
+poll credit_hist_pipe.cfg_dir_wd_disable0   0x00   0xffffffff   500
+
+rd hqm_pf_cfg_i.device_id
+
+HCW DIR:QID_4 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=23 msgtype=0 qpri=0 qtype=dir qid=QID_4 dsi=0x302
+
+IDLE 100

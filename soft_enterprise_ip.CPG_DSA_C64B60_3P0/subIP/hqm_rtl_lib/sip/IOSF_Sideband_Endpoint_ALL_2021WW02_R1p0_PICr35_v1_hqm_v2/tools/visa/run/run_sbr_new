@@ -1,0 +1,183 @@
+#!/usr/bin/csh -f
+####################################################
+####                 For sbr                    ####
+####################################################
+if (! $?prefix) then
+  setenv prefix iosfsbr_dynamo_
+endif
+
+if (! $?sbTopName ) then
+   setenv sbTopName sbr0
+endif
+
+
+# Setup variables pointing to cfg, .f, and .sv files.
+set visa_filelist_dir=${IP_ROOT}/tools/visa/filelist
+set visa_run_dir=${IP_ROOT}/tools/visa/run
+set visa_sim_dir=${IP_ROOT}/tools/visa/sim
+
+set visa_cfg=${sbTopName}_visa.cfg
+set visa_dotf=${sbTopName}_sb_top_dfx_visa.f
+set vcs_dotf=${visa_run_dir}/${sbTopName}_sbr_visa_tb.f
+set visa_dyntop=${sbTopName}_sbr_generic.sv
+set visa_sbtop=${prefix}${sbTopName}.sv
+
+
+
+
+# Run cfg-to-signal(VISA) utility
+#
+# (1) First copy the template cfg file from the ../router directory. 
+# (2) Then, fix top instance name with a perl regex/replace. 
+# (3) Process the cfg file.
+cp ../router/${visa_cfg} .
+#perl -pi -e "s/\/${sbTopName}\//\/${sbTopName}_sbr_generic\//" ./${visa_cfg}
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+
+if ("${EN_SBC_RTL_LIB_VISA_INSERTION}") then #ace visa flow
+cp ../router/add_ulm.cfg .
+cp ../router/add_ulm_1.cfg .
+echo "Changing ${visa_cfg}"
+sed -i -e "s/visa_ulm/visa_final_ulm/" ${visa_cfg}
+sed -i -e "/reg_start_index=0/a use_min_protection_latch=1" ${visa_cfg}
+sed -i -e "/set_oem_vis_top_lane/r add_ulm.cfg" ${visa_cfg}
+sed -i -e "/VISA signals for port 8/r add_ulm_1.cfg" ${visa_cfg}
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "Running visa_insert"
+echo "ace -g -egc"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+ace -g -egc -gen_enable_config_ovr 'IOSF_SBC_RTR::sbc_rtl_lib_VISA_INSERTION=1'
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "Running ACE VISA TEST"
+echo "Running visa_validate"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+setenv CTECH_LIB_NAME ${CTECH_SIM_LIB_NAME}
+setenv RESULTS_DIR $IP_ROOT/tools/visa/sim_${sbTopName}
+rm -rf $RESULTS_DIR
+ace -cc -ASSIGN -mc=sbc_visa_validate_tb_model -noegc -ASSIGN -m2e=sbc_visa_validate_tb_model \
+     -elab_models -results $RESULTS_DIR -vlog_opts "+define+SVA_OFF"
+ace -x -t sbr0_sbr_generic_visa_test1 -m sbc_visa_validate_tb_model -tim -nocleanup \
+     -results $RESULTS_DIR -simv_args "+VISA_TEST_SECURITY" -simv_args "+VISA_DEBUG"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "Copies of modified RTL"
+ls $IP_ROOT/GenRTL/IOSF_SBC_RTR/sbc_rtl_lib_VISA_INSERTION/altered/*.sv
+echo ""
+echo "GenRTL log files"
+ls $IP_ROOT/GenRTL/IOSF_SBC_RTR/sbc_rtl_lib_VISA_INSERTION/log/*.log
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+############### legacy flow #################################################
+else 
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "Running visa_sig2cfg"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+visa_sig2cfg -s ${visa_cfg} \
+             -l visa_sig2cfg_${sbTopName}.log
+
+
+
+# Run VISA insertion Utility Script
+#
+# (1) Copy over the dynamo wrapper
+# (2) Add the dynamo wrapper to the .f file
+# (3) Add the SBR top to the .f file.
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "Making copies of RTL to be modified"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+cp ../../../source/rtl/iosfsbc/router/${visa_dyntop}  .
+
+
+
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "Creating .f file for VISA"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+cp ../filelist/sb_top_dfx_visa.f      ${visa_dotf}
+echo "../run/${visa_dyntop}"       >> ${visa_dotf}
+
+
+
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "Running visa_insert"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+# visa_insert automatically calls visa_rtl_extract which creates a log file
+# that does not have a unique name. To resolve this, visa_rtl_extract
+# can be run (prior to visa_insert) with the -l option. The resulting
+# XML in, in turn, is fed to visa_insert. I don't have time to 
+# do/test this now. The only downside is that consecutive runs of 
+# visa_rtl_extract clobber the log file. This could be a problem
+# during debug of multiple router networks when using runFlow 
+# (and using netbatch). -JML
+rm -f ${visa_dyntop}_altered
+visa_insert -t ${sbTopName}_sbr_generic \
+            -f ./${visa_dotf} \
+            -c ${visa_cfg}.visa \
+            -l visa_insert_${sbTopName}.log
+
+
+# Save an altered Dynamo wrapper in the source/rtl/iosfsbc/router directory
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "Saving copies of modified RTL"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+perl -pi -e 's/\.xbar_out *\( *\) *,/\.xbar_out\(\), \/\/ lintra s-0214/g' ${visa_dyntop}_altered
+perl -pi -e 's/\.serial_cfg_out *\( *\) *,/\.serial_cfg_out\(\), \/\/ lintra s-0214/g' ${visa_dyntop}_altered
+perl -pi -e 's/\.xbar_ss_clk_out *\( *\) *,/\.xbar_ss_clk_out\(\), \/\/ lintra s-0214/g' ${visa_dyntop}_altered
+cp ${visa_dyntop}_altered ../../../source/rtl/iosfsbc/router/${visa_dyntop}_visaInserted
+
+
+# Run VISA validate utility to create test bench for visa 
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "Running visa_validate"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+visa_validate -c ${visa_cfg}.visa  \
+              -o ${sbTopName}_visa_tb.sv  \
+              -l visa_validate_${sbTopName}.log
+
+
+
+perl -pi -e 's/(.*)Unit Level Mux(.*)/       force `dut.fscan_mode = 0;/g' ${sbTopName}_visa_tb.sv 
+
+
+# Create .f file for VCS
+#
+# (1) Copy over the .f file for the testbench files. 
+# (2) Add top level HDL
+# (3) Add altered Dynamo wrapper
+# (4) Add VISA generated tb
+setenv CTECH_LIB_NAME ${CTECH_SIM_LIB_NAME}
+
+set rtl_list="${IP_ROOT}/tools/visa/run/${SIP_COMP_NAME}_rtl_list.f"
+
+${IP_ROOT}/scripts/qa/get_filelist.pl \
+   -run_ace \
+   -ace_model cdc_${sbTopName}_sbr_generic \
+   -ace_network ${SIP_CONF_NAME} \
+   -ace_filter Synthesis \
+   -format lintra \
+   -output_file ${rtl_list}
+
+set exitstatus=$status
+if( ${exitstatus} ) then
+   echo "run_sbr -E- get_filelist.pl failed."
+   exit ${exitstatus}
+endif
+
+perl -pi -e "s/.*${sbTopName}_sbr_generic.*//" ${rtl_list}
+
+cp    ${IP_ROOT}/tools/visa/filelist/sbr_visa_tb.f                        ${vcs_dotf}
+cat   ${rtl_list}                                                      >> ${vcs_dotf}
+echo '${IP_ROOT}'"/tools/visa/run/${sbTopName}_visa_tb.sv"             >> ${vcs_dotf}
+echo '${IP_ROOT}'"/tools/visa/run/${sbTopName}_sbr_generic.sv_altered" >> ${vcs_dotf}
+
+# Run the test bench
+#
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "Running VCS simulation"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+mkdir -p ../sim_${sbTopName}
+cd ../sim_${sbTopName}
+../sim/run_vcs.csh ${vcs_dotf} |tee ../run/vcs_compile_${sbTopName}.log
+./simv +VISA_DEBUG             |tee ../run/vcs_sim_${sbTopName}.log
+cd ../run
+rm -rf ../sim_${sbTopName}
+
+
+endif #ace visa

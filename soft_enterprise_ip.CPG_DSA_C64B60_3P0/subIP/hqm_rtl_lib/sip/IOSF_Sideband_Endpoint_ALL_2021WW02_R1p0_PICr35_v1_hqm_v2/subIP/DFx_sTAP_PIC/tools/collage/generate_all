@@ -1,0 +1,28 @@
+#!/bin/echo usage:source
+alias tsetup "source /p/com/env/psetup/prod/bin/setupTool"
+##############################################################################
+# ============================================
+# Setup file for IP Generation 
+# ============================================
+setenv SNPSLMD_LICENSE_FILE `getLf synopsys/coretools`
+setenv SNPSLMD_QUEUE true
+setenv MODEL_ROOT `git rev-parse --show-toplevel`
+setenv IP_ROOT $MODEL_ROOT/
+setenv ONECFG_CUST ICL
+setenv COLLAGE_WORK $MODEL_ROOT/tools/collage
+tsetup collage 5.4
+tsetup coretools  N-2017.12-SP1-2
+setenv GCC_LIB_VER "gcc-4.2.2_64"
+tsetup ovm 2.1.1_2
+tsetup lintra 14.1p6_shOpt64
+setenv RTL_CAD_ROOT /nfs/site/disks/ccdo.soc.cad_root.0/cad/x86-64_linux26
+source $RTL_CAD_ROOT/dt/nebulon/d16ww18.5/bin/setup /nfs/site/disks/ccdo.soc.cad_root.0/cad/x86-64_linux26/dt/nebulon/d16ww18.5
+setenv MAGILLEM_INSTALL_DIR  /p/hdk/rtl/cad/x86-64_linux26/magillem/mre/5.8.2.10/
+setenv LINTRARULES $NEBULON_DIR/generators/qualitychecker/LintraUdrs/
+setenv COLLAGE_INTF_DEF /p/com/eda/intel/collage_intf_def/3.9/
+setenv COLLAGE_BATCH_MODE  1
+setenv COLLAGE_INTF_DEF /p/com/eda/intel/collage_intf_def/3.9
+setenv SDG_INTERFACE_DEFS /p/hdk/rtl/proj_tools/interface_defs/latest
+cd $COLLAGE_WORK
+setenv COLLAGE_IP_KITS $MODEL_ROOT/tools/collage/
+make -f $MODEL_ROOT/tools/collage/Makefile all

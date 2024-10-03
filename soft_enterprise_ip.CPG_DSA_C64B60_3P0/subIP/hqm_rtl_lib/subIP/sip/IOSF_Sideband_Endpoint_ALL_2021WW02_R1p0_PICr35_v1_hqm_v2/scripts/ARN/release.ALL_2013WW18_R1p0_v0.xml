@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<!-- Release file -->
+
+<sip_release>
+  <version>8.3 November 19, 2012</version>
+  <date>Thu May  2 17:01:00 PDT 2013</date>
+  <user>jakrigel</user>
+  <sip_name>31</sip_name>
+  <sip_variation>147</sip_variation>
+  <sip_variation_id>147</sip_variation_id>
+  <sip_reldate>2013WW18</sip_reldate>
+  <sip_milestone>1.0</sip_milestone>
+  <sip_relver>v0</sip_relver>
+  <sip_relname>ALL_2013WW18_R1p0_v0</sip_relname>
+  <sip_owner>jakrigel</sip_owner>
+  <sip_dist>csg_sip_all,csg_sip_proj_all</sip_dist>
+  <sip_fixed></sip_fixed>
+  <sip_open></sip_open>
+  <sip_attachment>
+  </sip_attachment>
+  <sip_customers>
+      <sip_customer>20</sip_customer>
+  </sip_customers>
+  <sip_base>201</sip_base>
+  <sip_features>
+<![CDATA[
+- Agent ISM in the last release checked clock valid before leaving IDLE on a fabric initiated non-idle condition. This would be correct if PGCB/CDC is blocking clocks and clock request from the endpoint. However, this breaks partition clock gating (PCG) so it is being removed again.
+- IOWR and CFGWR are removed from the Target Register Access Module for Posted Messages. Any legacy IP that still requires this functionality must file a PCR.
+- FSCAN MUX has been added to the asynchronous resets into the clock request logic and these flops were made scannable. Fault coverage will be lost as the logic cone will become inaccessible. SOC PCR could request to recover this in future releases.
+- Double Synchronizer removed from JTAG signals. Sending JTAG through the synchronizers will cause issues when debugging.
+- Backend tool refresh:
+  - Added ATPG to the endpoint release
+  - Added LEC to the endpoint release
+  - Endpoint backend can now test various configurations
+  - Lintra warnings were fixed/waived
+  - Reorganized Directory Structure
+  - Moved 1271 6.2.0 references to 8.2.0
+  - Moved B12.1 references to B12.4 as the B12.1 cell library does not work with 8.2.0
+  - Removed some extra synthesis files that were not needed
+  - Synthesis IO Constraints now contain every IO with the correct clocks assigned to them
+  - Synthesis directives for clock assignments did not use the parameters defined in Block Setup
+
+NOTE: All synthesis collateral generated to run against Zircon is present in the tar file.
+NOTE: The `define DC is no longer checked in the map file. For enforcement of updating MAP files the `define SYNTH was used instead. When doing backend testing and synthesis the `define SYNTH must be defined or the tools will not pick up the correct cells in the map file. If this is undesired for the final customer then it must be updated by the integration team to match what is needed.
+
+Coverage Numbers:
+Line: 96.71%
+Toggle: 93.37%
+FSM:100%
+Cond:89.41%
+Branch:88.98%
+Assert:93.07%
+Group:95.41%
+]]>  </sip_features>
+  <sip_knissues>
+<![CDATA[
+- Universal Synchronizers in the asynchronous fifos when enabled will block scan insertion due to the nature of the synchronizer blocking the clocks. This will be non-scannable until a future release to BXT IPs where a new interface pin would need to be inserted.
+- Generated headers in the system verilog files was not ran prior to release.
+]]>  </sip_knissues>
+  <sip_speccons>
+<![CDATA[
+Integration Notes:
+=========================
+- Please note that Sideband Endpoint instantiations need to be uniquified in all IP's per the SEG POR instantiation and uniquification methodology.
+- Please note that the Sideband Endpoint cell map file needs to be updated per IP instantiation to replace generic library cells. The existing cells were placed for testing purposes only. These should not be used when integrating into the final IP.
+- Please note that the Sideband Endpoint cell map file needs to have SYNTH used rather than DC to enforce the editing of the MAP file by the IPs.
+- SoC Library Instantiation and Uniquificiation web page.
+Support Information:
+=========================
+Contact Jesse Krigelman in SEG SIP for RTL support.
+Contact Bahaa Osman in SEG SIP for verification support.
+HSD: https://vthsd.fm.intel.com/hsd/seg_softip/default.aspx
+]]>  </sip_speccons>
+  <sip_specins>
+<![CDATA[
+- This release has NO uniquification applied. All end users are required to uniquify the design as appropriate to avoid module collisions with
+instances of the endpoint in other IPs.
+- Review README in root release directory for instructions how to run test and backend tools.
+]]>  </sip_specins>
+  <sip_models>
+  </sip_models>
+</sip_release>

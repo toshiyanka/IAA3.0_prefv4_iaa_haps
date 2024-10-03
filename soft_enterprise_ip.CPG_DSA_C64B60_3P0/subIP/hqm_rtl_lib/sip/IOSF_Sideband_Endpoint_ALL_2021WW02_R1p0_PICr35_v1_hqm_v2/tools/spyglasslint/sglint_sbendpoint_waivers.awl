@@ -1,0 +1,111 @@
+# These are all generic waivers for either VCS/simulation pragmas or ctech. 
+#####
+waive -du {  {*}  }   -msg {translate_off/translate_on may cause mismatch between pre-synthesis and post-synthesis}  -rule {  {2218}  }  -comment {Created by jignasap} 
+ 
+#### verified that only used in assertions (and/or in ctech cells)
+waive -du {  {*}  }                             -msg {This ifdef variable has not been approved and is dangerous in regular code : SVA_OFF}  -rule {  {50520}  }  -comment {Created by jignasap} 
+waive -file {  {*ctech*source*ctech_lib*}  }    -msg {This ifdef variable has not been approved and is dangerous in regular code*}  -rule {  {50520}  }  -comment {Created by jignasap} 
+waive -du {  {ctech_lib_inv}  }                 -msg {This ifdef variable has not been approved and is dangerous in regular code : DC}  -rule {  {50520}  }  -comment {Created by jignasap} 
+waive -file {  {*INTEL_GLOBAL_MACROS_OLD2NEW*}  }  -msg {This ifdef variable has not been approved and is dangerous in regular code*}  -rule {  {50520}  }  -comment {Created by jignasap}
+waive -file { {sb_genram_macros.vh} }  -msg {LHS: 'x' width * is less than RHS: '(x << 1)' width*}  -rule {  {W164a_a}  }  -comment {Created by jignasap} 
+waive -file { {sb_genram_macros.vh} }  -msg {Rhs width '33' with shift (Expr: '(x << 1)') is more than lhs width '32' (Expr: 'x'), this may cause overflow*}  -rule {  {W486}  }  -comment {Created by vnandaku} 
+waive -du {  {ctech_lib*}  }  -msg {ctech_lib module 'ctech_lib*' should be 'defined' only inside map file}  -rule {  {60706}  }  -comment {Created by jignasap}
+waive -du {  {*sbcvram2}  }  -msg {Name 'i' is not unique - may shadow another variable*sbcvram2.sv)}  -rule {  {W121}  }  -comment {Created by vnandaku}
+waive -du {  {*sbcvram2}  }  -msg {'if' statement with condition '*' does not have a corresponding 'else' statement and is not preceded by assignment of target signal '*' *}  -rule {  {IfWithoutElse-ML}  }  -comment {Created by vnandaku} 
+waive -du {  {*sbcvram2}  }  -msg {Loop index '*' is not local for current loop*}  -rule {  {60118}  }  -comment {Created by vnandaku}
+waive -file {  {*sb_genram_macros.vh}  }  -msg {Loop index 'i' is not local for current loop* }  -rule {  {60118}  }  -comment {Created by vnandaku} 
+waive -du {  {*sbcvram2}  }  -msg {Non-blocking assignment '*;' used in combinational always block}  -rule {  {STARC05-2.2.3.1}  }  -comment {Created by vnandaku} 
+
+#####end generic waivers ####
+#### these are used only in debug signals and should be ok to waive if the range falls out
+waive -du {  {*sbemstr}  }       -msg {Inappropriate range select for int_part_sel variable: \"i[3:0] \"}  -rule {  {W216}  }  -comment {Created by jignasap}
+#### all the other case states are either invalid or not possible
+waive -du {  {*sbetrgtreg}  }    -msg {Case statement does not have a default clause and is not preceded by assignment of target signal in combinational block[Hierarchy: ':sbendpoint:\gen_rata.gen_treg.sbetrgtreg @sbetrgtreg']}  -rule {  {W71}  }  -comment {Created by jignasap} 
+waive -du {  {*sbebulkrdwr}  }   -msg {Case statement does not have a default clause and is not preceded by assignment of target signal in combinational block*}  -rule {  {W71}  } -comment {Created by jignasap}
+#### These flops are either on different ratio's or are separated by different pcput and npput. These should be ok to waive.
+waive -du {  {*sbcegress}  }     -msg {Flipflop 'outeom[0]' is assigned over the same signal in an always construct for sequential circuits*}  -rule {  {STARC05-2.2.3.3}  }  -comment {Created by jignasap} 
+waive -du {  {*sbcegress}  }     -msg {Flipflop 'outparity' is assigned over the same signal in an always construct for sequential circuits*}  -rule {  {STARC05-2.2.3.3}  }  -comment {Created by jignasap}
+waive -du {  {*sbcegress}  }     -msg {Flipflop 'outdata[0]' is assigned over the same signal in an always construct for sequential circuits*}  -rule {  {STARC05-2.2.3.3}  }  -comment {Created by jignasap}
+waive -du {  {*sbcism}  }        -msg {Flipflop 'cg_en_cntr' is assigned over the same signal in an always construct for sequential circuits*}  -rule {  {STARC05-2.2.3.3}  }  -comment {Created by jignasap}
+waive -du {  {*sbetrgtreg}  }    -msg {Flipflop 'nstate.data' is assigned over the same signal in an always construct for sequential circuits*}  -rule {  {STARC05-2.2.3.3}  }  -comment {Created by jignasap} 
+#### visa ports can be waived
+waive -msg {Detected undriven output port avisa*}  -rule {  {UndrivenOutPort-ML}  }  -comment {Created by jignasap} 
+waive -du {  {*sbendpoint}  }  -msg {Detected undriven output port avisa_data_out*}  -rule {  {UndrivenOutPort-ML}  }  -comment {Created by jignasap} 
+waive -du {  {*sbendpoint}  }  -msg {Detected undriven output port avisa_data_out*}  -rule {  {UndrivenOutPort-ML}  }  -comment {Created by jignasap} 
+waive -msg {Detected undriven output port sbe_visa_bypass_cr_out[1:0]}  -rule {  {UndrivenOutPort-ML}  }  -comment {Created by jignasap}
+waive -msg {Detected undriven output port sbe_visa_serial_rd_out}  -rule {  {UndrivenOutPort-ML}  }  -comment {Created by jignasap}
+### sticky bit parity error is used to enable these flops. so it is either always reset or once set, it is always set.
+waive -msg {Enable pin EN on Flop *sbebase.sbetrgt.all_ext_parity_err_det_f (master RTL_FDCE) is  always disabled (tied low)(connected to *sbebase.ext_parity_err_det)}  -rule {  {FlopEConst}  }  -comment {Created by jignasap} 
+waive -msg {Enable pin EN on Flop *sbebase.sbcport.sbcingress.parity_err_f* (master RTL_FDCE) is always disabled (tied low)(connected to *sbebase.sbcport.sbcingress.parity_err_nppc*)}  -rule {  {FlopEConst}  }  -comment {Created by jignasap}
+waive -msg {Enable pin EN on Flop sbebase.sbcport.sbcingress.\gen_queue[0].sbcinqueue .\gen_forep.gen_pc.ppp_cnt [0]*}  -rule {  {FlopEConst}  }  -comment {Created by jignasap}
+waive -msg {Enable pin EN on Flop *sbebase.sbcport.sbcingress.\gen_queue[0].sbcinqueue .\gen_forep.gen_pc.ppp_cnt [0]*}  -rule {  {FlopEConst}  }  -comment {Created by vnandaku}
+
+# File HSD to try to recode this 
+waive -du {  {sbetrgt}  }  -msg {Flipflop 'pchdrdrp' is assigned over the same signal in an always construct for sequential circuits*}  -rule {  {STARC05-2.2.3.3}  }  -comment {Created by jignasap} 
+waive -du {  {sbetrgt}  }  -msg {Flipflop 'nphdrdrp' is assigned over the same signal in an always construct for sequential circuits*}  -rule {  {STARC05-2.2.3.3}  }  -comment {Created by jignasap}
+waive -du {  {sbemstr}  }  -msg {Flipflop 'cfence' is assigned over the same signal in an always construct for sequential circuits*}  -rule {  {STARC05-2.2.3.3}  }  -comment {Created by jignasap} 
+waive -du {  {sbemstr}  }  -msg {Flipflop 'cmsgip' is assigned over the same signal in an always construct for sequential circuits*}  -rule {  {STARC05-2.2.3.3}  }  -comment {Created by jignasap} 
+waive -du {  {sbetrgt}  }  -msg {Use bit-wise operator instead of logical operator '&&' in expression '(npeom_delayed&&npput_delayed)'}  -rule {  {STARC05-2.1.4.5}  }  -comment {Created by jignasap} 
+#### This function was changed to fix other tool errors/warnings to what it is today. it is a legacy function and non lethal. 
+#####
+waive -du {  {sbcingress}  }  -msg {Loop index 'mysbc_logb2' is not local for current loop* }  -rule {  {60118}  }  -comment {Created by vnandaku} 
+waive -du {  {sbcingress}  }  -msg {Loop index 'mysbc_indexed_value' is not local for current loop* }  -rule {  {60118}  }  -comment {Created by vnandaku} 
+waive -du {  {sbcism}  }  -msg {Loop index 'mysbc_indexed_value' is not local for current loop*}  -rule {  {60118}  }  -comment {Created by vnandaku} 
+waive -du {  {sbcism}  }  -msg {Loop index 'mysbc_logb2' is not local for current loop*} -rule {  {60118}  }  -comment {Created by vnandaku} 
+
+## Legacy function. Proven to work. Unless we get a tool directive on how to fix it, we dont want to touch it and create more problems in validation
+waive -du {  {sbcasyncfifo_ing}  }  -msg {Statements in Loop 'for( i = (MAXQPTRBIT - 1); (i>=0); i-- )' will never execute*}  -rule {  {0209}  }  -comment {Created by vnandaku} 
+####
+#### These are ok. Already have inline lint waivers pragmas
+waive -du {  {sbetrgtreg}  }  -msg {LHS: 'nxtstate.addr[MAXADDR:MINADDR] ' width 16 is less than RHS: 'data' width 32 in assignment*}  -rule {  {W164a_a}  }  -comment {Created by vnandaku} 
+waive -du {  {sbetrgtreg}  }  -msg {LHS: 'nxtstate.addr*' width * is less than RHS* width * in concatenation assignment of packed array* }  -rule {  {W164a_a}  }  -comment {Created by vnandaku} 
+waive -du {  {sbetrgtreg}  }  -msg {LHS: 'nxtstate.addrbuf*' width * is less than RHS: 'data' width * in assignment* }  -rule {  {W164a_a}  }  -comment {Created by vnandaku} 
+waive -du {  {sbetrgtreg}  }  -msg {LHS: 'nxtstate.data*' width * is less than RHS: 'data' width * in assignment* }  -rule {  {W164a_a}  }  -comment {Created by vnandaku} 
+waive -du {  {sbetrgtreg}  }  -msg {LHS: 'nxtstate.ext_hdr* ' width * is less than RHS* width * in concatenation assignment of packed array*}  -rule {  {W164a_a}  }  -comment {Created by vnandaku} 
+waive -du {  {sbetrgtreg}  }  -msg {LHS: 'nxtstate.ext_hdr* ' width * is less than RHS: 'data' width * in assignment*}  -rule {  {W164a_a}  }  -comment {Created by vnandaku} 
+waive -du {  {sbetrgtreg}  }  -msg {LHS: 'ADDRMASK' width * is less than RHS* width * in assignment*}  -rule {  {W164a_a}  }  -comment {Created by vnandaku}
+## same as above but for bulk
+waive -du {  {sbebulkrdwr}  }  -msg {LHS: 'nxtstate.addr[MAXADDR:MINADDR] ' width 16 is less than RHS: 'data' width 32 in assignment*}  -rule {  {W164a_a}  }  -comment {Created by vnandaku} 
+waive -du {  {sbebulkrdwr}  }  -msg {LHS: 'nxtstate.addr*' width * is less than RHS* width * in concatenation assignment of packed array* }  -rule {  {W164a_a}  }  -comment {Created by vnandaku} 
+waive -du {  {sbebulkrdwr}  }  -msg {LHS: 'nxtstate.addrbuf*' width * is less than RHS: 'data' width * in assignment* }  -rule {  {W164a_a}  }  -comment {Created by vnandaku} 
+waive -du {  {sbebulkrdwr}  }  -msg {LHS: 'nxtstate.data*' width * is less than RHS: 'data' width * in assignment* }  -rule {  {W164a_a}  }  -comment {Created by vnandaku} 
+waive -du {  {sbebulkrdwr}  }  -msg {LHS: 'nxtstate.ext_hdr* ' width * is less than RHS* width * in concatenation assignment of packed array*}  -rule {  {W164a_a}  }  -comment {Created by vnandaku} 
+waive -du {  {sbebulkrdwr}  }  -msg {LHS: 'nxtstate.ext_hdr* ' width * is less than RHS: 'data' width * in assignment*}  -rule {  {W164a_a}  }  -comment {Created by vnandaku} 
+waive -du {  {sbebulkrdwr}  }  -msg {LHS: 'ADDRMASK' width * is less than RHS* width * in assignment*}  -rule {  {W164a_a}  }  -comment {Created by vnandaku}
+waive -du {  {sbebulkrdwr}  }  -msg {LHS: 'nxtstate.addrbuf*' width * is less than RHS: 'data' width * in assignment*}  -rule {  {W164a_a}  }  -comment {Created by vnandaku} 
+waive -du {  {sbebulkrdwrwrapper}  }  -msg {LHS: 'ADDRMASK' width * is less than RHS: '(ALLONES << (MAXADDR - 15))' width * in assignment*}  -rule {  {W164a_a}  }  -comment {Created by vnandaku}
+waive -du {  {sbcasyncfifo*}  }  -msg {LHS: 'FULLXORMSK' width * is less than RHS: '(ALLONES << MAXQPTRBIT)' width * in assignment* }  -rule {  {W164a_a}  }  -comment {Created by vnandaku} 
+waive -du {  {sbebulkrdwr}  }  -msg {For operator (&), left expression: \"ADDRMASK[31:0] \" width 32 should match right expression: \"\{data ,cstate.addrbuf* \}\" width* }  -rule {  {W116}  }  -comment {Created by vnandaku} 
+waive -du {  {sbebulkrdwr}  }  -msg {For operator (&), left expression: \"(ADDRMASK[31:0]  & \{data ,cstate.addrbuf* \})\" width * should match right expression: \"\{ 31\{ last_byte\} \} \" width* }  -rule {  {W116}  }  -comment {Created by vnandaku}
+
+## There is a implicit ordering between puts/eoms that should allow this to be waived
+waive -du {  {sbebulkrdwrwrapper}  }  -msg {Flipflop 'bulkwrcompletions' is assigned over the same signal in an always construct for sequential circuits*}  -rule {  {STARC05-2.2.3.3}  }  -comment {Created by vnandaku} 
+waive -du {  {sbebulkrdwrwrapper}  }  -msg {Flipflop 'bulkcirdy' is assigned over the same signal in an always construct for sequential circuits*}  -rule {  {STARC05-2.2.3.3}  }  -comment {Created by vnandaku} 
+waive -du {  {sbebulkrdwrwrapper}  }  -msg {Flipflop 'bulkrsp' is assigned over the same signal in an always construct for sequential circuits*}  -rule {  {STARC05-2.2.3.3}  }  -comment {Created by vnandaku}
+
+## Will need to check this later
+waive -msg {Signal 'sbendpoint.\gen_rata.gen_bulk_widget.sbebulkrdwrwrapper .i_sbebulkrdwr_p.fstate[resetstate]' is driven in a block controlled by edge-sensitive logic, has a synchronous part which is only an explicit retain}  -rule {  {02084}  }  -comment {Created by vnandaku} 
+waive -msg {Signal 'sbendpoint.\gen_rata.gen_bulk_widget.sbebulkrdwrwrapper .i_sbebulkrdwr_np.fstate[resetstate]' is driven in a block controlled by edge-sensitive logic, has a synchronous part which is only an explicit retain}  -rule {  {02084}  }  -comment {Created by vnandaku}
+## RP - genram modules. Ok to waive.
+waive -du {  {sb_genram_bees_knees}  }  -msg {ctech_lib module 'ctech_lib_clk_and*' instantiated as 'sb_genram_bees_knees*' should be 'instantiated' only inside map file}  -rule {  {60706}  }  -comment {Created by vnandaku} 
+waive -du {  {sbcinqueue}  }  -msg {Port 'sync_vram_reset_b' (input) deliberately unconnected in instance 'sbcinqueue.i_vram2'.}  -rule {  {60024}  }  -comment {Created by vnandaku} 
+waive -du {  {sbcinqueue}  }  -msg {Port 'write_byte_enable' (input) deliberately unconnected in instance 'sbcinqueue.i_vram2'.}  -rule {  {60024}  }  -comment {Created by vnandaku} 
+waive -du {  {sbcasyncfifo_ing}  }  -msg {Port 'sync_vram_reset_b' (input) deliberately unconnected in instance 'sbcasyncfifo_ing.i_vram2'.}  -rule {  {60024}  }  -comment {Created by vnandaku} 
+waive -du {  {sbcasyncfifo_ing}  }  -msg {Port 'write_byte_enable' (input) deliberately unconnected in instance 'sbcasyncfifo_ing.i_vram2'.}  -rule {  {60024}  }  -comment {Created by vnandaku} 
+waive -du {  {sbcasyncfifo_egr}  }  -msg {Port 'sync_vram_reset_b' (input) deliberately unconnected in instance 'sbcasyncfifo_egr.i_vram_npq2'.}  -rule {  {60024}  }  -comment {Created by vnandaku} 
+waive -du {  {sbcasyncfifo_egr}  }  -msg {Port 'write_byte_enable' (input) deliberately unconnected in instance 'sbcasyncfifo_egr.i_vram_npq2'.}  -rule {  {60024}  }  -comment {Created by vnandaku}
+waive -du {  {sb_genram_bees_knees}  }  -msg {ctech_lib module 'ctech_lib_clk_gate_te_rstb' instantiated as 'sb_genram_bees_knees.bees_knees_clk_and_post_decode' should be 'instantiated' only inside map file}  -rule {  {60706}  }  -comment {Created by vnandaku}
+waive -du {  {sb_genram_bees_knees}  }  -msg { Syntax - No X assignments 'rddataout[0] = { $bits(T){ 1'bx} } ;' outside of casex statements allowed in RHS} -rule {  {50002}  }  -comment {Created by vnandaku}
+# will need to check this later 
+waive -msg {RHS of the assignment contains 'X'(*)}  -rule {  {NoAssignX-ML}  }  -comment {Created by jignasap}
+waive -msg {Declare net 'mreg_hier_*id' explicitly}  -rule {  {W154}  }  -comment {Created by jignasap}
+waive -msg {Non-standard file header*}  -rule {  {FileHdr}  }  -comment {Created by jignasap}
+waive -du {  {sbcingress}  }  -msg {Return type width * is less than return value width * in function 'sbc_logb2*}  -rule {  {W416}  }  -comment {Created by jignasap}  
+waive -du {  {sbemstrreg}  }  -msg {Return type width * is greater than return value width * in function 'datamux'*}  -rule {  {W416}  }  -comment {Created by jignasap} 
+waive -rule AlwaysFalseTrueCond-ML -msg {Condition * can never be 'true' *} -comment {Created by jignasap}  
+waive -du {  {sbebulkrdwr}  }  -msg {LHS*}  -rule {  {W164a_a}  }  -comment {Created by vnandaku} 
+waive -du {  {sbebulkrdwrwrapper}  }  -msg {LHS*}  -rule {  {W164a_a}  } -comment {Created by vnandaku} 
+waive -du {  {sbebulkrdwr}  }  -msg {For operator*}  -rule {  {W116}  }  -comment {Created by vnandaku} 
+waive -du {  {sbebulkrdwrwrapper}  }  -msg {For operator*}  -rule {  {W116}  } -comment {Created by vnandaku} 
+waive -du {  {sbebulkrdwr}  }  -msg {Flipflop *}  -rule {  {STARC05-2.2.3.3}  }  -comment {Created by vnandaku} 
+waive -du {  {sbebulkrdwrwrapper}  }  -msg {Flipflop *}  -rule {  {STARC05-2.2.3.3}  } -comment {Created by vnandaku}

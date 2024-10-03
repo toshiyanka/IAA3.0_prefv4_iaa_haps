@@ -1,0 +1,610 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<ipxact:abstractionDefinition xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2014" xmlns:snps="http://www.synopsys.com/SPIRIT-snps" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.accellera.org/XMLSchema/IPXACT/1685-2014 http://www.accellera.org/XMLSchema/IPXACT/1685-2014/index.xsd">
+
+  <ipxact:vendor>Intel</ipxact:vendor>
+
+  <ipxact:library>Intel</ipxact:library>
+
+  <ipxact:name>IOSF::DFX::SCAN_rtl</ipxact:name>
+
+  <ipxact:version>v2.4_r1.4</ipxact:version>
+
+  <ipxact:busType library="Intel" name="IOSF::DFX::SCAN" vendor="Intel" version="v2.4_r1.4"/>
+
+  <ipxact:ports>
+    <ipxact:port>
+      <ipxact:logicalName>FSCAN_SDI</ipxact:logicalName>
+      <ipxact:description>Fabric Scan Data In: This signal bus is the scan data inputs for all of the serially-stitched scan flops/latches within this IP-agent.</ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>SCAN_DATA_WIDTH</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>SCAN_DATA_WIDTH</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>ASCAN_SDO</ipxact:logicalName>
+      <ipxact:description>Agent Scan Data Out: This signal bus is the scan data outputs for all of the serially-stitched scan flops/latches within this agent. </ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>SCAN_DATA_WIDTH</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>SCAN_DATA_WIDTH</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>FSCAN_MODE</ipxact:logicalName>
+      <ipxact:description>Fabric Scan Mode: This signal enables modes within this agent for scan operations. This signal is bused to support a hard IP-block’s physical layer that requires scan control per lane.
+
+Use of a bit vector for this signal is optional. The value ScanCtlWidth is implementation dependent and may vary per-agent or per-lane. 
+
+Soft-IP use model:This signal may or may not be used depending on the attributes within the IP-block that need to be made scan friendly. However, it is still required on the interface.
+
+Hard-IP use model: Its primary use is to enable the UCC /URC controller for this hard-IP partition. Other scan enabling features should be controlled by the asynchronous control signal group. If a scan attribute is unique to this partition and a corresponding control signal is not available than a local TAP test/debug register will enable its actions. </ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>FSCAN_MODE_ATSPEED</ipxact:logicalName>
+      <ipxact:description>Fabric Scan At-speed Mode: This signal enables the at -speed mode for this agent. This signal is bused to support hard-IP block modular physical layer that requires scan control per lane.
+
+Use of a bit vector for this signal name is optional. The value of ScanCtlWidth is implementation-dependent and may vary per-agent or per-lane. 
+
+Note:This signal is marked as optional, but it should always be implemented unless the IP has a very specific waiver for not requiring at-speed scan content.</ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>FSCAN_RSTBYPEN</ipxact:logicalName>
+      <ipxact:description>Fabric Scan Reset Bypass Enable: This signal will enable the ability for the bypass reset signals to be active. The reset override signal group must be implemented for IP-blocks with embedded or derived internal reset signals. 
+
+0: Reset bypass and Latch reset bypass are ignored.
+1: Reset bypass and Latch reset bypass are active.
+
+Use of a bit vector for this signal name is optional. The value of NumOfRstsScan is implementation-dependent and may vary per-agent or per-lane. This signal is bused to support hard-IP block modular physical layer that requires scan control per lane. 
+
+Note:It is expected that a soft-IP agent will only use a single control wire for enabling the reset bypasses. A hard-IP agent that implements scan on a per lane basis will require a vector set of enable signals.</ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:width>NUM_RSTBYPEN</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:width>NUM_RSTBYPEN</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>FSCAN_BYPRST_B</ipxact:logicalName>
+      <ipxact:description>Fabric Scan Bypass Reset Bar: This signal is a reset input for scan operations that bypasses the internal agent reset logic and applies a reset directly to the agent.The reset override signal group must be implemented for IP-blocks with embedded or derived internal reset signals. 
+
+Note:Use of a bit vector for this signal name is optional. The value of NumOfRstsScan is implementation-dependent and may vary per-agent or per-lane. 
+
+Note:This signal is enabled with fscan_rstbypen.</ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:width>NUM_BYPRST_B</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:width>NUM_BYPRST_B</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>FSCAN_BYPLATRST_B</ipxact:logicalName>
+      <ipxact:description>Fabric Scan Bypass Latch Reset Bar: This signal is a reset input for scan operations that bypasses the internal agent reset logic and applies a reset directly to the latches within the agent. This signal is bused to support the hard-IP block modular physical layer that requires scan control per lane.
+
+Note:Use of a bit vector for this signal name is optional. The value of NumOfLatRstsScan is implementation-dependent and may vary per-agent or per-lane. 
+
+Note:This signal is enabled with fscan_rstbypen.</ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>NUM_BYPLATRST_B</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>NUM_BYPLATRST_B</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>FSCAN_CLKUNGATE</ipxact:logicalName>
+      <ipxact:description>Fabric Scan Clock Ungate: This signal controls the clock gating logic during scan operations. This signal is bused to support hard-IP block modular physical layer that requires scan control per lane.</ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>required</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>FSCAN_CLKUNGATE_SYN</ipxact:logicalName>
+      <ipxact:description>Fabric Scan Clock Ungate for Synthesis Inserted Clock Gates: This signal controls the clock gating logic inserted during synthesis. This signal cannot be used interchangeably with the fscan_clkungate signal that is used exclusively to control clock gating logic that exists in the pre-synthesis design. This signal controls the clock gating logic that is added after synthesis for scan operations.</ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>FSCAN_LATCHOPEN</ipxact:logicalName>
+      <ipxact:description>Fabric Scan Latch Open Enable: This signal controls the latch open during scan operations. This signal is bused to support hard-IP block modular physical layer that requires scan control per lane. 
+
+Use of a bit vector for this signal name is optional. The value of ScanCtlWidth is implementation-dependent and may vary per-agent or per-lane for a hard-IP IO agent.
+
+Note:If this IP-block contains latches then this signal must be used to control them. </ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>FSCAN_LATCHCLOSED_B</ipxact:logicalName>
+      <ipxact:description>Fabric Scan Latch Closed Bar: This signal controls the latch closed during scan operations. This signal is bused to support hard-IP block modular physical layer that requires scan control per lane. 
+
+Use of a bit vector for this signal name is optional. The value of ScanCtlWidth is implementation-dependent and may vary per-agent or per-lane for a hard-IP IO agent.
+
+Note:If this IP-block contains latches then this signal must be used to control them. </ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>FSCAN_CLKGENCTRL</ipxact:logicalName>
+      <ipxact:description>Fabric Scan Clock Generator Control: This signal bus overrides clock control values within the agent. The override value is enabled with “fscan_clkgenctrlen”. This bus may be composed of clock select override and other miscellaneous control signals used for conditioning the clock selects. For agents with a TAP, these signals would be connected to the output of an assigned test data register. For agents without a TAP, this signal bus is connected to a scan control logic block (UCC /URC ) within the DFx fabric. 
+
+Note:This signal may be a single bit.</ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>NUM_CLKGENCTRL</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>NUM_CLKGENCTRL</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>FSCAN_CLKGENCTRLEN</ipxact:logicalName>
+      <ipxact:description>Fabric Scan Clock Generator Control Enable: This signal (or signal group) is the enable for the fscan_clkgenctrl override control bus. A mux override control can manipulate the signal only during scan operations. For agents with a TAP, these signals would be connected to the output of an assigned test data register. For agents without a TAP, this signal group is a bus that is connected to and controlled by the ULTiScan Clock Control (UCC) logic block.
+
+If this signal is a bus, then bit[0] of the interface is assigned to the UCC. 
+
+fscan_clkgenctrlen[0]: This bit may be assigned to select between internal functional clocks and external UCC clocks. 
+
+It is implementation dependent to bus this signal or use it as a single bit. </ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>NUM_CLKGENCTRLEN</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>NUM_CLKGENCTRLEN</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>FSCAN_MODE_POSTSCC</ipxact:logicalName>
+      <ipxact:description>Fabric Scan Mode for Post SCC control: This signal is used to control the post SCC clock control mux. This signal is used for hard-IP applications that require it. It is not expected to be used for soft IPs. </ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>FSCAN_INTEST</ipxact:logicalName>
+      <ipxact:description>Fabric Scan (sealing) Intest: This signal indicates that internal border sealing is enabled. This signal is used for hard-IP applications that require it. It is not expected to be used for soft IPs.</ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>FSCAN_EXTEST</ipxact:logicalName>
+      <ipxact:description>Fabric Scan (sealing) Extest: This signal indicates that external border sealing is enabled. This signal is used for hard-IP applications that require it. It is not expected to be used for soft IPs.</ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>FSCAN_RET_CTRL</ipxact:logicalName>
+      <ipxact:description>Fabric Scan Retention Control: This signal determines the state of the retention cell within a retention flop for scan operations. A mux in the Power Gate Common Block (PGCB) is controlled by fscan_mode. When enabled, the signal is controlled from an ULTiScan Asynchronous Scan Controller (UASC) in the DFx fabric.
+
+Note:This signal is required if the IP-block supports retention cells. </ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>FSCAN_ISOL_CTRL</ipxact:logicalName>
+      <ipxact:description>Fabric Scan Isolation Control: This signal override the isolation control signal for improved scan coverage for the isolation logic. This signal is required if this IP (SIP or HIP) supports isolation logic.</ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>FSCAN_ISOL_LAT_CTRL</ipxact:logicalName>
+      <ipxact:description>Fabric Scan Isolation Control: This signal override the isolation control signal for improved scan coverage for the isolation logic. This signal is required if this IP (SIP or HIP) supports latch based isolation logic. </ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>FSCAN_SHIFTEN</ipxact:logicalName>
+      <ipxact:description>Fabric Scan Shift Enable: This signal determines whether the data chains are enabled for shifting. This does not apply to the control chains. This signal is bused to support hard IP-block modular physical layer that requires scan control per lane.
+
+Use of a bit vector for this signal name is optional. The value of ScanCtlWidth is implementation-dependent and may vary per-agent or per-lane for a hard-IP IO agent.</ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>FSCAN_SLOS_EN</ipxact:logicalName>
+      <ipxact:description>Fabric Scan Launch on Shift Enable: This signal improves coverage using a launch-on-shift technique instead of launch-on-capture, which is generally used for classic stuck-at testing. This signal is required on hard-IP interfaces and not expected for soft IPs. </ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>FSCAN_TPI_CONTROL_EN</ipxact:logicalName>
+      <ipxact:description>Fabric Scan Test Point Insertion Control Enable: This signal enables the inserted test point control for scan operations. This signal is required on hard-IP interfaces and not expected for soft IPs. </ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>FSCAN_TPI_OBSERVE_EN</ipxact:logicalName>
+      <ipxact:description>Fabric Scan Test Point Insertion Observe Enable: This signal enables the observation of the test point node for scan operations. This signal is required on hard-IP interfaces and not expected for soft IPs. </ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>FSCAN_RAM_BYPSEL</ipxact:logicalName>
+      <ipxact:description>Fabric Scan RAM Bypass Select: This signal selects the bypass path around the array to conduct scan operations on this type of array test configuration.  
+
+Note: This signal is required for any IP-block's memory wrapper that contains an array, RAM, FIFO, etc</ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>NUM_RAM_BYPSEL</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>NUM_RAM_BYPSEL</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>FSCAN_RAM_INIT_EN</ipxact:logicalName>
+      <ipxact:description>Fabric Scan RAM Initialization Enable: This signal controls the array initialization for scan operations.
+
+0: Normal operation
+1: Enable initialization and the logic value currently driven on fscan_ram_init_val is active.</ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>FSCAN_RAM_INIT_VAL</ipxact:logicalName>
+      <ipxact:description>Fabric Scan RAM Initialization Value: This signal is the RAM initialization value to control the DFx muxes with in the array DFX_Wrapper.
+
+0: Mux points to functional array controls. Also, this signal has no effect on all other initialization logic. 
+1: Mux points to DFT array controls (from BIST) </ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>FSCAN_RAM_RDDIS_B</ipxact:logicalName>
+      <ipxact:description>Fabric Scan RAM Read Disable Bar: This signal controls the read enable on the agent’s array during scan operations. 
+
+Note: This signal is required for any IP-block's memory wrapper that contains an array, RAM, FIFO, etc</ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+    <ipxact:port>
+      <ipxact:logicalName>FSCAN_RAM_WRDIS_B</ipxact:logicalName>
+      <ipxact:description>Fabric Scan RAM Write Disable Bar: This signal controls the write enable on the agent’s array during scan operations.
+
+Note: This signal is required for any IP-block's memory wrapper that contains an array, RAM, FIFO, etc</ipxact:description>
+      <ipxact:wire>
+        <ipxact:onMaster>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>out</ipxact:direction>
+        </ipxact:onMaster>
+        <ipxact:onSlave>
+          <ipxact:presence>optional</ipxact:presence>
+          <ipxact:width>1</ipxact:width>
+          <ipxact:direction>in</ipxact:direction>
+        </ipxact:onSlave>
+        <ipxact:requiresDriver driverType="any"/>
+      </ipxact:wire>
+    </ipxact:port>
+  </ipxact:ports>
+
+  <ipxact:description>Revision: r1.4.</ipxact:description>
+
+  <ipxact:parameters>
+    <ipxact:parameter parameterId="NUM_CLKGENCTRL" resolve="user" type="int">
+      <ipxact:name>NUM_CLKGENCTRL</ipxact:name>
+      <ipxact:description>Number of Clock GEN Control</ipxact:description>
+      <ipxact:value>1</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="NUM_CLKGENCTRLEN" resolve="user" type="int">
+      <ipxact:name>NUM_CLKGENCTRLEN</ipxact:name>
+      <ipxact:description>Number of Clock GEN Control Enable</ipxact:description>
+      <ipxact:value>1</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="NUM_BYPRST_B" resolve="user" type="int">
+      <ipxact:name>NUM_BYPRST_B</ipxact:name>
+      <ipxact:description>Number of Bypass Reset Bar</ipxact:description>
+      <ipxact:value>1</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="NUM_BYPPST_B" resolve="user" type="int">
+      <ipxact:name>NUM_BYPPST_B</ipxact:name>
+      <ipxact:description>Number of Bypass Preset Bar</ipxact:description>
+      <ipxact:value>1</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="SCAN_CTL_WIDTH" resolve="user" type="int">
+      <ipxact:name>SCAN_CTL_WIDTH</ipxact:name>
+      <ipxact:description>Scan control input width</ipxact:description>
+      <ipxact:value>1</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="SCAN_DATA_WIDTH" resolve="user" type="int">
+      <ipxact:name>SCAN_DATA_WIDTH</ipxact:name>
+      <ipxact:description>Scan data channel width</ipxact:description>
+      <ipxact:value>1</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="SCAN_PREFIX" resolve="user" type="string">
+      <ipxact:name>SCAN_PREFIX</ipxact:name>
+      <ipxact:description>Provider Interface Port Prefix</ipxact:description>
+      <ipxact:value>""</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="SCAN_INDEX" resolve="user" type="string">
+      <ipxact:name>SCAN_INDEX</ipxact:name>
+      <ipxact:description>Consumer Instance Index</ipxact:description>
+      <ipxact:value>""</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="NUM_RAM_BYPSEL" resolve="user" type="int">
+      <ipxact:name>NUM_RAM_BYPSEL</ipxact:name>
+      <ipxact:description>Number of Ram Bypass Select</ipxact:description>
+      <ipxact:value>1</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="NUM_BYPLATRST_B" resolve="user" type="int">
+      <ipxact:name>NUM_BYPLATRST_B</ipxact:name>
+      <ipxact:description>Number of Bypass Latch Reset Bar</ipxact:description>
+      <ipxact:value>1</ipxact:value>
+    </ipxact:parameter>
+    <ipxact:parameter parameterId="NUM_RSTBYPEN" resolve="user" type="int">
+      <ipxact:name>NUM_RSTBYPEN</ipxact:name>
+      <ipxact:description>Maximum value of NUM_BYPRST_B and NUM_BYPLATRST_B</ipxact:description>
+      <ipxact:value>1</ipxact:value>
+    </ipxact:parameter>
+  </ipxact:parameters>
+
+</ipxact:abstractionDefinition>

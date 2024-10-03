@@ -1,0 +1,40 @@
+
+## -- Send 4 DIR, 4 LDB HCWs to DIR QID from DIR Port & LDB QID from LDB port respectively to exhaust credits & then return tokens (qe_valid!=1), completions and check for them getting accepted and not generating any syndrome error
+## -- Send 4 HCW to DIR QID from DIR Port
+HCW DIR:DQ_A  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A  dsi=0x302
+HCW DIR:DQ_A  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A  dsi=0x302
+HCW DIR:DQ_A  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A  dsi=0x302
+HCW DIR:DQ_A  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A  dsi=0x302
+
+## -- Send 4 HCW to LDB QID from LDB Port
+HCW LDB:LDB_PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=ord qid=LQ_B dsi=0x302 ptr=0x0000000000002000
+HCW LDB:LDB_PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ_A dsi=0x302
+HCW LDB:LDB_PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=atm qid=LQ_A dsi=0x302
+HCW LDB:LDB_PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ_A dsi=0x302
+
+poll_sch  dir:DQ_A      0x4   1000 20
+poll_sch  ldb:LDB_PP_A  0x4   1000 20
+
+wr credit_hist_pipe.cfg_vas_credit_count[:VS:].count 0x0
+rd credit_hist_pipe.cfg_vas_credit_count[:VS:].count 0x0
+
+## BAT_T -- Return pending 4 DIR tokens
+HCW DIR:DQ_A     qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x3  msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+
+## BAT_T -- Returns 2 LDB tokens
+HCW LDB:LDB_PP_A qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x0 msgtype=0 qpri=0 qtype=ord qid=LQ_B dsi=0x302 ptr=0x0000000000002000
+HCW LDB:LDB_PP_A qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x0 msgtype=0 qpri=0 qtype=uno qid=LQ_A dsi=0x302
+
+## 2 COMP -- Returns 2 LDB completions
+HCW LDB:LDB_PP_A qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x0 msgtype=0 qpri=0 qtype=ord qid=LQ_B dsi=0x302 ptr=0x0000000000002000
+HCW LDB:LDB_PP_A qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x0 msgtype=0 qpri=0 qtype=uno qid=LQ_A dsi=0x302
+
+## 2 COMP_T -- Returns 2 comp, 2 tok for LDB
+HCW LDB:LDB_PP_A qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x0 msgtype=0 qpri=0 qtype=atm qid=LQ_A dsi=0x302
+HCW LDB:LDB_PP_A qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x0 msgtype=0 qpri=0 qtype=uno qid=LQ_A dsi=0x302
+
+rd credit_hist_pipe.cfg_counter_chp_error_drop_l 0x0 0xffffffff 
+rd credit_hist_pipe.cfg_counter_chp_error_drop_h 0x0 0xffffffff
+
+rd credit_hist_pipe.cfg_syndrome_00.syndvalid 0
+rd hqm_system_csr.alarm_pf_synd0    0x00000000 0xffffffff

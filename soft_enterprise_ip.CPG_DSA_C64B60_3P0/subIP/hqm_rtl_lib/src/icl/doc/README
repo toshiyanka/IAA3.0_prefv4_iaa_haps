@@ -1,0 +1,77 @@
+# README for DTEG DUVE-M ICL/PDL DFx/TAP Validation & Verification environment
+
+IMPORTANT! Please use the latest available version of DUVE-M and Mentor Tessent Shell!
+IMPORTANT! Please refer to doc/DTEG_DUVE_M_userGuide.pdf for all details about the tool
+
+1. Required environment variables
+
+	$DUVE_M_HOME     - Pointer to released DUVE-M repo
+	$IP_ROOT         - IP_ROOT of current IP/SOC (base pointer to all collateral)
+	$IP_TESSENT_CFG  - Pointer to IP Tessent config file for DUVE-M (e.g. $IP_ROOT/verif/cfg/ip_cfg.do)
+
+2. Copy & update following DUVE-M dofile/pdl templates to the local IP/SOC repo (project file structure can be different).
+   IMPORTANT! Each configuration file has explanation of each included parameter.
+
+	$DUVE_M_HOME/verif/cfg/ip_cfg.do
+	    -> Specifies current design/top, collateral/path info, context to use and SV mode setting
+	    Depending on IP/SoC, TOP RTL can be Verilog or SystemVerilog, and can require 'dft -rtl' context and 
+	    special arguments to read it. 
+	    Please set the required 'tessent_context_to_read_verilog' & 'sv_mode' parameters in the config file.
+
+	$DUVE_M_HOME/verif/cfg/ip_read_icl.do
+	    -> Tessent dofile to load all required IP ICL files.
+
+	$DUVE_M_HOME/verif/cfg/ip_read_verilog.do
+	    -> Tessent dofile to load IP RTL (TIP: load top level IP RTL only)
+	       Note use of different arguments for loading Verilog and SV.
+
+	$DUVE_M_HOME/verif/cfg/ip_current_design_cfg.do
+	    -> Specify setting which requires elaborated design, e.g. 
+	          functional clocks, additional ScanInterfaces, etc.
+
+	$DUVE_M_HOME/verif/cfg/ip_pattern_cfg.do
+	    -> Specify pattern setting: pattern base name, single pattern vs. pattern per test group, 
+	          enabling/disabling of individual tests, tester cycle and TCLK ratio/period.
+		  You can enable running security tests for all Intel security levels and/or excluded some specific ones.
+
+	$DUVE_M_HOME/verif/cfg/ip_test_cfg.do
+	    -> Specify target scope/registers, powergood/reset signals, test preamble, etc.
+	       Please provide mapping for TAP IR/BYPASS registers and network control registers.
+
+	       Scope-wise, it is not required to provide accurate info for the first run - you can just include
+	       all registers (*), leave network control registers for exclusions and run the test.
+	       When you are analyzing test run results, you will be adjusting the configuration.
+	       
+	       IMPORTANT! Provided ICL module/register names/patterns for inclusions & excursions are for reference only!
+	       Please update according to the scope of your project!!!
+
+	Notes:
+	a. Although DUVE-M will try to auto-detect powergood port, it is better to specify it(them) in the configuration explicitly.
+           You do not need to have functional reset ports in the ICL (if they do not affect DFT logic),
+	   you can just specify them in the PDL configuration file.
+
+	b. DFx *secure* ports are auto-detected based on ICL & RTL info.
+	   DUVE-M supports multiple sets of security ports.
+
+	$DUVE_M_HOME/verif/cfg/ip_test_hotfix.do
+	    -> Temporary hotfixes/exclusions
+	       Use that file for temporary masking of debugged design issues.
+
+	$DUVE_M_HOME/verif/pdl/tap_tests_all.pdl   [optional to copy/change]
+	    -> Test Flow file. The default flow includes almost all basic TAP tests (excluding TRST/TLR and security for all levels).
+	       You can create your own cfg & flow files based on your IP/SOC needs - 
+	          with different target registers, different test sets, different test parameters, etc.
+
+	$DUVE_M_HOME/verif/cfg/write_patterns_v.param
+	    -> Parameter file for write_patterns command (see Tessent documentation for details).
+	       DUVE-M contains example of incuding fsdb_dump_all.v file into the generated Verilog test bench
+
+3. You can run test generation flow using included .do file $DUVE_M_HOME/verif/flow/gen_val_tests.do .
+Alternatively, you can create its local copy in the IP repo and customize based on your project needs.
+
+To run Tessent shell, you need to setup Mentor Tessent shell first (usually project specific).
+
+Example of tessent run command:
+> tessent -shell -dofile $IP_ROOT/verif/flow/gen_val_tests.do
+
+

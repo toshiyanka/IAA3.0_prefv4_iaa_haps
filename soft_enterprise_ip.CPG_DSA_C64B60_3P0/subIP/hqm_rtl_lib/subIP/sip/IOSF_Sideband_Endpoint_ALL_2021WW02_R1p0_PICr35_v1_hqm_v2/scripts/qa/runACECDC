@@ -1,0 +1,320 @@
+#!/bin/tcsh -f
+# name: runACECDC
+
+################################################################################
+# Source a script that is called at the start of each back-end 
+# scripts/qa/run* script
+################################################################################
+if ( $SB_ACE_FLOW ) then
+   source ./runPre -tool_name $0 $argv
+else
+   source ${MODEL_ROOT}/scripts/qa/runPre -tool_name $0 $argv
+endif
+
+if ( $status != 0 ) exit $status
+
+set mainDebug=${debug};
+
+## set new CDC license file
+source /nfs/site/eda/group/cse/setups/mentor/mentor.dft
+
+#####################################################
+# Set environment variables
+#####################################################
+
+if ( "${config}" =~ "IOSF_Sideband_Endpoint" ) then
+#   if ( $SB_ACE_FLOW == 0 ) then
+#       if ($SIMBUILDTOOLDRUN) then
+#           set sbrdir=${sbrdir}/$CUST/aceroot
+#       endif
+#   endif
+   set sbrdir=${ACE_UTILS_ROOT}
+   source ${MODEL_ROOT}/scripts/qa/ephelper.csh -rtlcfg ${component} -topdir ${sbrdir} -gentool ${thisToolName} -tooldir cdc/tests
+
+   # Create the .opt file for the ${component}
+   setenv SBE_COMPONENT ${component}
+   set cdcdir=${dsttooldir}
+   if ((${component} != sbendpoint) && (${component} =~ "sbendpoint*")) then
+      cp ${cdcdir}/sbendpoint.opt ${cdcdir}/${component}.opt
+   else if ((${component} != sbebase) && (${component} =~ "sbebase*")) then
+      cp ${cdcdir}/sbebase.opt ${cdcdir}/${component}.opt
+   endif
+ 
+   # Override the config parameters in the CDC control and waiver files, and in ${rtltop}.sv
+   # The original ${rtltop}.sv file is saved as ${rtltop}.sv.tmp, and restored at the end of the ACECDC run
+   set rtltopsv = ${sbrdir}/source/rtl/iosfsbc/endpoint/${rtltop}.sv
+   cp ${rtltopsv} ${rtltopsv}.tmp
+   set parameters=""
+   if ( ${rtlparameterstring} != "" ) then
+       foreach param (${rtlparameterlist})
+          # Parameter override when calling vlog to compile the design
+          set parameters = "${parameters}-G ${param} "
+ 
+          # Override the tcl control files in the current version of the sbebase
+          # or sbendpoint folders to help direct the cdc runs for that particular
+          # configuration. By using these tcl files instead we can accomplish
+          # in our nightly runs what ACECDC cannot.
+          set catch      = `echo ${param} | sed "s/=/ /g"`
+          set kvp        = ($catch)
+          set key        = $kvp[1]
+          set lkey       = `echo $key | tr '[A-Z]' '[a-z]'`
+          set value      = $kvp[2]
+ 
+          if ( ${debug} ) echo "${thisToolName} -D- SED:'${catch}' KVP:'${kvp}' Key:'$kvp[1]' Value:'$kvp[2]'"
+         # EPs ctrl and waiver file are split into internal and interface: TGLU_Jeremey
+          foreach file ("${cdcdir}/${rtltop}_ctrl_interface.tcl" "${cdcdir}/${rtltop}_ctrl_internal.tcl" "${cdcdir}/${rtltop}_waivers_interface.tcl" "${cdcdir}/${rtltop}_waivers_internal.tcl")
+             perl -pi -e "s/set\s+${lkey}\s+(\d+)/set ${lkey} ${value}/" ${file}
+          end
+
+          perl -pi -e "s/parameter\s+${key}\s+=\s+(\d+)/parameter ${key} = ${value}/" ${rtltopsv}.tmp
+       end
+   endif
+
+   # Go to the endpoint that you will be working with's directory
+   set cdctest         = "cdc/tests/${component}"
+   set cdcres          = "${sbrdir}/tools/cdc/results/${component}"
+   set cdcdir          = "${sbrdir}/tools/${cdctest}"
+   set cdcout          = "${cdcres}/tests/cdc_tests_${component}"
+   set cdc_hier        = "${cdcout}/cdc_hier_ctrl_${rtltop}.v"
+   set cdc_log         = "${cdcout}/cdc_run.log"
+   set cdc_db          = "${cdcout}/cdc.db"
+   set cdc_hier_zircon = "cdc_hier_ctrl_iosf_sbc_ep.v"
+   set cdc_lint_cfg    = "${cdcdir}/cdc_lint_cfg.xml"
+   set lint_wf         = "cdc_lint_waivers.xml"
+else
+   if (${dynopt} =~ "nonDyn") then
+      set rtltop="${component}"
+   else
+      set rtltop="${component}_sbr_generic"
+   endif
+#   if ( $SB_ACE_FLOW == 0 ) then
+#       if ($SIMBUILDTOOLDRUN) then
+#           set sbrdir=${sbrdir}/$CUST/aceroot
+#       endif
+#   endif   
+#   if ($?ACE_UTILS_ROOT) then
+#    set sbrdir=${ACE_UTILS_ROOT}
+#   else
+    set sbrdir=${sbrdir}
+#   endif
+   # Go to the router that you will be working with's directory
+   set cdctest         = "cdc/tests/${rtltop}"
+   set cdcres          = "${sbrdir}/tools/cdc/results/${rtltop}"
+   set cdcdir          = "${sbrdir}/tools/${cdctest}"
+   set cdcout          = "${cdcres}/tests/cdc_tests_${rtltop}"
+   set cdc_hier        = "${cdcout}/cdc_hier_ctrl_${rtltop}.v"
+   set cdc_log         = "${cdcout}/cdc_run.log"
+   set cdc_db          = "${cdcout}/cdc.db"
+   set cdc_hier_zircon = "cdc_hier_ctrl_iosf_sbc_rtr.v"
+   set cdc_lint_cfg    = "${cdcdir}/cdc_lint_cfg.xml"
+   set lint_wf         = "cdc_lint_waivers.xml"
+endif
+
+#######################
+# Generate Collateral #
+#######################
+
+if ( ${generate_collateral} ) then
+   echo "${thisToolName} -I- Generating ACE CDC Collateral for Router ${component} with ${config} configuration."
+   set tempdir="${sbrdir}/unsupported/export/${config}_${rtltop}_${thisToolName}"
+   mkdir ${tempdir} -p
+   pushd ${tempdir}
+
+   mkdir -p ${cdcdir}
+
+   set puni_prefix=`echo $puniprefix | sed -e 's/_$//'`
+
+   set basecmd="${sbrdir}/unsupported/export/parseXml --ipxact_file ${sbrdir}/verif/tests/networks/${config}.xml -q"
+   if ( "${dynopt}" != "nonDyn" ) then
+      set basecmd="${basecmd} -dynamo -prefix ${puni_prefix}"
+   endif
+
+   set collateral_list=(\
+      "cdc_test_unit_name.opt" \
+      "cdc_global.tcl" \
+      "cdc_global_waivers.tcl" \
+      "unit_name_cdc.tcl" \
+      "unit_name_waivers.tcl" \
+      "cdc_lint_cfg.xml" \
+      "cdc_lint_waivers.xml" \
+   )
+
+   foreach collateral_file ( ${collateral_list} )
+      ${basecmd} -t ${sbrdir}/unsupported/export/data/xml/${collateral_file}
+      if ( $mainDebug ) echo "${thisToolName} -D- Generated ${tempdir}/${component}_${collateral_file}"
+   end
+
+   mv ${tempdir}/${component}_cdc_test_unit_name.opt ${cdcdir}/${rtltop}.opt
+   mv ${tempdir}/${component}_cdc_global.tcl         ${cdcdir}/cdc_global.tcl
+   mv ${tempdir}/${component}_cdc_global_waivers.tcl ${cdcdir}/cdc_global_waivers.tcl
+   mv ${tempdir}/${component}_unit_name_cdc.tcl      ${cdcdir}/iosf_sbc_rtr_${rtltop}_ctrl.tcl
+   mv ${tempdir}/${component}_unit_name_waivers.tcl  ${cdcdir}/iosf_sbc_rtr_${rtltop}_waivers.tcl
+   mv ${tempdir}/${component}_cdc_lint_cfg.xml       ${cdcdir}/cdc_lint_cfg.xml
+   mv ${tempdir}/${component}_cdc_lint_waivers.xml   ${cdcdir}/cdc_lint_waivers.xml
+
+   rm ${tempdir} -rf
+   popd
+
+   echo "${thisToolName} -I- Generated ACE CDC Collateral for Router ${component} with ${config} configuration."
+
+endif
+
+# IF regular runCDC is ran first it creates a file that ACE scripts cannot handle.
+# Must delete this first before running if it exists. Easier to delete the cache
+# there is no real value in keeping it around.
+if ( -e "${cdcdir}/${rtltop}_cdc_results/qcache/" ) then
+   rm "${cdcdir}/${rtltop}_cdc_results/qcache/" -rf
+endif
+
+set cdc_compile_log     = "${rtltop}_cdc_compile.log"
+set cdc_run_log         = "${rtltop}_cdc_run.log"
+set cdc_clk_log         = "${rtltop}_clk_run.log"
+set cdc_detail_clk      = "${rtltop}_detailed_clock.rpt"
+set cdc_detail_rst      = "${rtltop}_detailed_reset.rpt"
+set cdc_detail_crossing = "${rtltop}_detailed_crossing.rpt"
+
+if ( ${no_run} ) then
+   if ( -e ${cdc_db} ) then
+      if ( ${mainDebug} ) then
+         echo "${thisToolName} -I- Running debug information against previous DB"
+         goto EXTRAINFO
+      endif
+
+      if ( ${guimode} ) then
+         echo "${thisToolName} -I- Opening GUI on previous DB"
+         goto GUIMODE
+      endif
+   endif
+
+   exit 0
+endif
+
+pushd ${cdcdir}
+
+#setenv SB_STDCELLS_HDL SB_STDCELLS_HDL
+# All these are needed for the cdc_global_tcl file in the cdc.opt file
+#setenv ACE_CDC_VER  v20170925
+setenv CDC_PREFERENCE_BIT_RECON TRUE 
+setenv CDC_PREFERENCE_RECON_DEPTH
+setenv RECON_DEPTH 2
+
+# CDC should be using the backend ctech cells - set through CTECH_LIB_NAME
+# But lintra (tool and elab) uses the behavioral model - hence the local override
+set CDC_CTECH="CTECH_${SIP_PROCESS_NAME}_${SIP_LIBRARY_TYPE}_${SIP_LIBRARY_VTYPE}_rtl_lib"
+setenv CTECH_LIB_NAME $CDC_CTECH
+
+echo "#####################"
+echo "# Common Elaboration"
+echo "#####################"
+
+# Keep a copy of the original rtltop file for SBE
+if ( "${config}" =~ "IOSF_Sideband_Endpoint" ) then
+   cp ${rtltopsv} ${rtltopsv}.ref
+   mv ${rtltopsv}.tmp ${rtltopsv}
+endif
+
+ace -coz -m ${config} -results ${cdcres} -ASSIGN -mc=cdc_${rtltop} | tee ${cdc_compile_log}
+set exitstatus=$status
+
+# Restore the rtltop file for SBE
+if ( "${config}" =~ "IOSF_Sideband_Endpoint" ) then
+   mv ${rtltopsv}.ref ${rtltopsv}
+endif
+
+if ( ${exitstatus} ) then
+   echo "${thisToolName} -E- ACE Compile Failed"
+   popd
+
+   exit ${exitstatus}
+endif
+
+echo "#############################"
+echo "# Run CDC against the design"
+echo "#############################"
+ace -xz -t ${cdctest} -results ${cdcres} -enable_post_checker | tee ${cdc_run_log}
+
+set exitstatus=$status
+if ( ${exitstatus} ) then
+   echo "${thisToolName} -E- ACE CDC Failed"
+   if ( -e ${cdc_db} ) then
+      echo "${thisToolName} -I- ${cdc_db} present, printing extra information"
+      goto EXTRAINFO 
+   endif
+   popd
+
+   exit ${exitstatus}
+endif
+
+echo "#############################"
+echo "# Run ACE for RPTCLK Zircon"
+echo "#############################"
+# Point a soft link to the CFM file to make Zircon Happy, need to
+# work on getting Zircon team to understanding how this IP works.
+ln -s ${cdc_hier} ${cdcout}/${cdc_hier_zircon}
+
+ace -xz -t ${cdctest}:RptCLK -results ${cdcres} | tee ${cdc_clk_log}
+set exitstatus=$status
+if ( ${exitstatus} ) then
+   echo "${thisToolName} -E- ACE Clock Report Failed"
+   popd
+
+   exit ${exitstatus}
+endif
+
+EXTRAINFO:
+set extra_str="configure license queue on"
+set extra_str="${extra_str};cdc load db ${cdc_db}"
+set extra_str="${extra_str};cdc generate tree -clock ${cdc_detail_clk}"
+set extra_str="${extra_str};cdc generate tree -reset ${cdc_detail_rst}"
+set extra_str="${extra_str};cdc generate crossings ${cdc_detail_crossing}"
+set extra_str="${extra_str};exit"
+
+qcdc -licq -c -do "${extra_str}"
+
+################################
+# Run in gui mode after the run
+################################
+GUIMODE:
+if ( ${guimode} ) then
+   qcdc ${cdc_db}
+endif
+
+popd
+
+##################################
+# Running CDC Lint
+##################################
+echo "Running CDC Lint"
+
+# od  = output directory that creates dut_violations.out and dut_violations.xml
+# if od is not specified, violation reports are created in tools/cdc/tests/{component}/tools/cdcLint (for EP)
+# wd  = directory where the waiver file (cdclint_w.xml) is located
+# wf  = name of waiver file
+# cfg = path to cdc_lint_cfg.xml
+# cwd = runs run_cdc_lint from this directory, else run_cdc_lint is run from scripts/qa (from whereever runACECDC is located)
+# res_dir = pointer to cfm/hier files for the lint tool
+
+${CDCLINT_HOME}/run_cdc_lint -cfg ${cdc_lint_cfg} -od ${cdcout} -res_dir ${cdcout} -wd ${cdcdir} -wf ${lint_wf}
+
+set exitstatus=$status
+if ( $exitstatus ) then
+   echo "${thisToolName} -E- CDC Lint failed with Errors/Warnings"
+   exit ${exitstatus}
+endif
+
+
+##################################
+# Verify that everything was good
+##################################
+#There is no equalent HDK path for checklogfile. Better to copy in local area and use.
+/p/com/eda/intel/siputils/prod/bin/checkLogFile ${cdc_log} -pc 'Violations\s+\(0\)' -pc 'Cautions\s+\(0\)'
+
+set exitstatus=$status
+
+if ( $exitstatus ) then
+   echo "${thisToolName} -E- CDC failed with Violations or Cautions reported"
+   exit ${exitstatus}
+endif
+
+echo "${thisToolName} -I- CDC passed without Violations or Cautions reported"
+exit 0

@@ -1,0 +1,18 @@
+
+cfg_begin
+
+  msix_alarm 0 enable=0x1 addr=0xaaaa5555aaaa5555 data=0xaaaa5555
+
+  dir qid DQ_A:*
+  ldb qid LQ_A:* fid_cfg_v=1
+  ldb qid LQ_B:* sn_cfg_v=1
+
+  vas VS:* ldb_qidv:LQ_A=1 ldb_qidv:LQ_B=1 dir_qidv:DQ_A=1 credit_cnt=8
+
+  dir pp DQ_A    vas=VS 
+  dir cq DQ_A    cq_depth=1024 gpa=sm
+
+  ldb pp LDB_PP_A:* vas=VS 
+  ldb cq LDB_PP_A   gpa=sm qidv0=1 qidix0=LQ_A  qidv1=1 qidix1=LQ_B
+
+cfg_end

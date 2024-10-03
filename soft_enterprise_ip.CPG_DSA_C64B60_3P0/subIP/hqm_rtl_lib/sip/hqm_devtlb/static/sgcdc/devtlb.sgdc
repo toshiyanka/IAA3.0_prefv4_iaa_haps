@@ -1,0 +1,160 @@
+current_design devtlb
+
+########################################################################
+
+# Clock information:
+#########################################
+
+clock -name clk     -period 1000 -domain clk            -tag clk
+
+#############
+#   RESET
+#############
+##ASYNCHRONOUS RESETS##
+#DEFINITE RESETS:
+reset -name "flreset"                              -value 1
+reset -name "full_reset"                           -value 1
+#reset -name "pwrgood_reset"                        -value 1
+
+# SCAN Constraints from  https://intelpedia.intel.com/QCDC-TCL-setup
+set_case_analysis -name      fscan_shiften          -value 0
+set_case_analysis -name      fscan_mode             -value 0
+set_case_analysis -name      fscan_latchopen        -value 0
+set_case_analysis -name      fscan_latchclosed_b    -value 1
+set_case_analysis -name      fscan_clkungate        -value 0
+set_case_analysis -name      fscan_clkungate_syn    -value 0
+set_case_analysis -name      fscan_clkgenctrl       -value 0
+set_case_analysis -name      fscan_clkgenctrlen     -value 0
+set_case_analysis -name      fscan_rstbypen         -value 0
+set_case_analysis -name      fscan_byprst_b         -value 1
+set_case_analysis -name      fscan_ram_wrdis_b      -value 1
+set_case_analysis -name      fscan_ram_rddis_b      -value 1
+set_case_analysis -name     "fscan_ram_odis_b*"     -value 1
+set_case_analysis -name     "fsta_afd_en"           -value 0
+set_case_analysis -name     "fsta_dfxact_afd"       -value 0
+
+# DFx Constraints from  https://intelpedia.intel.com/QCDC-TCL-setup
+set_case_analysis -name fdfx_earlyboot_exit         -value 1
+
+#############
+#   VISA
+#############
+
+
+#############
+# MBIST
+#############
+
+
+#=================================================
+
+#           ABSTRACT PORT INFORMATION
+
+#=================================================
+
+#MISC signals
+abstract_port -ports "implicit_invalidation_valid"     -clock "clk" -direction input
+abstract_port -ports "implicit_invalidation_bdf"       -clock "clk" -direction input
+abstract_port -ports "implicit_invalidation_bdf_valid" -clock "clk" -direction input
+
+abstract_port -ports "xreqs_active"     -clock "clk"  -direction output
+abstract_port -ports "invreqs_active"   -clock "clk"  -direction output
+abstract_port -ports "tlb_reset_active" -clock "clk"  -direction output
+abstract_port -ports "tlb_tag*"         -clock "clk"  -direction output
+abstract_port -ports "tlb_data*"        -clock "clk"  -direction output
+abstract_port -ports "debugbus*"        -clock "clk"  -direction output
+
+#CONFIG signals
+abstract_port -ports "defeature*"    -clock "clk"  -direction input
+abstract_port -ports "scr_*"         -clock "clk"  -direction input
+abstract_port -ports "PRSSTS_*"      -clock "clk"  -direction input
+abstract_port -ports "PRSREQALLOC_*" -clock "clk"  -direction input
+
+#ATS REQ
+abstract_port -ports "atsreq_valid"       -clock "clk"  -direction output
+abstract_port -ports "atsreq_id"          -clock "clk"  -direction output
+abstract_port -ports "atsreq_address"     -clock "clk"  -direction output
+abstract_port -ports "atsreq_tc"          -clock "clk"  -direction output
+abstract_port -ports "atsreq_nw"          -clock "clk"  -direction output
+
+abstract_port -ports "atsreq_ack"         -clock "clk"  -direction input
+abstract_port -ports "atsreq_bdf"         -clock "clk"  -direction input
+abstract_port -ports "atsreq_pasid"       -clock "clk"  -direction input
+abstract_port -ports "atsreq_pasid_priv"  -clock "clk"  -direction input
+abstract_port -ports "atsreq_pasid_valid" -clock "clk"  -direction input
+
+#ATS RSP
+
+abstract_port -ports "atsrsp_valid"       -clock "clk"  -direction input
+abstract_port -ports "atsrsp_id"          -clock "clk"  -direction input
+abstract_port -ports "atsrsp_dperror"     -clock "clk"  -direction input
+abstract_port -ports "atsrsp_data"        -clock "clk"  -direction input
+
+#Message interface to/from hosting unit
+abstract_port -ports "rx_msg_valid"        -clock "clk"  -direction input
+abstract_port -ports "rx_msg_opcode"       -clock "clk"  -direction input
+abstract_port -ports "rx_msg_pasid_valid"  -clock "clk"  -direction input
+abstract_port -ports "rx_msg_pasid_priv"   -clock "clk"  -direction input
+abstract_port -ports "rx_msg_pasid"        -clock "clk"  -direction input
+abstract_port -ports "rx_msg_dw2"          -clock "clk"  -direction input
+abstract_port -ports "rx_msg_data"         -clock "clk"  -direction input
+abstract_port -ports "rx_msg_dperror"      -clock "clk"  -direction input
+abstract_port -ports "rx_msg_invreq_itag"  -clock "clk"  -direction input
+abstract_port -ports "rx_msg_invreq_reqid" -clock "clk"  -direction input
+
+abstract_port -ports "tx_msg_valid"       -clock "clk"  -direction output
+abstract_port -ports "tx_msg_ack"         -clock "clk"  -direction output
+abstract_port -ports "tx_msg_opcode"      -clock "clk"  -direction output
+abstract_port -ports "tx_msg_bdf"         -clock "clk"  -direction output
+abstract_port -ports "tx_msg_pasid_valid" -clock "clk"  -direction output
+abstract_port -ports "tx_msg_pasid_priv"  -clock "clk"  -direction output
+abstract_port -ports "tx_msg_pasid"       -clock "clk"  -direction output
+abstract_port -ports "tx_msg_dw2"         -clock "clk"  -direction output
+abstract_port -ports "tx_msg_dw3"         -clock "clk"  -direction output
+abstract_port -ports "tx_msg_tc"          -clock "clk"  -direction output
+
+#Drain
+abstract_port -ports "drainreq_valid"        -clock "clk" -direction output
+abstract_port -ports "drainreq_ack"          -clock "clk" -direction input
+abstract_port -ports "drainreq_pasid"        -clock "clk" -direction output
+abstract_port -ports "drainreq_pasid_priv"   -clock "clk" -direction output
+abstract_port -ports "drainreq_pasid_valid"  -clock "clk" -direction output
+abstract_port -ports "drainreq_pasid_global" -clock "clk" -direction output
+abstract_port -ports "drainrsp_valid"        -clock "clk" -direction input
+abstract_port -ports "drainrsp_tc"           -clock "clk" -direction input
+
+#XREQ
+abstract_port -ports "xreq_valid"      -clock "clk"  -direction input
+abstract_port -ports "xreq_id"         -clock "clk"  -direction input
+abstract_port -ports "xreq_tlbid"      -clock "clk"  -direction input
+abstract_port -ports "xreq_priority"   -clock "clk"  -direction input
+abstract_port -ports "xreq_address"    -clock "clk"  -direction input
+abstract_port -ports "xreq_opcode"     -clock "clk"  -direction input
+abstract_port -ports "xreq_tc"         -clock "clk"  -direction input
+
+abstract_port -ports "xreq_lcrd_inc"   -clock "clk"  -direction output
+abstract_port -ports "xreq_hcrd_inc"   -clock "clk"  -direction output
+
+#XRSP
+abstract_port -ports "xrsp_valid"      -clock "clk" -direction output
+abstract_port -ports "xrsp_id"         -clock "clk" -direction output
+abstract_port -ports "xrsp_result"     -clock "clk" -direction output
+abstract_port -ports "xrsp_nonsnooped" -clock "clk" -direction output
+abstract_port -ports "xrsp_address"    -clock "clk" -direction output
+abstract_port -ports "xrsp_prs_code"   -clock "clk" -direction output
+
+#RF
+#abstract_port -ports "EXT_RF_*RdData" -clock "clk" -direction input
+#abstract_port -ports "EXT_RF_*RdEn"   -clock "clk" -direction output
+#abstract_port -ports "EXT_RF_*RdAddr" -clock "clk" -direction output
+#abstract_port -ports "EXT_RF_*WrEn"   -clock "clk" -direction output
+#abstract_port -ports "EXT_RF_*WrAddr" -clock "clk" -direction output
+#abstract_port -ports "EXT_RF_*WrData" -clock "clk" -direction output
+
+#CAM
+#TODO
+
+# sync
+abstract_port -ports "flreset"    -clock "clk" -direction input
+abstract_port -ports "full_reset" -clock "clk" -direction input
+

@@ -1,0 +1,102 @@
+//--------------------------------------------------------------------------------------//
+//    FILENAME        : pgcb_fsm.sva 
+//    DESIGNER        : amshah2
+//    PROJECT         : BXT IP
+//    DATE            : 10/28/2013
+//    PURPOSE         : Assertion Checks for PCGU FSM
+//    REVISION NUMBER : 0.75
+//----------------------------- Revision History ---------------------------------------//
+//
+//      Date        Rev     Owner     Description
+//      --------    ---     -----     ---------------------------------------------------
+//      10/28/2013  0.75    amshah2   Included the following:
+//                                    Added 16 Assertion checks for PCGU FSM.
+//                                    All the asserts are synchronous and are disabled
+//                                    when in reset. 
+// -------------------------------------------------------------------------------------//
+`ifndef DC
+
+    // -- Input Assumptions -- //
+    // clkack must follow clkreq
+    ack_follows_req: assume property (@(posedge pgcb_clk) disable iff((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+       !$stable(clkack_syn) |-> $past(pgcb_clkreq)==clkack_syn
+    );
+
+    // pmc_ip_wake must stay asserted until clkreq_sustain asserts
+    pmc_wake_duration: assume property (@(posedge pgcb_clk) disable iff((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+        $fell(async_pmc_ip_wake) |-> $past(clkreqseqsm_ps) == CLKREQ_UNGATECLK
+    );
+    
+    
+    // -- Logic Assertions --//
+    // clkreq must lead clkack
+    req_leads_ack: assert property (@(posedge pgcb_clk) disable iff((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+       !$stable(pgcb_clkreq) |-> pgcb_clkreq!=clkack_syn
+    );
+
+    // acc_wake_assert may only assert when in SELWAKE 
+    inacc_wake: assert property (@(posedge pgcb_clk) disable iff (pgcb_rst_b !== 1)
+        $rose(acc_wake_assert) |-> clkreqseqsm_ps==CLKREQ_SELWAKE
+    );
+    
+    // acc_wake_assert deassertion requires that the wake event was captured by clkreq_sustain
+    acc_wake_captured: assert property (@(posedge pgcb_clk) disable iff((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+        $fell(acc_wake_assert) |-> $past(clkreq_sustain) && clkreq_sustain
+    );
+    
+    // pmc_wake_assert deassertion requires that the wake event was captured by clkreq_sustain
+    pmc_wake_captured: assert property (@(posedge pgcb_clk) disable iff((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+        $fell(pmc_wake_assert) |-> $past(clkreq_sustain) && clkreq_sustain
+    );
+    
+    // mask_acc_wake must be asserted when clr_acc_wake deasserts so that the clear would take effect
+    acc_wake_clear: assert property (@(posedge pgcb_clk) disable iff((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+        $fell(clr_acc_wake) |-> $past(mask_acc_wake) && mask_acc_wake
+    );
+    
+    // clkreq deassertion should only be due to clkreq_sustain deassertion
+    clkreq_deassert: assert property (@(posedge pgcb_clk) disable iff((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+        $fell(pgcb_clkreq) |-> $fell(clkreq_sustain) && $stable(pmc_wake_assert) && $stable(acc_wake_assert) &&
+                               !pmc_wake_assert && !acc_wake_assert
+    );
+    
+    // clkreq assertion should only be due to pmc_wake_assert or acc_wake_assert assertion
+    clkreq_assert: assert property (@(posedge pgcb_clk) disable iff((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+        $rose(pgcb_clkreq) |-> ($rose(pmc_wake_assert) || $rose(acc_wake_assert)) && 
+                               $stable(clkreq_sustain) && !clkreq_sustain
+    );
+    
+    // sync_clkvld should only fall if state is GATEPEND
+    sync_clkvld_fell: assert property (@(posedge pgcb_clk) disable iff((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+        $fell(sync_clkvld) |-> clkreqseqsm_ps==CLKREQ_GATEPEND
+    );
+    
+    
+    // when clr_clkreq_sustain asserts *wake_assert_sync should be deasserted
+    clr_clkreq_set_terms_low: assert property (@(posedge pgcb_clk) disable iff((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+        clr_clkreq_sustain |-> !pmc_wake_assert_sync && ! acc_wake_assert_sync
+    );
+   
+
+    //RISE IN WAKE_MASK IMPLIES WE HAVE CLKREQ && CLKACK_SYNC
+    //FALL IN WAKE_MASK IMPLIES CLKACK_SYN ABSENT - NOT MASKING WAKES, NO CLKREQ 
+    aWAKE_MASK_Chk_A: assert property (@(posedge pgcb_clk) disable iff (pgcb_rst_b !== 1)
+      ($rose(mask_acc_wake) || $rose(mask_pmc_wake)) |-> ((pgcb_clkreq == 1'b1) && (clkack_syn == 1'b1))
+    );
+
+    aWAKE_MASK_Chk_B: assert property (@(posedge pgcb_clk) disable iff (pgcb_rst_b !== 1)
+      ($fell(mask_acc_wake) || $fell(mask_pmc_wake)) |-> (clkack_syn == 1'b0)
+    );
+
+    //BASED ON THE FSM STATE CHANGE RISE IN (CLKACK_SYN & CLKREQ_SUSTAIN) IMPLIES WAKES ARE MASKED
+    aCLKACK_SYN_Chk: assert property (@(posedge pgcb_clk) disable iff (pgcb_rst_b !== 1)
+      (clkack_syn && clkreq_sustain) |-> ##1 (mask_acc_wake && mask_pmc_wake)
+    );
+
+    //-- Cover Properties --//
+    // Cover ARC from GATEPEND to UNGATECLK 
+    cGATPENDtoUNGATECLK: cover property (@(posedge pgcb_clk) disable iff(pgcb_rst_b!==1)
+       (clkreqseqsm_ps==CLKREQ_GATEPEND) ##1 (clkreqseqsm_ps==CLKREQ_UNGATECLK)
+    );
+
+`endif

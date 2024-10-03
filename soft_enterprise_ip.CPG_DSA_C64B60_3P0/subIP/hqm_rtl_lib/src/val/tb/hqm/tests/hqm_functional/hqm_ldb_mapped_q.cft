@@ -1,0 +1,175 @@
+###################################
+# Setup LUTs used by HCWs
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+
+###################################
+# using pp_cq_base_seq 
+# only directed traffic 
+# 
+###################################
+
+cfg_begin
+
+###################################
+## PF only
+###################################
+
+  ldb qid 5
+  ldb qid 6
+  ldb qid 7
+  ldb qid 8
+
+  vas 10 credit_cnt=128 ldb_qidv5=1 ldb_qidv6=1 
+  vas 15 credit_cnt=128 ldb_qidv7=1 ldb_qidv8=1 
+
+  ldb pp 20 vas=10
+  ldb pp 21 vas=10
+  ldb pp 30 vas=15
+  ldb pp 31 vas=15
+
+  ldb cq 20 gpa=sm qidv0=1 qidix0=5 qidv1=1 qidix1=6
+  ldb cq 21 gpa=sm qidv2=1 qidix2=5 qidv3=1 qidix3=6
+  ldb cq 30 gpa=sm qidv4=1 qidix4=7 qidv5=1 qidix5=8
+  ldb cq 31 gpa=sm qidv6=1 qidix6=7 qidv7=1 qidix7=8
+###################################
+
+###################################
+## VF only
+###################################
+
+  ldb qid 0
+  ldb qid 1
+  ldb qid 10
+  ldb qid 11
+  ldb qid 20
+  ldb qid 21
+  ldb qid 30
+  ldb qid 31
+
+  vas 0  credit_cnt=128 ldb_qidv0=1  ldb_qidv1=1
+  vas 5  credit_cnt=128 ldb_qidv10=1 ldb_qidv11=1
+  vas 20 credit_cnt=128 ldb_qidv20=1 ldb_qidv21=1
+  vas 31 credit_cnt=128 ldb_qidv30=1 ldb_qidv31=1
+
+  ldb pp 0  vas=0
+  ldb pp 1  vas=0
+  ldb pp 10 vas=5
+  ldb pp 11 vas=5
+  ldb pp 40 vas=20
+  ldb pp 41 vas=20
+  ldb pp 60 vas=31
+  ldb pp 61 vas=31
+  ldb pp 62 vas=31
+  ldb pp 63 vas=31
+
+  ldb pp 2 vas=0
+  ldb pp 3 vas=0
+
+  ldb cq 0  gpa=sm qidv0=1 qidix0=0   qidv1=1 qidix1=1
+  ldb cq 1  gpa=sm qidv2=1 qidix2=0   qidv3=1 qidix3=1
+  ldb cq 10 gpa=sm qidv0=1 qidix0=10  qidv1=1 qidix1=11
+  ldb cq 11 gpa=sm qidv0=1 qidix0=10  qidv1=1 qidix1=11
+  ldb cq 40 gpa=sm qidv0=1 qidix0=20  qidv1=1 qidix1=21
+  ldb cq 41 gpa=sm qidv0=1 qidix0=20  qidv1=1 qidix1=21
+  ldb cq 62 gpa=sm qidv0=1 qidix0=30  qidv1=1 qidix1=31
+  ldb cq 63 gpa=sm qidv0=1 qidix0=30  qidv1=1 qidix1=31
+
+  vdev 0   ldb_pp2_v=1   ldb_pp3_v=1     ldb_vqid3_qid=0   ldb_vqid4_qid=1
+  ##vf 7   ldb_vpp20_v=1 ldb_vpp20_pp=10 ldb_vpp21_v=1 ldb_vpp21_pp=11 ldb_vqid30_v=1 ldb_vqid30_qid=10 ldb_vqid31_v=1 ldb_vqid31_qid=11
+  ##vf 10  ldb_vpp20_v=1 ldb_vpp20_pp=40 ldb_vpp21_v=1 ldb_vpp21_pp=41 ldb_vqid30_v=1 ldb_vqid30_qid=20 ldb_vqid31_v=1 ldb_vqid31_qid=21
+  ##vf 15  ldb_vpp30_v=1 ldb_vpp30_pp=62 ldb_vpp31_v=1 ldb_vpp31_pp=63 ldb_vqid10_v=1 ldb_vqid10_qid=30 ldb_vqid11_v=1 ldb_vqid11_qid=31
+###################################
+
+###################################
+## PF + VF only
+###################################
+
+  ldb qid 2
+  ldb qid 3
+  ldb qid 4
+  ldb qid 9
+  ldb qid 12
+  ldb qid 13
+  ldb qid 14
+  ldb qid 15
+  ldb qid 16
+  ldb qid 17
+  ldb qid 18
+  ldb qid 19
+  ldb qid 22
+  ldb qid 23
+  ldb qid 24
+  ldb qid 25
+  ldb qid 26
+  ldb qid 27
+  ldb qid 28
+  ldb qid 29
+
+  vas 1  credit_cnt=128 ldb_qidv2=1  ldb_qidv3=1
+  vas 2  credit_cnt=128 ldb_qidv4=1  ldb_qidv9=1
+  vas 3  credit_cnt=128 ldb_qidv12=1 ldb_qidv13=1
+  vas 6  credit_cnt=128 ldb_qidv14=1 ldb_qidv15=1
+  vas 7  credit_cnt=128 ldb_qidv16=1 ldb_qidv17=1
+  vas 8  credit_cnt=128 ldb_qidv18=1 ldb_qidv19=1
+  vas 9  credit_cnt=128 ldb_qidv22=1 ldb_qidv23=1
+  vas 11 credit_cnt=128 ldb_qidv24=1 ldb_qidv25=1
+  vas 12 credit_cnt=128 ldb_qidv26=1 ldb_qidv27=1
+  vas 13 credit_cnt=128 ldb_qidv28=1 ldb_qidv29=1
+
+  ##ldb pp 2 vas=1
+  ##ldb pp 3 vas=1
+  ldb pp 4 vas=2
+  ldb pp 5 vas=2
+  ldb pp 6 vas=3
+  ldb pp 7 vas=3
+  ldb pp 8 vas=6
+  ldb pp 9 vas=6
+  ldb pp 12 vas=7
+  ldb pp 13 vas=7
+  ldb pp 14 vas=8
+  ldb pp 15 vas=8
+  ldb pp 16 vas=9
+  ldb pp 17 vas=9
+  ldb pp 18 vas=11
+  ldb pp 19 vas=11
+  ldb pp 22 vas=12
+  ldb pp 23 vas=12
+  ldb pp 24 vas=13
+  ldb pp 25 vas=13
+
+  ldb cq 2  gpa=sm qidv0=1 qidix0=2  qidv7=1 qidix7=3 
+  ldb cq 3  gpa=sm qidv1=1 qidix1=2  qidv6=1 qidix6=3
+  ldb cq 4  gpa=sm qidv2=1 qidix2=4  qidv5=1 qidix5=9
+  ldb cq 5  gpa=sm qidv3=1 qidix3=4  qidv4=1 qidix4=9
+  ldb cq 6  gpa=sm qidv4=1 qidix4=12 qidv3=1 qidix3=13
+  ldb cq 7  gpa=sm qidv5=1 qidix5=12 qidv2=1 qidix2=13
+  ldb cq 8  gpa=sm qidv6=1 qidix6=14 qidv1=1 qidix1=15
+  ldb cq 9  gpa=sm qidv7=1 qidix7=14 qidv0=1 qidix0=15
+  ldb cq 12 gpa=sm qidv0=1 qidix0=16 qidv7=1 qidix7=17
+  ldb cq 13 gpa=sm qidv1=1 qidix1=16 qidv6=1 qidix6=17
+  ldb cq 14 gpa=sm qidv2=1 qidix2=18 qidv5=1 qidix5=19
+  ldb cq 15 gpa=sm qidv3=1 qidix3=18 qidv4=1 qidix4=19
+  ldb cq 16 gpa=sm qidv4=1 qidix4=22 qidv3=1 qidix3=23
+  ldb cq 17 gpa=sm qidv5=1 qidix5=22 qidv2=1 qidix2=23
+  ldb cq 18 gpa=sm qidv6=1 qidix6=24 qidv1=1 qidix1=25
+  ldb cq 19 gpa=sm qidv7=1 qidix7=24 qidv0=1 qidix0=25
+  ldb cq 22 gpa=sm qidv0=1 qidix0=26 qidv7=1 qidix7=27
+  ldb cq 23 gpa=sm qidv1=1 qidix1=26 qidv6=1 qidix6=27
+  ldb cq 24 gpa=sm qidv2=1 qidix2=28 qidv5=1 qidix5=29
+  ldb cq 25 gpa=sm qidv3=1 qidix3=28 qidv4=1 qidix4=29
+
+##-- VF generating traffic and PF sending completions
+  vdev 1   ldb_pp0_v=1   ldb_pp63_v=1   ldb_vqid31_qid=2   ldb_vqid30_qid=3
+  vdev 14  ldb_pp1_v=1   ldb_pp62_v=1   ldb_vqid28_qid=26  ldb_vqid29_qid=27
+
+##-- SRC_VF == DEST_VF
+  ##vdev 6   ldb_pp2_v=1   ldb_pp61_v=1    ldb_vqid27_qid=12  ldb_vqid26_qid=13 
+  ##vdev 6   ldb_pp3_v=1   ldb_pp60_v=1    ldb_vqid25_qid=25  ldb_vqid24_qid=24
+
+  vdev 6     ldb_pp61_v=1    ldb_vqid27_qid=12  ldb_vqid26_qid=13 
+  vdev 6     ldb_pp60_v=1    ldb_vqid25_qid=25  ldb_vqid24_qid=24
+
+
+cfg_end

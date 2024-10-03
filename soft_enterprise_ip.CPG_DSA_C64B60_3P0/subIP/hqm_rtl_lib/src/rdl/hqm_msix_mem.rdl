@@ -1,0 +1,27 @@
+`include "lib_udp.rdl"
+`include "hqm_udp.rdl"
+
+<% use hqm_params; %>
+
+addrmap hqm_msix_mem_map {
+    name = "Hqm Msix Mem";
+    Space = "MEM";
+    ResetSignal = "hqm_inp_gated_rst_n powergood_rst_b";
+    USER_SPECIFIED_UDP = "HqmIsFeatureReg = reg";
+
+    `include "hqm_msix_mem_reg_def.rdl"
+
+    // Instantiate Registers
+
+    hqm_msix_table_rf   msix_table[<%=$hqm_params::MSIX_VECTORS%>]                  @0x00000000;
+
+    // Vectored regs generate defines for the addresses that should be uniquified; hence the HQM_ prefix...
+
+    hqm_msix_pba_r      HQM_MSIX_PBA[<%=int(($hqm_params::MSIX_VECTORS+31)/32)%>]   @0x00001000;
+HQM_MSIX_PBA->HqmClassification="PCI_CFG_REG_NA_3";
+HQM_MSIX_PBA[0]->HqmClassification="PCI_CFG_REG_NA_3";
+HQM_MSIX_PBA[1]->HqmClassification="PCI_CFG_REG_NA_3";
+HQM_MSIX_PBA[2]->HqmClassification="PCI_CFG_REG_NA_3";
+
+};
+

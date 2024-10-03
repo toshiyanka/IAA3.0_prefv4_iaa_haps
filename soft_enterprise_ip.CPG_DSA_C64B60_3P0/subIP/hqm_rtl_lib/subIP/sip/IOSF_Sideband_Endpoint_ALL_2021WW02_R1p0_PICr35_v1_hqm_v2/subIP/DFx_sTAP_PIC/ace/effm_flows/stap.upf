@@ -1,0 +1,140 @@
+upf_version 2.0
+set_design_top stap
+
+if {[info exists synopsys_program_name]} {
+	set_design_attributes -elements {.} -attribute enable_state_propagation_in_add_power_state TRUE
+}
+## -------------------------------------------------------------------------
+## -- IP: stap
+## -- Target SoC Project: 10nm SoCs
+## -- Author: 
+## -- Intel Proprietary
+## -- Copyright (C) 2015 Intel Corporation
+## -- All Rights Reserved
+##
+## <Information related to the UPF file>
+##
+## NOTE: Naming prefix used in the template is based on SoC DA Low Power Methodology Manual
+##
+## -------------------------------------------------------------------------
+#set_design_top stap
+set cur_unit stap
+#UPF 1.0: source $::env(REPO_ROOT)/tools/upf/soc_upf.cfg
+source $::env(REPO_ROOT)/tools/upf/soc_upf.cfg
+#UPF 1.0: source $::env(REPO_ROOT)/tools/upf/stap_srsn.tcl
+source $::env(REPO_ROOT)/tools/upf/stap_srsn.tcl
+#source $::env(REPO_ROOT)/tools/upf/stap_iso.list
+
+############################################################################
+# Power Domain1
+############################################################################
+#UPF 1.0: create_power_domain pd_${cur_unit}_AON -include_scope
+set EXTRA_SUPPLIES_0 ""; set EXTRA_SUPPLIES_1 ""; set EXTRA_SUPPLIES_2 ""; 
+
+##### UPF 2.0 supply net creation order change
+create_supply_net "$SOC_GROUND"  
+
+create_supply_net "$SOC_VCCST"   
+create_supply_set "ss_$SOC_VCCST" -function "power $SOC_VCCST" -function "ground $SOC_GROUND"   
+set EXTRA_SUPPLIES_0 "-supply {extra_supplies_0 ss_$SOC_VCCST}"  
+# create_supply_net "$SOC_GROUND"  
+create_supply_net "$SOC_VCCSA"   
+create_supply_set "ss_$SOC_VCCSA" -function "power $SOC_VCCSA" -function "ground $SOC_GROUND"   
+set EXTRA_SUPPLIES_2 "-supply {extra_supplies_2 ss_$SOC_VCCSA}"  
+ 
+
+#####################################
+
+eval [concat {create_power_domain pd_${cur_unit}_AON -include_scope}  "$EXTRA_SUPPLIES_0"]
+
+
+#UPF 1.0: create_supply_port $SOC_VCCST      -domain  pd_${cur_unit}_AON
+create_supply_port "$SOC_VCCST"
+#UPF 1.0: create_supply_net  $SOC_VCCST      -domain    pd_${cur_unit}_AON
+#create_supply_net "$SOC_VCCST" 
+#create_supply_set  "ss_$SOC_VCCST" -function "power $SOC_VCCST" -function "ground $SOC_GROUND" 
+#set EXTRA_SUPPLIES_0 "-supply {extra_supplies_0 ss_$SOC_VCCST}"
+connect_supply_net $SOC_VCCST      -ports     $SOC_VCCST
+
+#UPF 1.0: create_supply_port $SOC_GROUND     -domain  pd_${cur_unit}_AON
+create_supply_port "$SOC_GROUND"
+#UPF 1.0: create_supply_net  $SOC_GROUND     -domain    pd_${cur_unit}_AON
+#create_supply_net "$SOC_GROUND"
+connect_supply_net $SOC_GROUND     -ports     $SOC_GROUND
+
+############################################################################
+# Power Domain2 VNN
+############################################################################
+#UPF 1.0: create_power_domain pd_${cur_unit}_VNN -elements {                                                  generate_stap_swcomp_rtdr.i_stap_swcomp_rtdr                                                   }
+eval [concat {create_power_domain pd_${cur_unit}_VNN -elements { generate_stap_swcomp_rtdr.i_stap_swcomp_rtdr }}  "$EXTRA_SUPPLIES_0" "$EXTRA_SUPPLIES_2"]
+#UPF 1.0: create_supply_port $SOC_VCCSA      -domain    pd_${cur_unit}_VNN   
+create_supply_port "$SOC_VCCSA"
+#UPF 1.0: create_supply_net  $SOC_VCCSA      -domain    pd_${cur_unit}_VNN
+#create_supply_net "$SOC_VCCSA" 
+#create_supply_set "ss_$SOC_VCCSA" -function "power $SOC_VCCSA" -function "ground $SOC_GROUND" 
+#set EXTRA_SUPPLIES_2 "-supply {extra_supplies_2 ss_$SOC_VCCSA}"
+connect_supply_net $SOC_VCCSA      -ports     $SOC_VCCSA 
+#UPF 1.0: create_supply_net  $SOC_VCCST      -domain    pd_${cur_unit}_VNN -reuse 
+
+
+#UPF 1.0: create_supply_net  $SOC_GROUND     -domain    pd_${cur_unit}_VNN  -reuse
+
+
+
+############################################################################
+# Power Domain Primary Supply Nets 
+############################################################################
+#UPF 1.0: set_domain_supply_net pd_${cur_unit}_AON   -primary_power_net  $SOC_VCCST       -primary_ground_net $SOC_GROUND
+set_domain_supply_net "pd_${cur_unit}_AON" -primary_power_net "ss_$SOC_VCCST.power" -primary_ground_net "ss_$SOC_VCCST.ground"
+
+############################################################################
+# Power Domain Primary Supply Nets 
+############################################################################
+#UPF 1.0: set_domain_supply_net pd_${cur_unit}_VNN   -primary_power_net  $SOC_VCCSA           -primary_ground_net $SOC_GROUND
+set_domain_supply_net "pd_${cur_unit}_VNN" -primary_power_net "ss_$SOC_VCCSA.power" -primary_ground_net "ss_$SOC_VCCSA.ground"
+
+
+
+#UPF 1.0: set_isolation             i_from_vccsa_to_outputs     -domain               pd_${cur_unit}_VNN     -elements             "$from_vccsa_to_outputs"     -isolation_power_net  $SOC_VCCST     -isolation_ground_net $SOC_GROUND     -clamp_value          0
+set_isolation "i_from_vccsa_to_outputs" \
+ -domain "pd_${cur_unit}_VNN" \
+ -elements "$from_vccsa_to_outputs " \
+ -isolation_supply_set "ss_$SOC_VCCST" \
+ -clamp_value "0" 
+
+
+set_isolation_control     i_from_vccsa_to_outputs \
+    -domain               pd_${cur_unit}_VNN \
+    -isolation_signal     {stap_isol_en_b} \
+    -isolation_sense      low \
+    -location             self 
+ 
+#if { [info exists ::synopsys_program_name] } {
+#    if { ($::synopsys_program_name == "dc_shell") } {
+map_isolation_cell        i_from_vccsa_to_outputs \
+    -domain               pd_${cur_unit}_VNN \
+    -lib_cells            "$FW_AND_CELL"
+
+#  }
+#}
+
+#UPF 1.0: add_port_state $SOC_VCCSA     -state "ps_VCCSA     $VCCSA_SUPPLY" -state "ps_VCCSA_OFF off"
+ add_power_state "ss_$SOC_VCCSA" -state "ps_VCCSA" "-supply_expr \{power == `\{FULL_ON,$VCCSA_SUPPLY\}\} -simstate NORMAL" 
+ add_power_state "ss_$SOC_VCCSA" -state "ps_VCCSA_OFF" "-supply_expr \{power == `\{OFF\}\} -simstate CORRUPT" 
+
+#UPF 1.0: add_port_state $SOC_VCCST     -state "ps_VCCST     $VCCST_SUPPLY" -state "ps_VCCST_OFF off"
+ add_power_state "ss_$SOC_VCCST" -state "ps_VCCST" "-supply_expr \{power == `\{FULL_ON,$VCCST_SUPPLY\}\} -simstate NORMAL" 
+ add_power_state "ss_$SOC_VCCST" -state "ps_VCCST_OFF" "-supply_expr \{power == `\{OFF\}\} -simstate CORRUPT" 
+
+
+#UPF 1.0: add_port_state $SOC_GROUND       -state { ps_GROUND  0.00 }
+ add_power_state "ss_$SOC_VCCST" -state "ps_GROUND" "-supply_expr \{ground == `\{FULL_ON,0.00\}\} -simstate NORMAL" 
+
+
+#UPF 1.0: create_pst pst_${cur_unit}     -supplies "$SOC_VCCSA  $SOC_VCCST $SOC_GROUND"
+create_pst pst_stap -supplies "ss_$SOC_VCCSA.power ss_$SOC_VCCST.power ss_$SOC_VCCST.ground "
+
+add_pst_state S0               -state    "ps_VCCSA      ps_VCCST      ps_GROUND " -pst pst_stap 
+add_pst_state S0i1             -state    "ps_VCCSA_OFF  ps_VCCST      ps_GROUND " -pst pst_stap 
+add_pst_state G3_OFF           -state    "ps_VCCSA_OFF  ps_VCCST_OFF  ps_GROUND " -pst pst_stap 
+

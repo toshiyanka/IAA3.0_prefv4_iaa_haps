@@ -1,0 +1,243 @@
+#!/bin/tcsh -f
+# name: runLEC
+#########################################
+# Define variables
+#########################################
+source ./runPre -tool_name $0 $argv
+if( $status != 0 ) exit $status
+
+cd ../..
+
+unsetenv SB_STDCELLS_HDL
+
+#####################################################
+# Run commands
+#####################################################
+
+# Test if KIT_PATH exists and is valid
+if ( ! $?KIT_PATH ) then
+   echo "${thisToolName} -E- KIT_PATH was not defined."
+   exit 1
+endif
+
+if ( -d ${KIT_PATH} ) then
+   if ( ${debug} ) echo "${thisToolName} -D- KIT_PATH set to ${KIT_PATH}"
+else
+   echo "${thisToolName} -E- KIT_PATH does not point to a valid directory."
+   exit 1
+endif
+
+# from the process we can generate a default library if one is not specified
+if (${KIT_PATH} =~ "*p1271*") then
+   set sip_process="1271"
+   if(! $?SIP_LIBRARY_TYPE) then
+      set sip_lib_type="b12.4"
+      echo "${thisToolName} -W- SIP_LIBRARY_TYPE is not defined using default value ${sip_lib_type}"
+   else
+      set sip_lib_type=${SIP_LIBRARY_TYPE}
+   endif
+else if (${KIT_PATH} =~ "*p1273*") then
+   set sip_process="1273"
+   if(! $?SIP_LIBRARY_TYPE) then
+      set sip_lib_type="d04"
+      echo "${thisToolName} -W- SIP_LIBRARY_TYPE is not defined using default value ${sip_lib_type}"
+   else
+      set sip_lib_type=${SIP_LIBRARY_TYPE}
+   endif
+else if (${KIT_PATH} =~ "*10nm*") then
+   set sip_process="1274"
+   if(! $?SIP_LIBRARY_TYPE) then
+      set sip_lib_type="e05"
+      echo "${thisToolName} -W- SIP_LIBRARY_TYPE is not defined using default value ${sip_lib_type}"
+   else
+      set sip_lib_type=${SIP_LIBRARY_TYPE}
+   endif
+else
+   set sip_process="UNDEFINED"
+   echo "${thisToolName} -E- KIT_PATH set to an unsupported process ${KIT_PATH}"
+   exit 1
+endif
+
+set sip_lib_type_strip=`echo ${sip_lib_type} | perl -pe 's/^([\w\d]+)\.?([\w\d]+)?/$1/'`
+
+set sip_custname="default"
+set license_type="-xl"
+setenv lec_lp_mode 0
+set ace_network=""
+
+# No longer needed after the ACE setup is done, we will only exercise the
+# required vt_type from the SIP_LIBRARY_VTYPES env variable in the toolfile.
+# Should keep around the special handler still though.
+switch ("${sip_lib_type}")
+   case 'b05.8':
+      set vttypes=("un" "ln" "nn")
+      set sip_custname="spt"
+      set license_type="-lp -1801"
+      setenv lec_lp_mode 1
+      breaksw
+   case 'b12.1':
+      set vttypes=("wn", "ln" "nn" "tg")
+      breaksw
+   case 'b12.4':
+      set vttypes=("un" "ln" "nn")
+      breaksw
+   case 'd04':
+      set vttypes=("wn" "ln" "nn")
+      set license_type="-lp -1801"
+      setenv lec_lp_mode 1
+      breaksw
+   case 'e05':
+      set vttypes=("ln")
+      setenv lec_lp_mode 1
+      set licent_type="-lp -1801"
+      breaksw
+   default:
+      echo "${thisToolName} -E- Unsupported library type '${sip_lib_type}', update sbc_map.sv and runLEC before proceding"
+      exit 1
+endsw
+
+if (${sip_lib_type} == "e05") then
+    set syn_outputs="${sbrdir}/tools/syn/syn_1274/${component}/rdt/outputs"
+else
+    set syn_outputs="${sbrdir}/tools/syn/syn_${sip_process}/${component}/rdt/outputs"
+endif
+
+if( ${config} =~ "IOSF_Sideband_Endpoint" ) then
+   source ${sbrdir}/scripts/qa/ephelper.csh -rtlcfg ${component} -topdir ${sbrdir} -gentool ${thisToolName} -tooldir lec -process ${sip_process}
+   set target="${rtltop}"
+
+   setenv SIP_EP_PARAMS ""
+   perl -pi -e "s|/${rtltop}/|/${component}/|" ${dsttooldir}/synthlist.f
+   setenv lec_rtl_list "${dsttooldir}/filelist.f"
+
+else
+   if ($DYN_OPT =~ "nonDyn") then
+      set rtltop="${component}"
+   else
+      set rtltop="${component}_sbr_generic"
+   endif
+
+   set dsttooldir="${sbrdir}/tools/lec/lec_${sip_process}/${component}/"
+   set target="${component}"
+   set rtlparameterstring=""
+   setenv lec_rtl_list "${dsttooldir}/${component}.list"
+   set ace_network="-ace_network $config"
+
+
+endif
+
+${sbrdir}/scripts/qa/get_filelist.pl \
+    -run_ace     \
+    -ace_model   cdc_${rtltop} \
+    -ace_filter  Synthesis \
+    -format      lec \
+    -output_file ${lec_rtl_list} \
+    $ace_network
+
+set exitstatus=$status
+if( ${exitstatus} ) then
+    echo "${thisToolName} -E- get_filelist.pl failed."
+    exit ${exitstatus}
+endif
+
+if( ${config} =~ "IOSF_Sideband_Endpoint" ) then
+   if( ${rtlparameterstring} != "" ) then
+      perl -pi -e "s|.*/source/rtl/iosfsbc/endpoint/${rtltop}.sv|${syn_outputs}/../src/${rtltop}.sv|" ${lec_rtl_list}
+   endif
+endif 
+
+# Standard Cell Directory Name
+
+if (${sip_lib_type} == "e05") then
+    echo "setting 10nm lec lib and lec stdcelss"
+    setenv lec_lib_stdcells "/p/hdk/cad/stdcells/e05/14ww45.3_e05_d.0_cnlgt/lib"
+    setenv lec_stdcells "/p/hdk/cad/stdcells/e05/14ww45.3_e05_d.0_cnlgt/v"
+else
+    setenv lec_lib_stdcells "${KIT_PATH}/stdcells/${sip_lib_type}/${sip_custname}/latest/lib"
+    setenv lec_stdcells "${KIT_PATH}/stdcells/${sip_lib_type}/${sip_custname}/latest/v"
+endif
+
+
+# Standard Cell Libraries in the Kit
+setenv lec_libs ""
+setenv lec_lib_libs ""
+foreach vttype (${vttypes})
+   setenv lec_lib_libs "${lec_lib_libs} ${vttype}/*.lib"
+   setenv lec_libs "${lec_libs} ${vttype}/${sip_lib_type_strip}_${vttype}_core.v"
+   setenv lec_libs "${lec_libs} ${vttype}/${sip_lib_type_strip}_${vttype}_core_udp.v"
+end
+
+if (${sip_lib_type} == "e05") then
+    setenv lec_libs "${lec_libs} ${lec_stdcells}/primitives/e05_primitive_verilog.v"
+else
+    setenv lec_libs "${lec_libs} primitives/${sip_lib_type_strip}_primitive_verilog.v"
+endif
+
+if ($sip_lib_type == "b05.8") then
+   setenv lec_libs "${lec_libs} primitives/${sip_lib_type_strip}_pwr_primitives_udp.v"   
+else if ($sip_lib_type == "e05") then
+   setenv lec_libs "${lec_libs} ${lec_stdcells}/primitives/e05_primitives_udp.v"
+else 
+   setenv lec_libs "${lec_libs} primitives/${sip_lib_type_strip}_pwr_primitive_udp.v"
+endif
+
+set sip_lib_type_def="${sip_lib_type}"
+set sip_lib_type_def=`echo ${sip_lib_type_def} | tr "[a-z]" "[A-Z]"`
+set sip_lib_type_def=`echo ${sip_lib_type_def} | perl -pe 's/\./_/g'`
+setenv lec_defs "-Define DC -Define SYNTH"
+if( ${config} =~ "IOSF_Sideband_Endpoint" ) then
+   setenv lec_defs "${lec_defs} -Define SIPINT_${sip_process} -Define SIPINT_${sip_lib_type_def}"
+endif
+
+# Netlist Output From Synthesis
+setenv lec_netlist "${syn_outputs}/${rtltop}.syn_final.vg"
+setenv lec_net_upf "${syn_outputs}/${rtltop}.syn_final.upf"
+setenv lec_rtl_upf "${sbrdir}/tools/upf/router/${config}_${component}_top.upf"
+
+cd ${dsttooldir}
+
+rm -rf results
+mkdir  results
+
+if ( ${guimode} ) then
+   perl -pi -e "s|^exit -force|//exit -force|" ${dsttooldir}/${target}.do
+   set gui="-gui"
+else
+   perl -pi -e "s|^//exit -force|exit -force|" ${dsttooldir}/${target}.do
+   set gui="-nogui"
+endif
+
+lec -64 ${license_type} -dof ${dsttooldir}/${target}.do ${gui}
+set exitstatus=$status
+
+# LEC always returns a status code
+#if ( ${exitstatus} ) then
+#   echo "${thisToolName} -E- LEC exited with errors"
+#   exit ${exitstatus}
+#endif
+
+if( ${config} =~ "IOSF_Sideband_Endpoint" ) then
+#There is no equalent HDK path for checklogfile. Better to copy in local area and use.  
+  /p/com/eda/intel/siputils/prod/bin/checkLogFile ${target}_lec.log \
+               -st 'Command: set sys mo lec' \
+               -en 'Command: exit -force' \
+               -pc '^Equivalent' \
+               -fc '^Non-equiv'
+   set exitstatus=$status
+else
+   /p/com/eda/intel/siputils/prod/bin/checkLogFile ${target}_lec.log \
+               -st '^Module Comparison Results\s*$' \
+               -en 'Command: exit -force' \
+               -pc '^Equivalent' \
+               -fc '^Non-equiv' 
+   set exitstatus=$status
+endif
+
+if ( ${exitstatus} ) then
+   echo "${thisToolName} -E- LEC had non-equivilant points"
+   exit ${exitstatus}
+else
+   echo "${thisToolName} -I- LEC verified the netlist is equivilant"
+endif
+
+exit 0

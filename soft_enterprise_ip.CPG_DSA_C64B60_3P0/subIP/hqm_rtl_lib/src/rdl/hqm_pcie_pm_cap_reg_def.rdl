@@ -1,0 +1,170 @@
+regfile hqm_pcie_pm_cap_rf {
+	reg pm_cap_id_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Pm Cap Id";
+		desc = "PF Power Management Capabilities ID Register";
+		regwidth = 8;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Pmid";
+			desc = "Capability ID: PCI SIG assigned capability record ID (01h, Power Management capability)";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} PMID [07:00] = 8'h01;
+
+	}; // end register ppmcap
+
+	reg pm_cap_next_cap_ptr_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Pm Cap Next Cap Ptr";
+		desc = "PF Power Management Next Capability Pointer Register";
+		regwidth = 8;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Cap Ptr";
+			desc = "Next Capability Pointer";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} CAP_PTR [07:00] = 8'h00;
+
+	}; // end register ppmcp
+
+	reg pm_cap_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Pm Cap";
+		desc = "PF Power Management Capabilities Register";
+		regwidth = 16;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Pme";
+			desc = "PME Support: Set to indicate that the EP will not assert PME# in any state.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} PME [15:11] = 5'b00000;
+
+		field {
+			name = "D2";
+			desc = "D2 Support. EP does not support D2 state.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} D2 [10:10] = 1'b0;
+
+		field {
+			name = "D1";
+			desc = "D1 Support. EP does not support D1 state.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} D1 [9:9] = 1'b0;
+
+		field {
+			name = "Ac";
+			desc = "Aux current: Not relevant for EP.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} AC [8:6] = 3'b000;
+
+		field {
+			name = "Dsi";
+			desc = "Device specific initialization: A one in this bit indicates that immediately after entry into the D0 Uninitialized state, the function requires additional configuration above and beyond setup of its PCI configuration Header registers before the Class driver can use the function.For the EP this bit is set to 1.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} DSI [5:5] = 1'b1;
+
+		field {
+			name = "Iror2d0";
+			desc = "Immediate_Readiness_on_Return_to_D0: If this bit set, this Function is guaranteed to be ready to successfully complete valid accesses immediately after being set to D0. These accesses include Configuration, Memory, and I/O Cycles.  When this bit set, for accesses to this Function, software is exempt from all requirements to delay accesses following a
+transition to D0, including but not limited to the 10 ms delay";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} IROR2D0 [4:4] = 1'b0;
+
+		field {
+			name = "Pmc";
+			desc = "PME clock. Does not apply to PCIe.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} PMC [3:3] = 1'b0;
+
+		field {
+			name = "Pmv";
+			desc = "Version. This field is set to 3 to indicate that the EP is compliant with the PCI bus Power Management Interface Specification Rev 1.2.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} PMV [2:0] = 3'b011;
+
+	}; // end register ppmc
+
+	reg pm_cap_control_status_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Pm Cap Control Status";
+		desc = "PF Power Management Control and Status Register";
+		regwidth = 32;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Reserved";
+			desc = "Reserved/NA/Not Supported for EP.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} RESERVED [31:16] = 16'h0000;
+
+		field {
+			name = "Pms";
+			desc = "PME Status: Set to 0 since EP will not generate PME.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} PMS [15:15] = 1'b0;
+
+		field {
+			name = "Dsc";
+			desc = "Data Scale: Set to 0 because the EP does not implement the Data register.If the Data register has not been implemented, this field must return ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ00bÃƒÂ¢Ã¢â€šÂ¬Ã‚Â when the PMCSR is read.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} DSC [14:13] = 2'b00;
+
+		field {
+			name = "Dsel";
+			desc = "Data Select: Set to 0 for EP because the EP does not implement the Data register (The Data register is an optional, 8-bit read-only register that provides a mechanism for the function to report state dependent operating data such as power consumed or heat dissipation)If the Data register is not implemented, this field should be read only and return ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ0000bÃƒÂ¢Ã¢â€šÂ¬Ã‚Â when the PMCSR is read.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} DSEL [12:9] = 4'b0000;
+
+		field {
+			name = "Pme";
+			desc = "PME Enable: Hardwired to 0 since EP does not generate a PME.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} PME [8:8] = 1'b0;
+
+		field {
+			name = "Reserved1";
+			desc = "Reserved1";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} RESERVED1 [7:4] = 4'b0000;
+
+		field {
+			name = "Nsr";
+			desc = "No_Soft_Reset: The EP will not maintain functional context in the D3_hot state. So when the EP is transitioned from D3_hot to D0 it will be in the D0_uniniitialized state and therefore would require software to initialize it before it can transition to the D0_initialized state.When set (ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ1ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â), this bit indicates that devices transitioning from D3hot to D0 because of Power State commands do not perform an internal reset. Configuration Context is preserved. Upon transition from the D3_hot to the D0_Initialized state, no additional operating system intervention is required to preserve Configuration Context beyond writing the PowerState bits.When clear (ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ0ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â), devices do perform an internal reset upon transitioning from D3_hot to D0 via software control of the Power State bits. Configuration Context is lost when performing the soft reset. Upon transition from the D3_hot to the D0 state, full reinitialization sequence is needed to return the device to D0_initialized state";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} NSR [3:3] = 1'b1;
+
+		field {
+			name = "Reserved2";
+			desc = "Reserved2";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} RESERVED2 [2:2] = 1'b0;
+
+		field {
+			name = "Ps";
+			desc = "Power State. This field is used to determine the current power state of EP and to set a new power state.If software selects a Power state that is not supported by the EP (D2/D1), the writes must complete normally on PCIe, but the write data is discarded and no state change occurs.";
+			PowerWell="vcccfn"; AccessType = "RW";
+		} PS [1:0] = 2'b00;
+
+	};
+
+	pm_cap_id_r             PM_CAP_ID               @0x0;
+
+	pm_cap_next_cap_ptr_r   PM_CAP_NEXT_CAP_PTR     @0x1;
+
+	pm_cap_r                PM_CAP                  @0x2;
+
+	pm_cap_control_status_r PM_CAP_CONTROL_STATUS   @0x4;
+
+};
+

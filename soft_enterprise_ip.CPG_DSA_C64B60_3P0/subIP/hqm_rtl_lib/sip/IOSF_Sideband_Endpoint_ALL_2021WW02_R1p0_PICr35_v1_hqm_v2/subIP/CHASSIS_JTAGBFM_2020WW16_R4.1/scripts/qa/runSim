@@ -1,0 +1,47 @@
+#!/bin/tcsh -f
+# name: runSim
+# date: 3/31/11
+# auth: PALANISAMY C
+# desc: Run sign-of-life VCS simulation
+
+#########################################
+# Define variables
+#########################################
+set SIP_TOOL_NAME=`echo $0 | sed -e 's/.*\///'`
+setenv SIP_PWD $cwd
+
+set flag=0
+#####################################################
+# UNIX Environment setup
+#####################################################
+cd ..
+if (! $?SIP_NO_SETUP) then
+  source setup -ft
+endif
+
+#####################################################
+# Run commands
+#####################################################
+echo $cwd
+cd $IP_ROOT
+#/p/com/eda/intel/siputils/prod/bin/runGenCmd 'ace -cc -x TapTestBypass:10:seed | tee ace.log' -setup none -pc ' ^\s*\#\s+PASS\s*:\s*1$'
+#ace -cc -x | tee ace.log
+source scripts/run_all_test_default | tee ace.log
+
+set exitStatus=$status
+
+#####################################################
+# Report
+#####################################################
+if ($?SIP_CREATE_REPORT) then
+endif
+
+#####################################################
+# Verification
+#####################################################
+setenv "REGRESSION_LOG_PATH" $cwd/ace.log
+echo $REGRESSION_LOG_PATH
+setenv "SFM_TOOL" "regression"
+cd $cwd/scripts/qa
+perl parse.pl
+exit $exitStatus

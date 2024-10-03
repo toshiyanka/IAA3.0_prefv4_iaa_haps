@@ -1,0 +1,86 @@
+
+idle 500
+###############################
+
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+
+###################################
+# Enable memory and parity operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+
+###################################
+wr config_master.cfg_pm_pmcsr_disable.disable 0x0
+rd config_master.cfg_pm_pmcsr_disable.disable 0x0
+##
+###poll to Wait for reset to be done 
+poll config_master.cfg_diagnostic_reset_status 0x80000bff 0x80000bff 500
+###poll to Wait for unit_idle to be done 
+poll config_master.cfg_diagnostic_idle_status 0x0007ffff 0x0007ffff 500
+
+wr hqm_pf_cfg_i.pcie_cap_device_control.mps 0x0
+rd hqm_pf_cfg_i.pcie_cap_device_control.mps 0x0
+wr hqm_pf_cfg_i.pcie_cap_device_control.mps 0x2
+rd hqm_pf_cfg_i.pcie_cap_device_control.mps 0x2
+wr hqm_pf_cfg_i.pcie_cap_device_control.mps 0x7
+rd hqm_pf_cfg_i.pcie_cap_device_control.mps 0x7
+wr hqm_pf_cfg_i.pcie_cap_device_control.mps 0x0
+rd hqm_pf_cfg_i.pcie_cap_device_control.mps 0x0
+wr hqm_pf_cfg_i.pcie_cap_device_control.mps 0x5
+rd hqm_pf_cfg_i.pcie_cap_device_control.mps 0x5
+wr hqm_pf_cfg_i.pcie_cap_device_control.mps 0x2
+rd hqm_pf_cfg_i.pcie_cap_device_control.mps 0x2
+
+
+## -- PF CFG regs persistent registers as per PCIe spec -- ##
+rd hqm_pf_cfg_i.pcie_cap_device_control.mps 0x2
+
+wr hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_MASK.IEUNC 0x1 
+wr hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_MASK.UR    0x1
+wr hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_MASK.ECRCC 0x1 
+wr hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_MASK.MTLP  0x1
+wr hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_MASK.EC    0x1
+wr hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_MASK.CA    0x1
+wr hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_MASK.CT    0x1
+wr hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_MASK.PTLPR 0x1 
+wr hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_MASK.DLPE  0x1
+
+rd hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_MASK.IEUNC 0x1 
+rd hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_MASK.UR    0x1
+rd hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_MASK.ECRCC 0x1 
+rd hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_MASK.MTLP  0x1
+rd hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_MASK.EC    0x1
+rd hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_MASK.CA    0x1
+rd hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_MASK.CT    0x1
+rd hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_MASK.PTLPR 0x1 
+rd hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_MASK.DLPE  0x1
+
+wr hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_SEV.IEUNC 0x1 
+wr hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_SEV.UR    0x1
+wr hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_SEV.ECRCC 0x1 
+wr hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_SEV.MTLP  0x1
+wr hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_SEV.RO    0x1
+wr hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_SEV.EC    0x1
+wr hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_SEV.CA    0x1
+wr hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_SEV.CT    0x1
+wr hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_SEV.PTLPR 0x1 
+wr hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_SEV.DLPE  0x1
+
+rd hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_SEV.IEUNC 0x1 
+rd hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_SEV.UR    0x1
+rd hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_SEV.ECRCC 0x1 
+rd hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_SEV.MTLP  0x1
+rd hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_SEV.RO    0x1
+rd hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_SEV.EC    0x1
+rd hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_SEV.CA    0x1
+rd hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_SEV.CT    0x1
+rd hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_SEV.PTLPR 0x1 
+rd hqm_pf_cfg_i.AER_CAP_UNCORR_ERR_SEV.DLPE  0x1
+

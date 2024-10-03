@@ -1,0 +1,60 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable PF memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+###################################
+wr config_master.cfg_pm_pmcsr_disable.disable   0x0
+rd config_master.cfg_pm_pmcsr_disable.disable   0x0
+###poll to Wait for reset to be done 
+poll config_master.cfg_diagnostic_reset_status  0x80000bff 0x80000bff 500
+###poll to Wait for unit_idle to be done 
+poll config_master.cfg_diagnostic_idle_status   0x0007ffff 0x0007ffff 500
+###################################
+rd hqm_sif_csr.hqm_pulled_fuses_0               0x00000000
+rd hqm_system_csr.aw_smon_comp_mask0[0]         0xffffffff
+wr hqm_system_csr.aw_smon_comp_mask0[0]         0x12345678
+rd hqm_system_csr.aw_smon_comp_mask0[0]         0x12345678
+rd hqm_pf_cfg_i.pm_cap_control_status           0x00000008
+wr hqm_pf_cfg_i.pm_cap_control_status           0x00000001
+wr hqm_pf_cfg_i.pm_cap_control_status           0x00000002
+wr hqm_pf_cfg_i.pm_cap_control_status           0x00000003
+rde hqm_sif_csr.hqm_pulled_fuses_0              0x00000000
+rde hqm_system_csr.aw_smon_comp_mask0[0]        0x00000000
+wre hqm_system_csr.aw_smon_comp_mask0[0]        0x00000000
+rd hqm_pf_cfg_i.pm_cap_control_status           0x0000000b
+wr hqm_pf_cfg_i.pm_cap_control_status           0x00000001
+wr hqm_pf_cfg_i.pm_cap_control_status           0x00000002
+wr hqm_pf_cfg_i.pm_cap_control_status           0x00000000
+rd hqm_pf_cfg_i.pm_cap_control_status           0x00000008
+wr config_master.cfg_pm_pmcsr_disable.disable   0x0
+rd config_master.cfg_pm_pmcsr_disable.disable   0x0
+###poll to Wait for reset to be done 
+poll config_master.cfg_diagnostic_reset_status  0x80000bff 0x80000bff 500
+###poll to Wait for unit_idle to be done 
+poll config_master.cfg_diagnostic_idle_status   0x0007ffff 0x0007ffff 500
+rd hqm_sif_csr.hqm_pulled_fuses_0               0x00000000
+rd hqm_system_csr.aw_smon_comp_mask0[0]         0xffffffff
+wr hqm_system_csr.aw_smon_comp_mask0[0]         0x12345678
+rd hqm_system_csr.aw_smon_comp_mask0[0]         0x12345678
+idle 400
+rd hqm_pf_cfg_i.pcie_cap_device_status          0x0000000b
+wr hqm_pf_cfg_i.pcie_cap_device_status          0x0000000b
+rd hqm_pf_cfg_i.aer_cap_uncorr_err_status       0x00100000
+wr hqm_pf_cfg_i.aer_cap_uncorr_err_status       0x00100000
+rd hqm_pf_cfg_i.aer_cap_corr_err_status         0x00002000
+wr hqm_pf_cfg_i.aer_cap_corr_err_status         0x00002000

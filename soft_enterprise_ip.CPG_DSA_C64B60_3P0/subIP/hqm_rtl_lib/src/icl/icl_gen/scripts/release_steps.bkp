@@ -1,0 +1,24 @@
+source /nfs/site/disks/crt_linktree_1/crt/latest/setup/crt.setup
+rm -rf /tmp/tap_icl_gen
+cd /tmp
+setenv ISC_VERSION `date +"%Yww%V"`
+mkdir tap_icl_gen
+chmod 777 /tmp/tap_icl_gen
+cd /tmp/tap_icl_gen
+git clone --recursive ssh://$user@git-gar-1.devtools.intel.com:29418/dteg-astra $ISC_VERSION
+cd $ISC_VERSION
+git co tag
+ls | grep -v tap_icl_gen | xargs rm -rf 
+mv tap_icl_gen/* .
+rm -rf tap_icl_gen
+git log -1 --format="%H" > scripts/version
+find . -name "\.git*"     -exec rm -rf {} \;
+find . -name "\.settings" -exec rm -rf {} \;
+cd /tmp/tap_icl_gen
+sed -i 's/my \$gVersion = .*/my \$gVersion = \"'$ISC_VERSION'\";/g' tap_icl_gen.pl
+crt install -tool "dteg/tap_icl_gen" -version $ISC_VERSION -src /tmp/tap_icl_gen/$ISC_VERSION
+
+=================================================
+One time registration:
+crt register -tool "dteg/tap_icl_gen" -type rtl_cad -maintainer vbevina -class confidential
+setenv ISC_VERSION `date +"%Yww%V.%u"`

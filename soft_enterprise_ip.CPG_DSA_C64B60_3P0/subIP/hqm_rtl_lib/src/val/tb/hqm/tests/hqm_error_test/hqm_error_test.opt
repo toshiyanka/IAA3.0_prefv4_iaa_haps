@@ -1,0 +1,192 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => [
+                     "+AW_CONTINUE_ON_ERROR",
+                     "+iosf_tracker_filename=iosf_trk",
+                     "-assert nopostproc",
+                     "+vcs+lic+wait",
+                     "+SLA_USER_DATA_PHASE_TIMEOUT=200000",
+                     "+SLA_CONFIG_PHASE_TIMEOUT=200000",
+                     "+HQMS_DEBUG",
+                     "+HQMI_DEBUG",
+                    ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+      inta => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_inta.cft",
+                         "+HQM_SYSTEM_CONTINUE_ON_PERR",
+                        ],
+      },
+              
+    illegal_vpp => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_ingress_errors_cfg.cft","+MSIx_no=3",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_ingress_errors_hcw.cft",
+                         "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_eot.cft","+DIR_TXN",
+                        ],
+      },
+
+      illegal_qid => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_ingress_errors_cfg.cft","+MSIx_no=3",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_ingress_errors_hcw1.cft",
+                         "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_eot.cft","+DIR_TXN",
+                        ],
+      },
+
+
+      disable_vpp => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_ingress_errors_cfg1.cft","+MSIx_no=3",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_ingress_errors_hcw.cft",
+                         "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_eot1.cft","+DIR_TXN","+DISABLE_TXN",
+                        ],
+      },
+
+      disable_qid => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_ingress_errors_cfg1.cft","+MSIx_no=3",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_ingress_errors_hcw1.cft",
+                         "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_eot.cft","+DIR_TXN","+DISABLE_TXN",
+                        ],
+      },
+
+      disable_qid_bme => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_ingress_errors_cfg_bme.cft","+MSIx_no=3",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_ingress_errors_hcw1.cft",
+                         "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_eot.cft","+DIR_TXN","+DISABLE_TXN",
+                        ],
+      },
+
+
+      illegal_vpp_INT => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_INTA.cft","+INTA_TXN",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_ingress_errors_hcw.cft",
+                         "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_eot_inta.cft","+DIR_TXN",
+                        ],
+      },
+
+      illegal_qid_INT => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_INTA.cft","+INTA_TXN",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_ingress_errors_hcw1.cft",
+                         "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_eot_inta.cft","+DIR_TXN",
+                        ],
+      },
+
+
+      disable_vpp_INT => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_INTA.cft","+INTA_TXN",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_ingress_errors_hcw.cft",
+                         "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_eot_inta.cft","+DIR_TXN",
+                        ],
+      },
+
+      disable_qid_INT => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_INTA.cft","+INTA_TXN",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_ingress_errors_hcw1.cft",
+                         "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_eot_inta.cft","+DIR_TXN",
+                        ],
+      },
+
+
+
+
+      hcw_ldb => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_error_test/hcw_ldb_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_error_test/hcw_ldb_hcw.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_system_eot.cft",
+                         "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_system_eot.cft",
+                         "+HQM_LSP_CQ_QID_CFG_CHECK_DIS","+LDB_TXN",
+                        ],
+      },
+
+      illegal_ldb_int => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_error_test/hcw_ldb_cfg.cft","+INTA_TXN",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_error_test/hcw_ldb_hcw.cft",
+                         "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_system_eot.cft",
+                         "+HQM_LSP_CQ_QID_CFG_CHECK_DIS","+DIR_TXN",
+                        ],
+      },
+
+
+      illegal_ldb_msi => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_error_test/hcw_ldb_msi.cft","+MSIx_no=3",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_error_test/hcw_ldb_hcw.cft",
+                         "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_system_eot_msi.cft",
+                         "+HQM_LSP_CQ_QID_CFG_CHECK_DIS","+DIR_TXN",
+                        ],
+      },
+
+      illegal_atm_msi => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_error_test/hcw_ldb_msi.cft","+MSIx_no=3",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_error_test/hcw_ldb_msi_atm.cft",
+                         "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_system_eot_msi.cft",
+                         "+HQM_LSP_CQ_QID_CFG_CHECK_DIS","+DIR_TXN",
+                        ],
+      },
+
+     illegal_atm_int => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_error_test/hcw_ldb_cfg.cft","+INTA_TXN",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_error_test/hcw_ldb_msi_atm.cft",
+                         "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_system_eot.cft",
+                         "+HQM_LSP_CQ_QID_CFG_CHECK_DIS","+DIR_TXN",
+                        ],
+      },
+
+      
+
+
+    disable_pool_ldb => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_error_test/disable_pool_ldb_cfg.cft",
+                         "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/hqm_ingress_error.waiver","+MSIx_no=3",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_error_test/hcw_ldb_dis_pool_hcw.cft","+errinj=1",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_system_eot.cft",
+                         "+HQM_LSP_CQ_QID_CFG_CHECK_DIS","+LDB_TXN","+DISABLE_POOL",
+                        ],
+      },
+
+
+
+
+
+      
+
+       disable_pool_dir => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_error_test/disable_pool_dir_cfg.cft","+LDB_TXN","+DISABLE_POOL",
+                          "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/hqm_ingress_error.waiver","+MSIx_no=3",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_error_test/hcw_dir_hcw.cft","+errinj=1",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_error_test/hqm_system_eot.cft",
+                        ],
+      },
+
+      
+     smoke => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_cfg_smoke.cft","+errinj=1",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

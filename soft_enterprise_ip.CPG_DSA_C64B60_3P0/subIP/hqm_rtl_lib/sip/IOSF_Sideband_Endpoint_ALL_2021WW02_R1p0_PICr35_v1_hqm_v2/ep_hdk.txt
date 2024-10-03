@@ -1,0 +1,101 @@
+cd to IP-ROOT
+
+DC - independant
+SpyglassLP is independant
+FV depends on DC
+SGDFT depends on DC
+Sage depends on both DC and SGDFT
+
+other toolset : -toolset mat1.4.10a.p2
+wash -n intelall soc socenv dk1273 siphdk hdk10nm dk10nm hdk10nmproc coe73 coe73lay soc73 datools hdk22nm hdk22nmproc
+
+wash -n intelall fabric soc socenv dk1273 siphdk hdk10nm dk10nm hdk10nmproc coe73 coe73lay soc73 datools hdk22nm hdk22nmproc
+source /p/hdk/rtl/hdk.rc -cfg sip -reentrant
+setenv MODEL_ROOT $cwd
+setenv MAT mat1.5.3.p0
+
+setenv MAT mat1.4L.11.p0
+setenv MAT mat1.5.3.p0
+
+setenv MAT mat1.4.10plus
+setenv MAT mat1.4.10plus.p2
+
+----------------------------------------------
+simbuild -dut sbe -1c -CUST p1274 -toolset $MAT -1c- -ace xterm &
+simbuild -dut sbe -1c -CUST p1274 -toolset $MAT -1c-
+
+febe -dut sbe -1c -CUST p1274 -toolset $MAT -1c- -s all +s lintra_build
+febe -dut sbe -1c -CUST p1274 -toolset $MAT -1c- -s all +s lintra_elab
+febe -dut sbe -1c -CUST p1274 -toolset $MAT -1c- -s all +s spyglass_build
+febe -dut sbe -1c -CUST p1274 -toolset $MAT -1c- -s all +s spyglass_build_lp
+febe -dut sbe -1c -CUST p1274 -toolset $MAT -1c- -s all +s vclp_build
+febe -dut sbe -1c -CUST p1274 -toolset $MAT -1c- -s all +s sbendpoint.sgdft
+febe -dut sbe -1c -CUST p1274 -toolset $MAT -1c- -s all +s build_blocksinfo +s gen_collateral +s sbendpoint.dc
+febe -dut sbe -1c -CUST p1274 -toolset $MAT -1c- -s all +s sbendpoint.fv
+febe -dut sbe -1c -CUST p1274 -toolset $MAT -1c- -s all +s sbendpoint.caliber
+febe -dut sbe -1c -CUST p1274 -toolset $MAT -1c- -s all +s sbendpoint.fishtail
+febe -dut sbe -1c -CUST p1274 -toolset $MAT -1c- -s all +s sbendpoint.spyglass_lp
+febe -dut sbe -1c -CUST p1274 -toolset $MAT -1c- -s all +s sbendpoint.sage
+
+
+simbuild -dut sbe -1c -CUST p1274 -toolset $MAT -1c- -ace_args <toolname> -ace_args- &
+simbuild -dut sbe -1c -CUST p1274 -toolset $MAT -1c- -ace_args -command ace -cc -ace_args- &
+
+
+simbuild -dut sbe -1c -CUST p1274 -toolset $MAT -1c- -s all +s vclp_build -vclp_build "-ASSIGN -mc=cdc_sbendpoint"
+simbuild -dut sbe -1c -CUST p1274 -toolset $MAT -1c- -s all +s vclp_test -vclp_test "-t vclp/$rtltop"
+
+simbuild -dut sbe -1c -CUST p1274 -toolset $MAT -1c- -s all +s sglint_build -sglint_build "-ASSIGN -mc=sglint_sbendpoint"
+simbuild -dut sbe -1c -CUST p1274 -toolset $MAT -1c- -s all +s sglint_test -sglint_test "-t spyglasslint/sbendpoint -noepi"
+
+febe -dut sbe -1c -CUST p1274 -toolset $MAT -1c- -s all +s sbendpoint.sgdft.setup
+febe -dut sbe -1c -CUST p1274 -toolset $MAT -1c- -s all +s sbendpoint.sgdft.drc
+febe -dut sbe -1c -CUST p1274 -toolset $MAT -1c- -s all +s sbendpoint.sgdft.package
+
+simbuild -dut sbe -1c -CUST p1273 -toolset $MAT -1c- -ace xterm &
+simbuild -dut sbe -1c -CUST p1273 -toolset $MAT -1c-
+
+febe -dut sbe -1c -CUST p1273 -toolset $MAT -1c- -s all +s lintra_build
+febe -dut sbe -1c -CUST p1273 -toolset $MAT -1c- -s all +s lintra_elab
+febe -dut sbe -1c -CUST p1273 -toolset $MAT -1c- -s all +s spyglass_build
+febe -dut sbe -1c -CUST p1273 -toolset $MAT -1c- -s all +s spyglass_build_lp
+febe -dut sbe -1c -CUST p1273 -toolset $MAT -1c- -s all +s vclp_build
+febe -dut sbe -1c -CUST p1273 -toolset $MAT -1c- -s all +s sbendpoint.sgdft
+febe -dut sbe -1c -CUST p1273 -toolset $MAT -1c- -s all +s build_blocksinfo +s gen_collateral +s sbendpoint.dc
+febe -dut sbe -1c -CUST p1273 -toolset $MAT -1c- -s all +s sbendpoint.fv
+febe -dut sbe -1c -CUST p1273 -toolset $MAT -1c- -s all +s sbendpoint.fishtail
+febe -dut sbe -1c -CUST p1273 -toolset $MAT -1c- -s all +s sbendpoint.spyglass_build_lp
+febe -dut sbe -1c -CUST p1273 -toolset $MAT -1c- -s all +s sbendpoint.spyglass_lp
+febe -dut sbe -1c -CUST p1273 -toolset $MAT -1c- -s all +s sbendpoint.sage
+febe -dut sbe -1c -CUST p1273 -toolset $MAT -1c- -s all +s sbendpoint.vclp_test
+simbuild -dut sbe -1c -CUST p1273 -toolset $MAT -1c- -s all +s sglint_build -sglint_build "-ASSIGN -mc=sglint_sbendpoint"
+simbuild -dut sbe -1c -CUST p1273 -toolset $MAT -1c- -s all +s sglint_test -sglint_test "-t spyglasslint/sbendpoint -noepi"
+simbuild -dut sbe -1c -CUST p1273 -toolset $MAT -1c- -s all +s sgcdc_build -sgcdc_build "-ASSIGN -mc=cdc_sbendpoint -vlog_opts +define+functional+IOSF_SB_PH2"
+simbuild -dut sbe -1c -CUST p1273 -toolset $MAT -1c- -s all +s sgcdc_test -sgcdc_test "-t spyglasscdc/sbendpoint:SetupChk"
+simbuild -dut sbe -1c -CUST p1273 -toolset $MAT -1c- -s all +s sgcdc_test -sgcdc_test "-t spyglasscdc/sbendpoint"
+
+febe -dut sbe -1c -CUST p1273 -toolset $MAT -1c- -s all +s sbendpoint.sgdft.setup
+febe -dut sbe -1c -CUST p1273 -toolset $MAT -1c- -s all +s sbendpoint.sgdft.drc
+febe -dut sbe -1c -CUST p1273 -toolset $MAT -1c- -s all +s sbendpoint.sgdft.package
+--------------------------------------
+
+wash -n intelall fabric soc socenv dk1273 siphdk hdk10nm dk10nm hdk10nmproc coe73 coe73lay soc73 datools hdk22nm hdk22nmproc
+source /p/hdk/rtl/hdk.rc -cfg sip -reentrant
+setenv MODEL_ROOT $cwd
+
+setenv TOOLS <path to your local tools(nighty clone) repo>
+cd to the SBR repo top dir
+
+$TOOLS/turnin-task -c ip -s sbe -p sb -cama -noexec
+$TOOLS/turnin-task -c be -s sbe -p sb -cama -noexec
+$TOOLS/turnin-task -c ip -s sbe -p sb -cama
+$TOOLS/turnin-task -c be -s sbe -p sb -cama
+
+$TOOLS/turnin-task -c ip -s sbr -p sb -cama -noexec
+$TOOLS/turnin-task -c be -s sbr -p sb -cama -noexec
+$TOOLS/turnin-task -c ip -s sbr -p sb -cama
+$TOOLS/turnin-task -c be -s sbr -p sb -cama
+
+$TOOLS/turnin-task -c be -s sbr -p sb -cama -configs lkf1b_agent_strap -stages "corekit dynamo lintra_build lintra_elab build_blocksinfo gen_collateral dc"
+
+target/sbe/p1274/mat1.5.3.p0_p1274.7/aceroot/results/DC/sbendpoint/febe_debug/dc.menu.csh 

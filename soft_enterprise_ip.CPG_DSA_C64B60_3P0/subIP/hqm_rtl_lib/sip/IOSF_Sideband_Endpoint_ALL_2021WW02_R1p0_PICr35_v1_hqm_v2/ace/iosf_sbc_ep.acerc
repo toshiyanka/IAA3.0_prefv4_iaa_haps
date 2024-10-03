@@ -1,0 +1,71 @@
+#----*-perl-*------------------------------------------------------
+use lib "$ENV{RTL_PROJ_BIN}/perllib";
+use ToolConfig();
+use lib ToolConfig::get_tool_path("ipconfig/vc_contour").":/cfg";
+use vc_contour_API();
+
+%acerc = (
+   UDF => [
+      "ace/iosf_sbc_ep.udf",
+   ],
+   
+   SHARED_RESULTS_DIR => [
+      "results",
+   ],
+   
+   TEST_PATTERNS => [
+      "tools/", "tools/lintra","verif/tests",
+   ],
+   SUB_SCOPES => {
+     subscopes => {
+          hqm_IOSF_SBC_EP => [
+                             "CTECH",
+                             "IOSF_SVC",
+                             "ccu_vc",
+                             "ovm",
+                             "uvm",
+                             "xvm",
+                             "saola",
+                             "sipmanager",
+                             "ChassisPowerGatingVC",
+                             "AVCShared",
+                             "VccModeling",
+          ],
+     }
+   },
+   SEARCH_PATHS => {
+      hqm_IOSF_SBC_EP => [
+         #"$ENV{IP_ROOT}",
+         #"$ENV{IP_ROOT}/verif/bfm/sideband_vc",
+         #"$ENV{IP_ROOT}/verif/bfm/ccu_vc/",
+         #"IOSF_SVC",
+         #"ccu_vc",
+      ],
+      "CTECH" => [
+        "$ENV{CTECH_LIBRARY}",
+       ],
+        #SIIP VC Contour VC scopes and search paths
+        IOSF_SVC             => [ &ToolConfig::get_tool_var("ipconfig/IOSF_SVC",             "SEARCH_PATHS"), ],
+        ccu_vc               => [ &ToolConfig::get_tool_var("ipconfig/ccu_vc",               "SEARCH_PATHS"), ],
+        ovm                  => [ &ToolConfig::get_tool_var("ipconfig/ovm",                  "SEARCH_PATHS"), ],
+        uvm                  => [ &ToolConfig::get_tool_var("ipconfig/uvm",                  "SEARCH_PATHS"), ],
+        xvm                  => [ &ToolConfig::get_tool_var("ipconfig/xvm",                  "SEARCH_PATHS"), ],
+        saola                => [ &ToolConfig::get_tool_var("ipconfig/saola",                "SEARCH_PATHS"), ],
+        sipmanager           => [ &ToolConfig::get_tool_var("ipconfig/sipmanager",           "SEARCH_PATHS"), ],
+        ChassisPowerGatingVC => [ &ToolConfig::get_tool_var("ipconfig/ChassisPowerGatingVC", "SEARCH_PATHS"), ],
+        VccModeling          => [ &ToolConfig::get_tool_var("ipconfig/VccModeling",          "SEARCH_PATHS"), ],
+        AVCShared            => [ &ToolConfig::get_tool_var("ipconfig/AVCShared",            "SEARCH_PATHS"), ],
+   },
+   
+   LIBS => [
+      "ace/lib",
+   ],
+   
+   PRE_SCRIPT => {
+      -enable_prescripts => 1,
+      -scripts => [
+         ["ace/iosf_sbc_ep_pre_script", "-ace"],
+      ],
+   },
+   'ENABLE_RECURSIVE_DEP_LIBS' => 1,
+ );

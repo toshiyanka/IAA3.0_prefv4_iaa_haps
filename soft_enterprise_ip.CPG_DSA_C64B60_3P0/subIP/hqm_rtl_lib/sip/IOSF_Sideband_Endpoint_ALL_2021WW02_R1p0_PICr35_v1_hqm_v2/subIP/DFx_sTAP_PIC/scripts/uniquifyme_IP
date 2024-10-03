@@ -1,0 +1,64 @@
+#!/usr/intel/bin/tcsh
+#desc: source  uniquifyme Dfxsecure_Plugin in IP level
+#Author : Mahesh Kota
+#Date   : 04-Jul-2016
+
+set prefix=$1
+#set ipname=$2
+set work_dir=`pwd`
+# since this script is written for ICL, we have hardcoded to ICL as cust
+setenv ONECFG_CUST ICL
+if( $prefix == "" ) then
+    echo "Error:You must specify a prefix"
+    echo "uniquifyme <prefix>"
+    exit 1
+endif
+check if Model Root Variable is set as collage refers to this 
+#if ( ! $?MODEL_ROOT ) then 
+#    echo "Error:MODEL_ROOT is not set, please set MODEL_ROOT to  clone area"
+#    exit 1
+#endif
+set ip_model_root = `find . -name stap.sv | head -n 1`
+set ip_root_dir   = `realpath $ip_model_root | perl -pe 's/source\/rtl\/stap\/stap.sv//'`
+setenv MODEL_ROOT $ip_root_dir
+setenv IP_ROOT $MODEL_ROOT
+# check if Model Root Variable is set as collage refers to this 
+# try to check that we're at least at the right level
+#if( ! -d "source/rtl/stf_scanss" ) then
+#    echo "Error:It doesn't look like we're in the right directory."
+#    echo "Please run from the top level of the IP  repo (there should be a source directory)."
+#    exit 1
+#endif
+
+echo "------------------------------------------------"
+echo "Info:Running uniquify_me with prefix: $prefix"
+echo "------------------------------------------------"
+
+# Uniquify command
+# No subSIP RTL
+# RTL libs 
+# List of scopes
+
+#Setting versioned control to uniquify/uniquify_ascot.pl scripts
+setenv RTL_PROJ_TOOLS /p/hdk/rtl/proj_tools
+set uniquify_version = "16.02.10"
+set uniquify_path = "$RTL_PROJ_TOOLS/uniquify/$uniquify_version"
+
+# uniquify script has hardcoded paths to src and we have source, just can't win
+# so create a temporary link to src and then remove it when done
+$uniquify_path/uniquify -top  $prefix \
+                        -dirs subIP/DFx_Secure_Plugin_PIC3_2016WW27_RTL1P0_V1/source/rtl/dfxsecure_plugin+subIP/DFx_Secure_Plugin_PIC3_2016WW27_RTL1P0_V1/source/rtl/include \
+                        -prefix $prefix -nogitmv
+
+
+echo "-------------------------------------------------"
+echo "Info:Finished Uniquifing RTL files with prefix: $prefix"
+echo "Info:Starting Uniquifing  include .inc file   with  prefix: $prefix"
+echo "-------------------------------------------------"
+sed -i "s/dfxsecure_defines_include.inc/$prefix\_dfxsecure_defines_include.inc/g" subIP/DFx_Secure_Plugin_PIC3_2016WW27_RTL1P0_V1/source/rtl/dfxsecure_plugin/$prefix\_dfxsecure_plugin.sv 
+mv subIP/DFx_Secure_Plugin_PIC3_2016WW27_RTL1P0_V1/source/rtl/include/dfxsecure_defines_include.inc subIP/DFx_Secure_Plugin_PIC3_2016WW27_RTL1P0_V1/source/rtl/include/$prefix\_dfxsecure_defines_include.inc 
+
+
+echo "-------------------------------------------------"
+echo "Info:Finished Uniquifing include .inc  file with prefix: $prefix"
+echo "-------------------------------------------------"

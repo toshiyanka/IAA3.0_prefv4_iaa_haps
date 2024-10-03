@@ -1,0 +1,46 @@
+#!/bin/csh
+setenv EFFM_VERSION 2014.45
+echo "**************************"
+echo "Using EFFM $EFFM_VERSION release"
+echo "**************************"
+echo "\n------------------------------------------------------------------------------------- "
+echo "This is a one-time setup step during which EFFM variables will be set."
+echo "Your settings will be saved in emulation.env file in your current working directory"
+echo "You can edit and source this .env file if you want to change the tool settings."
+echo "To source the .env file automatically in future, add it to your project.env setup file"
+echo "--------------------------------------------------------------------------------------\n"
+setenv EMUL_TOOLS_DIR /nfs/site/eda/group/SYSNAME/emu/intel/effm/latest/tools/emulation
+##--
+while (1 > 0)
+echo -n "Enter the full path corresponding to your '[MODEL_ROOT|IP_ROOT|ACE_PROJECT_HOME]/ace' directory:"
+set ACE_SUB_DIR=$< 
+if (-d $ACE_SUB_DIR) then
+cp -fr /nfs/site/eda/group/SYSNAME/emu/intel/effm/latest/flows/emulation $ACE_SUB_DIR
+setenv  EMUL_CFG_DIR $ACE_SUB_DIR/emulation
+echo "EMUL_CFG_DIR: $EMUL_CFG_DIR"
+break
+else
+echo "Unfortunately, $ACE_SUB_DIR does not exist or is not a directory!"
+endif
+end
+##--
+echo -n "\n"
+##--
+while (1 > 0)
+echo -n "Enter the full path to your ACE results directory:" 
+set ACE_RESULTS_DIR=$< 
+if (-d $ACE_RESULTS_DIR) then
+setenv  EMUL_RESULTS_DIR $ACE_RESULTS_DIR/emul
+echo "EMUL_RESULTS_DIR: $EMUL_RESULTS_DIR"
+break
+else
+echo "Unfortunately, $ACE_RESULTS_DIR does not exist or is not a directory!"
+endif
+end
+##--
+set path = ( ./ $EMUL_TOOLS_DIR $path /nfs/site/eda/group/SYSNAME/emu/intel/effm/latest/tools/emulation )
+setenv EMUL_SYNPLIFY_VERSION I-2014.03_p1
+source /p/com/env/psetup/prod/bin/setupTool synplifypro $EMUL_SYNPLIFY_VERSION
+echo -n "\nsetenv  EMUL_CFG_DIR $EMUL_CFG_DIR \n" >> $EMUL_CFG_DIR/emulation.env
+echo -n "\nsetenv  EMUL_RESULTS_DIR $EMUL_RESULTS_DIR \n" >> $EMUL_CFG_DIR/emulation.env
+echo -n ""

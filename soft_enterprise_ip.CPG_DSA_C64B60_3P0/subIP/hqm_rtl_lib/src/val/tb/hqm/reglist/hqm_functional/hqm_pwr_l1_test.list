@@ -1,0 +1,62 @@
+## < run mode hqm_pwr_test:ph_high> 
++defaults -ace_args -simv_args '"'+HQM_PROCHOT_INIT_VAL=1'"' -ace_args-
+
+.include hqm_pwr_dstate_test.list
+.include hqm_pwr_fuse_test.list
+
+-defaults -ace_args -simv_args '"'+HQM_PROCHOT_INIT_VAL=1'"' -ace_args-
+
+## < run mode hqm_pwr_test:ph_high_to_low> 
++defaults -ace_args -simv_args '"'+HQM_PH_MODE=deassert_ph +HQM_PROCHOT_INIT_VAL=1 +HQM_PH_DLY1_MIN=5 +HQM_PH_DLY1_MAX=2000'"' -ace_args-
+
+.include hqm_pwr_dstate_test.list
+.include hqm_pwr_fuse_test.list
+
+-defaults -ace_args -simv_args '"'+HQM_PH_MODE=deassert_ph +HQM_PROCHOT_INIT_VAL=1 +HQM_PH_DLY1_MIN=5 +HQM_PH_DLY1_MAX=2000'"' -ace_args-
+
+## < run mode hqm_pwr_test:ph_low_to_high> 
++defaults -ace_args -simv_args '"'+HQM_PH_MODE=assert_ph +HQM_PH_DLY1_MIN=5 +HQM_PH_DLY1_MAX=2000'"' -ace_args-
+
+.include hqm_pwr_dstate_test.list
+.include hqm_pwr_fuse_test.list
+
+-defaults -ace_args -simv_args '"'+HQM_PH_MODE=assert_ph +HQM_PH_DLY1_MIN=5 +HQM_PH_DLY1_MAX=2000'"' -ace_args-
+
+## < run mode hqm_pwr_test:ph_tgl+ph_high> 
++defaults -ace_args -simv_args '"'+HQM_PH_MODE=ph_sequence +HQM_PH_DLY1_MIN=0 +HQM_PH_DLY1_MAX=20 +HQM_PH_DLY2_MIN=10 +HQM_PH_DLY2_MAX=50 +HQM_PH_SEQ_NUM=100 +HQM_PROCHOT_INIT_VAL=1'"' -ace_args-
+
+.include hqm_pwr_dstate_test.list
+.include hqm_pwr_fuse_test.list
+
+-defaults -ace_args -simv_args '"'+HQM_PH_MODE=ph_sequence +HQM_PH_DLY1_MIN=0 +HQM_PH_DLY1_MAX=20 +HQM_PH_DLY2_MIN=10 +HQM_PH_DLY2_MAX=50 +HQM_PH_SEQ_NUM=100 +HQM_PROCHOT_INIT_VAL=1'"' -ace_args-
+
+## < run mode hqm_pwr_test:ph_tgl> 
++defaults -ace_args -simv_args '"'+HQM_PH_MODE=ph_sequence +HQM_PH_DLY1_MIN=0 +HQM_PH_DLY1_MAX=20 +HQM_PH_DLY2_MIN=10 +HQM_PH_DLY2_MAX=50 +HQM_PH_SEQ_NUM=100'"' -ace_args-
+
+.include hqm_pwr_dstate_test.list
+.include hqm_pwr_fuse_test.list
+
+-defaults -ace_args -simv_args '"'+HQM_PH_MODE=ph_sequence +HQM_PH_DLY1_MIN=0 +HQM_PH_DLY1_MAX=20 +HQM_PH_DLY2_MIN=10 +HQM_PH_DLY2_MAX=50 +HQM_PH_SEQ_NUM=100'"' -ace_args-
+
+## < no ph run mode> 
+.include hqm_pwr_ph_hcw_test.list
+.include hqm_pwr_ph_prochot_cfgdis_hcw_test.list
+.include hqm_pwr_ph_prochot_cfgdis_mid_hcw_test.list 
+.include hqm_pwr_check_nsr_test.list
+.include hqm_pwr_dstate_test.list
+.include hqm_pwr_fuse_test.list
+.include hqm_pwr_retention_test.list
+.include hqm_hwrstfrpwr_test.list
++defaults -vcsvariant mpp
+
+## MRA trim Test
+hqm_pwr_test:mra_trim_chk_in_d3hot -dirtag mra_trim_chk_in_d3hot 
+
+## LCP test case 
+#hqm_pwr_test:lcp_shift_check_seq+lcp_shift_check -dirtag lcp_shift_check_seq_lcp_shift_check
+
+## Coded as per requirement by Bill PVIM: https://hsdes.intel.com/appstore/article/#/1607131834
+hqm_pwr_test:after_reset_prep_override_pm_cfg_control -dirtag after_reset_prep_override_pm_cfg_control
+hqm_pwr_test:override_pm_cfg_control -dirtag override_pm_cfg_control
+
+-defaults -vcsvariant mpp

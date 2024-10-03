@@ -1,0 +1,198 @@
+PICr26: TSA 18.37.00, with mat1.5.3.p0 (contour N) and mat1.4L.11.p0 (contour N-1)
+
+source /p/hdk/rtl/hdk.rc -cfg sip -reentrant
+setenv MODEL_ROOT $cwd
+
+s14nm
+-----
+wash -n intelall users soc socenv s14nm dk1273 soc73 soc73proc hdk10nm hdk10nmproc siphdk fabric hdk22nm hdk22nmproc
+febe -dut sbr -1c -CUST s14nm -toolset m1713f.p3 -1c- -s all +s lintra_build
+febe -dut sbr -1c -CUST s14nm -toolset m1713f.p3 -1c- -s all +s sbr0_sbr_generic.lintra_elab
+febe -dut sbr -1c -CUST s14nm -toolset m1713f.p3 -1c- -s all +s gen_collateral +s build_blocksinfo +s sbr0_sbr_generic.dc
+febe -dut sbr -1c -CUST s14nm -toolset m1713f.p3 -1c- -s all +s sbr0_sbr_generic.fv
+SGLP
+   cp $MODEL_ROOT/tools/spyglasslp/sbr0_sbr_generic/sbr0_sbr_generic.opt $MODEL_ROOT/tools/spyglasslp/sbr0_sbr_generic/sbr0_sbr_generic.opt.p1274
+   cp $MODEL_ROOT/tools/spyglasslp/sbr0_sbr_generic/sbr0_sbr_generic.opt.s14nm $MODEL_ROOT/tools/spyglasslp/sbr0_sbr_generic/sbr0_sbr_generic.opt
+   febe -dut sbr -1c -CUST s14nm -toolset m1713f.p3 -1c- -s all +s spyglass_build
+   febe -dut sbr -1c -CUST s14nm -toolset m1713f.p3 -1c- -s all +s spyglass_build_lp
+   febe -dut sbr -1c -CUST s14nm -toolset m1713f.p3 -1c- -s all +s sbr0_sbr_generic.spyglass_lp
+SGDFT
+   febe -dut sbr -1c -CUST s14nm -toolset m1713f.p3 -1c- -s all +s sbr0_sbr_generic.sgdft
+SAGE
+   febe -dut sbr -1c -CUST s14nm -toolset m1713f.p3 -1c- -s all +s sbr0_sbr_generic.sage
+VCLP
+   febe -dut sbr -1c -CUST s14nm -toolset m1713f.p3 -1c- -s all +s vclp_build
+   febe -dut sbr -1c -CUST s14nm -toolset m1713f.p3 -1c- -s all +s sbr0_sbr_generic.vclp_test
+SGLINT
+   simbuild -dut sbr -1c -CUST s14nm -toolset m1713f.p3 -1c- -s all +s sglint_build -sglint_build "-ASSIGN -mc=sglint_sbr0_sbr_generic"
+   simbuild -dut sbr -1c -CUST s14nm -toolset m1713f.p3 -1c- -s all +s sglint_test -sglint_test "-t spyglasslint/sbr0_sbr_generic -noepi"
+QUESTA CDC
+  - run Questa CDC under ACE in HDK environment
+      % simbuild -dut sbr -1c -CUST s14nm -toolset m1713f.p3 -1c- -ace xterm &
+    In the newly created xterm:
+      % cd $MODEL_ROOT/tools
+      % sbr0_runACECDC_HDKs14nm
+CALIBER
+   CALIBER IS NOT A REQUIREMENT FOR THE ADP-S PROJECT (s14nm)
+FISHTAIL
+   FISHTAIL IS NOT A REQUIREMENT FOR THE ADP-S PROJECT (s14nm)
+SGCDC 
+   SGCDC IS NOT A REQUIREMENT FOR THE ADP-S PROJECT (s14nm)
+INSERT_DFT
+   INSERT_DFT IS NOT YET QUALIFIED FOR ADP-S, AT THE TIME OF THE SBR PICr28 RELEASE
+
+
+
+MAT1.4.10plus.p2 (contour N) - p1274
+------------------------------------
+MAT version: ToolConfig.pl show_tool_info onecfg -1c -CUST p1274 -toolset mat1.5.3.p0 -1c-
+simbuild -dut sbr -1c -CUST p1274 -toolset mat1.5.3.p0 -1c- -ace xterm &
+febe -dut sbr -1c -CUST p1274 -toolset mat1.5.3.p0 -1c- -s all +s lintra_build
+febe -dut sbr -1c -CUST p1274 -toolset mat1.5.3.p0 -1c- -s all +s sbr0_sbr_generic.lintra_elab
+febe -dut sbr -1c -CUST p1274 -toolset mat1.5.3.p0 -1c- -s all +s gen_collateral +s build_blocksinfo +s sbr0_sbr_generic.dc
+febe -dut sbr -1c -CUST p1274 -toolset mat1.5.3.p0 -1c- -s all +s sbr0_sbr_generic.fv
+febe -dut sbr -1c -CUST p1274 -toolset mat1.5.3.p0 -1c- -s all +s sbr0_sbr_generic.sgdft
+febe -dut sbr -1c -CUST p1274 -toolset mat1.5.3.p0 -1c- -s all +s sbr0_sbr_generic.sage
+febe -dut sbr -1c -CUST p1274 -toolset mat1.5.3.p0 -1c- -s all +s spyglass_build
+febe -dut sbr -1c -CUST p1274 -toolset mat1.5.3.p0 -1c- -s all +s spyglass_build_lp
+febe -dut sbr -1c -CUST p1274 -toolset mat1.5.3.p0 -1c- -s all +s sbr0_sbr_generic.spyglass_lp
+febe -dut sbr -1c -CUST p1274 -toolset mat1.5.3.p0 -1c- -s all +s vclp_build
+febe -dut sbr -1c -CUST p1274 -toolset mat1.5.3.p0 -1c- -s all +s sbr0_sbr_generic.vclp_test
+SGCDC
+simbuild -dut sbr -1c -CUST p1274 -toolset mat1.5.3.p0 -1c- -s all +s sgcdc_build -sgcdc_build "-ASSIGN -mc=sbr_config_ipxact_workspace -vlog_opts +define+functional+IOSF_SB_PH2"
+simbuild -dut sbr -1c -CUST p1274 -toolset mat1.5.3.p0 -1c- -s all +s sgcdc_test -sgcdc_test "-t spyglass_cdc/sbr0_sbr_generic:SetupChk"
+simbuild -dut sbr -1c -CUST p1274 -toolset mat1.5.3.p0 -1c- -s all +s sgcdc_test -sgcdc_test "-t spyglass_cdc/sbr0_sbr_generic"
+SGLINT
+simbuild -dut sbr -1c -CUST p1274 -toolset mat1.5.3.p0 -1c- -s all +s sglint_build -sglint_build "-ASSIGN -mc=sglint_sbr0_sbr_generic"
+simbuild -dut sbr -1c -CUST p1274 -toolset mat1.5.3.p0 -1c- -s all +s sglint_test -sglint_test "-t spyglasslint/sbr0_sbr_generic -noepi"
+CALIBER
+febe -dut sbr -1c -CUST p1274 -toolset mat1.5.3.p0 -1c- -s all +s sbr0_sbr_generic.caliber
+FISHTAIL
+febe -dut sbr -1c -CUST p1274 -toolset mat1.5.3.p0 -1c- -s all +s sbr0_sbr_generic.fishtail
+OPENLATCH
+mv ace/p1274_e05_stdcells.hdl ace/p1274_e05_stdcells.hdl.KEEP
+simbuild -dut sbr -ace_args ace -ccolt -mc=sbr_config_ipxact_workspace -ace_args- -1c -CUST p1274 -toolset mat1.5.3.p0 -1c- -nf
+simbuild -dut sbr -ace_args ace -sc -t openlatch/sbr1_sbr_generic -ace_args- -1c -CUST p1274 -toolset mat1.5.3.p0 -1c-
+mv ace/p1274_e05_stdcells.hdl.KEEP ace/p1274_e05_stdcells.hdl
+CORETOOLS version
+ToolConfig.pl get_tool_version coretools -1c -CUST p1274 -toolset mat1.5.3.p0 -1c-
+ToolConfig.pl get_tool_version collage -1c -CUST p1274 -toolset mat1.5.3.p0 -1c-
+
+
+MAT1.4.10a.p2 (contour N-1) - p1274
+-----------------------------------
+MAT version: ToolConfig.pl show_tool_info onecfg -1c -CUST p1274 -toolset mat1.4L.11.p0 -1c-
+simbuild -dut sbr -1c -CUST p1274 -toolset mat1.4L.11.p0 -1c- -ace xterm &
+febe -dut sbr -1c -CUST p1274 -toolset mat1.4L.11.p0 -1c- -s all +s lintra_build
+febe -dut sbr -1c -CUST p1274 -toolset mat1.4L.11.p0 -1c- -s all +s sbr0_sbr_generic.lintra_elab
+febe -dut sbr -1c -CUST p1274 -toolset mat1.4L.11.p0 -1c- -s all +s gen_collateral +s build_blocksinfo +s sbr0_sbr_generic.dc
+febe -dut sbr -1c -CUST p1274 -toolset mat1.4L.11.p0 -1c- -s all +s sbr0_sbr_generic.fv
+febe -dut sbr -1c -CUST p1274 -toolset mat1.4L.11.p0 -1c- -s all +s sbr0_sbr_generic.sgdft
+febe -dut sbr -1c -CUST p1274 -toolset mat1.4L.11.p0 -1c- -s all +s sbr0_sbr_generic.sage
+febe -dut sbr -1c -CUST p1274 -toolset mat1.4L.11.p0 -1c- -s all +s spyglass_build
+febe -dut sbr -1c -CUST p1274 -toolset mat1.4L.11.p0 -1c- -s all +s spyglass_build_lp
+febe -dut sbr -1c -CUST p1274 -toolset mat1.4L.11.p0 -1c- -s all +s sbr0_sbr_generic.spyglass_lp
+febe -dut sbr -1c -CUST p1274 -toolset mat1.4L.11.p0 -1c- -s all +s vclp_build
+febe -dut sbr -1c -CUST p1274 -toolset mat1.4L.11.p0 -1c- -s all +s sbr0_sbr_generic.vclp_test
+SGCDC
+simbuild -dut sbr -1c -CUST p1274 -toolset mat1.4L.11.p0 -1c- -s all +s sgcdc_build -sgcdc_build "-ASSIGN -mc=sbr_config_ipxact_workspace -vlog_opts +define+functional+IOSF_SB_PH2"
+simbuild -dut sbr -1c -CUST p1274 -toolset mat1.4L.11.p0 -1c- -s all +s sgcdc_test -sgcdc_test "-t spyglass_cdc/sbr0_sbr_generic:SetupChk"
+simbuild -dut sbr -1c -CUST p1274 -toolset mat1.4L.11.p0 -1c- -s all +s sgcdc_test -sgcdc_test "-t spyglass_cdc/sbr0_sbr_generic"
+SGLINT
+simbuild -dut sbr -1c -CUST p1274 -toolset mat1.4L.11.p0 -1c- -s all +s sglint_build -sglint_build "-ASSIGN -mc=sglint_sbr0_sbr_generic"
+simbuild -dut sbr -1c -CUST p1274 -toolset mat1.4L.11.p0 -1c- -s all +s sglint_test -sglint_test "-t spyglasslint/sbr0_sbr_generic -noepi"
+CALIBER
+febe -dut sbr -1c -CUST p1274 -toolset mat1.4L.11.p0 -1c- -s all +s sbr0_sbr_generic.caliber
+FISHTAIL
+febe -dut sbr -1c -CUST p1274 -toolset mat1.4L.11.p0 -1c- -s all +s sbr0_sbr_generic.fishtail
+OPENLATCH
+mv ace/p1274_e05_stdcells.hdl ace/p1274_e05_stdcells.hdl.KEEP
+simbuild -dut sbr -ace_args ace -ccolt -mc=sbr_config_ipxact_workspace -ace_args- -1c -CUST p1274 -toolset mat1.4L.11.p0 -1c- -nf
+simbuild -dut sbr -ace_args ace -sc -t openlatch/sbr1_sbr_generic -ace_args- -1c -CUST p1274 -toolset mat1.4L.11.p0 -1c-
+mv ace/p1274_e05_stdcells.hdl.KEEP ace/p1274_e05_stdcells.hdl
+CORETOOLS version
+ToolConfig.pl get_tool_version coretools -1c -CUST p1274 -toolset mat1.4L.11.p0 -1c-
+ToolConfig.pl get_tool_version collage -1c -CUST p1274 -toolset mat1.4L.11.p0 -1c-
+
+
+MAT1.4.10plus.p2 (contour N) - p1273
+------------------------------------
+MAT version: ToolConfig.pl show_tool_info onecfg -1c -CUST p1273 -toolset mat1.5.3.p0 -1c-
+simbuild -dut sbr -1c -CUST p1273 -toolset mat1.5.3.p0 -1c- -ace xterm &
+febe -dut sbr -1c -CUST p1273 -toolset mat1.5.3.p0 -1c- -s all +s lintra_build
+febe -dut sbr -1c -CUST p1273 -toolset mat1.5.3.p0 -1c- -s all +s sbr0_sbr_generic.lintra_elab
+febe -dut sbr -1c -CUST p1273 -toolset mat1.5.3.p0 -1c- -s all +s gen_collateral +s build_blocksinfo +s sbr0_sbr_generic.dc
+febe -dut sbr -1c -CUST p1273 -toolset mat1.5.3.p0 -1c- -s all +s sbr0_sbr_generic.fv
+febe -dut sbr -1c -CUST p1273 -toolset mat1.5.3.p0 -1c- -s all +s sbr0_sbr_generic.sgdft
+febe -dut sbr -1c -CUST p1273 -toolset mat1.5.3.p0 -1c- -s all +s sbr0_sbr_generic.sage
+febe -dut sbr -1c -CUST p1273 -toolset mat1.5.3.p0 -1c- -s all +s spyglass_build
+febe -dut sbr -1c -CUST p1273 -toolset mat1.5.3.p0 -1c- -s all +s spyglass_build_lp
+febe -dut sbr -1c -CUST p1273 -toolset mat1.5.3.p0 -1c- -s all +s sbr0_sbr_generic.spyglass_lp
+febe -dut sbr -1c -CUST p1273 -toolset mat1.5.3.p0 -1c- -s all +s vclp_build
+febe -dut sbr -1c -CUST p1273 -toolset mat1.5.3.p0 -1c- -s all +s sbr0_sbr_generic.vclp_test
+SGCDC
+simbuild -dut sbr -1c -CUST p1273 -toolset mat1.5.3.p0 -1c- -s all +s sgcdc_build -sgcdc_build "-ASSIGN -mc=sbr_config_ipxact_workspace -vlog_opts +define+functional+IOSF_SB_PH2"
+simbuild -dut sbr -1c -CUST p1273 -toolset mat1.5.3.p0 -1c- -s all +s sgcdc_test -sgcdc_test "-t spyglass_cdc/sbr0_sbr_generic:SetupChk"
+simbuild -dut sbr -1c -CUST p1273 -toolset mat1.5.3.p0 -1c- -s all +s sgcdc_test -sgcdc_test "-t spyglass_cdc/sbr0_sbr_generic"
+SGLINT
+simbuild -dut sbr -1c -CUST p1273 -toolset mat1.5.3.p0 -1c- -s all +s sglint_build -sglint_build "-ASSIGN -mc=sglint_sbr0_sbr_generic"
+simbuild -dut sbr -1c -CUST p1273 -toolset mat1.5.3.p0 -1c- -s all +s sglint_test -sglint_test "-t spyglasslint/sbr0_sbr_generic -noepi"
+CALIBER
+febe -dut sbr -1c -CUST p1273 -toolset mat1.5.3.p0 -1c- -s all +s sbr0_sbr_generic.caliber
+FISHTAIL
+febe -dut sbr -1c -CUST p1273 -toolset mat1.5.3.p0 -1c- -s all +s sbr0_sbr_generic.fishtail
+OPENLATCH
+mv ace/p1273_d04_stdcells.hdl ace/p1273_d04_stdcells.hdl.KEEP
+simbuild -dut sbr -ace_args ace -ccolt -mc=sbr_config_ipxact_workspace -ace_args- -1c -CUST p1274 -toolset mat1.5.3.p0 -1c- -nf
+simbuild -dut sbr -ace_args ace -sc -t openlatch/sbr1_sbr_generic -ace_args- -1c -CUST p1274 -toolset mat1.5.3.p0 -1c-
+mv ace/p1273_d04_stdcells.hdl.KEEP ace/p1273_d04_stdcells.hdl
+CORETOOLS version
+ToolConfig.pl get_tool_version coretools -1c -CUST p1273 -toolset mat1.5.3.p0 -1c-
+ToolConfig.pl get_tool_version collage -1c -CUST p1273 -toolset mat1.5.3.p0 -1c-
+
+
+MAT1.4.10a.p2 (contour N-1) - p1273
+-----------------------------------
+MAT version: ToolConfig.pl show_tool_info onecfg -1c -CUST p1273 -toolset mat1.4L.11.p0 -1c-
+simbuild -dut sbr -1c -CUST p1273 -toolset mat1.4L.11.p0 -1c- -ace xterm &
+febe -dut sbr -1c -CUST p1273 -toolset mat1.4L.11.p0 -1c- -s all +s lintra_build
+febe -dut sbr -1c -CUST p1273 -toolset mat1.4L.11.p0 -1c- -s all +s sbr0_sbr_generic.lintra_elab
+febe -dut sbr -1c -CUST p1273 -toolset mat1.4L.11.p0 -1c- -s all +s gen_collateral +s build_blocksinfo +s sbr0_sbr_generic.dc
+febe -dut sbr -1c -CUST p1273 -toolset mat1.4L.11.p0 -1c- -s all +s sbr0_sbr_generic.fv
+febe -dut sbr -1c -CUST p1273 -toolset mat1.4L.11.p0 -1c- -s all +s sbr0_sbr_generic.sgdft
+febe -dut sbr -1c -CUST p1273 -toolset mat1.4L.11.p0 -1c- -s all +s sbr0_sbr_generic.sage
+febe -dut sbr -1c -CUST p1273 -toolset mat1.4L.11.p0 -1c- -s all +s spyglass_build
+febe -dut sbr -1c -CUST p1273 -toolset mat1.4L.11.p0 -1c- -s all +s spyglass_build_lp
+febe -dut sbr -1c -CUST p1273 -toolset mat1.4L.11.p0 -1c- -s all +s sbr0_sbr_generic.spyglass_lp
+febe -dut sbr -1c -CUST p1273 -toolset mat1.4L.11.p0 -1c- -s all +s vclp_build
+febe -dut sbr -1c -CUST p1273 -toolset mat1.4L.11.p0 -1c- -s all +s sbr0_sbr_generic.vclp_test
+SGCDC
+simbuild -dut sbr -1c -CUST p1273 -toolset mat1.4L.11.p0 -1c- -s all +s sgcdc_build -sgcdc_build "-ASSIGN -mc=sbr_config_ipxact_workspace -vlog_opts +define+functional+IOSF_SB_PH2"
+simbuild -dut sbr -1c -CUST p1273 -toolset mat1.4L.11.p0 -1c- -s all +s sgcdc_test -sgcdc_test "-t spyglass_cdc/sbr0_sbr_generic:SetupChk"
+simbuild -dut sbr -1c -CUST p1273 -toolset mat1.4L.11.p0 -1c- -s all +s sgcdc_test -sgcdc_test "-t spyglass_cdc/sbr0_sbr_generic"
+SGLINT
+simbuild -dut sbr -1c -CUST p1273 -toolset mat1.4L.11.p0 -1c- -s all +s sglint_build -sglint_build "-ASSIGN -mc=sglint_sbr0_sbr_generic"
+simbuild -dut sbr -1c -CUST p1273 -toolset mat1.4L.11.p0 -1c- -s all +s sglint_test -sglint_test "-t spyglasslint/sbr0_sbr_generic -noepi"
+CALIBER
+febe -dut sbr -1c -CUST p1273 -toolset mat1.4L.11.p0 -1c- -s all +s sbr0_sbr_generic.caliber
+FISHTAIL
+febe -dut sbr -1c -CUST p1273 -toolset mat1.4L.11.p0 -1c- -s all +s sbr0_sbr_generic.fishtail
+OPENLATCH
+mv ace/p1273_d04_stdcells.hdl ace/p1273_d04_stdcells.hdl.KEEP
+simbuild -dut sbr -ace_args ace -ccolt -mc=sbr_config_ipxact_workspace -ace_args- -1c -CUST p1274 -toolset mat1.4L.11.p0 -1c- -nf
+simbuild -dut sbr -ace_args ace -sc -t openlatch/sbr1_sbr_generic -ace_args- -1c -CUST p1274 -toolset mat1.4L.11.p0 -1c-
+mv ace/p1273_d04_stdcells.hdl.KEEP ace/p1273_d04_stdcells.hdl
+CORETOOLS version
+ToolConfig.pl get_tool_version coretools -1c -CUST p1273 -toolset mat1.4L.11.p0 -1c-
+ToolConfig.pl get_tool_version collage -1c -CUST p1273 -toolset mat1.4L.11.p0 -1c-
+
+
+CALIBER
+$WARD/febe_debug/caliber.menu.csh
+Select option #1 for a new window of uesetup
+Use the popup window to debug or launch GUI
+In the popup window:
+$DUET/utils/UploadWaivers.tcl -from /nfs/fm/disks/fm_infrach_00003/TSA_PRIME/TGPLP_ASYNC_XBCOMBO_REL_PAR/workspace/sideband_network/tools/caliber/waivers/_Waivers.txt -type user_waivers_db -to /nfs/fm/disks/fm_infrach_00003/TSA_PRIME/TGPLP_ASYNC_XBCOMBO_REL_PAR/workspace/sideband_network/tools/caliber/new_waivers
+To launch GUI:
+syn_caliber_gui -cell sbr0_sbr_generic
+

@@ -1,0 +1,26 @@
+## This list is created to run some of the tests with random value of HCW rsvd field
++defaults  -simv_args  '"'+HQM_HCW_RSVD0_RANDO +HQM_DISABLE_BACKGROUND_CFG_GEN_SEQ +HQM_SKIP_AGITATE_SEQ +HQM_NO_PRE_FLUSH_PHASE '"' -simv_args- 
+## -- PVIM  1604581969 (HCW Enqueue Stress)
+$WORKAREA/src/val/tof/hqm_cfg_test -tv hqm_sciov_enq_stress -dirtag hqm_sciov_enq_stress
+
+## -- PVIM  1604581921 (HQM Traffic write buffer stress with LDB/optimized DIR traffic)
+$WORKAREA/src/val/tof/hqm_cfg_test -tv dir_ldb_traffic_wr_optimize -dirtag dir_ldb_traffic_wr_optimize
+
+## -- PVIM  1604581919 (HQM Traffic with extended agitation backpressure on individual FIFOs with large amount of traffic)
+##hcw_perf_dir_ldb_test1_agi:TI_PHDR_AFULL -dirtag TI_PHDR_AFULL
+##hcw_perf_dir_ldb_test1_agi:TI_PDATA_AFULL -dirtag TI_PDATA_AFULL
+
+## -- PVIM  1407467172 (Validate VF/PF BAR register behavior during D0->D3 and D3->D0 transitions)
+$WORKAREA/src/val/tof/hqm_system_burst_test -tv d0_to_d3                  -dut hqm -model hqm -dirtag d0_to_d3
+$WORKAREA/src/val/tof/hqm_system_burst_test -tv d3_to_d0                  -dut hqm -model hqm -dirtag d3_to_d0
+
+## -- PVIM  1604581917 (HQM Traffic pipeline occupancy test)
+$WORKAREA/src/val/tof/hcw_pipeline_stress_test -tv si_0 -dut hqm -model hqm 
+
+##PVIM: 1604581930 : Run traffic using all PPs, CQs, and QIDs. Use PF only
+$WORKAREA/src/val/tof/hqm_cfg_test -tv hcw_traffic_all_resources_pf -dirtag hcw_traffic_all_resources_pf 
+
+## PVIM 1604581932
+####AY_RM_VF_V30 hqm_cfg_test:hcw_traffic_ldb_resources_vf -dirtag hcw_traffic_ldb_resources_vf 
+
+-defaults  -simv_args  '"'+HQM_HCW_RSVD0_RANDO +HQM_DISABLE_BACKGROUND_CFG_GEN_SEQ +HQM_SKIP_AGITATE_SEQ +HQM_NO_PRE_FLUSH_PHASE '"' -simv_args- 

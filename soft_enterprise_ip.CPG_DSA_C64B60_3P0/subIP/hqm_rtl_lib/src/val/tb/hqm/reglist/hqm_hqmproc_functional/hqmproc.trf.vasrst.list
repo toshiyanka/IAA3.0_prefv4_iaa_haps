@@ -1,0 +1,177 @@
+################################################################################# HQMV30_ATS
+################################################################################# VASRESET
+#######################################  VASRESET TEST with ATS errinj and/or ATS INV 
+#-simv_args +HQM_ATS_ERRINJ_SKIP_UNITIDLE
+#-simv_args +HQM_SKIP_FLUSH_PHASE
+#EP=1 LDBCQ[0]
+#######################################
+########## this is the correct VASRESET flow: 1/ return tok/comp; 2/ reprogram task +has_vasrst_reprogram
+#+atsinv_vasrst : to return token/comp  -simv_args +has_vasrst_rtntrf
+#               : to reprogram          -simv_args +has_vasrst_reprogram
+##############
+#One LDB traffic only
+hcw_enqtrf_hqmproc_test:vasrst_vas0uno_t0+ldb8ppdir8pp_qid1map_mvas_stream_ord_test0_ldbcq0_atsresp_inj+scen1_vasrst_test0+ats+atsresp_errinj_probon+atsresp_errinj_ep+atsinv_vasrst  -dirtag VASRST_VAS0UNO_LDBCQ0_ATSERRINJ_ATSINV
+
+#allVASs, VAS[0] reset (LDBCQ[0])
+hcw_enqtrf_hqmproc_test:vasrst_vas0uno_t0+ldb8ppdir8pp_qid1map_mvas_stream_ord_test0_pp0_atsresp_inj+scen1_vasrst_test0+ats+atsresp_errinj_probon+atsresp_errinj_ep+atsinv_vasrst     -dirtag VASRST_VAS0UNO_ATSERRINJ_ATSINV
+
+
+################################################################################# HQMV30_ATS
+################################################################################# FLR
+#FLR
+#PF
+  hqmv30_pf_test:q1+short+sequential+flr                              -dirtag q1_sequential_short_flr        
+  hqmv30_pf_test:q1+short+sequential+ats+flr                          -dirtag q1_sequential_short_ats_flr             
+
+  hqmv30_pf_test:q1+short+sequential+ats+flr_ats_inv                  -dirtag q1_sequential_short_flr_ats_inv         
+  hqmv30_pf_test:q1+short+sequential+ats+flr_ats_inv_d0d3             -dirtag q1_sequential_short_flr_ats_inv_d0d3    
+.repeat 20
+  hqmv30_pf_test:q1+short+sequential+ats+flr_ats_inv_d0d3_concurr     -dirtag q1_sequential_short_flr_ats_inv_d0d3_concurr -ovm_medium  -vpd_mem 
+.repeat
+
+.repeat 2
+  hqmv30_pf_test:q32+qe32+sequential+ats+flr_ats_inv_d0d3_concurr     -dirtag q32_sequential_qe32_flr_ats_inv_d0d3_concurr -ovm_medium  -vpd_mem 
+.repeat
+
+#SCIOV
+  hqmv30_sciov_test:q1+short+sequential+ats+flr_ats_inv               -dirtag q1_sequential_short_flr_ats_inv -ovm_medium 
+
+#ATS_INV_GLOBAL
+  hqmv30_sciov_test:q1+short+sequential+ats+flr_ats_inv_global        -dirtag q1_sequential_short_flr_ats_inv_global -ovm_medium 
+
+
+################################################################################# HQMV25
+#################################################################################
+##########################
+##########################
+#scenario 1 8VAS, VASRST 
+##########################
+##########################
+#VAS[0] UNO
+ hcw_enqtrf_hqmproc_test:g_batch_dis+g_wubp+vasrst_vas0uno_t0+ldb8ppdir8pp_qid1map_mvas_stream_ord_test0+ldb8ppdir8pp_qid1map_mvas_cfg0+scen1_vasrst_test0  -dut hqm -model hqm -dirtag VASRST_VAS0UNO_TEST000   
+
+#VAS[1] UNO
+ hcw_enqtrf_hqmproc_test:g_batch_dis+g_wubp+vasrst_vas1uno_t0+ldb8ppdir8pp_qid1map_mvas_stream_ord_test0+ldb8ppdir8pp_qid1map_mvas_cfg0+scen1_vasrst_test0  -dut hqm -model hqm -dirtag VASRST_VAS1UNO_TEST000   
+
+#VAS[2] ATM
+ hcw_enqtrf_hqmproc_test:g_batch_dis+g_wubp+vasrst_vas2atm_t0+ldb8ppdir8pp_qid1map_mvas_stream_ord_test0+ldb8ppdir8pp_qid1map_mvas_cfg0+scen1_vasrst_test0  -dut hqm -model hqm -dirtag VASRST_VAS2ATM_TEST000   
+
+#VAS[3] ATM
+ hcw_enqtrf_hqmproc_test:g_batch_dis+g_wubp+vasrst_vas3atm_t0+ldb8ppdir8pp_qid1map_mvas_stream_ord_test0+ldb8ppdir8pp_qid1map_mvas_cfg0+scen1_vasrst_test0  -dut hqm -model hqm -dirtag VASRST_VAS3ATM_TEST000   
+
+
+#VAS[4] ORD
+ hcw_enqtrf_hqmproc_test:g_batch_dis+g_wubp+vasrst_vas4ord_t0+ldb8ppdir8pp_qid1map_mvas_stream_ord_test0+ldb8ppdir8pp_qid1map_mvas_cfg0+scen1_vasrst_test0  -dut hqm -model hqm -dirtag VASRST_VAS4ORD_TEST000   
+
+#VAS[5] ORD
+ hcw_enqtrf_hqmproc_test:g_batch_dis+g_wubp+vasrst_vas5ord_t0+ldb8ppdir8pp_qid1map_mvas_stream_ord_test0+ldb8ppdir8pp_qid1map_mvas_cfg0+scen1_vasrst_test0  -dut hqm -model hqm -dirtag VASRST_VAS5ORD_TEST000   
+
+#VAS[6] DIR
+ hcw_enqtrf_hqmproc_test:g_batch_dis+g_wubp+vasrst_vas6dir_t0+ldb8ppdir8pp_qid1map_mvas_stream_ord_test0+ldb8ppdir8pp_qid1map_mvas_cfg0+scen1_vasrst_test0  -dut hqm -model hqm -dirtag VASRST_VAS6DIR_TEST000  
+
+#VAS[7] DIR
+ hcw_enqtrf_hqmproc_test:g_batch_dis+g_wubp+vasrst_vas7dir_t0+ldb8ppdir8pp_qid1map_mvas_stream_ord_test0+ldb8ppdir8pp_qid1map_mvas_cfg0+scen1_vasrst_test0  -dut hqm -model hqm -dirtag VASRST_VAS7DIR_TEST000   
+
+##########################
+##########################
+#scen2 VAS reset
+###############
+##### 8LDB 1map Scenario 2 Test
+###############
+#####
+#ldbPP[8] sends out QID 0/1/2 QATM
+#ldbPP[9] sends out QID 4/5/6 QORD
+#dirPP[4] sends out QID 0/1/2 QDIR
+
+#ldbPP[8]
+#QID[0] => CQ[0]        QATM  VAS[0]
+#QID[1] => CQ[1]        QATM
+#QID[2] => CQ[2]        QATM
+#QID[3] => CQ[3]        QUNO  
+#
+#ldbPP[9]
+#QID[4] => CQ[4]        QORD  VAS[1]
+#QID[5] => CQ[5]        QORD
+#QID[6] => CQ[6]        QORD
+#QID[7] => CQ[7]        QUNO
+#
+#DIR trf VAS[2]
+#dirPP[4]
+#DIR PP[0]-PP[4]; QID[3]-QID[3]
+##########################
+##########################
+#use smk01 (more trf)
+#smk01 run more trf
+ hcw_enqtrf_hqmproc_test:g_batch_dis+g_wubp+g_rtnflow+ldb10pp8cqdir8pp_1map_scen2_smk01  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb10pp8cqdir8pp_1map_scen2_SMK01    
+
+
+#smk01 run more trf + VAS[0] VASRST
+ hcw_enqtrf_hqmproc_test:g_batch_dis+g_wubp+vasrst_vas0atm_scen2_t1+ldb10pp8cqdir8pp_1map_scen2_smk01+scen2_vasrst_test0  -dut hqm -model hqm -dirtag VASRST_VAS0ATM_HQM_hqmproc_enqtrf_ldb10pp8cqdir8pp_1map_scen2_SMK01   
+
+#smk01 run more trf + VAS[1] VASRST
+ hcw_enqtrf_hqmproc_test:g_batch_dis+g_wubp+vasrst_vas1ord_scen2_t1+ldb10pp8cqdir8pp_1map_scen2_smk01+scen2_vasrst_test0  -dut hqm -model hqm -dirtag VASRST_VAS1ORD_HQM_hqmproc_enqtrf_ldb10pp8cqdir8pp_1map_scen2_SMK01    
+
+
+#smk01 run more trf + VAS[2] VASRST
+ hcw_enqtrf_hqmproc_test:g_batch_dis+g_wubp+vasrst_vas2dir_scen2_t1+ldb10pp8cqdir8pp_1map_scen2_smk01+scen2_vasrst_test0  -dut hqm -model hqm -dirtag VASRST_VAS2DIR_HQM_hqmproc_enqtrf_ldb10pp8cqdir8pp_1map_scen2_SMK01       
+
+
+##########################
+#VASRST + reprogramming  
+##########################
+##########################
+#VAS[0] UNO
+ hcw_enqtrf_hqmproc_test:g_batch_dis+g_wubp+vasrst_vas0uno_t0+vasrst_reprog+ldb8ppdir8pp_qid1map_mvas_stream_ord_test0+ldb8ppdir8pp_qid1map_mvas_cfg0+scen1_vasrst_test0  -dut hqm -model hqm -dirtag VASRSTRECFG_VAS0UNO_TEST000   
+
+#VAS[1] UNO
+ hcw_enqtrf_hqmproc_test:g_batch_dis+g_wubp+vasrst_vas1uno_t0+vasrst_reprog+ldb8ppdir8pp_qid1map_mvas_stream_ord_test0+ldb8ppdir8pp_qid1map_mvas_cfg0+scen1_vasrst_test0  -dut hqm -model hqm -dirtag VASRSTRECFG_VAS1UNO_TEST000   
+
+#VAS[2] ATM
+ hcw_enqtrf_hqmproc_test:g_batch_dis+g_wubp+vasrst_vas2atm_t0+vasrst_reprog+ldb8ppdir8pp_qid1map_mvas_stream_ord_test0+ldb8ppdir8pp_qid1map_mvas_cfg0+scen1_vasrst_test0  -dut hqm -model hqm -dirtag VASRSTRECFG_VAS2ATM_TEST000   
+
+#VAS[3] ATM
+ hcw_enqtrf_hqmproc_test:g_batch_dis+g_wubp+vasrst_vas3atm_t0+vasrst_reprog+ldb8ppdir8pp_qid1map_mvas_stream_ord_test0+ldb8ppdir8pp_qid1map_mvas_cfg0+scen1_vasrst_test0  -dut hqm -model hqm -dirtag VASRSTRECFG_VAS3ATM_TEST000   
+
+
+#VAS[4] ORD
+ hcw_enqtrf_hqmproc_test:g_batch_dis+g_wubp+vasrst_vas4ord_t0+vasrst_reprog+ldb8ppdir8pp_qid1map_mvas_stream_ord_test0+ldb8ppdir8pp_qid1map_mvas_cfg0+scen1_vasrst_test0  -dut hqm -model hqm -dirtag VASRSTRECFG_VAS4ORD_TEST000   
+
+#VAS[5] ORD
+ hcw_enqtrf_hqmproc_test:g_batch_dis+g_wubp+vasrst_vas5ord_t0+vasrst_reprog+ldb8ppdir8pp_qid1map_mvas_stream_ord_test0+ldb8ppdir8pp_qid1map_mvas_cfg0+scen1_vasrst_test0  -dut hqm -model hqm -dirtag VASRSTRECFG_VAS5ORD_TEST000   
+
+#VAS[6] DIR
+ hcw_enqtrf_hqmproc_test:g_batch_dis+g_wubp+vasrst_vas6dir_t0+vasrst_reprog+ldb8ppdir8pp_qid1map_mvas_stream_ord_test0+ldb8ppdir8pp_qid1map_mvas_cfg0+scen1_vasrst_test0  -dut hqm -model hqm -dirtag VASRSTRECFG_VAS6DIR_TEST000   
+
+#VAS[7] DIR
+ hcw_enqtrf_hqmproc_test:g_batch_dis+g_wubp+vasrst_vas7dir_t0+vasrst_reprog+ldb8ppdir8pp_qid1map_mvas_stream_ord_test0+ldb8ppdir8pp_qid1map_mvas_cfg0+scen1_vasrst_test0  -dut hqm -model hqm -dirtag VASRSTRECFG_VAS7DIR_TEST000   
+
+
+##########################
+##########################
+#VASRST + reprogramming  -simv_args +has_vasrst_reprogram -simv_args +has_vasrst_counter_poll -simv_args +HQM_BYPASS_CQ_CHECK
+##########################
+##########################
+#smk01 run more trf + VAS[0] VASRST
+ hcw_enqtrf_hqmproc_test:g_batch_dis+g_wubp+vasrst_vas0atm_scen2_t1+vasrst_vas0_reprog_scen2+ldb10pp8cqdir8pp_1map_scen2_smk01+scen2_vasrst_test0  -dut hqm -model hqm -dirtag VASRSTRECFG_VAS0ATM_HQM_hqmproc_enqtrf_ldb10pp8cqdir8pp_1map_scen2_SMK01   
+
+#smk01 run more trf + VAS[1] VASRST
+ hcw_enqtrf_hqmproc_test:g_batch_dis+g_wubp+vasrst_vas1ord_scen2_t1+vasrst_vas1_reprog_scen2+ldb10pp8cqdir8pp_1map_scen2_smk01+scen2_vasrst_test0  -dut hqm -model hqm -dirtag VASRSTRECFG_VAS1ORD_HQM_hqmproc_enqtrf_ldb10pp8cqdir8pp_1map_scen2_SMK01   
+
+
+#smk01 run more trf + VAS[2] VASRST
+ hcw_enqtrf_hqmproc_test:g_batch_dis+g_wubp+vasrst_vas2dir_scen2_t1+vasrst_reprog+ldb10pp8cqdir8pp_1map_scen2_smk01+scen2_vasrst_test0  -dut hqm -model hqm -dirtag VASRSTRECFG_VAS2DIR_HQM_hqmproc_enqtrf_ldb10pp8cqdir8pp_1map_scen2_SMK01   
+
+
+
+
+######################
+####Try excess_frag and ooc, and issue VASRST to VAS[1]
+######################
+#VAS[1] VASRST (excess_frag, ooc)
+hcw_enqtrf_hqmproc_test:vasrst_vas1ord_scen2_t1_set1+ldb10pp8cqdir8pp_1map_scen2_smk02_flow+ldb10pp8cqdir8pp_1map_scen2_smk00_cfg_vas1_excessfrag_limitcredit+scen2_excess_frag_ooc_test0  -dut hqm -model hqm -dirtag VASRST_VAS1ORD_scen2_excessfrag  
+
+
+      
+
+
+

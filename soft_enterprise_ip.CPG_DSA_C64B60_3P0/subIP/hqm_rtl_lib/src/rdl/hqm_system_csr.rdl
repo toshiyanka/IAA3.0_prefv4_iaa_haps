@@ -1,0 +1,349 @@
+`include "lib_udp.rdl"
+`include "hqm_udp.rdl"
+
+<% use hqm_params; %>
+
+addrmap hqm_system_csr_map {
+	name = "Hqm System Csr";
+	Space = "MEM";
+    ResetSignal = "hqm_inp_gated_rst_n powergood_rst_b";
+    USER_SPECIFIED_UDP = "HqmIsFeatureReg = reg";
+
+    `include "hqm_system_csr_reg_def.rdl"
+
+	// Instantiate Registers
+
+    //---------------------------------------------------------------------------------------------------------------------------------
+    // OS_W
+    //---------------------------------------------------------------------------------------------------------------------------------
+
+    hqm_system_attributes_rf                hqm_system_attributes                               @0x0000100;
+
+    hqm_system_unit_version_r               CFG_UNIT_VERSION                                    @0x0000200;
+    CFG_UNIT_VERSION.UNIT_VERSION-> reset = 8'h04;
+
+    ingress_alarm_enable_r                  INGRESS_ALARM_ENABLE                                @0x0000300;
+    alarm_lut_perr_r                        ALARM_LUT_PERR                                      @0x0000304;
+    egress_lut_err_r                        EGRESS_LUT_ERR                                      @0x0000308;
+    ingress_lut_err_r                       INGRESS_LUT_ERR                                     @0x000030c;
+    alarm_err_r                             ALARM_ERR                                           @0x0000310;
+    alarm_mb_ecc_err_r                      ALARM_MB_ECC_ERR                                    @0x0000314;
+    alarm_sb_ecc_err_r                      ALARM_SB_ECC_ERR                                    @0x0000318;
+    hqm_system_cnt_ctl_r                    HQM_SYSTEM_CNT_CTL                                  @0x000031c;
+
+    msix_ack_r                              MSIX_ACK                                            @0x0000400;
+    msix_passthrough_r                      MSIX_PASSTHROUGH                                    @0x0000404;
+    msix_mode_r                             MSIX_MODE                                           @0x0000408;
+    msix_31_0_synd_r                        MSIX_31_0_SYND                                      @0x0000410;
+    msix_63_32_synd_r                       MSIX_63_32_SYND                                     @0x0000414;
+    msix_64_synd_r                          MSIX_64_SYND                                        @0x0000418;
+    msix_pba_31_0_clear_r                   MSIX_PBA_31_0_CLEAR                                 @0x0000420;
+    msix_pba_63_32_clear_r                  MSIX_PBA_63_32_CLEAR                                @0x0000424;
+    msix_pba_64_clear_r                     MSIX_PBA_64_CLEAR                                   @0x0000428;
+
+    cq_31_0_occ_int_status_r                DIR_CQ_31_0_OCC_INT_STATUS                          @0x0000440;
+    cq_63_32_occ_int_status_r               DIR_CQ_63_32_OCC_INT_STATUS                         @0x0000444;
+
+    DIR_CQ_31_0_OCC_INT_STATUS->desc    = "DIR CQ 31 To 0 Occupancy Interrupt Status.";
+    DIR_CQ_63_32_OCC_INT_STATUS->desc   = "DIR CQ 63 To 32 Occupancy Interrupt Status.";
+
+    cq_31_0_occ_int_status_r                LDB_CQ_31_0_OCC_INT_STATUS                          @0x0000460;
+    cq_63_32_occ_int_status_r               LDB_CQ_63_32_OCC_INT_STATUS                         @0x0000464;
+
+    LDB_CQ_31_0_OCC_INT_STATUS->desc    = "LDB CQ 31 To 0 Occupancy Interrupt Status.";
+    LDB_CQ_63_32_OCC_INT_STATUS->desc   = "LDB CQ 63 To 32 Occupancy Interrupt Status.";
+
+    sys_alarm_int_enable_r                  SYS_ALARM_INT_ENABLE                                @0x0000468;
+    sys_alarm_mb_ecc_int_enable_r           SYS_ALARM_MB_ECC_INT_ENABLE                         @0x000046c;
+    sys_alarm_sb_ecc_int_enable_r           SYS_ALARM_SB_ECC_INT_ENABLE                         @0x0000470;
+
+    // Vectored regs generate defines for the addresses that should be uniquified; hence the HQM_ prefix...
+
+    alarm_pf_synd_rf                        ALARM_PF_SYND                                       @0x0000500;             // 3 DW
+    alarm_hw_synd_r                         ALARM_HW_SYND                                       @0x000050c;             // 1 DW
+
+    // System counters in separate 4K page
+
+    <% for ($i=0; $i<=21; $i++) { %>
+    hqm_system_cnt_<%=$i%>_r                HQM_SYSTEM_CNT_<%=$i%>                              @<%=(0x0001000+($i*4))%>;
+    <% } %>
+    HQM_SYSTEM_CNT_0->desc = "Enqueued HCW Input Counter LS";
+    HQM_SYSTEM_CNT_0.CNT->desc = "Number of enqueued HCWs ingress received from SIF [31:0]";
+    HQM_SYSTEM_CNT_1->desc = "Enqueued HCW Input Counter MS";
+    HQM_SYSTEM_CNT_1.CNT->desc = "Number of enqueued HCWs ingress received from SIF [63:32]";
+    HQM_SYSTEM_CNT_2->desc = "Enqueued HCW Output Counter LS";
+    HQM_SYSTEM_CNT_2.CNT->desc = "Number of enqueued HCWs ingress sent to hqm_core [31:0]";
+    HQM_SYSTEM_CNT_3->desc = "Enqueued HCW Output Counter MS";
+    HQM_SYSTEM_CNT_3.CNT->desc = "Number of enqueued HCWs ingress sent to hqm_core [63:32]";
+    HQM_SYSTEM_CNT_4->desc = "Enqueued HCW Drop Counter LS";
+    HQM_SYSTEM_CNT_4.CNT->desc = "Number of enqueued HCWs ingress dropped due to error [31:0]";
+    HQM_SYSTEM_CNT_5->desc = "Enqueued HCW Drop Counter MS";
+    HQM_SYSTEM_CNT_5.CNT->desc = "Number of enqueued HCWs ingress dropped due to error [63:32]";
+    HQM_SYSTEM_CNT_6->desc = "Scheduled HCW Input Counter LS";
+    HQM_SYSTEM_CNT_6.CNT->desc = "Number of scheduled HCWs egress received from hqm_core [31:0]";
+    HQM_SYSTEM_CNT_7->desc = "Scheduled HCW Input Counter MS";
+    HQM_SYSTEM_CNT_7.CNT->desc = "Number of scheduled HCWs egress received from hqm_core [63:32]";
+    HQM_SYSTEM_CNT_8->desc = "Scheduled HCW Write Buffer Output Counter LS";
+    HQM_SYSTEM_CNT_8.CNT->desc = "Number of scheduled HCWs egress sent to the write buffer [31:0]";
+    HQM_SYSTEM_CNT_9->desc = "Scheduled HCW Write Buffer Output Counter MS";
+    HQM_SYSTEM_CNT_9.CNT->desc = "Number of scheduled HCWs egress sent to the write buffer [63:32]";
+    HQM_SYSTEM_CNT_10->desc = "Write Buffer Write Data Output Counter LS";
+    HQM_SYSTEM_CNT_10.CNT->desc = "Number of posted write data words the write buffer sent to SIF [31:0]";
+    HQM_SYSTEM_CNT_11->desc = "Write Buffer Write Data Output Counter MS";
+    HQM_SYSTEM_CNT_11.CNT->desc = "Number of posted write data words the write buffer sent to SIF [63:32]";
+    HQM_SYSTEM_CNT_12->desc = "IMS Counter LS";
+    HQM_SYSTEM_CNT_12.CNT->desc = "Number of AI interrupt writes [31:0]";
+    HQM_SYSTEM_CNT_13->desc = "IMS Counter MS";
+    HQM_SYSTEM_CNT_13.CNT->desc = "Number of AI interrupt writes [63:32]";
+    HQM_SYSTEM_CNT_14->desc = "MSI-X Counter LS";
+    HQM_SYSTEM_CNT_14.CNT->desc = "Number of MSI-X interrupt writes [31:0]";
+    HQM_SYSTEM_CNT_15->desc = "MSI-X Counter MS";
+    HQM_SYSTEM_CNT_15.CNT->desc = "Number of MSI-X interrupt writes [63:32]";
+    HQM_SYSTEM_CNT_16->desc = "Write Buffer Write Request Output Counter LS";
+    HQM_SYSTEM_CNT_16.CNT->desc = "Number of posted write requests the write buffer sent to SIF [31:0]";
+    HQM_SYSTEM_CNT_17->desc = "Write Buffer Write Request Output Counter MS";
+    HQM_SYSTEM_CNT_17.CNT->desc = "Number of posted write requests the write buffer sent to SIF [63:32]";
+    HQM_SYSTEM_CNT_18->desc = "Write Buffer Request Drop Counter LS";
+    HQM_SYSTEM_CNT_18.CNT->desc = "Number of posted writes the write buffer dropped [31:0]";
+    HQM_SYSTEM_CNT_19->desc = "Write Buffer Request Drop Counter MS";
+    HQM_SYSTEM_CNT_19.CNT->desc = "Number of posted writes the write buffer dropped [63:32]";
+    HQM_SYSTEM_CNT_20->desc = "Write Buffer Coalesced Write Counter LS";
+    HQM_SYSTEM_CNT_20.CNT->desc = "Number of scheduled HCWs the write buffer coalesced [31:0]";
+    HQM_SYSTEM_CNT_21->desc = "Write Buffer Coalesced Write Counter MS";
+    HQM_SYSTEM_CNT_21.CNT->desc = "Number of scheduled HCWs the write buffer coalesced [63:32]";
+
+    // Single bit ECC error counter is separate 4K page
+
+    <% for ($i=0; $i<=1; $i++) { %>
+    sbe_cnt_<%=$i%>_r                       SBE_CNT_<%=$i%>                                     @<%=(0x0002000+($i*4))%>;
+    <% } %>
+    SBE_CNT_0->desc = "Single Bit ECC Error Counter LS";
+    SBE_CNT_0.CNT->desc = "Number of single bit ECC errors detected [31:0]";
+    SBE_CNT_1->desc = "Single Bit ECC Error Counter MS";
+    SBE_CNT_1.CNT->desc = "Number of single bit ECC errors detected [63:32]";
+
+    // LUTs
+
+    hqm_system_vf_ldb_prodport_valid_rf     hqm_system_vf_ldb_prodport_valid[<%=$hqm_params::TOTAL_VF*$hqm_params::TOTAL_LDB_PORTS%>]    @0x0000f00 +=0x1000;   // 1 DW
+    hqm_system_vf_ldb_prodport_xlations_rf  hqm_system_vf_ldb_prodport_xlations[<%=$hqm_params::TOTAL_VF*$hqm_params::TOTAL_LDB_PORTS%>] @0x0000f04 +=0x1000;   // 1 DW
+    hqm_system_vf_dir_prodport_valid_rf     hqm_system_vf_dir_prodport_valid[<%=$hqm_params::TOTAL_VF*$hqm_params::TOTAL_DIR_PORTS%>]    @0x0000f08 +=0x1000;   // 1 DW
+    hqm_system_vf_dir_prodport_xlations_rf  hqm_system_vf_dir_prodport_xlations[<%=$hqm_params::TOTAL_VF*$hqm_params::TOTAL_DIR_PORTS%>] @0x0000f0c +=0x1000;   // 1 DW
+    hqm_system_vf_ldb_vqid_valid_rf         hqm_system_vf_ldb_vqid_valid[<%=$hqm_params::TOTAL_VF*$hqm_params::TOTAL_LDB_QID%>]          @0x0000f10 +=0x1000;   // 1 DW
+    hqm_system_vf_ldb_qid_xlations_rf       hqm_system_vf_ldb_qid_xlations[<%=$hqm_params::TOTAL_VF*$hqm_params::TOTAL_LDB_QID%>]        @0x0000f14 +=0x1000;   // 1 DW
+    hqm_system_ldb_qid2vqid_rf              hqm_system_ldb_qid2vqid[<%=$hqm_params::TOTAL_LDB_QID%>]                                     @0x0000f18 +=0x1000;   // 1 DW
+    hqm_system_vf_dir_vqid_valid_rf         hqm_system_vf_dir_vqid_valid[<%=$hqm_params::TOTAL_VF*$hqm_params::TOTAL_DIR_QID%>]          @0x0000f1c +=0x1000;   // 1 DW
+    hqm_system_vf_dir_qid_xlations_rf       hqm_system_vf_dir_qid_xlations[<%=$hqm_params::TOTAL_VF*$hqm_params::TOTAL_DIR_QID%>]        @0x0000f20 +=0x1000;   // 1 DW
+    hqm_system_ldb_vas_qid_valid_rf         hqm_system_ldb_vas_qid_valid[<%=$hqm_params::TOTAX_VAS*$hqm_params::TOTAL_LDB_QID%>]         @0x0000f24 +=0x1000;   // 1 DW
+    hqm_system_dir_vas_qid_valid_rf         hqm_system_dir_vas_qid_valid[<%=$hqm_params::TOTAX_VAS*$hqm_params::TOTAL_DIR_QID%>]         @0x0000f28 +=0x1000;   // 1 DW
+
+    alarm_vf_synd_rf                        alarm_vf_synd[<%=$hqm_params::TOTAL_VF%>]                                                    @0x0000f40 +=0x1000;   // 3 DW
+    hqm_system_ldb_qid_cfg_rf               hqm_system_ldb_qid_cfg[<%=$hqm_params::TOTAL_LDB_QID%>]                                      @0x0000f50 +=0x1000;   // 3 DW
+    hqm_system_dir_qid_cfg_rf               hqm_system_dir_qid_cfg[<%=$hqm_params::TOTAL_DIR_QID%>]                                      @0x0000f60 +=0x1000;   // 2 DW
+    hqm_system_ldb_port_provisioning_rf     hqm_system_ldb_port_provisioning[<%=$hqm_params::TOTAL_LDB_PORTS%>]                          @0x0000f80 +=0x1000;   // 9 DW
+    hqm_system_dir_port_provisioning_rf     hqm_system_dir_port_provisioning[<%=$hqm_params::TOTAL_DIR_PORTS%>]                          @0x0000fc0 +=0x1000;   // 10 DW
+
+    // Write buffer state
+
+    hqm_wb_dir_cq_state_rf                  wb_dir_cq_state[<%=$hqm_params::TOTAL_DIR_PORTS%>]  @0x1c00000 +=0x1000;   // 1 DW
+    hqm_wb_ldb_cq_state_rf                  wb_ldb_cq_state[<%=$hqm_params::TOTAL_LDB_PORTS%>]  @0x1d00000 +=0x1000;   // 1 DW
+
+    hqm_system_ims_provisioning_rf          hqm_system_ims_provisioning[<%=$hqm_params::TOTAL_LDB_PORTS+$hqm_params::TOTAL_DIR_PORTS%>]  @0x1e00000 +=0x10;     // 4 DW
+    ims_pend_clear_r                        IMS_PEND_CLEAR                                      @0x1e01000;
+
+    // VTUNE SMON in separate 4K page
+
+    perf_smon_rf                            CFG_SYS_PERF_SMON                                   @0x0003000;
+
+    //---------------------------------------------------------------------------------------------------------------------------------
+    // FEATURE
+    //---------------------------------------------------------------------------------------------------------------------------------
+    // Feature regs must have an address with bit 27 set
+
+    hqm_hw_agitate_control_r                WB_SCH_OUT_AFULL_AGITATE_CONTROL                    @0x8000000;             // FEATURE
+    WB_SCH_OUT_AFULL_AGITATE_CONTROL.CTRL->ValRTLSignal = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.WB_SCH_OUT_AFULL_AGITATE_CONTROL.CTRL";
+    WB_SCH_OUT_AFULL_AGITATE_CONTROL.MODE->ValRTLSignal = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.WB_SCH_OUT_AFULL_AGITATE_CONTROL.MODE";
+    hqm_hw_agitate_control_r                IG_HCW_ENQ_AFULL_AGITATE_CONTROL                    @0x8000004;             // FEATURE
+    IG_HCW_ENQ_AFULL_AGITATE_CONTROL.CTRL->ValRTLSignal = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.IG_HCW_ENQ_AFULL_AGITATE_CONTROL.CTRL";
+    IG_HCW_ENQ_AFULL_AGITATE_CONTROL.MODE->ValRTLSignal = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.IG_HCW_ENQ_AFULL_AGITATE_CONTROL.MODE";
+    hqm_hw_agitate_control_r                IG_HCW_ENQ_W_DB_AGITATE_CONTROL                     @0x800000c;             // FEATURE
+    IG_HCW_ENQ_W_DB_AGITATE_CONTROL.CTRL->ValRTLSignal = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.IG_HCW_ENQ_W_DB_AGITATE_CONTROL.CTRL";
+    IG_HCW_ENQ_W_DB_AGITATE_CONTROL.MODE->ValRTLSignal = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.IG_HCW_ENQ_W_DB_AGITATE_CONTROL.MODE";
+    hqm_hw_agitate_control_r                EG_HCW_SCHED_DB_AGITATE_CONTROL                     @0x8000010;             // FEATURE
+    EG_HCW_SCHED_DB_AGITATE_CONTROL.CTRL->ValRTLSignal = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.EG_HCW_SCHED_DB_AGITATE_CONTROL.CTRL";
+    EG_HCW_SCHED_DB_AGITATE_CONTROL.MODE->ValRTLSignal = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.EG_HCW_SCHED_DB_AGITATE_CONTROL.MODE";
+    hqm_hw_agitate_control_r                AL_IMS_MSIX_DB_AGITATE_CONTROL                      @0x8000014;             // FEATURE
+    AL_IMS_MSIX_DB_AGITATE_CONTROL.CTRL->ValRTLSignal = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.AL_IMS_MSIX_DB_AGITATE_CONTROL.CTRL";
+    AL_IMS_MSIX_DB_AGITATE_CONTROL.MODE->ValRTLSignal = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.AL_IMS_MSIX_DB_AGITATE_CONTROL.MODE";
+    hqm_hw_agitate_control_r                AL_CWD_ALARM_DB_AGITATE_CONTROL                     @0x8000018;             // FEATURE
+    AL_CWD_ALARM_DB_AGITATE_CONTROL.CTRL->ValRTLSignal = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.AL_CWD_ALARM_DB_AGITATE_CONTROL.CTRL";
+    AL_CWD_ALARM_DB_AGITATE_CONTROL.MODE->ValRTLSignal = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.AL_CWD_ALARM_DB_AGITATE_CONTROL.MODE";
+    hqm_hw_agitate_control_r                AL_SIF_ALARM_AFULL_AGITATE_CONTROL                  @0x800001c;             // FEATURE
+    AL_SIF_ALARM_AFULL_AGITATE_CONTROL.CTRL->ValRTLSignal = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.AL_SIF_ALARM_AFULL_AGITATE_CONTROL.CTRL";
+    AL_SIF_ALARM_AFULL_AGITATE_CONTROL.MODE->ValRTLSignal = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.AL_SIF_ALARM_AFULL_AGITATE_CONTROL.MODE";
+    hqm_hw_agitate_control_r                AL_HQM_ALARM_DB_AGITATE_CONTROL                     @0x8000020;             // FEATURE
+    AL_HQM_ALARM_DB_AGITATE_CONTROL.CTRL->ValRTLSignal = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.AL_HQM_ALARM_DB_AGITATE_CONTROL.CTRL";
+    AL_HQM_ALARM_DB_AGITATE_CONTROL.MODE->ValRTLSignal = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.AL_HQM_ALARM_DB_AGITATE_CONTROL.MODE";
+
+    ecc_ctl_r                               ECC_CTL                                             @0x8001030;             // FEATURE
+    parity_ctl_r                            PARITY_CTL                                          @0x8001034;             // FEATURE
+    write_buffer_ctl_r                      WRITE_BUFFER_CTL                                    @0x8001040;             // FEATURE
+    alarm_ctl_r                             ALARM_CTL                                           @0x8001044;             // FEATURE
+    cfg_patch_control_r                     CFG_PATCH_CONTROL                                   @0x8001048;             // FEATURE
+
+    ingress_ctl_r                           INGRESS_CTL                                         @0x8001050;             // FEATURE
+    egress_ctl_r                            EGRESS_CTL                                          @0x8001054;             // FEATURE
+    sys_idle_status_r                       SYS_IDLE_STATUS                                     @0x8001058;             // FEATURE
+
+    hcw_enq_fifo_ctl_r                      HCW_ENQ_FIFO_CTL                                    @0x8001068;             // FEATURE
+    sch_out_fifo_ctl_r                      SCH_OUT_FIFO_CTL                                    @0x800106c;             // FEATURE
+    sif_alarm_fifo_ctl_r                    SIF_ALARM_FIFO_CTL                                  @0x8001070;             // FEATURE
+
+    fifo_status_dc_r                        HCW_ENQ_FIFO_STATUS                                 @0x8001074;
+    HCW_ENQ_FIFO_STATUS.DEPTH->ValRTLSignal     = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.HCW_ENQ_FIFO_STATUS.DEPTH";
+    HCW_ENQ_FIFO_STATUS.FULL->ValRTLSignal      = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.HCW_ENQ_FIFO_STATUS.FULL";
+    HCW_ENQ_FIFO_STATUS.AFULL->ValRTLSignal     = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.HCW_ENQ_FIFO_STATUS.AFULL";
+    HCW_ENQ_FIFO_STATUS.AEMPTY->ValRTLSignal    = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.HCW_ENQ_FIFO_STATUS.AEMPTY";
+    HCW_ENQ_FIFO_STATUS.EMPTY->ValRTLSignal     = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.HCW_ENQ_FIFO_STATUS.EMPTY";
+    HCW_ENQ_FIFO_STATUS.RSVD32->ValRTLSignal    = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.HCW_ENQ_FIFO_STATUS.RSVD32";
+    HCW_ENQ_FIFO_STATUS.OVRFLOW->ValRTLSignal   = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.HCW_ENQ_FIFO_STATUS.OVRFLOW";
+    HCW_ENQ_FIFO_STATUS.UNDFLOW->ValRTLSignal   = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.HCW_ENQ_FIFO_STATUS.UNDFLOW";
+
+    fifo_status_r                           HCW_SCH_FIFO_STATUS                                 @0x8001078;
+    HCW_SCH_FIFO_STATUS.DEPTH->ValRTLSignal     = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.HCW_SCH_FIFO_STATUS.DEPTH";
+    HCW_SCH_FIFO_STATUS.FULL->ValRTLSignal      = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.HCW_SCH_FIFO_STATUS.FULL";
+    HCW_SCH_FIFO_STATUS.AFULL->ValRTLSignal     = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.HCW_SCH_FIFO_STATUS.AFULL";
+    HCW_SCH_FIFO_STATUS.RSVD5->ValRTLSignal     = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.HCW_SCH_FIFO_STATUS.RSVD5";
+    HCW_SCH_FIFO_STATUS.EMPTY->ValRTLSignal     = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.HCW_SCH_FIFO_STATUS.EMPTY";
+    HCW_SCH_FIFO_STATUS.RSVD32->ValRTLSignal    = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.HCW_SCH_FIFO_STATUS.RSVD32";
+    HCW_SCH_FIFO_STATUS.OVRFLOW->ValRTLSignal   = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.HCW_SCH_FIFO_STATUS.OVRFLOW";
+    HCW_SCH_FIFO_STATUS.UNDFLOW->ValRTLSignal   = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.HCW_SCH_FIFO_STATUS.UNDFLOW";
+
+    fifo_status_r                           SCH_OUT_FIFO_STATUS                                 @0x800107c;
+    SCH_OUT_FIFO_STATUS.DEPTH->ValRTLSignal     = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.SCH_OUT_FIFO_STATUS.DEPTH";
+    SCH_OUT_FIFO_STATUS.FULL->ValRTLSignal      = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.SCH_OUT_FIFO_STATUS.FULL";
+    SCH_OUT_FIFO_STATUS.AFULL->ValRTLSignal     = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.SCH_OUT_FIFO_STATUS.AFULL";
+    SCH_OUT_FIFO_STATUS.RSVD5->ValRTLSignal     = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.SCH_OUT_FIFO_STATUS.RSVD5";
+    SCH_OUT_FIFO_STATUS.EMPTY->ValRTLSignal     = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.SCH_OUT_FIFO_STATUS.EMPTY";
+    SCH_OUT_FIFO_STATUS.RSVD32->ValRTLSignal    = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.SCH_OUT_FIFO_STATUS.RSVD32";
+    SCH_OUT_FIFO_STATUS.OVRFLOW->ValRTLSignal   = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.SCH_OUT_FIFO_STATUS.OVRFLOW";
+    SCH_OUT_FIFO_STATUS.UNDFLOW->ValRTLSignal   = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.SCH_OUT_FIFO_STATUS.UNDFLOW";
+
+    fifo_status_r                           CFG_RX_FIFO_STATUS                                  @0x8001080;
+    CFG_RX_FIFO_STATUS.DEPTH->ValRTLSignal      = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.CFG_RX_FIFO_STATUS.DEPTH";
+    CFG_RX_FIFO_STATUS.FULL->ValRTLSignal       = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.CFG_RX_FIFO_STATUS.FULL";
+    CFG_RX_FIFO_STATUS.AFULL->ValRTLSignal      = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.CFG_RX_FIFO_STATUS.AFULL";
+    CFG_RX_FIFO_STATUS.RSVD5->ValRTLSignal      = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.CFG_RX_FIFO_STATUS.RSVD5";
+    CFG_RX_FIFO_STATUS.EMPTY->ValRTLSignal      = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.CFG_RX_FIFO_STATUS.EMPTY";
+    CFG_RX_FIFO_STATUS.RSVD32->ValRTLSignal     = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.CFG_RX_FIFO_STATUS.RSVD32";
+    CFG_RX_FIFO_STATUS.OVRFLOW->ValRTLSignal    = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.CFG_RX_FIFO_STATUS.OVRFLOW";
+    CFG_RX_FIFO_STATUS.UNDFLOW->ValRTLSignal    = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.CFG_RX_FIFO_STATUS.UNDFLOW";
+
+    fifo_status_r                           CWDI_RX_FIFO_STATUS                                 @0x8001084;
+    CWDI_RX_FIFO_STATUS.DEPTH->ValRTLSignal     = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.CWDI_RX_FIFO_STATUS.DEPTH";
+    CWDI_RX_FIFO_STATUS.FULL->ValRTLSignal      = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.CWDI_RX_FIFO_STATUS.FULL";
+    CWDI_RX_FIFO_STATUS.AFULL->ValRTLSignal     = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.CWDI_RX_FIFO_STATUS.AFULL";
+    CWDI_RX_FIFO_STATUS.RSVD5->ValRTLSignal     = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.CWDI_RX_FIFO_STATUS.RSVD5";
+    CWDI_RX_FIFO_STATUS.EMPTY->ValRTLSignal     = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.CWDI_RX_FIFO_STATUS.EMPTY";
+    CWDI_RX_FIFO_STATUS.RSVD32->ValRTLSignal    = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.CWDI_RX_FIFO_STATUS.RSVD32";
+    CWDI_RX_FIFO_STATUS.OVRFLOW->ValRTLSignal   = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.CWDI_RX_FIFO_STATUS.OVRFLOW";
+    CWDI_RX_FIFO_STATUS.UNDFLOW->ValRTLSignal   = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.CWDI_RX_FIFO_STATUS.UNDFLOW";
+
+    fifo_status_r                           HQM_ALARM_RX_FIFO_STATUS                            @0x8001088;
+    HQM_ALARM_RX_FIFO_STATUS.DEPTH->ValRTLSignal   = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.HQM_ALARM_RX_FIFO_STATUS.DEPTH";
+    HQM_ALARM_RX_FIFO_STATUS.FULL->ValRTLSignal    = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.HQM_ALARM_RX_FIFO_STATUS.FULL";
+    HQM_ALARM_RX_FIFO_STATUS.AFULL->ValRTLSignal   = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.HQM_ALARM_RX_FIFO_STATUS.AFULL";
+    HQM_ALARM_RX_FIFO_STATUS.RSVD5->ValRTLSignal   = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.HQM_ALARM_RX_FIFO_STATUS.RSVD5";
+    HQM_ALARM_RX_FIFO_STATUS.EMPTY->ValRTLSignal   = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.HQM_ALARM_RX_FIFO_STATUS.EMPTY";
+    HQM_ALARM_RX_FIFO_STATUS.RSVD32->ValRTLSignal  = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.HQM_ALARM_RX_FIFO_STATUS.RSVD32";
+    HQM_ALARM_RX_FIFO_STATUS.OVRFLOW->ValRTLSignal = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.HQM_ALARM_RX_FIFO_STATUS.OVRFLOW";
+    HQM_ALARM_RX_FIFO_STATUS.UNDFLOW->ValRTLSignal = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.HQM_ALARM_RX_FIFO_STATUS.UNDFLOW";
+
+    fifo_status_dc_r                        SIF_ALARM_FIFO_STATUS                              @0x800108c;
+    SIF_ALARM_FIFO_STATUS.DEPTH->ValRTLSignal      = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.SIF_ALARM_FIFO_STATUS.DEPTH";
+    SIF_ALARM_FIFO_STATUS.FULL->ValRTLSignal       = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.SIF_ALARM_FIFO_STATUS.FULL";
+    SIF_ALARM_FIFO_STATUS.AFULL->ValRTLSignal      = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.SIF_ALARM_FIFO_STATUS.AFULL";
+    SIF_ALARM_FIFO_STATUS.AEMPTY->ValRTLSignal     = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.SIF_ALARM_FIFO_STATUS.AEMPTY";
+    SIF_ALARM_FIFO_STATUS.EMPTY->ValRTLSignal      = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.SIF_ALARM_FIFO_STATUS.EMPTY";
+    SIF_ALARM_FIFO_STATUS.RSVD32->ValRTLSignal     = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.SIF_ALARM_FIFO_STATUS.RSVD32";
+    SIF_ALARM_FIFO_STATUS.OVRFLOW->ValRTLSignal    = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.SIF_ALARM_FIFO_STATUS.OVRFLOW";
+    SIF_ALARM_FIFO_STATUS.UNDFLOW->ValRTLSignal    = "%HQMID%.i_hqm_system_core.i_hqm_system_csr_wrap.i_hqm_system_csr.SIF_ALARM_FIFO_STATUS.UNDFLOW";
+
+    alarm_db_status_r                       ALARM_DB_STATUS                                     @0x80010a0;             // FEATURE
+    ingress_db_status_r                     INGRESS_DB_STATUS                                   @0x80010a4;             // FEATURE
+    egress_db_status_r                      EGRESS_DB_STATUS                                    @0x80010a8;             // FEATURE
+    alarm_status_r                          ALARM_STATUS                                        @0x80010ac;             // FEATURE
+    ingress_status_r                        INGRESS_STATUS                                      @0x80010b0;             // FEATURE
+    egress_status_r                         EGRESS_STATUS                                       @0x80010b4;             // FEATURE
+    wbuf_status_r                           WBUF_STATUS                                         @0x80010b8;             // FEATURE
+    wbuf_status2_r                          WBUF_STATUS2                                        @0x80010bc;             // FEATURE
+    wbuf_debug_r                            WBUF_DEBUG                                          @0x80010c0;             // FEATURE
+    rob_syndrome_r                          ROB_SYNDROME                                        @0x80010c4;             // FEATURE
+
+    // Vectored regs generate defines for the addresses that should be uniquified; hence the HQM_ prefix...
+
+    phdr_debug_0_r                          PHDR_DEBUG_0                                        @0x8001100;             // FEATURE
+    phdr_debug_1_r                          PHDR_DEBUG_1                                        @0x8001104;             // FEATURE
+    phdr_debug_2_r                          PHDR_DEBUG_2                                        @0x8001108;             // FEATURE
+    pdata_debug_r                           HQM_PDATA_DEBUG[16]                                 @0x8001110 +=0x4;       // FEATURE
+HQM_PDATA_DEBUG->HqmClassification="DEBUG_ONLY_REG_NA_16";
+
+    hcw_req_debug_r                         HCW_REQ_DEBUG                                       @0x8001150;             // FEATURE
+    hcw_data_debug_r                        HQM_HCW_DATA_DEBUG[4]                               @0x8001160 +=0x4;       // FEATURE
+HQM_HCW_DATA_DEBUG->HqmClassification="DEBUG_ONLY_REG_NA_4";
+
+    system_aw_smon_rf                       SMON[2]                                             @0x8002000 +=0x40;      // FEATURE
+
+    SMON[0].AW_SMON_CONFIGURATION0.TIMER_PRESCALE->ValRTLSignal         = "%HQMID%.i_hqm_system_core.i_smon0.reg_smon_cfg0_q[28:24]";
+    SMON[0].AW_SMON_CONFIGURATION0.STATTIMEROVFL->ValRTLSignal          = "%HQMID%.i_hqm_system_core.i_smon0.reg_smon_cfg0_q[22:22]";
+    SMON[0].AW_SMON_CONFIGURATION0.INTTIMEROVFL->ValRTLSignal           = "%HQMID%.i_hqm_system_core.i_smon0.reg_smon_cfg0_q[21:21]";
+    SMON[0].AW_SMON_CONFIGURATION0.STOPTIMEROVFL->ValRTLSignal          = "%HQMID%.i_hqm_system_core.i_smon0.reg_smon_cfg0_q[20:20]";
+    SMON[0].AW_SMON_CONFIGURATION0.STATCOUNTER1OVFL->ValRTLSignal       = "%HQMID%.i_hqm_system_core.i_smon0.reg_smon_cfg0_q[19:19]";
+    SMON[0].AW_SMON_CONFIGURATION0.STATCOUNTER0OVFL->ValRTLSignal       = "%HQMID%.i_hqm_system_core.i_smon0.reg_smon_cfg0_q[18:18]";
+    SMON[0].AW_SMON_CONFIGURATION0.INTCOUNTEROVFL->ValRTLSignal         = "%HQMID%.i_hqm_system_core.i_smon0.reg_smon_cfg0_q[17:17]";
+    SMON[0].AW_SMON_CONFIGURATION0.STOPCOUNTEROVFL->ValRTLSignal        = "%HQMID%.i_hqm_system_core.i_smon0.reg_smon_cfg0_q[16:16]";
+    SMON[0].AW_SMON_CONFIGURATION0.SMON_MODE->ValRTLSignal              = "%HQMID%.i_hqm_system_core.i_smon0.reg_smon_cfg0_q[15:12]";
+    SMON[0].AW_SMON_CONFIGURATION0.SMON1_FUNCTION_COMPARE->ValRTLSignal = "%HQMID%.i_hqm_system_core.i_smon0.reg_smon_cfg0_q[11:11]";
+    SMON[0].AW_SMON_CONFIGURATION0.SMON1_FUNCTION->ValRTLSignal         = "%HQMID%.i_hqm_system_core.i_smon0.reg_smon_cfg0_q[10:8]";
+    SMON[0].AW_SMON_CONFIGURATION0.SMON0_FUNCTION_COMPARE->ValRTLSignal = "%HQMID%.i_hqm_system_core.i_smon0.reg_smon_cfg0_q[7:7]";
+    SMON[0].AW_SMON_CONFIGURATION0.SMON0_FUNCTION->ValRTLSignal         = "%HQMID%.i_hqm_system_core.i_smon0.reg_smon_cfg0_q[6:4]";
+    SMON[0].AW_SMON_CONFIGURATION0.SMON_ENABLE->ValRTLSignal            = "%HQMID%.i_hqm_system_core.i_smon0.reg_smon_cfg0_q[0:0]";
+    SMON[0].AW_SMON_CONFIGURATION1.RSVD->ValRTLSignal                   = "%HQMID%.i_hqm_system_core.i_smon0.reg_smon_cfg1_q[31:16]";
+    SMON[0].AW_SMON_CONFIGURATION1.MODE1->ValRTLSignal                  = "%HQMID%.i_hqm_system_core.i_smon0.reg_smon_cfg1_q[15:8]";
+    SMON[0].AW_SMON_CONFIGURATION1.MODE0->ValRTLSignal                  = "%HQMID%.i_hqm_system_core.i_smon0.reg_smon_cfg1_q[7:0]";
+    SMON[0].AW_SMON_COMPARE0.COMPARE0->ValRTLSignal                     = "%HQMID%.i_hqm_system_core.i_smon0.reg_smon_comp0_q[31:0]";
+    SMON[0].AW_SMON_COMPARE1.COMPARE1->ValRTLSignal                     = "%HQMID%.i_hqm_system_core.i_smon0.reg_smon_comp1_q[31:0]";
+    SMON[0].AW_SMON_ACTIVITYCOUNTER0.COUNTER0->ValRTLSignal             = "%HQMID%.i_hqm_system_core.i_smon0.reg_smon_cnt0_q[31:0]";
+    SMON[0].AW_SMON_ACTIVITYCOUNTER1.COUNTER1->ValRTLSignal             = "%HQMID%.i_hqm_system_core.i_smon0.reg_smon_cnt1_q[31:0]";
+    SMON[0].AW_SMON_TIMER.TIMER_VAL->ValRTLSignal                       = "%HQMID%.i_hqm_system_core.i_smon0.reg_smon_timer_q[31:0]";
+    SMON[0].AW_SMON_MAXIMUM_TIMER.MAXVALUE->ValRTLSignal                = "%HQMID%.i_hqm_system_core.i_smon0.reg_smon_maxval_q[31:0]";
+    SMON[0].AW_SMON_COMP_MASK0.COMP_MASK0->ValRTLSignal                 = "%HQMID%.i_hqm_system_core.i_smon0.reg_smon_mask0_q[31:0]";
+    SMON[0].AW_SMON_COMP_MASK1.COMP_MASK1->ValRTLSignal                 = "%HQMID%.i_hqm_system_core.i_smon0.reg_smon_mask1_q[31:0]";
+
+    SMON[1].AW_SMON_CONFIGURATION0.TIMER_PRESCALE->ValRTLSignal         = "%HQMID%.i_hqm_system_core.i_smon1.reg_smon_cfg0_q[28:24]";
+    SMON[1].AW_SMON_CONFIGURATION0.STATTIMEROVFL->ValRTLSignal          = "%HQMID%.i_hqm_system_core.i_smon1.reg_smon_cfg0_q[22:22]";
+    SMON[1].AW_SMON_CONFIGURATION0.INTTIMEROVFL->ValRTLSignal           = "%HQMID%.i_hqm_system_core.i_smon1.reg_smon_cfg0_q[21:21]";
+    SMON[1].AW_SMON_CONFIGURATION0.STOPTIMEROVFL->ValRTLSignal          = "%HQMID%.i_hqm_system_core.i_smon1.reg_smon_cfg0_q[20:20]";
+    SMON[1].AW_SMON_CONFIGURATION0.STATCOUNTER1OVFL->ValRTLSignal       = "%HQMID%.i_hqm_system_core.i_smon1.reg_smon_cfg0_q[19:19]";
+    SMON[1].AW_SMON_CONFIGURATION0.STATCOUNTER0OVFL->ValRTLSignal       = "%HQMID%.i_hqm_system_core.i_smon1.reg_smon_cfg0_q[18:18]";
+    SMON[1].AW_SMON_CONFIGURATION0.INTCOUNTEROVFL->ValRTLSignal         = "%HQMID%.i_hqm_system_core.i_smon1.reg_smon_cfg0_q[17:17]";
+    SMON[1].AW_SMON_CONFIGURATION0.STOPCOUNTEROVFL->ValRTLSignal        = "%HQMID%.i_hqm_system_core.i_smon1.reg_smon_cfg0_q[16:16]";
+    SMON[1].AW_SMON_CONFIGURATION0.SMON_MODE->ValRTLSignal              = "%HQMID%.i_hqm_system_core.i_smon1.reg_smon_cfg0_q[15:12]";
+    SMON[1].AW_SMON_CONFIGURATION0.SMON1_FUNCTION_COMPARE->ValRTLSignal = "%HQMID%.i_hqm_system_core.i_smon1.reg_smon_cfg0_q[11:11]";
+    SMON[1].AW_SMON_CONFIGURATION0.SMON1_FUNCTION->ValRTLSignal         = "%HQMID%.i_hqm_system_core.i_smon1.reg_smon_cfg0_q[10:8]";
+    SMON[1].AW_SMON_CONFIGURATION0.SMON0_FUNCTION_COMPARE->ValRTLSignal = "%HQMID%.i_hqm_system_core.i_smon1.reg_smon_cfg0_q[7:7]";
+    SMON[1].AW_SMON_CONFIGURATION0.SMON0_FUNCTION->ValRTLSignal         = "%HQMID%.i_hqm_system_core.i_smon1.reg_smon_cfg0_q[6:4]";
+    SMON[1].AW_SMON_CONFIGURATION0.SMON_ENABLE->ValRTLSignal            = "%HQMID%.i_hqm_system_core.i_smon1.reg_smon_cfg0_q[0:0]";
+    SMON[1].AW_SMON_CONFIGURATION1.RSVD->ValRTLSignal                   = "%HQMID%.i_hqm_system_core.i_smon1.reg_smon_cfg1_q[31:16]";
+    SMON[1].AW_SMON_CONFIGURATION1.MODE1->ValRTLSignal                  = "%HQMID%.i_hqm_system_core.i_smon1.reg_smon_cfg1_q[15:8]";
+    SMON[1].AW_SMON_CONFIGURATION1.MODE0->ValRTLSignal                  = "%HQMID%.i_hqm_system_core.i_smon1.reg_smon_cfg1_q[7:0]";
+    SMON[1].AW_SMON_COMPARE0.COMPARE0->ValRTLSignal                     = "%HQMID%.i_hqm_system_core.i_smon1.reg_smon_comp0_q[31:0]";
+    SMON[1].AW_SMON_COMPARE1.COMPARE1->ValRTLSignal                     = "%HQMID%.i_hqm_system_core.i_smon1.reg_smon_comp1_q[31:0]";
+    SMON[1].AW_SMON_ACTIVITYCOUNTER0.COUNTER0->ValRTLSignal             = "%HQMID%.i_hqm_system_core.i_smon1.reg_smon_cnt0_q[31:0]";
+    SMON[1].AW_SMON_ACTIVITYCOUNTER1.COUNTER1->ValRTLSignal             = "%HQMID%.i_hqm_system_core.i_smon1.reg_smon_cnt1_q[31:0]";
+    SMON[1].AW_SMON_TIMER.TIMER_VAL->ValRTLSignal                       = "%HQMID%.i_hqm_system_core.i_smon1.reg_smon_timer_q[31:0]";
+    SMON[1].AW_SMON_MAXIMUM_TIMER.MAXVALUE->ValRTLSignal                = "%HQMID%.i_hqm_system_core.i_smon1.reg_smon_maxval_q[31:0]";
+    SMON[1].AW_SMON_COMP_MASK0.COMP_MASK0->ValRTLSignal                 = "%HQMID%.i_hqm_system_core.i_smon1.reg_smon_mask0_q[31:0]";
+    SMON[1].AW_SMON_COMP_MASK1.COMP_MASK1->ValRTLSignal                 = "%HQMID%.i_hqm_system_core.i_smon1.reg_smon_mask1_q[31:0]";
+
+};
+

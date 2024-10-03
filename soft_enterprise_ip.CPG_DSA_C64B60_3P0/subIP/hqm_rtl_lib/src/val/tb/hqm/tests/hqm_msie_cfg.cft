@@ -1,0 +1,78 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable PF memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+###################################
+# Setup FUNC_VF BAR to a base address of 0x00000003_xxxxxxxx
+###################################
+# 16 VF
+###################################
+# Enable VF and VF memory operations
+###################################
+wr config_master.cfg_pm_pmcsr_disable.disable 0x0
+rd config_master.cfg_pm_pmcsr_disable.disable 0x0
+###poll to Wait for reset to be done 
+poll config_master.cfg_diagnostic_reset_status 0x800003ff 0x800003ff 500
+###poll to Wait for unit_idle to be done 
+poll config_master.cfg_diagnostic_idle_status  0x0007ffff 0x0007ffff 500
+###################################
+# Setup LUTs
+# DIR CQs 0-31 generate MSI 0-31
+# 32 MSIs for VFs 0-5
+wr hqm_system_csr.dir_cq_isr[0]   0x400
+wr hqm_system_csr.dir_cq_isr[1]   0x401
+wr hqm_system_csr.dir_cq_isr[2]   0x402
+wr hqm_system_csr.dir_cq_isr[3]   0x403
+wr hqm_system_csr.dir_cq_isr[4]   0x404
+wr hqm_system_csr.dir_cq_isr[5]   0x405
+wr hqm_system_csr.dir_cq_isr[6]   0x406
+wr hqm_system_csr.dir_cq_isr[7]   0x407
+wr hqm_system_csr.dir_cq_isr[8]   0x408
+wr hqm_system_csr.dir_cq_isr[9]   0x409
+wr hqm_system_csr.dir_cq_isr[10]  0x40a
+wr hqm_system_csr.dir_cq_isr[11]  0x40b
+wr hqm_system_csr.dir_cq_isr[12]  0x40c
+wr hqm_system_csr.dir_cq_isr[13]  0x40d
+wr hqm_system_csr.dir_cq_isr[14]  0x40e
+wr hqm_system_csr.dir_cq_isr[15]  0x40f
+wr hqm_system_csr.dir_cq_isr[16]  0x410
+wr hqm_system_csr.dir_cq_isr[17]  0x411
+wr hqm_system_csr.dir_cq_isr[18]  0x412
+wr hqm_system_csr.dir_cq_isr[19]  0x413
+wr hqm_system_csr.dir_cq_isr[20]  0x414
+wr hqm_system_csr.dir_cq_isr[21]  0x415
+wr hqm_system_csr.dir_cq_isr[22]  0x416
+wr hqm_system_csr.dir_cq_isr[23]  0x417
+wr hqm_system_csr.dir_cq_isr[24]  0x418
+wr hqm_system_csr.dir_cq_isr[25]  0x419
+wr hqm_system_csr.dir_cq_isr[26]  0x41a
+wr hqm_system_csr.dir_cq_isr[27]  0x41b
+wr hqm_system_csr.dir_cq_isr[28]  0x41c
+wr hqm_system_csr.dir_cq_isr[29]  0x41d
+wr hqm_system_csr.dir_cq_isr[30]  0x41e
+wr hqm_system_csr.dir_cq_isr[31]  0x41f
+###################################
+# Enable MSIs
+#### wr hqm_vf_cfg_i[0].msi_cap_addr_l       0x76543f00
+#### wr hqm_vf_cfg_i[0].msi_cap_addr_u       0xfedcba98
+#### wr hqm_vf_cfg_i[0].msi_cap_msg_data     0xf000
+#### wr hqm_vf_cfg_i[0].msi_cap_msg_mask     0x00000000
+#### wr hqm_vf_cfg_i[0].msi_cap_msg_control  0x0051
+###################################
+# Set VF BM enable
+#### wr hqm_vf_cfg_i[0].device_command  0x4

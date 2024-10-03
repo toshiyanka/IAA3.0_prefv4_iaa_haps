@@ -1,0 +1,41 @@
+###################################
+# Setup LUTs used by HCWs
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+  ldb qid 0
+  ldb qid 1
+  ldb qid 2
+  ldb qid 3
+  ldb qid 4
+  ldb qid 5
+  ldb qid 6
+  ldb qid 7
+
+  vas 0   credit_cnt=64  ldb_qidv0=1   ldb_qidv1=1  ldb_qidv2=1   ldb_qidv3=1  
+  vas 1   credit_cnt=64  ldb_qidv4=1   ldb_qidv5=1  ldb_qidv6=1   ldb_qidv7=1  
+  
+  ldb pp 0 vas=0 
+  ldb cq 0 cq_depth=512 gpa=sm  qidv0=1 qidix0=0
+  ldb pp 1 vas=0 
+  ldb cq 1 cq_depth=512 gpa=sm  qidv0=1 qidix0=1
+  ldb pp 2 vas=0 
+  ldb cq 2 cq_depth=512 gpa=sm  qidv0=1 qidix0=2
+  ldb pp 3 vas=0 
+  ldb cq 3 cq_depth=512 gpa=sm  qidv0=1 qidix0=3
+  #vdev   0 ldb_pp0_v=1 ldb_pp1_v=1 ldb_pp2_v=1 ldb_pp3_v=1 ldb_vqid31_qid=0 ldb_vqid30_qid=1
+
+  ldb pp 4 vas=1 
+  ldb cq 4 cq_depth=512 pasid=0x40003f gpa=sm qidv0=1 qidix0=4
+  ldb pp 5 vas=1 
+  ldb cq 5 cq_depth=512 pasid=0x40403e gpa=sm qidv0=1 qidix0=5
+  ldb pp 6 vas=1 
+  ldb cq 6 cq_depth=512 pasid=0x40803d gpa=sm qidv0=1 qidix0=6
+  ldb pp 7 vas=1 
+  ldb cq 7 cq_depth=512 pasid=0x40c03c gpa=sm qidv0=1 qidix0=7
+  vdev   1 ldb_pp4_v=1 ldb_pp5_v=1 ldb_pp6_v=1 ldb_pp7_v=1 ldb_vqid4_qid=4 ldb_vqid5_qid=5  ldb_vqid6_qid=6  ldb_vqid7_qid=7
+cfg_end
+
+rd hqm_pf_cfg_i.vendor_id

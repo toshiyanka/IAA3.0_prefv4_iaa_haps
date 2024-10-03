@@ -1,0 +1,28 @@
+#-----*--perl-*-------------------------------
+
+# This file should be referenced within each IP's non-reusable .acerc file.  As such, this is not re-used by IP Customers.
+
+my $vcs_bits = $ENV{VCS_TARGET_ARCH};
+$vcs_bits =~ s/.*(32|64)/$1/;
+my $saola_bits = ($vcs_bits == 64)? 'Linux_x86_64' : 'Linux' ; 
+
+%audf = (
+    InterfaceVars => {
+	    -enable_saola_pli => { default => "1",  },
+    },
+    OSData => {
+        -saola_pli => {
+            -enable_flag => "-enable_saola_pli",
+            -error_if_not_found  => 1,
+            vcs => {
+                'Linux-SuSE' => {
+                    'i686' => [ ],
+                    'x86-64' => [
+                        "$ENV{IP_ROOT}/ace/common/empty.tab",
+                        "$ENV{SAOLA_HOME}/libs/$saola_bits/libsla.so",
+                    ],
+                },
+            },
+        },
+    },
+);

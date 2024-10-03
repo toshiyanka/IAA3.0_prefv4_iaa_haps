@@ -1,0 +1,24 @@
+uniquify -dirs src+verif -prefix rcfwl -top rcf_widget_library
+modifycfg -top -collage -bind -lintbb -lint -cfg
+
+#hand modified:
+in rcf_widget_library_hdl.upf: 
+for each model, modify:
+   top
+   flg_lintra_top
+   libs
+   export
+   lintra_top
+   emu_opts
+	top <prefix>lib.<prefix>model
+   power_intent
+	power_top
+	top
+
+in src/rtl/widgets
+   add prefix to all files names (there was a lint rule requiring module and file names to match)
+
+in tools/ -
+/febe/inputs/common/finalized.cfg
+	add <prefix>model_name => $...
+

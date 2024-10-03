@@ -1,0 +1,35 @@
+$hdl_spec = {
+
+    -vlog_files => [
+        "src/rtl/system/hqm_system_alarm.sv",
+        "src/rtl/system/hqm_system_csr_wrap.sv",
+        "src/rtl/system/hqm_system_egress.sv",
+        "src/rtl/system/hqm_system_ingress.sv",
+        "src/rtl/system/hqm_system_lut_rmw.sv",
+        "src/rtl/system/hqm_system_lut_ecc.sv",
+        "src/rtl/system/hqm_system_msix_mem_wrap.sv",
+        "src/rtl/system/hqm_system_visa_block.sv",
+        "src/rtl/system/hqm_system_write_buffer.sv",
+        "src/rtl/system/hqm_system_ram_access.sv",
+        "src/rtl/system/hqm_system_rob.sv",
+        "src/rtl/system/hqm_system_core.sv",
+        "src/rtl/system/hqm_system.sv",
+    ],
+
+    -vlog_incdirs => [
+        "src/rtl",
+        &ToolConfig::get_tool_path("nebulon")."/include/",
+        "src/rtl/system",
+        "subIP/sip/hqm_iosfsbc/source/rtl/iosfsbc/common",
+        "subIP/sip/AW/src/rtl",     # This is a kludge to get around the bman <scope.search_path>+<relative_path> "take first match" bug...
+    ],
+
+    -vlog_opts => [
+        '+libext+.sv_et+.sv+.v',
+        '-timescale=1ns/1ps',
+        '-sverilog',
+        '-assert svaext',
+        '+define+SVA_LIB_GCLOCK_CATEGORY_DISABLE',
+    ],
+
+};

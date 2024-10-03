@@ -1,0 +1,108 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => [
+                     "+AW_CONTINUE_ON_ERROR",
+                     "+iosf_tracker_filename=iosf_trk",
+                     "-assert nopostproc",
+                     "+SLA_MAX_RUN_CLOCK=10000000",
+                     "+OVM_GLOBAL_TIMEOUT=50ms",
+                     "+SLA_USER_DATA_PHASE_TIMEOUT=5000000",
+                     "+SLA_CONFIG_PHASE_TIMEOUT=300000",
+                     "-assert finish_maxfail=1000000",
+                     "-assert global_finish_maxfail=2000000",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                     "+vcs+lic+wait",
+                    ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+      dir => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/cq_dead_wd_timer_dir_q_cfg.cft",
+                         "+IS_LDB=0 +NUM_HCW=64 ",
+                         "+HQM_DISABLE_BACKGROUND_CFG_GEN_SEQ",
+                        ],
+      },
+      ldb=> {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/cq_dead_wd_timer_ldb_q_cfg.cft",
+                         "+IS_LDB=1 +NUM_HCW=32 ",
+                         "+HQM_DISABLE_BACKGROUND_CFG_GEN_SEQ",
+                        ],
+      },
+
+      ret_tok_on_msix => {
+          -simv_args => [
+                         " +CONTROL_TOKEN_RETURN=1",
+                        ],
+      },
+
+
+      pp4_tok_hold_back => {
+          -simv_args => [
+                         "+PP_EN=4 +PP4_CONTROL_TOKEN_RETURN=1 +PP4_TOKEN_HOLD_BACK_DELAY=2000 +WD_SAMPLE_INTERVAL=1 +WD_THRESHOLD=0",
+                        ],
+      },
+      pp0_tok_return_delay => {
+          -simv_args => [
+                         "+PP_EN=0 +PP0_TOK_RETURN_DELAY_EN=1 +WD_SAMPLE_INTERVAL=1 +WD_THRESHOLD=2",
+                         "+HQM_DISABLE_BACKGROUND_CFG_GEN_SEQ",
+                        ],
+      },
+      tok_return_delay => {
+          -simv_args => [
+                         "+WD_SAMPLE_INTERVAL=1 +WD_THRESHOLD=0",
+                        ],
+      },
+      wd_bg_cfg => {
+          -simv_args => [
+                         "+WD_BG_CFG=1",
+                        ],
+      },
+      multiple_pp_en => {
+          -simv_args => [
+                         "+MULTIPLE_PP_EN=1 +DISABLE_MSIX_COUNT_CHECK",
+                         "+WD_SAMPLE_INTERVAL=2 +WD_THRESHOLD=5",
+                        ],
+      },
+      wd_disable => {
+          -simv_args => [
+                         "+WD_DISABLE=1",
+                         "+WD_SAMPLE_INTERVAL=2 +WD_THRESHOLD=5",
+                        ],
+      },
+      wd_on_all_cq => {
+          -simv_args => [
+                         "+WD_ON_ALL_CQ=1 +DISABLE_MSIX_COUNT_CHECK",
+                         "+WD_SAMPLE_INTERVAL=2 +WD_THRESHOLD=5",
+                        ],
+      },
+      
+      ##------------------------------------------------------------##
+      ##  Agitations 
+      ##------------------------------------------------------------##
+      agitate_fri => {
+          -simv_args => [
+                     "-debug_all -ucli +vcs+dumparrays +HQM_DISABLE_AGITIATE_ASSERT -i aceroot/verif/tb/hqm_proc/tests/agitate/agitate_fri.tcl", 
+                        ],
+      },      
+      agitate_cfg => {
+          -simv_args => [
+                     "-debug_all -ucli +vcs+dumparrays +HQM_DISABLE_AGITIATE_ASSERT -i aceroot/verif/tb/hqm_proc/tests/agitate/agitate_cfg.tcl", 
+                        ],
+      },                   
+      agitate_sys => {
+          -simv_args => [
+                     "-debug_all -ucli +vcs+dumparrays +HQM_DISABLE_AGITIATE_ASSERT -i aceroot/verif/tb/hqm_proc/tests/agitate/agitate_sys.tcl", 
+                        ],
+      },       
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

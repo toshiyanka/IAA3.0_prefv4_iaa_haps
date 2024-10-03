@@ -1,0 +1,44 @@
+#!/bin/tcsh -f
+# date: 2/15/11
+# auth: Hafijur Rahman
+# Updated by H. Rahman on 03/19/12
+
+###run Lintra ####
+cd ../tools/lintra
+./run_lintra_sbendpoint
+
+###run VISA ####
+cd ../visa/run
+./run_sbendpoint
+
+###run CDC ####
+cd ../../cdc/endpoint
+./run_cdc_sbendpoint
+
+###run Synthesis ####
+cd ../../syn/sbendpoint
+./run_syn
+
+###run FEV ####
+cd ../../lec/sbendpoint
+./run_lec
+
+
+grep 'Lintra' ../../../scripts/log.txt
+grep 'Danger' ../../lintra/lint_sbendpoint.log
+grep 'Error' ../../lintra/lint_sbendpoint.log
+
+grep 'VISA' ../../../scripts/log.txt
+grep 'Test Passed' ../../visa/sim/sbendpoint.log
+grep 'Test Failed' ../../visa/sim/sbendpoint.log
+
+grep 'cdc' ../../../scripts/log.txt
+grep 'Violations' ../../cdc/endpoint/sbendpoint_cdc.log
+grep 'Cautions' ../../cdc/endpoint/sbendpoint_cdc.log
+
+grep 'Synthesis' ../../../scripts/log.txt
+grep 'Error' ../../syn/sbendpoint/logs/dc.log
+
+grep 'LEC' ../../../scripts/log.txt
+grep 'Equivalent' ../../lec/sbendpoint/sbendpoint_lec.log
+grep 'Non-equiv' ../../lec/sbendpoint/sbendpoint_lec.log

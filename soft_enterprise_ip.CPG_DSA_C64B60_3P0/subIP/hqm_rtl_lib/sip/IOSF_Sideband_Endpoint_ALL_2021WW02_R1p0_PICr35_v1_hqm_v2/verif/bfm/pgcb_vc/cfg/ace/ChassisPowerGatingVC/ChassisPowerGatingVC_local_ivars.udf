@@ -1,0 +1,30 @@
+#!/usr/intel/bin/perl
+%audf = (
+    HDLSpec => {
+        -src_type => {
+	    # Add extensions that you use for include files; ACE only looks at 
+	    # .v (for Verilog) and .sv,.svh,.vh,.sv (for SystemVerilog) by default
+	    # Suggested by Russ Jackson (Ace developer) in 
+	    # https://vthsd.fm.intel.com/hsd/da_all/da_help/default.aspx?da_help_id=577466, 
+	    # to support Ace detecting changes in source files, and recompiling as necessary.
+            SystemVerilog => {
+                -extension => '/\.(sv[ah]?|v[shmf]?)$/',
+            },
+	    Verilog => {
+                -extension => '/\.(vh?)$/',
+	    },
+        },
+    },
+    InterfaceVars => {
+        -elab_opts => { default => [ '+vcs+lic+wait', '-lca' ] },
+        -simv_args => { default => [ '+vcs+lic+wait', '-lca' ] },
+
+        $ENV{ACE_PROJECT} => {
+            __PROTOTYPES => {
+                import => ["TEST","LOWPOWER","CDC",],
+            },
+            -test_elab_opts => { default => [ '+vcs+lic+wait' ] },  
+        },
+    },
+);
+

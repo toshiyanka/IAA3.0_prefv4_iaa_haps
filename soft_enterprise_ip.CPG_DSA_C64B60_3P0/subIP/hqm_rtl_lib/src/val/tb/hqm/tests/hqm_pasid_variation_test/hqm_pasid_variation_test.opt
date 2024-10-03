@@ -1,0 +1,23 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => ["+AW_CONTINUE_ON_ERROR", "+iosf_tracker_filename=iosf_trk", "-assert nopostproc", "+hqm_ral_rand_bus_id=1 +HQM_PCIE_RC_VIP_PRESENT",
+                     "+HQM_EXP_PASID_ERROR",
+                     "+eot_pf +pcie_anfes +pcie_ur_unc +pcie_urd +pcie_ned +pcie_ced +HQM_PF_EXP_NFATAL_MSG_CNT=1", 
+                     "+vcs+lic+wait",
+                    ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+      sec_3_1_3 => { -simv_args => [ ], },
+      sec_7_5_3_15 => { -simv_args => [ ], },
+
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

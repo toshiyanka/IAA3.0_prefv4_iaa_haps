@@ -1,0 +1,135 @@
+<% use hqm_params; %>
+
+regfile hqm_pcie_pasid_cap_rf {
+	reg pasid_cap_id_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Pasid Cap Id";
+		desc = "PASID Capability ID Register";
+		regwidth = 16;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Capability Id";
+			desc = "Capability ID: PCI SIG assigned a capability record ID for PASID";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} CAP_ID [15:00] = 16'h001b;
+
+	}; // end register pasid_cap_id_r
+
+	reg pasid_cap_version_next_ptr_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Pasid Cap Version Next Ptr";
+		desc = "PASID Capability Version and Next Capability Pointer Register";
+		regwidth = 16;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Cap Ptr";
+			desc = "Next Capability Pointer";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} CAP_PTR [15:4] = 12'h0;
+
+		field {
+			name = "Sriovcv";
+			desc = "Capability Version";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} SRIOVCV [3:0] = 4'h1;
+
+	}; // end register
+
+	reg pasid_cap_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Pasid Cap";
+		desc = "PASID Capabilities Register ";
+		regwidth = 16;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Reserved2";
+			desc = "Reserved2.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} RESERVED2 [15:13] = 3'h0;
+
+		field {
+			name = "Max Pasid Width";
+			desc = "Maximum PASID width - Indicates the width of the PASID field supported by the Endpoint. A value N indicates support for PASID values 0 through (2**N)-1. The value 0 indicates support for a single PASID (0). The value 20 indicates support for all PASID values (20 bits). This field must be between 0 and 20 (inclusive)";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} MAX_PASID_WIDTH [12:8] = 5'h14;
+
+		field {
+			name = "Reserved1";
+			desc = "Reserved1.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} RESERVED1 [7:3] = 5'h00;
+
+		field {
+			name = "Privileged Mode Supported";
+			desc = "Privileged Mode Supported - If set, the Endpoint supports operating in Privileged and Non-Privileged modes, and supports sending requests that have the Privileged Mode Requested bit set. If Clear, the Endpoint will never Set the Privileged Mode Requested bit.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} PRIV_MODE_SUPP [2:2] = 1'b0;
+
+		field {
+			name = "Execute Permission Supported";
+			desc = "Execute Permission Supported - If set, the Endpoint supports sending TLPs that have the Execute Requested bit set. If Clear, the Endpoint will never Set the Execute Requested bit.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} EXEC_PERM_SUPP [1:1] = 1'b0;
+
+		field {
+			name = "Reserved0";
+			desc = "Reserved0.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} RESERVED0 [0:0] = 1'b0;
+
+	}; // end register
+
+	reg pasid_control_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Pasid Control";
+		desc = "PASID Control Register";
+		regwidth = 16;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Reserved";
+			desc = "Reserved";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} RESERVED [15:3] = 13'h0000;
+
+		field {
+			name = "Privileged Mode Enable";
+			desc = "Privileged Mode Enable - HQM does not support Privileged Mode.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} PRIV_MODE_ENABLE [2:2] = 1'b0;
+
+		field {
+			name = "Execute Permission Enable";
+			desc = "Execute Permission Enable - HQM does not support Execute Permission.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} EXEC_PERM_ENABLE [1:1] = 1'b0;
+
+		field {
+			name = "Pasid Enable";
+			desc = "PASID Enable.";
+			PowerWell="vcccfn"; AccessType = "RW";
+		} PASID_ENABLE [0:0] = 1'b0;
+
+	}; // end register
+
+	pasid_cap_id_r                  PASID_CAP_ID                    @0x0;
+
+	pasid_cap_version_next_ptr_r    PASID_CAP_VERSION_NEXT_PTR      @0x2;
+
+	pasid_cap_r                     PASID_CAP                       @0x4;
+
+	pasid_control_r                 PASID_CONTROL                   @0x6;
+
+};
+

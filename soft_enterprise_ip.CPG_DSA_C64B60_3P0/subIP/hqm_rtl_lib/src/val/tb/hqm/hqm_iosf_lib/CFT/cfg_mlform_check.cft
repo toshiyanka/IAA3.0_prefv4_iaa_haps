@@ -1,0 +1,36 @@
+
+#check aer_cap_uncorr_err_status  and expect unsupporte request and malformed TLP
+rd hqm_pf_cfg_i.aer_cap_uncorr_err_status 0x00040000
+
+#check ERror status
+rd hqm_pf_cfg_i.pcie_cap_device_status 0x0004
+
+#check device status and detected malform to be set
+rd hqm_pf_cfg_i.device_status 0x0010
+
+
+
+#update check
+
+rd hqm_pf_cfg_i.func_bar_l 0x0000000C
+rd hqm_pf_cfg_i.func_bar_u 0x00000001
+
+rd hqm_pf_cfg_i.csr_bar_l 0x0000000C
+rd hqm_pf_cfg_i.csr_bar_u 0x00000002
+
+
+#EOT check 
+wr hqm_pf_cfg_i.pcie_cap_device_status 0xFFFF
+rd hqm_pf_cfg_i.pcie_cap_device_status 0x0000 
+
+ 
+wr hqm_pf_cfg_i.aer_cap_uncorr_err_status 0xFFFFFFFF
+rd hqm_pf_cfg_i.aer_cap_uncorr_err_status 0x00000000
+
+wr hqm_pf_cfg_i.device_status 0xFFFF
+rd hqm_pf_cfg_i.device_status 0x0010
+
+wr  hqm_pf_cfg_i.aer_cap_corr_err_status 0xFFFFFFFF
+rd  hqm_pf_cfg_i.aer_cap_corr_err_status 0x00000000
+
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000

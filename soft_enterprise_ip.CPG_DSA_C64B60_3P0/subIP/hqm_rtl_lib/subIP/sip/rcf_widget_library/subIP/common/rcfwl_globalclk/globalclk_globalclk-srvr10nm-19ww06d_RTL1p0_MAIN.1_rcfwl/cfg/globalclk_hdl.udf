@@ -1,0 +1,1188 @@
+# -*-mode:cperl; cperl-indent-level 4; cperl-indent-parens-as-block t; -*- # # vim: noai:ts=4 : sw=4 : filetype=perl
+# -*-mode:cperl; cperl-indent-level 4; cperl-indent-parens-as-block t; -*- # # vim: noai:ts=4 : sw=4 : filetype=perl
+# vim: noai:ts=4 : sw=4 : filetype=perl
+# vim: noai:ts=4 : sw=4 : filetype=perl
+use lib "$ENV{RTL_PROJ_BIN}/perllib";
+require ToolConfig;
+my $scope = "rcfwl_globalclk";
+#my @exclude_libs = ("rcfwl_gclk_pccdu_tb_lib",
+#my @exclude_libs = ("rcfwl_gclk_pccdu_tb_lib",
+#		"rcfwl_gclk_clkreqaggr_tb_lib",
+#		"rcfwl_gclk_clkreqaggr_tb_lib",
+#		"rcfwl_gclk_refclkdist_tb_lib",
+#		"rcfwl_gclk_refclkdist_tb_lib",
+#		 "rcfwl_gclk_psyncdist_tb_lib",
+#		 "rcfwl_gclk_psyncdist_tb_lib",
+#                    );
+#                    );
+#my @sglp_exclude_libs = (@exclude_libs);
+#my @sglp_exclude_libs = (@exclude_libs);
+#my @lintra_exclude_libs = (@exclude_libs);
+#my @lintra_exclude_libs = (@exclude_libs);
+
+my $soc_generate = 1;
+if ( (&ToolConfig::get_facet('dut') eq "globalclk" ) ||
+     ($ENV{ACE_PROJECT} eq "$scope" ) ) {
+$soc_generate = 0;
+}
+%audf = (
+    HDLSpec => {
+
+        $scope  => {
+
+            import => {
+
+                #ovm =>      { libs => ["ovm_lib",], },
+                #ovm =>      { libs => ["ovm_lib",], },
+                #saola =>    { libs => ["sla_lib",], },
+                #saola =>    { libs => ["sla_lib",], },
+            },
+
+            libs => {
+	    rcfwl_gclk_globalclk_rtl_lib => {
+	            -hdl_spec  => [ "cfg/divsync_gen.hdl",
+		                    ((!$soc_generate)? "cfg/divsync_gen_collage.hdl" : ()),
+				    "cfg/clkdist_repeater.hdl",
+		                    ((!$soc_generate)? "cfg/clkdist_repeater_collage.hdl" : ()),
+				    "cfg/psocclkdist.hdl",
+		                   ((!$soc_generate)? "cfg/psocclkdist_collage.hdl" : ()),
+				    "cfg/psocsyncdist.hdl",
+		    		    ((!$soc_generate)? "cfg/psocsyncdist_collage.hdl" : ()),
+				    "cfg/clkdist_mux.hdl",
+		                   ((!$soc_generate)? "cfg/clkdist_mux_collage.hdl" : ()),
+				   "cfg/clkdist_clkmux.hdl",
+                                   ((!$soc_generate)? "cfg/clkdist_clkmux_collage.hdl" : ()),
+				   "cfg/glitchfree_clkmux.hdl",
+                                   ((!$soc_generate)? "cfg/glitchfree_clkmux_collage.hdl" : ()),
+				   "cfg/pclkdist.hdl",
+		                   ((!$soc_generate)? "cfg/pclkdist_collage.hdl" : ()),
+				   "cfg/refclkdist.hdl",
+		    		   ((!$soc_generate)? "cfg/refclkdist_collage.hdl" : ()),
+				   "cfg/mesh_clkdist.hdl",
+		                   ((!$soc_generate)? "cfg/mesh_clkdist_collage.hdl" : ()),
+				   "cfg/pccdu.hdl",
+		                    ((!$soc_generate)? "cfg/pccdu_collage.hdl" : ()),
+				    "cfg/psyncdist.hdl",
+		    		    ((!$soc_generate)? "cfg/psyncdist_collage.hdl" : ()),
+				    "cfg/clkreqaggr.hdl",
+		                    ((!$soc_generate)? "cfg/clkreqaggr_collage.hdl" : ()),
+				    "cfg/rcb_lcb.hdl",
+				    "cfg/rcb_lcb_common.hdl",				    
+				    ((!$soc_generate)? "cfg/rcb_lcb_ph1_collage.hdl" : ()),
+				    ((!$soc_generate)? "cfg/rcb_ph1_collage.hdl" : ()),
+				    "cfg/cda.hdl",
+				    ((!$soc_generate)? "cfg/cda_collage.hdl" : ()),
+				    "cfg/trunk_clock_switch.hdl",
+				    ((!$soc_generate)? "cfg/trunk_clock_switch_collage.hdl" : ()),
+				    "cfg/vret_clock_gate.hdl",
+				    ((!$soc_generate)? "cfg/vret_clock_gate_collage.hdl" : ())
+				    
+				    ],
+#                    -sub_libs=> [  "$ENV{CTECH_LIB_NAME}",
+#                    -sub_libs=> [  "$ENV{CTECH_LIB_NAME}",
+#				   "$ENV{CTECH_EXP_LIB_NAME}",
+#				   "$ENV{CTECH_EXP_LIB_NAME}",
+#				  ],
+#				  ],
+                },
+	     rcfwl_gclk_divsync_gen_rtl_lib => {
+                    -hdl_spec  => [ "cfg/divsync_gen.hdl",
+		                    ((!$soc_generate)? "cfg/divsync_gen_collage.hdl" : ())
+				    ],
+                },
+	     rcfwl_gclk_clkdist_repeater_rtl_lib => {
+                    -hdl_spec  => [ "cfg/clkdist_repeater.hdl",
+		                    ((!$soc_generate)? "cfg/clkdist_repeater_collage.hdl" : ())
+				    ],
+                },
+                rcfwl_gclk_psocclkdist_rtl_lib => {
+                    -hdl_spec  => [ "cfg/psocclkdist.hdl",
+		                   ((!$soc_generate)? "cfg/psocclkdist_collage.hdl" : ())
+				   ],
+                },
+                rcfwl_gclk_psocsyncdist_rtl_lib => {
+                    -hdl_spec  => [ "cfg/psocsyncdist.hdl",
+		                    ((!$soc_generate)? "cfg/psocsyncdist_collage.hdl" : ())
+				    ],
+                },
+		rcfwl_gclk_clkdist_mux_rtl_lib => {
+                    -hdl_spec  => [ "cfg/clkdist_mux.hdl",
+		                   ((!$soc_generate)? "cfg/clkdist_mux_collage.hdl" : ())
+				   ],
+#		    -sub_libs => ["$ENV{CTECH_EXP_LIB_NAME}",]
+#		    -sub_libs => ["$ENV{CTECH_EXP_LIB_NAME}",]
+                },
+		rcfwl_gclk_clkdist_clkmux_rtl_lib => {
+                    -hdl_spec  => [ "cfg/clkdist_clkmux.hdl",
+                                   ((!$soc_generate)? "cfg/clkdist_clkmux_collage.hdl" : ())
+                                   ],
+#		    -sub_libs => ["$ENV{CTECH_EXP_LIB_NAME}",]
+#		    -sub_libs => ["$ENV{CTECH_EXP_LIB_NAME}",]
+                },
+		rcfwl_gclk_glitchfree_clkmux_rtl_lib => {
+                    -hdl_spec  => [ "cfg/glitchfree_clkmux.hdl",
+                                   ((!$soc_generate)? "cfg/glitchfree_clkmux_collage.hdl" : ())
+                                   ],
+#		    -sub_libs => ["$ENV{CTECH_LIB_NAME}",
+#		    -sub_libs => ["$ENV{CTECH_LIB_NAME}",
+#		   		 "$ENV{CTECH_EXP_LIB_NAME}", ]
+#		   		 "$ENV{CTECH_EXP_LIB_NAME}", ]
+                },
+		rcfwl_gclk_trunk_clock_switch_rtl_lib => {
+                    -hdl_spec  => [ "cfg/trunk_clock_switch.hdl",
+                                   ((!$soc_generate)? "cfg/trunk_clock_switch_collage.hdl" : ())
+                                   ],
+#		    -sub_libs => ["$ENV{CTECH_LIB_NAME}",
+#		    -sub_libs => ["$ENV{CTECH_LIB_NAME}",
+#		   		 "$ENV{CTECH_EXP_LIB_NAME}", ]
+#		   		 "$ENV{CTECH_EXP_LIB_NAME}", ]
+                },
+		rcfwl_gclk_vret_clock_gate_rtl_lib => {
+                    -hdl_spec  => [ "cfg/vret_clock_gate.hdl",
+                                   ((!$soc_generate)? "cfg/vret_clock_gate_collage.hdl" : ())
+                                   ],
+                },
+                rcfwl_gclk_glitchfree_clkmux_tb_lib =>
+                    {
+                     -hdl_spec  => [ "cfg/glitchfree_clkmux_tb_top.hdl", ],
+                     -vlog_opts => [ "-sverilog", ],
+                     -tag       => 'nonsynth+nonemu+nonlint',
+                     -tools     => [ "qcdc_createlib", "-sgcdc_createlib" ],
+                    },
+		rcfwl_gclk_pclkdist_rtl_lib => {
+                    -hdl_spec  => [ "cfg/pclkdist.hdl",
+		                   ((!$soc_generate)? "cfg/pclkdist_collage.hdl" : ())
+				    ],
+                },
+                rcfwl_gclk_refclkdist_rtl_lib => {
+                    -hdl_spec  => [ "cfg/refclkdist.hdl",
+		    		   ((!$soc_generate)? "cfg/refclkdist_collage.hdl" : ())
+				   ],
+#                    -sub_libs => ["$ENV{CTECH_LIB_NAME}",
+#                    -sub_libs => ["$ENV{CTECH_LIB_NAME}",
+#				  "$ENV{CTECH_EXP_LIB_NAME}",
+#				  "$ENV{CTECH_EXP_LIB_NAME}",
+#				 ],
+#				 ],
+                },
+		rcfwl_gclk_refclkdist_tb_lib =>
+                    {
+                     -hdl_spec  => [ "cfg/refclkdist_tb_top.hdl", ],
+                     -vlog_opts => [ "-sverilog", ],
+                     -tag       => 'nonsynth+nonemu+nonlint',
+                     -tools     => [ "qcdc_createlib", "-sgcdc_createlib" ],
+                    },
+		
+                rcfwl_gclk_mesh_clkdist_rtl_lib => {
+                    -hdl_spec  => [ "cfg/mesh_clkdist.hdl",
+		                   ((!$soc_generate)? "cfg/mesh_clkdist_collage.hdl" : ())
+				   ],
+                    #-dependent_libs => ["$ENV{CTECH_LIB_NAME}",],
+                    #-dependent_libs => ["$ENV{CTECH_LIB_NAME}",],
+                },
+
+                rcfwl_gclk_pccdu_rtl_lib => {
+                    -hdl_spec  => [ "cfg/pccdu.hdl",
+		                   ((!$soc_generate)? "cfg/pccdu_collage.hdl" : ())
+		    		],
+#                    -sub_libs => ["$ENV{CTECH_LIB_NAME}",
+#                    -sub_libs => ["$ENV{CTECH_LIB_NAME}",
+#		    		  "$ENV{CTECH_EXP_LIB_NAME}",
+#		    		  "$ENV{CTECH_EXP_LIB_NAME}",
+#		    	         ],
+#		    	         ],
+                },
+		rcfwl_gclk_pccdu_tb_lib =>
+                    {
+                     -hdl_spec  => [ "cfg/pccdu_tb_top.hdl", ],
+                     -vlog_opts => [ "-sverilog", ],
+                     -tag       => 'nonsynth+nonemu+nonlint',
+                     -tools     => [ "qcdc_createlib", "-sgcdc_createlib" ],
+                    },
+
+                rcfwl_gclk_psyncdist_rtl_lib => {
+                    -hdl_spec  => [ "cfg/psyncdist.hdl",
+		                     "cfg/divsync_gen.hdl",
+				     "cfg/rcb_lcb_common.hdl",
+		    		    ((!$soc_generate)? "cfg/psyncdist_collage.hdl" : ())
+		    		 ],
+#                    -sub_libs => ["$ENV{CTECH_EXP_LIB_NAME}",],
+#                    -sub_libs => ["$ENV{CTECH_EXP_LIB_NAME}",],
+                },
+		rcfwl_gclk_psyncdist_tb_lib =>
+                    {
+                     -hdl_spec  => [ "cfg/psyncdist_tb_top.hdl", ],
+                     -vlog_opts => [ "-sverilog", ],
+                     -tag       => 'nonsynth+nonemu+nonlint',
+                     -tools     => [ "qcdc_createlib", "-sgcdc_createlib" ],
+                    },
+
+
+		rcfwl_gclk_clkreqaggr_rtl_lib => {
+                    -hdl_spec  => [ "cfg/clkreqaggr.hdl",
+		                    
+		                    ((!$soc_generate)? "cfg/clkreqaggr_collage.hdl" : ())
+				    ],
+#                    -sub_libs=> ["$ENV{CTECH_LIB_NAME}",
+#                    -sub_libs=> ["$ENV{CTECH_LIB_NAME}",
+#		                 "$ENV{CTECH_EXP_LIB_NAME}", 
+#		                 "$ENV{CTECH_EXP_LIB_NAME}", 
+#				  ],
+#				  ],
+                },
+		rcfwl_gclk_clkreqaggr_tb_lib =>
+                    {
+                     -hdl_spec  => [ "cfg/clkreqaggr_tb_top.hdl", ],
+                     -vlog_opts => [ "-sverilog", ],
+                     -tag       => 'nonsynth+nonemu+nonlint',
+                     -tools     => [ "qcdc_createlib", "-sgcdc_createlib" ],
+                    },
+		    gclk_rcb_lcb_tb_lib =>
+                    {
+                     -hdl_spec  => [ "cfg/rcb_lcb_tb_top.hdl", ],
+                     -vlog_opts => [ "-sverilog", ],
+                     -tag       => 'nonsynth+nonemu+nonlint',
+                     -tools     => [ "qcdc_createlib", "-sgcdc_createlib" ],
+                    }, 
+		    rcfwl_gclk_vret_clock_gate_tb_lib =>
+                    {
+                     -hdl_spec  => [ "cfg/vret_clock_gate_tb_top.hdl", ],
+                     -vlog_opts => [ "-sverilog", ],
+                     -tag       => 'nonsynth+nonemu+nonlint',
+                     -tools     => [ "qcdc_createlib", "-sgcdc_createlib" ],
+                    }, 
+		     rcfwl_gclk_trunk_clock_switch_tb_lib =>
+                    {
+                     -hdl_spec  => [ "cfg/trunk_clock_switch_tb_top.hdl", ],
+                     -vlog_opts => [ "-sverilog", ],
+                     -tag       => 'nonsynth+nonemu+nonlint',
+                     -tools     => [ "qcdc_createlib", "-sgcdc_createlib" ],
+                    },
+                #sip_shared_lib               => {
+                #sip_shared_lib               => {
+                 #   -sub_libs                => [qw(ovm_lib sla_lib)],
+                 #   -sub_libs                => [qw(ovm_lib sla_lib)],
+		#},                                                    
+		#},                                                    
+               # clk_verif_lib => {
+               # clk_verif_lib => {
+		#    -tag => "nonsynth+nonemu+nonlint",
+		#    -tag => "nonsynth+nonemu+nonlint",
+                 #   -hdl_spec  => [ "cfg/clk_ctrl.hdl",], 
+                 #   -hdl_spec  => [ "cfg/clk_ctrl.hdl",], 
+                 #   -dependent_libs => ["sip_shared_lib", ],
+                 #   -dependent_libs => ["sip_shared_lib", ],
+                #},
+                #},
+		rcfwl_gclk_rcb_lcb_rtl_lib => {
+                    -hdl_spec  => [ "cfg/rcb_lcb.hdl",
+		                    "cfg/rcb_lcb_common.hdl",
+				  ],
+                    -sub_libs       => [($soc_generate) ? ():"gclk_rcb_lcb_ph1_collage_lib", "gclk_rcb_ph1_collage_lib", ],
+                },
+                gclk_rcb_lcb_ph1_collage_lib => {
+                    -tools     => ["-vlogan","-FLG_create","-lintra_create","-sglp_createlib", "-vclp_createlib","-qcdc_createlib", "-sgcdc_createlib", ],
+                    -hdl_spec  => [ "cfg/rcb_lcb_ph1_collage.hdl",],
+                },
+                gclk_rcb_ph1_collage_lib => {
+                    -tools     => ["-vlogan","-FLG_create","-lintra_create","-sglp_createlib", "-vclp_createlib","-qcdc_createlib", "-sgcdc_createlib", ],
+                    -hdl_spec  => [ "cfg/rcb_ph1_collage.hdl",],
+                },
+		rcfwl_gclk_cda_rtl_lib => {
+                    -hdl_spec  => [ "cfg/cda.hdl",
+				  ],
+                    -sub_libs       => [($soc_generate) ? () : "gclk_cda_collage_lib",],
+							 
+                },
+                gclk_cda_collage_lib => {
+                    -tools     => ["-vlogan","-FLG_create","-lintra_create","-sglp_createlib", "-vclp_createlib","-qcdc_createlib", "-sgcdc_createlib", ],
+                    -hdl_spec  => [ "cfg/cda_collage.hdl",],
+                },
+           },
+
+            models => {
+	    globalclk => {
+	            use => [ (!$soc_generate ? ("CTECH:CTECH_model") : ()),
+                             (!$soc_generate ? ("CTECH_EXP:CTECH_EXP_model") : ()),],
+		    libs => [ "rcfwl_gclk_globalclk_rtl_lib", ],
+                    export => {libs => [ "rcfwl_gclk_globalclk_rtl_lib", ],
+		    	    ###   use  => [ "CTECH:CTECH_model", "CTECH_EXP:CTECH_EXP_model",]
+		    	    ###   use  => [ "CTECH:CTECH_model", "CTECH_EXP:CTECH_EXP_model",]
+			        },
+	           },
+	    clkdist_repeater => {
+                    top => "rcfwl_gclk_clkdist_repeater",
+                    top_language => "SystemVerilog",
+                    pli_libs => [ '-debussy_pli_libs', ],
+                    libs => [ "rcfwl_gclk_clkdist_repeater_rtl_lib", ],
+                    export => {libs => [ "rcfwl_gclk_clkdist_repeater_rtl_lib", ],},
+		    lintra_top => ["hqm_rcfwl_gclk_clkdist_repeater",],
+		    sglint_top => ["gclk_clkdist_repeater",],
+		    flg_lintra_top => ["hqm_rcfwl_gclk_clkdist_repeater",],
+                   zin_top => ["gclk_clkdist_repeater_rtl_lib.gclk_clkdist_repeater",],
+                  qcdc_test_list => [ "$ENV{MODEL_ROOT}/verif/reglist/gclk_clkdist_repeater/level0_qcdc.list" ],
+		    sglp_opts => [ "-top hqm_rcfwl_gclk_clkdist_repeater -noupf",],
+		    vclp_opts => [ "-top rcfwl_gclk_clkdist_repeater_rtl_lib.hqm_rcfwl_gclk_clkdist_repeater -noupf",],
+                
+               enable_cdc_optgen => 1,      ## This is what turns on the SDG autogeneration of *.opt files
+	       enable_cdc_goals_regex => 1,
+               sgcdc_test_list => [ "verif/reglist/gclk_clkdist_repeater/level0_sgcdc.list", ],
+               sgcdc_top => "rcfwl_gclk_clkdist_repeater_rtl_lib.rcfwl_gclk_clkdist_repeater",     ## The top-level design
+               sgcdc_ctrl_files => [ "$ENV{MODEL_ROOT}/tools/spyglasscdc/gclk_clkdist_repeater/gclk_clkdist_repeater.sgdc",  ],
+	       sgcdc_other => [ "-spyglass_exe_opts => ['set_option dnc_param rcfwl_gclk_clkdist_repeater.NUM_OF_RPTRS', ],  ",   ],               lintra_ol_test_list => [ "verif/reglist/lintra_ol/gclk_clkdist_repeater/lintra_ol_tests.list" ],
+		enable_partcomp_elab =>1,   
+                enable_xprop_elab => 1, 
+                enable_congruency_elab => 1,
+                emu_opts => [
+                         "-cfg ZSE FPGA -cfg-",
+                        "-top rcfwl_gclk_clkdist_repeater_rtl_lib.hqm_rcfwl_gclk_clkdist_repeater",
+                        "-effm 3",              # 3 = do full synthesis and loop report
+                        "-inside_simbuild",
+                        "-target $ENV{MODEL_ROOT}/target/emu/\$MODEL",
+                        "-yml $ENV{MODEL_ROOT}/tools/emu/cfg/buildProjectCfg.yml",
+			"-plugins \$EMU_DATA/scripts -plugins-",
+                    ],
+                    lintra_waiver_dirs => [
+                         "tools/lint/waivers/clkdist_repeater",
+                    ],
+                    lintra_waiver_files => [
+                         "clkdist_repeater_w.xml",
+                    ],
+		lintra_flg_cfg_files => [ "tools/febe/inputs/common/FE2BE_config_IP.cfg", ],
+	           },
+
+	     clkdist_mux => {
+                    top => "rcfwl_gclk_clkdist_mux",
+                    top_language => "SystemVerilog",
+                    pli_libs => [ '-debussy_pli_libs', ],
+                    libs => [ "rcfwl_gclk_clkdist_mux_rtl_lib", ],
+                    export => {
+		    		libs => [ "rcfwl_gclk_clkdist_mux_rtl_lib", ],
+		               use  => [ "CTECH_EXP:CTECH_EXP_model",  , ],
+			       },
+		    use    => [
+                              (!$soc_generate ? ("CTECH_EXP:CTECH_EXP_model") : ()),
+                                ],
+		   lintra_top => ["hqm_rcfwl_gclk_clkdist_mux",],
+		    flg_lintra_top => ["hqm_rcfwl_gclk_clkdist_mux",],
+                    zin_top => ["gclk_clkdist_mux_rtl_lib.gclk_clkdist_mux",],
+                  qcdc_test_list => [ "$ENV{MODEL_ROOT}/verif/reglist/gclk_clkdist_mux/level0_qcdc.list" ],
+
+               enable_cdc_optgen => 1,      ## This is what turns on the SDG autogeneration of *.opt files
+               enable_cdc_goals_regex => 1,
+	       sgcdc_test_list => [ "verif/reglist/gclk_clkdist_mux/level0_sgcdc.list", ],
+               sgcdc_top => "rcfwl_gclk_clkdist_mux_rtl_lib.rcfwl_gclk_clkdist_mux",     ## The top-level design
+               sgcdc_ctrl_files => [ "$ENV{MODEL_ROOT}/tools/spyglasscdc/gclk_clkdist_mux/gclk_clkdist_mux.sgdc",
+               ],
+
+		  lintra_ol_test_list => [ "verif/reglist/lintra_ol/gclk_clkdist_mux/lintra_ol_tests.list" ],
+		    sglp_opts => [ "-top hqm_rcfwl_gclk_clkdist_mux -noupf",],
+		    vclp_opts => [ "-top rcfwl_gclk_clkdist_mux_rtl_lib.hqm_rcfwl_gclk_clkdist_mux -noupf",],
+               
+	       enable_partcomp_elab =>1, 
+                enable_xprop_elab => 1, 
+                enable_congruency_elab => 1,
+                emu_opts => [
+                         "-cfg ZSE FPGA -cfg-",
+                        "-top rcfwl_gclk_clkdist_mux_rtl_lib.hqm_rcfwl_gclk_clkdist_mux",
+                        "-effm 3",              # 3 = do full synthesis and loop report
+                        "-inside_simbuild",
+                        "-target $ENV{MODEL_ROOT}/target/emu/\$MODEL",
+                        "-yml $ENV{MODEL_ROOT}/tools/emu/cfg/buildProjectCfg.yml",
+			"-plugins \$EMU_DATA/scripts -plugins-",
+                    ],
+                    lintra_waiver_dirs => [
+                         "tools/lint/waivers/clkdist_mux",
+                    ],
+                    lintra_waiver_files => [
+                         "clkdist_mux_w.xml",
+                    ],
+		lintra_flg_cfg_files => [ "tools/febe/inputs/common/FE2BE_config_IP.cfg", ],
+            },
+ 
+ clkdist_clkmux => {
+                    top => "rcfwl_gclk_clkdist_clkmux",
+                    top_language => "SystemVerilog",
+                    pli_libs => [ '-debussy_pli_libs', ],
+                    libs => [ "rcfwl_gclk_clkdist_clkmux_rtl_lib", ],
+                    use    => [
+                              (!$soc_generate ? ("CTECH_EXP:CTECH_EXP_model") : ()),
+                                ],
+				
+		    export => {
+		    		libs => [ "rcfwl_gclk_clkdist_clkmux_rtl_lib", ],
+		               use  => [ "CTECH:CTECH_model",  "CTECH_EXP:CTECH_EXP_model", ],
+			       },
+                    lintra_top => ["hqm_rcfwl_gclk_clkdist_clkmux",],
+                    flg_lintra_top => ["hqm_rcfwl_gclk_clkdist_clkmux",],
+                    zin_top => ["gclk_clkdist_clkmux_rtl_lib.gclk_clkdist_clkmux",],
+                  qcdc_test_list => [ "$ENV{MODEL_ROOT}/verif/reglist/gclk_clkdist_clkmux/level0_qcdc.list" ],
+                    sglp_opts => [ "-top hqm_rcfwl_gclk_clkdist_clkmux -noupf",],
+                    vclp_opts => [ "-top rcfwl_gclk_clkdist_clkmux_rtl_lib.hqm_rcfwl_gclk_clkdist_clkmux -noupf",],
+               
+               enable_cdc_optgen => 1,      ## This is what turns on the SDG autogeneration of *.opt files
+               enable_cdc_goals_regex => 1,
+	       sgcdc_test_list => [ "verif/reglist/gclk_clkdist_clkmux/level0_sgcdc.list", ],
+               sgcdc_top => "rcfwl_gclk_clkdist_clkmux_rtl_lib.rcfwl_gclk_clkdist_clkmux",     ## The top-level design
+               sgcdc_ctrl_files => [ "$ENV{MODEL_ROOT}/tools/spyglasscdc/gclk_clkdist_clkmux/gclk_clkdist_clkmux.sgdc",
+               ],
+               lintra_ol_test_list => [ "verif/reglist/lintra_ol/gclk_clkdist_clkmux/lintra_ol_tests.list" ],
+		enable_partcomp_elab =>1,
+                enable_xprop_elab => 1,
+                enable_congruency_elab => 1,
+                emu_opts => [
+                         "-cfg ZSE FPGA -cfg-",
+                        "-top rcfwl_gclk_clkdist_clkmux_rtl_lib.hqm_rcfwl_gclk_clkdist_clkmux",
+                        "-effm 3",              # 3 = do full synthesis and loop report
+                        "-inside_simbuild",
+                        "-target $ENV{MODEL_ROOT}/target/emu/\$MODEL",
+                        "-yml $ENV{MODEL_ROOT}/tools/emu/cfg/buildProjectCfg.yml",
+			"-plugins \$EMU_DATA/scripts -plugins-",
+                    ],
+                    lintra_waiver_dirs => [
+                         "tools/lint/waivers/clkdist_clkmux",
+                    ],
+                    lintra_waiver_files => [
+                         "clkdist_clkmux_w.xml",
+                    ],
+	lintra_flg_cfg_files => [ "tools/febe/inputs/common/FE2BE_config_IP.cfg", ],
+             },
+
+
+
+
+
+                refclkdist => {
+       #      #       top => "rcfwl_gclk_refclkdist",
+       #      #       top => "rcfwl_gclk_refclkdist",
+		     top => "rcfwl_gclk_refclkdist_tb_top",
+                    top_language => "SystemVerilog",
+                    pli_libs => [ '-debussy_pli_libs', ],
+                    libs => [ "rcfwl_gclk_refclkdist_rtl_lib", "rcfwl_gclk_refclkdist_tb_lib",],
+		    use => ["ip74xdiv9or12:ip74xdiv9or12",(!$soc_generate ? ("CTECH:CTECH_model") : ()),
+                                          (!$soc_generate ? ("CTECH_EXP:CTECH_EXP_model") : ()),],
+                    export => {
+		            libs => [ "rcfwl_gclk_refclkdist_rtl_lib",], 
+			     use  => [ "CTECH:CTECH_model",  "CTECH_EXP:CTECH_EXP_model", ],
+		               },
+		    lintra_top => ["hqm_rcfwl_gclk_refclkdist",],
+		    flg_lintra_top => ["hqm_rcfwl_gclk_refclkdist",],
+                   zin_top => ["gclk_refclkdist_rtl_lib.gclk_refclkdist",],
+                  qcdc_test_list => [ "$ENV{MODEL_ROOT}/verif/reglist/gclk_refclkdist/level0_qcdc.list" ],
+
+               enable_cdc_optgen => 1,      ## This is what turns on the SDG autogeneration of *.opt files
+               enable_cdc_goals_regex => 1,
+	       sgcdc_test_list => [ "verif/reglist/gclk_refclkdist/level0_sgcdc.list", ],
+               sgcdc_top => "rcfwl_gclk_refclkdist_rtl_lib.rcfwl_gclk_refclkdist",     ## The top-level design
+               sgcdc_ctrl_files => [ "$ENV{MODEL_ROOT}/tools/spyglasscdc/gclk_refclkdist/gclk_refclkdist.sgdc",
+               ],
+
+		   lintra_ol_test_list => [ "verif/reglist/lintra_ol/gclk_refclkdist/lintra_ol_tests.list" ],
+		    sglp_opts => [ "-top hqm_rcfwl_gclk_refclkdist -noupf",],
+		    vclp_opts => [ "-top rcfwl_gclk_refclkdist_rtl_lib.hqm_rcfwl_gclk_refclkdist -noupf",],
+		     lintra_waiver_dirs => [
+                             "tools/lint/waivers/refclkdist",
+                     ],
+                     lintra_waiver_files => [
+                         "rcfwl_gclk_refclkdist_w.xml",
+                     ], 
+                   lintra_flg_cfg_files => [ "tools/febe/inputs/common/FE2BE_config_IP.cfg", ],
+                  quick_syn_par => ["gclk_refclkdist",],
+		   hip_list_gen => 1,
+		   flg_blackbox_files => [ "tools/lint/gclk_flg.bb",],
+		   enable_partcomp_elab =>1,                 
+  enable_congruency_elab => 1, 
+                   enable_xprop_elab => 1,
+		   elab_opts => [
+				 "-file $ENV{MODEL_ROOT}/cfg/vcs_elab.f",
+                                  " -config_verbose",
+                                  " -debug_access+f",
+                                  "/p/com/eda/intel/ace/2.01.16/lib/pli/PrintHier/PrintHier.c",
+                                  "-P /p/com/eda/intel/ace/2.01.16/lib/pli/PrintHier/PrintHier.tab",
+                               ],
+                    emu_opts => [ 
+		        "-cfg ZSE FPGA -cfg-",
+                        "-top rcfwl_gclk_refclkdist_rtl_lib.hqm_rcfwl_gclk_refclkdist",
+                        "-effm 3",              # 3 = do full synthesis and loop report
+                        "-inside_simbuild",
+                        "-target $ENV{MODEL_ROOT}/target/emu/\$MODEL",
+                        "-yml $ENV{MODEL_ROOT}/tools/emu/cfg/buildProjectCfg.yml",
+			"-plugins \$EMU_DATA/scripts -plugins-",
+
+                          ],
+                  
+                },
+
+                mesh_clkdist => {
+                    top => "rcfwl_gclk_mesh_clkdist",
+                    top_language => "SystemVerilog",
+                    pli_libs => [ '-debussy_pli_libs', ],
+                    libs => [ "rcfwl_gclk_mesh_clkdist_rtl_lib", ],
+                    export => {libs => [ "rcfwl_gclk_mesh_clkdist_rtl_lib", ],},
+		    lintra_top => ["hqm_rcfwl_gclk_mesh_clkdist",],
+		    flg_lintra_top => ["hqm_rcfwl_gclk_mesh_clkdist",],
+                    zin_top => ["gclk_mesh_clkdist_rtl_lib.gclk_mesh_clkdist",],
+                  qcdc_test_list => [ "$ENV{MODEL_ROOT}/verif/reglist/gclk_mesh_clkdist/level0_qcdc.list" ], 
+
+               enable_cdc_optgen => 1,      ## This is what turns on the SDG autogeneration of *.opt files
+               enable_cdc_goals_regex => 1,
+	       sgcdc_test_list => [ "verif/reglist/gclk_mesh_clkdist/level0_sgcdc.list", ],
+               sgcdc_top => "rcfwl_gclk_mesh_clkdist_rtl_lib.rcfwl_gclk_mesh_clkdist",     ## The top-level design
+               sgcdc_ctrl_files => [ "$ENV{MODEL_ROOT}/tools/spyglasscdc/gclk_mesh_clkdist/gclk_mesh_clkdist.sgdc",
+               ],
+              lintra_ol_test_list => [ "verif/reglist/lintra_ol/gclk_mesh_clkdist/lintra_ol_tests.list" ],
+                    lintra_waiver_dirs => [
+                             "tools/lint/waivers/mesh_clkdist",
+                     ],
+                     lintra_waiver_files => [
+                         "mesh_clkdist_w.xml",
+                     ],
+		     lintra_flg_cfg_files => [ "tools/febe/inputs/common/FE2BE_config_IP.cfg", ],
+
+		   sglp_opts => [ "-top hqm_rcfwl_gclk_mesh_clkdist -noupf",],
+		   vclp_opts => [ "-top rcfwl_gclk_mesh_clkdist_rtl_lib.hqm_rcfwl_gclk_mesh_clkdist -noupf",],
+           
+	    enable_congruency_elab => 1,
+             enable_partcomp_elab =>1,
+             enable_xprop_elab => 1,
+             emu_opts => [
+	     		"-cfg ZSE FPGA -cfg-",
+                        "-top rcfwl_gclk_mesh_clkdist_rtl_lib.hqm_rcfwl_gclk_mesh_clkdist",
+                        "-effm 3",              # 3 = do full synthesis and loop report
+                        "-inside_simbuild",
+                        "-target $ENV{MODEL_ROOT}/target/emu/\$MODEL",
+                        "-yml $ENV{MODEL_ROOT}/tools/emu/cfg/buildProjectCfg.yml",
+			"-plugins \$EMU_DATA/scripts -plugins-",
+                        
+                    ],
+           
+                },
+
+               
+                
+             
+             
+             psocsyncdist => {
+                   top => "rcfwl_gclk_psocsyncdist",
+ 		
+                    top_language => "SystemVerilog",
+                    pli_libs => [ '-debussy_pli_libs', ],
+		    lintra_top => ["hqm_rcfwl_gclk_psocsyncdist",],
+		    flg_lintra_top => ["hqm_rcfwl_gclk_psocsyncdist",],
+                    libs => [ "rcfwl_gclk_psocsyncdist_rtl_lib",],
+                    export => {libs => [ "rcfwl_gclk_psocsyncdist_rtl_lib", ],},
+                   zin_top => ["gclk_psocsyncdist_rtl_lib.gclk_psocsyncdist",],
+                  qcdc_test_list => [ "$ENV{MODEL_ROOT}/verif/reglist/gclk_psocsyncdist/level0_qcdc.list" ],
+		    sglp_opts => [ "-top hqm_rcfwl_gclk_psocsyncdist -noupf",],
+		    vclp_opts => [ "-top rcfwl_gclk_psocsyncdist_rtl_lib.hqm_rcfwl_gclk_psocsyncdist -noupf",],
+
+               enable_cdc_optgen => 1,      ## This is what turns on the SDG autogeneration of *.opt files
+               enable_cdc_goals_regex => 1,
+	       sgcdc_test_list => [ "verif/reglist/gclk_psocsyncdist/level0_sgcdc.list", ],
+               sgcdc_top => "rcfwl_gclk_psocsyncdist_rtl_lib.rcfwl_gclk_psocsyncdist",     ## The top-level design
+               sgcdc_ctrl_files => [ "$ENV{MODEL_ROOT}/tools/spyglasscdc/gclk_psocsyncdist/gclk_psocsyncdist.sgdc",
+               ],
+                  sgcdc_other => [ "-spyglass_exe_opts => ['set_option dnc_param rcfwl_gclk_psocsyncdist.NUM_OF_RPTRS', ],  ",   ],		  lintra_ol_test_list => [ "verif/reglist/lintra_ol/gclk_psocsyncdist/lintra_ol_tests.list" ],
+		 enable_partcomp_elab =>1, 
+                enable_xprop_elab => 1, 
+                enable_congruency_elab => 1,
+                emu_opts => [
+                         "-cfg ZSE FPGA -cfg-",
+                        "-top rcfwl_gclk_psocsyncdist_rtl_lib.hqm_rcfwl_gclk_psocsyncdist",
+                        "-effm 3",              # 3 = do full synthesis and loop report
+                        "-inside_simbuild",
+                        "-target $ENV{MODEL_ROOT}/target/emu/\$MODEL",
+                        "-yml $ENV{MODEL_ROOT}/tools/emu/cfg/buildProjectCfg.yml",
+			"-plugins \$EMU_DATA/scripts -plugins-",
+                    ],
+		    
+		  ##   lintra_exclude => [ @lintra_exclude_libs ],
+		  ##   lintra_exclude => [ @lintra_exclude_libs ],
+                    lintra_waiver_dirs => [
+                         "tools/lint/waivers/psocsyncdist",
+                    ],
+                    lintra_waiver_files => [
+                         "psocsyncdist_w.xml",
+                    ],
+			lintra_flg_cfg_files => [ "tools/febe/inputs/common/FE2BE_config_IP.cfg", ],
+             },
+             
+             
+             psocclkdist => {
+                    top => "rcfwl_gclk_psocclkdist",
+                    top_language => "SystemVerilog",
+                    pli_libs => [ '-debussy_pli_libs', ],
+                    libs => [ "rcfwl_gclk_psocclkdist_rtl_lib", ],
+                    export => {libs => [ "rcfwl_gclk_psocclkdist_rtl_lib", ],},
+		    lintra_top => ["hqm_rcfwl_gclk_psocclkdist",],
+		    flg_lintra_top => ["hqm_rcfwl_gclk_psocclkdist",],
+                   zin_top => ["gclk_psocclkdist_rtl_lib.gclk_psocclkdist",],
+                  qcdc_test_list => [ "$ENV{MODEL_ROOT}/verif/reglist/gclk_psocclkdist/level0_qcdc.list" ],
+		    sglp_opts => [ "-top hqm_rcfwl_gclk_psocclkdist -noupf",],
+		    vclp_opts => [ "-top rcfwl_gclk_psocclkdist_rtl_lib.hqm_rcfwl_gclk_psocclkdist -noupf",],
+             
+               enable_cdc_optgen => 1,      ## This is what turns on the SDG autogeneration of *.opt files
+               enable_cdc_goals_regex => 1,
+	       sgcdc_test_list => [ "verif/reglist/gclk_psocclkdist/level0_sgcdc.list", ],
+               sgcdc_top => "rcfwl_gclk_psocclkdist_rtl_lib.rcfwl_gclk_psocclkdist",     ## The top-level design
+               sgcdc_ctrl_files => [ "$ENV{MODEL_ROOT}/tools/spyglasscdc/gclk_psocclkdist/gclk_psocclkdist.sgdc",
+               ],
+              lintra_ol_test_list => [ "verif/reglist/lintra_ol/gclk_psocclkdist/lintra_ol_tests.list" ],
+	      enable_partcomp_elab =>1, 
+                enable_xprop_elab => 1, 
+                enable_congruency_elab => 1,
+                emu_opts => [
+                         "-cfg ZSE FPGA -cfg-",
+                        "-top rcfwl_gclk_psocclkdist_rtl_lib.hqm_rcfwl_gclk_psocclkdist",
+                        "-effm 3",              # 3 = do full synthesis and loop report
+                        "-inside_simbuild",
+                        "-target $ENV{MODEL_ROOT}/target/emu/\$MODEL",
+                        "-yml $ENV{MODEL_ROOT}/tools/emu/cfg/buildProjectCfg.yml",
+			"-plugins \$EMU_DATA/scripts -plugins-",
+                    ],
+                    lintra_waiver_dirs => [
+                         "tools/lint/waivers/psocclkdist",
+                    ],
+                    lintra_waiver_files => [
+                         "psocclkdist_w.xml",
+                    ],
+		lintra_flg_cfg_files => [ "tools/febe/inputs/common/FE2BE_config_IP.cfg", ],
+             },
+
+               
+
+               
+                         
+
+                pccdu => {
+  #                  top => "rcfwl_gclk_pccdu",
+  #                  top => "rcfwl_gclk_pccdu",
+                    top => "rcfwl_gclk_pccdu_tb_top" ,
+                    top_language => "SystemVerilog",
+                    pli_libs => [ '-debussy_pli_libs', ],
+                    libs => [ "rcfwl_gclk_pccdu_rtl_lib","rcfwl_gclk_pccdu_tb_lib", ],
+		    lintra_top => ["hqm_rcfwl_gclk_pccdu",],
+		    flg_lintra_top => ["hqm_rcfwl_gclk_pccdu",],
+		    zin_top => ["gclk_pccdu_rtl_lib.gclk_pccdu",],
+                  qcdc_test_list => [ "$ENV{MODEL_ROOT}/verif/reglist/gclk_pccdu/level0_qcdc.list" ],
+               use => ["ip74xdiv9or12:ip74xdiv9or12",
+	                (!$soc_generate ? ("CTECH:CTECH_model") : ()),
+                        (!$soc_generate ? ("CTECH_EXP:CTECH_EXP_model") : ()),
+			 ],
+               enable_cdc_optgen => 1,      ## This is what turns on the SDG autogeneration of *.opt files
+               enable_cdc_goals_regex => 1,
+	       sgcdc_test_list => [ "verif/reglist/gclk_pccdu/level0_sgcdc.list", ],
+               sgcdc_top => "rcfwl_gclk_pccdu_rtl_lib.rcfwl_gclk_pccdu",     ## The top-level design
+               sgcdc_ctrl_files => [ "$ENV{MODEL_ROOT}/tools/spyglasscdc/gclk_pccdu/gclk_pccdu.sgdc",
+               ],
+	       sgcdc_other => [ "-spyglass_exe_opts => ['set_option dnc_param rcfwl_gclk_pccdu.GRID_PRICLK_BITS', 'set_option dnc_param rcfwl_gclk_pccdu.GRID_DIVISOR_BITS', ],  ",   ],
+                   lintra_ol_test_list => [ "verif/reglist/lintra_ol/gclk_pccdu/lintra_ol_tests.list" ],
+                    export => {
+		    		libs => [ "rcfwl_gclk_pccdu_rtl_lib", ], 
+ use  => [ "CTECH:CTECH_model",  "CTECH_EXP:CTECH_EXP_model", ],
+				},
+		    elab_opts => [
+				 "-file $ENV{MODEL_ROOT}/cfg/vcs_elab.f",
+                                  " -config_verbose",
+                                  "/p/com/eda/intel/ace/2.01.16/lib/pli/PrintHier/PrintHier.c",
+                                  "-P /p/com/eda/intel/ace/2.01.16/lib/pli/PrintHier/PrintHier.tab",
+                               ],
+                   sglp_opts => [ "-top hqm_rcfwl_gclk_pccdu -noupf",],
+                   vclp_opts => [ "-top rcfwl_gclk_pccdu_rtl_lib.hqm_rcfwl_gclk_pccdu -noupf",],
+		     lintra_waiver_dirs => [
+                         "tools/lint/waivers/pccdu",
+                    ],
+                    lintra_waiver_files => [
+                         "rcfwl_gclk_pccdu_w.xml",
+                    ], 
+                   lintra_flg_cfg_files => [ "tools/febe/inputs/common/FE2BE_config_IP.cfg", ], 
+                   quick_syn_par => ["gclk_pccdu",],
+		   hip_list_gen => 1,
+		   flg_blackbox_files => [ "tools/lint/gclk_flg.bb",],
+		   enable_partcomp_elab =>1, 
+                     enable_congruency_elab => 1, 
+                     enable_xprop_elab => 1,
+                     emu_opts => [
+		     	"-cfg ZSE FPGA -cfg-",
+                        "-top rcfwl_gclk_pccdu_rtl_lib.hqm_rcfwl_gclk_pccdu",
+                        "-effm 3",              # 3 = do full synthesis and loop report
+                        "-inside_simbuild",
+                        "-target $ENV{MODEL_ROOT}/target/emu/\$MODEL",
+                        "-yml $ENV{MODEL_ROOT}/tools/emu/cfg/buildProjectCfg.yml",
+			"-plugins \$EMU_DATA/scripts -plugins-",
+                        
+                    ],
+                },
+
+                psyncdist => {
+        #            top => "rcfwl_gclk_psyncdist",
+        #            top => "rcfwl_gclk_psyncdist",
+		    top => "rcfwl_gclk_psyncdist_tb_top",
+                    top_language => "SystemVerilog",
+                    pli_libs => [ '-debussy_pli_libs', ],
+                    libs => [ "rcfwl_gclk_psyncdist_rtl_lib","rcfwl_gclk_psyncdist_tb_lib", ],
+		    lintra_top => ["hqm_rcfwl_gclk_psyncdist",],
+		    flg_lintra_top => ["hqm_rcfwl_gclk_psyncdist",],
+		    zin_top => ["gclk_psyncdist_rtl_lib.gclk_psyncdist",],
+                  qcdc_test_list => [ "$ENV{MODEL_ROOT}/verif/reglist/gclk_psyncdist/level0_qcdc.list" ],
+
+               enable_cdc_optgen => 1,      ## This is what turns on the SDG autogeneration of *.opt files
+              enable_cdc_goals_regex => 1,
+	       sgcdc_test_list => [ "verif/reglist/gclk_psyncdist/level0_sgcdc.list", ],
+               sgcdc_top => "rcfwl_gclk_psyncdist_rtl_lib.rcfwl_gclk_psyncdist",     ## The top-level design
+               sgcdc_ctrl_files => [ "$ENV{MODEL_ROOT}/tools/spyglasscdc/gclk_psyncdist/gclk_psyncdist.sgdc",
+               ],
+
+                  lintra_ol_test_list => [ "verif/reglist/lintra_ol/gclk_psyncdist/lintra_ol_tests.list" ],
+                  use    => [(!$soc_generate ? ("CTECH_EXP:CTECH_EXP_model") : ()),  , ],
+		 export => {
+		 	libs => [ "rcfwl_gclk_psyncdist_rtl_lib", ], 
+		            use  => [ "CTECH_EXP:CTECH_EXP_model",]
+			    },
+		  elab_opts => [
+				 "-file $ENV{MODEL_ROOT}/cfg/vcs_elab.f",
+                                  " -config_verbose",
+                                  "/p/com/eda/intel/ace/2.01.16/lib/pli/PrintHier/PrintHier.c",
+                                  "-P /p/com/eda/intel/ace/2.01.16/lib/pli/PrintHier/PrintHier.tab",
+                               ],
+                    sglp_opts => [ "-top hqm_rcfwl_gclk_psyncdist -noupf",],
+                    vclp_opts => [ "-top rcfwl_gclk_psyncdist_rtl_lib.hqm_rcfwl_gclk_psyncdist -noupf",],
+		enable_partcomp_elab =>1, 
+                enable_congruency_elab => 1, 
+                enable_xprop_elab => 1,
+                emu_opts => [
+                        "-cfg ZSE FPGA -cfg-",
+                        "-top rcfwl_gclk_psyncdist_rtl_lib.hqm_rcfwl_gclk_psyncdist",
+                        "-effm 3",              # 3 = do full synthesis and loop report
+                        "-inside_simbuild",
+                        "-target $ENV{MODEL_ROOT}/target/emu/\$MODEL",
+                        "-yml $ENV{MODEL_ROOT}/tools/emu/cfg/buildProjectCfg.yml",
+			"-plugins \$EMU_DATA/scripts -plugins-",
+
+                    ],
+                ##    lintra_exclude => [ @lintra_exclude_libs ],
+                ##    lintra_exclude => [ @lintra_exclude_libs ],
+		    lintra_waiver_dirs => [
+                         "tools/lint/waivers/psyncdist",
+                    ],
+                    lintra_waiver_files => [
+                         "gclk_psyncdist_w.xml",
+                    ],
+		    lintra_flg_cfg_files => [ "tools/febe/inputs/common/FE2BE_config_IP.cfg", ],
+                    },
+
+                pclkdist => {
+                    top => "rcfwl_gclk_pclkdist",
+                    top_language => "SystemVerilog",
+                    pli_libs => [ '-debussy_pli_libs', ],
+                    libs => [ "rcfwl_gclk_pclkdist_rtl_lib", ],
+                    export => {libs => [ "rcfwl_gclk_pclkdist_rtl_lib", ],},
+		    lintra_top => ["hqm_rcfwl_gclk_pclkdist",],
+		    flg_lintra_top => ["hqm_rcfwl_gclk_pclkdist",],
+                  zin_top => ["gclk_pclkdist_rtl_lib.gclk_pclkdist",],
+                  qcdc_test_list => [ "$ENV{MODEL_ROOT}/verif/reglist/gclk_pclkdist/level0_qcdc.list" ],
+		    sglp_opts => [ "-top hqm_rcfwl_gclk_pclkdist -noupf",],
+		    vclp_opts => [ "-top rcfwl_gclk_pclkdist_rtl_lib.hqm_rcfwl_gclk_pclkdist -noupf",],
+              
+               enable_cdc_optgen => 1,      ## This is what turns on the SDG autogeneration of *.opt files
+               enable_cdc_goals_regex => 1,
+	       sgcdc_test_list => [ "verif/reglist/gclk_pclkdist/level0_sgcdc.list", ],
+               sgcdc_top => "rcfwl_gclk_pclkdist_rtl_lib.rcfwl_gclk_pclkdist",     ## The top-level design
+               sgcdc_ctrl_files => [ "$ENV{MODEL_ROOT}/tools/spyglasscdc/gclk_pclkdist/gclk_pclkdist.sgdc",
+               ],
+             # sgcdc_other => [ "-spyglass_exe_opts => ['set_option dnc_param gclk_pclkdist.NUM_OF_GRID_PRI_CLKS',], ",  ],
+             # sgcdc_other => [ "-spyglass_exe_opts => ['set_option dnc_param gclk_pclkdist.NUM_OF_GRID_PRI_CLKS',], ",  ],
+               lintra_ol_test_list => [ "verif/reglist/lintra_ol/gclk_pclkdist/lintra_ol_tests.list" ],
+		enable_partcomp_elab =>1, 
+                enable_congruency_elab => 1, 
+                enable_xprop_elab => 1,
+                emu_opts => [
+			"-cfg ZSE FPGA -cfg-",
+                        "-top rcfwl_gclk_pclkdist_rtl_lib.hqm_rcfwl_gclk_pclkdist",
+                        "-effm 3",              # 3 = do full synthesis and loop report
+                        "-inside_simbuild",
+                        "-target $ENV{MODEL_ROOT}/target/emu/\$MODEL",
+                        "-yml $ENV{MODEL_ROOT}/tools/emu/cfg/buildProjectCfg.yml",
+			"-plugins \$EMU_DATA/scripts -plugins-",
+                        
+                    ],
+                    lintra_waiver_dirs => [
+                         "tools/lint/waivers/pclkdist",
+                    ],
+                    lintra_waiver_files => [
+                         "pclkdist_w.xml",
+                    ],
+		    lintra_flg_cfg_files => [ "tools/febe/inputs/common/FE2BE_config_IP.cfg", ],
+             },           
+             
+	     glitchfree_clkmux => {
+                    top => "rcfwl_gclk_glitchfree_clkmux_tb_top",
+                    top_language => "SystemVerilog",
+                    pli_libs => [ '-debussy_pli_libs', ],
+                    libs => [ "rcfwl_gclk_glitchfree_clkmux_rtl_lib", "rcfwl_gclk_glitchfree_clkmux_tb_lib", ],
+                     use    => [(!$soc_generate ? ("CTECH:CTECH_model") : ()),
+                                (!$soc_generate ? ("CTECH_EXP:CTECH_EXP_model") : ()),
+                                 ],
+		   export => {
+		   		libs => [ "rcfwl_gclk_glitchfree_clkmux_rtl_lib",],
+		              use  => [ "CTECH:CTECH_model",  "CTECH_EXP:CTECH_EXP_model", ],
+			      },
+                    lintra_top => ["hqm_rcfwl_gclk_glitchfree_clkmux",],
+                    flg_lintra_top => ["hqm_rcfwl_gclk_glitchfree_clkmux",],
+                  zin_top => ["gclk_glitchfree_clkmux_rtl_lib.gclk_glitchfree_clkmux",],
+                  qcdc_test_list => [ "$ENV{MODEL_ROOT}/verif/reglist/gclk_glitchfree_clkmux/level0_qcdc.list" ],
+                    sglp_opts => [ "-top hqm_rcfwl_gclk_glitchfree_clkmux -noupf",],
+                    vclp_opts => [ "-top rcfwl_gclk_glitchfree_clkmux_rtl_lib.hqm_rcfwl_gclk_glitchfree_clkmux -noupf",],
+                elab_opts => [
+				 "-file $ENV{MODEL_ROOT}/cfg/vcs_elab.f",
+                                  " -config_verbose",
+                                  "/p/com/eda/intel/ace/2.01.16/lib/pli/PrintHier/PrintHier.c",
+                                  "-P /p/com/eda/intel/ace/2.01.16/lib/pli/PrintHier/PrintHier.tab",
+                               ],
+               enable_cdc_optgen => 1,      ## This is what turns on the SDG autogeneration of *.opt files
+               enable_cdc_goals_regex => 1,
+	       sgcdc_test_list => [ "verif/reglist/gclk_glitchfree_clkmux/level0_sgcdc.list", ],
+               sgcdc_top => "rcfwl_gclk_glitchfree_clkmux_rtl_lib.rcfwl_gclk_glitchfree_clkmux",     ## The top-level design
+               sgcdc_ctrl_files => [ "$ENV{MODEL_ROOT}/tools/spyglasscdc/gclk_glitchfree_clkmux/gclk_glitchfree_clkmux.sgdc",
+               ],
+		lintra_ol_test_list => [ "verif/reglist/lintra_ol/gclk_glitchfree_clkmux/lintra_ol_tests.list" ],
+		enable_partcomp_elab =>1,
+                enable_xprop_elab => 1,
+                enable_congruency_elab => 1,
+                emu_opts => [
+                         "-cfg ZSE FPGA -cfg-",
+                        "-top rcfwl_gclk_glitchfree_clkmux_rtl_lib.hqm_rcfwl_gclk_glitchfree_clkmux",
+                        "-effm 3",              # 3 = do full synthesis and loop report
+                        "-inside_simbuild",
+                        "-target $ENV{MODEL_ROOT}/target/emu/\$MODEL",
+                        "-yml $ENV{MODEL_ROOT}/tools/emu/cfg/buildProjectCfg.yml",
+			"-plugins \$EMU_DATA/scripts -plugins-",
+                    ],
+                    lintra_waiver_dirs => [
+                         "tools/lint/waivers/glitchfree_clkmux",
+                    ],
+                    lintra_waiver_files => [
+                         "glitchfree_clkmux_w.xml",
+                    ],
+	lintra_flg_cfg_files => [ "tools/febe/inputs/common/FE2BE_config_IP.cfg", ],
+             },
+	     
+	     
+	     trunk_clock_switch => {
+                    top => "rcfwl_gclk_trunk_clock_switch_tb_top",
+                    top_language => "SystemVerilog",
+                    pli_libs => [ '-debussy_pli_libs', ],
+                    libs => [ "rcfwl_gclk_trunk_clock_switch_rtl_lib", "rcfwl_gclk_trunk_clock_switch_tb_lib", ],
+		    use    => [(!$soc_generate ? ("CTECH:CTECH_model") : ()),
+                               (!$soc_generate ? ("CTECH_EXP:CTECH_EXP_model") : ()),
+                                ],
+                    export => {
+		    		libs => [ "rcfwl_gclk_trunk_clock_switch_rtl_lib",],
+		               use  => [ "CTECH:CTECH_model",  "CTECH_EXP:CTECH_EXP_model", ],
+			       },
+                    lintra_top => ["hqm_rcfwl_gclk_trunk_clock_switch",],
+                    flg_lintra_top => ["hqm_rcfwl_gclk_trunk_clock_switch",],
+                  zin_top => ["gclk_trunk_clock_switch_rtl_lib.gclk_trunk_clock_switch",],
+                  
+                    sglp_opts => [ "-top hqm_rcfwl_gclk_trunk_clock_switch -noupf",],
+                    vclp_opts => [ "-top rcfwl_gclk_trunk_clock_switch_rtl_lib.hqm_rcfwl_gclk_trunk_clock_switch -noupf",],
+                elab_opts => [
+				 "-file $ENV{MODEL_ROOT}/cfg/vcs_elab.f",
+                                  " -config_verbose",
+                                  "/p/com/eda/intel/ace/2.01.16/lib/pli/PrintHier/PrintHier.c",
+                                  "-P /p/com/eda/intel/ace/2.01.16/lib/pli/PrintHier/PrintHier.tab",
+                               ],
+               enable_cdc_optgen => 1,      ## This is what turns on the SDG autogeneration of *.opt files
+               enable_cdc_goals_regex => 1,
+	       sgcdc_test_list => [ "verif/reglist/gclk_trunk_clock_switch/level0_sgcdc.list", ],
+               sgcdc_top => "rcfwl_gclk_trunk_clock_switch_rtl_lib.rcfwl_gclk_trunk_clock_switch",     ## The top-level design
+               sgcdc_ctrl_files => [ "$ENV{MODEL_ROOT}/tools/spyglasscdc/gclk_trunk_clock_switch/gclk_trunk_clock_switch.sgdc",
+               ],
+		lintra_ol_test_list => [ "verif/reglist/lintra_ol/gclk_trunk_clock_switch/lintra_ol_tests.list" ],
+		enable_partcomp_elab =>1,
+                enable_xprop_elab => 1,
+                enable_congruency_elab => 1,
+                emu_opts => [
+                         "-cfg ZSE FPGA -cfg-",
+                        "-top rcfwl_gclk_trunk_clock_switch_rtl_lib.hqm_rcfwl_gclk_trunk_clock_switch",
+                        "-effm 3",              # 3 = do full synthesis and loop report
+                        "-inside_simbuild",
+                        "-target $ENV{MODEL_ROOT}/target/emu/\$MODEL",
+                        "-yml $ENV{MODEL_ROOT}/tools/emu/cfg/buildProjectCfg.yml",
+			"-plugins \$EMU_DATA/scripts -plugins-",
+                    ],
+                    lintra_waiver_dirs => [
+                         "tools/lint/waivers/trunk_clock_switch",
+                    ],
+                    lintra_waiver_files => [
+                         "trunk_clock_switch_w.xml",
+                    ],
+	lintra_flg_cfg_files => [ "tools/febe/inputs/common/FE2BE_config_IP.cfg", ],
+             },
+     
+	     vret_clock_gate => {
+                    top => "rcfwl_gclk_vret_clock_gate_tb_top",
+                    top_language => "SystemVerilog",
+                    pli_libs => [ '-debussy_pli_libs', ],
+                    libs => [ "rcfwl_gclk_vret_clock_gate_rtl_lib", "rcfwl_gclk_vret_clock_gate_tb_lib", ],
+		    use    => [(!$soc_generate ? ("CTECH:CTECH_model") : ()),
+                               (!$soc_generate ? ("CTECH_EXP:CTECH_EXP_model") : ()),
+                                ],
+                    export => {
+		    		libs => [ "rcfwl_gclk_vret_clock_gate_rtl_lib",],
+		               use  => [ "CTECH:CTECH_model",  "CTECH_EXP:CTECH_EXP_model", ],
+			       },
+                    lintra_top => ["hqm_rcfwl_gclk_vret_clock_gate",],
+                    flg_lintra_top => ["hqm_rcfwl_gclk_vret_clock_gate",],
+                  zin_top => ["gclk_vret_clock_gate_rtl_lib.gclk_vret_clock_gate",],
+                  
+                    sglp_opts => [ "-top hqm_rcfwl_gclk_vret_clock_gate -noupf",],
+                    vclp_opts => [ "-top rcfwl_gclk_vret_clock_gate_rtl_lib.hqm_rcfwl_gclk_vret_clock_gate -noupf",],
+                elab_opts => [
+				 "-file $ENV{MODEL_ROOT}/cfg/vcs_elab.f",
+                                  " -config_verbose",
+                                  "/p/com/eda/intel/ace/2.01.16/lib/pli/PrintHier/PrintHier.c",
+                                  "-P /p/com/eda/intel/ace/2.01.16/lib/pli/PrintHier/PrintHier.tab",
+                               ],
+               enable_cdc_optgen => 1,      ## This is what turns on the SDG autogeneration of *.opt files
+               enable_cdc_goals_regex => 1,
+	       sgcdc_test_list => [ "verif/reglist/gclk_vret_clock_gate/level0_sgcdc.list", ],
+               sgcdc_top => "rcfwl_gclk_vret_clock_gate_rtl_lib.rcfwl_gclk_vret_clock_gate",     ## The top-level design
+               sgcdc_ctrl_files => [ "$ENV{MODEL_ROOT}/tools/spyglasscdc/gclk_vret_clock_gate/gclk_vret_clock_gate.sgdc",
+               ],
+		lintra_ol_test_list => [ "verif/reglist/lintra_ol/gclk_vret_clock_gate/lintra_ol_tests.list" ],
+		enable_partcomp_elab =>1,
+                enable_xprop_elab => 1,
+                enable_congruency_elab => 1,
+                emu_opts => [
+                         "-cfg ZSE FPGA -cfg-",
+                        "-top rcfwl_gclk_vret_clock_gate_rtl_lib.hqm_rcfwl_gclk_vret_clock_gate",
+                        "-effm 3",              # 3 = do full synthesis and loop report
+                        "-inside_simbuild",
+                        "-target $ENV{MODEL_ROOT}/target/emu/\$MODEL",
+                        "-yml $ENV{MODEL_ROOT}/tools/emu/cfg/buildProjectCfg.yml",
+			"-plugins \$EMU_DATA/scripts -plugins-",
+                    ],
+                    lintra_waiver_dirs => [
+                         "tools/lint/waivers/gclk_vret_clock_gate",
+                    ],
+                    lintra_waiver_files => [
+                         "vret_clock_gate_w.xml",
+                    ],
+	lintra_flg_cfg_files => [ "tools/febe/inputs/common/FE2BE_config_IP.cfg", ],
+             },
+	     cda => {
+		    top => "rcfwl_gclk_make_clk_cda",
+		    top_language => "SystemVerilog",
+		    pli_libs => [ '-debussy_pli_libs', ],
+		    libs => [ "rcfwl_gclk_cda_rtl_lib", ],
+		     use    => [(!$soc_generate ? ("CTECH:CTECH_model") : ()),
+                                (!$soc_generate ? ("CTECH_EXP:CTECH_EXP_model") : ()),
+                                         ],
+		    lintra_top => ["hqm_rcfwl_gclk_make_clk_cda",],
+		    flg_lintra_top => ["hqm_rcfwl_gclk_make_clk_cda",],
+		 export => {
+		            libs => [ "rcfwl_gclk_cda_rtl_lib", ],
+		            use  => [ "CTECH:CTECH_model",  "CTECH_EXP:CTECH_EXP_model", ],
+			    },
+		   zin_top => ["gclk_cda_rtl_lib.gclk_make_clk_cda",],
+                  qcdc_test_list => ["$ENV{MODEL_ROOT}/verif/reglist/gclk_cda/level0_qcdc.list" ],
+
+               enable_cdc_optgen => 1,      ## This is what turns on the SDG autogeneration of *.opt files
+               enable_cdc_goals_regex => 1,
+	       sgcdc_test_list => [ "verif/reglist/gclk_cda/level0_sgcdc.list", ],
+               sgcdc_top => "rcfwl_gclk_cda_rtl_lib.rcfwl_gclk_make_clk_cda",     ## The top-level design
+               sgcdc_ctrl_files => [ "$ENV{MODEL_ROOT}/tools/spyglasscdc/gclk_cda/gclk_cda.sgdc",
+               ],
+
+		  lintra_waiver_dirs => [
+			     "tools/lint/waivers/cda",
+		     ],
+		   lintra_waiver_files => [
+			 "cda_perm_w.xml",
+		     ], 
+                   lintra_flg_cfg_files => [ "tools/febe/inputs/common/FE2BE_config_IP.cfg", ],
+                   febe_cfg_dir => ["tools/febe/inputs/common"],
+                   enable_partcomp_elab =>1,
+		   enable_congruency_elab => 1, 
+		   enable_xprop_elab => 1,
+		   sglp_opts => [ "-top hqm_rcfwl_gclk_make_clk_cda  -noupf",],
+		   vclp_opts => [ "-top rcfwl_gclk_cda_rtl_lib.hqm_rcfwl_gclk_make_clk_cda  -noupf",],
+	     emu_opts => [ 
+		      "-cfg ZSE FPGA -cfg-",
+			"-top rcfwl_gclk_cda_rtl_lib.hqm_rcfwl_gclk_make_clk_cda",
+			"-effm 3",		# 3 = do full synthesis and loop report
+			"-inside_simbuild",
+			"-target $ENV{MODEL_ROOT}/target/emu/\$MODEL",
+			"-yml $ENV{MODEL_ROOT}/tools/emu/cfg/buildProjectCfg.yml",
+			"-plugins \$EMU_DATA/scripts -plugins-",
+
+			  ],
+		},
+        
+		
+	     rcb_lcb => {
+		    top => "rcfwl_gclk_rcb_lcb_tb_top",
+		    top_language => "SystemVerilog",
+		    pli_libs => [ '-debussy_pli_libs', ],
+		    libs => [ "rcfwl_gclk_rcb_lcb_rtl_lib","gclk_rcb_lcb_tb_lib", ],
+		     use    => [(!$soc_generate ? ("CTECH:CTECH_model") : ()),
+                                (!$soc_generate ? ("CTECH_EXP:CTECH_EXP_model") : ()),
+                                         ],
+		    lintra_top => ["hqm_rcfwl_gclk_rcb_lcb",],
+		    flg_lintra_top => ["hqm_rcfwl_gclk_rcb_lcb",],
+		 export => {
+		 		libs => [ "rcfwl_gclk_rcb_lcb_rtl_lib", ],
+		            use  => [ "CTECH:CTECH_model",  "CTECH_EXP:CTECH_EXP_model", ],
+			    },
+		   zin_top => ["gclk_rcb_lcb_rtl_lib.gclk_rcb_lcb",],
+                  qcdc_test_list => ["$ENV{MODEL_ROOT}/verif/reglist/gclk_rcb_lcb/level0_qcdc.list" ],
+
+               enable_cdc_optgen => 1,      ## This is what turns on the SDG autogeneration of *.opt files
+               enable_cdc_goals_regex => 1,
+	       sgcdc_test_list => [ "verif/reglist/gclk_rcb_lcb/level0_sgcdc.list", ],
+               sgcdc_top => "rcfwl_gclk_rcb_lcb_rtl_lib.rcfwl_gclk_rcb_lcb",     ## The top-level design
+               sgcdc_ctrl_files => [ "$ENV{MODEL_ROOT}/tools/spyglasscdc/gclk_rcb_lcb/gclk_rcb_lcb.sgdc",
+               ],
+                 lintra_ol_test_list => [ "verif/reglist/lintra_ol/gclk_rcb_lcb/lintra_ol_tests.list" ],
+		  lintra_waiver_dirs => [
+			     "tools/lint/waivers/rcb_lcb",
+		     ],
+		   lintra_waiver_files => [
+			 "rcb_lcb_perm_w.xml",
+		     ], 
+                   lintra_flg_cfg_files => [ "tools/febe/inputs/common/FE2BE_config_IP.cfg", ],
+                   febe_cfg_dir => ["tools/febe/inputs/common"],
+                   enable_partcomp_elab =>1,
+		   enable_congruency_elab => 1, 
+		   enable_xprop_elab => 1,
+		    sglp_opts => [ "-top hqm_rcfwl_gclk_rcb_lcb  -noupf",],
+		    vclp_opts => [ "-top rcfwl_gclk_rcb_lcb_rtl_lib.hqm_rcfwl_gclk_rcb_lcb  -noupf",],
+	        elab_opts => [
+				 "-file $ENV{MODEL_ROOT}/cfg/vcs_elab.f",
+                                  " -config_verbose",
+                                  "/p/com/eda/intel/ace/2.01.16/lib/pli/PrintHier/PrintHier.c",
+                                  "-P /p/com/eda/intel/ace/2.01.16/lib/pli/PrintHier/PrintHier.tab",
+                               ],
+		emu_opts => [ 
+		      "-cfg ZSE FPGA -cfg-",
+			"-top rcfwl_gclk_rcb_lcb_rtl_lib.hqm_rcfwl_gclk_rcb_lcb",
+			"-effm 3",		# 3 = do full synthesis and loop report
+			"-inside_simbuild",
+			"-target $ENV{MODEL_ROOT}/target/emu/\$MODEL",
+			"-yml $ENV{MODEL_ROOT}/tools/emu/cfg/buildProjectCfg.yml",
+			"-plugins \$EMU_DATA/scripts -plugins-",
+
+			  ],
+		},
+		
+		divsync_gen => {
+		    top => "rcfwl_gclk_divsync_gen",
+		    top_language => "SystemVerilog",
+		    pli_libs => [ '-debussy_pli_libs', ],
+		    libs => [ "rcfwl_gclk_divsync_gen_rtl_lib", ],
+		    export => {libs => [ "rcfwl_gclk_divsync_gen_rtl_lib", ],},
+		    lintra_top => ["hqm_rcfwl_gclk_divsync_gen",],
+		    flg_lintra_top => ["hqm_rcfwl_gclk_divsync_gen",],
+		  zin_top => ["gclk_divsync_gen_rtl_lib.gclk_divsync_gen",],
+                  qcdc_test_list => [ "$ENV{MODEL_ROOT}/verif/reglist/gclk_divsync_gen/level0_qcdc.list" ],
+
+               enable_cdc_optgen => 1,      ## This is what turns on the SDG autogeneration of *.opt files
+               enable_cdc_goals_regex => 1,
+	       sgcdc_test_list => [ "verif/reglist/gclk_divsync_gen/level0_sgcdc.list", ],
+               sgcdc_top => "rcfwl_gclk_divsync_gen_rtl_lib.rcfwl_gclk_divsync_gen",     ## The top-level design
+               sgcdc_ctrl_files => [ "$ENV{MODEL_ROOT}/tools/spyglasscdc/gclk_divsync_gen/gclk_divsync_gen.sgdc",
+               ],
+	       sgcdc_other => [ "-spyglass_exe_opts => ['set_option dnc_param rcfwl_gclk_divsync_gen.INPUT_SYNC_GCLK_BEFORE_GAL_SYNC', 'set_option dnc_param rcfwl_gclk_divsync_gen.OUTPUT_SYNC_GCLK_BEFORE_X_SYNC', 'set_option dnc_param rcfwl_gclk_divsync_gen.MAX_RATIO_WIDTH', 'set_option dnc_param rcfwl_gclk_divsync_gen.RO_RATIO_WIDTH', ],   ",    ],                 lintra_ol_test_list => [ "verif/reglist/lintra_ol/gclk_divsync_gen/lintra_ol_tests.list" ],
+		   lintra_waiver_dirs => [
+			     "tools/lint/waivers/divsync_gen",
+		     ],
+		   lintra_waiver_files => [
+			 "divsync_gen_w.xml",
+		     ], 
+                   lintra_flg_cfg_files => [ "tools/febe/inputs/common/FE2BE_config_IP.cfg", ],
+                   febe_cfg_dir => ["tools/febe/inputs/common"],
+		   enable_congruency_elab => 1, 
+		   enable_xprop_elab => 1,
+		   enable_partcomp_elab =>1,
+		    
+		    emu_opts => [ 
+		      "-cfg ZSE FPGA -cfg-",
+			"-top rcfwl_gclk_divsync_gen_rtl_lib.hqm_rcfwl_gclk_divsync_gen",
+			"-effm 3",		# 3 = do full synthesis and loop report
+			"-inside_simbuild",
+			"-target $ENV{MODEL_ROOT}/target/emu/\$MODEL",
+			"-yml $ENV{MODEL_ROOT}/tools/emu/cfg/buildProjectCfg.yml",
+			"-plugins \$EMU_DATA/scripts -plugins-",
+
+			  ],
+			 sglp_opts => [ "-top hqm_rcfwl_gclk_divsync_gen -noupf",],
+			 vclp_opts => [ "-top rcfwl_gclk_divsync_gen_rtl_lib.hqm_rcfwl_gclk_divsync_gen -noupf",],
+			
+		},
+		
+		
+
+		clkreqaggr => {
+#                    top => "rcfwl_gclk_clkreqaggr",
+#                    top => "rcfwl_gclk_clkreqaggr",
+                      top => "rcfwl_gclk_clkreqaggr_tb_top",
+                    top_language => "SystemVerilog",
+                    pli_libs => [ '-debussy_pli_libs', ],
+                    libs => [ "rcfwl_gclk_clkreqaggr_rtl_lib","rcfwl_gclk_clkreqaggr_tb_lib", ],
+		    use    => [(!$soc_generate ? ("CTECH:CTECH_model") : ()),
+                               (!$soc_generate ? ("CTECH_EXP:CTECH_EXP_model") : ()),
+                                ],
+                    export => {
+		    		libs => [ "rcfwl_gclk_clkreqaggr_rtl_lib", ],
+		    		use  => [ "CTECH:CTECH_model",  "CTECH_EXP:CTECH_EXP_model", ],
+				},
+		    lintra_top => ["hqm_rcfwl_gclk_clkreqaggr",],
+		    flg_lintra_top => ["hqm_rcfwl_gclk_clkreqaggr",],
+                  zin_top => ["gclk_clkreqaggr_rtl_lib.gclk_clkreqaggr",],
+                  qcdc_test_list => [ "$ENV{MODEL_ROOT}/verif/reglist/gclk_clkreqaggr/level0_qcdc.list" ],
+
+               enable_cdc_optgen => 1,      ## This is what turns on the SDG autogeneration of *.opt files
+               enable_cdc_goals_regex => 1,
+	       sgcdc_test_list => [ "verif/reglist/gclk_clkreqaggr/level0_sgcdc.list", ],
+               sgcdc_top => "rcfwl_gclk_clkreqaggr_rtl_lib.rcfwl_gclk_clkreqaggr",     ## The top-level design
+               sgcdc_ctrl_files => [ "$ENV{MODEL_ROOT}/tools/spyglasscdc/gclk_clkreqaggr/gclk_clkreqaggr.sgdc",
+               ],
+	      # sgcdc_other => [ "-spyglass_exe_opts => ['set_option dnc_param gclk_clkreqaggr.CLKREQ_CNT',], ",  ],
+	      # sgcdc_other => [ "-spyglass_exe_opts => ['set_option dnc_param gclk_clkreqaggr.CLKREQ_CNT',], ",  ],
+
+		  lintra_ol_test_list => [ "verif/reglist/lintra_ol/gclk_clkreqaggr/lintra_ol_tests.list" ],
+		    sglp_opts => [ "-top hqm_rcfwl_gclk_clkreqaggr -noupf" ],
+		    vclp_opts => [ "-top rcfwl_gclk_clkreqaggr_rtl_lib.hqm_rcfwl_gclk_clkreqaggr -noupf" ],
+		    lintra_waiver_dirs => [
+                             "tools/lint/waivers/clkreqaggr",
+                     ],
+                     lintra_waiver_files => [
+                         "gclk_clkreqaggr_w.xml",
+                     ],
+		    lintra_flg_cfg_files => [ "tools/febe/inputs/common/FE2BE_config_IP.cfg", ],
+            enable_partcomp_elab =>1, 
+             enable_congruency_elab => 1,
+             enable_xprop_elab => 1,
+	     elab_opts => [
+				 "-file $ENV{MODEL_ROOT}/cfg/vcs_elab.f",
+                                  " -config_verbose",
+                                  "/p/com/eda/intel/ace/2.01.16/lib/pli/PrintHier/PrintHier.c",
+                                  "-P /p/com/eda/intel/ace/2.01.16/lib/pli/PrintHier/PrintHier.tab",
+                               ],
+             emu_opts => [
+                        "-cfg ZSE FPGA -cfg-",
+                        "-top rcfwl_gclk_clkreqaggr_rtl_lib.hqm_rcfwl_gclk_clkreqaggr",
+                        "-effm 3",              # 3 = do full synthesis and loop report
+                        "-inside_simbuild",
+                        "-target $ENV{MODEL_ROOT}/target/emu/\$MODEL",
+                        "-yml $ENV{MODEL_ROOT}/tools/emu/cfg/buildProjectCfg.yml",
+			"-plugins \$EMU_DATA/scripts -plugins-",
+                    ],
+                },		
+		
+		
+            },
+        },
+    },
+);

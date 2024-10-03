@@ -1,0 +1,141 @@
+set time scale 1.000000 ns;
+set strobe_window time 30;
+
+timeplate _setup_WFT_ =
+    force_pi 0;
+    measure_po 1000;
+    pulse _all_clocks 2500 5000;
+    period 10000;
+ end;
+
+ timeplate _shift_WFT_ =
+    force_pi 0;
+    measure_po 1000;
+    pulse _shift_clock 2500 5000;
+    period 10000;
+ end;
+
+
+procedure load_unload =
+ scan_group grp1;
+ timeplate _shift_WFT_;
+ cycle =
+   force _ip_fscan_shiften 1;
+   force _ip_fscan_edtupdate 1;
+   force _ip_fscan_state 1;
+   force _all_clocks 0;
+   force _ip_fscan_clkungate 1;
+   force _ip_fscan_latchopen 1;
+   force _ip_fscan_latchclosed_b 1;
+   force _ip_fscan_ram_odis_b 0;
+   force _ip_fscan_ram_rddis_b 0;
+   force _ip_fscan_ram_wrdis_b 0;
+   force _ip_fscan_ret_ctrl 0;
+   force _ip_fscan_edtupdate 0;
+   pulse _ip_fscan_edtclk;
+   force _all_resets 1;
+   
+   
+ end;
+apply shift 1000;
+end;
+
+procedure shift =
+  scan_group grp1;
+  timeplate _shift_WFT_;
+    cycle =
+      force _ip_fscan_edtupdate 0;
+      force_sci;
+      measure_sco;
+      pulse _shift_clock;
+          
+    end;
+end;
+
+procedure sub_procedure pulse_clocks =
+  scan_group grp1;
+  timeplate _setup_WFT_;
+  cycle =
+    pulse _all_clocks;
+  end;
+end;
+
+if {${ATPG_FAULT_MODE} == "burnin_toggle" || ${ATPG_FAULT_MODE} == "burnin_ca1tf" || ${ATPG_FAULT_MODE} == "burnin_ca2tf"} {
+procedure capture burnin_capture =
+    timeplate _shift_WFT_ ;
+    cycle =
+       force_pi;
+       pulse _all_clocks;
+    end;
+    cycle =
+       pulse _all_clocks;
+    end;
+end;
+}
+
+
+
+procedure test_setup =
+ scan_group grp1;
+ timeplate _setup_WFT_;
+
+cycle =
+  force _ip_fscan_shiften 0;
+  force _ip_fscan_clkungate 0;
+  force _ip_fscan_latchopen 0;
+  force _ip_fscan_latchclosed_b 0;
+  force _ip_fscan_ram_odis_b 1;
+  force _ip_fscan_ram_rddis_b 1;
+  force _ip_fscan_ram_wrdis_b 1;
+  force _ip_fscan_edtupdate 0;
+  force _ip_fscan_edtupdate 0;
+  force _ip_fdfx_powergood 0;
+  force _all_resets 0;
+  pulse _all_clocks;
+  
+end;
+
+apply pulse_clocks 20;
+
+cycle =
+  pulse _all_clocks;
+end;
+
+apply pulse_clocks 200;
+
+cycle =
+  force _all_resets 1;
+  pulse _all_clocks;
+end;
+
+cycle =
+  force _ip_fscan_state 1;
+  force _ip_fscan_edtupdate 1;
+  force _ip_fscan_clkungate 1;
+  force _ip_fscan_latchopen 1;
+  force _ip_fscan_latchclosed_b 1;
+  force _ip_fscan_ram_odis_b 1;
+  force _ip_fscan_ram_rddis_b 1;
+  force _ip_fscan_ram_wrdis_b 1;
+  force _ip_fdfx_powergood 1;
+  pulse _ip_fscan_edtclk;
+  pulse _all_clocks;
+end;
+
+cycle =
+  pulse _all_clocks;
+  
+end;
+
+cycle =
+  force _ip_fscan_edtupdate 0;
+  pulse _all_clocks;
+ 
+ 
+end;
+
+end;
+
+
+
+

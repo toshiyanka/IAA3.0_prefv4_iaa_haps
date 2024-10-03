@@ -1,0 +1,293 @@
+###################################
+# include hqm_vf_enable.cft : #####
+###################################
+# Simmer!
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable PF memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+###################################
+# Setup FUNC_VF BAR to a base address of 0x00000003_xxxxxxxx
+###################################
+# 16 VF
+###################################
+# Enable VF and VF memory operations
+###################################
+# Poll the config_master.cfg_diagnostic_reset_status register
+#  until it has a value indicating that all of the hardware
+#  reset initialization writes have completed. 
+
+rd config_master.cfg_pm_pmcsr_disable.disable 0x0
+
+#poll to Wait for reset to be done
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+
+
+idle 500
+
+###################################
+###################################
+# Test SAI HOSTIA_POSTBOOT_SAI
+SAI HOSTIA_POSTBOOT_SAI # write should fail
+#FEATURE REGISTERS: when SAI (8'bit encoding : 8'h01, 8'h05, 8'h09, 8'h32): 
+###################################
+###################################
+####AY_RM_VF_V30   wr  hqm_func_pf_per_vf[0].vf_to_pf_mailbox[0]   0xf0100000
+####AY_RM_VF_V30   rd  hqm_func_pf_per_vf[0].vf_to_pf_mailbox[0]   0xf0100000
+
+wr  hqm_msix_mem.msg_addr_l[0]  0xf00cafe0
+rd  hqm_msix_mem.msg_addr_l[0]  0xf00cafe0
+
+####AY_RM_VF_V30   wr  hqm_func_vf_bar[0].vf_to_pf_mailbox[0]  0x701000f0
+####AY_RM_VF_V30   rd  hqm_func_vf_bar[0].vf_to_pf_mailbox[0]  0x701000f0
+
+####AY_RM_VF_V30   #### wr hqm_vf_cfg_i[10].msi_cap_addr_u       0x76543210
+####AY_RM_VF_V30   #### rd hqm_vf_cfg_i[10].msi_cap_addr_u       0x76543210
+
+
+wr credit_hist_pipe.cfg_vas_credit_count[0] 0x1230
+rd credit_hist_pipe.cfg_vas_credit_count[0] 0x1230
+
+wr hqm_system_csr.DIR_CQ_ADDR_L[0] 0xec11f9c0  
+rd hqm_system_csr.DIR_CQ_ADDR_L[0] 0xec11f9c0  
+
+
+###################################
+###################################
+SAI 0x4 # write should fail when accessing PF_CSR space registers
+###################################
+###################################
+####AY_RM_VF_V30   wr  hqm_func_pf_per_vf[0].vf_to_pf_mailbox[0]   0xf0100011
+####AY_RM_VF_V30   rd  hqm_func_pf_per_vf[0].vf_to_pf_mailbox[0]   0xf0100011
+
+wr  hqm_msix_mem.msg_addr_l[0]  0xf00cafe1
+rd  hqm_msix_mem.msg_addr_l[0]  0xf00cafe1
+
+####AY_RM_VF_V30   wr  hqm_func_vf_bar[0].vf_to_pf_mailbox[0]  0x701000f1
+####AY_RM_VF_V30   rd  hqm_func_vf_bar[0].vf_to_pf_mailbox[0]  0x701000f1
+
+####AY_RM_VF_V30   #### wr hqm_vf_cfg_i[10].msi_cap_addr_u       0x76543211
+####AY_RM_VF_V30   #### rd hqm_vf_cfg_i[10].msi_cap_addr_u       0x76543211
+
+
+wr credit_hist_pipe.cfg_vas_credit_count[0] 0xfac1
+rd credit_hist_pipe.cfg_vas_credit_count[0] 0x1230
+
+wr hqm_system_csr.DIR_CQ_ADDR_L[0] 0xdeadbee1  
+rd hqm_system_csr.DIR_CQ_ADDR_L[0] 0xec11f9c0  
+
+####################################
+###### hqm_vf_enable.cft EOT #######
+####################################
+## Write - Read  - Restore CP registers
+##sai6 0x00
+#SAI 0x01
+####################################
+##sai6 0x01
+#SAI 0x03
+####################################
+##sai6 0x02
+#SAI 0x05
+####################################
+##sai6 0x03
+#SAI 0x07
+####################################
+##sai6 0x04
+#SAI 0x09
+####################################
+##sai6 0x05
+#SAI 0x0b
+####################################
+##sai6 0x06
+#SAI 0x0d
+####################################
+##sai6 0x07
+#SAI 0x0f
+####################################
+##sai6 0x08
+#SAI 0x10
+####################################
+##sai6 0x09
+#SAI 0x12
+####################################
+##sai6 0x0a
+#SAI 0x14
+####################################
+##sai6 0x0b
+#SAI 0x16
+####################################
+##sai6 0x0c
+#SAI 0x18
+####################################
+##sai6 0x0d
+#SAI 0x1a
+####################################
+##sai6 0x0e
+#SAI 0x1c
+#
+####################################
+##sai6 0x0f
+#SAI 0x1e
+####################################
+##sai6 0x10
+#SAI 0x20
+#
+####################################
+##sai6 0x11
+#SAI 0x22
+####################################
+##sai6 0x12
+#SAI 0x24
+####################################
+##sai6 0x13
+#SAI 0x26
+#
+####################################
+##sai6 0x14
+#SAI 0x28
+####################################
+##sai6 0x15
+#SAI 0x2a
+#
+####################################
+##sai6 0x16
+#SAI 0x2c
+####################################
+##sai6 0x17
+#SAI 0x2e
+####################################
+##sai6 0x18
+#SAI 0x30
+####################################
+##sai6 0x19
+#SAI 0x32
+####################################
+##sai6 0x1a
+#SAI 0x34
+####################################
+##sai6 0x1b
+#SAI 0x36
+####################################
+##sai6 0x1c
+#SAI 0x38
+#
+####################################
+##sai6 0x1d
+#SAI 0x3a
+####################################
+##sai6 0x1e
+#SAI 0x3c
+#
+####################################
+##sai6 0x1f
+#SAI 0x3e
+####################################
+##sai6 0x20
+#SAI 0x40
+####################################
+##sai6 0x21
+#SAI 0x42
+####################################
+##sai6 0x22
+#SAI 0x44
+####################################
+##sai6 0x23
+#SAI 0x46
+####################################
+##sai6 0x24
+#SAI 0x48
+####################################
+##sai6 0x25
+#SAI 0x4a
+####################################
+##sai6 0x26
+#SAI 0x4c
+####################################
+##sai6 0x27
+#SAI 0x4e
+####################################
+##sai6 0x28
+#SAI 0x50
+####################################
+##sai6 0x29
+#SAI 0x52
+####################################
+##sai6 0x2a
+#SAI 0x54
+####################################
+##sai6 0x2b
+#SAI 0x56
+####################################
+##sai6 0x2c
+#SAI 0x58
+####################################
+##sai6 0x2d
+#SAI 0x5a
+####################################
+##sai6 0x2e
+#SAI 0x5c
+####################################
+##sai6 0x2f
+#SAI 0x5e
+####################################
+##sai6 0x30
+#SAI 0x60
+####################################
+##sai6 0x31
+#SAI 0x62
+####################################
+##sai6 0x32
+#SAI 0x64
+####################################
+##sai6 0x33
+#SAI 0x66
+####################################
+##sai6 0x34
+#SAI 0x68
+####################################
+##sai6 0x35
+#SAI 0x6a
+####################################
+##sai6 0x36
+#SAI 0x6c
+####################################
+##sai6 0x37
+#SAI 0x6e
+####################################
+##sai6 0x38
+#SAI 0x70
+####################################
+##sai6 0x39
+#SAI 0x72
+####################################
+##sai6 0x3a
+#SAI 0x74
+####################################
+##sai6 0x3b
+#SAI 0x76
+####################################
+##sai6 0x3c
+#SAI 0x78
+####################################
+##sai6 0x3d
+#SAI 0x7a
+####################################
+##sai6 0x3e
+#SAI 0x7c
+####################################
+##sai6 0x3f
+#SAI 0x00
+####################################
+################ EOT ###############

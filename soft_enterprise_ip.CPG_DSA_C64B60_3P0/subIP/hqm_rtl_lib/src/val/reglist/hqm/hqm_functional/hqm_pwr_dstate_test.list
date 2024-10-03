@@ -1,0 +1,89 @@
++defaults -vcsvariant mpp
+
+$WORKAREA/src/val/tof/hqm_pwr_test -tv smoke -tv hcw_traffic -tv q1_short                                     -dirtag pwr_smoke
+#hqm_pwr_test:smoke+hcw_traffic+q1_short+lcp_shift_check                     -dirtag pwr_smoke_lcp_shift_check
+$WORKAREA/src/val/tof/hqm_pwr_test -tv d0_to_d3hot_to_d0 -tv hcw_traffic -tv q1_short                         -dirtag d0_to_d3hot_to_d0
+$WORKAREA/src/val/tof/hqm_pwr_test -tv d3hot_to_d0_by_flr -tv hcw_traffic -tv q1_short                        -dirtag d3hot_to_d0_by_flr
+$WORKAREA/src/val/tof/hqm_pwr_test -tv warm_reset_in_d3hot -tv hcw_traffic -tv q1_short                       -dirtag warm_reset_in_d3hot
+$WORKAREA/src/val/tof/hqm_pwr_test -tv warm_reset_in_d0act -tv hcw_traffic -tv q1_short                       -dirtag warm_reset_in_d0act
+$WORKAREA/src/val/tof/hqm_pwr_test -tv D0_transitions -tv hcw_traffic -tv q1_short                            -dirtag D0_transitions
+$WORKAREA/src/val/tof/hqm_pwr_test -tv pwrgate_req_in_D3hot -tv hcw_traffic -tv q1_short                      -dirtag pwrgate_req_in_D3hot
+
+## Enable Different configuration pre and post pwr seq
+$WORKAREA/src/val/tof/hqm_pwr_test -tv smoke -tv hcw_traffic -tv q1_short -tv hcw_diff_qtypes                     -dirtag pwr_smoke_hcw_diff_qtypes
+#hqm_pwr_test:smoke+hcw_traffic+q1_short+hcw_diff_qtypes+lcp_shift_check     -dirtag pwr_smoke_hcw_diff_qtypes_lcp_shift_check
+$WORKAREA/src/val/tof/hqm_pwr_test -tv d0_to_d3hot_to_d0 -tv hcw_traffic -tv q1_short -tv hcw_diff_qtypes         -dirtag d0_to_d3hot_to_d0_hcw_diff_qtypes
+$WORKAREA/src/val/tof/hqm_pwr_test -tv d3hot_to_d0_by_flr -tv hcw_traffic -tv q1_short -tv hcw_diff_qtypes        -dirtag d3hot_to_d0_by_flr_hcw_diff_qtypes
+$WORKAREA/src/val/tof/hqm_pwr_test -tv warm_reset_in_d3hot -tv hcw_traffic -tv q1_short -tv hcw_diff_qtypes       -dirtag warm_reset_in_d3hot_hcw_diff_qtypes
+$WORKAREA/src/val/tof/hqm_pwr_test -tv warm_reset_in_d0act -tv hcw_traffic -tv q1_short -tv hcw_diff_qtypes       -dirtag warm_reset_in_d0act_hcw_diff_qtypes
+$WORKAREA/src/val/tof/hqm_pwr_test -tv D0_transitions -tv hcw_traffic -tv q1_short -tv hcw_diff_qtypes            -dirtag D0_transitions_hcw_diff_qtypes
+$WORKAREA/src/val/tof/hqm_pwr_test -tv pwrgate_req_in_D3hot -tv hcw_traffic -tv q1_short -tv hcw_diff_qtypes      -dirtag pwrgate_req_in_D3hot
+
+#hqm_pwr_test:long_test+hcw_traffic+q1_short+lcp_shift_check                 -dirtag pwr_long_test_lcp_shift_check
+
+$WORKAREA/src/val/tof/hqm_pwr_test -tv iosf_transactions_in_D3hot                                                -dirtag iosf_transactions_in_D3hot 
+
+#four tests run long hcw trf (16K) to check freelists after warm reset
+$WORKAREA/src/val/tof/hqm_pwr_test -tv warm_reset_in_d3hot -tv hcw_traffic -tv trf_long                       -dirtag warm_reset_in_d3hot_trflong   
+$WORKAREA/src/val/tof/hqm_pwr_test -tv warm_reset_in_d0act -tv hcw_traffic -tv trf_long                       -dirtag warm_reset_in_d0act_trflong   
+$WORKAREA/src/val/tof/hqm_pwr_test -tv warm_reset_in_d3hot -tv hcw_traffic -tv trf_long -tv hcw_diff_qtypes       -dirtag warm_reset_in_d3hot_hcw_diff_qtypes_trflong   
+$WORKAREA/src/val/tof/hqm_pwr_test -tv warm_reset_in_d0act -tv hcw_traffic -tv trf_long -tv hcw_diff_qtypes       -dirtag warm_reset_in_d0act_hcw_diff_qtypes_trflong   
+
+#four tests run long hcw trf (16K) to check freelists after warm reset (disable CQ, issue all 16K DIR HCWs to verify freelist_empty after warm reset)
+$WORKAREA/src/val/tof/hqm_pwr_test -tv warm_reset_in_d3hot -tv hcw_traffic -tv dirtrf_long_cq_ctrl                       -dirtag warm_reset_in_d3hot_dirtrf_long_cq_ctrl   
+$WORKAREA/src/val/tof/hqm_pwr_test -tv warm_reset_in_d0act -tv hcw_traffic -tv dirtrf_long_cq_ctrl                       -dirtag warm_reset_in_d0act_dirtrf_long_cq_ctrl   
+$WORKAREA/src/val/tof/hqm_pwr_test -tv warm_reset_in_d3hot -tv hcw_traffic -tv dirtrf_long_cq_ctrl -tv hcw_diff_qtypes       -dirtag warm_reset_in_d3hot_hcw_diff_qtypes_dirtrf_long_cq_ctrl   
+$WORKAREA/src/val/tof/hqm_pwr_test -tv warm_reset_in_d0act -tv hcw_traffic -tv dirtrf_long_cq_ctrl -tv hcw_diff_qtypes       -dirtag warm_reset_in_d0act_hcw_diff_qtypes_dirtrf_long_cq_ctrl   
+
+#four tests run long hcw trf (16K) to check freelists after warm reset (disable CQ, issue all 16K DIR+LDB HCWs to verify freelist_empty after warm reset)
+$WORKAREA/src/val/tof/hqm_pwr_test -tv warm_reset_in_d3hot -tv hcw_traffic -tv dirldbtrf_long_cq_ctrl                       -dirtag warm_reset_in_d3hot_dirldbtrf_long_cq_ctrl   
+$WORKAREA/src/val/tof/hqm_pwr_test -tv warm_reset_in_d0act -tv hcw_traffic -tv dirldbtrf_long_cq_ctrl                       -dirtag warm_reset_in_d0act_dirldbtrf_long_cq_ctrl   
+$WORKAREA/src/val/tof/hqm_pwr_test -tv warm_reset_in_d3hot -tv hcw_traffic -tv dirldbtrf_long_cq_ctrl -tv hcw_diff_qtypes       -dirtag warm_reset_in_d3hot_hcw_diff_qtypes_dirldbtrf_long_cq_ctrl   
+$WORKAREA/src/val/tof/hqm_pwr_test -tv warm_reset_in_d0act -tv hcw_traffic -tv dirldbtrf_long_cq_ctrl -tv hcw_diff_qtypes       -dirtag warm_reset_in_d0act_hcw_diff_qtypes_dirldbtrf_long_cq_ctrl   
+
+#########################################################################################
+#running with WAKE_SET mode pwrgate_pmc_wake1
+#########################################################################################
+$WORKAREA/src/val/tof/hqm_pwr_test -tv pwrgate_pmc_wake1 -tv smoke -tv hcw_traffic -tv q1_short                                     -dirtag pmcwak1_pwr_smoke
+#hqm_pwr_test:pwrgate_pmc_wake1+smoke+hcw_traffic+q1_short+lcp_shift_check                     -dirtag pmcwak1_pwr_smoke_lcp_shift_check
+$WORKAREA/src/val/tof/hqm_pwr_test -tv pwrgate_pmc_wake1 -tv d0_to_d3hot_to_d0 -tv hcw_traffic -tv q1_short                         -dirtag pmcwak1_d0_to_d3hot_to_d0
+$WORKAREA/src/val/tof/hqm_pwr_test -tv pwrgate_pmc_wake1 -tv d3hot_to_d0_by_flr -tv hcw_traffic -tv q1_short                        -dirtag pmcwak1_d3hot_to_d0_by_flr
+$WORKAREA/src/val/tof/hqm_pwr_test -tv pwrgate_pmc_wake1 -tv warm_reset_in_d3hot -tv hcw_traffic -tv q1_short                       -dirtag pmcwak1_warm_reset_in_d3hot
+$WORKAREA/src/val/tof/hqm_pwr_test -tv pwrgate_pmc_wake1 -tv warm_reset_in_d0act -tv hcw_traffic -tv q1_short                       -dirtag pmcwak1_warm_reset_in_d0act
+$WORKAREA/src/val/tof/hqm_pwr_test -tv pwrgate_pmc_wake1 -tv D0_transitions -tv hcw_traffic -tv q1_short                            -dirtag pmcwak1_D0_transitions
+$WORKAREA/src/val/tof/hqm_pwr_test -tv pwrgate_pmc_wake1 -tv pwrgate_req_in_D3hot -tv hcw_traffic -tv q1_short                      -dirtag pmcwak1_pwrgate_req_in_D3hot
+
+## Enable Different configuration pre and post pwr seq
+$WORKAREA/src/val/tof/hqm_pwr_test -tv pwrgate_pmc_wake1 -tv smoke -tv hcw_traffic -tv q1_short -tv hcw_diff_qtypes                     -dirtag pmcwak1_pwr_smoke_hcw_diff_qtypes
+#hqm_pwr_test:pwrgate_pmc_wake1+smoke+hcw_traffic+q1_short+hcw_diff_qtypes+lcp_shift_check     -dirtag pmcwak1_pwr_smoke_hcw_diff_qtypes_lcp_shift_check
+$WORKAREA/src/val/tof/hqm_pwr_test -tv pwrgate_pmc_wake1 -tv d0_to_d3hot_to_d0 -tv hcw_traffic -tv q1_short -tv hcw_diff_qtypes         -dirtag pmcwak1_d0_to_d3hot_to_d0_hcw_diff_qtypes
+$WORKAREA/src/val/tof/hqm_pwr_test -tv pwrgate_pmc_wake1 -tv d3hot_to_d0_by_flr -tv hcw_traffic -tv q1_short -tv hcw_diff_qtypes        -dirtag pmcwak1_d3hot_to_d0_by_flr_hcw_diff_qtypes
+$WORKAREA/src/val/tof/hqm_pwr_test -tv pwrgate_pmc_wake1 -tv warm_reset_in_d3hot -tv hcw_traffic -tv q1_short -tv hcw_diff_qtypes       -dirtag pmcwak1_warm_reset_in_d3hot_hcw_diff_qtypes
+$WORKAREA/src/val/tof/hqm_pwr_test -tv pwrgate_pmc_wake1 -tv warm_reset_in_d0act -tv hcw_traffic -tv q1_short -tv hcw_diff_qtypes       -dirtag pmcwak1_warm_reset_in_d0act_hcw_diff_qtypes
+$WORKAREA/src/val/tof/hqm_pwr_test -tv pwrgate_pmc_wake1 -tv D0_transitions -tv hcw_traffic -tv q1_short -tv hcw_diff_qtypes            -dirtag pmcwak1_D0_transitions_hcw_diff_qtypes
+$WORKAREA/src/val/tof/hqm_pwr_test -tv pwrgate_pmc_wake1 -tv pwrgate_req_in_D3hot -tv hcw_traffic -tv q1_short -tv hcw_diff_qtypes      -dirtag pmcwak1_pwrgate_req_in_D3hot
+
+#hqm_pwr_test:pwrgate_pmc_wake1+long_test+hcw_traffic+q1_short+lcp_shift_check                 -dirtag pmcwak1_pwr_long_test_lcp_shift_check
+
+$WORKAREA/src/val/tof/hqm_pwr_test -tv pwrgate_pmc_wake1 -tv iosf_transactions_in_D3hot                                                -dirtag pmcwak1_iosf_transactions_in_D3hot 
+
+#four tests run long hcw trf (16K) to check freelists after warm reset
+$WORKAREA/src/val/tof/hqm_pwr_test -tv pwrgate_pmc_wake1 -tv warm_reset_in_d3hot -tv hcw_traffic -tv trf_long                       -dirtag pmcwak1_warm_reset_in_d3hot_trflong   
+$WORKAREA/src/val/tof/hqm_pwr_test -tv pwrgate_pmc_wake1 -tv warm_reset_in_d0act -tv hcw_traffic -tv trf_long                       -dirtag pmcwak1_warm_reset_in_d0act_trflong   
+$WORKAREA/src/val/tof/hqm_pwr_test -tv pwrgate_pmc_wake1 -tv warm_reset_in_d3hot -tv hcw_traffic -tv trf_long -tv hcw_diff_qtypes       -dirtag pmcwak1_warm_reset_in_d3hot_hcw_diff_qtypes_trflong   
+$WORKAREA/src/val/tof/hqm_pwr_test -tv pwrgate_pmc_wake1 -tv warm_reset_in_d0act -tv hcw_traffic -tv trf_long -tv hcw_diff_qtypes       -dirtag pmcwak1_warm_reset_in_d0act_hcw_diff_qtypes_trflong   
+
+#four tests run long hcw trf (16K) to check freelists after warm reset (disable CQ, issue all 16K DIR HCWs to verify freelist_empty after warm reset)
+$WORKAREA/src/val/tof/hqm_pwr_test -tv pwrgate_pmc_wake1 -tv warm_reset_in_d3hot -tv hcw_traffic -tv dirtrf_long_cq_ctrl                       -dirtag pmcwak1_warm_reset_in_d3hot_dirtrf_long_cq_ctrl   
+$WORKAREA/src/val/tof/hqm_pwr_test -tv pwrgate_pmc_wake1 -tv warm_reset_in_d0act -tv hcw_traffic -tv dirtrf_long_cq_ctrl                       -dirtag pmcwak1_warm_reset_in_d0act_dirtrf_long_cq_ctrl   
+$WORKAREA/src/val/tof/hqm_pwr_test -tv pwrgate_pmc_wake1 -tv warm_reset_in_d3hot -tv hcw_traffic -tv dirtrf_long_cq_ctrl -tv hcw_diff_qtypes       -dirtag pmcwak1_warm_reset_in_d3hot_hcw_diff_qtypes_dirtrf_long_cq_ctrl   
+$WORKAREA/src/val/tof/hqm_pwr_test -tv pwrgate_pmc_wake1 -tv warm_reset_in_d0act -tv hcw_traffic -tv dirtrf_long_cq_ctrl -tv hcw_diff_qtypes       -dirtag pmcwak1_warm_reset_in_d0act_hcw_diff_qtypes_dirtrf_long_cq_ctrl   
+
+#four tests run long hcw trf (16K) to check freelists after warm reset (disable CQ, issue all 16K DIR+LDB HCWs to verify freelist_empty after warm reset)
+$WORKAREA/src/val/tof/hqm_pwr_test -tv pwrgate_pmc_wake1 -tv warm_reset_in_d3hot -tv hcw_traffic -tv dirldbtrf_long_cq_ctrl                       -dirtag pmcwak1_warm_reset_in_d3hot_dirldbtrf_long_cq_ctrl   
+$WORKAREA/src/val/tof/hqm_pwr_test -tv pwrgate_pmc_wake1 -tv warm_reset_in_d0act -tv hcw_traffic -tv dirldbtrf_long_cq_ctrl                       -dirtag pmcwak1_warm_reset_in_d0act_dirldbtrf_long_cq_ctrl   
+$WORKAREA/src/val/tof/hqm_pwr_test -tv pwrgate_pmc_wake1 -tv warm_reset_in_d3hot -tv hcw_traffic -tv dirldbtrf_long_cq_ctrl -tv hcw_diff_qtypes       -dirtag pmcwak1_warm_reset_in_d3hot_hcw_diff_qtypes_dirldbtrf_long_cq_ctrl   
+$WORKAREA/src/val/tof/hqm_pwr_test -tv pwrgate_pmc_wake1 -tv warm_reset_in_d0act -tv hcw_traffic -tv dirldbtrf_long_cq_ctrl -tv hcw_diff_qtypes       -dirtag pmcwak1_warm_reset_in_d0act_hcw_diff_qtypes_dirldbtrf_long_cq_ctrl   
+
+
+-defaults -vcsvariant mpp

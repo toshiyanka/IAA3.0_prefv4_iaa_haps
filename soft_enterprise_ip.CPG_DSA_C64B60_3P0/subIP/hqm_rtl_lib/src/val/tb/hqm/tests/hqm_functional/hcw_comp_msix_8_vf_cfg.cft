@@ -1,0 +1,90 @@
+###################################
+# Setup LUTs used by HCWs
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+  dir qid DQID0:*
+  dir qid DQID1:*
+  dir qid DQID2:*
+  dir qid DQID3:*
+  dir qid DQID4:*
+  dir qid DQID5:*
+  dir qid DQID6:*
+  dir qid DQID7:*
+
+  ldb qid LQID0:*  qid_ldb_inflight_limit=256
+  ldb qid LQID1:*  qid_ldb_inflight_limit=256
+  ldb qid LQID2:*  qid_ldb_inflight_limit=256
+  ldb qid LQID3:*  qid_ldb_inflight_limit=256
+  ldb qid LQID4:*  qid_ldb_inflight_limit=256
+  ldb qid LQID5:*  qid_ldb_inflight_limit=256
+  ldb qid LQID6:*  qid_ldb_inflight_limit=256
+  ldb qid LQID7:*  qid_ldb_inflight_limit=256
+
+  vas VAS0:* dir_qidv:DQID0=1  dir_qidv:DQID1=1  dir_qidv:DQID2=1  dir_qidv:DQID3=1  dir_qidv:DQID4=1  dir_qidv:DQID5=1  dir_qidv:DQID6=1  dir_qidv:DQID7=1 credit_cnt=1024
+  vas VAS0   ldb_qidv:LQID0=1  ldb_qidv:LQID1=1  ldb_qidv:LQID2=1  ldb_qidv:LQID3=1  ldb_qidv:LQID4=1  ldb_qidv:LQID5=1  ldb_qidv:LQID6=1  ldb_qidv:LQID7=1
+
+  dir pp DQID0  vas=VAS0
+  dir pp DQID1  vas=VAS0 
+  dir pp DQID2  vas=VAS0
+  dir pp DQID3  vas=VAS0
+  dir pp DQID4  vas=VAS0
+  dir pp DQID5  vas=VAS0
+  dir pp DQID6  vas=VAS0
+  dir pp DQID7  vas=VAS0
+
+  dir cq DQID0  cq_depth=512 gpa=sm cq_timer_intr_thresh=15  cq_timer_intr_ena=1 cq_depth_intr_thresh=10 cq_depth_intr_ena=0 cq_isr_en_code=2 cq_isr_vector=2
+  dir cq DQID1  cq_depth=512 gpa=sm cq_timer_intr_thresh=25  cq_timer_intr_ena=1 cq_depth_intr_thresh=10 cq_depth_intr_ena=0 cq_isr_en_code=2 cq_isr_vector=4
+  dir cq DQID2  cq_depth=512 gpa=sm cq_timer_intr_thresh=40  cq_timer_intr_ena=1 cq_depth_intr_thresh=10 cq_depth_intr_ena=0 cq_isr_en_code=2 cq_isr_vector=8
+  dir cq DQID3  cq_depth=512 gpa=sm cq_timer_intr_thresh=70  cq_timer_intr_ena=1 cq_depth_intr_thresh=10 cq_depth_intr_ena=0 cq_isr_en_code=2 cq_isr_vector=9
+  dir cq DQID4  cq_depth=512 gpa=sm cq_timer_intr_thresh=60  cq_timer_intr_ena=1 cq_depth_intr_thresh=10 cq_depth_intr_ena=0 cq_isr_en_code=2 cq_isr_vector=7
+  dir cq DQID5  cq_depth=512 gpa=sm cq_timer_intr_thresh=40  cq_timer_intr_ena=1 cq_depth_intr_thresh=10 cq_depth_intr_ena=0 cq_isr_en_code=2 cq_isr_vector=3
+  dir cq DQID6  cq_depth=512 gpa=sm cq_timer_intr_thresh=20  cq_timer_intr_ena=1 cq_depth_intr_thresh=10 cq_depth_intr_ena=0 cq_isr_en_code=2 cq_isr_vector=6
+  dir cq DQID7  cq_depth=512 gpa=sm cq_timer_intr_thresh=5   cq_timer_intr_ena=1 cq_depth_intr_thresh=10 cq_depth_intr_ena=0 cq_isr_en_code=2 cq_isr_vector=5
+
+  ldb pp LPP0:*  vas=VAS0 
+  ldb pp LPP1:*  vas=VAS0
+  ldb pp LPP2:*  vas=VAS0
+  ldb pp LPP3:*  vas=VAS0
+  ldb pp LPP4:*  vas=VAS0
+  ldb pp LPP5:*  vas=VAS0
+  ldb pp LPP6:*  vas=VAS0
+  ldb pp LPP7:*  vas=VAS0
+
+  ldb cq LPP0   cq_depth=512 gpa=sm qidv0=1 qidix0=LQID0 pri0=0 cq_timer_intr_thresh=40 cq_timer_intr_ena=1 cq_depth_intr_thresh=10 cq_depth_intr_ena=0 cq_isr_en_code=2 cq_isr_vector=4
+  ldb cq LPP1   cq_depth=512 gpa=sm qidv0=1 qidix0=LQID1 pri0=0 cq_timer_intr_thresh=5  cq_timer_intr_ena=1 cq_depth_intr_thresh=10 cq_depth_intr_ena=0 cq_isr_en_code=2 cq_isr_vector=2
+  ldb cq LPP2   cq_depth=512 gpa=sm qidv0=1 qidix0=LQID2 pri0=0 cq_timer_intr_thresh=10 cq_timer_intr_ena=1 cq_depth_intr_thresh=10 cq_depth_intr_ena=0 cq_isr_en_code=2 cq_isr_vector=3
+  ldb cq LPP3   cq_depth=512 gpa=sm qidv0=1 qidix0=LQID3 pri0=0 cq_timer_intr_thresh=25 cq_timer_intr_ena=1 cq_depth_intr_thresh=10 cq_depth_intr_ena=0 cq_isr_en_code=2 cq_isr_vector=4
+  ldb cq LPP4   cq_depth=512 gpa=sm qidv0=1 qidix0=LQID4 pri0=0 cq_timer_intr_thresh=20 cq_timer_intr_ena=1 cq_depth_intr_thresh=10 cq_depth_intr_ena=0 cq_isr_en_code=2 cq_isr_vector=5
+  ldb cq LPP5   cq_depth=512 gpa=sm qidv0=1 qidix0=LQID5 pri0=0 cq_timer_intr_thresh=30 cq_timer_intr_ena=1 cq_depth_intr_thresh=10 cq_depth_intr_ena=0 cq_isr_en_code=2 cq_isr_vector=6
+  ldb cq LPP6   cq_depth=512 gpa=sm qidv0=1 qidix0=LQID6 pri0=0 cq_timer_intr_thresh=50 cq_timer_intr_ena=1 cq_depth_intr_thresh=10 cq_depth_intr_ena=0 cq_isr_en_code=2 cq_isr_vector=7
+  ldb cq LPP7   cq_depth=512 gpa=sm qidv0=1 qidix0=LQID7 pri0=0 cq_timer_intr_thresh=70 cq_timer_intr_ena=1 cq_depth_intr_thresh=10 cq_depth_intr_ena=0 cq_isr_en_code=2 cq_isr_vector=8
+
+
+
+  vf VF0:* ldb_vpp0_pp=LPP0  dir_vpp0_pp=DQID0  ldb_vqid0_qid=LQID0  dir_vqid0_qid=DQID0
+  vf VF1:* ldb_vpp1_pp=LPP1  dir_vpp1_pp=DQID1  ldb_vqid1_qid=LQID1  dir_vqid1_qid=DQID1
+  vf VF2:* ldb_vpp2_pp=LPP2  dir_vpp2_pp=DQID2  ldb_vqid2_qid=LQID2  dir_vqid2_qid=DQID2
+  vf VF3:* ldb_vpp3_pp=LPP3  dir_vpp3_pp=DQID3  ldb_vqid3_qid=LQID3  dir_vqid3_qid=DQID3
+  vf VF4:* ldb_vpp4_pp=LPP4  dir_vpp4_pp=DQID4  ldb_vqid4_qid=LQID4  dir_vqid4_qid=DQID4
+  vf VF5:* ldb_vpp5_pp=LPP5  dir_vpp5_pp=DQID5  ldb_vqid5_qid=LQID5  dir_vqid5_qid=DQID5
+  vf VF6:* ldb_vpp6_pp=LPP6  dir_vpp6_pp=DQID6  ldb_vqid6_qid=LQID6  dir_vqid6_qid=DQID6
+  vf VF7:* ldb_vpp7_pp=LPP7  dir_vpp7_pp=DQID7  ldb_vqid7_qid=LQID7  dir_vqid7_qid=DQID7
+
+  msix_cq 1 addr=0x123456789abcd00 data=0x55aacc33 mode=1
+
+cfg_end
+
+wr credit_hist_pipe.cfg_dir_cq_intr_armed0 0xffffffff
+wr credit_hist_pipe.cfg_dir_cq_intr_armed1 0xffffffff
+wr credit_hist_pipe.cfg_dir_cq_timer_ctl.enb 1
+wr credit_hist_pipe.cfg_dir_cq_timer_ctl.sample_interval 1
+
+wr credit_hist_pipe.cfg_ldb_cq_intr_armed0 0xffffffff
+wr credit_hist_pipe.cfg_ldb_cq_intr_armed1 0xffffffff
+wr credit_hist_pipe.cfg_ldb_cq_timer_ctl.enb 1
+wr credit_hist_pipe.cfg_ldb_cq_timer_ctl.sample_interval 1
+
+rd hqm_pf_cfg_i.vendor_id

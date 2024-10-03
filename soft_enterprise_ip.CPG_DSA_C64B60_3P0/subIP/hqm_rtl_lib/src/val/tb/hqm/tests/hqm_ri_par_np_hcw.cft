@@ -1,0 +1,88 @@
+idle 100
+# Good transaction
+idle 100
+rd hqm_pf_cfg_i.device_status           0x00000010
+rd hqm_pf_cfg_i.pcie_cap_device_status  0x00000000
+rd hqm_pf_cfg_i.aer_cap_corr_err_status 0x00000000
+rd hqm_sif_csr.ri_parity_err            0x00000000
+rd hqm_system_csr.alarm_hw_synd         0x00000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000
+rd hqm_system_csr.msix_31_0_synd        0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.hqm_system_cnt_12     0x00000000      # MSIs
+rd hqm_system_csr.hqm_system_cnt_14     0x00000000      # MSI-Xs
+rd hqm_system_csr.hqm_system_cnt_16     0x00000000      # IOSF writes
+##################################################################################################################
+idle 100
+# Cause an RI TLQ NPDATA FIFO data parity error
+force hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_sif.i_hqm_sif_core.i_hqm_ri.i_ri_tlq.tlq_npdata_rxp.data[31] 1
+wre hqm_pf_cfg_i.func_bar_u             0x00000002
+msix_alarm_wait 500
+release hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_sif.i_hqm_sif_core.i_hqm_ri.i_ri_tlq.tlq_npdata_rxp.data[31]
+rd hqm_pf_cfg_i.device_status           0x00008010      # DPE
+rd hqm_pf_cfg_i.pcie_cap_device_status  0x00000001      # CED
+rd hqm_pf_cfg_i.aer_cap_corr_err_status 0x00002000      # ANFES
+rd hqm_sif_csr.ri_parity_err            0x00000001      # NPD_FIFO_PERR
+rd hqm_sif_csr.sif_alarm_err            0x00000010      # RI_PARITY_ERROR
+rd hqm_system_csr.alarm_hw_synd         0x88048400      # v=1 src=2 unit=0 aid=4 cls=2 alarm=1
+rd hqm_system_csr.alarm_pf_synd0        0x00000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_12     0x00000000      # MSIs
+rd hqm_system_csr.hqm_system_cnt_14     0x00000001      # MSI-Xs
+rd hqm_system_csr.hqm_system_cnt_16     0x00000001      # IOSF writes
+wr hqm_pf_cfg_i.device_status           0x00008000
+rd hqm_pf_cfg_i.device_status           0x00000010
+wr hqm_pf_cfg_i.pcie_cap_device_status  0x00000001
+rd hqm_pf_cfg_i.pcie_cap_device_status  0x00000000
+wr hqm_pf_cfg_i.aer_cap_corr_err_status 0x00002000
+rd hqm_pf_cfg_i.aer_cap_corr_err_status 0x00000000
+wr hqm_sif_csr.ri_parity_err            0x00000001
+rd hqm_sif_csr.ri_parity_err            0x00000000
+wr hqm_sif_csr.sif_alarm_err            0x00000010
+rd hqm_sif_csr.sif_alarm_err            0x00000000
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+rd hqm_system_csr.alarm_hw_synd         0x00000000  0x80000000
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000000
+wr hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_ack              0x00000000
+##################################################################################################################
+idle 100
+# Cause a CBD data parity error
+force hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_sif.i_hqm_sif_core.i_hqm_ri.i_ri_cds.cbd_wr_data[31] 1
+wre hqm_pf_cfg_i.func_bar_u             0x00000003
+msix_alarm_wait 500
+release hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_sif.i_hqm_sif_core.i_hqm_ri.i_ri_cds.cbd_wr_data[31]
+rd hqm_pf_cfg_i.device_status           0x00008010      # DPE
+rd hqm_pf_cfg_i.pcie_cap_device_status  0x00000001      # CED
+rd hqm_pf_cfg_i.aer_cap_corr_err_status 0x00002000      # ANFES
+rd hqm_sif_csr.ri_parity_err            0x00000080      # CBD_DATA_PERR
+rd hqm_sif_csr.sif_alarm_err            0x00000010      # RI_PARITY_ERROR
+rd hqm_system_csr.alarm_hw_synd         0x88048400      # v=1 src=2 unit=0 aid=4 cls=2 alarm=1
+rd hqm_system_csr.alarm_pf_synd0        0x00000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_12     0x00000000      # MSIs
+rd hqm_system_csr.hqm_system_cnt_14     0x00000002      # MSI-Xs
+rd hqm_system_csr.hqm_system_cnt_16     0x00000002      # IOSF writes
+wr hqm_pf_cfg_i.device_status           0x00008000
+rd hqm_pf_cfg_i.device_status           0x00000010
+wr hqm_pf_cfg_i.pcie_cap_device_status  0x00000001
+rd hqm_pf_cfg_i.pcie_cap_device_status  0x00000000
+wr hqm_pf_cfg_i.aer_cap_corr_err_status 0x00002000
+rd hqm_pf_cfg_i.aer_cap_corr_err_status 0x00000000
+wr hqm_sif_csr.ri_parity_err            0x00000080
+rd hqm_sif_csr.ri_parity_err            0x00000000
+wr hqm_sif_csr.sif_alarm_err            0x00000010
+rd hqm_sif_csr.sif_alarm_err            0x00000000
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+rd hqm_system_csr.alarm_hw_synd         0x00000000  0x80000000
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000000
+wr hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_ack              0x00000000
+

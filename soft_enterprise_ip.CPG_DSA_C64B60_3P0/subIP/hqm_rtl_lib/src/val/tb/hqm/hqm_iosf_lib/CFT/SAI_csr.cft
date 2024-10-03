@@ -1,0 +1,84 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002 
+
+###################################
+# Enable memory and parity operations
+wr hqm_pf_cfg_i.device_command 0x46
+rd hqm_pf_cfg_i.device_command
+#read all SAI register first 
+rd hqm_sif_csr.hqm_csr_cp_lo
+rd hqm_sif_csr.hqm_csr_cp_hi
+rd hqm_sif_csr.hqm_csr_rac_lo
+rd hqm_sif_csr.hqm_csr_rac_hi
+rd hqm_sif_csr.hqm_csr_wac_lo
+rd hqm_sif_csr.hqm_csr_wac_hi
+####################################################
+
+#Check register  update happened or not
+wr hqm_system_csr.ingress_alarm_enable 0xFFFFFFFF 
+wr hqm_system_csr.sys_alarm_int_enable 0x007FFFFF
+wr hqm_system_csr.sys_alarm_sb_ecc_int_enable 0xF003FFFFF
+wr hqm_system_csr.sys_alarm_mb_ecc_int_enable 0x0003FFFFF
+wr hqm_system_csr.alarm_pf_synd0 0xFFFFFFFF0
+wr hqm_system_csr.msix_ack 0xDDDD0000
+wr hqm_system_csr.msix_passthrough 0x777777777
+wr hqm_system_csr.alarm_err 0x00009999
+wr hqm_system_csr.alarm_sb_ecc_err 0x88888888
+wr hqm_system_csr.alarm_mb_ecc_err 0xaaaaaaaa
+wr hqm_system_csr.alarm_pf_synd0 0xbbbbbbbbb
+wr hqm_system_csr.ALARM_HW_SYND  0xCCCCCCCCC
+wr hqm_system_csr.ALARM_LUT_PERR 0xddddddddd
+wr hqm_system_csr.EGRESS_LUT_ERR 0x111111111
+wr hqm_system_csr.INGRESS_LUT_ERR 0xBBBBBBBB
+wr hqm_sif_csr.RI_PARITY_ERR 0x222222222
+wr hqm_sif_csr.TI_PARITY_ERR 0x333333333
+
+
+
+
+##############################################################
+sai hostia_boot_sai     # Should be SAI index 4
+
+########################################
+#read all HQM CSR policy register 
+wr hqm_sif_csr.hqm_csr_cp_lo 0x0100020A
+wr hqm_sif_csr.hqm_csr_cp_hi 0x00000400
+rd hqm_sif_csr.hqm_csr_cp_lo 0x0100020A
+rd hqm_sif_csr.hqm_csr_cp_hi 0x00000400
+
+sai hostia_ucode_sai    # Should be SAI index 1
+
+
+
+############################################
+#HQM CSR Read Access Policy Low Register
+wr hqm_sif_csr.hqm_csr_rac_lo 0x0100020B
+wr hqm_sif_csr.hqm_csr_rac_hi 0x20000400
+rd hqm_sif_csr.hqm_csr_rac_lo 0x0100020B
+rd hqm_sif_csr.hqm_csr_rac_hi 0x20000400
+##################################################
+#HQM CSR Write Access Policy Low Register
+wr hqm_sif_csr.hqm_csr_wac_lo 0x0100020B
+wr hqm_sif_csr.hqm_csr_wac_hi 0x20000C00
+rd hqm_sif_csr.hqm_csr_wac_lo 0x0100020B
+rd hqm_sif_csr.hqm_csr_wac_hi 0x20000C00
+
+#read all
+
+#wait for reset done
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+
+

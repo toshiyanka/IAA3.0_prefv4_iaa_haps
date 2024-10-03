@@ -1,0 +1,47 @@
+To run CDC for the sbendpoint as the top level module run
+
+Main Targets:
+
+make cdc # run CDC if RTL or control files have been changed
+make gui # run CDC if needed then open the gui
+
+Cleaning:
+
+make clean    # cleans the current BLOCK_NAME target
+make cleanall # Automatically cleans both sbebase and sbendpoint
+
+Make Options:
+
+BLOCK_NAME=<sbendpoint/sbebase> # Run CDC for BLOCK_NAME.sv as the top level of the endpoint. Default=sbendpoint
+USYNC_ENABLE=<0/1> # Run CDC with(1)/without(0) the universal synchronizers enabled and only if asynchronous. Default=1
+ASYNCENDPT=<0/1>   # Run CDC with(1)/without(0) the endpoint setup as asynchronous. Default=1
+
+// https://hsdes.intel.com/appstore/article/#/14010595234
+//If you are seeing following error on generated abstract, please follow
+   following steps.
+   [AF]     SGDC_Abstract10                  Error  
+
+Using a csv file to dynamically edit the RTL file to run CDC and restoring the RTL file again after CDC run is complete is not a right way to run CDC to generate abstracts as the generated abstract will not match the RTL that you will provide to the SS.
+
+You can generate the correct abstract with correct override parameters by following steps
+
+ 
+1) Get rid of any parameter overrides from your .csv
+2) Add the parameters you want to override in your test.opt as follows : Eg: /nfs/fm/disks/fm_infrach_00027/vnandaku/EP_SGCDC_ARUSHI/ialcm_cdc_fix_July10/IOSF_Sideband_Endpoint_ALL_2019WW05_R1p0_PICr28/tools/spyglasscdc/ialcm_sbendpoint/ialcm_sbendpoint.opt
+     -spyglass_exe_opts           => [
+                                        'set ::env(TOP) ialcm_sbendpoint',
+                                        'set_option param ialcm_sbendpoint.ASYNCENDPT=1',
+                                        'set_option param ialcm_sbendpoint.ASYNCEQDEPTH=4',
+                                        'set_option param ialcm_sbendpoint.ASYNCIQDEPTH=4',
+                                        'set_option param ialcm_sbendpoint.MASTERREG=0',
+                                        'set_option param ialcm_sbendpoint.MAXPCMSTR=3',
+                                        'set_option param ialcm_sbendpoint.RX_EXT_HEADER_SUPPORT=1',
+                                        'set_option param ialcm_sbendpoint.SAIWIDTH=7',
+                                        'set_option param ialcm_sbendpoint.SB_PARITY_REQUIRED=1',
+                                        'set_option param ialcm_sbendpoint.TX_EXT_HEADER_SUPPORT=1',
+                                        'set_option param ialcm_sbendpoint.UNIQUE_EXT_HEADERS=1',
+                                        ],
+
+3) Run CDC.
+
+

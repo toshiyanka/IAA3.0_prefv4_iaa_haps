@@ -1,0 +1,101 @@
+
+module dfxsecure_plugin ( fdfx_powergood, fdfx_secure_policy, 
+        fdfx_earlyboot_exit, fdfx_policy_update, dfxsecure_feature_en, 
+        visa_all_dis, visa_customer_dis, sb_policy_ovr_value, 
+        oem_secure_policy );
+  input [3:0] fdfx_secure_policy;
+  output [0:0] dfxsecure_feature_en;
+  input [2:0] sb_policy_ovr_value;
+  input [3:0] oem_secure_policy;
+  input fdfx_powergood, fdfx_earlyboot_exit, fdfx_policy_update;
+  output visa_all_dis, visa_customer_dis;
+  wire   N0, N1, N2, N3, N4, N5, N6, N7, N8, N9, N10, N11, N12, N13, N14, N15,
+         N16, N17, N18, N19, N20, N21, N22, N23, N24, N25, N26, N27, N28, N29,
+         N30, N31, N32, N33, N34, N35, N36, N37, N38, N39, N40, N41, N42, N43,
+         N44, N45, N46;
+  wire   [2:0] dfxsecure_feature_mux;
+  wire   [3:0] dfxsecure_feature_lch;
+  wire   [2:0] dfxsecure_feature_int;
+
+  \**SEQGEN**  \dfxsecure_feature_lch_reg[3]  ( .clear(N6), .preset(1'b0), 
+        .next_state(1'b0), .clocked_on(1'b0), .data_in(fdfx_secure_policy[3]), 
+        .enable(N8), .Q(dfxsecure_feature_lch[3]), .QN(), .synch_clear(1'b0), 
+        .synch_preset(1'b0), .synch_toggle(1'b0), .synch_enable(1'b0) );
+  \**SEQGEN**  \dfxsecure_feature_lch_reg[2]  ( .clear(N6), .preset(1'b0), 
+        .next_state(1'b0), .clocked_on(1'b0), .data_in(fdfx_secure_policy[2]), 
+        .enable(N8), .Q(dfxsecure_feature_lch[2]), .QN(), .synch_clear(1'b0), 
+        .synch_preset(1'b0), .synch_toggle(1'b0), .synch_enable(1'b0) );
+  \**SEQGEN**  \dfxsecure_feature_lch_reg[1]  ( .clear(N6), .preset(1'b0), 
+        .next_state(1'b0), .clocked_on(1'b0), .data_in(fdfx_secure_policy[1]), 
+        .enable(N8), .Q(dfxsecure_feature_lch[1]), .QN(), .synch_clear(1'b0), 
+        .synch_preset(1'b0), .synch_toggle(1'b0), .synch_enable(1'b0) );
+  \**SEQGEN**  \dfxsecure_feature_lch_reg[0]  ( .clear(N6), .preset(1'b0), 
+        .next_state(1'b0), .clocked_on(1'b0), .data_in(fdfx_secure_policy[0]), 
+        .enable(N8), .Q(dfxsecure_feature_lch[0]), .QN(), .synch_clear(1'b0), 
+        .synch_preset(1'b0), .synch_toggle(1'b0), .synch_enable(1'b0) );
+  GTECH_OR2 C59 ( .A(dfxsecure_feature_lch[3]), .B(dfxsecure_feature_lch[2]), 
+        .Z(N10) );
+  GTECH_OR2 C60 ( .A(N9), .B(dfxsecure_feature_lch[0]), .Z(N11) );
+  GTECH_OR2 C61 ( .A(N10), .B(N11), .Z(N12) );
+  GTECH_OR2 C63 ( .A(dfxsecure_feature_lch[3]), .B(N13), .Z(N14) );
+  GTECH_OR2 C64 ( .A(dfxsecure_feature_lch[1]), .B(dfxsecure_feature_lch[0]), 
+        .Z(N15) );
+  GTECH_OR2 C65 ( .A(N14), .B(N15), .Z(N16) );
+  GTECH_OR2 C69 ( .A(dfxsecure_feature_lch[3]), .B(N13), .Z(N18) );
+  GTECH_OR2 C70 ( .A(N9), .B(N17), .Z(N19) );
+  GTECH_OR2 C71 ( .A(N18), .B(N19), .Z(N20) );
+  GTECH_AND2 C79 ( .A(dfxsecure_feature_lch[2]), .B(dfxsecure_feature_lch[1]), 
+        .Z(N22) );
+  GTECH_AND2 C80 ( .A(N22), .B(N17), .Z(N23) );
+  GTECH_AND2 C82 ( .A(N9), .B(dfxsecure_feature_lch[0]), .Z(N24) );
+  GTECH_OR2 C91 ( .A(dfxsecure_feature_lch[3]), .B(N13), .Z(N26) );
+  GTECH_OR2 C92 ( .A(N9), .B(dfxsecure_feature_lch[0]), .Z(N27) );
+  GTECH_OR2 C93 ( .A(N26), .B(N27), .Z(N28) );
+  GTECH_AND2 C94 ( .A(dfxsecure_feature_lch[3]), .B(dfxsecure_feature_lch[2]), 
+        .Z(N29) );
+  GTECH_AND2 C95 ( .A(dfxsecure_feature_lch[1]), .B(dfxsecure_feature_lch[0]), 
+        .Z(N30) );
+  GTECH_AND2 C96 ( .A(N29), .B(N30), .Z(N31) );
+  GTECH_AND2 C100 ( .A(N32), .B(N13), .Z(N33) );
+  GTECH_AND2 C101 ( .A(N33), .B(N9), .Z(N34) );
+  GTECH_AND2 C104 ( .A(N32), .B(N13), .Z(N35) );
+  GTECH_AND2 C105 ( .A(N35), .B(dfxsecure_feature_lch[0]), .Z(N36) );
+  GTECH_NOT I_0 ( .A(fdfx_earlyboot_exit), .Z(N38) );
+  SELECT_OP C120 ( .DATA1(1'b1), .DATA2(dfxsecure_feature_mux[0]), .CONTROL1(
+        N0), .CONTROL2(N1), .Z(visa_customer_dis) );
+  GTECH_BUF B_0 ( .A(N38), .Z(N0) );
+  GTECH_BUF B_1 ( .A(fdfx_earlyboot_exit), .Z(N1) );
+  SELECT_OP C121 ( .DATA1(1'b0), .DATA2(dfxsecure_feature_mux[1]), .CONTROL1(
+        N0), .CONTROL2(N1), .Z(visa_all_dis) );
+  SELECT_OP C122 ( .DATA1(1'b0), .DATA2(dfxsecure_feature_mux[2]), .CONTROL1(
+        N0), .CONTROL2(N1), .Z(dfxsecure_feature_en[0]) );
+  SELECT_OP C123 ( .DATA1(sb_policy_ovr_value), .DATA2(dfxsecure_feature_int), 
+        .CONTROL1(N2), .CONTROL2(N3), .Z(dfxsecure_feature_mux) );
+  GTECH_BUF B_2 ( .A(1'b0), .Z(N2) );
+  GTECH_BUF B_3 ( .A(N5), .Z(N3) );
+  SELECT_OP C124 ( .DATA1(1'b1), .DATA2(1'b0), .CONTROL1(N4), .CONTROL2(N7), 
+        .Z(N8) );
+  GTECH_BUF B_4 ( .A(fdfx_policy_update), .Z(N4) );
+  GTECH_NOT I_1 ( .A(1'b0), .Z(N5) );
+  GTECH_NOT I_2 ( .A(fdfx_powergood), .Z(N6) );
+  GTECH_NOT I_3 ( .A(fdfx_policy_update), .Z(N7) );
+  GTECH_NOT I_4 ( .A(dfxsecure_feature_lch[1]), .Z(N9) );
+  GTECH_NOT I_5 ( .A(dfxsecure_feature_lch[2]), .Z(N13) );
+  GTECH_NOT I_6 ( .A(dfxsecure_feature_lch[0]), .Z(N17) );
+  GTECH_OR2 C140 ( .A(N39), .B(N42), .Z(N21) );
+  GTECH_NOT I_7 ( .A(N12), .Z(N39) );
+  GTECH_OR2 C142 ( .A(N40), .B(N41), .Z(N42) );
+  GTECH_NOT I_8 ( .A(N16), .Z(N40) );
+  GTECH_NOT I_9 ( .A(N20), .Z(N41) );
+  GTECH_BUF B_5 ( .A(N21), .Z(dfxsecure_feature_int[2]) );
+  GTECH_OR2 C148 ( .A(N23), .B(N43), .Z(N25) );
+  GTECH_OR2 C149 ( .A(N24), .B(dfxsecure_feature_lch[3]), .Z(N43) );
+  GTECH_BUF B_6 ( .A(N25), .Z(dfxsecure_feature_int[1]) );
+  GTECH_NOT I_10 ( .A(dfxsecure_feature_lch[3]), .Z(N32) );
+  GTECH_OR2 C158 ( .A(N44), .B(N46), .Z(N37) );
+  GTECH_NOT I_11 ( .A(N28), .Z(N44) );
+  GTECH_OR2 C160 ( .A(N31), .B(N45), .Z(N46) );
+  GTECH_OR2 C161 ( .A(N34), .B(N36), .Z(N45) );
+  GTECH_BUF B_7 ( .A(N37), .Z(dfxsecure_feature_int[0]) );
+endmodule
+

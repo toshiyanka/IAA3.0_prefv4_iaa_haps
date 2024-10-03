@@ -1,0 +1,333 @@
+#!/bin/tcsh -f
+# name: runCDC
+
+################################################################################
+# Source a script that is called at the start of each back-end 
+# scripts/qa/run* script
+################################################################################
+source ./runPre -tool_name $0 $argv
+if( $status != 0 ) exit $status
+set cmdlinedbg=${debug}
+
+cd ../..
+
+unsetenv SB_STDCELLS_HDL
+
+setenv ACE_CDC_VER  v20141110
+setenv CDC_PREFERENCE_BIT_RECON FALSE
+setenv CDC_PREFERENCE_RECON_DEPTH
+# TEMP SETTING RECON_DEPTH to 0 - should be restored to 2
+setenv RECON_DEPTH 0
+
+#####################################################
+# Run commands
+#####################################################
+
+#####################################
+# Common options to be used with CDC
+#####################################
+set zeroin_opt="+0in_debug+nl_prop_const_thru_reg+nl_path_split+-blackbox_unresolved_modules"
+set perf_opt="+cdc_optimize_perf2+cdc_optimize_perf3+hcdc_check_hier+hcdc_suggest_hb+cdc_check_boundary_threshold"
+set cdc_opt="+cdc_support_multi_through+allow_diff_flags+cdc_vclk_for_hier_cdc"
+set vlog_opt="-sv -oldsv -skipsynthoffregion -mfcu -mixedansiports -permissive -convertallparams  -nopsl -suppress 7033 -suppress 3838 -suppress 2583"
+set vlog_defines="+define+INTEL_SVA_OFF+DC+SYNTH"
+set ace_network=""
+
+# Test if KIT_PATH exists and is valid
+if ( ! $?KIT_PATH ) then
+   echo "${thisToolName} -E- KIT_PATH was not defined."
+   exit 1
+endif
+
+if ( -d ${KIT_PATH} ) then
+   if ( ${debug} ) echo "${thisToolName} -D- KIT_PATH set to ${KIT_PATH}"
+else
+   echo "${thisToolName} -E- KIT_PATH does not point to a valid directory."
+   exit 1
+endif
+
+# from the process we can generate a default library if one is not specified
+if (${KIT_PATH} =~ "*p1271*") then
+   set sip_process="1271"
+   if (! $?SIP_LIBRARY_TYPE) then
+      set sip_lib_type="b12.4"
+      echo "${thisToolName} -W- SIP_LIBRARY_TYPE is not defined using default value ${sip_lib_type}"
+   else
+      set sip_lib_type=${SIP_LIBRARY_TYPE}
+   endif
+else if (${KIT_PATH} =~ "*p1273*") then
+   set sip_process="1273"
+   if (! $?SIP_LIBRARY_TYPE) then
+      set sip_lib_type="d04"
+      echo "${thisToolName} -W- SIP_LIBRARY_TYPE is not defined using default value ${sip_lib_type}"
+   else
+      set sip_lib_type=${SIP_LIBRARY_TYPE}
+   endif
+else if (${KIT_PATH} =~ "*10nm*") then
+   set sip_process="1274"
+   if (! $?SIP_LIBRARY_TYPE) then
+      set sip_lib_type="e05"
+      echo "${thisToolName} -W- SIP_LIBRARY_TYPE is not defined using default value ${sip_lib_type}"
+   else
+      set sip_lib_type=${SIP_LIBRARY_TYPE}
+   endif   
+else
+   set sip_process="UNDEFINED"
+   echo "${thisToolName} -E- KIT_PATH set to an unsupported process ${KIT_PATH}"
+   exit 1
+endif
+
+set sip_lib_type_strip=`echo ${sip_lib_type} | perl -pe 's/^([\w\d]+)\.?([\w\d]+)?/$1/'`
+
+set sip_custname="default"
+
+# No longer needed after the ACE setup is done, we will only exercise the
+# required vt_type from the SIP_LIBRARY_VTYPES env variable in the toolfile.
+switch ("${sip_lib_type}")
+   case 'b05.8':
+      set vttypes=("un" "ln" "nn")
+      set sip_custname="spt"
+      breaksw
+   case 'b12.1':
+      set vttypes=("wn", "ln" "nn" "tg")
+      breaksw
+   case 'b12.4':
+      set vttypes=("un" "ln" "nn")
+      breaksw
+   case 'd04':
+      set vttypes=("wn" "ln" "nn")
+      breaksw
+   case 'e05':
+      set vttypes=("ln")
+      breaksw
+   default:
+      echo "${thisToolName} -E- Unsupported library type '${sip_lib_type}', update sbc_map.sv and runCDC before proceding"
+      exit 1
+endsw
+
+# Create a define for type defs to access test cells in the map file
+set sip_lib_type_def="${sip_lib_type}"
+set sip_lib_type_def=`echo ${sip_lib_type_def} | tr "[a-z]" "[A-Z]"`
+set sip_lib_type_def=`echo ${sip_lib_type_def} | perl -pe 's/\./_/g'`
+set vlog_libs=""
+
+# Builds up the list of libraries to use from the process chosen
+foreach vttype (${vttypes})
+    if (${sip_lib_type} == "e05") then
+        set vlog_libs="${vlog_libs} -v /p/hdk/cad/stdcells/e05/14ww45.3_e05_d.0_cnlgt/v/${vttype}/${sip_lib_type_strip}_${vttype}_core.v"
+    else
+        set vlog_libs="${vlog_libs} -v ${KIT_PATH}/stdcells/${sip_lib_type}/${sip_custname}/latest/v/${vttype}/${sip_lib_type_strip}_${vttype}_core.v"
+    endif
+end
+
+if (${sip_process} == "1274") then 
+    set vlog_libs="${vlog_libs} -v /p/hdk/cad/stdcells/e05/14ww45.3_e05_d.0_cnlgt/v/primitives/${sip_lib_type_strip}_primitive_verilog.v"
+else
+    set vlog_libs="${vlog_libs} -v ${KIT_PATH}/stdcells/${sip_lib_type}/${sip_custname}/latest/v/primitives/${sip_lib_type_strip}_primitive_verilog.v"
+endif
+
+set parameters=""
+if ( "${config}" =~ "IOSF_Sideband_Endpoint" ) then
+   set mainDebug=$debug
+   source ${sbrdir}/scripts/qa/ephelper.csh -rtlcfg ${component} \
+                                            -topdir ${sbrdir} \
+                                            -gentool ${thisToolName} \
+                                            -tooldir cdc/tests
+   set debug=$mainDebug
+
+   # Go to the endpoint that you will be working with's directory
+   set cdcdir=${dsttooldir}
+   /bin/rm -rf ${dsttooldir}/src
+   /bin/mkdir ${dsttooldir}/src
+   # Override the config parameters in the CDC control and waiver files, and in ${rtltop}.sv
+   # The original ${rtltop}.sv file is saved as ${rtltop}.sv.tmp, and restored at the end of the ACECDC run
+   if ( ${rtlparameterstring} != "" ) then
+      foreach param (${rtlparameterlist})
+         # Parameter override when calling vlog to compile the design
+         set parameters = "${parameters}-G ${param} "
+
+         # Override the tcl control files in the current version of the sbebase
+         # or sbendpoint folders to help direct the cdc runs for that particular
+         # configuration. By using these tcl files instead we can accomplish
+         # in our nightly runs what ACECDC cannot.
+         set catch      = `echo ${param} | sed "s/=/ /g"`
+         set kvp        = ($catch)
+         set key        = $kvp[1]
+         set lkey       = `echo $key | tr '[A-Z]' '[a-z]'`
+         set value      = $kvp[2]
+
+         if ( ${debug} ) echo "${thisToolName} -D- SED:'${catch}' KVP:'${kvp}' Key:'$kvp[1]' Value:'$kvp[2]'"
+
+         foreach file ("${cdcdir}/${rtltop}_ctrl.tcl" "${cdcdir}/${rtltop}_waivers.tcl")
+            perl -pi -e "s/set\s+${lkey}\s+(\d+)/set ${lkey} ${value}/" ${file}
+         end
+      end
+      ${sbrdir}/scripts/qa/setRTLparams.pl \
+         -config ${configfile} \
+         -src_rtl ${sbrdir}/source/rtl/iosfsbc/endpoint/${rtltop}.sv \
+         -dst_rtl ${dsttooldir}/src/${rtltop}.sv
+      set exitstatus=$status
+      if ( ${exitstatus} ) then
+         echo "${thisToolName} -E- setRTLparams.pl failed."
+         exit ${exitstatus}
+      endif
+   endif
+else
+   if (${dynopt} =~ "nonDyn") then
+      set rtltop="${component}"
+   else
+      set rtltop="${component}_sbr_generic"
+   endif
+   # Go to the endpoint that you will be working with's directory
+   set cdcdir=${sbrdir}/tools/cdc/tests/${rtltop}
+endif
+
+cd ${cdcdir}
+
+# defining common names
+if ( "${config}" =~ "IOSF_Sideband_Endpoint" ) then
+   if ( "${async_ep}" == "0" ) then
+      set ctrl_name="${rtltop}_sync"
+   else
+      set ctrl_name="${rtltop}"
+   endif
+
+   set vlog_defines="${vlog_defines}+SIPINT_${sip_process}"
+   set vlog_defines="${vlog_defines}+SIPINT_${sip_lib_type_def}"
+
+else
+   set ctrl_name="iosf_sbc_rtr_${rtltop}"
+   set ace_network="-ace_network $config"
+endif
+
+set results_dir="${sbrdir}/tools/cdc/results/${component}/${rtltop}_runCDC_results"
+set block_lib_dir="${results_dir}/${ctrl_name}_cdc_lib"
+set ctrl_file_v="${ctrl_name}_cdc_ctrl.v"
+
+set tcl_ctrl_dir="${cdcdir}/tcl_ctrl_files"
+set ctrl_file_tcl="${tcl_ctrl_dir}/${ctrl_name}_cdc_ctrl.v.tcl"
+set dbgf_file_tcl="${tcl_ctrl_dir}/debug_flags.v.tcl"
+
+if ( "${config}" =~ "IOSF_Sideband_Endpoint" ) then
+    if (${sip_lib_type} == "e05") then
+        set tcl_files=("/p/com/eda/intel/cdc/${ACE_CDC_VER}/prototype/cdc_global.tcl" "/p/com/eda/intel/cdc/${ACE_CDC_VER}/prototype/p1274/cdc_global_waivers.tcl" "${cdcdir}/${rtltop}_ctrl.tcl" "${cdcdir}/${rtltop}_waivers.tcl")
+    else
+        set tcl_files=("/p/com/eda/intel/cdc/${ACE_CDC_VER}/prototype/cdc_global.tcl" "/p/com/eda/intel/cdc/${ACE_CDC_VER}/prototype/${SIP_PROCESS_NAME}/cdc_global_waivers.tcl" "${cdcdir}/${rtltop}_ctrl.tcl" "${cdcdir}/${rtltop}_waivers.tcl")
+    endif
+
+else
+   set tcl_files=("${ctrl_file_tcl}" "${dbgf_file_tcl}")
+endif
+
+set cdcdb="${results_dir}/cdc.db"
+set vlib_log="${results_dir}/${rtltop}_vlib.log"
+set vlog_log="${results_dir}/${rtltop}_vlog.log"
+set qcdc_log="${results_dir}/${rtltop}_qcdc.log"
+set qcdc_gui_log="${results_dir}/${rtltop}_qcdc_gui.log"
+set zin2tcl_log="${results_dir}/${rtltop}_0in2tcl.log"
+set rtl_list="${cdcdir}/rtl.list"
+
+${sbrdir}/scripts/qa/get_filelist.pl \
+   -run_ace \
+   -ace_model cdc_${rtltop} \
+   -ace_filter Synthesis \
+   -format cdc \
+   -output_file ${cdcdir}/rtl.list \
+   $ace_network
+  
+if (${config} =~ "IOSF_Sideband_Endpoint") then
+   if (${rtlparameterstring} != "" ) then
+     perl -pi -e 's|/source/rtl/iosfsbc/endpoint/'${rtltop}'.sv|/tools/cdc/tests/'${component}'/src/'${rtltop}'.sv|'  ${cdcdir}/rtl.list
+   endif 
+endif  
+
+set exitstatus=$status
+if ( ${exitstatus} ) then
+   echo "${thisToolName} -E- get_filelist.pl failed."
+   exit ${exitstatus}
+endif
+
+if ( ${no_run} ) then
+   exit 1
+endif
+
+rm    -fr ${results_dir}
+mkdir -p  ${results_dir}
+
+#####################
+# Common Elaboration
+#####################
+
+vlib ${block_lib_dir} | tee ${vlib_log}
+set exitstatus=$status
+if ( ${exitstatus} ) then
+   echo "${thisToolName} -E- vlib failed."
+   exit ${exitstatus}
+endif
+
+vlog ${vlog_opt} ${vlog_defines} -f ${rtl_list} ${vlog_libs} -work ${block_lib_dir} | tee ${vlog_log}
+set exitstatus=$status
+if ( ${exitstatus} ) then
+   echo "${thisToolName} -E- vlog failed."
+   exit ${exitstatus}
+endif
+
+#########################
+# Convert Verilog to TCL
+#########################
+if ( -e ${ctrl_file_v} ) then
+   if ( ${debug} ) echo "${thisToolName} -I- Control file ${ctrl_file_v} found."
+   rm -f ${ctrl_file_tcl}
+   0in2tcl -ctrl_file ${ctrl_file_v} -od ${tcl_ctrl_dir} | tee ${zin2tcl_log}
+   set exitstatus=$status
+   if ( ${exitstatus} ) then
+      echo "${thisToolName} -E- 0in2tcl failed."
+      exit ${exitstatus}
+   endif
+endif
+
+#############################
+# Run CDC against the design
+#############################
+setenv ZI_STAT_LEVEL 3
+set cdc_do="configure license queue on; "
+
+foreach tcl_file (${tcl_files})
+   set cdc_do="${cdc_do} do ${tcl_file}; "
+end
+
+#if ( ${cmdlinedbg} ) then
+#   set cdc_do="${cdc_do} cdc preference -enable_internal_resets; "
+#endif
+set cdc_do="${cdc_do} cdc run -d ${rtltop} ${parameters} -work ${block_lib_dir}; "
+set cdc_do="${cdc_do} cdc generate tree ${rtltop}_reset_tree.rpt -reset; "
+set cdc_do="${cdc_do} cdc generate tree ${rtltop}_clock_tree.rpt -clock; "
+set cdc_do="${cdc_do} cdc generate crossings ${rtltop}_detailed_crossings.rpt; "
+set cdc_do="${cdc_do} exit"
+
+
+qcdc -od ${results_dir} -c -licq -do "${cdc_do}" | tee ${qcdc_log}
+set exitstatus=$status
+
+# Restore the rtltop file for SBE
+
+################################
+# Run in gui mode after the run
+################################
+if ( ${guimode} ) then
+   qcdc ${cdcdb} | tee ${qcdc_gui_log}
+endif
+
+##################################
+# Verify that everything was good
+##################################
+/p/com/eda/intel/siputils/prod/bin/checkLogFile ${qcdc_log} -pc 'Violations\s+\(0\)' -pc 'Cautions\s+\(0\)'
+set exitstatus=$status
+
+if ( $exitstatus ) then
+   echo "${thisToolName} -E- CDC failed with Violations or Cautions reported"
+   exit ${exitstatus}
+endif
+
+echo "${thisToolName} -I- CDC passed without Violations or Cautions reported"
+

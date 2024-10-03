@@ -1,0 +1,62 @@
+###################################
+# Read first part of PF header
+CfgRd0 0x0
+CfgRd0 0x4
+CfgRd0 0x8
+CfgRd0 0xc
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+CfgWr0 0x10 0x00000000
+CfgWr0 0x14 0x00000001
+###################################
+# Setup CSR_PF  BAR to a base address of 0x00000002_xxxxxxxx
+CfgWr0 0x18 0x00000000
+CfgWr0 0x1c 0x00000002
+###################################
+# Enable memory operations
+CfgWr0 0x4 0x2
+CfgRd0 0x4
+###################################
+# Setup LUTs used by HCWs
+# lut_ldb_vasqid_v
+MWr64 0x202000D00 0x1
+# lut_ldb_vascqid_en_v
+MWr64 0x202002D04 0x3
+MWr64 0x202006D04 0x3
+MWr64 0x20200AD04 0x3
+MWr64 0x20200ED04 0x3
+# lut_dir_vasqid_v
+MWr64 0x202000E00 0x1
+# lut_dir_vascqid_en_v
+MWr64 0x202002E04 0x3
+MWr64 0x202006E04 0x3
+MWr64 0x20200AE04 0x3
+MWr64 0x20200EE04 0x3
+# lut_ldb_qid_cfg_v
+MWr64 0x203000304 0x3
+# lut_ldb_cqid_enq_chk
+MWr64 0x203002500 0x0
+MWr64 0x203006500 0x0
+MWr64 0x20300A500 0x0
+MWr64 0x20300E500 0x0
+# lut_dir_cqid_enq_chk
+MWr64 0x203002600 0x0
+MWr64 0x203006600 0x0
+MWr64 0x20300A600 0x0
+MWr64 0x20300E600 0x0
+# lut_dir_pool_enabled
+MWr64 0x203000700 0x1
+# lut_ldb_pool_enabled
+MWr64 0x203000800 0x1
+MRd64 0x20200EE04 0x3
+###################################
+# Test 1 HCW write - directed producer port 1
+MWr64 0x102001000 0x300 0x301 0x03000302 0x08000303
+MWr64 0x102001000 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+###################################
+MPoll64 0x2B8000008 0x000001ff 0x000081ff 1000
+###################################
+# Test hqm_system register
+MRd64 0x202000600
+MWr64 0x202000600 0x25
+MRd64 0x202000600 0x25

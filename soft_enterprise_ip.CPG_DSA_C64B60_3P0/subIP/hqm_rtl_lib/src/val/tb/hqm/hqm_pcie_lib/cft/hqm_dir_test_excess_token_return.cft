@@ -1,0 +1,32 @@
+###################################
+# Wait for reset to be done (including hardware memory init)
+poll config_master.cfg_diagnostic_reset_status 0x800003ff 0xffffffff 1000
+
+###################################
+# Setup LUTs used by HCWs
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+  dir qid DQ_B:*
+  dir pool 0 credit_cnt=0x3fc credit_limit=0x400 freelist_base=0 freelist_limit=0x3ff
+  dir pool 1 credit_cnt=0xc00 credit_limit=0xc00 freelist_base=0x400 freelist_limit=0xfff
+  ldb pool 0 credit_cnt=0x4000 credit_limit=0x4000 freelist_base=0 freelist_limit=0x3fff
+  vas 0 dir_qidv:DQ_B=1
+  dir pp DQ_B  gpa=sm vas=0 dir_pool=0 ldb_pool=0 dir_credit_count=0x4 dir_min_credit_quanta=0x100 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x200 dir_credit_lwm=0x100
+  dir cq DQ_B  cq_depth=512 gpa=sm
+
+cfg_end
+
+rd hqm_pf_cfg_i.vendor_id
+
+HCW DIR:DQ_B qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_B dsi=0x302 ptr=0x0000_0000_0000_0000
+HCW DIR:DQ_B qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_B dsi=0x302 ptr=0x0001_0000_0000_0000
+HCW DIR:DQ_B qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_B dsi=0x302 ptr=0x0002_0000_0000_0000
+HCW DIR:DQ_B qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_B dsi=0x302 ptr=0x0003_0000_0000_0000
+IDLE 400
+HCW DIR:DQ_B qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x003 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302 ptr=0
+IDLE 400
+HCW DIR:DQ_B qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302 ptr=0
+IDLE 400

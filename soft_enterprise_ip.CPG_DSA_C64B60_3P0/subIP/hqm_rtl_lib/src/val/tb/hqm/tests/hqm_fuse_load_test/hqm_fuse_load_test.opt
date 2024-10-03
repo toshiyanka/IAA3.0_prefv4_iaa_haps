@@ -1,0 +1,118 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => [
+            "+AW_CONTINUE_ON_ERROR", "+iosf_tracker_filename=iosf_trk", "-assert nopostproc", "+vcs+lic+wait",
+            ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+      sec_2_1_1_3 => {
+          -simv_args => ["",], 
+      },
+      illegal_fp_cmpl_sai => {
+          -simv_args => [
+                         "+HQM_ILLEGAL_FUSE_CMPL_SAI",
+                         "+HQM_STRAP_FP_CFG_SAI_CMPL=0xff",
+                         "+HQM_TB_FUSE_VALUES=0x00005556",
+                         "+HQM_USE_TB_FUSE_VALUES=1",
+                        ],
+      },
+
+      fuse_load_1 => {
+          -simv_args => [
+                         "+HQM_TB_FUSE_VALUES=0x00005556",
+                         "+HQM_USE_TB_FUSE_VALUES=1",
+                         "+HQM_FALSE_FUSE_AFTIPRDY=1",      #send a false early_fuses after receiving ip_ready, RTL shouldn't sample it
+                        ],
+      },
+      fuse_load_2 => {
+          -simv_args => [
+                         "+HQM_TB_FUSE_VALUES=0x0000AAAA",
+                         "+HQM_USE_TB_FUSE_VALUES=1",
+                         "+HQM_FALSE_FUSE_AFTIPRDY=1",      #send a false early_fuses after receiving ip_ready, RTL shouldn't sample it
+                        ],
+      },
+      fuse_load_revision_id => {
+          -simv_args => [
+                         "+HQM_TB_FUSE_VALUES=0x0000AA00",
+                         "+HQM_USE_TB_FUSE_VALUES=1",
+                         "+HQM_FALSE_FUSE_AFTIPRDY=1",      #send a false early_fuses after receiving ip_ready, RTL shouldn't sample it
+                        ],
+      },
+      fuse_load_proc_disable => {
+          -simv_args => [
+                         "+HQM_TB_FUSE_VALUES=0x00000001 +PROC_DISABLE_MODE +HQM_TB_EOT_CHECK_DISABLE=1 +HQM_TB_HQM_IOSF_EOT_CHECK_DISABLE=1 ", "+hqm_reset_init_sequence_stim_config::skip_pcie_init=1", 
+                         "+HQM_USE_TB_FUSE_VALUES=1",
+                         "+HQM_FALSE_FUSE_AFTIPRDY=1",      #send a false early_fuses after receiving ip_ready, RTL shouldn't sample it
+                         "+SLA_RAL_STATUS_CHECK_DISABLE",
+                         "+HQM_DISABLE_BACKGROUND_CFG_GEN_SEQ",
+                         "+HQM_SKIP_AGITATE_SEQ",
+                         "+HQM_NO_PRE_FLUSH_PHASE"
+                        ],
+      },
+      fuse_load_proc_disable_force_on => {
+          -simv_args => [
+                         "+HQM_TB_FUSE_VALUES=0x00000003 +PROC_DISABLE_MODE +HQM_TB_EOT_CHECK_DISABLE=1 +HQM_TB_HQM_IOSF_EOT_CHECK_DISABLE=1",
+                         "+HQM_USE_TB_FUSE_VALUES=1",
+                         "+HQM_FALSE_FUSE_AFTIPRDY=1",      #send a false early_fuses after receiving ip_ready, RTL shouldn't sample it
+                         "+SLA_RAL_STATUS_CHECK_DISABLE",
+                         "+HQM_DISABLE_BACKGROUND_CFG_GEN_SEQ",
+                         "+HQM_SKIP_AGITATE_SEQ",
+                         "+HQM_NO_PRE_FLUSH_PHASE"
+                        ],
+      },
+      fuse_load_force_on => {
+          -simv_args => [
+                         "+HQM_TB_FUSE_VALUES=0x00000010",
+                         "+HQM_USE_TB_FUSE_VALUES=1",
+                         "+HQM_FALSE_FUSE_AFTIPRDY=1",      #send a false early_fuses after receiving ip_ready, RTL shouldn't sample it
+                        ],
+      },
+      fuse_load_random => {
+          -simv_args => [
+                         "+RANDOMIZE_FUSE_VALUES=1",
+                         "+HQM_USE_TB_FUSE_VALUES=1",
+                         "+HQM_FALSE_FUSE_AFTIPRDY=1",      #send a false early_fuses after receiving ip_ready, RTL shouldn't sample it
+                        ],
+      },
+      no_fuse_data => {
+          -simv_args => [
+                         "+HQM_TB_FUSE_DATA_VAR=1",
+                        ],
+      },
+      excess_fuse_data => {
+          -simv_args => [
+                         "+HQM_TB_FUSE_DATA_VAR=2",
+                         "+HQM_TB_FUSE_DATA_SIZE=4",
+                         "+HQM_TB_FUSE_VALUES=0x00005556",
+                         "+HQM_USE_TB_FUSE_VALUES=1",
+                         "+HQM_FALSE_FUSE_AFTIPRDY=1",      #send a false early_fuses after receiving ip_ready, RTL shouldn't sample it
+                        ],
+      },
+      not_enough_fuse_data => {
+          -simv_args => [
+                         "+HQM_TB_FUSE_DATA_VAR=3",
+                         "+HQM_TB_FUSE_DATA_SIZE=1",
+                         "+HQM_TB_FUSE_VALUES=0x00005556",
+                         "+HQM_USE_TB_FUSE_VALUES=1",
+                         "+HQM_FALSE_FUSE_AFTIPRDY=1",      #send a false early_fuses after receiving ip_ready, RTL shouldn't sample it
+                        ],
+      },
+      second_fuse_data_cmpl => {
+          -simv_args => [
+                         "+HQM_TB_SECOND_FUSE_DATA_CMPL ", "-assert quiet+hier=aceroot/verif/tb/hqm/tests/hqm_fuse_load_test/svc_spurious_completion.waiver",
+                         "+HQM_TB_FUSE_VALUES1=0x0000AAAA",
+                         "+HQM_USE_TB_FUSE_VALUES=1",
+                         "+HQM_FALSE_FUSE_AFTIPRDY=1",      #send a false early_fuses after receiving ip_ready, RTL shouldn't sample it
+                        ],
+      },
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

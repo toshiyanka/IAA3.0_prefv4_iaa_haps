@@ -1,0 +1,171 @@
+idle 1000
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+###################################
+# Setup FUNC_VF BAR to a base address of 0x00000000_xxxxxxxx
+###################################
+# 00 VFs
+###################################
+# Enable VF and VF memory operations
+###################################
+
+###################################
+# Wait for reset to be done (including hardware memory init)
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+
+
+ sai hostia_boot_sai     # Should be SAI index 4
+ ########################################
+ # -- HQM CSR policy register 
+ rd hqm_system_csr.hqm_csr_cp_hi 0x55555555
+ rd hqm_system_csr.hqm_csr_cp_lo 0x55555555
+ 
+ sai hostia_ucode_sai    # Should be SAI index 1
+ ## -- HQM CSR Read Access Policy Low Register
+ rd hqm_system_csr.hqm_csr_rac_hi 0xd5555555
+ rd hqm_system_csr.hqm_csr_rac_lo 0x55555557
+ ## -- HQM CSR Write Access Policy Low Register
+ rd hqm_system_csr.hqm_csr_wac_hi 0xd5555555
+ rd hqm_system_csr.hqm_csr_wac_lo 0x55555557
+
+### sai hostia_boot_sai     # Should be SAI index 4
+### ########################################
+### # -- HQM CSR policy register 
+### rd hqm_system_csr.hqm_csr_cp_hi 0x00000400
+### rd hqm_system_csr.hqm_csr_cp_lo 0x01000218
+### 
+### 
+### sai hostia_ucode_sai    # Should be SAI index 1
+### ## -- HQM CSR Read Access Policy Low Register
+### rd hqm_system_csr.hqm_csr_rac_hi 0xFFFFFFFF
+### rd hqm_system_csr.hqm_csr_rac_lo 0xFFFFFFFF
+### ## -- HQM CSR Write Access Policy Low Register
+### rd hqm_system_csr.hqm_csr_wac_hi 0x20000400
+### rd hqm_system_csr.hqm_csr_wac_lo 0x0300021F
+
+sai hostia_boot_sai     # Should be SAI index 4
+
+########################################
+#read all HQM CSR policy register 
+wr hqm_system_csr.hqm_csr_cp_lo 0xFFFFFFFF
+wr hqm_system_csr.hqm_csr_cp_hi 0xFFFFFFFF
+rd hqm_system_csr.hqm_csr_cp_lo 0xFFFFFFFF
+rd hqm_system_csr.hqm_csr_cp_hi 0xFFFFFFFF
+
+
+sai hostia_ucode_sai    # Should be SAI index 1
+############################################
+#HQM CSR Read Access Policy Low Register
+wr hqm_system_csr.hqm_csr_rac_lo 0xFFFFFFFF
+wr hqm_system_csr.hqm_csr_rac_hi 0xFFFFFFFF
+rd hqm_system_csr.hqm_csr_rac_lo 0xFFFFFFFF
+rd hqm_system_csr.hqm_csr_rac_hi 0xFFFFFFFF
+##################################################
+#HQM CSR Write Access Policy Low Register
+wr hqm_system_csr.hqm_csr_wac_lo 0xFFFFFFFF
+wr hqm_system_csr.hqm_csr_wac_hi 0xFFFFFFFF
+rd hqm_system_csr.hqm_csr_wac_lo 0xFFFFFFFF
+rd hqm_system_csr.hqm_csr_wac_hi 0xFFFFFFFF
+
+
+### idle 700
+### force hqm_tb_top.force_async_prim_rst_b 1
+### idle 700
+### force hqm_tb_top.force_async_prim_rst_b 0
+### idle 300
+### 
+### 
+### idle 700
+### idle 700
+### idle 700
+### 
+### 
+### ###################################
+### # Read first part of PF header
+### rd hqm_pf_cfg_i.vendor_id
+### rd hqm_pf_cfg_i.device_id
+### rd hqm_pf_cfg_i.device_command
+### rd hqm_pf_cfg_i.device_status
+### ###################################
+### # Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+### wr hqm_pf_cfg_i.func_bar_l 0x00000000
+### wr hqm_pf_cfg_i.func_bar_u 0x00000001
+### rd hqm_pf_cfg_i.func_bar_u 0x00000001
+### ###################################
+### # Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+### wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+### wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+### rd hqm_pf_cfg_i.csr_bar_u 0x00000002
+### ###################################
+### # Enable memory operations
+### wr hqm_pf_cfg_i.device_command 0x6
+### rd hqm_pf_cfg_i.device_command 0x6
+### ###################################
+### # Setup FUNC_VF BAR to a base address of 0x00000000_xxxxxxxx
+### ###################################
+### # 00 VFs
+### ###################################
+### # Enable VF and VF memory operations
+### ###################################
+### 
+### ###################################
+### # Wait for reset to be done (including hardware memory init)
+### rd config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff
+### 
+### 
+### sai hostia_boot_sai     # Should be SAI index 4
+### ########################################
+### # -- HQM CSR policy register 
+### rd hqm_system_csr.hqm_csr_cp_hi 0xFFFFFBFF
+### rd hqm_system_csr.hqm_csr_cp_lo 0xFEFFFDE7
+### 
+### sai hostia_ucode_sai    # Should be SAI index 1
+### ## -- HQM CSR Read Access Policy Low Register
+### rd hqm_system_csr.hqm_csr_rac_hi 0x0
+### rd hqm_system_csr.hqm_csr_rac_lo 0x0
+### ## -- HQM CSR Write Access Policy Low Register
+### rd hqm_system_csr.hqm_csr_wac_hi 0xDFFFFBFF
+### rd hqm_system_csr.hqm_csr_wac_lo 0xFCFFFDE0
+### 
+### 
+### sai hostia_boot_sai     # Should be SAI index 4
+### 
+### ########################################
+### #read all HQM CSR policy register 
+### wr hqm_system_csr.hqm_csr_cp_lo 0xFFFFFFFF
+### wr hqm_system_csr.hqm_csr_cp_hi 0xFFFFFFFF
+### rd hqm_system_csr.hqm_csr_cp_lo 0xFFFFFFFF
+### rd hqm_system_csr.hqm_csr_cp_hi 0xFFFFFFFF
+### 
+### 
+### sai hostia_ucode_sai    # Should be SAI index 1
+### ############################################
+### #HQM CSR Read Access Policy Low Register
+### wr hqm_system_csr.hqm_csr_rac_lo 0xFFFFFFFF
+### wr hqm_system_csr.hqm_csr_rac_hi 0xFFFFFFFF
+### rd hqm_system_csr.hqm_csr_rac_lo 0xFFFFFFFF
+### rd hqm_system_csr.hqm_csr_rac_hi 0xFFFFFFFF
+### ##################################################
+### #HQM CSR Write Access Policy Low Register
+### wr hqm_system_csr.hqm_csr_wac_lo 0xFFFFFFFF
+### wr hqm_system_csr.hqm_csr_wac_hi 0xFFFFFFFF
+### rd hqm_system_csr.hqm_csr_wac_lo 0xFFFFFFFF
+### rd hqm_system_csr.hqm_csr_wac_hi 0xFFFFFFFF
+### 
+### 

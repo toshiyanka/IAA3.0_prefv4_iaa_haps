@@ -1,0 +1,28 @@
+{
+   %opts = (
+      -model                        => "cdc_sbebase",
+      -zin_top                      => "iosf_sbc_ep_rtl_lib.sbebase",
+      -cdc_post_process_modes       => "AceCDC_default,AceCDC_summary",
+      -enable_postsim_checker       => 1,
+      -enable_runsim_postsim_checks => 0,
+      -create_postmortem_file       => 0,
+      -postsim_log_max_num_warn     => 10,
+      -post_process_parser          => "$ENV{ACE_HOME}/bin/ace_postsim.pl",
+      #-post_process_pattern_file    => "$ENV{ACE_HOME}/udf/ace_base_postsim.pp",
+      -post_process_pattern_file    => "ace/iosf_sbc_cdc_postsim.pp",
+      -zin_ctrl_files               => [ "$ENV{CDC_RULES}/prototype/cdc_global.tcl",
+                                         "$ENV{CDC_RULES}/prototype/$ENV{SIP_PROCESS_NAME}/cdc_global_waivers.tcl",
+                                         "$ENV{IP_ROOT}/tools/cdc/tests/$ENV{SBE_COMPONENT}/sbebase_ctrl_interface.tcl",
+                                         "$ENV{IP_ROOT}/tools/cdc/tests/$ENV{SBE_COMPONENT}/sbebase_ctrl_internal.tcl",
+                                         "$ENV{IP_ROOT}/tools/cdc/tests/$ENV{SBE_COMPONENT}/sbebase_waivers_interface.tcl",
+                                         "$ENV{IP_ROOT}/tools/cdc/tests/$ENV{SBE_COMPONENT}/sbebase_waivers_internal.tcl"
+                                         ]
+      );
+    
+   %runModes = (
+      RptCLK => {
+         -zin_run_type           => '-report_clock', 
+         -cdc_post_process_modes => "AceCDC_default",
+      },
+   );
+}

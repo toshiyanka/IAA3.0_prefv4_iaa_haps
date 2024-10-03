@@ -1,0 +1,23 @@
+#-----*--perl-*-------------------------------
+my $cpu_bits =  ($ENV{tool_bits} == 64)? 'Linux_x86_64' : 'Linux' ;
+
+%audf = (
+    InterfaceVars => {
+	    -enable_saola_pli => { default => "1",  },
+    },
+    OSData => {
+        -saola_pli => {
+            -enable_flag => "-enable_saola_pli",
+            -error_if_not_found  => 1,
+            vcs => {
+                'Linux-SuSE' => {
+                    'i686' => [ ],
+                    'x86-64' => [
+                        "$ENV{MODEL_ROOT}/ace/common/empty.tab",
+                        "$ENV{SAOLA_HOME}/libs/$cpu_bits/libsla.so",
+                    ],
+                },
+            },
+        },
+    },
+);

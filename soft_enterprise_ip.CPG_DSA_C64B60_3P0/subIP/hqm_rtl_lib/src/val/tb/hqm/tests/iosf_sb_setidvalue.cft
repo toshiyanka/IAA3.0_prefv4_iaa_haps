@@ -1,0 +1,170 @@
+###################################
+# Read first part of PF header
+idle 400
+##############
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+#wr hqm_pf_cfg_i.func_bar_l 0x00000000
+#wr hqm_pf_cfg_i.func_bar_u 0x00000001
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+CfgWr0 0x10 0x00000000
+CfgWr0 0x14 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+#wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+#wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+# Setup CSR_PF  BAR to a base address of 0x00000002_xxxxxxxx
+CfgWr0 0x18 0x00000000
+CfgWr0 0x1c 0x00000002
+###################################
+# Enable PF memory operations
+#wr hqm_pf_cfg_i.device_command 0x6
+#rd hqm_pf_cfg_i.device_command
+# Enable memory operations
+CfgWr0 0x4 0x2
+CfgRd0 0x4
+###################################
+# Setup FUNC_VF BAR to a base address of 0x00000003_xxxxxxxx
+CfgWr0 0x12c 0x00000000
+CfgWr0 0x130 0x00000003
+###################################
+# 16 VF
+CfgWr0 0x118 0x00000010
+###################################
+# Enable VF and VF memory operations
+CfgWr0 0x110 0x00000019
+CfgRd0 0x110
+###################################
+idle 400
+##############
+#This test will affect the following register fields.
+#These values need to be verified before and after the SetIdValue message.
+#@0 vendor_id.vendor_id default value 8086h
+#@ 2device_id.device_id default value 270bh
+CfgRd0 0x0 0x270b8086
+#@8 revision_id_class_code.revision_id default value 0B40_0000h
+CfgRd0 0x8 0x0b40_0000
+CfgRd0 0x120 0x270c_0000
+#@0x80008 hqm_vf_cfg[0].revision_id default value 0b40_0000hh
+CfgRd0 0x80008 0x0b40_0000
+#@0x90008 hqm_vf_cfg[1].revision_id default value 0b40_0000hh
+CfgRd0 0x90008 0x0b40_0000
+#@0xa0008 hqm_vf_cfg[2].revision_id default value 0b40_0000hh
+CfgRd0 0xa0008 0x0b40_0000
+#@0xb0008 hqm_vf_cfg[3].revision_id default value 0b40_0000hh
+CfgRd0 0xb0008 0x0b40_0000
+#@0xc0008 hqm_vf_cfg[2].revision_id default value 0b40_0000hh
+CfgRd0 0xc0008 0x0b40_0000
+#@0xd0008 hqm_vf_cfg[5].revision_id default value 0b40_0000hh
+CfgRd0 0xd0008 0x0b40_0000
+#@0xe0008 hqm_vf_cfg[6].revision_id default value 0b40_0000hh
+CfgRd0 0xe0008 0x0b40_0000
+#@0xf0008 hqm_vf_cfg[7].revision_id default value 0b40_0000hh
+CfgRd0 0xf0008 0x0b40_0000
+#@0x100008 hqm_vf_cfg[8].revision_id default value 0b40_0000hh
+CfgRd0 0x100008 0x0b40_0000
+#@0x110008 hqm_vf_cfg[9].revision_id default value 0b40_0000hh
+#CfgRd0 0x110008 0x0b40_0000
+#@0x120008 hqm_vf_cfg[a].revision_id default value 0b40_0000hh
+#CfgRd0 0x120008 0x0b40_0000
+#@0x130008 hqm_vf_cfg[b].revision_id default value 0b40_0000hh
+#CfgRd0 0x130008 0x0b40_0000
+#@0x140008 hqm_vf_cfg[c].revision_id default value 0b40_0000hh
+#CfgRd0 0x140008 0x0b40_0000
+#@0x150008 hqm_vf_cfg[d].revision_id default value 0b40_0000hh
+#CfgRd0 0x150008 0x0b40_0000
+#@0x160008 hqm_vf_cfg[e].revision_id default value 0b40_0000hh
+#CfgRd0 0x160008 0x0b40_0000
+#@0x170008 hqm_vf_cfg[f].revision_id default value 0b40_0000hh
+#CfgRd0 0x170008 0x0b40_0000
+###################################
+#SetIDValue should change subsequent CfgRd0 values
+SAI 0x50
+SetIDValue 0xaabbccdd 0xeeff9977
+SAI 0x50
+###################################
+#Verify after the SetIdValue message.
+#@0 vendor_id.vendor_id default value 8086h
+#@2 device_id.device_id default value 270bh
+CfgRd0 0x0 0xaa8b8086
+#@8 revision_id_class_code.revision_id default value 0B40_0000h
+CfgRd0 0x8 0x0b40_00dd
+CfgRd0 0x120 0xaa8c_0000
+#@0x80008 hqm_vf_cfg[0].revision_id default value 0b40_0000hh
+CfgRd0 0x80008 0x0b40_00dd
+#@0x90008 hqm_vf_cfg[1].revision_id default value 0b40_0000hh
+CfgRd0 0x90008 0x0b40_00dd
+#@0xa0008 hqm_vf_cfg[2].revision_id default value 0b40_0000hh
+CfgRd0 0xa0008 0x0b40_00dd
+#@0xb0008 hqm_vf_cfg[3].revision_id default value 0b40_0000hh
+CfgRd0 0xb0008 0x0b40_00dd
+#@0xc0008 hqm_vf_cfg[2].revision_id default value 0b40_0000hh
+CfgRd0 0xc0008 0x0b40_00dd
+#@0xd0008 hqm_vf_cfg[5].revision_id default value 0b40_0000hh
+CfgRd0 0xd0008 0x0b40_00dd
+#@0xe0008 hqm_vf_cfg[6].revision_id default value 0b40_0000hh
+CfgRd0 0xe0008 0x0b40_00dd
+#@0xf0008 hqm_vf_cfg[7].revision_id default value 0b40_0000hh
+CfgRd0 0xf0008 0x0b40_00dd
+#@0x100008 hqm_vf_cfg[8].revision_id default value 0b40_0000hh
+CfgRd0 0x100008 0x0b40_00dd
+#@0x110008 hqm_vf_cfg[9].revision_id default value 0b40_0000hh
+#CfgRd0 0x110008 0x0b40_00dd
+#@0x120008 hqm_vf_cfg[a].revision_id default value 0b40_0000hh
+#CfgRd0 0x120008 0x0b40_00dd
+#@0x130008 hqm_vf_cfg[b].revision_id default value 0b40_0000hh
+#CfgRd0 0x130008 0x0b40_00dd
+#@0x140008 hqm_vf_cfg[c].revision_id default value 0b40_0000hh
+#CfgRd0 0x140008 0x0b40_00dd
+#@0x150008 hqm_vf_cfg[d].revision_id default value 0b40_0000hh
+#CfgRd0 0x150008 0x0b40_00dd
+#@0x160008 hqm_vf_cfg[e].revision_id default value 0b40_0000hh
+#CfgRd0 0x160008 0x0b40_00dd
+#@0x170008 hqm_vf_cfg[f].revision_id default value 0b40_0000hh
+#CfgRd0 0x170008 0x0b40_00dd
+###################################
+#SetIDValue with wrong SAI expected to fail, no changes expected
+SAI 0x0d
+SetIDValue 0x55443322 0x11006688
+SAI 0x50
+###################################
+#Verify after the SetIdValue message.
+#@0 vendor_id.vendor_id default value 8086h
+#@2 device_id.device_id default value 270bh
+CfgRd0 0x0 0xaa8b8086
+#@8 revision_id_class_code.revision_id default value 0B40_0000h
+CfgRd0 0x8 0x0b40_00dd
+CfgRd0 0x120 0xaa8c_0000
+#@0x80008 hqm_vf_cfg[0].revision_id default value 0b40_0000hh
+CfgRd0 0x80008 0x0b40_00dd
+#@0x90008 hqm_vf_cfg[1].revision_id default value 0b40_0000hh
+CfgRd0 0x90008 0x0b40_00dd
+#@0xa0008 hqm_vf_cfg[2].revision_id default value 0b40_0000hh
+CfgRd0 0xa0008 0x0b40_00dd
+#@0xb0008 hqm_vf_cfg[3].revision_id default value 0b40_0000hh
+CfgRd0 0xb0008 0x0b40_00dd
+#@0xc0008 hqm_vf_cfg[2].revision_id default value 0b40_0000hh
+CfgRd0 0xc0008 0x0b40_00dd
+#@0xd0008 hqm_vf_cfg[5].revision_id default value 0b40_0000hh
+CfgRd0 0xd0008 0x0b40_00dd
+#@0xe0008 hqm_vf_cfg[6].revision_id default value 0b40_0000hh
+CfgRd0 0xe0008 0x0b40_00dd
+#@0xf0008 hqm_vf_cfg[7].revision_id default value 0b40_0000hh
+CfgRd0 0xf0008 0x0b40_00dd
+#@0x100008 hqm_vf_cfg[8].revision_id default value 0b40_0000hh
+CfgRd0 0x100008 0x0b40_00dd
+#@0x110008 hqm_vf_cfg[9].revision_id default value 0b40_0000hh
+#CfgRd0 0x110008 0x0b40_00dd
+#@0x120008 hqm_vf_cfg[a].revision_id default value 0b40_0000hh
+#CfgRd0 0x120008 0x0b40_00dd
+#@0x130008 hqm_vf_cfg[b].revision_id default value 0b40_0000hh
+#CfgRd0 0x130008 0x0b40_00dd
+#@0x140008 hqm_vf_cfg[c].revision_id default value 0b40_0000hh
+#CfgRd0 0x140008 0x0b40_00dd
+#@0x150008 hqm_vf_cfg[d].revision_id default value 0b40_0000hh
+#CfgRd0 0x150008 0x0b40_00dd
+#@0x160008 hqm_vf_cfg[e].revision_id default value 0b40_0000hh
+#CfgRd0 0x160008 0x0b40_00dd
+#@0x170008 hqm_vf_cfg[f].revision_id default value 0b40_0000hh
+#CfgRd0 0x170008 0x0b40_00dd
+###################################

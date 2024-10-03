@@ -1,0 +1,130 @@
+#!/bin/tcsh -f
+
+################################################################################
+# Source a script that is called at the start of each back-end 
+# scripts/qa/run* script
+################################################################################
+
+if ( $SB_ACE_FLOW ) then
+   source ./runPre -tool_name $0 $argv
+else
+    source ${MODEL_ROOT}/scripts/qa/runPre -tool_name $0 $argv
+endif
+
+if ( ${status} != 0 ) exit ${status}
+
+if ( "${config}" =~ "IOSF_Sideband_Endpoint" ) then
+#   if ( $SB_ACE_FLOW == 0 ) then
+#       if ($SIMBUILDTOOLDRUN) then
+          # set sbrdir=${sbrdir}/$CUST/aceroot
+#           set sbrdir=${MODEL_ROOT}
+#       endif
+#   endif
+   set sbrdir=${ACE_UTILS_ROOT}          
+   source ${sbrdir}/scripts/qa/ephelper.csh -rtlcfg ${component} -topdir ${sbrdir} -gentool ${thisToolName} -tooldir vclp
+else
+   if (${dynopt} =~ "nonDyn") then
+      set rtltop="${component}"
+   else
+      set rtltop="${component}_sbr_generic"
+   endif
+endif
+
+if ( "${config}" =~ "IOSF_Sideband_Endpoint" ) then
+   # Create the .opt file for the ${component}
+   set vclpdir=${dsttooldir}
+
+   if ((${component} != sbendpoint) && (${component} =~ "sbendpoint*")) then
+      cp ${vclpdir}/sbendpoint.opt ${vclpdir}/${component}.opt
+   else if ((${component} != sbebase) && (${component} =~ "sbebase*")) then
+      cp ${vclpdir}/sbebase.opt ${vclpdir}/${component}.opt
+   endif
+ 
+   # Override the config parameters in the control and waiver files, and in ${rtltop}.sv
+   # The original ${rtltop}.sv file is saved as ${rtltop}.sv.tmp, and restored at the end of the tool run
+   set rtltopsv = ${sbrdir}/source/rtl/iosfsbc/endpoint/${rtltop}.sv
+   cp ${rtltopsv} ${rtltopsv}.tmp
+   if ( ${rtlparameterstring} != "" ) then
+       foreach param (${rtlparameterlist})
+ 
+          # Override the tcl control files in the current version of the sbebase
+          # or sbendpoint folders to help direct the cdc runs for that particular
+          # configuration. By using these tcl files instead we can accomplish
+          # in our nightly runs what ACECDC cannot.
+          set catch      = `echo ${param} | sed "s/=/ /g"`
+          set kvp        = ($catch)
+          set key        = $kvp[1]
+          set lkey       = `echo $key | tr '[A-Z]' '[a-z]'`
+          set value      = $kvp[2]
+ 
+          perl -pi -e "s/parameter\s+${key}\s+=\s+(\d+)/parameter ${key} = ${value}/" ${rtltopsv}.tmp
+       end
+   endif
+else
+endif
+
+  set dut=sbe
+else
+    if (${dynopt} =~ "nonDyn") then
+        set rtltop="${component}"
+    else
+        set rtltop="${component}_sbr_generic"
+    endif
+    set dut=sbr
+endif
+
+# Keep a copy of the original rtltop file for SBE
+if ( "${config}" =~ "IOSF_Sideband_Endpoint" ) then
+   cp ${rtltopsv} ${rtltopsv}.ref
+   mv ${rtltopsv}.tmp ${rtltopsv}
+endif
+
+#simbuild -dut $dut -1c -CUST $CUST -1c- -s all +s sgcdc_build -sgcdc_build "-ASSIGN -mc=cdc_${rtltop} -vlog_opts +define+functional+IOSF_SB_PH2"
+
+#febe -dut sbe -1c -CUST p1274 -1c- -s all +s vclp_build +s $rtltop.vclp_test
+
+#febe -dut $dut -1c -CUST $CUST -1c- -s all +s vclp_build
+#simbuild -dut sbe -1c -CUST p1274 -1c- -s all +s vclp_build -vclp_build "-ASSIGN -mc=cdc_sbendpoint"
+set resdir="tools/vclp/results/${component}"
+simbuild -dut sbe -1c -CUST $CUST -1c- -s all +s vclp_build -vclp_build "-ASSIGN -mc=cdc_${rtltop}" -target ${resdir} -logdir ${component} -logprefix ${component}
+
+set exitstatus=$status
+if ( ${exitstatus} ) then
+   echo "${thisToolName} -E- VCLP Build Failed for $rtltop"
+   exit ${exitstatus}
+endif
+
+if ( "${config}" =~ "IOSF_Sideband_Endpoint" ) then
+    mv ${rtltopsv}.ref ${rtltopsv}
+endif
+
+#febe -dut $dut -1c -CUST $CUST -1c- -s all +s $rtltop.vclp_test
+#simbuild -dut sbe -1c -CUST p1274 -1c- -s all +s $rtltop.vclp_test
+#simbuild -dut sbe -1c -CUST p1274 -1c- -s all +s vclp_test -vclp_test "-t vclp/sbendpoint"
+simbuild -dut sbe -1c -CUST $CUST -1c- -s all +s vclp_test -vclp_test "-t vclp/$rtltop" -target ${resdir} -logdir ${component} -logprefix ${component}
+
+
+## copy the results into folders specific for the config
+
+set exitstatus=$status
+if ( ${exitstatus} ) then
+   echo "${thisToolName} -E- VCLP Test Failed for $rtltop"
+   exit ${exitstatus}
+endif
+
+
+##################################
+# Verify that everything was good
+##################################
+
+set exitstatus=$status
+if ( $exitstatus ) then
+   echo "${thisToolName} -I- VCLP for $rtltop Failed"
+#This exit quits quits once all the checks are done: doesnt execute "resetting the ACE version"
+   exit ${exitstatus}
+else
+    echo "${thisToolName} -I- VCLP for $rtltop Passed"
+endif
+
+
+exit 0 

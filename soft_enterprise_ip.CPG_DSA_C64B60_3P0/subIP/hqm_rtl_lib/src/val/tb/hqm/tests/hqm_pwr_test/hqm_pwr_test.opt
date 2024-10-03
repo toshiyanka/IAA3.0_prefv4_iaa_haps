@@ -1,0 +1,1171 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library; 
+{
+   %opts = (
+      -simv_args => [
+                     "+AW_CONTINUE_ON_ERROR",
+                     "+iosf_tracker_filename=iosf_trk",
+                     "-assert nopostproc",
+                     "+vcs+lic+wait",
+                     "+SLA_MAX_RUN_CLOCK=4000000",
+                     "+SLA_USER_DATA_PHASE_TIMEOUT=4000000",
+                     "+SLA_EXTRA_DATA_PHASE_TIMEOUT=4000000",
+                     "+SLA_CONFIG_PHASE_TIMEOUT=200000",
+                     "+SLA_FLUSH_PHASE_TIMEOUT=800000",
+                     "+HQMS_DEBUG",
+                     "+HQMI_DEBUG",
+
+                     ##"+HQM_BYPASS_LCP_RESET",  ##skip LCP_RESET in HQMV25
+
+                        ],
+                    -test_in_model => 1,
+                    -enabled_post_process_modes => "hqm_test",
+      );
+   %runModes = (
+      ################################
+      #HQMV30 support Cheetah2
+      ################################
+      hqm_prochot_enable => {
+          -simv_args => [
+                         "+OVM_GLOBAL_TIMEOUT=10ms",
+                         "+HQM_TB_PH_REGR",
+                         "+hqm_system_burst_user_data_seq_stim_config::flr_wait_time=8000",
+                        ],
+      },
+
+      hqm_prochot_high => {
+          -simv_args => [
+                         "+HQM_PROCHOT_INIT_VAL=1",
+                        ],
+      },
+
+      hqm_prochot_high2low => {
+          -simv_args => [
+                         "+HQM_PH_MODE=deassert_ph",
+                         "+HQM_PROCHOT_INIT_VAL=1",
+                         "+HQM_PH_DLY1_MIN=5",
+                         "+HQM_PH_DLY1_MAX=2000",
+                        ],
+      },
+
+      hqm_prochot_low2high => {
+          -simv_args => [
+                         "+HQM_PH_MODE=assert_ph",
+                         "+HQM_PH_DLY1_MIN=5",
+                         "+HQM_PH_DLY1_MAX=2000",
+                        ],
+      },
+
+      hqm_prochot_tgl => {
+          -simv_args => [
+                         "+HQM_PH_MODE=ph_sequence",
+                         "+HQM_PH_DLY1_MIN=0",
+                         "+HQM_PH_DLY1_MAX=20",
+                         "+HQM_PH_DLY2_MIN=10",
+                         "+HQM_PH_DLY2_MAX=50",
+                         "+HQM_PH_SEQ_NUM=0",
+                        ],
+      },
+
+      hqm_prochot_tgl_high => {
+          -simv_args => [
+                         "+HQM_PH_MODE=ph_sequence",
+                         "+HQM_PH_DLY1_MIN=0",
+                         "+HQM_PH_DLY1_MAX=20",
+                         "+HQM_PH_DLY2_MIN=10",
+                         "+HQM_PH_DLY2_MAX=50",
+                         "+HQM_PH_SEQ_NUM=0",
+                         "+HQM_PROCHOT_INIT_VAL=1",
+                        ],
+      },
+
+
+
+      ################################
+      #this tag is to suppress ISM compliance assertion failure (ERROR_ISMPM_079)   
+      disable_ISMPM_079_AgentMustEnter_IDLE_REQ_ASSERT => {
+          -simv_args => [
+                         "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/ISMPM_079.waiver",
+                        ],
+      },
+
+      disable_CDC_ASSERT_pwrgate_pmc_wake1 => {
+          -simv_args => [
+                         "-assert quiet+hier=aceroot/verif/tb/hqm/tests/hqm_pwrgate_pmc_wake.waiver",
+                        ],
+      },
+
+      pwrgate_pmc_wake1 => {
+          -simv_args => [
+                         "+HQM_PWRGATE_PMC_WAKE_SET",
+                         "+IGNORE_DUE_TO_SIDEBAND_RESET",
+                         "-assert quiet+hier=aceroot/verif/tb/hqm/tests/hqm_pwrgate_pmc_wake.waiver",
+                        ],
+      },
+
+      pwrgate_pmc_wake0 => {
+          -simv_args => [
+                         "+HQM_PWRGATE_PMC_WAKE_SET",
+                         "+HQM_PWRGATE_PMC_WAKE_0",
+                         "+HQM_BOOT_CTRL=3",
+                         ##"+IGNORE_DUE_TO_SIDEBAND_RESET",
+                         ##"-assert quiet+hier=aceroot/verif/tb/hqm/tests/hqm_pwrgate_pmc_wake.waiver",
+                        ],
+      },
+
+      #deassert side_rst_b and prim_rst_b at the same time, hqm_iosf_core.sv #1349 RESET_PREP_QUIESCE_NEEDS_CLKREQ assertion waiver
+      bootctrl_1 => {
+          -simv_args => [
+                         "+HQM_BOOT_CTRL=1",
+                         #11162020, Jim fixed hqm_iost_core.sv "-assert quiet+hier=aceroot/verif/tb/hqm/tests/hqm_side_prim_rst_deassert.waiver",
+                        ],
+      },
+
+
+      fuse_str_var_1 => {
+          -simv_args => [
+                         "+HQM_TB_FUSE_VALUES_DIFF=0x00005556",
+                        ],
+      },
+      fuse_str_var_2 => {
+          -simv_args => [
+                         "+HQM_TB_FUSE_VALUES_DIFF=0x0000AAAA",
+                        ],
+      },
+      pm_override => {
+          -simv_args => [
+                         "+hqm_pwr_fuse_test_seq_stim_config::cfg_pm_override=1",
+                        ],
+      },
+      check_thru_sb => {
+          -simv_args => [
+                         "+hqm_pwr_fuse_test_seq_stim_config::check_thru_sb=1",
+                        ],
+      },
+      sel_cold_reset => {
+          -simv_args => [
+                         "+hqm_pwr_fuse_test_seq_stim_config::sel_cold_reset=1",
+                        ],
+      },
+      sel_boot_ctrl =>  {
+          -simv_args => [
+                         "+HQM_BOOT_CTRL=1",
+                        ],
+      },
+
+      iosf_transactions_in_D3hot => {
+          -simv_args => [
+                         "+HQM_SKIP_HCW_TRAFFIC",
+                         "+HQM_PWR_SEQ=HQM_PWR_IOSF_TRANSACTIONS_IN_D3HOT_SEQ",
+                         "+HQM_PF_EXP_FATAL_MSG_CNT=1",
+                         "+HQM_PF_EXP_NFATAL_MSG_CNT=2",
+                         "+IGNORE_DUE_TO_SIDEBAND_RESET",
+                         "+HQM_NON_STD_WARM_RST_SEQ",
+                         "+HQM_EOT_CPLID_CHK_DIS",
+                         "+DISABLE_FAB_PARITY_CHK",
+                         "+HQM_COMMAND_PARITY_CHECK",
+                         "+hqm_warm_reset_sequence_stim_config::skip_for_sideband_reset=1",
+                         "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/sb_error.waiver",
+                         "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_error.waiver",
+                        ],
+      },
+      override_pm_cfg_control => {
+          -simv_args => [
+                         "+HQM_SKIP_HCW_TRAFFIC",
+                         "+HQM_PWR_SEQ=HQM_PWR_OVERRIDE_PM_CFG_CONTROL_SEQ",
+                        ],
+      },
+      after_reset_prep_override_pm_cfg_control => {
+          -simv_args => [
+                         "+HQM_SKIP_HCW_TRAFFIC",
+                         "+HQM_OVERRIDE_PM_CFG_CONTROL_AFTER_RESET_PREP",
+                         "+HQM_PWR_SEQ=HQM_PWR_OVERRIDE_PM_CFG_CONTROL_SEQ",
+                         "+hqm_warm_reset_sequence_stim_config::skip_for_sideband_reset=1",
+                        ],
+      },
+      pwrgate_req_in_D3hot => {
+          -simv_args => [
+                         "+HQM_PWR_SEQ=HQM_PWR_PWRGATE_REQ_IN_D3HOT_SEQ",
+                         "+HQM_PF_EXP_NFATAL_MSG_CNT=2",
+                        ],
+      },
+      pmcsr_disable_test => {
+          -simv_args => [
+                         "+HQM_SKIP_HCW_TRAFFIC",
+                         "+HQM_NO_PCIE_CONFIG_PHASE",
+                         "+HQM_CFG_BACKDOOR_MEM_UNDO",
+                         "+HQM_PWR_SEQ=HQM_PWR_PMCSR_DISABLE_TEST_SEQ",
+                        ],
+      },
+      pmcsr_disable_flr_test => {
+          -simv_args => [
+                         "+HQM_SKIP_HCW_TRAFFIC",
+                         "+HQM_NO_PCIE_CONFIG_PHASE",
+                         "+HQM_PWR_SEQ=HQM_PWR_PMCSR_DISABLE_FLR_D3HOT_SEQ",
+                         "+hqm_pwr_pmcsr_disable_flr_d3hot_seq_stim_config::flr=1",
+                        ],
+      },
+      pmcsr_disable_D3hot_test => {
+          -simv_args => [
+                         "+HQM_SKIP_HCW_TRAFFIC",
+                         "+HQM_NO_PCIE_CONFIG_PHASE",
+                         "+HQM_PWR_SEQ=HQM_PWR_PMCSR_DISABLE_FLR_D3HOT_SEQ",
+                        ],
+      },
+      fuse_seq_pwr => {
+          -simv_args => [
+                         "+HQM_SKIP_HCW_TRAFFIC",
+                         "+HQM_PWR_SEQ=HQM_PWR_FUSE_SEQ",
+                         "+HQM_FALSE_FUSE_AFTIPRDY=1",      #send a false early_fuses after receiving ip_ready, RTL shouldn't sample it
+                         #"+HQM_PWRGOOD_RESET_EARLY_FUSE=1",
+                         #"+HQM_ASSERT_FUSE_CTRL=2",
+                        ],
+      },
+      fuse_pull_seq_pwr => {
+          -simv_args => [
+                         "+HQM_SKIP_HCW_TRAFFIC",
+                         "+HQM_PWR_SEQ=HQM_PWR_FUSE_PULL_SEQ",
+                        ],
+      },
+      fuse_dflt => {
+          -simv_args => [
+                         "+HQM_TB_FUSE_VALUES_DIFF=0x00000000",
+                        ],
+      },
+      fuse_proc_dis => {
+          -simv_args => [
+                         "+HQM_TB_FUSE_VALUES_DIFF=0x00000001",
+                        ],
+      },
+      fuse_fr_on => {
+          -simv_args => [
+                         "+HQM_TB_FUSE_VALUES_DIFF=0x00000002",
+                        ],
+      },
+      fuse_fr_on_proc_dis => {
+          -simv_args => [
+                         "+HQM_TB_FUSE_VALUES_DIFF=0x00000003",
+                        ],
+      },
+      check_nsr => {
+          -simv_args => [
+                         "+HQM_SKIP_HCW_TRAFFIC",
+                         "+HQM_SKIP_EOT_SEQ=1",
+                         "+HQM_PWR_SEQ=HQM_NSR_SEQ",
+                         "+HQM_TB_EOT_CHECK_DISABLE",
+                        ],
+      },
+      segment_1 => {
+          -simv_args => [
+                         "+hqm_pwr_D0_to_D3hot_check_nsr_seq_stim_config::segment=1",
+                        ],
+      },
+      segment_2 => {
+          -simv_args => [
+                         "+hqm_pwr_D0_to_D3hot_check_nsr_seq_stim_config::segment=2",
+                        ],
+      },
+      segment_3 => {
+          -simv_args => [
+                         "+hqm_pwr_D0_to_D3hot_check_nsr_seq_stim_config::segment=3",
+                        ],
+      },
+      segment_4 => {
+          -simv_args => [
+                         "+hqm_pwr_D0_to_D3hot_check_nsr_seq_stim_config::segment=4",
+                        ],
+      },
+      d0_to_d3hot_to_d0 => {
+          -simv_args => [
+                         "+HQM_PWR_SEQ=HQM_D0_TO_D3HOT_TO_D0_SEQ",
+                        ],
+      },
+      mra_trim_chk_in_d3hot => {
+          -simv_args => [
+                         "+HQM_SKIP_HCW_TRAFFIC",
+                         "+HQM_PWR_SEQ=HQM_PWR_MRA_TRIM_IN_D3HOT_SEQ",
+                         "+HQM_SKIP_EOT_SEQ=1",
+                         "+HQM_PCIE_SKIP_EOT_SEQ=1",
+                         "+HQM_TB_EOT_CHECK_DISABLE",
+                        ],
+      },
+      smoke => {
+          -simv_args => [
+                         "+HQM_SKIP_HCW_TRAFFIC",
+                         "+HQM_PWR_SEQ=HQM_SMOKE_SEQ",
+                         "+HQM_SKIP_EOT_SEQ=1",
+                         "+HQM_TB_EOT_CHECK_DISABLE",
+                        ],
+      },
+      lcp_shift_check_seq => {
+          -simv_args => [
+                         "+HQM_SKIP_HCW_TRAFFIC",
+                         "+HQM_PWR_SEQ=HQM_LCP_SHIFT_CHECK_SEQ",
+                        ],
+      },
+      long_test => {
+          -simv_args => [
+                         "+HQM_PWR_SEQ=HQM_PWR_LONG_SEQ",
+                         "+HQM_SKIP_POST_CFT",
+                        ],
+      },
+      d3hot_to_d0_by_flr => {
+          -simv_args => [
+                         "+HQM_PWR_SEQ=HQM_D0_TO_D3HOT_TO_D0_SEQ",
+                         "+hqm_pwr_D0_to_D3hot_to_D0_seq_stim_config::flr=1",
+                        ],
+      },
+      warm_reset_in_d3hot => {
+          -simv_args => [
+                         "+HQM_PWR_SEQ=HQM_WARM_RESET_IN_D3HOT_SEQ",
+                        ],
+      },
+      warm_reset_in_d0act => {
+          -simv_args => [
+                         "+HQM_PWR_SEQ=HQM_WARM_RESET_IN_D0ACT_SEQ",
+                        ],
+      },
+      D0_transitions => {
+          -simv_args => [
+                         "+HQM_PWR_SEQ=HQM_FLR_IN_D0ACT_SEQ",
+                        ],
+      },
+      pma_safemode_high => {
+          -simv_args => [
+                         "+hqm_pma_safemode_c",
+                        ],
+      },
+      ph_high => {
+          -simv_args => [
+                         "+HQM_PROCHOT_INIT_VAL=1",
+                        ],
+      },
+      ph_high_to_low => {
+          -simv_args => [
+                         "+HQM_PH_MODE=deassert_ph",
+                         "+HQM_PROCHOT_INIT_VAL=1",
+                         "+HQM_PH_DLY1_MIN=500",
+                         "+HQM_PH_DLY1_MAX=2000",
+                        ],
+      },
+      ph_low_to_high => {
+          -simv_args => [
+                         "+HQM_PH_MODE=assert_ph",
+                         "+HQM_PH_DLY1_MIN=500",
+                         "+HQM_PH_DLY1_MAX=2000",
+                        ],
+      },
+      ph_tgl => {
+          -simv_args => [
+                         "+HQM_PH_MODE=ph_sequence",
+                         "+HQM_PH_DLY1_MIN=500",
+                         "+HQM_PH_DLY1_MAX=2000",
+                         "+HQM_PH_DLY2_MIN=1000",
+                         "+HQM_PH_DLY2_MAX=5000",
+                         "+HQM_PH_SEQ_NUM=10",
+                        ],
+      },
+      hw_reset_force_pwr_case2 => {
+          -simv_args => [
+                         "+HAS_HW_RESET_TEST_PHASE",
+                         "+hqm_hw_reset_force_pwr_seq_stim_config::hw_reset_force_pwr_on_ctrl=1",
+
+                         "+HQM_SKIP_HCW_TRAFFIC",
+                         "+HQM_SKIP_EXTRA_DATA_PHASE",
+                         "+HQM_SKIP_EOT_SEQ",
+
+                         #"+HQM_PWR_SEQ=HQM_HW_RESET_FORCE_PWR_SEQ",
+                        
+                         #skip pmcsr_disable release 
+                         "+hqm_pcie_init_stim_config::skip_pmcsr_disable=1",
+                        ],
+      },
+      hw_reset_force_pwr_case2_flow0 => {
+          -simv_args => [
+                         "+HAS_HW_RESET_TEST_PHASE",
+                         "+hqm_hw_reset_force_pwr_seq_stim_config::hw_reset_force_pwr_on_init=1",
+                         "+hqm_hw_reset_force_pwr_seq_stim_config::hw_reset_force_pwr_on_ctrl=0",
+
+                         "+hqm_hw_reset_force_pwr_seq2_stim_config::hw_reset_force_pwr_on_init=0",
+                         "+hqm_hw_reset_force_pwr_seq2_stim_config::hw_reset_force_pwr_on_ctrl=1",
+                         "+hqm_hw_reset_force_pwr_seq2_stim_config::Dstate=D3",
+
+                         "+HQM_SKIP_HCW_TRAFFIC",
+                         "+HQM_SKIP_EXTRA_DATA_PHASE",
+                         "+HQM_SKIP_EOT_SEQ",
+
+                         #"+HQM_PWR_SEQ=HQM_HW_RESET_FORCE_PWR_SEQ",
+
+                         #skip pmcsr_disable release
+                         "+hqm_pcie_init_stim_config::skip_pmcsr_disable=1",
+                        ],
+      },
+
+      hw_reset_force_pwr_case2_rtdr_flow0 => {
+          -simv_args => [
+                         "+HAS_HW_RESET_FORCE_PWR_ON_RTDR_PHASE",
+                         "+SLA_HW_RTDR_TEST_PHASE_TIMEOUT=800000",
+
+                         ######
+                         #BUS
+                         ######
+                         "+EN_PLUS_ARG",     #
+                         "+TAP_CLK_EN",      #
+                         "+USE_HQM_TAP_RTDR_BUS=1", #
+
+                         ######
+                         #TapDataLoadSeq_T0
+                         ######
+                         "+has_tap_dataload_seq",           #sequence TapDataLoadSeq_T0 
+                         #program reg1 only for tapconfig
+                         "+has_rtdr_reg1_cfg_force_pwr_on", 
+
+                         #########
+                         #program rtdr (tapconfig) bit11 
+                         "+HQM_RTDR_DATA1_0=0x00000000", #bit[11]=0 The rtdr bit which will now control the internal hw_reset_force_pwr_on signal is i_hqm_rtdr_tapconfig bit 11. 
+                         "+HQM_RTDR_DATA1_1=0x00000000", #bit[11]=0 
+                         "+HQM_RTDR_DATA1_2=0x00000800", #bit[11]=1 
+
+                         "+HQM_RTDR_DATA1_CFG_wait_0=1000",
+                         "+HQM_RTDR_DATA1_CFG_wait_1=5000",
+                         "+HQM_RTDR_DATA1_CFG_wait_2=100",
+
+                         ##################
+                         "+hqm_hw_reset_force_pwr_seq_stim_config::hw_reset_force_pwr_on_init=1",
+                         "+hqm_hw_reset_force_pwr_seq_stim_config::hw_reset_force_pwr_on_ctrl=0",
+
+                         "+hqm_hw_reset_force_pwr_seq2_stim_config::hw_reset_force_pwr_on_init=0",
+                         "+hqm_hw_reset_force_pwr_seq2_stim_config::hw_reset_force_pwr_on_ctrl=1",
+                         "+hqm_hw_reset_force_pwr_seq2_stim_config::Dstate=D3",
+
+                         "+HQM_SKIP_HCW_TRAFFIC",
+                         "+HQM_SKIP_EXTRA_DATA_PHASE",
+                         "+HQM_SKIP_EOT_SEQ",
+
+                         #"+HQM_PWR_SEQ=HQM_HW_RESET_FORCE_PWR_SEQ",
+                         #skip pmcsr_disable release
+                         "+hqm_pcie_init_stim_config::skip_pmcsr_disable=1",
+                        ],
+      },
+
+      hcw_traffic => {
+          -simv_args => [
+                     "+HQM_LSP_CQ_QID_CFG_CHECK_DIS",
+                     ## "+HQM_EOT_RD_SEQ_ENABLE_CREDIT_CHECK", Since after D3hot the configation of Hqm would be lost. 
+
+                     "+DIR_PP0_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP0_cq_token_return_burst_size=32",
+                     "+DIR_PP0_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP0_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP0_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP0_cq_token_return_enable_mean=1",
+                     "+DIR_PP0_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP0_cq_token_return_enable_min=1",
+                     "+DIR_PP0_cq_token_return_enable_max=1",
+                     "+DIR_PP0_cq_token_return_disable_mean=0",
+                     "+DIR_PP0_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP0_cq_token_return_disable_min=0",
+                     "+DIR_PP0_cq_token_return_disable_max=0",
+                     "+DIR_PP0_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP1_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP1_cq_token_return_burst_size=32",
+                     "+DIR_PP1_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP1_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP1_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP1_cq_token_return_enable_mean=1",
+                     "+DIR_PP1_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP1_cq_token_return_enable_min=1",
+                     "+DIR_PP1_cq_token_return_enable_max=1",
+                     "+DIR_PP1_cq_token_return_disable_mean=0",
+                     "+DIR_PP1_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP1_cq_token_return_disable_min=0",
+                     "+DIR_PP1_cq_token_return_disable_max=0",
+                     "+DIR_PP1_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP2_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP2_cq_token_return_burst_size=32",
+                     "+DIR_PP2_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP2_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP2_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP2_cq_token_return_enable_mean=1",
+                     "+DIR_PP2_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP2_cq_token_return_enable_min=1",
+                     "+DIR_PP2_cq_token_return_enable_max=1",
+                     "+DIR_PP2_cq_token_return_disable_mean=0",
+                     "+DIR_PP2_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP2_cq_token_return_disable_min=0",
+                     "+DIR_PP2_cq_token_return_disable_max=0",
+                     "+DIR_PP2_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP3_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP3_cq_token_return_burst_size=32",
+                     "+DIR_PP3_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP3_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP3_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP3_cq_token_return_enable_mean=1",
+                     "+DIR_PP3_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP3_cq_token_return_enable_min=1",
+                     "+DIR_PP3_cq_token_return_enable_max=1",
+                     "+DIR_PP3_cq_token_return_disable_mean=0",
+                     "+DIR_PP3_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP3_cq_token_return_disable_min=0",
+                     "+DIR_PP3_cq_token_return_disable_max=0",
+                     "+DIR_PP3_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP4_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP4_cq_token_return_burst_size=32",
+                     "+DIR_PP4_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP4_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP4_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP4_cq_token_return_enable_mean=1",
+                     "+DIR_PP4_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP4_cq_token_return_enable_min=1",
+                     "+DIR_PP4_cq_token_return_enable_max=1",
+                     "+DIR_PP4_cq_token_return_disable_mean=0",
+                     "+DIR_PP4_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP4_cq_token_return_disable_min=0",
+                     "+DIR_PP4_cq_token_return_disable_max=0",
+                     "+DIR_PP4_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP5_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP5_cq_token_return_burst_size=32",
+                     "+DIR_PP5_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP5_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP5_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP5_cq_token_return_enable_mean=1",
+                     "+DIR_PP5_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP5_cq_token_return_enable_min=1",
+                     "+DIR_PP5_cq_token_return_enable_max=1",
+                     "+DIR_PP5_cq_token_return_disable_mean=0",
+                     "+DIR_PP5_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP5_cq_token_return_disable_min=0",
+                     "+DIR_PP5_cq_token_return_disable_max=0",
+                     "+DIR_PP5_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP6_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP6_cq_token_return_burst_size=32",
+                     "+DIR_PP6_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP6_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP6_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP6_cq_token_return_enable_mean=1",
+                     "+DIR_PP6_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP6_cq_token_return_enable_min=1",
+                     "+DIR_PP6_cq_token_return_enable_max=1",
+                     "+DIR_PP6_cq_token_return_disable_mean=0",
+                     "+DIR_PP6_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP6_cq_token_return_disable_min=0",
+                     "+DIR_PP6_cq_token_return_disable_max=0",
+                     "+DIR_PP6_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP7_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP7_cq_token_return_burst_size=32",
+                     "+DIR_PP7_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP7_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP7_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP7_cq_token_return_enable_mean=1",
+                     "+DIR_PP7_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP7_cq_token_return_enable_min=1",
+                     "+DIR_PP7_cq_token_return_enable_max=1",
+                     "+DIR_PP7_cq_token_return_disable_mean=0",
+                     "+DIR_PP7_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP7_cq_token_return_disable_min=0",
+                     "+DIR_PP7_cq_token_return_disable_max=0",
+                     "+DIR_PP7_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP8_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP8_cq_token_return_burst_size=32",
+                     "+DIR_PP8_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP8_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP8_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP8_cq_token_return_enable_mean=1",
+                     "+DIR_PP8_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP8_cq_token_return_enable_min=1",
+                     "+DIR_PP8_cq_token_return_enable_max=1",
+                     "+DIR_PP8_cq_token_return_disable_mean=0",
+                     "+DIR_PP8_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP8_cq_token_return_disable_min=0",
+                     "+DIR_PP8_cq_token_return_disable_max=0",
+                     "+DIR_PP8_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP9_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP9_cq_token_return_burst_size=32",
+                     "+DIR_PP9_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP9_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP9_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP9_cq_token_return_enable_mean=1",
+                     "+DIR_PP9_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP9_cq_token_return_enable_min=1",
+                     "+DIR_PP9_cq_token_return_enable_max=1",
+                     "+DIR_PP9_cq_token_return_disable_mean=0",
+                     "+DIR_PP9_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP9_cq_token_return_disable_min=0",
+                     "+DIR_PP9_cq_token_return_disable_max=0",
+                     "+DIR_PP9_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP10_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP10_cq_token_return_burst_size=32",
+                     "+DIR_PP10_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP10_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP10_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP10_cq_token_return_enable_mean=1",
+                     "+DIR_PP10_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP10_cq_token_return_enable_min=1",
+                     "+DIR_PP10_cq_token_return_enable_max=1",
+                     "+DIR_PP10_cq_token_return_disable_mean=0",
+                     "+DIR_PP10_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP10_cq_token_return_disable_min=0",
+                     "+DIR_PP10_cq_token_return_disable_max=0",
+                     "+DIR_PP10_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP11_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP11_cq_token_return_burst_size=32",
+                     "+DIR_PP11_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP11_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP11_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP11_cq_token_return_enable_mean=1",
+                     "+DIR_PP11_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP11_cq_token_return_enable_min=1",
+                     "+DIR_PP11_cq_token_return_enable_max=1",
+                     "+DIR_PP11_cq_token_return_disable_mean=0",
+                     "+DIR_PP11_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP11_cq_token_return_disable_min=0",
+                     "+DIR_PP11_cq_token_return_disable_max=0",
+                     "+DIR_PP11_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP12_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP12_cq_token_return_burst_size=32",
+                     "+DIR_PP12_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP12_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP12_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP12_cq_token_return_enable_mean=1",
+                     "+DIR_PP12_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP12_cq_token_return_enable_min=1",
+                     "+DIR_PP12_cq_token_return_enable_max=1",
+                     "+DIR_PP12_cq_token_return_disable_mean=0",
+                     "+DIR_PP12_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP12_cq_token_return_disable_min=0",
+                     "+DIR_PP12_cq_token_return_disable_max=0",
+                     "+DIR_PP12_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP13_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP13_cq_token_return_burst_size=32",
+                     "+DIR_PP13_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP13_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP13_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP13_cq_token_return_enable_mean=1",
+                     "+DIR_PP13_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP13_cq_token_return_enable_min=1",
+                     "+DIR_PP13_cq_token_return_enable_max=1",
+                     "+DIR_PP13_cq_token_return_disable_mean=0",
+                     "+DIR_PP13_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP13_cq_token_return_disable_min=0",
+                     "+DIR_PP13_cq_token_return_disable_max=0",
+                     "+DIR_PP13_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP14_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP14_cq_token_return_burst_size=32",
+                     "+DIR_PP14_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP14_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP14_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP14_cq_token_return_enable_mean=1",
+                     "+DIR_PP14_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP14_cq_token_return_enable_min=1",
+                     "+DIR_PP14_cq_token_return_enable_max=1",
+                     "+DIR_PP14_cq_token_return_disable_mean=0",
+                     "+DIR_PP14_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP14_cq_token_return_disable_min=0",
+                     "+DIR_PP14_cq_token_return_disable_max=0",
+                     "+DIR_PP14_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP15_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP15_cq_token_return_burst_size=32",
+                     "+DIR_PP15_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP15_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP15_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP15_cq_token_return_enable_mean=1",
+                     "+DIR_PP15_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP15_cq_token_return_enable_min=1",
+                     "+DIR_PP15_cq_token_return_enable_max=1",
+                     "+DIR_PP15_cq_token_return_disable_mean=0",
+                     "+DIR_PP15_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP15_cq_token_return_disable_min=0",
+                     "+DIR_PP15_cq_token_return_disable_max=0",
+                     "+DIR_PP15_cq_token_return_sel_algorithm=fifo",
+                        ],
+      },
+      q1_short => {
+          -simv_args => [
+                     "+DIR_PP0_BATCH_MIN=1",
+                     "+DIR_PP0_BATCH_MAX=4",
+
+                     "+DIR_PP0_Q0_NUM_HCW=1024",
+                     "+DIR_PP1_Q0_NUM_HCW=0",
+                     "+DIR_PP2_Q0_NUM_HCW=0",
+                     "+DIR_PP3_Q0_NUM_HCW=0",
+                     "+DIR_PP4_Q0_NUM_HCW=0",
+                     "+DIR_PP5_Q0_NUM_HCW=0",
+                     "+DIR_PP6_Q0_NUM_HCW=0",
+                     "+DIR_PP7_Q0_NUM_HCW=0",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=2",
+
+                     "+LDB_PP0_Q0_NUM_HCW=512",
+                     "+LDB_PP1_Q0_NUM_HCW=0",
+                     "+LDB_PP2_Q0_NUM_HCW=0",
+                     "+LDB_PP3_Q0_NUM_HCW=0",
+                     "+LDB_PP4_Q0_NUM_HCW=0",
+                     "+LDB_PP5_Q0_NUM_HCW=0",
+                     "+LDB_PP6_Q0_NUM_HCW=0",
+                     "+LDB_PP7_Q0_NUM_HCW=0",
+
+                     "+LDB_PP0_HCW_DELAY=4",
+               
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test1_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      trf_cq_ctrl => {
+          -simv_args => [
+                     "+HAS_HQM_TRF_CQ_CTRL", 
+                     "+HAS_HQM_TRF_WAITNUM=500",
+                     "+HAS_HQM_TRF_HCWNUM_1=1024",
+                     "+HAS_HQM_TRF_HCWNUM_2=3096",
+
+                     "+DIR_PP0_BATCH_MIN=1",
+                     "+DIR_PP0_BATCH_MAX=4",
+
+                     "+DIR_PP0_Q0_NUM_HCW=128",
+                     "+DIR_PP1_Q0_NUM_HCW=128",
+                     "+DIR_PP2_Q0_NUM_HCW=128",
+                     "+DIR_PP3_Q0_NUM_HCW=128",
+                     "+DIR_PP4_Q0_NUM_HCW=128",
+                     "+DIR_PP5_Q0_NUM_HCW=128",
+                     "+DIR_PP6_Q0_NUM_HCW=128",
+                     "+DIR_PP7_Q0_NUM_HCW=128",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=2",
+
+                     "+LDB_PP0_Q0_NUM_HCW=128",
+                     "+LDB_PP1_Q0_NUM_HCW=128",
+                     "+LDB_PP2_Q0_NUM_HCW=128",
+                     "+LDB_PP3_Q0_NUM_HCW=128",
+                     "+LDB_PP4_Q0_NUM_HCW=128",
+                     "+LDB_PP5_Q0_NUM_HCW=128",
+                     "+LDB_PP6_Q0_NUM_HCW=128",
+                     "+LDB_PP7_Q0_NUM_HCW=128",
+
+                     "+LDB_PP0_HCW_DELAY=4",
+               
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test1_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      dirtrf_long_cq_ctrl => {
+          -simv_args => [
+                     "+HAS_HQM_TRF_CQ_CTRL", 
+                     "+HAS_HQM_TRF_WAITNUM=500",
+                     "+HAS_HQM_TRF_HCWNUM_1=16384",
+                     "+HAS_HQM_TRF_HCWNUM_2=32768",
+
+                     "+DIR_PP0_BATCH_MIN=1",
+                     "+DIR_PP0_BATCH_MAX=4",
+
+                     "+DIR_PP0_Q0_NUM_HCW=1024",
+                     "+DIR_PP1_Q0_NUM_HCW=1024",
+                     "+DIR_PP2_Q0_NUM_HCW=1024",
+                     "+DIR_PP3_Q0_NUM_HCW=1024",
+                     "+DIR_PP4_Q0_NUM_HCW=1024",
+                     "+DIR_PP5_Q0_NUM_HCW=1024",
+                     "+DIR_PP6_Q0_NUM_HCW=1024",
+                     "+DIR_PP7_Q0_NUM_HCW=1024",
+                     "+DIR_PP8_Q0_NUM_HCW=1024",
+                     "+DIR_PP9_Q0_NUM_HCW=1024",
+                     "+DIR_PP10_Q0_NUM_HCW=1024",
+                     "+DIR_PP11_Q0_NUM_HCW=1024",
+                     "+DIR_PP12_Q0_NUM_HCW=1024",
+                     "+DIR_PP13_Q0_NUM_HCW=1024",
+                     "+DIR_PP14_Q0_NUM_HCW=1024",
+                     "+DIR_PP15_Q0_NUM_HCW=1024",
+
+                     "+DIR_PP0_HCW_DELAY=2",
+
+                     "+LDB_PP0_Q0_NUM_HCW=0",
+                     "+LDB_PP1_Q0_NUM_HCW=0",
+                     "+LDB_PP2_Q0_NUM_HCW=0",
+                     "+LDB_PP3_Q0_NUM_HCW=0",
+                     "+LDB_PP4_Q0_NUM_HCW=0",
+                     "+LDB_PP5_Q0_NUM_HCW=0",
+                     "+LDB_PP6_Q0_NUM_HCW=0",
+                     "+LDB_PP7_Q0_NUM_HCW=0",
+
+                     "+LDB_PP0_HCW_DELAY=4",
+               
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test3_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+
+      dirldbtrf_long_cq_ctrl => {
+          -simv_args => [
+                     "+HAS_HQM_TRF_CQ_CTRL", 
+                     "+HAS_HQM_TRF_WAITNUM=500",
+                     "+HAS_HQM_TRF_HCWNUM_1=16384",
+                     "+HAS_HQM_TRF_HCWNUM_2=32768",
+
+                     "+DIR_PP0_BATCH_MIN=1",
+                     "+DIR_PP0_BATCH_MAX=4",
+
+                     "+DIR_PP0_Q0_NUM_HCW=1024",
+                     "+DIR_PP1_Q0_NUM_HCW=1024",
+                     "+DIR_PP2_Q0_NUM_HCW=1024",
+                     "+DIR_PP3_Q0_NUM_HCW=1024",
+                     "+DIR_PP4_Q0_NUM_HCW=1024",
+                     "+DIR_PP5_Q0_NUM_HCW=1024",
+                     "+DIR_PP6_Q0_NUM_HCW=1024",
+                     "+DIR_PP7_Q0_NUM_HCW=1024",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=2",
+
+                     "+LDB_PP0_Q0_NUM_HCW=1024",
+                     "+LDB_PP1_Q0_NUM_HCW=1024",
+                     "+LDB_PP2_Q0_NUM_HCW=1024",
+                     "+LDB_PP3_Q0_NUM_HCW=1024",
+                     "+LDB_PP4_Q0_NUM_HCW=1024",
+                     "+LDB_PP5_Q0_NUM_HCW=1024",
+                     "+LDB_PP6_Q0_NUM_HCW=1024",
+                     "+LDB_PP7_Q0_NUM_HCW=1024",
+
+                     "+LDB_PP0_HCW_DELAY=4",
+               
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test3_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      trf_long => {
+          -simv_args => [
+                     "+DIR_PP0_BATCH_MIN=1",
+                     "+DIR_PP0_BATCH_MAX=4",
+
+                     "+DIR_PP0_Q0_NUM_HCW=1300",
+                     "+DIR_PP1_Q0_NUM_HCW=1300",
+                     "+DIR_PP2_Q0_NUM_HCW=1300",
+                     "+DIR_PP3_Q0_NUM_HCW=1300",
+                     "+DIR_PP4_Q0_NUM_HCW=1300",
+                     "+DIR_PP5_Q0_NUM_HCW=1300",
+                     "+DIR_PP6_Q0_NUM_HCW=1300",
+                     "+DIR_PP7_Q0_NUM_HCW=1300",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=2",
+
+                     "+LDB_PP0_Q0_NUM_HCW=801",
+                     "+LDB_PP1_Q0_NUM_HCW=801",
+                     "+LDB_PP2_Q0_NUM_HCW=801",
+                     "+LDB_PP3_Q0_NUM_HCW=801",
+                     "+LDB_PP4_Q0_NUM_HCW=801",
+                     "+LDB_PP5_Q0_NUM_HCW=801",
+                     "+LDB_PP6_Q0_NUM_HCW=801",
+                     "+LDB_PP7_Q0_NUM_HCW=801",
+
+                     "+LDB_PP0_HCW_DELAY=4",
+               
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_perf_dir_ldb_test3_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      hcw_traffic_pmcsr_disable => {
+          -simv_args => [
+                     "+DIR_PP0_BATCH_MIN=1",
+                     "+DIR_PP0_BATCH_MAX=4",
+
+                     "+DIR_PP0_Q0_NUM_HCW=1024",
+                     "+DIR_PP1_Q0_NUM_HCW=0",
+                     "+DIR_PP2_Q0_NUM_HCW=0",
+                     "+DIR_PP3_Q0_NUM_HCW=0",
+                     "+DIR_PP4_Q0_NUM_HCW=0",
+                     "+DIR_PP5_Q0_NUM_HCW=0",
+                     "+DIR_PP6_Q0_NUM_HCW=0",
+                     "+DIR_PP7_Q0_NUM_HCW=0",
+                     "+DIR_PP8_Q0_NUM_HCW=0",
+                     "+DIR_PP9_Q0_NUM_HCW=0",
+                     "+DIR_PP10_Q0_NUM_HCW=0",
+                     "+DIR_PP11_Q0_NUM_HCW=0",
+                     "+DIR_PP12_Q0_NUM_HCW=0",
+                     "+DIR_PP13_Q0_NUM_HCW=0",
+                     "+DIR_PP14_Q0_NUM_HCW=0",
+                     "+DIR_PP15_Q0_NUM_HCW=0",
+
+                     "+DIR_PP0_HCW_DELAY=2",
+
+                     "+LDB_PP0_Q0_NUM_HCW=512",
+                     "+LDB_PP1_Q0_NUM_HCW=0",
+                     "+LDB_PP2_Q0_NUM_HCW=0",
+                     "+LDB_PP3_Q0_NUM_HCW=0",
+                     "+LDB_PP4_Q0_NUM_HCW=0",
+                     "+LDB_PP5_Q0_NUM_HCW=0",
+                     "+LDB_PP6_Q0_NUM_HCW=0",
+                     "+LDB_PP7_Q0_NUM_HCW=0",
+
+                     "+LDB_PP0_HCW_DELAY=4",
+               
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pwr_pmcsr_disable_test_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      hcw_diff_qtypes => {
+          -simv_args => [
+                         "+HQM_PWR_CFG_CFT=aceroot/verif/tb/hqm/tests/hqm_functional/hcw_diff_qtypes_cfg.cft",
+                         "+HQM_PWR_HCW_CFT=aceroot/verif/tb/hqm/tests/hqm_functional/hcw_diff_qtypes_hcw.cft",
+                        ],
+      },
+      lcp_shift_check => { 
+          -simv_args => [ "+LCP_SHIFT_CHECK ", 
+                        ], 
+      },
+
+
+
+      rtdr_tapconfig_sel21 => {
+          -simv_args => [
+                     ######
+                     #select which phase, default is before WARM_RESET_PHASE
+                     ######
+                     "+HAS_RTDR_TEST_PHASE", 
+                     "+SLA_HW_RTDR_TEST_PHASE_TIMEOUT=800000",
+                     #"+HW_FORCE_PWR_TEST_PHASE=<>",
+
+                     ######
+                     #BUS
+                     ######
+                     "+EN_PLUS_ARG",     #
+                     "+TAP_CLK_EN",      #
+                     "+USE_HQM_TAP_RTDR_BUS=1", #
+
+                     ######
+                     #TapDataLoadSeq_T0
+                     ######
+                     "+has_tap_dataload_seq",           #sequence TapDataLoadSeq_T0 
+                     #program reg1 only for tapconfig
+                     "+has_rtdr_reg1_cfg_task2", 
+                    
+                     #"+has_tapconfig_rand_task",
+                     "+HQM_RTDR_DATA1_0=0xbabe8224", #bit[10:8] and bit[7:5]
+                        ],
+      },
+
+      rtdr_tapconfig_sel43 => {
+          -simv_args => [
+                     ######
+                     #select which phase, default is before WARM_RESET_PHASE
+                     ######
+                     "+HAS_RTDR_TEST_PHASE", 
+                     "+SLA_HW_RTDR_TEST_PHASE_TIMEOUT=800000",
+                     #"+HW_FORCE_PWR_TEST_PHASE=<>",
+
+                     ######
+                     #BUS
+                     ######
+                     "+EN_PLUS_ARG",     #
+                     "+TAP_CLK_EN",      #
+                     "+USE_HQM_TAP_RTDR_BUS=1", #
+
+                     ######
+                     #TapDataLoadSeq_T0
+                     ######
+                     "+has_tap_dataload_seq",           #sequence TapDataLoadSeq_T0 
+                     #program reg1 only for tapconfig
+                     "+has_rtdr_reg1_cfg_task2", 
+                    
+                     #"+has_tapconfig_rand_task",
+                     "+HQM_RTDR_DATA1_0=0xbabe8464", #bit[10:8] and bit[7:5]
+                        ],
+      },
+
+      rtdr_tapconfig_sel65 => {
+          -simv_args => [
+                     ######
+                     #select which phase, default is before WARM_RESET_PHASE
+                     ######
+                     "+HAS_RTDR_TEST_PHASE", 
+                     "+SLA_HW_RTDR_TEST_PHASE_TIMEOUT=800000",
+                     #"+HW_FORCE_PWR_TEST_PHASE=<>",
+
+                     ######
+                     #BUS
+                     ######
+                     "+EN_PLUS_ARG",     #
+                     "+TAP_CLK_EN",      #
+                     "+USE_HQM_TAP_RTDR_BUS=1", #
+
+                     ######
+                     #TapDataLoadSeq_T0
+                     ######
+                     "+has_tap_dataload_seq",           #sequence TapDataLoadSeq_T0 
+                     #program reg1 only for tapconfig
+                     "+has_rtdr_reg1_cfg_task2", 
+                    
+                     #"+has_tapconfig_rand_task",
+                     "+HQM_RTDR_DATA1_0=0xbabe86a4", #bit[10:8] and bit[7:5]
+                        ],
+      },
+
+      rtdr_tapconfig_selrnd => {
+          -simv_args => [
+                     ######
+                     #select which phase, default is before WARM_RESET_PHASE
+                     ######
+                     "+HAS_RTDR_TEST_PHASE", 
+                     "+SLA_HW_RTDR_TEST_PHASE_TIMEOUT=800000",
+                     #"+HW_FORCE_PWR_TEST_PHASE=<>",
+
+                     ######
+                     #BUS
+                     ######
+                     "+EN_PLUS_ARG",     #
+                     "+TAP_CLK_EN",      #
+                     "+USE_HQM_TAP_RTDR_BUS=1", #
+
+                     ######
+                     #TapDataLoadSeq_T0
+                     ######
+                     "+has_tap_dataload_seq",           #sequence TapDataLoadSeq_T0 
+                     #program reg1 only for tapconfig
+                     "+has_rtdr_reg1_cfg_task2", 
+                    
+                     "+has_tapconfig_rand_task",
+                     "+HQM_RTDR_DATA1_0=0xbabe86a4", #bit[10:8] and bit[7:5]
+                        ],
+      },
+
+
+
+      rtdr_taptrigger_pm0mask => {
+          -simv_args => [
+                     ######
+                     #select which phase, default is before WARM_RESET_PHASE
+                     ######
+                     "+HAS_RTDR_TEST_PHASE", 
+                     "+SLA_HW_RTDR_TEST_PHASE_TIMEOUT=800000",
+                     #"+HW_FORCE_PWR_TEST_PHASE=<>",
+
+                     ######
+                     #BUS
+                     ######
+                     "+EN_PLUS_ARG",     #
+                     "+TAP_CLK_EN",      #
+                     "+USE_HQM_TAP_RTDR_BUS=1", #
+
+                     ######
+                     #TapDataLoadSeq_T0
+                     ######
+                     "+has_tap_dataload_seq",           #sequence TapDataLoadSeq_T0 
+
+                     #program reg2 only for taptrigger
+                     "+HQM_RTDR_TRIGGER_PW0_TEST",
+                     "+has_rtdr_reg2_cfg_trigger", 
+
+                     #program rtdr (taptrigger) bit[19:10] = 0x3ff as TRIG_PM0 mask
+                     "+HQM_RTDR_DATA2_0=0xb0000000", #bit[30]=0 and bit[29:0] are three 10-bit trigger
+                     "+HQM_RTDR_DATA2_1=0x403ff000", #bit[30]=1 
+                        ],
+      },
+
+      rtdr_taptrigger_pm1mask => {
+          -simv_args => [
+                     ######
+                     #select which phase, default is before WARM_RESET_PHASE
+                     ######
+                     "+HAS_RTDR_TEST_PHASE", 
+                     "+SLA_HW_RTDR_TEST_PHASE_TIMEOUT=800000",
+                     #"+HW_FORCE_PWR_TEST_PHASE=<>",
+
+                     ######
+                     #BUS
+                     ######
+                     "+EN_PLUS_ARG",     #
+                     "+TAP_CLK_EN",      #
+                     "+USE_HQM_TAP_RTDR_BUS=1", #
+
+                     ######
+                     #TapDataLoadSeq_T0
+                     ######
+                     "+has_tap_dataload_seq",           #sequence TapDataLoadSeq_T0 
+
+                     #program reg2 only for taptrigger
+                     "+HQM_RTDR_TRIGGER_PW1_TEST",
+                     "+has_rtdr_reg2_cfg_trigger", 
+
+                     #program rtdr (taptrigger) bit[29:20] = 0x3ff as TRIG_PM1 mask
+                     "+HQM_RTDR_DATA2_0=0xb0000000", #bit[30]=0 and bit[29:0] are three 10-bit trigger
+                     "+HQM_RTDR_DATA2_1=0x7ff00000", #bit[30]=1 
+                        ],
+      },
+
+     #These two tests are used to test prim_clkreq (GRR: Validate reset_prep force prim_clkreq to '0)
+      uno_traffic_smoke => {
+          -simv_args => [
+                         "+HQM_HCW_SMK_TRAFFIC",
+                         "+HQM_USER_DATA_SEQ_OVERRIDE=hcw_ldb_test_hcw_smoke_seq",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/hcw_sciov_ldb_smk_cfg.cft",
+                         "+HCW_TRAFFIC=aceroot/verif/tb/hqm/tests/hqm_functional/hcw_sciov_ldb_smk_hcw.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                         "+HQM_DISABLE_BACKGROUND_CFG_GEN_SEQ",
+                        ],
+      },
+
+      #PVIM:  https://hsdes.intel.com/resource/14010804831 GRR: Validate reset_prep force prim_clkreq to '0
+      uno_traffic_cqintmask => {
+          -simv_args => [
+                         "+HQM_HCW_SMK_TRAFFIC",
+                         "+HQM_USER_DATA_SEQ_OVERRIDE=hcw_ldb_test_hcw_smoke_seq",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/hcw_sciov_ldb_cqintmask_smk_cfg.cft",
+                         "+HCW_TRAFFIC=aceroot/verif/tb/hqm/tests/hqm_functional/hcw_sciov_ldb_cqintmask_smk_hcw.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                         "+HQM_DISABLE_BACKGROUND_CFG_GEN_SEQ",
+                        ],
+      },
+
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

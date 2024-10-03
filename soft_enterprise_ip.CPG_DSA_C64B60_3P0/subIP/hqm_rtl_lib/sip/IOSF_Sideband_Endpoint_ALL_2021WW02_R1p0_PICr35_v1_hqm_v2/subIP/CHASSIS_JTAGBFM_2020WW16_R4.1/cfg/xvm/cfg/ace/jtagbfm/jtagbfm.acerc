@@ -1,0 +1,41 @@
+#!/usr/intel/bin/perl
+use lib "$ENV{RTL_PROJ_BIN}/perllib";
+use ToolConfig();
+
+%acerc = (
+    UDF => [
+        "$ENV{TSA_ROOT}/cfg/ace/tsa_global_ivars.udf",
+        "cfg/ace/$ENV{ACE_PROJECT}/$ENV{ACE_PROJECT}.udf",
+    ],
+    
+    LIBS => [
+        "cfg/ace/lib"
+    ],
+    
+    SUB_SCOPES => {
+        subscopes => {
+            $ENV{ACE_PROJECT} => ['xvm'],
+            xvm   => [ 'ovm', 'uvm' ], 
+        },
+    },
+    
+    # Ace automatically places $ACE_ENG/$ACE_PWA_DIR in the
+    # available search paths
+    SEARCH_PATHS => {
+	    $ENV{ACE_PROJECT} => [
+		"$ENV{MODEL_ROOT}/cfg/xvm",
+                "$ENV{MODEL_ROOT}",
+            ],
+            xvm =>              [&ToolConfig::get_tool_var("ipconfig/xvm",          "SEARCH_PATHS"),],
+            uvm =>              [&ToolConfig::get_tool_var("ipconfig/uvm",          "SEARCH_PATHS"),],
+            ovm =>              [&ToolConfig::get_tool_var("ipconfig/ovm",          "SEARCH_PATHS"),],
+    },
+    TEST_PATTERNS => [ 'verif/tests/jtagbfm', ],
+
+  
+    # Custom settings
+    'HDLSPEC_FILE_READING_RETRY_DELAY' => '5',
+    'HDLSPEC_FILE_READING_RETRY_LIMIT' => '3',
+    'ENABLE_RECURSIVE_DEP_LIBS' => 1,
+    ENABLE_PWA_DIR_SP_OVERRIDE => 1, ## enable ace to not force <-eng>/<-pwa> as the first search path of ACE_PROJECT scope
+);

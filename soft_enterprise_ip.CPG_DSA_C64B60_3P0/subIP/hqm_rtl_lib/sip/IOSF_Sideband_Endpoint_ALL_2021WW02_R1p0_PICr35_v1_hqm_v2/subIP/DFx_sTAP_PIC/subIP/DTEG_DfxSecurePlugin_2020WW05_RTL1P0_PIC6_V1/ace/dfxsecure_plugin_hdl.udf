@@ -1,0 +1,239 @@
+##--------------------------------------------------------------------------------
+## INTEL CONFIDENTIAL
+##
+## Copyright 2015 Intel Corporation All Rights Reserved.
+## The source code contained or described herein and all documents related to the
+## source code ("Material") are owned by Intel Corporation or its suppliers or
+## licensors. Title to the Material remains with Intel Corporation or its
+## suppliers and licensors. The Material contains trade secrets and proprietary
+## and confidential information of Intel or its suppliers and licensors. The
+## Material is protected by worldwide copyright and trade secret laws and treaty
+## provisions. No part of the Material may be used, copied, reproduced, modified,
+## published, uploaded, posted, transmitted, distributed, or disclosed in any way
+## without Intels prior express written permission.
+##
+## No license under any patent, copyright, trade secret or other intellectual
+## property right is granted to or conferred upon you by disclosure or delivery
+## of the Materials, either expressly, by implication, inducement, estoppel or
+## otherwise. Any license under such intellectual property rights must be express
+## and approved by Intel in writing.
+##
+##--------------------------------------------------------------------------------
+
+my $PROJECT = "dfxsecure_plugin";
+%audf = (
+   HDLSpec => {
+      $PROJECT => {
+         libs => {
+	    uvm_pkg_lib               => { 
+               -tag                   =>   'nonsynth+nonemu+nonlint',
+               -vlog_files            => [ "$ENV{UVM_HOME}/src/uvm_pkg.sv", ],
+               -vlog_incdirs          => [ "$ENV{UVM_HOME}/src", ], 
+               -vlog_opts             => [ "-sverilog", ],
+            },
+	    
+	    ovm_pkg_lib               => { 
+               -tag                   =>   'nonsynth+nonemu+nonlint',
+               -vlog_files            => [ "$ENV{OVM_HOME}/src/ovm_pkg.sv", ],
+               -vlog_incdirs          => [ "$ENV{OVM_HOME}/src", ], 
+               -vlog_opts             => [ "-sverilog", ],
+	       -dependent_libs        => [ "uvm_pkg_lib", ],
+            },
+	    
+	    xvm_pkg_lib               => { 
+               -tag                   =>   'nonsynth+nonemu+nonlint',
+               -vlog_files            => [ "$ENV{XVM_HOME}/src/xvm_pkg.sv", ],
+               -vlog_incdirs          => [ "$ENV{XVM_HOME}/src", "$ENV{XVM_HOME}/src/macros", "$ENV{UVM_HOME}/src", "$ENV{OVM_HOME}/src", ], 
+               -vlog_opts             => [ "-sverilog", ],
+	       -dependent_libs        => [ "uvm_pkg_lib", "ovm_pkg_lib", ],
+            },
+
+            sip_shared_lib            => {
+               -tag                   =>   'nonsynth+nonemu+nonlint',
+	      #-dependent_libs        => [ "uvm_pkg_lib", "ovm_pkg_lib", ],
+	      -sub_libs        => [ "uvm_pkg_lib", "ovm_pkg_lib", "xvm_pkg_lib", ],
+            },
+
+            dfxsecure_plugin_rtl_lib  => { 
+               -hdl_spec              => [ "source/rtl/dfxsecure_plugin_rtl.hdl", ],
+			  #-vlog_opts             => [ "+define+INTEL_SIMONLY"],
+            },
+
+            dfxsecure_plugin_pkg_lib  => {
+               -tag                   =>   'nonsynth+nonemu+nonlint',
+               -hdl_spec              => [ "verif/tb/DfxSecurePlugin_Pkg.hdl", ],
+               -dependent_libs        => [ #"uvm_pkg_lib", "ovm_pkg_lib",
+                                           "sip_shared_lib", ],
+               -vlog_incdirs          => [
+                                          "$ENV{UVM_HOME}/src",
+                                          "$ENV{OVM_HOME}/src",
+                                          "$ENV{XVM_HOME}/src",
+                                          "$ENV{XVM_HOME}/src/macros",
+                                          "$ENV{SAOLA_HOME}/verilog",
+                                         ],
+
+            },
+            dfxsecure_plugin_pkg_uvm_lib  => {
+               -tag                   =>   'nonsynth+nonemu+nonlint',
+               -hdl_spec              => [ "verif_UVM/tb/DfxSecurePlugin_Pkg.hdl", ],
+               -dependent_libs        => [ #"uvm_pkg_lib", "ovm_pkg_lib",
+                                            "sip_shared_lib", ],
+               #-dependent_libs        => [ "sip_shared_lib", ],
+               -vlog_incdirs          => [
+                                          "$ENV{UVM_HOME}/src",
+                                          "$ENV{SAOLA_HOME}/verilog",
+                                         ],
+
+            },
+
+            dfxsecure_plugin_ti_lib   => {
+               -tag                   =>   'nonsynth+nonemu+nonlint',
+               -hdl_spec              => [ "verif/tb/DfxSecurePlugin_ti.hdl", ],
+               -dependent_libs        => [ #"uvm_pkg_lib", "ovm_pkg_lib", 
+                                           "sip_shared_lib", "dfxsecure_plugin_pkg_lib",],
+            },
+            dfxsecure_plugin_ti_uvm_lib   => {
+               -tag                   =>   'nonsynth+nonemu+nonlint',
+               -hdl_spec              => [ "verif_UVM/tb/DfxSecurePlugin_ti.hdl", ],
+               -dependent_libs        => [ #"uvm_pkg_lib", "ovm_pkg_lib", 
+                                            "sip_shared_lib", "dfxsecure_plugin_pkg_uvm_lib",],
+            },
+
+            dfxsecure_plugin_tb_lib   => {
+               -tag                   =>   'nonsynth+nonemu+nonlint',
+               -hdl_spec              => [ "verif/tb/DfxSecurePlugin_tb.hdl", ],
+               -dependent_libs        => [ "sip_shared_lib", "dfxsecure_plugin_rtl_lib", "dfxsecure_plugin_pkg_lib", "dfxsecure_plugin_ti_lib",],
+            },
+	        dfxsecure_plugin_tb_uvm_lib   => {
+               -tag                   =>   'nonsynth+nonemu+nonlint',
+               -hdl_spec              => [ "verif_UVM/tb/DfxSecurePlugin_tb.hdl", ],
+               -dependent_libs        => [ "sip_shared_lib", "dfxsecure_plugin_rtl_lib", "dfxsecure_plugin_pkg_uvm_lib", "dfxsecure_plugin_ti_uvm_lib",],
+            },
+
+            dfxsecure_plugin_lint_lib => {
+				 -hdl_spec              => [
+                                            "source/rtl/dfxsecure_plugin_rtl.hdl",
+											],
+				-vlog_incdirs          => [ "source/rtl/include",
+				                            "source/rtl/include/assertions",
+										  ],
+                                     
+				-vlog_opts             => [ "+define+ASSERT_OFF+SYNTHESIS+INTEL_SVA_OFF"],
+			},
+
+			dfxsecure_plugin_emul_lib => {
+				 -hdl_spec              => [
+                                            "source/rtl/dfxsecure_plugin_rtl.hdl",
+											],
+				-vlog_incdirs          => [ "source/rtl/include",
+				                            "source/rtl/include/assertions",
+		   								  ],
+                                     
+				-vlog_opts             => [ "+define+ASSERT_OFF+SYNTHESIS+INTEL_SVA_OFF"],
+			},
+
+			 dfxsecure_plugin_cdc_lib => {
+               -hdl_spec              => [ "source/rtl/dfxsecure_plugin_rtl.hdl", 
+                                           # "tools/cdc/dfxsecure_plugin_cdc.hdl",
+                                         ],
+               -vlog_opts             => [ "-sv","+define+INTEL_SVA_OFF+EMULATION","+libext+.sv+.v+.vs",], 
+               -sub_libs              => [ "$ENV{CTECH_LIB_NAME}", ], 
+            },
+
+            dfxsecure_plugin_test_lib => {
+               -tag                   =>   'nonsynth+nonemu+nonlint',
+               -hdl_spec              => [ "verif/tests/DfxSecurePlugin_tests.hdl", ],
+               -dependent_libs        => [ #"uvm_pkg_lib", "ovm_pkg_lib",
+                                            "sip_shared_lib", "dfxsecure_plugin_rtl_lib", "dfxsecure_plugin_tb_lib", "dfxsecure_plugin_pkg_lib", "dfxsecure_plugin_ti_lib",],
+               -vlog_incdirs          => [
+                                           "$ENV{UVM_HOME}/src",
+                                           "$ENV{OVM_HOME}/src",
+                                           "$ENV{XVM_HOME}/src",
+                                           "$ENV{XVM_HOME}/src/macros",
+                                           "$ENV{SAOLA_HOME}/verilog",
+                                          ],
+            },
+            dfxsecure_plugin_test_uvm_lib => {
+               -tag                   =>   'nonsynth+nonemu+nonlint',
+               -hdl_spec              => [ "verif_UVM/tests/DfxSecurePlugin_tests.hdl", ],
+               -dependent_libs        => [ #"uvm_pkg_lib", "ovm_pkg_lib", 
+                                            "sip_shared_lib", "dfxsecure_plugin_rtl_lib", "dfxsecure_plugin_tb_uvm_lib", "dfxsecure_plugin_pkg_uvm_lib", "dfxsecure_plugin_ti_uvm_lib",],
+               -vlog_incdirs          => [
+                                           "$ENV{UVM_HOME}/src",
+                                           "$ENV{SAOLA_HOME}/verilog",
+                                          ],
+            },
+         }, # End libs
+
+         ##--------------
+         models => {
+            dfxsecure_plugin_model    => {
+               top                    => 'dfxsecure_plugin_tb_lib.DfxSecurePlugin_Tbtop',
+               libs                   => [ #"uvm_pkg_lib",
+		                                     #"ovm_pkg_lib",
+		                                     "sip_shared_lib",
+                                           "dfxsecure_plugin_rtl_lib",
+                                           "dfxsecure_plugin_pkg_lib",
+                                           "dfxsecure_plugin_ti_lib",
+                                           "dfxsecure_plugin_tb_lib",
+                                           "dfxsecure_plugin_test_lib", ],
+               pli_libs               => [qw(-debussy_pli_libs -PrintHier_pli)],
+               elab_scrag_recipe      => "tools/elab/model_elab_scrag.recipe",
+                  export              => {
+                  libs                => [ "dfxsecure_plugin_rtl_lib",
+                                           "dfxsecure_plugin_pkg_lib",
+                                           "dfxsecure_plugin_ti_lib",
+                                           ],
+               },
+               import                 => { },
+            },
+
+            dfxsecure_plugin_UVM_model    => {
+               top                    => 'dfxsecure_plugin_tb_uvm_lib.DfxSecurePlugin_Tbtop',
+               libs                   => [ #"uvm_pkg_lib",
+		                                     #"ovm_pkg_lib",
+		                                     "sip_shared_lib",
+                                           "dfxsecure_plugin_rtl_lib",
+                                           "dfxsecure_plugin_pkg_uvm_lib",
+                                           "dfxsecure_plugin_ti_uvm_lib",
+                                           "dfxsecure_plugin_tb_uvm_lib",
+                                           "dfxsecure_plugin_test_uvm_lib", ],
+               pli_libs               => [qw(-debussy_pli_libs -PrintHier_pli)],
+               elab_scrag_recipe      => "tools/elab/model_elab_scrag.recipe",
+                  export              => {
+                  libs                => [ "dfxsecure_plugin_rtl_lib",
+                                           "dfxsecure_plugin_pkg_uvm_lib",
+                                           "dfxsecure_plugin_ti_uvm_lib",
+                                           ],
+               },
+               import                 => { },
+            },
+
+
+           cdc_dfxsecure_plugin_model             => {
+              top                     =>   "dfxsecure_plugin_rtl_lib.dfxsecure_plugin",
+              libs                    => [ "dfxsecure_plugin_cdc_lib","dfxsecure_plugin_rtl_lib" ],
+              -defines                => [ qw(ASSERT_OFF  INTEL_SVA_OFF) ],
+           },
+
+
+            dfxsecure_plugin_emulation_model => {
+               top                           =>   "dfxsecure_plugin_emul_lib.dfxsecure_plugin",
+				   libs                      => [ "dfxsecure_plugin_emul_lib",],
+               emubuild                      => {
+                    -defines                 => [ 'EMULATION', 'ASSERT_OFF', 'DC', 'INTEL_SVA_OFF' ],
+                    -remove_defines          => [ 'VCSSIM', 'VCS', 'ASSERT_ON', 'SYNTHESIS' ],
+                    -ana_vhdl_opts_remove    => { -comment_transoff_regions => undef, },
+                }, # emubuild
+            },# end emulation_model definition
+
+            dfxsecure_plugin_lint_model     => {
+               top                    => "dfxsecure_plugin_lint_lib.dfxsecure_plugin",
+			   -defines               => [ qw(ASSERT_OFF SYNTHESIS INTEL_SVA_OFF)],
+				   libs                   => [ "dfxsecure_plugin_lint_lib",],
+            },
+
+         }, #end models
+      },
+   }, # end of HDLSpec
+);

@@ -1,0 +1,28 @@
+# Configure WD timer for CQ[4]
+
+msix_alarm 0 addr=0xbbbbbbb0 data=0xcode55aa
+
+wr credit_hist_pipe.cfg_dir_wd_threshold        0x2
+wr credit_hist_pipe.cfg_dir_wd_disable0         0xffffffff
+wr credit_hist_pipe.cfg_dir_cq_wd_enb[0]        0x1
+wr credit_hist_pipe.cfg_dir_wd_enb_interval 0x10000001
+rd credit_hist_pipe.cfg_dir_wd_enb_interval 0x10000001
+
+
+IDLE 500
+
+HCW DIR:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302
+HCW DIR:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302
+HCW DIR:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302
+HCW DIR:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302
+
+rd credit_hist_pipe.cfg_dir_wd_enb_interval 0x10000001
+
+msix_alarm_wait 10000
+
+rd hqm_system_csr.alarm_hw_synd 0x80000800
+wr hqm_system_csr.alarm_hw_synd 0x80000000
+
+IDLE 1000
+HCW DIR:0 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x003 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302
+IDLE 300

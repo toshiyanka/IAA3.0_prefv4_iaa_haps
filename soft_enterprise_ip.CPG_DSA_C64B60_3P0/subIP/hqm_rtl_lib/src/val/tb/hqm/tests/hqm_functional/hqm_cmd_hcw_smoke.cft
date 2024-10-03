@@ -1,0 +1,39 @@
+## send legal HCW from LDB PP 0,1,2,3,8,9
+## Test1:send illegal atomic from qid 0 
+## send following command with illegal atm qid
+## NEW,NEW_T,RENQ,RENQ_T,COMP,COMP_T,BAT_T
+## QE Dropped and  completion/tokens are accepted.
+
+##Test1: ill atm qe from pp0 own PF
+## HCW NEW from ldb pp0 
+HCW LDB:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302 
+HCW LDB:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302 
+HCW LDB:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302 
+HCW LDB:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302 
+HCW LDB:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302 
+HCW LDB:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302 
+HCW LDB:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302 
+HCW LDB:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302 
+HCW LDB:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302 
+HCW LDB:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302 
+idle 500
+#poll for scheduling 
+poll_sch  ldb:0  0xa     1000 200
+
+idle 1000
+## send completion for pp0 total 6 completion , 6 token return
+## 6 comp_t
+HCW LDB:0 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302   
+HCW LDB:0 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302  
+HCW LDB:0 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302  
+HCW LDB:0 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302 
+HCW LDB:0 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302 
+HCW LDB:0 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302 
+HCW LDB:0 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302 
+HCW LDB:0 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302 
+HCW LDB:0 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302 
+HCW LDB:0 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302 
+idle 1000
+##poll for completion 
+#poll list_sel_pipe.cfg_qid_ldb_inflight_count[0] 0x0 0xffffffff 1000 200
+idle 500

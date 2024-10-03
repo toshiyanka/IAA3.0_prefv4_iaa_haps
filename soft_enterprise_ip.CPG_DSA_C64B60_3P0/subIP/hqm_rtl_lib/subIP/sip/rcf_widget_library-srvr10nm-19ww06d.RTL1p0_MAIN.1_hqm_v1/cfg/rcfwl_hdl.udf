@@ -1,0 +1,497 @@
+# -*- mode: cperl; cperl-indent-level: 4; cperl-indent-parens-as-block: t; -*- ## vim: noai:ts=4 : sw=4 : filetype=perl
+# -*- mode: cperl; cperl-indent-level: 4; cperl-indent-parens-as-block: t; -*- ## vim: noai:ts=4 : sw=4 : filetype=perl
+# vim: noai:ts=4 : sw=4 : filetype=perl
+# vim: noai:ts=4 : sw=4 : filetype=perl
+use lib "$ENV{RTL_PROJ_BIN}/perllib";
+require ToolConfig;
+
+my $scope = "hqm_rcfwl";
+my $VISA_MODULE_XML_PATH = &ToolConfig::get_tool_var('visait','hqm_VISA_MODULE_XML_PATH');
+
+my @exclude_libs = ("hqm_rcfwl_dft_reset_sync_tb_lib",
+                    "hqm_rcfwl_cdc_wrapper_tb_lib",
+                    "hqm_rcfwl_ip_disable_tb_lib",
+                    "hqm_rcfwl_fuse_hip_glue_tb_lib",);
+
+my @sglp_exclude_libs = (@exclude_libs);
+
+my $soc_generate = 1;
+if ( (&ToolConfig::get_facet('dut') eq "cdc_wrapper" ) ||
+     (&ToolConfig::get_facet('dut') eq "dft_reset_sync") ||
+     (&ToolConfig::get_facet('dut') eq "ip_disable") ||
+     (&ToolConfig::get_facet('dut') eq "fuse_hip_glue") ||
+     (&ToolConfig::get_facet('dut') eq "rcfwl") ||
+     ($ENV{ACE_PROJECT} eq $scope) ) {
+$soc_generate = 0;
+}
+
+my $rcfwllocal = ($ENV{ACE_PROJECT} eq 'rcfwl'); 
+
+%audf = (
+         GenRTL => 
+         {
+          $scope => 
+          {
+           -config => 
+           {## This section specifies to ACE/simbuild how to generate the forwarded library (with VISA inserted in it)
+            hqm_rcfwl_cdc_wrapper_rtl_lib_VISA_INSERTION => 
+            {   ## <-- Convention would be to name this consistent to
+             ##     library you are forwarding into + "_VISA_INSERTION"
+             ##     library you are forwarding into + "_VISA_INSERTION"
+             enable_config => "<-en__hqm_rcfwl_cdc_wrapper_rtl_lib_VISA_INSERTION>",   ## <-- Required option, links VISA insertion stage to ace ivar
+             dump_rtl => 'L:hqm_rcfwl_cdc_wrapper_rtl_lib',  ## <-- Specifies to ACE what library or model to use for generating
+             ##     the METAFILE to be used by VisaFlow.pl.  The METAFILE must
+             ##     the METAFILE to be used by VisaFlow.pl.  The METAFILE must
+             ##     contain the full design view to be seen by Visa to be able to
+             ##     contain the full design view to be seen by Visa to be able to
+             ##     do analysis of the design and insertion. 
+             ##     do analysis of the design and insertion. 
+             ##     Typically should be the same as the forwarded library with L: before it
+             ##     Typically should be the same as the forwarded library with L: before it
+             filter => 'Synthesis',            ## <-- Tells ACE to filter out libs tagged as "nonsynth"
+             ## Build up the VisaFlow.pl command to do the VISA insertion in this GenRTL stage below
+             ## Build up the VisaFlow.pl command to do the VISA insertion in this GenRTL stage below
+             gen_commands => 
+             [
+              #### not needed any more "export CTECH_EXP_LIB_NAME='$ENV{CTECH_EXP_LIB_NAME} $ENV{SDG_CTECH_LIB_NAME}'",
+              #### not needed any more "export CTECH_EXP_LIB_NAME='$ENV{CTECH_EXP_LIB_NAME} $ENV{SDG_CTECH_LIB_NAME}'",
+              ## VisaFlow executable, which is a wrapper around the visa insertion tool that leverages ace build description
+              ## VisaFlow executable, which is a wrapper around the visa insertion tool that leverages ace build description
+              &ToolConfig::get_tool_exec("visaflow") . " " .
+              ## Top-level visa_sig file for this VISA insertion, should live under $MODEL_ROOT/tools/visa
+              ## Top-level visa_sig file for this VISA insertion, should live under $MODEL_ROOT/tools/visa
+              "-sigfile=" . &ToolConfig::get_tool_path("ipconfig/${scope}") . "/tools/visa/hqm_rcfwl_cdc_wrapper.sig " .
+              ## VisaFlow params that shouldn't require changing below
+              ## VisaFlow params that shouldn't require changing below
+              "--vlogsupopts=\" \" --metadata \${META_DATA} --nodefs --relativepathsinhdl --suppress_global_vlog_opts  " .
+              "--rel_base_dir $ENV{MODEL_ROOT} " . 
+              ## Set to the module_name where VISA insertion starts
+              ## Set to the module_name where VISA insertion starts
+              "--top_module hqm_rcfwl_cdc_wrapper " .
+              "--insert_opts=\" -M -m $VISA_MODULE_XML_PATH/VisaModules.xml -P $VISA_MODULE_XML_PATH/VisaModuleParams.xml \" ".
+              "--sig2cfg_opts=\" -m $VISA_MODULE_XML_PATH/VisaModules.xml -P $VISA_MODULE_XML_PATH/VisaModuleParams.xml \" ".
+              "--validate_opts=\" -m $VISA_MODULE_XML_PATH/VisaModules.xml \" ".
+
+              ## Options forwarded to VISA IT rtl_extract.  Expert users only change the below options
+              ## Options forwarded to VISA IT rtl_extract.  Expert users only change the below options
+              "--rtlextract_opts=\" --flag no_clks --flag no_nets -W 'WARN=VERI-1137' -W 'WARN=VERI-1018' ".
+              "-W 'WARN=VERI-1036' -W 'WARN=VERI-1128' -W 'WARN=VERI-13740' \" ".
+              ## Specifies which libraries VisaFlow will look at for files to be inserted. 
+              ## Specifies which libraries VisaFlow will look at for files to be inserted. 
+              ## Should typically be the same as forwarded lib
+              ## Should typically be the same as forwarded lib
+              "--modellib=hqm_rcfwl_cdc_wrapper_rtl_lib " .
+              ##CDC
+              ##CDC
+              "--exclude_ctech_libs " .
+              ## Enable lint waivers to ignore mux with output lanes != 2  Make sure to generate the visa_lint_wavier.xml file.
+              ## Enable lint waivers to ignore mux with output lanes != 2  Make sure to generate the visa_lint_wavier.xml file.
+              "--lint_opts=\" -m $VISA_MODULE_XML_PATH/VisaModules.xml -p 2002.area=5000 -r ".&ToolConfig::get_tool_path("ipconfig/${scope}") . "/tools/visa/visa_lint_waiver.xml\" ".
+              ## Additional defines that should be explicitly passed through to VISA IT rtl_extract.
+              ## Additional defines that should be explicitly passed through to VISA IT rtl_extract.
+              ## This may need tweaking depending on the case, but best to start with nothing/small
+              ## This may need tweaking depending on the case, but best to start with nothing/small
+              ## list and see what is really needed
+              ## list and see what is really needed
+#              "-adddefs='+define+VISA_ELABORATE +define+VAL4 +define+SVA_OFF +define+INTEL_SVA_OFF' "
+#              "-adddefs='+define+VISA_ELABORATE +define+VAL4 +define+SVA_OFF +define+INTEL_SVA_OFF' "
+              "-adddefs='+define+VISA_ELABORATE +define+VAL4 +define+INTEL_SVA_OFF' "
+             ],
+            },
+           },
+          },
+         },
+
+         HDLSpec => 
+         {
+             $scope => 
+               {
+                   import => {},# Add here any specific RTL libs that need to be imported
+                   libs => {
+                       rcfwl_cdc_wrapper_cdc_assertion_lib => {
+                           -hdl_spec => ["cfg/cdc_wrapper_cdc_sva.hdl",],
+                           -vlog_opts => ["\\<vcs\\>+incdir+$ENV{MODEL_ROOT}/target/rcfwl/cdc/spyglass_sva/$scope/cdc_wrapper/rcfwl_cdc_wrapper_rtl_lib.rcfwl_cdc_wrapper",],
+                       },
+                       rcfwl_dft_reset_sync_cdc_assertion_lib => {
+                           -hdl_spec => ["cfg/dft_reset_sync_cdc_sva.hdl",],
+                           -vlog_opts => ["\\<vcs\\>+incdir+$ENV{MODEL_ROOT}/target/rcfwl/cdc/spyglass_sva/$scope/dft_reset_sync/rcfwl_dft_reset_sync_rtl_lib.rcfwl_dft_reset_sync",],
+                       },
+
+                       hqm_rcfwl_ip_disable_rtl_lib => {
+                           -hdl_spec => ["cfg/ip_disable.hdl", ],
+                           -dependent_libs => [$soc_generate ? () : "rcfwl_ip_disable_collage_lib" ,],
+                       },
+
+                       hqm_rcfwl_dft_reset_sync_rtl_lib => {
+                           -hdl_spec => [ "cfg/dft_reset_sync.hdl", ],
+                           -dependent_libs => [$soc_generate ? () : "rcfwl_dft_reset_sync_collage_lib" ,],
+                       },
+
+                        hqm_rcfwl_fuse_hip_glue_rtl_lib => {
+                            -hdl_spec => [ "cfg/fuse_hip_glue.hdl", ],
+                            -dependent_libs => [$soc_generate ? () : "rcfwl_fuse_hip_glue_collage_lib" ,],
+                        },
+
+                       hqm_rcfwl_cdc_wrapper_rtl_lib => {
+                           -hdl_spec => [ "cfg/cdc_wrapper.hdl",
+                                          "subIP/Power_Gate_Control_Block/src/rtl/ClockDomainController/ClockDomainController.hdl",
+                                          "subIP/common/rcfwl_dfxsecure_plugin/dfxsecure_plugin_current/source/rtl/dfxsecure_plugin_rtl.hdl",
+                                          "subIP/common/rcfwl_globalclk/globalclk_current/cfg/rcb_lcb.hdl",
+                                          "subIP/common/rcfwl_globalclk/globalclk_current/cfg/rcb_lcb_common.hdl",
+                                         ],
+                           -dependent_libs => [$soc_generate ? () : "rcfwl_cdc_wrapper_collage_lib",],
+                       },
+
+                       hqm_rcfwl_cdc_wrapper_rtl_lib_VISA_INSERTION => {
+                           -generated => 1,
+                           -gen_config => "${scope}::hqm_rcfwl_cdc_wrapper_rtl_lib_VISA_INSERTION",
+                           -forward_results => "hqm_rcfwl_cdc_wrapper_rtl_lib",
+                           -hdl_spec => [ "target/GenRTL/${scope}/hqm_rcfwl_cdc_wrapper_rtl_lib_VISA_INSERTION/hqm_rcfwl_cdc_wrapper_rtl_lib_visa.hdl" ],
+                       },
+
+                       rcfwl_cdc_wrapper_visa_rtl_lib => {
+                           -hdl_spec => [ &ToolConfig::get_tool_path("visait") . "/rtl/visa_modules.hdl"],
+                           -vlog_incdirs => [ &ToolConfig::get_tool_path("visait") . "/rtl", ],
+                       },
+
+                      rcfwl_fuse_hip_glue_collage_lib => {
+                     -collage_build_file   => [ "tools/collage/build/builder.fuse_hip_glue.tcl" ],
+                     -collage_build_design =>   "fuse_hip_glue" ,
+                       },
+
+                       rcfwl_dft_reset_sync_collage_lib => {
+                           -collage_build_file   => [ "tools/collage/build/builder.dft_reset_sync.tcl" ],
+                           -collage_build_design =>   "dft_reset_sync" ,
+                       },
+                       rcfwl_ip_disable_collage_lib => {
+                           -collage_build_file   => [ "tools/collage/build/builder.ip_disable.tcl" ],
+                           -collage_build_design =>   "ip_disable",
+                       },
+                       rcfwl_cdc_wrapper_collage_lib => {
+                           -collage_build_file   => [ "tools/collage/build/builder.cdc_wrapper.tcl" ],
+                           -collage_build_design =>   "cdc_wrapper" ,
+                       },
+                       hqm_rcfwl_cdc_wrapper_tb_lib => {
+                           -hdl_spec  => [ "cfg/rcfwl_cdc_wrapper_tb_top.hdl", ],
+                           -vlog_opts => [ "-sverilog", ],
+                           -tag       => 'nonsynth+nonemu+nonlint',
+                           -tools     => [ "-qcdc_createlib", "-sgcdc_createlib" ],
+                       },
+                       hqm_rcfwl_dft_reset_sync_tb_lib => {
+                           -hdl_spec  => [ "cfg/rcfwl_dft_reset_sync_tb_top.hdl", ],
+                           -vlog_opts => [ "-sverilog", ],
+                           -tag       => 'nonsynth+nonemu+nonlint',
+                           -tools     => [ "-qcdc_createlib", "-sgcdc_createlib" ],
+                       },
+                       hqm_rcfwl_ip_disable_tb_lib => {
+                           -hdl_spec  => [ "cfg/rcfwl_ip_disable_tb_top.hdl", ],
+                           -vlog_opts => [ "-sverilog", ],
+                           -tag       => 'nonsynth+nonemu+nonlint',
+                           -tools     => [ "-qcdc_createlib", "-sgcdc_createlib" ],
+                       },
+                       hqm_rcfwl_fuse_hip_glue_tb_lib => {
+                           -hdl_spec  => [ "cfg/rcfwl_fuse_hip_glue_tb_top.hdl", ],
+                           -vlog_opts => [ "-sverilog", ],
+                           -tag       => 'nonsynth+nonemu+nonlint',
+                           -tools     => [ "-qcdc_createlib", "-sgcdc_createlib" ],
+                       },
+
+
+                       rcfwl_stdcells_lib => 
+                         {
+                             -hdl_spec => ["cfg/stdcells.hdl",],
+                         },
+                   },
+
+                   models => {
+
+                       dft_reset_sync => {
+                           top => 'rcfwl_dft_reset_sync_tb_top',
+                           flg_lintra_top => [ "hqm_rcfwl_dft_reset_sync", ],
+                           zin_top => [ "rcfwl_dft_reset_sync_lib.rcfwl_dft_reset_sync", ],
+                           qcdc_test_list => [ "$ENV{MODEL_ROOT}/verif/reglist/rcfwl_dft_reset_sync/level0_qcdc.list" ],
+
+                           enable_cdc_optgen => 1,      ## This is what turns on the SDG autogeneration of *.opt files
+                           enable_cdc_goals_regex => 1,
+                           sgcdc_test_list => [ "verif/reglist/rcfwl_dft_reset_sync/level0_sgcdc.list", ],
+                           sgcdc_top => "hqm_rcfwl_dft_reset_sync_rtl_lib.hqm_rcfwl_dft_reset_sync",     ## The top-level design
+                           sgcdc_ctrl_files => [ "$ENV{MODEL_ROOT}/tools/spyglasscdc/rcfwl_dft_reset_sync/rcfwl_dft_reset_sync.sgdc",
+                                                ],
+                           sgcdc_other => [ "-ok_error => ['/Rule\\\-checking completed without errors or warnings/',],",],
+
+                           febe_cfg_dir => [ 'tools/febe/inputs/common' ],
+                           top_language => "SystemVerilog",
+                           pli_libs => [ '-debussy_pli_libs', ],
+                           libs => [ "hqm_rcfwl_dft_reset_sync_rtl_lib",
+                                     ($soc_generate ? () : "rcfwl_dft_reset_sync_collage_lib"),
+                                     "hqm_rcfwl_dft_reset_sync_tb_lib",
+                                     "rcfwl_stdcells_lib",
+                                     "rcfwl_dft_reset_sync_cdc_assertion_lib",
+                                    ],
+                           use    => [(!$soc_generate ? ("CTECH:CTECH_model") : ()),
+                                      (!$soc_generate ? ("CTECH_EXP:CTECH_EXP_model") : ()),
+                                     ],
+                           export => {
+                               libs => [ "hqm_rcfwl_dft_reset_sync_rtl_lib",
+                                       ],
+                           },
+                           elab_opts => [
+                               "-config_verbose",
+                               "-debug_access+f",
+                               "-debug_access+pp",
+                               "-debug_region=lib",
+                               "/p/com/eda/intel/ace/2.01.16/lib/pli/PrintHier/PrintHier.c",
+                               "-P /p/com/eda/intel/ace/2.01.16/lib/pli/PrintHier/PrintHier.tab",
+                               "-file $ENV{MODEL_ROOT}/cfg/vcs_elab.f", ],
+                           lintra_waiver_dirs => [ "tools/lint/waivers/dft_reset_sync/perm", ],
+                           lintra_flg_cfg_files => [ "tools/febe/inputs/common/FE2BE_config.cfg", ],
+                           lintra_waiver_files => [ "${scope}_dft_reset_sync_w.xml", ],
+                           lintra_top => [ "${scope}_dft_reset_sync",],
+                           sglint_top => [ "${scope}_dft_reset_sync",], 
+                           lintra_ol_test_list => ["verif/reglist/rcfwl_dft_reset_sync/lintra_ol_tests.list"],
+                           enable_xprop_elab => 1,
+                           enable_congruency_elab => 1,
+                           enable_partcomp_elab => 1,
+                           enable_generate_rtl => 0,
+                           sglp_exclude => [ @sglp_exclude_libs ],
+                           sglp_opts => [ " -top hqm_rcfwl_dft_reset_sync",
+                                          " -noupf",
+                                         ],
+                           vclp_opts => [ " -top hqm_rcfwl_dft_reset_sync_rtl_lib.hqm_rcfwl_dft_reset_sync",
+                                          " -noupf",
+                                         ],
+                           sgdft_opts => [  " -top hqm_rcfwl_dft_reset_sync",
+                                            " -ipinfo $ENV{MODEL_ROOT}/tools/spyglassdft/rcfwl_dft_reset_sync.ip_info",],
+                           emu_opts => [
+                               "-cfg ZSE FPGA -cfg-",
+                               "-top hqm_rcfwl_dft_reset_sync_rtl_lib.hqm_rcfwl_dft_reset_sync",
+                               "-effm 3",
+                               "-inside_simbuild",
+                               "-clean_target",
+                               "-target $ENV{MODEL_ROOT}/target/emu/\$MODEL",
+                               "-yml $ENV{MODEL_ROOT}/tools/emu/cfg/buildProjectCfg.yml",
+                               "-plugins \$EMU_DATA/scripts -plugins-",
+                              ],
+                       },
+                       cdc_wrapper => {
+                           top => 'rcfwl_cdc_wrapper_tb_top' ,
+                           flg_lintra_top => [ 'rcfwl_cdc_wrapper', ],
+                           zin_top => [ 'rcfwl_cdc_wrapper_rtl_lib.rcfwl_cdc_wrapper', ],
+                           qcdc_test_list => [ "$ENV{MODEL_ROOT}/verif/reglist/rcfwl_cdc_wrapper/level0_qcdc.list" ],
+
+                           enable_cdc_optgen => 1,      ## This is what turns on the SDG autogeneration of *.opt files
+                           enable_cdc_goals_regex => 1,
+                           sgcdc_test_list => [ "verif/reglist/rcfwl_cdc_wrapper/level0_sgcdc.list", ],
+                           sgcdc_top => "hqm_rcfwl_cdc_wrapper_rtl_lib.hqm_rcfwl_cdc_wrapper",     ## The top-level design
+                           sgcdc_ctrl_files => [ "$ENV{MODEL_ROOT}/tools/spyglasscdc/rcfwl_cdc_wrapper/rcfwl_cdc_wrapper.sgdc",
+                                                 "\$ENV{TEST_WORK_AREA}/visa_constraints/rcfwl_cdc_wrapper_visa.sgdc",
+                                                ],
+                           sgrdc_other => [ "-spyglass_exe_opts => [ 'set_option stop {*visa_unit_mux_s}',],"],
+#                           sgrdc_other => [ "-spyglass_exe_opts => [ 'set_parameter rdc_outport_ep_sync yes',]", ],
+#                           sgrdc_other => [ "-spyglass_exe_opts => [ 'set_parameter rdc_outport_ep_sync yes',]", ],
+                           sgcdc_other => [ "-spyglass_exe_scrag_recipe => \'tools\/spyglasscdc\/rcfwl_cdc_wrapper\/generate_visa_constraints.csh\', ",
+                                            "-spyglass_exe_opts => [ 'set_option dnc_param rcfwl_cdc_wrapper.DEF_PWRON', 'set_option dnc_param rcfwl_cdc_wrapper.ITBITS', 'set_option dnc_param rcfwl_cdc_wrapper.ISM_AGT_IS_NS', 'set_option dnc_param rcfwl_cdc_wrapper.DFX_NUM_OF_FEATURES_TO_SECURE', 'set_option dnc_param rcfwl_cdc_wrapper.DFX_SECURE_WIDTH', 'set_option dnc_param rcfwl_cdc_wrapper.DFX_USE_SB_OVR', 'set_option dnc_param rcfwl_cdc_wrapper.DFX_VISA_BLACK', 'set_option dnc_param rcfwl_cdc_wrapper.DFX_VISA_GREEN', 'set_option dnc_param rcfwl_cdc_wrapper.DFX_VISA_ORANGE', 'set_option dnc_param rcfwl_cdc_wrapper.DFX_VISA_RED', 'set_option dnc_param rcfwl_cdc_wrapper.DFX_EARLYBOOT_FEATURE_ENABLE',] ",
+                                           ],
+                           febe_cfg_dir => [ "tools/febe/inputs/common"],
+                           top_language => "SystemVerilog",
+                           pli_libs => [ '-debussy_pli_libs', ],
+                           libs => [ "hqm_rcfwl_cdc_wrapper_rtl_lib",
+                                     ($soc_generate ? () : "rcfwl_cdc_wrapper_collage_lib"),
+                                     "rcfwl_cdc_wrapper_visa_rtl_lib",
+                                     "hqm_rcfwl_cdc_wrapper_tb_lib",
+                                     "rcfwl_stdcells_lib",
+                                     "rcfwl_cdc_wrapper_cdc_assertion_lib",
+                                    ],
+                           use    => [(!$soc_generate ? ("CTECH:CTECH_model") : ()),
+                                      (!$soc_generate ? ("CTECH_EXP:CTECH_EXP_model") : ()),
+                                     ],
+                           export => {
+                               libs => [ "hqm_rcfwl_cdc_wrapper_rtl_lib", ],
+                           },
+                           elab_opts => ["-file $ENV{MODEL_ROOT}/cfg/vcs_elab.f",
+                                         "-config_verbose",
+                                         "-debug_access+f",
+                                         "-debug_access+pp",
+                                         "-debug_region=lib",
+                                         "/p/com/eda/intel/ace/2.01.16/lib/pli/PrintHier/PrintHier.c",
+                                         "-P /p/com/eda/intel/ace/2.01.16/lib/pli/PrintHier/PrintHier.tab",
+                                        ],
+                           lintra_waiver_dirs => [ "tools/lint/waivers/cdc_wrapper/perm", ],
+                           lintra_flg_cfg_files => [ "tools/febe/inputs/common/FE2BE_config.cfg", ],
+                           lintra_waiver_files => [ "${scope}_cdc_wrapper_w.xml", ],
+                           lintra_top => [ "${scope}_cdc_wrapper",],
+                           sglint_top => [ "${scope}_cdc_wrapper",],
+                           #line added for move to 16.01.19
+                           #line added for move to 16.01.19
+                           lintra_flg_visa_forward => 1,
+                           lintra_ol_test_list => ["verif/reglist/rcfwl_cdc_wrapper/lintra_ol_tests.list"],
+                           enable_xprop_elab => 1,
+                           enable_congruency_elab => 1,
+                           enable_partcomp_elab => 1,
+                           enable_generate_rtl => 1,
+                           gen_rtl => ['-en__hqm_rcfwl_cdc_wrapper_rtl_lib_VISA_INSERTION',],
+                           flg_blackbox_files => [ "tools/lint/inputs/cdc_wrapper_flg.bb" ],
+                           lintra_blackbox_files => [ "tools/lint/inputs/cdc_wrapper.bb" ],
+                           sglint_bbox_modules_files => [ "tools/spyglass_lint/inputs/cdc_wrapper.bb" ], 
+                           sglp_visa_forward => '0',
+                           #                           sglp_visa_order => '1',
+                           #                           sglp_visa_order => '1',
+                           sglp_opts => [ " -top hqm_rcfwl_cdc_wrapper",
+                                          " -noupf",
+                                         ],
+                           vclp_opts => [ " -top hqm_rcfwl_cdc_wrapper_rtl_lib.hqm_rcfwl_cdc_wrapper",
+                                          " -noupf",
+                                         ],
+                           sglp_exclude => [ @sglp_exclude_libs ],
+                           sgdft_opts => [" -top hqm_rcfwl_cdc_wrapper",
+                                          " -ipinfo $ENV{MODEL_ROOT}/tools/spyglassdft/rcfwl_cdc_wrapper.ip_info",],
+                           sglp_include_def => ["INTEL_SVA_OFF",],
+                           emu_opts => [
+                               "-cfg ZSE FPGA -cfg-",
+                               "-top hqm_rcfwl_cdc_wrapper_rtl_lib.hqm_rcfwl_cdc_wrapper",
+                               "-effm 3",
+                               "-clean_target",
+                               "-inside_simbuild",
+                               "-target $ENV{MODEL_ROOT}/target/emu/\$MODEL",
+                               "-yml $ENV{MODEL_ROOT}/tools/emu/cfg/buildProjectCfg.yml",
+                               "-plugins \$EMU_DATA/scripts -plugins-",
+                              ],
+                           emu_include_def => ["INTEL_SVA_OFF",],
+                       },
+                       ip_disable => {
+                           top => 'rcfwl_ip_disable_tb_top',
+                           flg_lintra_top => [ "hqm_rcfwl_ip_disable", ],
+                           zin_top => [ "rcfwl_ip_disable_lib.rcfwl_ip_disable", ],
+                           qcdc_test_list => [ "$ENV{MODEL_ROOT}/verif/reglist/rcfwl_ip_disable/level0_qcdc.list" ],
+
+                           enable_cdc_optgen => 1,      ## This is what turns on the SDG autogeneration of *.opt files
+                           enable_cdc_goals_regex => 1,
+                           sgcdc_test_list => [ "verif/reglist/rcfwl_ip_disable/level0_sgcdc.list", ],
+                           sgcdc_top => "hqm_rcfwl_ip_disable_rtl_lib.hqm_rcfwl_ip_disable",     ## The top-level design
+                           sgcdc_ctrl_files => [ "$ENV{MODEL_ROOT}/tools/spyglasscdc/rcfwl_ip_disable/rcfwl_ip_disable.sgdc",
+                                                ],
+                           sgcdc_other => [ "-ok_error => ['/Rule\\\-checking completed without errors or warnings/',],",],
+
+                           febe_cfg_dir => [ 'tools/febe/inputs/common' ],
+                           top_language => "SystemVerilog",
+                           pli_libs => [ '-debussy_pli_libs', ],
+                           libs => [ "hqm_rcfwl_ip_disable_rtl_lib",
+                                     ($soc_generate ? () : "rcfwl_ip_disable_collage_lib"),
+                                     "hqm_rcfwl_ip_disable_tb_lib",
+                                     "rcfwl_stdcells_lib",
+                                    ],
+                           use    => [(!$soc_generate ? ("CTECH:CTECH_model") : ()),
+                                      (!$soc_generate ? ("CTECH_EXP:CTECH_EXP_model") : ()),
+                                     ],
+                           export => {
+                               libs => [ "hqm_rcfwl_ip_disable_rtl_lib", ],
+                           },
+                           elab_opts => [
+                               "-config_verbose",
+                               "-debug_access+f",
+                               "-debug_access+pp",
+                               "-debug_region=lib",
+                               "/p/com/eda/intel/ace/2.01.16/lib/pli/PrintHier/PrintHier.c",
+                               "-P /p/com/eda/intel/ace/2.01.16/lib/pli/PrintHier/PrintHier.tab",
+                               "-file $ENV{MODEL_ROOT}/cfg/vcs_elab.f", ],
+                           lintra_waiver_dirs => [ "tools/lint/waivers/ip_disable/perm", ],
+                           lintra_flg_cfg_files => [ "tools/febe/inputs/common/FE2BE_config.cfg", ],
+                           lintra_waiver_files => [ "${scope}_ip_disable_w.xml", ],
+                           lintra_top => [ "${scope}_ip_disable",],
+                           sglint_top => [ "${scope}_ip_disable",], 
+                           lintra_ol_test_list => ["verif/reglist/rcfwl_ip_disable/lintra_ol_tests.list"],
+                           enable_xprop_elab => 1,
+                           enable_congruency_elab => 1,
+                           enable_partcomp_elab => 1,
+                           enable_generate_rtl => 0,
+                           sglp_exclude => [ @sglp_exclude_libs ],
+                           sglp_opts => [ " -top hqm_rcfwl_ip_disable",
+                                          " -noupf",
+                                         ],
+                           vclp_opts => [ " -top hqm_rcfwl_ip_disable_rtl_lib.hqm_rcfwl_ip_disable",
+                                          " -noupf",
+                                         ],
+                           sgdft_opts => [  " -top hqm_rcfwl_ip_disable",
+                                            " -ipinfo $ENV{MODEL_ROOT}/tools/spyglassdft/rcfwl_ip_disable.ip_info",],
+                           emu_opts => [
+                               "-cfg ZSE FPGA -cfg-",
+                               "-top hqm_rcfwl_ip_disable_rtl_lib.hqm_rcfwl_ip_disable",
+                               "-effm 3",
+                               "-inside_simbuild",
+                               "-clean_target",
+                               "-target $ENV{MODEL_ROOT}/target/emu/\$MODEL",
+                               "-yml $ENV{MODEL_ROOT}/tools/emu/cfg/buildProjectCfg.yml",
+                               "-plugins \$EMU_DATA/scripts -plugins-",
+                              ],
+                       },
+                       fuse_hip_glue => {
+                           top => 'rcfwl_fuse_hip_glue_tb_top',
+                           flg_lintra_top => [ "hqm_rcfwl_fuse_hip_glue", ],
+                           zin_top => [ "rcfwl_fuse_hip_glue_lib.rcfwl_fuse_hip_glue", ],
+                           qcdc_test_list => [ "$ENV{MODEL_ROOT}/verif/reglist/rcfwl_fuse_hip_glue/level0_qcdc.list" ],
+
+                           enable_cdc_optgen => 1,      ## This is what turns on the SDG autogeneration of *.opt files
+                           enable_cdc_goals_regex => 1,
+                           sgcdc_test_list => [ "verif/reglist/rcfwl_fuse_hip_glue/level0_sgcdc.list", ],
+                           sgcdc_top => "hqm_rcfwl_fuse_hip_glue_rtl_lib.hqm_rcfwl_fuse_hip_glue",     ## The top-level design
+                           sgcdc_ctrl_files => [ "$ENV{MODEL_ROOT}/tools/spyglasscdc/rcfwl_fuse_hip_glue/rcfwl_fuse_hip_glue.sgdc",
+                                                ],
+                           sgcdc_other => [ "-ok_error => ['/Rule\\\-checking completed without errors or warnings/',],",],
+
+                           febe_cfg_dir => [ 'tools/febe/inputs/common' ],
+                           top_language => "SystemVerilog",
+                           pli_libs => [ '-debussy_pli_libs', ],
+                           libs => [ "hqm_rcfwl_fuse_hip_glue_rtl_lib",
+                                     ($soc_generate ? () : "rcfwl_fuse_hip_glue_collage_lib"),
+                                     "hqm_rcfwl_fuse_hip_glue_tb_lib",
+                                     "rcfwl_stdcells_lib",
+                                    ],
+                           use    => [(!$soc_generate ? ("CTECH:CTECH_model") : ()),
+                                      (!$soc_generate ? ("CTECH_EXP:CTECH_EXP_model") : ()),
+                                     ],
+                           export => {
+                               libs => [ "hqm_rcfwl_fuse_hip_glue_rtl_lib", ],
+                           },
+                           elab_opts => [
+                               "-config_verbose",
+                               "-debug_access+f",
+                               "-debug_access+pp",
+                               "-debug_region=lib",
+                               "/p/com/eda/intel/ace/2.01.16/lib/pli/PrintHier/PrintHier.c",
+                               "-P /p/com/eda/intel/ace/2.01.16/lib/pli/PrintHier/PrintHier.tab",
+                               "-file $ENV{MODEL_ROOT}/cfg/vcs_elab.f", ],
+                           lintra_waiver_dirs => [ "tools/lint/waivers/fuse_hip_glue/perm", ],
+                           lintra_flg_cfg_files => [ "tools/febe/inputs/common/FE2BE_config.cfg", ],
+                           lintra_waiver_files => [ "${scope}_fuse_hip_glue_w.xml", ],
+                           lintra_top => [ "${scope}_fuse_hip_glue",],
+                           sglint_top => [ "${scope}_fuse_hip_glue",], 
+                           lintra_ol_test_list => ["verif/reglist/rcfwl_fuse_hip_glue/lintra_ol_tests.list"],
+                           enable_xprop_elab => 1,
+                           enable_congruency_elab => 1,
+                           enable_partcomp_elab => 1,
+                           enable_generate_rtl => 0,
+                           sglp_exclude => [ @sglp_exclude_libs ],
+                           sglp_opts => [ " -top hqm_rcfwl_fuse_hip_glue",
+                                          " -noupf",
+                                         ],
+                           vclp_opts => [ " -top hqm_rcfwl_fuse_hip_glue_rtl_lib.hqm_rcfwl_fuse_hip_glue",
+                                          " -noupf",
+                                         ],
+                           sgdft_opts => [  " -top hqm_rcfwl_fuse_hip_glue",
+                                            " -ipinfo $ENV{MODEL_ROOT}/tools/spyglassdft/rcfwl_fuse_hip_glue.ip_info",],
+                           emu_opts => [
+                               "-cfg ZSE FPGA -cfg-",
+                               "-top hqm_rcfwl_fuse_hip_glue_rtl_lib.hqm_rcfwl_fuse_hip_glue",
+                               "-effm 3",
+                               "-inside_simbuild",
+                               "-clean_target",
+                               "-target $ENV{MODEL_ROOT}/target/emu/\$MODEL",
+                               "-yml $ENV{MODEL_ROOT}/tools/emu/cfg/buildProjectCfg.yml",
+                               "-plugins \$EMU_DATA/scripts -plugins-",
+                              ],
+                       },
+
+                   },
+               },
+         },
+        );

@@ -1,0 +1,128 @@
+#!/bin/tcsh -f
+
+################################################################################
+# Source a script that is called at the start of each back-end 
+# scripts/qa/run* script
+################################################################################
+if ( $SB_ACE_FLOW ) then
+    source ./runPre -tool_name $0 $argv
+else
+    source ${MODEL_ROOT}/scripts/qa/runPre -tool_name $0 $argv
+endif
+
+if( $status != 0 ) exit $status
+
+
+cd ../..
+
+
+# VISA only only works with Dynamo...
+if ($DYN_OPT != "Dyn" && $SIP_CONF_NAME != "IOSF_Sideband_Endpoint") then
+    echo "ERROR: VISA is only supported at the Dynamo scope for the router."
+    exit (-1)
+endif
+
+
+if ("${SIP_CONF_NAME}" =~ "IOSF_Sideband_Endpoint") then
+    source ${MODEL_ROOT}/scripts/qa/ephelper.csh -rtlcfg ${SIP_COMP_NAME} \
+                                             -topdir ${MODEL_ROOT} 
+
+    setenv RTLTOP ${rtltop}
+    setenv ASYNC_EP ${async_ep}
+    if (${ASYNC_EP} == 1) then
+        setenv clkCross "async_"
+        echo "Config is ASYNC with clkcross = ${clkCross}"
+    else
+        setenv clkCross 
+        echo "Config is SYNC with clkcross = ${clkCross}"
+    endif
+
+    if ($clkCross !=  "" && $clkCross != "async_") then
+        echo "ERROR: clkCross must be '' or 'async_'"
+        exit (-1)
+    endif
+
+    cd $MODEL_ROOT
+
+    set model_name="${RTLTOP}_${clkCross}lib_VISA_INSERTION"
+    set enable_gen="-en__${model_name}"
+    set tb_model="${RTLTOP}_${clkCross}visa_validate_tb_model"
+    set results="GenRTL/IOSF_SBC_EP/${model_name}/"
+    set test_name="${RTLTOP}_visa_test"
+    set post_process_mode="IosfEpAceVisa"
+    
+    echo "Model Name = ${model_name}"
+
+#### Sideband router ##
+else
+    if (${dynopt} =~ "nonDyn") then
+        set rtltop="${component}"
+    else
+        set rtltop="${component}_sbr_generic"
+    endif
+
+    set model_name="${rtltop}_lib_VISA_INSERTION"
+    set enable_gen="-en__sbr_generic_lib_VISA_INSERTION"
+    set tb_model="${rtltop}_visa_validate_tb_model"
+    set results="GenRTL/IOSF_SBC_RTR/${model_name}/"
+    set test_name="${rtltop}_visa_test"
+    set post_process_mode="IosfRtrAceVisa"
+    
+    echo "Model Name = ${model_name}"
+        
+endif
+## create results directory
+set visa_dir="$MODEL_ROOT/tools/visa"
+set output_dir_pre="$visa_dir/results"
+set output_dir="$visa_dir/results/$component"
+
+if ( -d "$output_dir" ) then
+    rm -rf "$output_dir"
+endif
+
+if (! -d "$output_dir_pre" ) then
+    mkdir ${output_dir_pre}
+endif
+mkdir ${output_dir}
+
+#### ACE Generate, Compile and execute the visa test commands
+
+ace -g -egc ${enable_gen}
+ace -cc ${enable_gen} -ASSIGN -mc=${tb_model} -noegc -ASSIGN -m2e=${tb_model} -elab_models -results ${results} -vlog_opts "+define+INTEL_SVA_OFF" -vlog_opts "+define+SVA_OFF"
+
+wait
+## since you generate all  models, uncomment these if you want to delete the models generated and only want the 1 config
+#foreach i (`ls $IP_ROOT/GenRTL/IOSF_SBC_EP`)
+#    if ($i != ${model_name}) then
+#        set delete_model="$IP_ROOT/GenRTL/IOSF_SBC_EP/${i}"
+#        printf "Removing $i\n"
+#        rm -rf ${delete_model} 
+#    endif
+#end
+
+ace -x -t ${test_name} -m ${tb_model} -tim -nocleanup -results ${results} -simv_args "+VISA_TEST_SECURITY" -simv_args "+VISA_DEBUG" -simv_args "+VISA_TEST_SERIAL_READ" -enabled_post_process_modes ${post_process_mode} 
+
+set exitStatus=$status
+
+#####################################################
+# Verification
+#####################################################
+if ($exitStatus) then
+    echo "Error: ACE VISA insertion failed.  ($SIP_TOOL_NAME)"
+    if ("${SIP_CONF_NAME}" =~ "IOSF_Sideband_Endpoint") then
+        cp -r $MODEL_ROOT/GenRTL/IOSF_SBC_EP/* $output_dir
+        cp $MODEL_ROOT/GenRTL/IOSF_SBC_EP/$model_name/tests/${rtltop}_visa_test/${rtltop}_visa_test.log $output_dir/
+    endif
+    rm -rf ${MODEL_ROOT}/GenRTL
+    exit $exitStatus
+else
+    echo "ACE VISA insertion ran successfully.  ($SIP_TOOL_NAME)"
+    if ("${SIP_CONF_NAME}" =~ "IOSF_Sideband_Endpoint") then
+        cp -r $MODEL_ROOT/GenRTL/IOSF_SBC_EP/* $output_dir
+        cp $MODEL_ROOT/GenRTL/IOSF_SBC_EP/$model_name/tests/${rtltop}_visa_test/${rtltop}_visa_test.log $output_dir/
+    endif
+    cp -r $MODEL_ROOT/GenRTL/IOSF_SBC_EP/* $output_dir
+    rm -rf ${MODEL_ROOT}/GenRTL
+endif
+
+exit 0

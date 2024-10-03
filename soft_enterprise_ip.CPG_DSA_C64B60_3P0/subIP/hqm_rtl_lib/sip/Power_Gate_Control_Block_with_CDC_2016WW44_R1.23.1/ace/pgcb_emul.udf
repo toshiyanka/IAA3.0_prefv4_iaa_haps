@@ -1,0 +1,40 @@
+#---*-perl-*---
+# Set up the project UDF
+my $PROJECT = $ENV{ACE_PROJECT};
+
+%audf = (
+#-------------------------------------------------------------------------------
+#The following are "CDC models and Libs". In the libs part please include all the 
+#Synthesizable RTL required to compiile the module.
+#-------------------------------------------------------------------------------
+    HDLSpec => {
+  	
+	$PROJECT => {
+       libs => {
+          emul_pgcbcg_lib => {
+             -hdl_spec => [ 'ace/cdc_pgcbcg.hdl',
+                            'src/rtl/pcguunit/pcguunit.hdl', ],
+             -sub_libs => [ "$ENV{CTECH_LIB_NAME}",  ],
+          },
+          emul_tooltb_lib => {
+             -hdl_spec => [ 'verif/tooltb/tooltb.hdl', ],
+             -dependent_libs => [ 'ClockDomainController', 'pgcbunit', 'pcguunit', "emul_pgcbcg_lib"],
+             -sub_libs => [ "$ENV{CTECH_LIB_NAME}",  ],
+          },
+       },
+	
+	    models => {
+            emul_pgcb_collection => {
+               top => 'emul_tooltb_lib.tooltb',
+               libs => [
+                  'pgcbunit',
+                  'ClockDomainController',
+                  'emul_pgcbcg_lib',
+                  'emul_tooltb_lib',
+               ],
+            },
+        }, #End of models
+    }, #End of PROJECT
+    }, #End of HDLSpec
+);
+

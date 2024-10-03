@@ -1,0 +1,171 @@
+//--------------------------------------------------------------------------------------//
+//    FILENAME        : pgcb_fsm.sva
+//    DESIGNER        : amshah2
+//    PROJECT         : BXT IP
+//    DATE            : 10/28/2013
+//    PURPOSE         : Assertion Checks for PCGU FSM
+//    REVISION NUMBER : 0.75
+//----------------------------- Revision History ---------------------------------------//
+//
+//      Date        Rev     Owner     Description
+//      --------    ---     -----     ---------------------------------------------------
+//      10/28/2013  0.75    amshah2   Included the following:
+//                                    Added Assertion checks for PCGU Module.
+//                                    All the asserts are synchronous and are disabled
+//                                    when in reset.
+//                                    Collaterals include a PCGU Wrapper with Clock 
+//                                    divider logic, req/ack handshake as well as inst.
+//                                    of all relevant reference design/widget/fsm blocks. 
+// -------------------------------------------------------------------------------------//
+
+//-------------------PGCB_POK TOGGLE QUAL WITH PGCB_IDLE-----------------------//
+//PGCB_POK SHOULD ONLY TOGGLE WHEN PGCB_IDLE IS LOW
+    aPOK_IDLE_Chk: assume property (@(posedge clock) disable iff (reset_b !== 1)
+      !$stable(pgcb_pok) |-> (pgcb_idle == 1'b0));
+
+
+//---------------------------BEGIN IDLE GATE CHECKS----------------------------//
+//SYNC_GATE_ACC CHECK FOR 6 CLOCKS - WITH RAW WAKES
+    logic sync_gate_term1, sync_gate_term2;
+    assign sync_gate_term1 = (iosf_cdc_gclock_req_async[0] == 1'b0)  && (iosf_cdc_gclock_req_async[1] == 1'b0)  && (iosf_cdc_gclock_req_async[2] == 1'b0)  && (iosf_cdc_gclock_req_async[3] == 1'b0)  && (iosf_cdc_gclock_req_async[4] == 1'b0)  && (non_iosf_cdc_gclock_req_async[0] == 1'b0) && (non_iosf_cdc_gclock_req_async[1] == 1'b0) && (non_iosf_cdc_gclock_req_async[2] == 1'b0) && (non_iosf_cdc_gclock_req_async[3] == 1'b0) && (non_iosf_cdc_gclock_req_async[4] == 1'b0) && (u_pgcbcg.iosf_cdc_ism_fabric_f[0] == '0) && (u_pgcbcg.iosf_cdc_ism_fabric_f[1] == '0) &&(u_pgcbcg.iosf_cdc_ism_fabric_f[2] == '0) && (u_pgcbcg.iosf_cdc_ism_fabric_f[3] == '0) && (u_pgcbcg.iosf_cdc_ism_fabric_f[4] == '0) && (u_pgcbcg.pwrgate_disabled_wake == 1'b0) && (cfg_acc_clkgate_disabled == 1'b0) && !u_pgcbcg.async_pwrgate_disabled;
+
+    logic accu_idle_event;
+    assign accu_idle_event = (iosf_cdc_gclock_ack_async[0] == 1'b0) && (iosf_cdc_gclock_ack_async[1] == 1'b0) && (iosf_cdc_gclock_ack_async[2] == 1'b0) && (iosf_cdc_gclock_ack_async[3] == 1'b0) && (iosf_cdc_gclock_ack_async[4] == 1'b0) && (non_iosf_cdc_gclock_ack_async[0] == 1'b0) && (non_iosf_cdc_gclock_ack_async[1] == 1'b0) && (non_iosf_cdc_gclock_ack_async[2] == 1'b0) && (non_iosf_cdc_gclock_ack_async[3] == 1'b0) && (non_iosf_cdc_gclock_ack_async[4] == 1'b0);
+    
+    aSYNC_GATE_ACC_Gen: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      (sync_gate_term1 == 1'b0) ##1 ((u_pgcbcg.sync_clkvld == 1'b1) && (sync_gate_term1 == 1'b1) && (accu_idle_event == 1'b1))[*85] |-> (u_pgcbcg.sync_gate_acc == 1'b1));
+      
+
+    aSYNC_GATE_WAKE_Chk_A: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      (u_pgcbcg.sync_clkvld == 1'b1) ##1 ((sync_gate_term1 == 1'b0) && (accu_idle_event == 1'b1) && (cfg_acc_clkgate_disabled == 1'b1))[*25] |-> (u_pgcbcg.sync_gate_acc == 1'b0));
+
+    aSYNC_GATE_WAKE_Chk_B: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      ((u_pgcbcg.sync_clkvld == 1'b1) && (sync_gate_term1 == 1'b1) && (accu_idle_event == 1'b0))[*25] |-> (u_pgcbcg.sync_gate_acc == 1'b0));
+
+//FOR ANY ABSENCE OF ANY WAKE, ACC GATE CHECK
+    logic SYNC_GATE_ACC;
+    assign SYNC_GATE_ACC = (&(u_pgcbcg.syncd_aw_iosf_cdc_gclock_req_b[4:0])) && (&(u_pgcbcg.syncd_aw_non_iosf_cdc_gclock_req_b[4:0])) && (&(u_pgcbcg.syncd_aw_fabric_wake_b[4:0])) && (u_pgcbcg.syncd_aw_pwrgate_disabled_wake_b == '1) && (u_pgcbcg.cdc_idle_event_sync[1] == 1'b0) && (u_pgcbcg.cfg_acc_clkgate_disabled == '0);
+
+    aSYNC_GATE_ACC_Chk: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      (SYNC_GATE_ACC == 1'b1) |-> (u_pgcbcg.sync_gate_acc == 1'b1));
+
+//FOR ANY OF THE ACC IDLE INDICATIONS, SYNC_GATE SHOULD BE MASKED BY POK
+    aSYNC_GATE_Msk1: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      ((SYNC_GATE_ACC == 1'b1) && (pgcb_pok == 1'b0) && (u_pgcbcg.cdc_idle_clkreq == 1'b1) && (u_pgcbcg.syncd_pmc_pg_wake == 1'b0) && (u_pgcbcg.cdc_idle_event_sync[0] == 1'b0) && (u_pgcbcg.syncd_async_wake_b == 1'b1) && (pgcb_idle == 1'b1) && (u_pgcbcg.syncd_aw_pgcb_idle_b == 1'b1)) |-> (u_pgcbcg.sync_gate == 1'b1));
+
+    aSYNC_GATE_Msk2: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      ((SYNC_GATE_ACC == 1'b1) && (pgcb_pok == 1'b1) && (u_pgcbcg.cdc_idle_clkreq == 1'b1) && (u_pgcbcg.syncd_pmc_pg_wake == 1'b0) && (u_pgcbcg.cdc_idle_event_sync[0] == 1'b0) && (u_pgcbcg.syncd_async_wake_b == 1'b1) && (pgcb_idle == 1'b1) && (u_pgcbcg.syncd_aw_pgcb_idle_b == 1'b1)) |-> (u_pgcbcg.sync_gate == 1'b1));
+
+
+//---------------------------POK QUAL ACC WAKE CHECKS--------------------------//
+    logic CDC_ACC_WAKE_B;
+    assign CDC_ACC_WAKE_B = (&(u_pgcbcg.awex_iosf_cdc_gclock_req_b[4:0])) && (&(u_pgcbcg.awex_non_iosf_cdc_gclock_req_b[4:0])) && (&(u_pgcbcg.awex_fabric_wake_b[4:0])) && u_pgcbcg.awex_pwrgate_disabled_wake_b; 
+    //FOR ANY ABSENCE OF PGCB_POK, ACC WAKES SHOULD BE MASKED
+
+    aPGCB_POK_ACC_WAKE_Msk1: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      ((CDC_ACC_WAKE_B == 1'b1) && (pgcb_pok == 1'b0) && (u_pgcbcg.clkreq_wake_ex_b == 1'b1) && (u_pgcbcg.awex_pgcb_idle_b == 1'b1))  |-> (u_pgcbcg.async_wake_b == 1'b1));
+
+    aPGCB_POK_ACC_WAKE_Msk2: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      ((CDC_ACC_WAKE_B == 1'b1) && (pgcb_pok == 1'b1) && (u_pgcbcg.clkreq_wake_ex_b == 1'b1) && (u_pgcbcg.awex_pgcb_idle_b == 1'b1))  |-> (u_pgcbcg.async_wake_b == 1'b1));
+
+
+//---------------------------BEGIN ASYNC WAKE CHECKS---------------------------//
+
+//INACESSIBLE WAKES NOT REQUIRED TO BE QUAL'ed BY PGCB_POK
+//FOR ANY OF THE WAKE INDICATIONS, ASYNC_WAKE_B ASSERTION CHECK
+
+    aPMCPG_WAKE_Chk: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      (pmc_ip_wake == 1'b1) |-> (u_pgcbcg.i_pcgu.async_pmc_ip_wake == 1'b1));
+
+    aPGCB_IDLE_WAKE_Chk: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      (pgcb_idle == 1'b0) |-> (u_pgcbcg.async_wake_b == 1'b0));
+
+    aIOSF_CLK0_REQ_WAKE_Chk: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      (iosf_cdc_clkreq[0] == 1'b1) |-> (u_pgcbcg.async_wake_b == 1'b0));
+
+    aIOSF_CLK1_REQ_WAKE_Chk: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      (iosf_cdc_clkreq[1] == 1'b1) |-> (u_pgcbcg.async_wake_b == 1'b0));
+
+    aIOSF_CLK2_REQ_WAKE_Chk: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      (iosf_cdc_clkreq[2] == 1'b1) |-> (u_pgcbcg.async_wake_b == 1'b0));
+
+    aIOSF_CLK3_REQ_WAKE_Chk: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      (iosf_cdc_clkreq[3] == 1'b1) |-> (u_pgcbcg.async_wake_b == 1'b0));
+
+    aIOSF_CLK4_REQ_WAKE_Chk: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      (iosf_cdc_clkreq[4] == 1'b1) |-> (u_pgcbcg.async_wake_b == 1'b0));
+
+    aNON_IOSF_CLK0_REQ_WAKE_Chk: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      (non_iosf_cdc_clkreq[0] == 1'b1) |-> (u_pgcbcg.async_wake_b == 1'b0));
+
+    aNON_IOSF_CLK1_REQ_WAKE_Chk: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      (non_iosf_cdc_clkreq[1] == 1'b1) |-> (u_pgcbcg.async_wake_b == 1'b0));
+
+    aNON_IOSF_CLK2_REQ_WAKE_Chk: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      (non_iosf_cdc_clkreq[2] == 1'b1) |-> (u_pgcbcg.async_wake_b == 1'b0));
+
+    aNON_IOSF_CLK3_REQ_WAKE_Chk: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      (non_iosf_cdc_clkreq[3] == 1'b1) |-> (u_pgcbcg.async_wake_b == 1'b0));
+
+
+//ACCESSIBLE WAKES TO BE QUAL'ed BY PGCB_POK
+    aPG_DIS_WAKE_Chk: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      ((u_pgcbcg.pwrgate_disabled_wake == 1'b1) && (pgcb_pok == 1'b1)) |-> (u_pgcbcg.async_wake_b == 1'b0));
+
+    aIOSF_GCLK0_WAKE_Chk: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      ((iosf_cdc_gclock_req_async[0] == 1'b1) && (pgcb_pok == 1'b1)) |-> (u_pgcbcg.async_wake_b == 1'b0));
+
+    aIOSF_GCLK1_WAKE_Chk: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      ((iosf_cdc_gclock_req_async[1] == 1'b1) && (pgcb_pok == 1'b1)) |-> (u_pgcbcg.async_wake_b == 1'b0));
+
+    aIOSF_GCLK2_WAKE_Chk: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      ((iosf_cdc_gclock_req_async[2] == 1'b1) && (pgcb_pok == 1'b1)) |-> (u_pgcbcg.async_wake_b == 1'b0));
+
+    aIOSF_GCLK3_WAKE_Chk: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      ((iosf_cdc_gclock_req_async[3] == 1'b1) && (pgcb_pok == 1'b1)) |-> (u_pgcbcg.async_wake_b == 1'b0));
+
+    aIOSF_GCLK4_WAKE_Chk: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      ((iosf_cdc_gclock_req_async[4] == 1'b1) && (pgcb_pok == 1'b1)) |-> (u_pgcbcg.async_wake_b == 1'b0));
+
+
+    aNON_IOSF_GCLK0_WAKE_Chk: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      ((non_iosf_cdc_gclock_req_async[0] == 1'b1) && (pgcb_pok == 1'b1)) |-> (u_pgcbcg.async_wake_b == 1'b0));
+
+    aNON_IOSF_GCLK1_WAKE_Chk: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      ((non_iosf_cdc_gclock_req_async[1] == 1'b1) && (pgcb_pok == 1'b1)) |-> (u_pgcbcg.async_wake_b == 1'b0));
+
+    aNON_IOSF_GCLK2_WAKE_Chk: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      ((non_iosf_cdc_gclock_req_async[2] == 1'b1) && (pgcb_pok == 1'b1)) |-> (u_pgcbcg.async_wake_b == 1'b0));
+
+    aNON_IOSF_GCLK3_WAKE_Chk: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      ((non_iosf_cdc_gclock_req_async[3] == 1'b1) && (pgcb_pok == 1'b1)) |-> (u_pgcbcg.async_wake_b == 1'b0));
+
+    aNON_IOSF_GCLK4_WAKE_Chk: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      ((non_iosf_cdc_gclock_req_async[4] == 1'b1) && (pgcb_pok == 1'b1)) |-> (u_pgcbcg.async_wake_b == 1'b0));
+
+
+    aICDC_CLK0_WAKE_Chk: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      ((u_pgcbcg.iosf_cdc_ism_fabric_f[0] == 1'b1) && (pgcb_pok == 1'b1)) |-> (u_pgcbcg.async_wake_b == 1'b0));
+
+    aICDC_CLK1_WAKE_Chk: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      ((u_pgcbcg.iosf_cdc_ism_fabric_f[1] == 1'b1) && (pgcb_pok == 1'b1)) |-> (u_pgcbcg.async_wake_b == 1'b0));
+    
+    aICDC_CLK2_WAKE_Chk: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      ((u_pgcbcg.iosf_cdc_ism_fabric_f[2] == 1'b1) && (pgcb_pok == 1'b1)) |-> (u_pgcbcg.async_wake_b == 1'b0));
+
+    aICDC_CLK3_WAKE_Chk: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      ((u_pgcbcg.iosf_cdc_ism_fabric_f[3] == 1'b1) && (pgcb_pok == 1'b1)) |-> (u_pgcbcg.async_wake_b == 1'b0));
+
+    aICDC_CLK4_WAKE_Chk: assert property (@(posedge clock) disable iff (reset_b !== 1)
+      ((u_pgcbcg.iosf_cdc_ism_fabric_f[4] == 1'b1) && (pgcb_pok == 1'b1)) |-> (u_pgcbcg.async_wake_b == 1'b0));
+
+
+//-------------------------------ASSUMES FOR PGCB REQ/ACK PROTO--------------------//
+//CLKREQ GOES HIGH CLKACK SHOULD BE LOW
+    aCLKREQ_CLKACK_Gen1: assume property (@(posedge clock) disable iff (reset_b !== 1)
+      ($rose(pgcb_clkreq)) |-> (pgcb_clkack == 1'b0));
+
+//CLKREQ GOES LOW CLKACK SHOULD BE HIGH
+    aCLKREQ_CLKACK_Gen2: assume property (@(posedge clock) disable iff (reset_b !== 1)
+      ($fell(pgcb_clkreq)) |-> (pgcb_clkack == 1'b1));
+  

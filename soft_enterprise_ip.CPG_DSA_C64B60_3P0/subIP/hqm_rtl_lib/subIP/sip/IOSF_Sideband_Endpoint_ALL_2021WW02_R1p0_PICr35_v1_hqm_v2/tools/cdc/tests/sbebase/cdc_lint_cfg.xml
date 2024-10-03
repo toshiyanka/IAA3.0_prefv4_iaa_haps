@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+
+<!-- 
+This file is used to control which rules are enabled/disabled.
+Rules, rule groups and default parameters will still need to be
+defined in the rules file, e.g. visa_audit_rules.pm.
+-->
+
+<LINTRA_CONFIGURATION>   
+<!--
+This following defines the severity levels.
+name         : Name of severity level. Must match severity defined in rules.
+level        : Provides a mechanism to only run rules equal or smaller than a given level with the -V switch.
+cause_failure: "yes": Lint status is "FAILED" if a rule with this severity is violated.
+               "no" : Lint status is "PASSED" regardless of violation.
+-->
+<severity name="Error" level="1" cause_failure="yes"/>
+<severity name="Warning" level="2" cause_failure="yes"/>
+<severity name="Information" level="3" cause_failure="no"/>
+<severity name="Fatal" level="4" cause_failure="yes"/>
+
+<!--
+Used to enable or disable rules or rule groups, and override parameters and severity levels.
+
+E.g.:
+<rule id="50000" active="yes" severity="Error">
+<rule id="50001" active="no">
+<rule_group id="Visa Rules" active="yes" severity="Error">
+    <param type="alphanumeric" name="visaModulesRegexp" value="visa_.*_muc"/>
+</rule_group>
+-->
+<rule id = "cdc_112" active="yes" severity="Warning"/>
+<rule id = "cdc_114" active="yes" severity="Warning"/>
+<rule id = "cdc_115" active="yes" severity="Warning"/>
+<rule id = "cdc_103" active="yes" severity="Warning"/>
+<rule id = "cdc_113" active="yes" severity="Warning"/>
+
+<rule_group id="CDC_General" active="yes">
+    <param type="alphanumeric" name="IP_Name" value="sbebase"/>
+<!-- HierName is used to construct name of hierarchy CFM file (cdc_hier_ctrl_$HierName.v) often same as IP_Name -->
+    <param type="alphanumeric" name="HierName" value="sbebase"/>
+
+<!-- 
+This is not needed as it is overwritten by the -od switch in the run_cdc_lint in run_ACECDC
+<param type="alphanumeric" name="cdc_test_results_dir" value="../../results/sbebase/tests/cdc_tests_sbebase/"/>
+-->
+</rule_group>
+
+</LINTRA_CONFIGURATION>

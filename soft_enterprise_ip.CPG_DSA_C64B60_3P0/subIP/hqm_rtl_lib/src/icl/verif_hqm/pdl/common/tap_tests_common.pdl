@@ -1,0 +1,1310 @@
+#//------------------------------------------------------------------------------
+#//  INTEL CONFIDENTIAL
+#//
+#//  Copyright 2020 Intel Corporation All Rights Reserved.
+#//
+#//  The source code contained or described herein and all documents related
+#//  to the source code (Material) are owned by Intel Corporation or its
+#//  suppliers or licensors. Title to the Material remains with Intel
+#//  Corporation or its suppliers and licensors. The Material contains trade
+#//  secrets and proprietary and confidential information of Intel or its
+#//  suppliers and licensors. The Material is protected by worldwide copyright
+#//  and trade secret laws and treaty provisions. No part of the Material may
+#//  be used, copied, reproduced, modified, published, uploaded, posted,
+#//  transmitted, distributed, or disclosed in any way without Intel's prior
+#//  express written permission.
+#//
+#//  No license under any patent, copyright, trade secret or other intellectual
+#//  property right is granted to or conferred upon you by disclosure or
+#//  delivery of the Materials, either expressly, by implication, inducement,
+#//  estoppel or otherwise. Any license under such intellectual property rights
+#//  must be express and approved by Intel in writing.
+#//
+#//
+#//  Collateral Description:
+#//  DTEG DUVE-M
+#//
+#//  Source organization:
+#//  DTEG Engineering Group (DTEG)
+#//
+#//  Support Information:
+#//  HSD: https://hsdes.intel.com/appstore/article/#/dft_services.bugeco/create
+#//
+#//  Revision:
+#//  DUVE_M_2020WW25_R0.1
+#//
+#//  tap_tests_common.pdl : definitions of generic TAP tests
+#//
+#//------------------------------------------------------------------------------
+#
+#//----------------------------------------------------------------------
+#// Intel Proprietary -- Copyright 2020 Intel -- All rights reserved
+#//----------------------------------------------------------------------
+#// NOTE: Log history is at end of file.
+#//----------------------------------------------------------------------
+#//
+#//    FILENAME    : tap_tests_common.pdl
+#//    DESIGNER    : Igor V Molchanov
+#//    PROJECT     : DUVE-M
+#//
+#//    PURPOSE     : Definitions of generic TAP tests and procedures
+#//    DESCRIPTION : Test library contains
+#//                  iTopProc tap_reset                     : procedure to generate reset
+#//                  iTopProc tap_set_secure_policy         : procedure to set Intel secure policy
+#//                  iTopProc tap_init_ports                : procedure to initialize input ports 
+#//                  iTopProc tap_dr_continuity_test        : TDI-TDO continuity test
+#//                  iTopProc tap_dr_reset_test             : TDR reset test
+#//                  iTopProc tap_dr_rw_test                : TDR read-write test with configurable pattern
+#//                  iTopProc tap_dr_rw_random_test         : TDR read-write test with random patterns
+#//                  iTopProc tap_dr_field_rw_random_test   : TDR read-write test with random patterns applied to TDR fields/Aliases
+#//                  iTopProc tap_dr_write                  : TDR init/write using provided pattern
+#//                  iTopProc tap_dr_rw_secure_test         : TDR secure access test [not enabled yet - requires Tessent fix]
+#//                  iTopProc tap_reserved_opcodes_test     : All reserved opcodes test
+#//                  iTopProc tap_all_opcodes_security_test : All opcodes secure access test
+#//----------------------------------------------------------------------
+
+# Common procedure definitions for TAP 
+
+#### iTopProc procedures #####
+
+# Registration for current design top
+iProcsForModule [get_single_name [get_current_design -icl]] 
+
+# Procedure to apply different reset types
+#    Reset_type: POWERGOOD, TRST, TLR, iReset (default)
+#    Signal_name: for POWERGOOD type only
+#       if not provided, procedure will try to find powergood_name variable in the upper scopes
+#       If not found, fdfx_powergood is used by default
+iTopProc tap_reset {{reset_type iReset} {duration 10} {reset_list {}} {disable_pre_post 0}} {
+
+   iNote "-INFO- Applying $reset_type RESET..."
+
+   set reset_type [string trim $reset_type]
+
+   if {[regexp {^POWERGOOD(.*)} $reset_type -> list_id]} {
+
+      if {$list_id eq ""} {
+
+         # try to find ports by name
+
+         # find powergood signals of DataInPort type
+         set sig_list [get_icl_ports *p*w*rgood* -function data_in -nocase -silent]
+         if {[sizeof_collection $sig_list] > 0} {
+
+            if {!$disable_pre_post} {
+	       iCall reset_powergood_pre
+	    }
+            # Temporary workaround for Tessent "Error: Internal inconsistency" issue
+            iReset 
+            iRunLoop 10
+
+            iNote "-INFO- Applying reset pulse to all found POWERGOOD signals of DataInPort type..."
+            set sig_name_list [get_name_list $sig_list]
+            foreach sig $sig_name_list {
+               iNote "-INFO- POWERGOOD signal $sig of DataInPort type"
+               iWrite $sig 0b1
+            }
+            iApply
+            foreach sig $sig_name_list {
+               iWrite $sig 0b0
+            }
+            iApply
+            iRunLoop $duration; #wait
+            foreach sig $sig_name_list {
+               iWrite $sig 0b1
+            }
+            iApply
+            iRunLoop 10
+         }
+
+         # find powergood signals of ResetPort type
+         set sig_list [get_icl_ports *p*w*rgood* -function reset -nocase -silent]
+         if {[sizeof_collection $sig_list] > 0} {
+            iNote "-INFO- Applying reset pulse to all found POWERGOOD signals of ResetPort type"
+            set sig_name_list [get_name_list $sig_list]
+            foreach sig $sig_name_list {
+               iNote "-INFO- POWERGOOD signal $sig of ResetPort type"
+            }
+            iReset
+            iRunLoop 10
+         }
+         if {!$disable_pre_post} {
+            iCall reset_powergood_post
+	 }
+         iNote "-INFO- POWERGOOD reset completed"
+
+      } else {
+
+         upvar #0 $reset_list   rst_list
+         if {[array exists rst_list]} {
+            if {[regexp {^:(\w+)$} $list_id -> id]} {
+               set rst_sig_list   {}
+               set rst_b_sig_list {}
+               if {[info exists rst_list($id:0)]} {
+                  set rst_b_sig_list [lsort -unique $rst_list($id:0)]
+               }
+               if {[info exists rst_list($id:1)]} {
+                  set rst_sig_list [lsort -unique $rst_list($id:1)]
+               }
+
+               if {!$disable_pre_post} {
+                  iCall reset_powergood_pre
+	       }
+
+               # Temporary workaround for Tessent "Error: Internal inconsistency" issue
+               iReset 
+               iRunLoop 10
+
+               if {([llength $rst_b_sig_list] == 0) && ([llength $rst_sig_list] == 0)} {
+
+                  iNote "-ERROR- No signals specified for POWERGOOD:$id, no POWERGOOD reset generated"
+
+               } else {
+
+                  set use_ireset 0
+                  set reset_port_list [get_name_list [get_icl_ports -function reset -silent]]
+                  set sig_list_tmp {}
+                  foreach sig $rst_b_sig_list {
+                     if {[lsearch $reset_port_list $sig] >= 0} {
+                        iNote "-INFO- POWERGOOD signal $sig is ResetPort, will use iReset as POWERGOOD reset"
+                        set use_ireset 1
+                     } else {
+                        iNote "-INFO- POWERGOOD signal $sig"
+                        iWrite $sig 0b1
+                        lappend sig_list_tmp $sig
+                     }
+                  }
+                  set rst_b_sig_list $sig_list_tmp
+                  set sig_list_tmp {}
+                  foreach sig $rst_sig_list {
+                     if {[lsearch $reset_port_list $sig] >= 0} {
+                        iNote "-INFO- POWERGOOD signal $sig is ResetPort, will use iReset as POWERGOOD reset"
+                        set use_ireset 1
+                     } else {
+                        iNote "-INFO- POWERGOOD_B signal $sig"
+                        iWrite $sig 0b0
+                        lappend sig_list_tmp $sig
+                     }
+                  }
+                  set rst_sig_list $sig_list_tmp
+                  iApply
+                  foreach sig $rst_b_sig_list {
+                     iWrite $sig 0b0
+                  }
+                  foreach sig $rst_sig_list {
+                     iWrite $sig 0b1
+                  }
+                  iApply
+                  iRunLoop $duration; #wait
+                  foreach sig $rst_b_sig_list {
+                     iWrite $sig 0b1
+                  }
+                  foreach sig $rst_sig_list {
+                     iWrite $sig 0b0
+                  }
+                  iApply
+                  if {$use_ireset} {
+                     iReset 
+                     iRunLoop 1
+                  }
+                  
+                  iRunLoop 10
+   
+                  if {!$disable_pre_post} {
+                     iCall reset_powergood_post
+		  }
+                  iNote "-INFO- POWERGOOD reset completed"
+
+               }
+            } else {
+               iNote "-ERROR- Not rcognized reset id, no POWERGOOD reset generated"
+            }
+         } else {
+            iNote "-ERROR- No reset map provided, no POWERGOOD reset generated"
+         }
+      }
+
+   } elseif {$reset_type eq "TLR"} {
+
+      if {!$disable_pre_post} {
+         iCall reset_tlr_pre
+      }
+
+      iReset -sync
+
+      if {!$disable_pre_post} {
+         iCall reset_tlr_post
+      }
+
+   } elseif {$reset_type eq "TRST"} {
+
+      if {!$disable_pre_post} {
+         iCall reset_trst_pre
+      }
+
+      iReset
+      iRunLoop 10
+
+      if {!$disable_pre_post} {
+         iCall reset_trst_post
+      }
+
+   } else {
+
+      if {!$disable_pre_post} {
+         iCall reset_default_pre
+      }
+      # default
+      iReset
+      iRunLoop 10
+
+      if {!$disable_pre_post} {
+         iCall reset_default_post
+      }
+   }
+}
+
+# Procedure for setting TAP secure policy signals
+iTopProc tap_set_secure_policy {{type GREEN}} {
+
+   set type [string trim $type]
+   set skip_original_flow 0
+
+   iCall tap_unlock_custom $type $skip_original_flow
+   
+   if {$skip_original_flow} {return}
+
+   set secure_policy {0000};      # SECURITY_LOCKED
+
+   if {$type eq "RED"} {
+      set secure_policy {0010};   # SECURITY_UNLOCKED
+   } elseif {$type eq "RED4"} {
+      set secure_policy {0100};   # INTEL_UNLOCKED
+   } elseif {$type eq "ORANGE"} {
+      set secure_policy {0101};   # OEM_UNLOCKED
+   } elseif {$type eq "GREEN"} {
+      # SECURITY_LOCKED
+   } elseif {[string is entier $type]} {
+      set secure_policy [tap_utils::num2bin $type 4]
+   } else { 
+      # assuming GREEN (most restricted)
+      iNote "-WARN- No secure policy provided - assuming GREEN"
+   }
+
+   # default signal names
+   set secure_policy_name  secure_policy
+   set earlyboot_exit_name earlyboot_exit
+   set policy_update_name  policy_update
+   set secure_name_prefix {}
+   # try to find ports by name
+   set sig_list     [get_icl_ports *secure_policy*0\] -function data_in -nocase -silent]
+   set sig_list_rtl [get_ports     *secure_policy*0\] -direction input  -nocase -silent]
+   set icl_port_found 0
+   set secure_policy_list_to_force {}
+   # Secure_policy processing
+   if {[sizeof_collection $sig_list] > 0} {
+      if {[sizeof_collection $sig_list_rtl] > 0} {
+         foreach_in_collection rtl_sig  $sig_list_rtl {
+            set secure_policy_name [regsub {\[.*} [get_single_name $rtl_sig] {}]
+            iNote "-INFO- Found RTL SECURE_POLICY signal $secure_policy_name"
+            lappend secure_policy_list_to_force $secure_policy_name
+            if {[lsearch -regexp [get_name_list $sig_list] "^$secure_policy_name\\\["] >= 0} {
+               set icl_port_found 1
+            }
+         }
+         if {!$icl_port_found} {
+            iNote "-ERROR- Cannot find ICL-matching SECURE_POLICY signal in RTL, no security setting action is performed"
+            return
+         }
+      } else {
+         iNote "-ERROR- Cannot identify SECURE_POLICY signal in RTL (but it exists in ICL), no security setting action is performed"
+         return
+      }
+   } else {
+      iNote "-WARN- Cannot identify SECURE_POLICY signal in RTL, no security setting action is performed"
+      return
+   }
+
+   set earlyboot_exit_list_to_force {}
+   set sig_list_rtl [get_ports     *earlyboot_exit* -direction input  -nocase -silent]
+   if {[sizeof_collection $sig_list_rtl] > 0} {
+      foreach_in_collection rtl_sig  $sig_list_rtl {
+         set earlyboot_exit_name [get_single_name $rtl_sig]
+         iNote "-INFO- Found RTL EARLYBOOT_EXIT signal $earlyboot_exit_name"
+         lappend earlyboot_exit_list_to_force $earlyboot_exit_name
+      }
+   } else {
+      iNote "-ERROR- Cannot find EARLYBOOT_EXIT signal in RTL, no security setting action is performed"
+      return
+   }
+
+   set policy_update_list_to_force {}
+   set sig_list_rtl [get_ports     *policy_update* -direction input  -nocase -silent]
+   if {[sizeof_collection $sig_list_rtl] > 0} {
+      foreach_in_collection rtl_sig  $sig_list_rtl {
+         set policy_update_name [get_single_name $rtl_sig]
+         iNote "-INFO- Found RTL POLICY_UPDATE signal $policy_update_name"
+         lappend policy_update_list_to_force $policy_update_name
+      }
+   } else {
+      iNote "-ERROR- Cannot find POLICY_UPDATE signal in RTL, no security setting action is performed"
+      return
+   }
+
+   iNote "-INFO- Forcing TAP secure policy bus to $secure_policy ($type)"
+   foreach sig $secure_policy_list_to_force {
+      iForcePort [list "$sig\[3\]" "$sig\[2\]" "$sig\[1\]" "$sig\[0\]"] 0b$secure_policy
+   }
+
+   foreach sig $earlyboot_exit_list_to_force {
+      iForcePort $sig 0b1
+   }
+
+   foreach sig $policy_update_list_to_force {
+      iForcePort $sig 0b1
+   }
+   iApply
+   
+   iRunLoop 1
+
+}
+
+# Procedure for setting initial values for all or specific ports of DataInPort type.
+# Port should have DefaultLoadValue Attribute
+# FIXME: default value for use_force
+iTopProc tap_init_ports {{signal_type {}} {use_force {1}}} {
+   set sig_list {}
+   if {$signal_type ne ""} {
+      set sig_list [get_icl_ports -function data_in -filter "default_load_value != \"X\" && intel_signal_type =~ \"$signal_type\"" -nocase  -silent]
+   } else {
+      set sig_list [get_icl_ports -function data_in -filter {default_load_value != "x"} -nocase  -silent]
+   }
+   if {[sizeof_collection $sig_list] > 0} {
+      iNote "-INFO- Initializing DataInPorts with DefaultLoadValue..."
+      set cmd [expr {$use_force ? "iForcePort" : "iWrite"}]
+      foreach_in_collection sig $sig_list {
+         set value [get_attribute_value_list $sig -name default_load_value] 
+         set name [get_single_name $sig]
+         iNote "-INFO- Initializing port: $cmd $name $value"
+         $cmd $name $value
+      }
+      iApply
+   } else {
+      iNote "-INFO- No DataInPorts found which require initialization"
+   }
+}
+
+# ----------------------
+# Verification of access to the registers/TDI-TDO continuity/TDI-TDO chain length
+# ----------------------
+# Test algorithm: 
+#    - Perform multiple iWrites to each register without Update_DR between accesses (going through Pause_DR instead)
+#    - For first iWrites, use specially formatted 1011...1101 or 0100...0010 data patterns to simplify debug
+#         > Number of iWrites depends on register width, will be maximum for short one bit registers
+#         > use inverted pattern for each next iWrite
+#    - For the last iWrite, use reset value
+#    - TDO check based on Tessent ICL data model
+# Note: TS disables TDO check after Pause_DR for iWrite (but iRead based checking works)
+# FIXME use global references for IR/DR map info?
+iTopProc tap_dr_continuity_test {test_reg_collection {tap_dr_map {}} {tap_ir_map {}} {tap_parent_map {}}} {
+   upvar 1 $tap_dr_map dr_map
+   upvar 1 $tap_ir_map ir_map
+   upvar 1 $tap_parent_map parent_map
+
+   iNote "-INFO- Starting TDI-TDO continuity test..."
+
+   foreach_in_collection reg $test_reg_collection {
+      set reg_name [get_single_name $reg]
+      iNote "-INFO- Testing continuity for register: $reg_name"
+      set reset_value [tap_utils::get_reg_reset_value_bin $reg_name]
+      set reg_size [tap_utils::get_tap_reg_size $reg_name]
+      if {$reg_size == 1} {
+         set pattern1 1
+      } elseif {$reg_size == 2} {
+         set pattern1 11
+      } elseif {$reg_size == 3} {
+         set pattern1 101
+      } elseif {$reg_size == 4} {
+         set pattern1 1001
+      } else {
+         set pattern1 10[string repeat 1 [expr {$reg_size-4}]]01
+      }
+      set pattern2 [tap_utils::get_inverted_sting_value_bin $pattern1]
+      set loop_num [expr {int(ceil(12.0/$reg_size))}]
+      set sequence {1 0 1 1 0 0 1 1 1 0 0 0}; # 12 elements
+
+      # Overshifting the register $loop_num times
+      for {set i 0} {$i < $loop_num} {incr i} {
+
+         set seq_id [lindex $sequence $i]
+         if {$seq_id == 1} {
+            set pattern $pattern1
+         } else {
+            set pattern $pattern2
+         }
+
+         if {([array exists dr_map]) &&([array exists parent_map])} {
+            tap_utils::iwrite_no_iapply_bypass_dr_all_parents $dr_map($reg_name) parent_map
+         }
+         iWrite $reg_name 0b$pattern
+         if {$i > 0} {
+            iRead $reg_name 0b$prev_pattern
+         } else {
+            # Eliminate dependencies on initial conditions
+            iRead $reg_name 0bx
+         }
+         iApply -end_in_pause
+
+         iRunLoop 3; # some delay
+
+         set prev_pattern $pattern
+      }
+   
+      if {([array exists dr_map]) &&([array exists parent_map])} {
+         # Writing reset value and comparing with the last shift
+         tap_utils::iwrite_no_iapply_bypass_dr_all_parents $dr_map($reg_name) parent_map
+      }
+      iWrite $reg_name 0b$reset_value
+      iRead $reg_name 0b$prev_pattern
+      iApply
+
+      tap_utils::iwrite_tap_bypass_dr $reg_name dr_map ir_map
+   }
+}
+
+# ----------------------
+# TDRs: Verification of RESET impact and register RESET values
+# ----------------------
+# Test algorithm: 
+#    - Write inverted reset value to each register (based on value in ICL)
+#      When writing, check current register value against expected in TS ICL model
+#    - Apply one of the resets (test should be run for ALL RESET SOURCES in the design!
+#    - Read each register & compare TDO (using iWrite, so no need for the expected value)
+#      (Using iRead would require extraction of reset sources for each register to understand 
+#       if it is expected to reset or not)
+# Initialize each register to the inverted reset value from the spec
+iTopProc tap_dr_reset_test {test_reg_collection {reset_type iReset} {strict 0} {reset_list {}} {reg_trst_list {}} {reg_tlr_list {}} {reg_nw_list {}} {tap_dr_map {}} {tap_ir_map {}} {tap_parent_map {}}} {
+
+   upvar 1 $tap_dr_map dr_map
+   upvar 1 $tap_ir_map ir_map
+   upvar 1 $tap_parent_map parent_map
+   
+   set reg_nw_name_list {}
+   foreach reg  [get_name_list $reg_nw_list] {
+      lappend reg_nw_name_list [regsub {\[.*} $reg {}]
+   }
+
+   iNote "-INFO- Starting Reset test ($reset_type)..."
+
+   foreach_in_collection reg $test_reg_collection {
+      set reg_name [get_single_name $reg]
+
+      if {($reset_type eq "TLR") || ($reset_type eq "TRST")} {
+         if {[lsearch $reg_nw_name_list [regsub {\[.*} $reg_name {}]] >= 0} {
+            iNote "-INFO- $reset_type reset test: skipping network control register: $reg_name"
+            continue
+         }
+      }
+
+      set reset_value     [tap_utils::get_reg_reset_value_bin $reg_name]
+      set reset_value_inv [tap_utils::get_inverted_sting_value_bin $reset_value]
+
+      # Workaround
+      tap_reset POWERGOOD:DFX 10 $reset_list
+   
+      iNote "-INFO- \[init phase\] Testing RESET $reset_type for register: $reg_name"
+      #tap_utils::iwrite_no_iapply_bypass_dr_all_parents $dr_map($reg_name) parent_map
+      iWrite $reg_name 0b$reset_value_inv
+      # Eliminate dependencies on initial conditions
+      iRead $reg_name 0bx
+      iApply
+      # Second pass to check that written values were applied
+      #tap_utils::iwrite_no_iapply_bypass_dr_all_parents $dr_map($reg_name) parent_map
+
+      iWrite $reg_name 0b$reset_value_inv
+      iApply
+
+
+      if {([array exists ir_map]) &&([array exists dr_map]) &&([array exists parent_map])} {
+         if {($reset_type eq "TLR") || ($reset_type eq "TRST")} {
+            tap_utils::collapse_tap_network_soft $reg_nw_list $reg_name dr_map ir_map parent_map
+         }
+      }
+  
+      tap_reset $reset_type 10 $reset_list
+   
+      # Check value of each register after THAT reset
+      iNote "-INFO- \[check phase\] Checking RESET $reset_type for register: $reg_name"
+
+      #tap_utils::iwrite_no_iapply_bypass_dr_all_parents $dr_map($reg_name) parent_map
+      iWrite $reg_name 0b$reset_value
+      # workaround for Tessent issue not modeling TLR/TRST accurately
+      if {[regexp {^POWERGOOD:DFX} $reset_type]} {
+         if {$strict} {
+            iRead $reg_name 0b[tap_utils::get_exp_rst_tdo $reg_name]
+         }
+      } elseif {[regexp {^POWERGOOD:} $reset_type]} {
+         # FIXME support other powergood reg scopes
+         # assume no reset impact, expect previous value
+      } elseif {[regexp {^POWERGOOD$} $reset_type]} {
+         if {$strict} {
+            iRead $reg_name 0b[tap_utils::get_exp_rst_tdo $reg_name]
+         }
+      } elseif {$reset_type eq "TLR"} {
+         set reg_tlr_name_list [get_name_list $reg_tlr_list]
+         set is_found 0
+         foreach reg $reg_tlr_name_list {
+            if {[string match [regsub {\[.*} $reg_name {}] [regsub {\[.*} $reg {}]]} {
+               set is_found 1
+            }
+         }
+         if {$is_found} {
+            iNote "-INFO- \[check phase\] Checking RESET $reset_type for register: $reg_name - expected to be reset"
+            iRead $reg_name 0b[tap_utils::get_exp_rst_tdo $reg_name]
+         } else {
+            iNote "-INFO- \[check phase\] Checking RESET $reset_type for register: $reg_name - expected NOT to be reset"
+            iRead $reg_name 0b[tap_utils::get_reg_prev_value_cmp $reg_name $reset_value_inv]
+         }
+      } elseif {$reset_type eq "TRST"} {
+         # FIXME
+         # TRST isn't properly handled in Tessent/IEEE1687
+         # it works like global POWERGOOD reset today in Tessent ICL Data Model
+         set reg_trst_name_list [get_name_list $reg_trst_list]
+         set is_found 0
+         foreach reg $reg_trst_name_list {
+            if {[string match [regsub {\[.*} $reg_name {}] [regsub {\[.*} $reg {}]]} {
+               set is_found 1
+            }
+         }
+         if {$is_found} {
+            iNote "-INFO- \[check phase\] Checking RESET $reset_type for register: $reg_name - expected to be reset"
+            iRead $reg_name 0b[tap_utils::get_exp_rst_tdo $reg_name]
+         } else {
+            iNote "-INFO- \[check phase\] Checking RESET $reset_type for register: $reg_name - expected NOT to be reset"
+            iRead $reg_name 0b[tap_utils::get_reg_prev_value_cmp $reg_name $reset_value_inv]
+         }
+      } else {
+         iNote "-ERROR- \[tap_dr_reset_test\] Not recognized RESET type $reset_type for register: $reg_name"
+      }
+      iApply
+
+      #tap_utils::iwrite_tap_bypass_dr $reg_name dr_map ir_map
+   }
+
+   tap_reset POWERGOOD:DFX 10 $reset_list
+}
+
+# ----------------------
+# TDR Read-Write access test
+# ----------------------
+# Argument: test pattern (recommended default 01)
+# Test algorithm: 
+#    - similar to MATS+
+#    - Patterns: replicate to full register width, use both original and inverted versions
+#    - Pass 1: Write pattern1, use double access with Pause_DR between
+#      When writing, check current register value against expected in the Tessent ICL model
+#    - Pass2: Read previously written data/check TDO. Write inverted pattern. Use double access again.
+#    - Move to the next register, execute similar Pass 1/Pass 2 accesses
+#    - When completed for all registers, do one more loop read last written data/writing reset data for each register
+iTopProc tap_dr_rw_test {test_reg_collection {pattern "01"} {tap_dr_map {}} {tap_ir_map {}} {tap_parent_map {}}} {
+
+   upvar 1 $tap_dr_map dr_map
+   upvar 1 $tap_ir_map ir_map
+   upvar 1 $tap_parent_map parent_map
+
+   iNote "-INFO- Starting Read-Write test..."
+
+   # Pass 1: W01
+   foreach_in_collection reg $test_reg_collection {
+
+      set reg_name [get_single_name $reg]
+      iNote "-INFO- \[W$pattern\] Checking Read-Write access for register: $reg_name"
+      set reg_size [tap_utils::get_tap_reg_size $reg_name]
+      set all_01_value [tap_utils::get_expanded_pattern_bin $pattern $reg_size]
+   
+      if {([array exists dr_map]) &&([array exists parent_map])} {
+         tap_utils::iwrite_no_iapply_bypass_dr_all_parents $dr_map($reg_name) parent_map
+      }
+      iWrite $reg_name 0b$all_01_value
+      # Eliminate dependencies on initial conditions
+      iRead $reg_name 0bx
+      iApply -end_in_pause
+   
+      # No extra cycles in Pause_DR
+   
+      if {([array exists dr_map]) &&([array exists parent_map])} {
+         tap_utils::iwrite_no_iapply_bypass_dr_all_parents $dr_map($reg_name) parent_map
+      }
+      iWrite $reg_name 0b$all_01_value
+      iRead  $reg_name 0b$all_01_value
+      iApply
+
+      if {([array exists dr_map]) &&([array exists ir_map])} {
+         tap_utils::iwrite_tap_bypass_dr $reg_name dr_map ir_map
+      }
+   }
+
+   # Pass 2: RW10 - use inverted pattern
+   set pattern_inv [tap_utils::get_inverted_sting_value_bin $pattern]
+
+   foreach_in_collection reg $test_reg_collection {
+
+      set reg_name [get_single_name $reg]
+      iNote "-INFO- \[RW$pattern_inv\] Checking Read-Write access for register: $reg_name"
+      set reg_size [tap_utils::get_tap_reg_size $reg_name]
+      set all_10_value [tap_utils::get_expanded_pattern_bin $pattern_inv $reg_size]
+   
+      # Reading/checking previously wirtten 01 patterns
+      # Writing 10 pattern
+      if {([array exists dr_map]) &&([array exists parent_map])} {
+         tap_utils::iwrite_no_iapply_bypass_dr_all_parents $dr_map($reg_name) parent_map
+      }
+      iWrite $reg_name 0b$all_10_value
+      iApply -end_in_pause
+   
+      iRunLoop 10; # some delay in Pause DR
+   
+      if {([array exists dr_map]) &&([array exists parent_map])} {
+         tap_utils::iwrite_no_iapply_bypass_dr_all_parents $dr_map($reg_name) parent_map
+      }
+      iWrite $reg_name 0b$all_10_value
+      iRead  $reg_name 0b$all_10_value
+      iApply
+
+      if {([array exists dr_map]) &&([array exists ir_map])} {
+         tap_utils::iwrite_tap_bypass_dr $reg_name dr_map ir_map
+      }
+   }
+   
+   # Pass 3: RW reset value
+   foreach_in_collection reg $test_reg_collection {
+      set reg_name [get_single_name $reg]
+      iNote "-INFO- \[RW reset value\] Checking Read-Write access (R10) for register: $reg_name"
+      set reset_value     [tap_utils::get_reg_reset_value_bin $reg_name]
+   
+      # Reading/checking wirtten 10 patterns
+      # Writing reset value
+      if {([array exists dr_map]) &&([array exists parent_map])} {
+         tap_utils::iwrite_no_iapply_bypass_dr_all_parents $dr_map($reg_name) parent_map
+      }
+      iWrite $reg_name 0b$reset_value
+      iApply
+
+      if {([array exists dr_map]) &&([array exists ir_map])} {
+         tap_utils::iwrite_tap_bypass_dr $reg_name dr_map ir_map
+      }
+   }
+}
+
+# ----------------------
+# TDR Read-Write access test with randomization
+# ----------------------
+# simplified version of tap_dr_rw_test (no pause_dr) but with randomization and configurable number of read-write cycles
+iTopProc tap_dr_rw_random_test {test_reg_collection {num_test_cycles 1}} {
+
+   iNote "-INFO- Starting Read-Write Random DR test..."
+
+   # Pass 1-N: Read-Write random values
+   for {set i 0} {$i < $num_test_cycles} {incr i} {
+      foreach_in_collection reg $test_reg_collection {
+   
+         set reg_name [get_single_name $reg]
+         iNote "-INFO- \[RW RND $i\] Checking Read-Write access for register: $reg_name"
+         set reg_size [tap_utils::get_tap_reg_size $reg_name]
+         set random_value [tap_utils::get_random_value_bin $reg_size]
+      
+         iWrite $reg_name 0b$random_value
+         if {$i == 0} {
+            # Eliminate dependencies on initial conditions
+            iRead $reg_name 0bx
+         }
+         iApply
+      }
+   }
+
+   # Pass N+1: RW reset value
+   foreach_in_collection reg $test_reg_collection {
+      set reg_name [get_single_name $reg]
+      iNote "-INFO- \[RW reset value\] Checking Read-Write access for register: $reg_name"
+      set reset_value [tap_utils::get_reg_reset_value_bin $reg_name]
+   
+      # Reading/checking wirtten last patterns
+      # Writing reset value
+      iWrite $reg_name 0b$reset_value
+      iApply
+   }
+}
+
+# ----------------------
+# TDR Field/Alias mapping: Read-Write access test with randomization
+# ----------------------
+# Read-Write random values into each register field (Alias)
+# No Pause_DR. Configurable number of read-write cycles
+# If no fields defined, access full DR instead
+iTopProc tap_dr_field_rw_random_test {test_reg_collection {num_test_cycles 1}} {
+
+   iNote "-INFO- Starting Read-Write Random DR Field test..."
+
+   # Pass 1-N: Read-Write random values
+   for {set i 0} {$i < $num_test_cycles} {incr i} {
+      foreach_in_collection reg $test_reg_collection {
+   
+         set reg_name [get_single_name $reg]
+         iNote "-INFO- \[RW FIELD RND $i\] Checking Read-Write access for register: $reg_name"
+         set reg_size [tap_utils::get_tap_reg_size $reg_name]
+         set random_value [tap_utils::get_random_value_bin $reg_size]
+         set reg_field_list [tap_utils::get_reg_alias_list $reg_name]
+
+         iWrite $reg_name 0b$random_value
+         foreach f $reg_field_list {
+            iWrite $f 0b[tap_utils::get_random_value_bin [tap_utils::get_tap_dr_field_size $f]]
+         }
+         if {$i == 0} {
+            # Eliminate dependencies on initial conditions
+            iRead $reg_name 0bx
+         }
+         iApply
+      }
+   }
+
+   # Pass N+1: RW reset value
+   foreach_in_collection reg $test_reg_collection {
+      set reg_name [get_single_name $reg]
+      iNote "-INFO- \[RW reset value\] Checking Read-Write access for register: $reg_name"
+      set reset_value [tap_utils::get_reg_reset_value_bin $reg_name]
+   
+      # Reading/checking wirtten last patterns
+      # Writing reset value
+      iWrite $reg_name 0b$reset_value
+      iApply
+   }
+}
+
+# ----------------------
+# TDR Write/Initialization using provided pattern
+# ----------------------
+iTopProc tap_dr_write {test_reg_collection {pattern ""} {tap_dr_map {}} {tap_ir_map {}} {tap_parent_map {}}} {
+
+   upvar 1 $tap_dr_map dr_map
+   upvar 1 $tap_ir_map ir_map
+   upvar 1 $tap_parent_map parent_map
+
+   iNote "-INFO- Starting Read-Write 1 test..."
+
+   foreach_in_collection reg $test_reg_collection {
+
+      set reg_name [get_single_name $reg]
+      iNote "-INFO- \[W$pattern\] Writing to the register: $reg_name"
+      set reg_size [tap_utils::get_tap_reg_size $reg_name]
+      set dr_value {}
+      if {$pattern eq ""} {
+         # use reset value
+         set dr_value [tap_utils::get_reg_reset_value_bin $reg_name]
+      } else {
+         # use specified pattern
+         set dr_value [tap_utils::get_expanded_pattern_bin $pattern $reg_size]
+      }
+   
+      if {([array exists dr_map]) &&([array exists parent_map])} {
+         tap_utils::iwrite_no_iapply_bypass_dr_all_parents $dr_map($reg_name) parent_map
+      }
+      iWrite $reg_name 0b$dr_value
+      # Eliminate dependencies on initial conditions
+      iRead $reg_name 0bx
+      iApply
+   
+      if {([array exists dr_map]) &&([array exists ir_map])} {
+         tap_utils::iwrite_tap_bypass_dr $reg_name dr_map ir_map
+      }
+   }
+}
+
+# ----------------------
+# TDR Read-Write Secure access test 
+# ----------------------
+# Argument: alternative security level
+# Test algorithm: 
+#    - Write all 1s to the target register @ RED level
+#    - Change secure level to the specified level
+#    - Try writing all 0s to the target register 
+#    - Change secure level to RED
+#    - Check register value
+# FIXME review/add other validation flows
+iTopProc tap_dr_rw_secure_test {test_reg_collection security_level {tap_dr_map {}} {tap_ir_map {}} {tap_parent_map {}}} {
+
+   upvar 1 $tap_dr_map dr_map
+   upvar 1 $tap_ir_map ir_map
+   upvar 1 $tap_parent_map parent_map
+
+   iNote "-INFO- Starting Read-Write Secure test..."
+
+   # Pass 1: W01
+   foreach_in_collection reg $test_reg_collection {
+
+      set reg_name [get_single_name $reg]
+      set reset_value     [tap_utils::get_reg_reset_value_bin $reg_name]
+      set reset_value_inv [tap_utils::get_inverted_sting_value_bin $reset_value]
+      set tap $dr_map($reg_name)
+
+      iCall tap_set_secure_policy RED
+      iRunLoop 10
+
+      # initialize 
+      # FIXME can use POWERGOOD reset instead
+      #iTake $tap.IR.IR -persistent
+
+      iNote "-INFO- \[W RED\] Initializing: $reg_name"
+
+      iWrite $reg_name 0b$reset_value_inv
+      iApply
+
+      iCall tap_set_secure_policy $security_level
+      iRunLoop 10
+   
+      iNote "-INFO- \[W $security_level\] Trying to overwrite register: $reg_name"
+      # FIXME iwrite_iapply_secure requires fix
+      tap_utils::iwrite_iapply_secure $reg_name 0b0 $security_level dr_map
+
+      #iRelease $tap.IR.IR
+
+      iCall tap_set_secure_policy RED
+      iRunLoop 10
+   
+      # FIXME use explicit previous value modeling in PDL?
+      iNote "-INFO- \[RW RED\] Checking: $reg_name"
+      iWrite $reg_name 0b$reset_value
+      iApply
+   }
+}
+
+# ----------------------
+# Tap Reserved opcode test  
+# ----------------------
+# Argument: list of TAPs
+# Test algorithm: 
+#    - Access all IR opcodes
+#    - Do Pause-DR overshift
+#    - Check returned TDO value
+# FIXME review/add other validation flows
+# FIXME improve management of excluded opcodes
+iTopProc tap_reserved_opcodes_test {tap_instances {exluded_opcodes {}} {tap_dr_map {}} {tap_ir_map {}} {tap_parent_map {}}} {
+
+   upvar 1 $exluded_opcodes excluded_op
+   upvar 1 $tap_dr_map dr_map
+   upvar 1 $tap_ir_map ir_map
+   upvar 1 $tap_parent_map parent_map
+
+   set all_taps {}
+   set tap_list {}
+   if {[array exists ir_map]} {
+      set all_taps [array names ir_map]
+   } else {
+      iNote "-WARN- Reserved Opcodes test aborted - no ir_map data"
+      return
+   }
+   if {($tap_instances eq "*")} {
+      set tap_list $all_taps
+   } elseif {($tap_instances ne {})} {
+      foreach tap_pattern $tap_instances {
+         foreach tap $all_taps {
+            if {[lsearch $tap $tap_pattern] >= 0} {
+               lappend tap_list $tap
+            }
+         }
+      }
+   } else {
+      iNote "-WARN- Reserved Opcodes test aborted - no TAPs to test"
+      return
+   }
+
+
+   if {[llength $tap_list] == 0} {
+      iNote "-WARN- Reserved Opcodes test aborted - no TAPs to test"
+      return
+   }
+   iNote "-INFO- Starting Reserved Opcodes test for TAPs $tap_list"
+
+   foreach tap_name $tap_list {
+   
+      set bypass_rsvd_name ""
+
+      if {$tap_name eq "."} {
+         set bypass_rsvd_list [get_icl_instances -of_modules *bypass_rsvd_reg -silent]
+      } else {
+         set bypass_rsvd_list [get_icl_instances -of_modules *bypass_rsvd_reg  -below_instances $tap_name -silent]
+      }
+
+      if {[sizeof_collection $bypass_rsvd_list] == 1} {
+         set bypass_rsvd_name [get_single_name $bypass_rsvd_list]
+      } elseif {[sizeof_collection $bypass_rsvd_list] == 0} {
+         iNote "-ERROR- \[RSVD\] Test aborted for TAP $tap_name - no bypass reserved register found in ICL"
+         continue
+      } else {
+         set bypass_rsvd_list [get_name_list $bypass_rsvd_list]
+         iNote "-ERROR- \[RSVD\] Test aborted for TAP $tap_name - multiple bypass reserved register found in ICL ($bypass_rsvd_list)"
+         continue
+      }
+
+      set ir_name $ir_map($tap_name)
+      set ir_size [tap_utils::get_tap_reg_size $ir_name]
+      set opcode_limit  [expr {int(pow(2, $ir_size))}]
+      set bypass_opcode [expr {$opcode_limit-1}]
+   
+      for {set opcode 0} {$opcode < $opcode_limit} {incr opcode} {
+         set opcode_hex [format "%x" $opcode]
+         set skip 0
+         if {[info exists excluded_op($tap_name:0x$opcode_hex)]} {
+            set skip 1
+            set opcode_name $excluded_op($tap_name:0x$opcode_hex)
+            iNote "-WARN- \[RSVD\] TAP $tap_name: skipping excluded opcode $ir_size'h$opcode_hex"
+         }
+         if ($skip) {continue}
+   
+         set sequence {1 0 1 1 0 0 1 1 1 0 0 0}; # 12 elements
+         set i 0
+   
+         iNote "-INFO- \[RSVD\] TAP $tap_name: exercising opcode $ir_size'h$opcode_hex"
+   
+         iWrite $ir_name $opcode
+         iApply
+   
+         foreach bit $sequence {
+            iWrite $bypass_rsvd_name.DR $bit
+            if {$i > 0} {
+               iRead $bypass_rsvd_name.DR $prev_bit
+            } else {
+               # Eliminate dependencies on initial conditions
+               iRead $bypass_rsvd_name.DR 0bx
+            }
+            iApply -end_in_pause
+            set prev_bit $bit
+            incr i
+         }
+   
+         iWrite $bypass_rsvd_name.DR 0b1
+         iApply
+      }
+   }
+}
+
+# ----------------------
+# Tap All opcode Security test 
+# ----------------------
+# Argument: list of TAPs
+# Test algorithm: 
+#    - Access all IR opcodes
+#    - Do Pause-DR overshift
+#    - Check returned TDO value
+# FIXME review/add other validation flows
+# FIXME improve management of excluded opcodes
+iTopProc tap_all_opcodes_security_test {tap_instances security_level {exluded_opcodes {}} {tap_dr_map {}} {tap_ir_map {}} {tap_parent_map {}}} {
+
+   upvar 1 $exluded_opcodes excluded_op
+   upvar 1 $tap_dr_map dr_map
+   upvar 1 $tap_ir_map ir_map
+   upvar 1 $tap_parent_map parent_map
+
+   set all_taps {}
+   set tap_list {}
+   if {[array exists ir_map]} {
+      set all_taps [array names ir_map]
+   } else {
+      iNote "-WARN- All Opcodes Security test aborted - no ir_map data"
+      return
+   }
+   if {($tap_instances eq "*")} {
+      set tap_list $all_taps
+   } elseif {($tap_instances ne {})} {
+      foreach tap_pattern $tap_instances {
+         foreach tap $all_taps {
+            if {[lsearch $tap $tap_pattern] >= 0} {
+               lappend tap_list $tap
+            }
+         }
+      }
+   } else {
+      iNote "-WARN- All Opcodes Security test aborted - no TAPs to test"
+      return
+   }
+   
+   if {[llength $tap_list] == 0} {
+      iNote "-WARN- All Opcodes Security test aborted - no TAPs to test"
+      return
+   }
+
+   iNote "-INFO- Starting All Opcodes Security test for TAPs $tap_list"
+
+   foreach tap_name $tap_list {
+   
+      set bypass_rsvd_name ""
+
+      if {$tap_name eq "."} {
+         set bypass_rsvd_list [get_icl_instances -of_modules *bypass_rsvd_reg -silent]
+      } else {
+         set bypass_rsvd_list [get_icl_instances -of_modules *bypass_rsvd_reg  -below_instances $tap_name -silent]
+      }
+
+      if {[sizeof_collection $bypass_rsvd_list] == 1} {
+         set bypass_rsvd_name [get_single_name $bypass_rsvd_list]
+      } elseif {[sizeof_collection $bypass_rsvd_list] == 0} {
+         iNote "-ERROR- \[OPC SEC\] Test aborted for TAP $tap_name - no bypass reserved register found in ICL"
+         continue
+      } else {
+         set bypass_rsvd_list [get_name_list $bypass_rsvd_list]
+         iNote "-ERROR- \[OPC SEC\] Test aborted for TAP $tap_name - multiple bypass reserved register found in ICL ($bypass_rsvd_list)"
+         continue
+      }
+
+      set ir_name $ir_map($tap_name)
+      set ir_size [tap_utils::get_tap_reg_size $ir_name]
+      set opcode_limit  [expr {int(pow(2, $ir_size))}]
+      set bypass_opcode [expr {$opcode_limit-1}]
+      set exluded_dr_list {}
+   
+      iCall tap_set_secure_policy RED
+      iRunLoop 10
+   
+      # initialize 
+      # FIXME can use POWERGOOD reset instead
+      #iTake $tap.IR.IR -persistent
+   
+      for {set opcode 0} {$opcode < $opcode_limit} {incr opcode} {
+         set opcode_hex [format "%x" $opcode]
+         set skip 0
+         if {[info exists excluded_op($tap_name:0x$opcode_hex)]} {
+            set skip 1
+            set opcode_name $excluded_op($tap_name:0x$opcode_hex)
+            iNote "-WARN- \[OPC SEC\] TAP $tap_name: skipping excluded opcode $ir_size'h$opcode_hex ($opcode_name)"
+            lappend exluded_dr_list $excluded_op($tap_name:0x$opcode_hex)
+         }
+         if ($skip) {continue}
+
+   
+         iNote "-INFO- \[OPC RED\] Initializing DR with opcode: $ir_size'h$opcode_hex"
+   
+         iWrite $ir_name $opcode
+         iApply
+   
+         iWrite $bypass_rsvd_name.DR 0b0
+         iApply
+      }
+   
+      set reg_collection [tap_utils::get_all_regs $tap_name]
+   
+      foreach_in_collection reg $reg_collection {
+   
+         set reg_name [get_single_name $reg]
+         if {$exluded_dr_list ne {}} {
+            set is_found 0
+            foreach reg $exluded_dr_list {
+               if {[lsearch $reg_name $reg] >= 0} {
+                  set is_found 1
+               }
+            }
+            if {$is_found} {
+               iNote "-WARN- \[OPC RED\] TAP $tap_name: skipping excluded DR: $reg_name"
+               continue
+            }
+         }
+         
+         iNote "-INFO- \[OPC RED\] TAP $tap_name: initializing DR: $reg_name"
+   
+         iWrite $reg_name 0b0
+         # Eliminate dependencies on initial conditions
+         iRead $reg_name 0bx
+         iApply
+      
+         iWrite $reg_name 0b0
+         iApply
+      }
+   
+      iCall tap_set_secure_policy $security_level
+      iRunLoop 10
+   
+      iNote "-INFO- \[OPC $security_level\] TAP $tap_name: trying to overwrite all registers/DRs"
+   
+      for {set opcode 0} {$opcode < $opcode_limit} {incr opcode} {
+         set opcode_hex [format "%x" $opcode]
+         set skip 0
+         if {[info exists excluded_op($tap_name:0x$opcode_hex)]} {
+            set skip 1
+            set opcode_name $excluded_op($tap_name:0x$opcode_hex)
+            iNote "-WARN- \[OPC SEC\] TAP $tap_name: skipping excluded opcode $ir_size'h$opcode_hex ($opcode_name)"
+         }
+         if ($skip) {continue}
+   
+         iNote "-INFO- \[OPC $security_level\] Overriding DR with opcode: $ir_size'h$opcode_hex"
+   
+         iWrite $ir_name $opcode
+         iApply
+   
+         # Writing 1
+         iWrite $bypass_rsvd_name.DR 0b1
+         iApply
+      }
+   
+      iCall tap_set_secure_policy RED
+      iRunLoop 10
+   
+      # Checking
+      foreach_in_collection reg $reg_collection {
+   
+         set reg_name [get_single_name $reg]
+         if {$exluded_dr_list ne {}} {
+            set is_found 0
+            foreach reg $exluded_dr_list {
+               if {[lsearch $reg_name $reg] >= 0} {
+                  set is_found 1
+               }
+            }
+            if {$is_found} {
+               iNote "-WARN- \[OPC RED\] TAP $tap_name: skipping excluded DR: $reg_name"
+               continue
+            }
+         }
+         iNote "-INFO- \[OPC RED\] TAP $tap_name: checking DR: $reg_name"
+   
+         iWrite $reg_name 0b0
+         iApply      
+      }
+   }
+}
+
+# ----------------------
+# Tap Hierarchical Fabric Access test 
+# ----------------------
+# All Parent TAPs in the hierarchical fabric should be GREEN
+# Argument: list of TAPs
+# Test algorithm: 
+#    - Set GREEN security level
+#    - Access SLVIDCODE/IDCODE DR of Parent TAPs (no end-point IP TAPs!)
+#    - Set RED security level back
+# FIXME: assuming that each fabric tap has IDCODE/SLVIDCODE (based on register name)
+#        Can use BYPASS if *IDCODE doesn't exist
+iTopProc tap_hier_fabric_access_test {tap_parent_map} {
+   upvar 1 $tap_parent_map parent_map
+
+   iNote "-INFO- Starting Tap Network Access test"
+
+   set all_parent_taps {}
+   set all_child_taps [array names parent_map]
+   set scan_reg_list {}
+   array set tap_added_hash {}
+   foreach child_tap $all_child_taps {
+     set parent_tap $parent_map($child_tap)
+     if {![info exists tap_added_hash($parent_tap)]} {
+	lappend all_parent_taps $parent_tap
+	set tap_scan_reg_list [get_icl_objects {*IDCODE*.* *IDCODE*} -object_type icl_scan_register -below_instances $parent_tap -nocase -silent]
+        if {[sizeof_collection $tap_scan_reg_list] > 0} {
+           append_to_collection scan_reg_list $tap_scan_reg_list  
+	} else {
+           iNote "-WARN- No IDCODE/SLVIDCODE instructions found for TAP $parent_tap"
+	}
+        set tap_added_hash($parent_tap) 0
+     }
+   }
+
+   if {[sizeof_collection $scan_reg_list] > 0} {
+   
+      iCall tap_reset POWERGOOD:DFX 10 reset_name_list 1
+
+      iCall tap_set_secure_policy GREEN
+      iRunLoop 10
+
+      foreach_in_collection reg $scan_reg_list {
+         set reg_name [get_single_name $reg]
+         set reg_size [tap_utils::get_tap_reg_size $reg_name]
+         iWrite $reg_name 0b[string repeat 1 $reg_size]
+	 iApply
+      }
+
+      iNote "-INFO- Tap Network Access test COMPLETED"
+
+   } else {
+      iNote "-WARN- Tap Network Access test abourted - no IDCODE/SLVIDCODE instructions found in Network TAPs"
+   }
+}
+
+# ----------------------
+# IP Tap Level Security test
+# ----------------------
+# Arguments: IP TAP, security level to validate, target IP TAP RW-able register (better GREEN, must be RW-able or readable like IDCODE/SLVIDCIDE)
+# Test algorithm: 
+#    - Set RED security level
+#    - Write to the target register
+#    - Set Required security level to validate
+#    - Write to/Read-Comapre target register
+# FIXME: assuming that each fabric tap has IDCODE/SLVIDCODE (based on register name)
+#        Can use BYPASS if *IDCODE doesn't exist
+# FIXME: optimize
+iTopProc ip_tap_access_security_test {tap_inst tap_reg security_level tap_parent_map} {
+   upvar 1 $tap_parent_map parent_map
+
+   iNote "-INFO- Starting IP Tap Access Security test"
+
+   set parent_taps [tap_utils::tap_get_parents_all $tap_inst parent_map]
+   set scan_reg_list {}
+   foreach parent_tap $parent_taps {
+     set tap_scan_reg_list [get_icl_objects {*IDCODE*.* *IDCODE*} -object_type icl_scan_register -below_instances $parent_tap -nocase -silent]
+     if {[sizeof_collection $tap_scan_reg_list] > 0} {
+     	append_to_collection scan_reg_list $tap_scan_reg_list  
+     } else {
+     	iNote "-WARN- No IDCODE/SLVIDCODE instructions found for TAP $parent_tap"
+     }
+   }
+
+   if {[sizeof_collection $scan_reg_list] > 0} {
+   
+      iCall tap_reset POWERGOOD:DFX 10 reset_name_list 1
+
+      iCall tap_set_secure_policy RED
+      iRunLoop 10
+
+      foreach_in_collection reg $scan_reg_list {
+         set reg_name [get_single_name $reg]
+         set reg_size [tap_utils::get_tap_reg_size $reg_name]
+         iWrite $reg_name 0b[string repeat 1 $reg_size]
+      }
+      set reset_value [tap_utils::get_reg_reset_value_bin $tap_reg]
+      iWrite $tap_reg $reset_value
+      iApply
+
+      foreach_in_collection reg $scan_reg_list {
+         set reg_name [get_single_name $reg]
+         set reg_size [tap_utils::get_tap_reg_size $reg_name]
+         iWrite $reg_name 0b[string repeat 1 $reg_size]
+      }
+      set reset_value [tap_utils::get_reg_reset_value_bin $tap_reg]
+      iWrite $tap_reg $reset_value
+      iApply
+
+      iCall tap_set_secure_policy $security_level
+      iRunLoop 10
+
+      foreach_in_collection reg $scan_reg_list {
+         set reg_name [get_single_name $reg]
+         set reg_size [tap_utils::get_tap_reg_size $reg_name]
+         iWrite $reg_name 0b[tap_utils::get_expanded_pattern_bin 0000111000110010 $reg_size]
+      }
+      iApply -end_in_pause
+
+      foreach_in_collection reg $scan_reg_list {
+         set reg_name [get_single_name $reg]
+         set reg_size [tap_utils::get_tap_reg_size $reg_name]
+         iWrite $reg_name 0b[string repeat 1 $reg_size]
+      }
+      iApply
+
+      iCall tap_set_secure_policy RED
+      iRunLoop 10
+
+      set reset_value [tap_utils::get_reg_reset_value_bin $tap_reg]
+      iWrite $tap_reg $reset_value
+      iApply
+
+      iNote "-INFO- IP Tap Access Security test COMPLETED"
+
+   } else {
+      iNote "-WARN- IP Tap Access Security test abourted - no IDCODE/SLVIDCODE instructions found in Network TAPs"
+   }
+}

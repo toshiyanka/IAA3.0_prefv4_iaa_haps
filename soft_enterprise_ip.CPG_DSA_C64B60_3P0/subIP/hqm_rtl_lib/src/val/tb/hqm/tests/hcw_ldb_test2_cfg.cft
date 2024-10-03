@@ -1,0 +1,105 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+
+###################################
+# Wait for reset to be done (including hardware memory init)
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+
+###################################
+# Setup LUTs used by HCWs
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+  ldb qid 0 qid_ldb_inflight_limit=16
+  ldb qid 1 qid_ldb_inflight_limit=16
+  dir qid 64 dvas=0
+  dir qid 65 dvas=1
+  dir pool 0 credit_cnt=0xffc credit_limit=0x1000 freelist_base=0 freelist_limit=0xfff
+  ldb pool 0 credit_cnt=0x3ff0 credit_limit=0x4000 freelist_base=0 freelist_limit=0x3fff
+  vas 0 ldb_qidv0=1 dir_qidv64=1 is_pa=1 r0_pa=0 r0_va=0 r0_len=VPA_16MB hbm_256_hptr=0 hbm_2k_hptr=0 hbm_256_base=0xa0000000 hbm_2k_base=0xb0000000 hbm_256_len=RING_16K hbm_2k_len=RING_16K hbm_256_init=1024 hbm_2k_init=1024
+  vas 1 ldb_qidv1=1 dir_qidv65=1 is_pa=1 r0_pa=0 r0_va=0 r0_len=VPA_16MB
+  ldb pp 0  gpa=sm vas=0 dir_pool=0 ldb_pool=0 dir_credit_count=0x2 ldb_credit_count=4 dir_min_credit_quanta=0x4 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x8 dir_credit_lwm=0x4 nq_pa=sm nq_sz=NQ_8K
+  ldb cq 0  gpa=sm qidv0=1 qidix0=0
+  ldb pp 1  gpa=sm vas=1 dir_pool=0 ldb_pool=0 dir_credit_count=0x2 ldb_credit_count=4 dir_min_credit_quanta=0x4 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x8 dir_credit_lwm=0x4 nq_pa=sm nq_sz=NQ_8K
+  ldb cq 1  gpa=sm qidv0=1 qidix0=1
+
+  dir pp 64 gpa=0x02000f00 vas=0 dir_pool=0 ldb_pool=0 ldb_credit_count=0x4 dir_min_credit_quanta=0x100 ldb_min_credit_quanta=0x4 ldb_credit_hwm=0x8 ldb_credit_lwm=0x4 mb_dm=1
+  dir cq 64 gpa=sm is_keep_pf_ppid=1 cq_depth=16
+
+  dir pp 65 gpa=0x02001f00 vas=1 dir_pool=0 ldb_pool=0 ldb_credit_count=0x4 dir_min_credit_quanta=0x100 ldb_min_credit_quanta=0x4 ldb_credit_hwm=0x8 ldb_credit_lwm=0x4 mb_dm=1
+  dir cq 65 gpa=sm is_keep_pf_ppid=1 cq_depth=16
+
+cfg_end
+
+cfg_begin
+
+#wr hqm_system_csr.dir_pp2vf_pf[64].is_hw_dsi 1
+#wr hqm_system_csr.dir_pp_addr_u[64].addr_u 0x00000000
+#wr hqm_system_csr.dir_pp_addr_l[64].addr_l 0x000f00
+
+#wr hqm_system_csr.dir_pp2vf_pf[65].is_hw_dsi 1
+#wr hqm_system_csr.dir_pp_addr_u[65].addr_u 0x00000000
+#wr hqm_system_csr.dir_pp_addr_l[65].addr_l 0x001f00
+
+#wr dm_ing_unit.cfg_ing_cq_cq2dvas[0].dvas 0
+#wr dm_ing_unit.cfg_ing_pp_pp2svas[0].svas 0
+#wr dm_ing_unit.cfg_ing_cq_enable[0].cq_enable 1
+
+#wr dm_ing_unit.cfg_ing_cq_cq2dvas[1].dvas 1
+#wr dm_ing_unit.cfg_ing_pp_pp2svas[1].svas 1
+#wr dm_ing_unit.cfg_ing_cq_enable[1].cq_enable 1
+
+#wr dm_vpa_unit.cfg_vpa_vas_is_pa[0].vas_is_pa 1
+#wr dm_vpa_unit.cfg_vpa_region0_vt_l[0].va51_20 0x00000000
+#wr dm_vpa_unit.cfg_vpa_region0_vt_h[0].va55_52 0x0
+#wr dm_vpa_unit.cfg_vpa_region0_vt_h[0].lenc 1
+#wr dm_vpa_unit.cfg_vpa_region0_pt_l[0].pa51_20 0x00000000
+#wr dm_vpa_unit.cfg_vpa_region0_pt_h[0].pa63_52 0x000
+
+#wr dm_vpa_unit.cfg_vpa_vas_is_pa[1].vas_is_pa 1
+#wr dm_vpa_unit.cfg_vpa_region0_vt_l[1].va51_20 0x00000000
+#wr dm_vpa_unit.cfg_vpa_region0_vt_h[1].va55_52 0x0
+#wr dm_vpa_unit.cfg_vpa_region0_vt_h[1].lenc 1
+#wr dm_vpa_unit.cfg_vpa_region0_pt_l[1].pa51_20 0x00000000
+#wr dm_vpa_unit.cfg_vpa_region0_pt_h[1].pa63_52 0x000
+
+#wr dm_cmp_unit.cfg_cmp_pp_nq_pa_l[0].pp_nq_pa_l 0x00000000
+#wr dm_cmp_unit.cfg_cmp_pp_nq_pa_h[0].pp_nq_pa_h 0x0000
+#wr dm_cmp_unit.cfg_cmp_pp_nq_sz[0] 0x1
+
+#wr dm_cmp_unit.cfg_cmp_pp_nq_pa_l[1].pp_nq_pa_l 0x00000000
+#wr dm_cmp_unit.cfg_cmp_pp_nq_pa_h[1].pp_nq_pa_h 0x1000
+#wr dm_cmp_unit.cfg_cmp_pp_nq_sz[1] 0x1
+
+# Set head pointer to 2's complement of initial credit count for PP 64 (DM PP/CQ 0)
+#wr dm_cmp_unit.cfg_cmp_cq_hptr_credits[0] 0x7ffc
+# Write tail pointer to trigger DM credit logic update
+#wr dm_cmp_unit.cfg_cmp_cq_tptr_credits[0] 0
+
+# Set head pointer to 2's complement of initial credit count for PP 65 (DM PP/CQ 1)
+#wr dm_cmp_unit.cfg_cmp_cq_hptr_credits[1] 0x7ffc
+# Write tail pointer to trigger DM credit logic update
+#wr dm_cmp_unit.cfg_cmp_cq_tptr_credits[1] 0
+
+cfg_end
+
+rd hqm_pf_cfg_i.vendor_id

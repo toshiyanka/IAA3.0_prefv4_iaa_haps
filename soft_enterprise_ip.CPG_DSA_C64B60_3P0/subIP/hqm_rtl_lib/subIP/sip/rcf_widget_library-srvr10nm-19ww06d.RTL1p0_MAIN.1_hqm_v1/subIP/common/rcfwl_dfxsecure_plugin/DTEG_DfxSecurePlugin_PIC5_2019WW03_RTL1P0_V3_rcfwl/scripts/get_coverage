@@ -1,0 +1,41 @@
+#!/bin/csh -f
+
+#rm -rf pwa
+
+\cp verif/tb/include/configs/use0/DfxSecurePlugin_TbDefines.svh              verif/tb/DfxSecurePlugin_TbDefines.svh
+\cp verif/tb/include/configs/use0/DFXSECURE_dfxsecureplugin_param_overide.vh verif/tb/include/DFXSECURE_dfxsecureplugin_param_overide.vh
+\cp verif/tb/include/configs/use0/DFXSECURE_dfxsecureplugin_param_values.vh  verif/tb/include/DFXSECURE_dfxsecureplugin_param_values.vh
+
+ace -cc -cc_on -ccm branch+line+tgl+cond+fsm+assert -results pwa
+ace -x       DfxSecurePlugin_DefaultTest:20:seed                    \
+             DfxSecurePlugin_DriveUserPolicySeqTest:20:seed         \
+             DfxSecurePlugin_PolicySweepSeqTest:20:seed             \
+             DfxSecurePlugin_DriveUserPolicyViaSBOVRSeqTest:20:seed \
+             \
+                       -cleanup_pattern_file ace/clean_up.cfg -nb -nbmon \
+                       -simv_args "+vcs+lic+wait"                        \
+                       -simv_args "-cm_noconst"                          \
+                       -cc_on -ccm branch+line+tgl+cond+fsm+assert       \
+                       -test_elab_opts "-lca"                            \
+                       -rtt -results pwa
+
+cd $REPO_ROOT/pwa/tests/
+
+$REPO_ROOT/scripts/scr_genlist $REPO_ROOT pwa
+
+cd $REPO_ROOT
+
+urg -f $REPO_ROOT/pwa/tests/vdblist.txt \
+    -hier $REPO_ROOT/scripts/coverage_inclusion.txt \
+    -elfile $REPO_ROOT/verif/tb/include/dsp_cov_exclusions.el \
+    -excl_bypass_checks \
+    -dbname Merge \
+    -report AllCov \
+    -format both
+
+firefox $REPO_ROOT/AllCov/dashboard.html &
+
+cd $REPO_ROOT
+\cp $REPO_ROOT/verif/tb/include/configs/default/DfxSecurePlugin_TbDefines.svh              $REPO_ROOT/verif/tb/DfxSecurePlugin_TbDefines.svh
+\cp $REPO_ROOT/verif/tb/include/configs/default/DFXSECURE_dfxsecureplugin_param_overide.vh $REPO_ROOT/verif/tb/include/DFXSECURE_dfxsecureplugin_param_overide.vh
+\cp $REPO_ROOT/verif/tb/include/configs/default/DFXSECURE_dfxsecureplugin_param_values.vh  $REPO_ROOT/verif/tb/include/DFXSECURE_dfxsecureplugin_param_values.vh

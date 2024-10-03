@@ -1,0 +1,35 @@
+{
+    %opts         = (
+	                -model 		                    => "cdc_stap_model",     #Refer to the cdc model defined in cdc.udf file 
+	                -zin_top 	    	        	=> "stap_cdc_lib.stap", #Refer to the top level module in the unit
+	                -cdc_post_process_modes         => "AceCDC_default",
+	                -enable_runsim_postsim_checks   => 0,
+	                -create_postmortem_file 	    => 0,
+	                -postsim_log_max_num_warn 	    => 10,
+	                -post_process_parser           	=> "$ENV{ACE_HOME}/bin/ace_postsim.pl",
+	                -post_process_pattern_file     	=> "$ENV{ACE_HOME}/udf/ace_base_postsim.pp",
+	                -zin_ctrl_files                 => [
+					                                     "/p/hdk/rtl/proj_tools/cdc/master/v20160303/prototype/cdc_global.tcl"  
+					                                     //"/p/hdk/rtl/proj_tools/cdc/master/$ENV{CDC_FLOW_RELEASE}/prototype/cdc_global.tcl",
+                                                         "/p/hdk/rtl/proj_tools/cdc/master/$ENV{CDC_FLOW_RELEASE}/prototype/$ENV{CDC_PROCESS}/cdc_global_waivers.tcl",
+                                                         "tools/cdc/constraints/stap_ctrl.tcl", ###Please give absolute path
+	  			                                         "tools/cdc/constraints/stap_waiver_ctrl.tcl"]				             
+                  );
+
+    %runModes = (
+    
+	        RptCLK => {
+	               -zin_run_type                   => '-report_clock', 
+	               -cdc_post_process_modes         => "AceCDC_default",
+	                },
+            hdmRUN => {
+                   -zin_run_type               =>  '-hcdc', 
+	                 },
+            cfmRUN => {
+                   -zin_run_type               =>  '-hier', 
+	},
+
+
+                );
+
+}

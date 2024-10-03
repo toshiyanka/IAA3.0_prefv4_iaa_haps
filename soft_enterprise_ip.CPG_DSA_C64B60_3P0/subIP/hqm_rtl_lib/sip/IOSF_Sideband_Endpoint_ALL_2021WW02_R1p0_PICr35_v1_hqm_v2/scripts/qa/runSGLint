@@ -1,0 +1,139 @@
+#!/bin/tcsh -f
+
+################################################################################
+# Source a script that is called at the start of each back-end 
+# scripts/qa/run* script
+################################################################################
+
+
+if ( $SB_ACE_FLOW ) then
+   source ./runPre -tool_name $0 $argv
+else
+   source ${MODEL_ROOT}/scripts/qa/runPre -tool_name $0 $argv
+endif
+
+if ( ${status} != 0 ) exit ${status}
+
+if ( "${config}" =~ "IOSF_Sideband_Endpoint" ) then
+   set sbrdir=${MODEL_ROOT}
+   source ${sbrdir}/scripts/qa/ephelper.csh -rtlcfg ${component} -topdir ${sbrdir} -gentool ${thisToolName} -tooldir spyglasslint
+    set sglintdir=${dsttooldir}
+    #sglintdir is "<IP_ROOT>/tools/spyglasslint/<component>"
+    set resdir="$REPO_ROOT/results/lint/"
+    if ( -d $resdir) then
+        rm -rf $resdir
+    endif
+    if (((${component} != sbendpoint) && (${component} =~ "sbendpoint*"))||((${component} != sbebase) && (${component} =~ "sbebase*"))) then
+        if ( -d "$sglintdir" ) then
+            rm -rf "$sglintdir"
+        endif
+        mkdir $sglintdir
+        cp ${sbrdir}/tools/spyglasslint/$rtltop/$rtltop.opt ${sglintdir}/${component}.opt
+    endif
+   # Override the config parameters in the CDC control and waiver files, and in ${rtltop}.sv
+   # The original ${rtltop}.sv file is saved as ${rtltop}.sv.tmp, and restored at the end of the ACECDC run
+   set rtltopsv = ${sbrdir}/source/rtl/iosfsbc/endpoint/${rtltop}.sv
+   cp ${rtltopsv} "${rtltopsv}_orig"
+#cp ${rtltopsv} ${rtltopsv}.tmp
+   set parameters=""
+   if ( ${rtlparameterstring} != "" ) then
+       foreach param (${rtlparameterlist})
+          # Parameter override when calling vlog to compile the design
+          set parameters = "${parameters}-G ${param} "
+ 
+          # Override the tcl control files in the current version of the sbebase
+          # or sbendpoint folders to help direct the cdc runs for that particular
+          # configuration. By using these tcl files instead we can accomplish
+          # in our nightly runs what ACECDC cannot.
+          set catch      = `echo ${param} | sed "s/=/ /g"`
+          set kvp        = ($catch)
+          set key        = $kvp[1]
+          set lkey       = `echo $key | tr '[A-Z]' '[a-z]'`
+          set value      = $kvp[2]
+ 
+          perl -pi -e "s/parameter\s+${key}\s+=\s+(\d+)/parameter ${key} = ${value}/" ${rtltopsv}
+       end
+   endif
+    set dut=sbe
+else
+   if (${dynopt} =~ "nonDyn") then
+      set rtltop="${component}"
+   else
+      set rtltop="${component}_sbr_generic"
+   endif
+    set dut=sbr
+endif
+
+# Keep a copy of the modified rtltop file for SBE
+if ( "${config}" =~ "IOSF_Sideband_Endpoint" ) then
+   set sglinttop="$MODEL_ROOT/tools/spyglasslint/$component/$component"".sv"
+   cp ${rtltopsv} $sglinttop
+endif
+
+
+set toolset=$ONECFG_toolset
+
+echo "Executing..."
+
+echo "simbuild -dut $dut -1c -CUST $CUST -toolset  $toolset -1c- -s all +s sglint_build -sglint_build "-ASSIGN -mc=sglint_${rtltop}" -target ${sglintdir} -logdir ${sglintdir} -logprefix ${sglintdir}"
+
+simbuild -dut $dut -1c -CUST $CUST -toolset  $toolset -1c- -s all +s sglint_build -sglint_build "-ASSIGN -mc=sglint_${rtltop}" -target ${sglintdir} -logdir ${sglintdir} -logprefix ${sglintdir}
+
+
+set exitstatus=$status
+if ( ${exitstatus} ) then
+   echo "${thisToolName} -E- SGLint Build Failed for $rtltop"
+   exit ${exitstatus}
+   goto DONE
+endif
+
+echo "Executing..."
+if ( ${guimode} ) then
+    echo "${thisToolName} -I- Opening GUI on SG Lint"
+    echo "Need to run both build and gui simbuild commands"
+    echo "simbuild -dut $dut -1c -CUST $CUST -toolset  $toolset -1c- -s all +s sglint_gui -sglint_gui '-t spyglasslint/${rtltop}' -target ${sglintdir} -logdir ${sglintdir} -logprefix ${sglintdir}"
+
+    simbuild -dut $dut -1c -CUST $CUST -toolset  $toolset -1c- -s all +s sglint_gui -sglint_gui "-t spyglasslint/${rtltop}" -target ${sglintdir} -logdir ${sglintdir} -logprefix ${sglintdir}
+
+    set exitstatus=$status
+    if ( ${exitstatus} ) then
+        echo "${thisToolName} -E- SG Lint Gui Failed"
+        goto DONE
+    endif
+else
+    echo "simbuild -dut $dut -1c -CUST $CUST -toolset  $toolset -1c- -s all +s sglint_test -sglint_test '-t spyglasslint/${rtltop}' -target ${sglintdir} -logdir ${sglintdir} -logprefix ${sglintdir}"
+
+    simbuild -dut $dut -1c -CUST $CUST -toolset  $toolset -1c- -s all +s sglint_test -sglint_test "-t spyglasslint/${rtltop}" -target ${sglintdir} -logdir ${sglintdir} -logprefix ${sglintdir}
+
+    set exitstatus=$status
+    if ( ${status} ) then
+        echo "${thisToolName} -E- SG Lint Test Failed"
+        goto DONE
+    endif
+
+endif
+
+goto DONE
+
+#####################
+# GUI mode #
+#####################
+#if ( ${guimode} ) then
+#    echo "${thisToolName} -I- Opening GUI on SG Lint"
+#    echo "Need to run both build and gui simbuild commands"
+#    simbuild -dut $dut -1c -CUST $CUST -toolset  $toolset -1c- -s all +s sglint_build -sglint_build "-ASSIGN -mc=sglint_${rtltop}" -target ${sglintdir} -logdir ${component} -logprefix ${component}
+#
+#    simbuild -dut $dut -1c -CUST $CUST -toolset  $toolset -1c- -s all +s sglint_gui -sglint_gui "-t spyglasslint/${rtltop}" -target ${sglintdir} -logdir ${component} -logprefix ${component}
+#    
+#endif
+
+## copy the results into folders specific for the config
+
+DONE:
+    # Restore the rtltop file for SBE
+    if ( "${config}" =~ "IOSF_Sideband_Endpoint" ) then
+        mv "${rtltopsv}_orig" ${rtltopsv}
+    # move the output result directory into component wise results directory
+        mv "$REPO_ROOT/results/lint/" $sglintdir
+    endif
+    exit ${exitstatus}

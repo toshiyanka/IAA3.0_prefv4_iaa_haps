@@ -1,0 +1,76 @@
+# NOTE: refer to the following references for details on how to configure Ace to detect source file-changes and recompile partially (with '-c') without requiring '-cc'.
+#   - https://intelpedia.intel.com/Ace:_FAQ#A_change_to_a_file_with_.svh_extension_included_by_.sv_file_does_not_get_recompiled_by_.27ace_-c.27,
+#   - https://vthsd.fm.intel.com/hsd/da_all/da_help/default.aspx?da_help_id=831316
+
+%audf = (
+    HDLSpec => {
+        # Suggested by Russ Jackson (Ace developer) in https://vthsd.fm.intel.com/hsd/da_all/da_help/default.aspx?da_help_id=577466, to support Ace detecting changes in source files, and recompiling as necessary.
+        -src_type => {
+            SystemVerilog => {
+                # Add .svh file suffix.  (Ace doesn't look at .svh files' timestamps by default, like it does for .v and .sv.)
+                -extension => '/\.(sv|svh|sva|vs)$/', # This to support both svh and sva changes detection for ACE
+            },
+        },
+        CPG_VIP_env_top => {
+            libs => {
+                # NOTE:  to facilitate updating library revisions, avoid specifying the library path (which would include the version string), 
+                # instead using the <ip>.acerc file to specify the search-paths for each library, and specify just the 'ace/<libname>.hdl' file.
+
+                ovm => {
+                    -hdl_spec => [ 'ace/ovm.hdl', ],   # Note that this file resides in $SAOLA_HOME.
+                },
+                sla_pkg => {
+                    -hdl_spec => [ 'sla.hdl', ],
+					-dependent_libs => [ 'ovm',],
+                },
+		ChassisPowerGatingVIP => {
+                    -hdl_spec => [ 'ace/ChassisPowerGatingVIP.hdl', ],   # Note that this file resides in $SAOLA_HOME.
+					-dependent_libs => [ 'ovm', 'sla_pkg', ],
+                },
+
+		PowerGatingSaolaPkg => {
+                    -hdl_spec => [ 'ace/PowerGatingSaolaPkg.hdl', ],   # Note that this file resides in $SAOLA_HOME.
+					-dependent_libs => [ 'ovm', 'sla_pkg', 'ChassisPowerGatingVIP', ],
+					-vlog_opts => ["-sverilog +define+PG_HIP_SUPPORT", ],
+                },
+
+				
+		CPG_VIP_env => {
+                    -hdl_spec => [ 'ace/CPG_VIP_env.hdl',],
+					-dependent_libs => [ 'ovm', 'sla_pkg', 'PowerGatingSaolaPkg', 'ChassisPowerGatingVIP', ],
+                },
+				
+            }, #libs
+
+            models => {
+                # This is the "test-in-model" Ace model declaration for this environment.  ("Traditional" is no longer supported, due to an accumulation of issues, and lack of use by other SIPs.)
+                # This model should be used as the "integration" model at Cluster or Customer FC environments (as this model exports RTL and verif. libraries.)
+                # As soon as there are different customers, we could incorporate the customer name in each per-customer model name.
+                CPG_VIP_tim => {
+                    top => "CPG_VIP_env.PowerGatingTestbenchTop",
+                    libs => [
+					   'CPG_VIP_env',						
+					   'ovm',
+					   'sla_pkg',
+					   'PowerGatingSaolaPkg',
+                                           'ChassisPowerGatingVIP',					
+                    ],
+		    
+                    # A note regarding Synopsys VCS "DVE/MX" or whatever they call themselves.  An error will result,
+                    # "undefined reference to `sla_vpi_update_ral'", if the Saola PLI is supplied without any actual RAL
+                    # collateral using it.  So, modulate the use of the PLI upon the use of RAL.
+                    pli_libs => ['-saola_pli'],
+
+                    # Two libraries are expected to be exported for use at cluster or higher:  a verification library, and an rtl library.
+                    # Refer to https://intelpedia.intel.com/Ace:_Efficient_IP_Reuse#Library_Definition_Rules_for_Specific_Library_Types
+                    # for further information.
+                    export => {
+                        libs => [
+                        ],
+                    },
+                },
+            }, #model
+        }, #chassis_env
+    }, #HDLspec
+); #audf
+

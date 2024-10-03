@@ -1,0 +1,430 @@
+#! /usr/intel/bin/perl
+use Getopt::Long qw(:config no_ignore_case);
+use Data::Dumper;
+use Cwd;
+use File::Basename;
+GetOptions(
+     'help' => sub { HelpMessage()},
+     'file_list=s' => \$file_list, 
+     'upf=s' => \$upf,
+     'top_module=s' => \$top_module,
+     'lib_list=s', => \$lib_list,
+     'waiver=s', => \$waiver_file,
+     'opts=s', => \$opts,
+     'gui'  => sub { $gui = 1}, 
+) or die "Wrong Dir...\n";
+
+unless (-e $file_list)	{
+	print "Error: rtllist $file_list not found.\n";
+	exit;
+}
+
+unless (-e $upf)	{
+	print "Error: upf $ipf not found.\n";
+	exit;
+}
+
+if(-d $top_module){
+	`rm -r $top_module`;
+}
+
+%addRuleHash;
+
+$test_name = join("",$top_module,"_test");
+$test_sgdc = join (".",$top_module,"sgdc");
+$test_prj = join (".",$top_module,"prj");
+$test_sglib = join (".",$top_module,"sglib");
+$pwd = cwd();
+
+$run_area = basename($pwd);
+gen_metho();
+gen_sgdc();
+if(defined $lib_list){
+	gen_sglib();
+}
+gen_prj();
+if( defined $gui){
+	system "spyglass -project $test_prj -goal lp_fe/power_verif_noninstr";
+}else{
+	system "spyglass -project $test_prj -goal lp_fe/power_verif_noninstr -batch ";
+}
+sim_rpt();
+
+############################################################################################
+
+sub gen_metho()	{
+mkdir methodology, 0755;
+$dft_path = join ("/",$pwd,"methodology/dft");
+$initial_rtl_path = join ("/",$pwd,"methodology/initial_rtl");
+$lp_fe_path = join ("/",$pwd,"methodology/lp_fe");
+print "generating methodology directory.....\n";
+symlink("/p/com/flows/spyglass_methodology/1.0.2/dft","$dft_path");
+symlink("/p/com/flows/spyglass_methodology/1.0.2/initial_rtl","$initial_rtl_path");
+symlink("/p/com/flows/spyglass_methodology/1.0.2/lp_fe","$lp_fe_path");
+}
+
+sub gen_sgdc()	{
+print "generating sgdc file.....\n";
+open sgdc, ">$test_sgdc" or die $!;
+print sgdc "
+current_design $top_module
+power_data -format UPF -file $upf
+";
+close sgdc;
+}
+
+sub gen_sglib () {
+print "generating sglib file......\n";
+open sglib, ">$test_sglib" or die $!;
+open liblist, "$lib_list" or die $!;
+foreach my $line (<liblist>) {
+	chomp($line);
+	if($line !~ /^\s*$/ && $line !~ /^\s*#/){
+		print sglib "-gateslib $line\n";
+	}
+}
+close sglib;
+close liblist;
+}
+
+sub gen_prj	()	{
+print "generating prj file.....\n";
+open prj, ">$test_prj" or die $!;
+print prj "
+read_file -type sourcelist  $file_list
+read_file -type sgdc $test_sgdc
+set_option top $top_module
+
+set_option allow_module_override yes
+
+set_option enableSV                             yes
+set_option language_mode                        mixed
+set_option relax_hdl_parsing                    yes
+set_option hdlin_translate_off_skip_text        yes
+set_option handlememory                         yes
+set_option mthresh                              16000
+set_option hdllibdu                             yes
+set_option sort                                 yes
+set_option nosavepolicy                         all
+set_option savepolicy                           lowpower
+# set_option upf_extension                      1
+set_option ignorerules LPCONN02
+# set_option vlog2005_lrm_naming yes
+set_option report { summary }
+set_option report { moresimple }
+
+
+set_option current_methodology $pwd/methodology
+
+set_parameter lp_skip_buf 1
+set_parameter lp_skip_pwr_gnd 0
+
+set_option enable_gateslib_autocompile yes
+";
+
+if(defined $lib_list){
+	print prj "read_file -type sourcelist $test_sglib\n";
+}
+
+if ($ENV{SPYGLASS_HOME} =~ /5\.0\./){
+	print prj "set_option vlog2005_lrm_naming yes\n";
+}
+
+if(defined $opts){
+	$opts =~ s/^\"//;
+	$opts =~ s/^\'//;
+	$opts =~ s/\"$//;
+	$opts =~ s/\'$//;
+	my @optsArray = split(/\s*\;\s*/, $opts);
+	foreach my $opt (@optsArray) {
+		if($opt !~ /addrules/){
+			print prj "$opt\n";
+		}else{
+			$addRuleHash{$opt} = 0;
+		}		
+	}
+}
+
+if(defined $waiver_file){
+	print prj "read_file -type waiver $waiver_file\n";
+}
+
+print prj "current_goal lp_fe/power_verif_noninstr\n";
+print prj "set_goal_option addrules LPISO01\n";
+
+foreach my $addRule (keys %addRuleHash){
+	print prj "$addRule\n";
+}
+
+close prj;
+}
+
+sub HelpMessage()	{
+print "\nSwitch required:
+-file_list/f <path to target RTLlist>
+-upf/u <path to target UPF>
+-top_module <name for top module>\n\n";
+exit;
+}
+
+sub sim_rpt()	{
+open spy_report, "$report_path";
+$spyglass_log = join ("/",$pwd,$top_module,$top_module,"lp_fe","power_verif_noninstr","spyglass.log");
+unless ( -e $spyglass_log )     {
+        $spyglass_log = join ("/",$pwd,$top_module,"lp_fe","power_verif_noninstr","spyglass.log");
+}
+open spyglass_log, "<$spyglass_log";
+        while (my $spyglass_log_line = <spyglass_log>)  {
+                if ($spyglass_log_line =~ m/Generating moresimple report/)      {
+                        $spyglass_log_line =~ s/^.*to\s+\'(.*)\'\W*/$1/;
+                        $report_path = $1;
+                }
+}
+$report_path = join("/",$pwd,$report_path );
+print "$report_path \n";
+$sum_rpt_path = join("/",$pwd,"spyglass_test_summary");
+$sum_rpt_name = join(".",$top_module,"rpt");
+$lp_report_path = join ("/",$sum_rpt_path,$sum_rpt_name);
+$overall_rpt = join ("/",$sum_rpt_path,"overall.rpt");
+
+open spy_report, "<$report_path";
+mkdir spyglass_test_summary, 0775;
+open overall, ">>$overall_rpt"; 
+open lp_report, ">$lp_report_path";
+$error_count_1 =  $error_count_2 = $error_count_3 = $warn_count_1 = $warn_count_2 = $warn_count_3 = 0;
+$test_status = "";
+	while (my $test_result = <spy_report>)	{
+        $test_result =~s/\s+/ /g ;
+        if ($test_result =~ m/(LP\w*)\sError\s(.*)\s(\d*)\s(\d*)\s(.*)/)	{
+			$error_count_1 ++;
+                        $error_count_t1 = "\nTypes\t\t:$1\nLocation\t:$2\nLine/Wt\t\t:$3/$4\nMsg\t\t:$5";
+			push (@lp_error,$error_count_t1);
+			$tmp_err1 = $1;
+		if ($cur_err1 eq "")	{
+		$cur_err1 = $tmp_err1;
+		$cur_err1_c ++;
+		}
+		elsif ($cur_err1 eq $tmp_err1)	{
+                $cur_err1_c ++;
+		}
+		elsif ($cur_err1 ne $tmp_err1)	{
+                $cur_err1_t = join (":",$cur_err1,$cur_err1_c);
+                push (@type_error1, $cur_err1_t);
+                $cur_err1 = $tmp_err1;
+                $cur_err1_c = 1;
+		}
+        }
+        elsif ($test_result =~ m/(\w*UPF\W*\w*)\sError\s(.*)\s(\d*)\s(\d*)\s(.*)/)	{
+                        $error_count_2 ++;
+                        $error_count_t2 = "\nTypes\t\t:$1\nLocation\t:$2\nLine/Wt\t\t:$3/$4\nMsg\t\t:$5";
+			push (@upf_error,$error_count_t2);
+                        $tmp_err2 = $1;
+                if ($cur_err2 eq "")     {
+                	$cur_err2 = $tmp_err2;
+               		$cur_err2_c = 1;
+                }
+                elsif ($cur_err2 eq $tmp_err2)    {
+                	$cur_err2_c ++;
+                }
+                elsif ($cur_err2 ne $tmp_err2)    {
+                	$cur_err2_t = join (":",$cur_err2,$cur_err2_c);
+                	push (@type_error2, $cur_err2_t);
+			$cur_err2 = $tmp_err2;
+			$cur_err2_c = 1;
+		}
+        }
+        elsif ($test_result =~ m/(\W*\w*\W*)\s*\sError\s(.*)\s(\d*)\s(\d*)\s(.*)/)	{
+                $error_count_t3 = "\nTypes\t\t:$1\nLocation\t:$2\nLine/Wt\t\t:$3/$4\nMsg\t\t:$5";
+		if ($5 =~ m/upf/i)	{
+                       	$error_count_2 ++;
+			push (@upf_error,$error_count_t3);
+       	                $tmp_err2 = $1;
+	                if ($cur_err2 eq "")     {
+                        	$cur_err2 = $tmp_err2;
+                	        $cur_err2_c = 1;
+        	        }
+	                elsif ($cur_err2 eq $tmp_err2)    {
+        	                $cur_err2_c ++;
+	                }
+                	elsif ($cur_err2 ne $tmp_err2)    {
+                        	$cur_err2_t = join (":",$cur_err2,$cur_err2_c);
+                	        push (@type_error2, $cur_err2_t);
+	                        $cur_err2 = $tmp_err2;
+        	                $cur_err2_c = 1;
+			}
+                }
+        }
+
+	elsif ($test_result =~ m/(LP\w*)\sWarning\s(.*)\s(\d*)\s(\d*)\s(.*)/)	{
+			$warn_count_1 ++;
+                        $warn_count_t1 = "\nTypes\t\t:$1\nLocation\t:$2\nLine/Wt\t\t:$3/$4\nMsg\t\t:$5";
+			push (@lp_warn,$warn_count_t1);
+                        $tmp_war1 = $1;
+                if ($cur_war1 eq "")    {
+                $cur_war1 = $tmp_war1;
+                $cur_war1_c ++;
+                }
+                elsif ($cur_war1 eq $tmp_war1)  {
+                $cur_war1_c ++;
+                }
+                elsif ($cur_war1 ne $tmp_war1)  {
+                $cur_war1_t = join (":",$cur_war1,$cur_war1_c);
+                push (@type_war1, $cur_war1_t);
+                $cur_war1 = $tmp_war1;
+                $cur_war1_c = 1;
+                }
+        }
+        elsif ($test_result =~ m/(\w*UPF\W*\w*)\sWarning\s(.*)\s(\d*)\s(\d*)\s(.*)/)	{
+                        $warn_count_2 ++;
+                        $warn_count_t2 = "\nTypes\t\t:$1\nLocation\t:$2\nLine/Wt\t\t:$3/$4\nMsg\t\t:$5";
+			push (@upf_warn,$warn_count_t2);
+                        $tmp_war2 = $1;
+                        if ($cur_war2 eq "")     {
+                                $cur_war2 = $tmp_war2;
+                                $cur_war2_c = 1;
+                        }
+                        elsif ($cur_war2 eq $tmp_war2)    {
+                                $cur_war2_c ++;
+                        }
+                        elsif ($cur_war2 ne $tmp_war2)    {
+                                $cur_war2_t = join (":",$cur_war2,$cur_war2_c);
+                                push (@type_war2, $cur_war2_t);
+                                $cur_war2 = $tmp_war2;
+                                $cur_war2_c = 1;
+                        }
+        }
+        elsif ($test_result =~ m/\W*\w*\W*\s*(.*)\sWarning\s(.*)\s(\d*)\s(\d*)\s(.*)/)	{
+                        $warn_count_t3 = "\nTypes\t\t:$1\nLocation\t:$2\nLine/Wt\t\t:$3/$4\nMsg\t\t:$5";
+		if ($5 =~ m/upf/i)	{
+                        $warn_count_2 ++;
+			push (@upf_warn,$warn_count_t3);
+                        $tmp_war2 = $1;
+                        if ($cur_war2 eq "")     {
+                                $cur_war2 = $tmp_war2;
+                                $cur_war2_c = 1;
+                        }
+                        elsif ($cur_war2 eq $tmp_war2)    {
+                                $cur_war2_c ++;
+                        }
+                        elsif ($cur_war2 ne $tmp_war2)    {
+                                $cur_war2_t = join (":",$cur_war2,$cur_war2_c);
+                                push (@type_war2, $cur_war2_t);
+                                $cur_war2 = $tmp_war2;
+                                $cur_war2_c = 1;
+                        }
+		}
+        }
+        elsif ($test_result =~ m/(\w*\W*\w*)\sSyntax\s(.*)\s(\d*)\s(\d*)\s(.*)/)       {
+                        $fatal_count ++;
+                        $fatal_count_t = "\nTypes\t\t:$1\nLocation\t:$2\nLine/Wt\t\t:$3/$4\nMsg\t\t:$5";
+                        push (@fatal_count,$fatal_count_t);
+        }
+        if ($test_result =~ m/(.*)fatal(.*)/i)   {
+                $test_status = "Aborted-Fatal Error";
+	}
+        elsif ($test_status eq "")	{	
+                $test_status = "Complete";
+        }
+        elsif (eof(spy_report)) {
+		if ($cur_err1 ne "")	{
+                $cur_err1_t = join (":",$cur_err1,$cur_err1_c);
+                push (@type_error1, $cur_err1_t);
+		}
+                if ($cur_err2 ne "")     {
+                $cur_err2_t = join (":",$cur_err2,$cur_err2_c);
+                push (@type_error2, $cur_err2_t);
+                }
+                if ($cur_war1 ne "")    {
+                $cur_war1_t = join (":",$cur_war1,$cur_war1_c);
+                push (@type_war1, $cur_war1_t);
+                }
+                if ($cur_war2 ne "")     {
+                $cur_war2_t = join (":",$cur_war2,$cur_war2_c);
+                push (@type_war2, $cur_war2_t);
+                }
+	}
+	}
+        print "\n\t||Types of Low_power/UPF Error\t || \tNumbers of Error\t||\n";
+        print "\t|| LP-ERROR\t\t\t ||\t\t $error_count_1\t\t||\n";
+        print "\t|| UPF-ERROR\t\t\t ||\t\t $error_count_2\t\t||\n";
+        print "\t|| LP-WARNING\t\t\t ||\t\t $warn_count_1\t\t||\n";
+        print "\t|| UPF-WARNING\t\t\t ||\t\t $warn_count_2\t\t||\n\n";
+
+	print overall "Target: $top_module\n";
+	print overall "Status: $test_status\n";
+        if ($fatal_count ne "") {
+        print overall "Total Fatal Error:$fatal_count";
+        }
+        print overall "\n\t||Types of Low_power/UPF Error\t || \tNumbers of Error\t||\n";
+        print overall "\t|| LP-ERROR\t\t\t ||\t\t $error_count_1\t\t||\n";
+        print overall "\t|| UPF-ERROR\t\t\t ||\t\t $error_count_2\t\t||\n";
+        print overall "\t|| LP-WARNING\t\t\t ||\t\t $warn_count_1\t\t||\n";
+        print overall "\t|| UPF-WARNING\t\t\t ||\t\t $warn_count_2\t\t||\n";
+	if (defined @type_error1)	{
+	print overall "\nLP-ERROR:-\n";
+	        foreach $error_list(@type_error1)        {
+                print overall "-$error_list\n";
+		}
+        }
+        if (defined @type_error2) {
+                print overall "\nUPF-ERROR:-\n";
+	        foreach $error_list(@type_error2)        {
+                print overall "-$error_list\n";
+		}
+        }
+        if (defined @type_war1)       {
+        print overall "\nLP-WARNING:-\n";
+                foreach $war_list(@type_war1)        {
+                print overall "-$war_list\n";
+                }
+        }
+        if (defined @type_war2) {
+                print overall "\nUPF-Warning:-\n";
+                foreach $war_list(@type_war2)        {
+                print overall "-$war_list\n";
+                }
+        }
+        print overall "\ncomplete report:$report_path\n";
+	print overall "partition report:$lp_report_path\n\n";
+
+mkdir spyglass_file, 0755;
+system "mv $test_prj spyglass_file";
+system "mv $test_sgdc spyglass_file";
+system "mv $test_sglib spyglass_file";
+}
+print lp_report "complete report:$report_path\n";
+if (@lp_error ne "")	{
+	print lp_report "\n== LP_Error ==";
+	foreach $lp_1(@lp_error)	{
+	print lp_report "$lp_1\n";
+
+	}
+}
+if (@upf_error ne "")	{
+	print lp_report "\n== UPF_Error ==";
+	foreach $upf_1(@upf_error)	{
+	print lp_report "$upf_1\n";
+
+	}
+}
+if (@lp_warn ne "")	{
+	print lp_report "\n== LP_Warning ==";
+	foreach $lp_2(@lp_warn)	{
+	print lp_report "$lp_2\n";
+
+	}
+}
+if (@upf_warn ne "")	{
+	print lp_report "\n== UPF_Warning ==";
+	foreach $upf_2(@upf_warn)	{
+	print lp_report "$upf_2\n";
+
+	}
+}
+if (@fatal_count ne "")	{
+	print lp_report "\n== FATAL ==";
+	foreach $fatal_1(@fatal_count)	{
+	print lp_report "$fatal_1\n";
+
+	}
+}

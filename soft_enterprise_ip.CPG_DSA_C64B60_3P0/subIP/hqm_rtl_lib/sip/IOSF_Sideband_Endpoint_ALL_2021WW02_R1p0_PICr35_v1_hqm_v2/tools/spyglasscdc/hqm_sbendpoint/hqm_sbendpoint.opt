@@ -1,0 +1,36 @@
+#Options passed to the CDC static verification
+ {
+   %opts = (
+     -model                 => 'cdc_hqm_sbendpoint', 
+     -static_check_top      => 'hqm_iosf_sbc_ep_rtl_lib.hqm_sbendpoint', #Refer to the top level module in the test
+     -static_check_tools    => [ "spyglass", ],
+     -enable_spyglass_group_run => 0,
+     -enable_cdc_lint       => 1,
+     -spyglass_goals        => [
+                                "cdc/cdc_verify_struct",
+                               ],
+     -spyglass_ctrl_files => [
+                              "$ENV{SPYGLASS_METHODOLOGY_CDC}/cdc/cdc_commonConstraints.sgdc",  
+                              "$ENV{MODEL_ROOT}/tools/spyglasscdc/hqm_sbendpoint/hqm_sbendpoint.sgdc",
+     ],
+     -post_process_pattern_file   => "$ENV{ACE_HOME}/udf/ace_base_postsim.pp",
+     -spyglass_post_process_modes => "AceSpyglassCDC_default,AceCDCLint_default",
+     -spyglass_exe_opts           => [
+                                        'set ::env(TOP) hqm_sbendpoint',
+                                        ],
+     -spyglass_exe_scrag_recipe   => [],
+   ); 
+
+   %runModes = (
+       SetupChk => {
+          -enable_cdc_lint             => 0,
+          -ASSIGN => [ -spyglass_goals => ["cdc/cdc_setup_check",], ],
+          -spyglass_post_process_modes => "AceSpyglassCDC_default",
+       },
+       RDC => {      
+          -ASSIGN => [ -spyglass_goals => ["cdc/rdc_verify_struct",], ],       
+          -spyglass_exe_opts => ['set_option stop {*_visa_repeater_s *_visa_unit_mux_cro_s}',],    
+       },
+  );
+ }
+

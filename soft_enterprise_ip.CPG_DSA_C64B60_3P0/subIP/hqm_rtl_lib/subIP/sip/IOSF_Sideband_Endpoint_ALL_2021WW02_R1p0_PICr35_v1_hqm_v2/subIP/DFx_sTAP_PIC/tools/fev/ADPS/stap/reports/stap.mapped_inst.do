@@ -1,0 +1,14 @@
+add mapped instance -golden /i_stap_irdecoder/generate_decoder[0].i_stap_decoder -revised /i_stap_irdecoder/generate_decoder_0_i_stap_decoder
+add mapped instance -golden /generate_stap_swcomp_rtdr.i_stap_swcomp_rtdr/i_stap_tapswcomp -revised /generate_stap_swcomp_rtdr_i_stap_swcomp_rtdr/i_stap_tapswcomp
+add mapped instance -golden /i_stap_irdecoder/generate_decoder[2].i_stap_decoder -revised /i_stap_irdecoder/generate_decoder_2_i_stap_decoder
+add mapped instance -golden /generate_stap_swcomp_rtdr.i_stap_swcomp_rtdr -revised /generate_stap_swcomp_rtdr_i_stap_swcomp_rtdr
+add mapped instance -golden /i_stap_irdecoder -revised /i_stap_irdecoder
+add mapped instance -golden /generate_stap_swcomp_rtdr.i_stap_swcomp_rtdr/i_stap_tapswcompreg -revised /generate_stap_swcomp_rtdr_i_stap_swcomp_rtdr/i_stap_tapswcompreg
+add mapped instance -golden /i_stap_drreg -revised /i_stap_drreg
+add mapped instance -golden /i_stap_irdecoder/generate_decoder[1].i_stap_decoder -revised /i_stap_irdecoder/generate_decoder_1_i_stap_decoder
+add mapped instance -golden /i_stap_glue -revised /i_stap_glue
+add mapped instance -golden /i_stap_fsm -revised /i_stap_fsm
+add mapped instance -golden /i_stap_irdecoder/generate_decoder[3].i_stap_decoder -revised /i_stap_irdecoder/generate_decoder_3_i_stap_decoder
+add mapped instance -golden /i_stap_dfxsecure_plugin -revised /i_stap_dfxsecure_plugin
+add mapped instance -golden /i_stap_irreg -revised /i_stap_irreg
+add mapped instance -golden /i_stap_tdomux -revised /i_stap_tdomux

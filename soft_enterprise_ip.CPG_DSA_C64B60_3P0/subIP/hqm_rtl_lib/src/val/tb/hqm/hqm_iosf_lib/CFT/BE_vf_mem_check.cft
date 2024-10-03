@@ -1,0 +1,24 @@
+#rd hqm_system_csr.cmpl_hdr_fifo_ctl  0x00000006
+
+
+#check aer_cap_uncorr_err_status
+rd hqm_vf_cfg_i[0].aer_cap_uncorr_err_status 0x00100000
+
+
+
+#check ERror status 
+rd hqm_vf_cfg_i[0].pcie_cap_device_status 0x000A
+
+#check device status and to be set
+rd hqm_vf_cfg_i[0].device_status 0x0010
+
+
+#Check register  update happened or not
+rd hqm_func_vf_bar[0].vf_to_pf_mailbox_isr 1
+
+
+
+
+#EOT_check
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+

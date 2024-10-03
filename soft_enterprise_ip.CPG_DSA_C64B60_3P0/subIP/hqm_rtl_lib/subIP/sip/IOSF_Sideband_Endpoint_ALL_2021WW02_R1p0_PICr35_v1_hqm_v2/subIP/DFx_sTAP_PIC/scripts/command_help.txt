@@ -1,0 +1,52 @@
+###############################################################################
+#Date: WW33'14
+------------------------
+This release contains TFM changes for sTAP 1.5.5 Release.
+###############################################################################
+SMOKE TEST
+----------
+
+Run this command at the same level where this README.txt file is present
+   
+   setenv IP_ROOT  $cwd
+   cd $IP_ROOT/scripts
+   source setup
+
+   setenv JTAG_BFM_VER <shared JTAG BFM dir>/CHASSIS_JTAGBFM_2013WW38_R2.0
+
+This will run the default bypass test
+   ace -cc -x
+
+To turn off assertions
+   ace -cc -vlog_opts "+define+SVA_OFF"
+
+To run all tests
+   source scripts/run_all_tests
+
+To run all configs supplied with this IP
+   source scripts/run_all_configs
+
+To get coverage on this IP
+   source scripts/get_coverage
+
+################################################################################
+#PARAMETER TOOL
+--------------
+   To generate parameters for RTL and Testbench use this script.
+   cd $IP_ROOT/scripts/
+   perl parameters.pl
+ 
+   To generate parameters for RTL and Testbench follow steps outlined in
+   cd $IP_ROOT/scripts/dfx_parameter_gui
+   cat README.txt
+
+To run ARN
+----------
+   cd $IP_ROOT/scripts
+   /p/sip/utils/bin/editRelFile
+   /p/sip/utils/bin/sipRelease -rn  -force
+   /p/sip/utils/bin/sipRelease -ann -preview -irr  'https://irrpod.cps.intel.com/irr/#w$KAidQRxDPwtB'
+   /p/sip/utils/bin/sipRelease -ann -real    -irr  'ttps://irrprod.cps.intel.com/irr/#w$KAidQRxDPwtB'
+
+################################################################################
+

@@ -1,0 +1,99 @@
+#--*-perl-*------------------
+
+%audf = (
+   HDLSpec => {
+      # Suggested by Russ Jackson (Ace developer) in https://vthsd.fm.intel.com/hsd/da_all/da_help/default.aspx?da_help_id=577466, to support Ace detecting changes in source files, and recompiling as necessary.
+      -src_type => {
+         SystemVerilog => {
+            # Add .svh file suffix.  (Ace doesn't look at .svh files' timestamps by default, like it does for .v and .sv.)
+            -extension => '/\.svh$/',
+         },
+      },
+      pgcb_collection => {
+         libs => {
+            pgcb_randtb_lib => {
+               -hdl_spec => [ 'verif/randtb/randtb.hdl', ],
+               -dependent_libs => [ 'ClockDomainController', 'pgcbunit', 'pcguunit', ],
+               -sub_libs => [ "$ENV{CTECH_LIB_NAME}" ],
+            },
+
+          lintra_pgcbunit_lib => {
+             -hdl_spec => [ 'src/rtl/pgcbunit/pgcbunit.hdl', ],
+             -sub_libs => [ "$ENV{CTECH_LIB_NAME}",  ],
+          },
+          lintra_ClockDomainController_lib => {
+             -hdl_spec => [ 'src/rtl/ClockDomainController/ClockDomainController.hdl', ],
+             -sub_libs => [ "$ENV{CTECH_LIB_NAME}",  ],
+          },
+          lintra_pgcbcg_lib => {
+             -hdl_spec => [ 'cfg/ace/pgcb_collection/cdc_pgcbcg.hdl',
+                            'src/rtl/pcguunit/pcguunit.hdl', ],
+             -sub_libs => [ "$ENV{CTECH_LIB_NAME}",  ],
+          },
+          lintra_tooltb_lib => {
+             -hdl_spec => [ 'verif/tooltb/tooltb.hdl', ],
+             -dependent_libs => [ "lintra_pgcbunit_lib", "lintra_ClockDomainController_lib", "lintra_pgcbcg_lib" ],
+             -sub_libs => [ "$ENV{CTECH_LIB_NAME}",  ],
+       },
+	
+
+         },
+         models => {
+#            cdc_pgcbunit => {
+#               top => 'pgcbunit.hqm_rcfwl_pgcbunit',
+#               use => [
+#                  'pgcbunit:pgcbunit',
+#               ],
+#            },
+            pgcb_collection => {
+               top => 'pgcb_randtb_lib.RandTestbench',
+               use => [
+                  'pgcbunit:pgcbunit',
+                  'ClockDomainController:ClockDomainController',
+                  'pcguunit:pcguunit',
+               ],
+               libs => [
+                  'pgcb_randtb_lib',
+               ],
+               import => {
+               },
+               export => {
+                  libs => [
+                     'ClockDomainController',
+                     'pcguunit',
+                     'pgcbunit'
+                  ]
+               }
+            },
+            lintra_tooltb => {
+               top => 'lintra_tooltb_lib.hqm_rcfwl_pgcbunit',
+               libs => [
+                  'lintra_pgcbunit_lib',
+                  'lintra_ClockDomainController_lib',
+                  'lintra_pgcbcg_lib',
+                  'lintra_tooltb_lib',
+               ],
+               -remove_defines => [ 'VCSSIM', 'VCS', 'ASSERT_ON' ],
+            },
+            lintra_pgcbunit => {
+               top => 'lintra_pgcbunit_lib.hqm_rcfwl_pgcbunit',
+               libs => [
+                  'lintra_pgcbunit_lib',
+                  #'lintra_ClockDomainController_lib',
+                  #'lintra_pgcbcg_lib',
+                  #'lintra_tooltb_lib',
+               ],
+            },
+            lintra_cdc => {
+               top => 'lintra_ClockDomainController_lib.hqm_rcfwl_ClockDomainController',
+               libs => [
+                  #'lintra_pgcbunit_lib',
+                  'lintra_ClockDomainController_lib',
+                  #'lintra_pgcbcg_lib',
+                  #'lintra_tooltb_lib',
+               ],
+            },
+         }, #end models
+      },
+   }, # end of HDLSpec
+);

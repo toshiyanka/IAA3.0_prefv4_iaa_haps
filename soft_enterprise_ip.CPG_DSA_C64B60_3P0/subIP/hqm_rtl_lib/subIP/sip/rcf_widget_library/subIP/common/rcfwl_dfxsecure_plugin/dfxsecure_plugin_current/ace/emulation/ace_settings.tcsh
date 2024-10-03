@@ -1,0 +1,7 @@
+#!/bin/tcsh
+setenv EMUL_CFG ace/emulation/emul_build_soc.cfg
+setenv EMUL_TOP dfxsecure_plugin_rtl_lib.dfxsecure_plugin
+setenv EMUL_ENABLE_FILTER 1
+setenv EMUL_FILTER Emulation
+setenv EMUL_MODEL dfxsecure_plugin_emulation_model
+setenv EMUL_METADATA_FILENAME M:dfxsecure_plugin_emulation_model.ace_metadata.pl

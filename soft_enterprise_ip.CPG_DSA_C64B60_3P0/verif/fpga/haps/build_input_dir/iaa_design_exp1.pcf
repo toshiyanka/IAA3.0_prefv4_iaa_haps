@@ -1,0 +1,215 @@
+################################################################################
+# [HAPS 80] - Partitioning Constraints Format  (PCF)
+################################################################################
+
+#-------------------------------------------------------------------------------
+# Lock Unused FPGA's
+#-------------------------------------------------------------------------------
+#bin_attribute mb1.uC -locked
+bin_attribute mb1.uD -locked
+
+
+#-------------------------------------------------------------------------------
+# Cell Assignment
+#-------------------------------------------------------------------------------
+
+### [FPGA A]
+####assign_cell  {sbr}                {mb1.uA}
+##assign_cell  {psf1}               {mb1.uA}
+##assign_cell  {glue}               {mb1.uA}
+##assign_cell  {uhfi}               {mb1.uA}
+####assign_cell  {dsab_ip}            {mb1.uA}
+####assign_cell  {dsab_mem}           {mb1.uA}
+##assign_cell  {fpga_trackers_top}  {mb1.uA}
+##
+##
+### [FPGA D]
+####assign_cell  {iaxb_ip}            {mb1.uD}
+####assign_cell  {iaxb_mem}           {mb1.uD}
+####assign_cell  {iaxm_ip}            {mb1.uD}
+####assign_cell  {iaxm_mem}           {mb1.uD}
+####assign_cell  {iaxs_ip}            {mb1.uD}
+####assign_cell  {iaxs_mem}           {mb1.uD}
+##
+##assign_cell  {sbr}                {mb1.uD}
+
+#-------------------------------------------------------------------------------
+
+# [FPGA A]
+assign_cell  {sbr}                {mb1.uA}
+#ANK assign_cell  {psf1}               {mb1.uA}
+assign_cell  {glue}               {mb1.uA}
+assign_cell  {uhfi}               {mb1.uA}
+##TRKR## assign_cell  {fpga_trackers_top}  {mb1.uA}
+
+
+## [FPGA B]
+assign_cell  {iaab3p0s64b60_ip}            {mb1.uB}
+##ANK assign_cell  {iaab3p0s64b60_mem}           {mb1.uB}
+#
+#
+## [FPGA C]
+assign_cell  {i:iaab3p0s64b60_ip.pgd.core.atc.devtlb_wrap}         {mb1.uC}
+#assign_cell  {iaas3p0s64b60_ip}            {mb1.uC}
+#assign_cell  {iaas3p0s64b60_mem}           {mb1.uC}
+#assign_cell  {iaam3p0s64b60_ip}            {mb1.uC}
+#assign_cell  {iaam3p0s64b60_mem}           {mb1.uC}
+#
+#
+## [FPGA D]
+#assign_cell  {iaab3p0s64b60_mem}            {mb1.uD}
+#ANK assign_cell  {dsab_ip}            {mb1.uD}
+#ANK assign_cell  {dsab_mem}           {mb1.uD}
+
+
+#-------------------------------------------------------------------------------
+# Utilization
+#-------------------------------------------------------------------------------
+
+# [FPGA A]
+bin_utilization -bin {mb1.uA} -resource_ratio { LUT  0.60 }
+bin_utilization -bin {mb1.uA} -resource_ratio { LUTM 0.60 }
+bin_utilization -bin {mb1.uA} -resource_ratio { DFF  0.60 }
+bin_utilization -bin {mb1.uA} -resource_ratio { BRAM 1.00 }
+bin_utilization -bin {mb1.uA} -resource_ratio { DSP  0.70 }
+bin_utilization -bin {mb1.uA} -resource_ratio { IO   1.00 }
+
+
+# [FPGA B]
+bin_utilization -bin {mb1.uB} -resource_ratio { LUT  0.60 }
+bin_utilization -bin {mb1.uB} -resource_ratio { LUTM 0.60 }
+bin_utilization -bin {mb1.uB} -resource_ratio { DFF  0.60 }
+bin_utilization -bin {mb1.uB} -resource_ratio { BRAM 1.00 }
+bin_utilization -bin {mb1.uB} -resource_ratio { DSP  0.70 }
+bin_utilization -bin {mb1.uB} -resource_ratio { IO   1.00 }
+
+
+## [FPGA C]
+bin_utilization -bin {mb1.uC} -resource_ratio { LUT  0.60 }
+bin_utilization -bin {mb1.uC} -resource_ratio { LUTM 0.60 }
+bin_utilization -bin {mb1.uC} -resource_ratio { DFF  0.60 }
+bin_utilization -bin {mb1.uC} -resource_ratio { BRAM 1.00 }
+bin_utilization -bin {mb1.uC} -resource_ratio { DSP  0.70 }
+bin_utilization -bin {mb1.uC} -resource_ratio { IO   1.00 }
+#
+#
+## [FPGA D]
+#bin_utilization -bin {mb1.uD} -resource_ratio { LUT  0.60 }
+#bin_utilization -bin {mb1.uD} -resource_ratio { LUTM 0.60 }
+#bin_utilization -bin {mb1.uD} -resource_ratio { DFF  0.60 }
+#bin_utilization -bin {mb1.uD} -resource_ratio { BRAM 1.00 }
+#bin_utilization -bin {mb1.uD} -resource_ratio { DSP  0.70 }
+#bin_utilization -bin {mb1.uD} -resource_ratio { IO   1.00 }
+
+
+#-------------------------------------------------------------------------------
+# TDM Control 
+#-------------------------------------------------------------------------------
+
+#tdm_control -type HSTDM
+#tdm_control -hstdm_reset_trace {none}
+#tdm_control -min_ratio 2 -max_ratio 4
+#tdm_control -hstdm_bit_rate 1400
+#tdm_control -qualification_mode seq2seq
+
+
+#-------------------------------------------------------------------------------
+# Abstract (initial) FPGA Interconnect 
+#-------------------------------------------------------------------------------
+
+##INITAIL##abstract_tss -add_trace_group {mb1.uA mb1.uD} -width 800
+
+
+#-------------------------------------------------------------------------------
+# Port Assignments 
+#-------------------------------------------------------------------------------
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+## Clocks
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# GCLK0 Reserved for System Use.
+
+# UHFI Clock
+net_attribute {uhfi_clk} -function GCLK -diffsingle -is_clock 1
+assign_global_net {uhfi_clk} mb1.GCLK1
+
+# Prim Clock
+net_attribute {prim_clk} -function GCLK -diffsingle -is_clock 1
+assign_global_net {prim_clk} mb1.GCLK2
+
+# Side Clock
+net_attribute {side_clk} -function GCLK -diffsingle -is_clock 1
+assign_global_net {side_clk} mb1.GCLK3
+
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+## MGB 
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# Tracker PCIe (Riser 1 - J3)
+##TRKR## assign_port { trk_pcie_refclk_n } -trace { MGB_AM1_J3.REFCLKN[0] }
+##TRKR## assign_port { trk_pcie_refclk_p } -trace { MGB_AM1_J3.REFCLKP[0] }
+##TRKR## 
+##TRKR## assign_port { trk_pcie_txn[3:0] } -trace { MGB_AM1_J3.TXN[3:0] }
+##TRKR## assign_port { trk_pcie_txp[3:0] } -trace { MGB_AM1_J3.TXP[3:0] }
+##TRKR## assign_port { trk_pcie_rxn[3:0] } -trace { MGB_AM1_J3.RXN[3:0] }
+##TRKR## assign_port { trk_pcie_rxp[3:0] } -trace { MGB_AM1_J3.RXP[3:0] }
+
+
+# UHFI PCIe (Riser 2 - J3)
+assign_port { uhfi_pcie_refclk_n } -trace { MGB_AM2_J3.REFCLKN[0] }
+assign_port { uhfi_pcie_refclk_p } -trace { MGB_AM2_J3.REFCLKP[0] }
+
+assign_port { uhfi_pcie_txn[3:0] } -trace { MGB_AM2_J3.TXN[3:0] }
+assign_port { uhfi_pcie_txp[3:0] } -trace { MGB_AM2_J3.TXP[3:0] }
+assign_port { uhfi_pcie_rxn[3:0] } -trace { MGB_AM2_J3.RXN[3:0] }
+assign_port { uhfi_pcie_rxp[3:0] } -trace { MGB_AM2_J3.RXP[3:0] }
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+net_attribute {haps80_mgb1_io[10:1]} -function {SLOW_PANEL_GPIO} 
+
+assign_port {haps80_mgb1_io[10:1]} -trace {MB1_A_GPIO[10:1]}
+
+
+net_attribute {haps80_mgb2_io[1]} -function {SLOW_MGB_GPIO} 
+net_attribute {haps80_mgb2_io[2]} -function {SLOW_MGB_GPIO} 
+net_attribute {haps80_mgb2_io[3]} -function {SLOW_MGB_GPIO} 
+net_attribute {haps80_mgb2_io[4]} -function {SLOW_MGB_GPIO} 
+
+assign_port {haps80_mgb2_io[1]} -pin {PERST}   {MGB_AM1_J3.mgb}
+assign_port {haps80_mgb2_io[2]} -pin {PWRON_n} {MGB_AM1_J3.mgb}
+assign_port {haps80_mgb2_io[3]} -pin {WAKE_n}  {MGB_AM1_J3.mgb}
+assign_port {haps80_mgb2_io[4]} -pin {PRSNT_n} {MGB_AM1_J3.mgb}
+
+
+net_attribute {haps80_mgb2_io[6]} -function {SLOW_MGB_GPIO} 
+net_attribute {haps80_mgb2_io[7]} -function {SLOW_MGB_GPIO} 
+net_attribute {haps80_mgb2_io[8]} -function {SLOW_MGB_GPIO} 
+net_attribute {haps80_mgb2_io[9]} -function {SLOW_MGB_GPIO} 
+
+assign_port {haps80_mgb2_io[6]} -pin {PERST}   {MGB_AM2_J3.mgb}
+assign_port {haps80_mgb2_io[7]} -pin {PWRON_n} {MGB_AM2_J3.mgb}
+assign_port {haps80_mgb2_io[8]} -pin {WAKE_n}  {MGB_AM2_J3.mgb}
+assign_port {haps80_mgb2_io[9]} -pin {PRSNT_n} {MGB_AM2_J3.mgb}
+
+
+net_attribute {haps80_mgb2_io[5]} -function {SLOW_MGB_GPIO} 
+net_attribute {haps80_mgb2_io[10]} -function {SLOW_MGB_GPIO} 
+
+assign_port {haps80_mgb2_io[5]}  -trace {MB1_AM2_IO[5]}
+assign_port {haps80_mgb2_io[10]} -trace {MB1_AM2_IO[10]}
+
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+## LEDs
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+net_attribute {haps80_led_grn[1:0]} -function PANEL_LED
+assign_port {haps80_led_grn[1:0]} -trace {mb1.A_LED_GRN[1:2]}
+
+net_attribute {haps80_led_red[1:0]} -function PANEL_LED
+assign_port {haps80_led_red[1:0]} -trace {mb1.A_LED_RED[1:2]}
+
+## SNPS
+replicate_cell {iaab3p0s64b60_ip.aon.aon_common.crp.resets.rst_sync.i_sync_rst\[5\].ctech_doublesync_rstb.sync[1:0]} -all_bins

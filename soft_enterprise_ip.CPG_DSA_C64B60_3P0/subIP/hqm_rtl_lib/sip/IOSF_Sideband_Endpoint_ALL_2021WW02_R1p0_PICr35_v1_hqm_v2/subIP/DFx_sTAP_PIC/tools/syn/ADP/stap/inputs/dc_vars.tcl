@@ -1,0 +1,1 @@
+set_app_var hdlin_reporting_level basic

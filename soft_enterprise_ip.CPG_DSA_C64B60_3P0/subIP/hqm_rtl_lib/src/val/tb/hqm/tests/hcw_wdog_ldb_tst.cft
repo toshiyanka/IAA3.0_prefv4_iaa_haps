@@ -1,0 +1,103 @@
+# configure WD timer for CQ[8] & [9]
+wr credit_hist_pipe.cfg_ldb_cq_timer_ctl 0x102
+wr credit_hist_pipe.cfg_ldb_wd_enb_interval 0x10000010
+wr credit_hist_pipe.cfg_ldb_wd_disable0  0xffffffff
+wr credit_hist_pipe.cfg_ldb_wd_disable1  0xffffffff
+
+rd credit_hist_pipe.cfg_ldb_cq_wd_enb[8]
+wr credit_hist_pipe.cfg_ldb_cq_wd_enb[8] 0x01
+rd credit_hist_pipe.cfg_ldb_cq_wd_enb[9]
+wr credit_hist_pipe.cfg_ldb_cq_wd_enb[9] 0x01
+
+rd credit_hist_pipe.cfg_ldb_cq_wd_enb[3]
+wr credit_hist_pipe.cfg_ldb_cq_wd_enb[3] 0x01
+
+rd credit_hist_pipe.cfg_ldb_cq_wd_enb[8]
+rd credit_hist_pipe.cfg_ldb_cq_wd_enb[9]
+
+# check that no INTR when no hcw enqued (CQ empty & no activity at PP)
+IDLE 10000
+
+poll credit_hist_pipe.cfg_ldb_wdto_0  0x0000 0xffff   1000
+poll credit_hist_pipe.cfg_ldb_wdto_1  0x0000 0xffff   1000
+
+rd credit_hist_pipe.cfg_ldb_wd_irq0
+rd credit_hist_pipe.cfg_ldb_wd_irq1
+
+rd hqm_pf_cfg_i.vendor_id
+
+# enqueue HCWs & delay the token & credit return
+HCW LDB:PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+IDLE 2500
+
+#For CQ 9 return all Tokens & send comps
+HCW LDB:PP_1 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=11 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+
+HCW LDB:PP_1 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_1 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_1 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_1 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_1 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_1 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_1 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_1 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_1 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_1 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_1 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_1 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+
+rd hqm_pf_cfg_i.vendor_id
+
+# CQ 8 should generate the timeout
+poll credit_hist_pipe.cfg_ldb_wdto_0  0x0100 0xffff   1000
+poll credit_hist_pipe.cfg_ldb_wdto_1  0x0000 0xffff   1000
+
+rd credit_hist_pipe.cfg_ldb_wd_irq0
+rd credit_hist_pipe.cfg_ldb_wd_irq1
+
+wr credit_hist_pipe.cfg_ldb_wdto_0 0x0100
+poll credit_hist_pipe.cfg_ldb_wdto_0  0x0000 0xffff   1000
+
+rd hqm_pf_cfg_i.device_id
+
+# BAT_T command - return tokens
+HCW LDB:PP_0 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=11 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+
+# COMP command - indicate completions
+HCW LDB:PP_0 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_0 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_0 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_0 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_0 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_0 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_0 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_0 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_0 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_0 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_0 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+HCW LDB:PP_0 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=QID_A dsi=0x302
+
+IDLE 400

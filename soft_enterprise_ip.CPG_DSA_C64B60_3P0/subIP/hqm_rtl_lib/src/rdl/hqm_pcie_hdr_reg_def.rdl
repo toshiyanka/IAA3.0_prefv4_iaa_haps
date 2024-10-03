@@ -1,0 +1,509 @@
+<% use hqm_params; %>
+
+	reg vendor_id_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Vendor Id";
+		desc = "Vendor Identificaion Register";
+		regwidth = 16;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Vid";
+			desc = "Vendor Identification:  This register field contains the PCI standard identification for Intel, 8086h.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} VID [15:00] = 16'h8086;
+
+	}; // end register vendor_id_r
+
+	reg device_id_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Device Id";
+		desc = "Device Identification Register";
+		regwidth = 16;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Did";
+			desc = "Device Identification Number.";
+			PowerWell="vcccfn"; AccessType = "RO/V";
+		} DID [15:00] = <%=$hqm_params::DEVICE_ID%>;
+
+	}; // end register device_id_r
+
+	reg device_command_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Device Command";
+		desc = "Device Command Register";
+		regwidth = 16;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Reserved";
+			desc = "Reserved";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} RESERVED [15:11] = 5'h0;
+
+		field {
+			name = "Intd";
+			desc = "Interrupt Disable: Setting this bit disables generation of INTX messages by the EP.. Default value is 0 which enables the INTX message generation.";
+			PowerWell="vcccfn"; AccessType = "RW";
+		} INTD [10:10] = 1'h0;
+
+		field {
+			name = "Fbtb";
+			desc = "Fast Back-to-Back Enable: EP does not implement this functionality and it is not applicable to PCIe devices. The bit is hardwired to 0.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} FBTB [09:09] = 1'h0;
+
+		field {
+			name = "Ser";
+			desc = "SERR# Enable: When set, this bit enables the non-fatal and fatal errors detected by the EP to be reported to the RC.Note that the error reporting can also be enabled via the PCIe specific bits in the PCIe device control register ()The default value of this bit is 0.";
+			PowerWell="vcccfn"; AccessType = "RW";
+		} SER [08:08] = 1'h0;
+
+		field {
+			name = "Reserved1";
+			desc = "Reserved/Does not apply to PCIe.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} RESERVED1 [07:07] = 1'h0;
+
+		field {
+			name = "Per";
+			desc = "Parity Error Enable: Controls the setting of the Master Data Parity Error bit in the Device Status Register ()The Master Data Parity Error bit is set by the EP if its Parity Error Enable bit is set and either of the following two conditions occurs:ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ If the EP receives a poisoned Completion from the RCÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ If the EP poisons a write request.If the Parity Error Enable bit is cleared, the Master Data Parity Error status bit is never setThe default value of this bit is 0.";
+			PowerWell="vcccfn"; AccessType = "RW";
+		} PER [06:06] = 1'h0;
+
+		field {
+			name = "Vps";
+			desc = "VGA Palette Snoop Enable: The device does not implement this functionality/Does not apply to PCIe. The bit is hardwired to 0.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} VPS [05:05] = 1'h0;
+
+		field {
+			name = "Mwe";
+			desc = "Memory Write and Invalidate Enable: The device does not implement this functionality/Does not apply to PCIe. The bit is hardwired to 0.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} MWE [04:04] = 1'h0;
+
+		field {
+			name = "Ss";
+			desc = "Special Cycle Enable: The device does not implement this functionality/Does not apply to PCIe. The bit is hardwired to 0.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} SS [03:03] = 1'h0;
+
+		field {
+			name = "Bm";
+			desc = "Bus Master Enable: Controls the ability of EP to issue Memory Read/Write Requests.Clearing (0) this bit prevents EP from issuing any Memory Requests. Note that as MSIÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢s are in-band memory writes, disabling the bus master enable bit disables MSI as well. PCIe messages are not affected by this bit. Please refer to  for more details on how the EP handles CPP commands when this bit is clear.";
+			PowerWell="vcccfn"; AccessType = "RW";
+		} BM [02:02] = 1'h0;
+
+		field {
+			name = "Mem";
+			desc = "Memory Space Enable: Setting this bit enables access to the memory regions the device claims through its BARs. EP will return ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œunsupported requestÃƒÂ¢Ã¢â€šÂ¬Ã‚Â completion status & error message in response to memory transactions it receives when this bit is clear.";
+			PowerWell="vcccfn"; AccessType = "RW";
+		} MEM [01:01] = 1'h0;
+
+		field {
+			name = "Io";
+			desc = "I/O Space Enable: The device does not implement this functionality since it claims no I/O regions. The bit is hardwired to 0.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} IO [00:00] = 1'h0;
+
+	};
+
+	reg device_status_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Device Status";
+		desc = "device status register";
+		regwidth = 16;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Dpe";
+			desc = "Detected Parity Error: This bit is set by EP whenever it receives a Poisoned TLP, regardless of the state the Parity Error Enable bit in the Command register.Default value of this field is 0.";
+			PowerWell="vcccfn"; AccessType = "RW/1C/V";
+		} DPE [15:15] = 1'h0;
+
+		field {
+			name = "Sse";
+			desc = "Signaled System Error: This bit is set by the EP when it sends a ERR_FATAL or ERR_NONFATAL message and the SERR bit in the Device Command register bit is set.Default value of this field is 0.";
+			PowerWell="vcccfn"; AccessType = "RW/1C/V";
+		} SSE [14:14] = 1'h0;
+
+		field {
+			name = "Rma";
+			desc = "Received Master Abort Status: This bit is set when EP, as a Requestor receives a Completion with Unsupported Request Completion Status.Default value of this field is 0.";
+			PowerWell="vcccfn"; AccessType = "RW/1C/V";
+		} RMA [13:13] = 1'h0;
+
+		field {
+			name = "Rta";
+			desc = "Received Target Abort Status: This bit is set when EP, as a Requestor receives a Completion with Completer Abort Completion Status.Default value of this field is 0.";
+			PowerWell="vcccfn"; AccessType = "RW/1C/V";
+		} RTA [12:12] = 1'h0;
+
+		field {
+			name = "Sta";
+			desc = "Signaled Target Abort Status: This bit is set when EP completes a Request using Completer Abort Completion Status.Default value of this field is 0.";
+			PowerWell="vcccfn"; AccessType = "RW/1C/V";
+		} STA [11:11] = 1'h0;
+
+		field {
+			name = "Dst";
+			desc = "DEVSEL Timing: Does not apply to PCI Express. These bits are hardwired to 0.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} DST [10:09] = 2'b00;
+
+		field {
+			name = "Mdpe";
+			desc = "Master Data Parity Error Detected: This bit is set by EP, as a Requestor if the Parity Error Enable bit in the Command register is 1b and either of the following two conditions occurs:If the Parity Error Enable bit is 0b, this bit is never set.Default value of this field is 0.";
+			PowerWell="vcccfn"; AccessType = "RW/1C/V";
+		} MDPE [08:08] = 1'h0;
+
+		field {
+			name = "Fb2b";
+			desc = "Fast Back-to-Back Capable: Does not apply to PCI Express. The bit is hardwired to 0.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} FB2B [07:07] = 1'h0;
+
+		field {
+			name = "Reserved1";
+			desc = "Reserved1";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} RESERVED1 [06:06] = 1'h0;
+
+		field {
+			name = "Mc66";
+			desc = "66 MHz Capable: Does not apply to PCI Express. The bit is hardwired to 0.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} MC66 [05:05] = 1'h0;
+
+		field {
+			name = "Cl";
+			desc = "Capabilities List: This bit is hardwired to 1 to indicate that EP has a capabilities list.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} CL [04:04] = 1'h1;
+
+		field {
+			name = "Intsts";
+			desc = "Interrupt Status: Indicates that the EP has transmitted a INTX message and is awaiting servicing. This bit does not includes MSIÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢s generated by the EP.";
+			PowerWell="vcccfn"; AccessType = "RO/V";
+		} INTSTS [03:03] = 1'h0;
+
+		field {
+			name = "Reserved2";
+			desc = "Reserved2";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} RESERVED2 [02:00] = 3'h0;
+
+	};
+
+	reg revision_id_class_code_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Revision Id";
+		desc = "Revision ID register and class code Register";
+		regwidth = 32;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Cc";
+			desc = "Class Code: This value indicates the base class, subclass, and interface.0B4000h = Base class: Processor, Sub-class Co-processor, no specific register level programming interfaces are defined.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} CC [31:8] = 24'h0B4000;
+
+		field {
+			name = "Ridu";
+			desc = "Major Revision:Steppings which require all masks to be regenerated.00b: A stepping (Current Stepping)01b: B stepping10b: C stepping11b: D stepping";
+			PowerWell="vcccfn"; AccessType = "RO/V";
+		} RIDU [07:4] = 4'b0000;
+
+		field {
+			name = "Ridl";
+			desc = "Minor Revision:Incremented for each stepping which does not modify all masks. Reset for eachmajor revision.00b: x0 stepping01b: x1 stepping10b: x2 stepping11b: x3 stepping";
+			PowerWell="vcccfn"; AccessType = "RO/V";
+		} RIDL [03:0] = 4'b0000;
+
+	};
+
+	reg cache_line_size_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Cache Line Size";
+		desc = "Cache Line size Register";
+		regwidth = 8;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Cls";
+			desc = "Cache Line Size:  Not used by PCI Express Endpoint. Left for compatility reason only.";
+			PowerWell="vcccfn"; AccessType = "RW";
+		} CLS [07:00] = 8'h00;
+
+	};
+
+	reg header_type_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Header Type";
+		desc = "Header type Register";
+		regwidth = 8;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Multi Function Device";
+			desc = "Multi-function device indicator:  A value of 1 indicates a multi-function device.";
+			PowerWell="vcccfn"; AccessType = "RO/V";
+		} MFD [7:7] = 1'h0;
+
+		field {
+			name = "Hdr";
+			desc = "PCI Header Type:  The header type of the EP device. This is a type 0 configuration space header.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} HDR [06:00] = 7'h00;
+
+	}; // end register phdr
+
+	reg func_bar_l_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Func Bar L";
+		desc = "PF Function Memory Lower Base Address Register";
+		regwidth = 32;
+		shared;
+        Consumer = "BIOS";
+                IntelRsvd = false;
+
+		field {
+			name = "Addr L";
+			desc = "Lower Programmable Base Address bits";
+			PowerWell="vcccfn"; AccessType = "RW";
+		} ADDR_L [31:26] = 6'h00;
+
+		field {
+			name = "Zero";
+			desc = "Lower Bits: Hardwired to 0 (64MB region)";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} ZERO [25:04] = 22'h0;
+
+		field {
+			name = "Pref";
+			desc = "Prefetchable: Hardwired to 1 to indicate that the region is prefetchable.0: non-prefetchable 1: prefetchable";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} PREF [03:03] = 1'b1;
+
+		field {
+			name = "Typ";
+			desc = "Addressing Type: Hardwired to indicate a 64-bit region.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} TYP [02:01] = 2'b10;
+
+		field {
+			name = "Mem";
+			desc = "Memory Space Indicator: Hardwired to 0 to identify the region as in memory space.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} MEM [00:00] = 1'b0;
+
+	};
+
+	reg func_bar_u_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Func Bar H";
+		desc = "PF Function Memory Upper Base Address Register";
+		regwidth = 32;
+		shared;
+        Consumer = "BIOS";
+                IntelRsvd = false;
+
+		field {
+			name = "Addr";
+			desc = "Upper Programmable Base Address: These bits are set by BIOS to locate the base address of the region.";
+			PowerWell="vcccfn"; AccessType = "RW";
+		} ADDR [31:00] = 32'h0;
+
+	};
+
+	reg csr_bar_l_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Csr Bar L";
+		desc = "PF CSR Memory Lower Base Address Register";
+		regwidth = 32;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Zero";
+			desc = "Lower Bits: Hardwired to 0 (4GB region).";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} ZERO [31:04] = 28'h0;
+
+		field {
+			name = "Pref";
+			desc = "Prefetchable: Hardwired to 1 to indicate that the region is prefetchable.0: non-prefetchable 1: prefetchable";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} PREF [03:03] = 1'b1;
+
+		field {
+			name = "Typ";
+			desc = "Addressing Type: Hardwired to indicate a 64-bit region.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} TYP [02:01] = 2'b10;
+
+		field {
+			name = "Mem";
+			desc = "Memory Space Indicator: Hardwired to 0 to identify the region as in memory space.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} MEM [00:00] = 1'b0;
+
+	};
+
+	reg csr_bar_u_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Csr Bar H";
+		desc = "PF CSR Memory Upper Base Address Register";
+		regwidth = 32;
+		shared;
+        Consumer = "BIOS";
+                IntelRsvd = false;
+
+		field {
+			name = "Addr";
+			desc = "Upper Programmable Base Address: These bits are set by BIOS to locate the base address of the region.";
+			PowerWell="vcccfn"; AccessType = "RW";
+		} ADDR [31:00] = 32'h0;
+
+	}; // end register pcsrubar
+
+	reg subsystem_vendor_id_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Subsystem Vendor Id";
+		desc = "PF Subsystem Vendor ID Register";
+		regwidth = 16;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Svid";
+			desc = "Subsystem Vendor ID:  This field is hardwired to ID assigned to Intel.";
+			PowerWell="vcccfn"; AccessType = "RW/O";
+		} SVID [15:00] = 16'h8086;
+
+	};
+
+	reg subsystem_id_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Subsystem Id";
+		desc = "PF Subsystem ID Register";
+		regwidth = 16;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Sid";
+			desc = "Subsystem ID:  Vendor supplied device ID. Default is 0h.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} SID [15:00] = 16'h0;
+
+	}; // end register psid
+
+	reg cap_ptr_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Cap Ptr";
+		desc = "PF Capabilities Pointer Register";
+		regwidth = 8;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Cp";
+			desc = "Pointer to First Capability Structure: Value points to the configuration space offset of the first capability structure (MSI-X).";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} CP [07:00] = 8'h00;
+
+	}; // end register pcp
+
+	reg int_line_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Int Line";
+		desc = "PF Interrupt Line Register";
+		regwidth = 8;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Irql";
+			desc = "Interrupt Line:  BIOS writes the interrupt routing information to this register to indicate which input of the interrupt controller this device is connected to. The device itself does not use this information.";
+			PowerWell="vcccfn"; AccessType = "RW";
+		} IRQL [07:00] = 8'h0;
+
+	}; // end register pirql
+
+	reg int_pin_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Int Pin";
+		desc = "PF Interrupt Pin Register";
+		regwidth = 8;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Irqp";
+			desc = "Interrupt Pin:  Set to 00h to indicate that EP does not support legacy interrupts.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} IRQP [07:00] = 8'h00;
+
+	}; // end register pirqp
+
+	// Instance PF Registers
+
+	vendor_id_r                     VENDOR_ID               @0x0;
+
+	device_id_r                     DEVICE_ID               @0x2;
+
+	device_command_r                DEVICE_COMMAND          @0x4;
+
+	device_status_r                 DEVICE_STATUS           @0x6;
+
+	revision_id_class_code_r        REVISION_ID_CLASS_CODE  @0x8;
+
+	cache_line_size_r               CACHE_LINE_SIZE         @0xc;
+
+	header_type_r                   HEADER_TYPE             @0xe;
+
+	func_bar_l_r                    FUNC_BAR_L              @0x10;
+
+	func_bar_u_r                    FUNC_BAR_U              @0x14;
+
+	csr_bar_l_r                     CSR_BAR_L               @0x18;
+
+	csr_bar_u_r                     CSR_BAR_U               @0x1c;
+
+	subsystem_vendor_id_r           SUBSYSTEM_VENDOR_ID     @0x2c;
+
+	subsystem_id_r                  SUBSYSTEM_ID            @0x2e;
+
+	cap_ptr_r                       CAP_PTR                 @0x34;
+
+	int_line_r                      INT_LINE                @0x3c;
+
+	int_pin_r                       INT_PIN                 @0x3d;
+

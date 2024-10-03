@@ -1,0 +1,20 @@
+#mem_update
+
+cfg_begin
+
+   msix_alarm 0 enable=0x1 addr=0xaaaa5555aaaa5555 data=0xaaaa5555
+
+   dir qid PP_0:*
+   dir qid PP_1:*
+   
+   vas VAS:* dir_qidv:PP_0=1 dir_qidv:PP_1=1 credit_cnt=4096
+
+   dir pp PP_0   vas=VAS
+   dir cq PP_0   gpa=sm
+   dir pp PP_1   vas=VAS enable=0 
+   dir cq PP_1   gpa=sm
+
+cfg_end
+
+wr hqm_system_csr.ingress_alarm_enable 0xffffffff
+rd hqm_system_csr.ingress_alarm_enable 0x0000003f 0xffffffff

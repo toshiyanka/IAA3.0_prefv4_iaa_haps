@@ -1,0 +1,560 @@
+`include "agt_types.svh"
+module
+
+ agent_mmsg_compliance #(parameter int MAXPCMSTR=0,
+                          parameter int MAXNPMSTR=0,
+                          parameter int MAXPCTRGT=0,
+                          parameter int MAXNPTRGT=0,
+                          parameter int MAXTRGTADDR=31,
+                          parameter int MAXTRGTDATA=63,
+                          parameter int MAXMSTRADDR=31,
+                          parameter int MAXMSTRDATA=63,
+                          parameter int NUM_TX_EXT_HEADERS=0,
+                          parameter int NUM_RX_EXT_HEADERS=0)
+(
+   input  bit clk,
+   input  bit reset,
+   input  bit[1:0] mirdy,
+   input  bit[1:0] mtrdy, 
+   input  bit[1:0] meom,
+   input  bit[31:0] mmsg_pcpayload,
+   input  bit[31:0] mmsg_nppayload,
+   input bit[1:0] mmsgip,
+   input bit[1:0] msel
+);
+
+   agt_message_buf_t m_agt_msg_buf[1:0];
+   
+  
+   `define PACK_FLITS(payload, flit_buf, buf_size, start) \
+      for (int i = 0; i < AGT_DW_SIZE; i++) begin \
+         if (start+i < buf_size) \
+            flit_buf[start+i] <= \
+               payload[i*8 +: 8];\
+      end 
+
+/**
+ * Opcode Ranges
+ */
+`define AGT_REG_EP_OP_RANGE           ['b00010000:'b00011111]
+`define AGT_DATA_EP_OP_RANGE          ['b01100000:'b01111111]
+`define AGT_SIMPLE_EP_OP_RANGE        ['b10100000:'b11111111]
+
+/**
+ * Global Simple Message Opcodes
+ */
+typedef enum bit[7:0] {
+   AGT_ASSERT_INTA   = 'b10000000, 
+   AGT_ASSERT_INTB   = 'b10000001,
+   AGT_ASSERT_INTC   = 'b10000010,
+   AGT_ASSERT_INTD   = 'b10000011,
+   AGT_DEASSERT_INTA = 'b10000100,
+   AGT_DEASSERT_INTB = 'b10000101,
+   AGT_DEASSERT_INTC = 'b10000110,
+   AGT_DEASSERT_INTD = 'b10000111,
+   AGT_DO_SERR       = 'b10001000,
+   AGT_ASSERT_PME    = 'b10010000,
+   AGT_DEASSERT_PME  = 'b10010001 
+} agt_simple_gl_opcode_t;
+
+function bit agt_msg_is_simple (
+   input bit[7:0] opcode
+);
+   agt_msg_is_simple = opcode inside
+      {
+         [AGT_ASSERT_INTA:AGT_DO_SERR],
+          AGT_ASSERT_PME, AGT_DEASSERT_PME,
+	 `AGT_SIMPLE_EP_OP_RANGE 
+      };
+endfunction
+
+/**
+ * Global Message with Data Opcodes
+ */
+typedef enum bit[7:0] {
+   AGT_PM_REQ       = 'b01000000, 
+      // PMU requests agent to initiate a state transition
+   AGT_PM_DMD       = 'b01000001, 
+      // Agent indicates a request for a specified power state or provide its
+      // latency parameters to PMU
+   AGT_PM_RSP      = 'b01000010, 
+      // Agent response to AGT_PM_REQ
+   AGT_PCI_PM      = 'b01001000, 
+      // PCI-PM message
+   AGT_PCI_E_ERROR = 'b01001001,
+      // PCI-e error. Data field includes message type (CORR, NON-FATAL, or 
+      // FATAL and the requester ID).
+   AGT_LTR = 'b01000011, //LTR
+   AGT_DOPME = 'b01000100 //DoPME for HSD:1113837
+} agt_data_gl_opcode;
+
+function bit agt_msg_is_data (
+   input bit[7:0] opcode
+);
+   agt_msg_is_data = opcode inside
+      { 
+         AGT_PM_REQ, AGT_PM_DMD, 
+	 AGT_PM_RSP, AGT_PCI_PM,
+	 AGT_PCI_E_ERROR,AGT_LTR,
+         AGT_DOPME,
+	 `AGT_DATA_EP_OP_RANGE
+      };
+endfunction
+
+/**
+ * Global Register Access Messages
+ */
+typedef enum bit[7:0] {
+   AGT_MRD   = 'b00000000,  // Read memory mapped register
+   AGT_MWR   = 'b00000001,  // Write memory mapped register
+   AGT_IORD  = 'b00000010,  // Read I/O mapped register
+   AGT_IOWR  = 'b00000011,  // Write I/O mapped register
+   AGT_CFGRD = 'b00000100,  // Read PCI configuration register
+   AGT_CFGWR = 'b00000101,  // Write PCI configuration register
+   AGT_CRRD  = 'b00000110,  // Read private control register
+   AGT_CRWR  = 'b00000111   // Write private control register
+} agt_reg_access_gl_opcode;
+
+parameter AGT_BE_FLIT             = 4;
+parameter AGT_FST_ADDR_FLIT       = 6;
+parameter AGT_DW_SIZE             = 4;
+   
+`define AGT_ADDRMODE_FIELD        6:6
+`define AGT_SBE_FIELD             7:4
+`define AGT_RESERVED_FIELD        6:3
+`define AGT_EH_FIELD               7:7
+  
+function bit agt_msg_is_DW_aligned (input int num_flits);
+   agt_msg_is_DW_aligned = (num_flits > 0) & ((num_flits & 2'b11) == 0);
+      
+endfunction
+
+
+
+function bit agt_msg_is_reg_access (
+   input bit[7:0] opcode);
+   agt_msg_is_reg_access = opcode inside 
+      { 
+         [AGT_MRD:AGT_CRWR], 
+         `AGT_REG_EP_OP_RANGE
+      };
+  endfunction
+
+function bit agt_msg_is_gl_reg_read (
+   input bit[7:0] opcode
+);
+   agt_msg_is_gl_reg_read = opcode inside 
+      {
+         AGT_MRD, AGT_IORD, AGT_CFGRD, 
+	 AGT_CRRD
+      };
+endfunction
+
+function bit agt_msg_is_reg_read (
+   input bit[7:0] opcode
+);
+   agt_msg_is_reg_read = 
+      agt_msg_is_reg_access( opcode ) && (opcode[0] == 0);
+endfunction
+
+function bit agt_msg_is_gl_reg_write (
+   input bit[7:0] opcode
+);
+   agt_msg_is_gl_reg_write = opcode inside 
+   {
+      AGT_MWR, AGT_IOWR, AGT_CFGWR, 
+      AGT_CRWR
+   };
+endfunction
+  
+function bit agt_msg_is_reg_write (
+   input bit[7:0] opcode
+);
+   agt_msg_is_reg_write = 
+      agt_msg_is_reg_access( opcode ) && (opcode[0] == 1);
+endfunction
+
+/**
+ * Global Completion Data Opcodes
+ */
+typedef enum bit[7:0] {
+   AGT_CMP  = 'b00100000, // Completion without data
+   AGT_CMPD = 'b00100001  // Completion with data
+} agt_completion_gl_opcode;
+
+`define AGT_RSP_FIELD               4:3
+`define AGT_RSP_RESERVED_FIELD      6:5
+
+function bit agt_msg_is_completion (
+   input bit[7:0] opcode
+);
+   agt_msg_is_completion = 
+      opcode inside{ [AGT_CMP:AGT_CMPD]};
+endfunction
+
+/**
+ * RSP values
+ */
+parameter AGT_RSP_SUCCESS = 2'b00;
+parameter AGT_RSP_UNSUCCESS = 2'b01;
+parameter AGT_RSP_POWER_DOWN = 2'b10;
+parameter AGT_RSP_MULTI_MIXED = 2'b11;
+
+//parameter type AGT_MULTICAST_ID_TYPE = enum bit[7:0] { AGT_BROADCAST = 8'hFF };
+
+/**
+ * Multicast group definition
+ */
+//parameter AGT_TOTAL_MCAST_PIDS = 256;
+
+   /**
+    * Internal signals for message opcodes and tags
+    */
+   
+   bit [7:0] m_agt_msg_opcode[1:0];
+   bit [7:0] m_agt_msg_tag_etc[1:0];
+   bit valid;
+   int flits;
+   bit[7:0][71:0] pflits, nflits;
+   
+   /**
+    *
+    * The npirdy and pcirdy signals may never be asserted in the 
+    * same clock cycle.
+    */
+
+//   np_and_pc_irdy_cannot_happen_together_assert: assert property (mirdy[1] || $onehot0(mirdy[0]));
+
+   generate for (genvar iter = 0; iter < 2; iter++) begin 
+   
+      always @(posedge clk)
+         if (mirdy[iter] && mtrdy[iter]) begin
+	    // valid flit/byte
+
+            if (m_agt_msg_buf[iter].vld) begin
+               // back-to-back case
+               if (iter == 0) `PACK_FLITS(mmsg_pcpayload, m_agt_msg_buf[iter].flits, 72, 0);
+               if (iter == 1) `PACK_FLITS(mmsg_nppayload, m_agt_msg_buf[iter].flits, 72, 0);               
+
+            end else begin
+	       // normal flits
+               if (iter == 0) `PACK_FLITS (mmsg_pcpayload, m_agt_msg_buf[iter].flits, 72, m_agt_msg_buf[iter].num_flits);               
+               if (iter == 1) `PACK_FLITS (mmsg_nppayload, m_agt_msg_buf[iter].flits, 72, m_agt_msg_buf[iter].num_flits);               
+            end
+            if (iter ==0) begin
+            if (valid) begin
+               // back-to-back case
+               if (iter == 0) `PACK_FLITS(mmsg_pcpayload, pflits, 72, 0);
+               if (iter == 1) `PACK_FLITS(mmsg_nppayload, nflits, 72, 0);               
+
+            end else begin
+	       // normal flits
+               if (iter == 0) `PACK_FLITS (mmsg_pcpayload, pflits, 72, flits);               
+               if (iter == 1) `PACK_FLITS (mmsg_nppayload, nflits, 72, flits);               
+            end end
+	 end
+
+ 
+      /**
+       * Make the assembled message valid when eom is seen.
+       */
+      always @(posedge clk or negedge reset)
+         if (!reset)
+            begin
+               m_agt_msg_buf[iter].vld <= 0;
+               if (iter==0) valid <=0 ;
+               
+            end
+         else
+            begin
+               m_agt_msg_buf[iter].vld <= mirdy[iter] && mtrdy[iter] && meom[iter];
+               if (iter ==0 ) valid<=mirdy[0] && mtrdy[0] && meom[0];
+               
+            end
+
+      /**
+       * Count number of flits in a message under assembly
+       */
+      always @(posedge clk or negedge reset)
+         if (!reset) begin
+            m_agt_msg_buf[iter].num_flits <= 0;
+            if(iter==0) flits<=0;
+            
+         end else if (m_agt_msg_buf[iter].vld) begin
+            if (mirdy[iter] && mtrdy[iter])  // back-to-back message
+              m_agt_msg_buf[iter].num_flits <= AGT_DW_SIZE;
+            if (iter==0) flits<= AGT_DW_SIZE;
+            
+            else // inactivity between mesages
+              m_agt_msg_buf[iter].num_flits <= 0;
+            if (iter==0) flits<=0;
+            
+                      
+         end else if (mirdy[iter] && mtrdy[iter]) begin
+            m_agt_msg_buf[iter].num_flits <= 
+	        m_agt_msg_buf[iter].num_flits + AGT_DW_SIZE;  
+            if (iter==0) flits<= flits+4;
+            
+         end
+
+   end endgenerate
+
+   //*************************************************************************
+   // Message Validity Check
+   //*************************************************************************
+   generate for (genvar iter = 0; iter<2; iter++) begin: vld_msg_chk
+
+   /**
+    * Extract opcodes and tags from messages
+    */
+   assign m_agt_msg_opcode[iter] = m_agt_msg_buf[iter].flits[2];
+   assign m_agt_msg_tag_etc[iter] = m_agt_msg_buf[iter].flits[3];
+   
+      //valid message size, multiple of dw   
+      property mmsg_size_vld;
+        @(posedge clk) disable iff(reset) 
+        (m_agt_msg_buf[iter].vld) |-> (agt_msg_is_DW_aligned( m_agt_msg_buf[iter].num_flits ));
+      endproperty        
+      mmsg_size_vld_assert: assert property (mmsg_size_vld);
+
+      //valid opcode 
+      property mmsg_opcode_vld;
+        @(posedge clk) disable iff(reset) m_agt_msg_buf[iter].vld 
+        |-> ((agt_msg_is_simple ( m_agt_msg_opcode[iter] ) || 
+              agt_msg_is_data ( m_agt_msg_opcode[iter] ) ||       
+              agt_msg_is_completion ( m_agt_msg_opcode[iter] ) || 
+              agt_msg_is_reg_access ( m_agt_msg_opcode[iter] )));
+      
+      endproperty        
+      mmsg_opcode_vld_assert: assert property (mmsg_opcode_vld);  
+
+      //valid simple message size
+      property mmsg_simple_msg_vld;
+      @(posedge clk) disable iff(reset) ((m_agt_msg_buf[iter].vld) && 
+                                         (agt_msg_is_simple ( m_agt_msg_opcode[iter])))
+      |-> (m_agt_msg_buf[iter].num_flits == AGT_DW_SIZE);
+      endproperty
+      mmsg_simple_msg_vld_assert: assert property (mmsg_simple_msg_vld);
+
+      //reserved field ==0 for simple message
+      property mmsg_simple_reserved_fld_vld;
+      @(posedge clk) disable iff(reset) ((m_agt_msg_buf[iter].vld) && 
+                                         (agt_msg_is_simple ( m_agt_msg_opcode[iter])))
+      |-> (m_agt_msg_tag_etc[iter][`AGT_RESERVED_FIELD] == 0);
+      endproperty
+      mmsg_simple_reserved_fld_vld_assert: assert property (mmsg_simple_reserved_fld_vld);
+
+      //valid msgd message size
+      property mmsg_msgd_msg_vld;
+      @(posedge clk) disable iff(reset) ((m_agt_msg_buf[iter].vld) && 
+                                         (agt_msg_is_data ( m_agt_msg_opcode[iter])))
+      |-> (m_agt_msg_buf[iter].num_flits >= 2 * AGT_DW_SIZE);
+      endproperty
+      mmsg_msgd_msg_vld_assert: assert property (mmsg_msgd_msg_vld);
+
+      //reserved field == 0 for msgd messages
+      property mmsg_msgd_reserved_fld_vld;
+      @(posedge clk) disable iff(reset) ((m_agt_msg_buf[iter].vld) && 
+                                         (agt_msg_is_data ( m_agt_msg_opcode[iter])))
+      |-> (m_agt_msg_tag_etc[iter][`AGT_RESERVED_FIELD] == 0);
+      endproperty
+      mmsg_msgd_reserved_fld_vld_assert: assert property (mmsg_msgd_reserved_fld_vld);
+
+      //addrlen should be 0 or 1 for regio messages
+      property mmsg_regio_addrlen_fld_vld;
+      @(posedge clk) disable iff(reset) ((m_agt_msg_buf[iter].vld) && 
+                                         (agt_msg_is_reg_access ( m_agt_msg_opcode[iter])))
+      |-> (m_agt_msg_tag_etc[iter][`AGT_ADDRMODE_FIELD] == 0) || (m_agt_msg_tag_etc[iter][`AGT_ADDRMODE_FIELD] == 1);
+      endproperty
+      mmsg_regio_addrlen_fld_vld_assert: assert property (mmsg_regio_addrlen_fld_vld);
+
+      //cfgwr, cfgrd, iowr, iord need 16 bit addrlen
+      property mmsg_regio_cfgio_addrlen_fld_vld;
+      @(posedge clk) disable iff(reset) ((m_agt_msg_buf[iter].vld) && 
+                                         (m_agt_msg_opcode[iter] inside 
+                                          { AGT_IORD, AGT_IOWR,
+                                            AGT_CFGRD, AGT_CFGWR}))
+      |-> (m_agt_msg_tag_etc[iter][`AGT_ADDRMODE_FIELD] == 0);
+      endproperty
+      mmsg_regio_cfgio_addrlen_fld_vld_assert: assert property (mmsg_regio_cfgio_addrlen_fld_vld);
+ 
+      //mwr, mrd, iowr, iord need dw alligned address
+      property mmsg_regio_mio_dw_addr_fld_vld;
+      @(posedge clk) disable iff(reset) ((m_agt_msg_buf[iter].vld) && 
+                                         (m_agt_msg_opcode[iter] inside 
+                                          { AGT_IORD, AGT_IOWR,
+                                            AGT_MRD, AGT_MWR}))
+      |-> (m_agt_msg_buf[iter].flits[AGT_FST_ADDR_FLIT][1:0] == 2'b00);
+      endproperty
+      mmsg_regio_mio_dw_addr_fld_vld_assert: assert property (mmsg_regio_mio_dw_addr_fld_vld);
+
+      //cfgrd, cfgwr need dw alligned address
+      property mmsg_regio_cfg_dw_addr_fld_vld;
+      @(posedge clk) disable iff(reset) ((m_agt_msg_buf[iter].vld) && 
+                                         (agt_msg_is_reg_access(m_agt_msg_opcode[iter]))) 
+      |-> (m_agt_msg_buf[iter].flits[AGT_FST_ADDR_FLIT][1] == 1'b0);
+      endproperty
+      mmsg_regio_cfg_dw_addr_fld_vld_assert: assert property (mmsg_regio_cfg_dw_addr_fld_vld);
+
+      //regio addr QW alligned
+      property mmsg_regio_qw_addr_fld_vld;
+      @(posedge clk) disable iff(reset) ((m_agt_msg_buf[iter].vld) && 
+                                         (agt_msg_is_reg_access(m_agt_msg_opcode[iter])) &&
+                                         m_agt_msg_buf[iter].flits[AGT_BE_FLIT][`AGT_SBE_FIELD] > 0)
+      |-> (m_agt_msg_buf[iter].flits[AGT_FST_ADDR_FLIT][2] == 0);
+      endproperty
+      mmsg_regio_qw_addr_fld_vld_assert: assert property (mmsg_regio_qw_addr_fld_vld);
+
+      //valid regio read
+      property mmsg_regio_read_vld;
+      @(posedge clk) disable iff(reset) ((m_agt_msg_buf[iter].vld) && 
+                                         (agt_msg_is_gl_reg_read(m_agt_msg_opcode[iter])))
+      |-> (m_agt_msg_buf[iter].num_flits == ((2+m_agt_msg_tag_etc[iter][`AGT_ADDRMODE_FIELD]) * AGT_DW_SIZE));
+      endproperty
+      mmsg_regio_read_vld_assert: assert property (mmsg_regio_read_vld);
+
+      //valid regio write with sbe=0
+      property mmsg_regio_write_sbe_zero_vld;
+      @(posedge clk) disable iff(reset) ((m_agt_msg_buf[iter].vld) && 
+                                         (agt_msg_is_gl_reg_write(m_agt_msg_opcode[iter] )) &&
+                                         (m_agt_msg_buf[iter].flits[AGT_BE_FLIT][`AGT_SBE_FIELD] == 0))
+      |-> (m_agt_msg_buf[iter].num_flits == (3+m_agt_msg_tag_etc[iter][`AGT_ADDRMODE_FIELD])*4);
+      endproperty
+      mmsg_regio_write_sbe_zero_vld_assert: assert property (mmsg_regio_write_sbe_zero_vld);
+                                         
+      //valid regio write with sbe nonzero
+      property mmsg_regio_write_sbe_nonzero_vld;
+      @(posedge clk) disable iff(reset) ((m_agt_msg_buf[iter].vld) && 
+                                         (agt_msg_is_gl_reg_write(m_agt_msg_opcode[iter] )) &&
+                                         (m_agt_msg_buf[iter].flits[AGT_BE_FLIT][`AGT_SBE_FIELD] != 0))
+      |-> (m_agt_msg_buf[iter].num_flits == 
+           (AGT_DW_SIZE+m_agt_msg_tag_etc[iter][`AGT_ADDRMODE_FIELD])*AGT_DW_SIZE);
+      endproperty
+      mmsg_regio_write_sbe_nonzero_vld_assert: assert property (mmsg_regio_write_sbe_nonzero_vld);      
+
+      //valid completion without data message
+      property mmsg_cmp_vld;
+      @(posedge clk) disable iff(reset) ((m_agt_msg_buf[iter].vld) && 
+                                         (m_agt_msg_opcode[iter] == AGT_CMP)) 
+      |-> (m_agt_msg_buf[iter].num_flits == AGT_DW_SIZE);
+      endproperty
+      mmsg_cmp_vld_assert: assert property (mmsg_cmp_vld);    
+
+      //valid completion with data message
+      property mmsg_cmpd_vld;
+      @(posedge clk) disable iff(reset) ((m_agt_msg_buf[iter].vld) && 
+                                         (m_agt_msg_opcode[iter] == AGT_CMPD)) 
+      |-> (m_agt_msg_buf[iter].num_flits > AGT_DW_SIZE) &&
+         agt_msg_is_DW_aligned( m_agt_msg_buf[iter].num_flits);
+      endproperty
+      mmsg_cmpd_vld_assert: assert property (mmsg_cmpd_vld);  
+
+      //non_posted read
+      property mmsg_read_cannot_posted_vld;
+      @(posedge clk) disable iff(reset) (m_agt_msg_buf[0].vld)
+      |-> (!agt_msg_is_reg_read( m_agt_msg_opcode[0]));
+      endproperty
+      mmsg_read_cannot_posted_vld_assert: assert property (mmsg_read_cannot_posted_vld);  
+
+      //pm message is 3dw
+      property mmsg_pm_msg_vld;
+      @(posedge clk) disable iff(reset) (m_agt_msg_buf[0].vld) &&
+                                         (m_agt_msg_opcode[0] == AGT_PM_REQ || 
+                                          m_agt_msg_opcode[0] == AGT_PM_DMD ||
+                                          m_agt_msg_opcode[0] == AGT_PM_RSP)
+      |-> (m_agt_msg_buf[0].num_flits == 3 * AGT_DW_SIZE);
+      endproperty
+      mmsg_pm_msg_vld_assert: assert property (mmsg_pm_msg_vld); 
+
+      //pm message is 2dw
+      property mmsg_pm_ltr_msg_vld;
+      @(posedge clk) disable iff(reset) (m_agt_msg_buf[0].vld) &&
+                                         (m_agt_msg_opcode[0] == AGT_LTR)
+      |-> (m_agt_msg_buf[0].num_flits == 2 * AGT_DW_SIZE);
+      endproperty
+      mmsg_pm_ltr_msg_vld_assert: assert property (mmsg_pm_ltr_msg_vld);
+
+      //simple message is posted
+      property mmsg_simple_posted_vld;
+      @(posedge clk) disable iff(reset) (m_agt_msg_buf[1].vld)                   
+      |-> ((m_agt_msg_opcode[1] != AGT_ASSERT_INTA) &&
+           (m_agt_msg_opcode[1] != AGT_ASSERT_INTB) &&
+           (m_agt_msg_opcode[1] != AGT_ASSERT_INTC) &&
+           (m_agt_msg_opcode[1] != AGT_ASSERT_INTD) &&
+           (m_agt_msg_opcode[1] != AGT_DEASSERT_INTA) &&
+           (m_agt_msg_opcode[1] != AGT_DEASSERT_INTB) &&
+           (m_agt_msg_opcode[1] != AGT_DEASSERT_INTC) &&
+           (m_agt_msg_opcode[1] != AGT_DEASSERT_INTD));
+      endproperty
+      mmsg_simple_posted_vld_assert: assert property (mmsg_simple_posted_vld);
+ 
+      //simple do_serr message is posted
+      property mmsg_simple_do_serr_posted_vld;
+      @(posedge clk) disable iff(reset) (m_agt_msg_buf[1].vld)                   
+      |-> ((m_agt_msg_opcode[1] != AGT_DO_SERR));
+      endproperty
+      mmsg_simple_do_serr_posted_vld_assert: assert property (mmsg_simple_do_serr_posted_vld);
+
+      //pm message needs to be posted
+      property mmsg_pm_msg_posted_vld;
+      @(posedge clk) disable iff(reset) (m_agt_msg_buf[1].vld)                   
+      |-> ((m_agt_msg_opcode[1] != AGT_PM_REQ) &&
+           (m_agt_msg_opcode[1] != AGT_PM_DMD) &&
+           (m_agt_msg_opcode[1] != AGT_PM_RSP));
+      endproperty
+      mmsg_pm_msg_posted_vld_assert: assert property (mmsg_pm_msg_posted_vld);
+
+      //pci pm message needs to be posted
+      property mmsg_pci_pm_msg_posted_vld;
+      @(posedge clk) disable iff(reset) (m_agt_msg_buf[1].vld)                   
+      |-> ((m_agt_msg_opcode[1] != AGT_PCI_PM));
+      endproperty
+      mmsg_pci_pm_msg_posted_vld_assert: assert property (mmsg_pci_pm_msg_posted_vld);
+
+      //pci error message needs to be posted
+      property mmsg_pci_error_msg_posted_vld;
+      @(posedge clk) disable iff(reset) (m_agt_msg_buf[1].vld)                   
+      |-> ((m_agt_msg_opcode[1] != AGT_PCI_E_ERROR));
+      endproperty
+      mmsg_pci_error_msg_posted_vld_assert: assert property (mmsg_pci_error_msg_posted_vld);
+
+      //simple ltr posted
+      property mmsg_ltr_posted_vld;
+      @(posedge clk) disable iff(reset) (m_agt_msg_buf[1].vld)                   
+      |-> ((m_agt_msg_opcode[1] != AGT_LTR));
+      endproperty
+      mmsg_ltr_posted_vld_assert: assert property (mmsg_ltr_posted_vld);
+
+      //eh == 0 for all message
+      property mmsg_eh_zero_fld_vld;
+      @(posedge clk) disable iff(reset) ((m_agt_msg_buf[iter].vld) && 
+                                         ((agt_msg_is_simple ( m_agt_msg_opcode[iter])) ||
+                                          (agt_msg_is_data ( m_agt_msg_opcode[iter])) ||
+                                          (agt_msg_is_reg_access( m_agt_msg_opcode[iter])) ||
+                                          (agt_msg_is_completion( m_agt_msg_opcode[iter]))))
+      |-> (m_agt_msg_buf[iter].flits[3][`AGT_EH_FIELD] == 0);
+      endproperty
+      mmsg_eh_zero_fld_vld_assert: assert property (mmsg_eh_zero_fld_vld);
+
+     //addrlen == 0 for all message (since sbendpoint param is 31)
+      property mmsg_addrlen_zero_fld_vld;
+      @(posedge clk) disable iff(reset) (m_agt_msg_buf[iter].vld) 
+      |-> (m_agt_msg_buf[iter].flits[3][`AGT_ADDRMODE_FIELD] == 0);
+      endproperty
+      mmsg_addrlen_zero_fld_vld_assert: assert property (mmsg_addrlen_zero_fld_vld);
+      
+      
+   end // block: vld_msg_chk
+   endgenerate
+   
+endmodule
+
+
+
+
+
+
+
+
+
+

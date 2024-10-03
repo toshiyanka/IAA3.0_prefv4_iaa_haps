@@ -1,0 +1,38 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => [
+                     "+AW_CONTINUE_ON_ERROR",
+                     "+iosf_tracker_filename=iosf_trk",
+                     "-assert nopostproc",
+                     "+vcs+lic+wait",
+                     "+SLA_MAX_RUN_CLOCK=400000",
+                     "+SLA_USER_DATA_PHASE_TIMEOUT=400000",
+                     "+SLA_CONFIG_PHASE_TIMEOUT=200000",
+                     "+HQMS_DEBUG",
+                     "+HQM_LSP_CQ_QID_CFG_CHECK_DIS",
+                     "+HQM_RAL_SET_VARIANT_CHECK",
+                     "+EXP_UNWANTED_TXN_TO_HQM",
+                     "+HQM_PCIE_SKIP_EOT_SEQ",
+                     "+HQM_DIS_ERR_MSG_CHECK",
+                     "+HQM_EOT_RD_SEQ_ENABLE_CREDIT_CHECK",
+                     "+HQM_CFG_SEQ=aceroot/verif/tb/hqm/tests/hqm_unimp_addr_test_cfg.cft",
+                     "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+
+                    ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+      pf_cfg            => { -simv_args => [ "+hqm_unimp_addr_user_data_seq_stim_config::ral_file_name=hqm_pf_cfg_i", ], },
+      system_csr        => { -simv_args => [ "+hqm_unimp_addr_user_data_seq_stim_config::ral_file_name=hqm_system_csr", ], },
+      credit_hist_pipe  => { -simv_args => [ "+hqm_unimp_addr_user_data_seq_stim_config::ral_file_name=credit_hist_pipe", ], },
+      list_sel_pipe     => { -simv_args => [ "+hqm_unimp_addr_user_data_seq_stim_config::ral_file_name=list_sel_pipe", ], },
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

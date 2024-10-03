@@ -1,0 +1,29 @@
+How to request for the IP access (SBR and SBE) on IPX.
+-Need to send email to Jignasa (Jignasa.patel@intel.com) with your unix group name
+ unit grpoup example, tglp, cnv etc
+
+How to grant permit to any group ? Follow following steps on unix to grant the IP access
+
+     https://wiki.ith.intel.com/display/IPX/Onboarding+for+HDK
+ 	 Open fresh Xterm and run following command
+1) kinit  (then enter password)
+2) wash -n -g user soc soc73 fabric 
+3) /p/hdk/bin/setproj -pr 1273.1 -pr_rev p1273.1x1r5u1 -p siphdk -cfg HDK1.2.1_73P1 -sv 18.04.001 -uv 18.04.001
+4) setenv ipxclient_ALT0 prod; setenv ipx_services_ALT0 prod; setenv IPX_PH1_ALT0 1
+5) setenv ship_ALT0 19.02.020; setenv ship_proj_ALT0 IPXPilot.p003; setenv ip_release_ALT0 latest; setenv indicator_ALT0 IPXPilot.p002; setenv iphub_ALT0 17.1.02.p002; setenv hdkperlmod_ALT0 17.01.001 
+6) setup -d -t ip_release -b none -ath ship -at ipx_services -ov <path to your stod>/<work area name e.g. create empty directory>
+7) setenv PATH "$IPXPATH":"$PATH"; pi login $USER; p4 login –a
+
+Now you can run any pi command once you have this setup
+
+8) pi ip ls iosf_sb. -a (to check which release happened when)
+9) ipx ip editperm -ip <Lib>.<TopIP>@.<PROVIDERLINE> -add -ipl-access <CONSUMERGROUP>:r -ip-access <CONSUMERGROUP>:rw
+example ipx ip editperm -ip iosf_sb.sbr@0.pic -add -ipl-access tgp:r -ip-access tgp:rw(command to give access)
+10) pi group ls tgp -v  (to check the group is there or not)
+11) pi ip ls iosf_sb.sbe@1.pic –v (Tocheck the group got access or not)
+12) pi ip ls -v iosf_sb.sbr@1.pic | egrep -i "perm|vers|unix|owner" (to check the permission)
+
+How to load ip from IPX, Once you ipx setup run the following command on your xterm to load the IP from IPX
+ 
+pi ip load iosf_sb.sbr@2.pic  (run this after pi setup in your xterm and in your work directory where you want to download the IP)
+

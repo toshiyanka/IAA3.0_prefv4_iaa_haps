@@ -1,0 +1,1553 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => [
+                     "+AW_CONTINUE_ON_ERROR",
+                     "+iosf_tracker_filename=iosf_trk",
+                     "-assert nopostproc",
+                     "+vcs+lic+wait",
+
+                     "+OVM_GLOBAL_TIMEOUT=10ms",
+                     "+SLA_MAX_RUN_CLOCK=800000000",
+                     "+SLA_USER_DATA_PHASE_TIMEOUT=300000000",
+                     "+SLA_CONFIG_PHASE_TIMEOUT=500000000",
+
+                     "+HQM_PCIE_SKIP_EOT_SEQ",
+                     "+HQM_EOT_RD_SEQ_ENABLE_CREDIT_CHECK",
+
+                     "+HQM_PFVF_SPACE_ACCESS=1",
+                    ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+
+    ######################################################
+    #unimp addr selection: sample
+    ######################################################  
+      pfvf_deassert_0 => {
+             -simv_args => [
+                   #  "-assert quiet+hier=aceroot/verif/tb/hqm/tests/hqm_pfcsr_vf_acc.waiver",
+                        ],
+      },
+
+      ######################################################  
+      ##CSR
+      unimp_selmode1_incr4     => { -simv_args => [ 
+                                                      "+UNIMP_SEL_MODE=1",
+                                                      "+UNIMP_WT_INCR_MIN=4",
+                                                      "+UNIMP_WT_INCR_MAX=4",
+                                                     ], 
+                                     },
+      unimp_selmode1_incr16     => { -simv_args => [ 
+                                                      "+UNIMP_SEL_MODE=1",
+                                                      "+UNIMP_WT_INCR_MIN=16",
+                                                      "+UNIMP_WT_INCR_MAX=16",
+                                                     ], 
+                                     },
+
+      unimp_selmode1_incr816     => { -simv_args => [ 
+                                                      "+UNIMP_SEL_MODE=1",
+                                                      "+UNIMP_WT_INCR_MIN=8",
+                                                      "+UNIMP_WT_INCR_MAX=16",
+                                                     ], 
+                                     },
+
+      #################################################################
+      #################################################################
+      pfvfcsr_test0                  => { -simv_args => [ 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_csr_addr=1",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_pf_addr=1",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_vf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_csr_addr=100",  #CSR number of addrress
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_unimp_addr=0", ##walk_through_disabled
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_rand_addr=10",  #PF/VF disabled
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_pick_addr=80", 
+
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr0_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr1_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr2_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr3_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr4_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr5_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr6_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr7_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr8_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr9_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr10_enable=1", 
+
+                                                      "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_test0.cft",
+                                                      "+HQM_DATA_SEQ=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_write_test0.cft",
+                                                      "+HQM_DATA_SEQ2=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_read_test0.cft",
+                                                      "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+
+                                                     ], 
+                                     },
+      pfvfcsr_test2                  => { -simv_args => [ 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_csr_addr=1",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_pf_addr=1",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_vf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_csr_addr=1000",  #CSR number of addrress
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_unimp_addr=0", ##walk_through_disabled
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_rand_addr=100", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_pick_addr=300", 
+
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr0_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr1_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr2_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr3_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr4_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr5_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr6_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr7_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr8_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr9_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr10_enable=1", 
+
+                                                      "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_test0.cft",
+                                                      "+HQM_DATA_SEQ=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_write_test0.cft",
+                                                      "+HQM_DATA_SEQ2=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_read_test0.cft",
+                                                      "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+
+                                                     ], 
+                                     },
+
+
+      #################################################################
+      #################################################################
+      csr_sys_test0                  => { -simv_args => [ 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_csr_addr=1",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_pf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_vf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_csr_addr=100",  #CSR number of addrress
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_unimp_addr=0", ##walk_through_disabled
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_rand_addr=0",  #PF/VF disabled
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_pick_addr=80", 
+
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr0_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr1_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr2_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr3_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr4_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr5_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr6_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr7_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr8_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr9_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr10_enable=0", 
+
+                                                      "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_test0.cft",
+                                                      "+HQM_DATA_SEQ=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_write_test0.cft",
+                                                      "+HQM_DATA_SEQ2=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_read_test0.cft",
+                                                      "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+
+                                                     ], 
+                                     },
+
+      csr_test0                  => { -simv_args => [ 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_csr_addr=1",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_pf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_vf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_csr_addr=100",  #CSR number of addrress
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_unimp_addr=0", ##walk_through_disabled
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_rand_addr=0",  #PF/VF disabled
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_pick_addr=80", 
+
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr0_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr1_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr2_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr3_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr4_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr5_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr6_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr7_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr8_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr9_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr10_enable=1", 
+
+                                                      "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_test0.cft",
+                                                      "+HQM_DATA_SEQ=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_write_test0.cft",
+                                                      "+HQM_DATA_SEQ2=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_read_test0.cft",
+                                                      "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+
+                                                     ], 
+                                     },
+
+      csr_hqmsystemcsr_test0     => { -simv_args => [ 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_csr_addr=1",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_pf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_vf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_csr_addr=2000",  #CSR number of addrress
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_unimp_addr=0", ##walk_through_disabled
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_rand_addr=0",  #PF/VF disabled
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_pick_addr=80", 
+
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr0_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr1_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr2_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr3_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr4_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr5_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr6_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr7_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr8_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr9_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr10_enable=0", 
+
+                                                      "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_test0.cft",
+                                                      "+HQM_DATA_SEQ=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_write_test0.cft",
+                                                      "+HQM_DATA_SEQ2=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_read_test0.cft",
+                                                      "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+
+                                                     ], 
+                                     },
+
+
+
+
+    
+      #try hqm_system_csr wt method to select unimp from register gaps (num_unimp_addr=1024 //unimp_csr_gap_addr_stoffset=16384)
+      csr_hqmsystemcsr_wt_test0     => { -simv_args => [ 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_csr_addr=1",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_pf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_vf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_csr_addr=100",   #CSR number of addrress
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_unimp_addr=1024", ##walk_through_mode
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_rand_addr=0",     #PF/VF disabled
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_pick_addr=80",    #pick is not enabled due to wt mode
+                                                      #"+hqm_pfvf_space_acc_seq_stim_config::unimp_addr_wt_step=0",  #0, 1, 2, 4, 4, ...; specify in cmd line
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr_gap_addr_stoffset=16384",  #0x4000
+
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr0_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr1_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr2_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr3_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr4_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr5_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr6_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr7_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr8_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr9_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr10_enable=0", 
+
+                                                      "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_test0.cft",
+                                                      "+HQM_DATA_SEQ=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_write_test0.cft",
+                                                      "+HQM_DATA_SEQ2=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_read_test0.cft",
+                                                      "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+
+                                                     ], 
+                                     },
+
+
+      csr_configmaster_test0     => { -simv_args => [ 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_csr_addr=1",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_pf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_vf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_csr_addr=2000",  #CSR number of addrress
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_unimp_addr=0", ##walk_through_disabled
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_rand_addr=0",  #PF/VF disabled
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_pick_addr=80", 
+
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr0_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr1_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr2_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr3_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr4_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr5_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr6_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr7_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr8_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr9_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr10_enable=1", 
+
+                                                      "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_test0.cft",
+                                                      "+HQM_DATA_SEQ=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_write_test0.cft",
+                                                      "+HQM_DATA_SEQ2=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_read_test0.cft",
+                                                      "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+
+                                                     ], 
+                                     },
+
+
+      ########################################################################
+      #try hqm_system_csr wt method to select unimp from register gaps  (num_unimp_addr=4096 //unimp_csr_gap_addr_stoffset=65536) 
+      ########################################################################
+      #hqm_system_csr
+      csr_hqmsystemcsr_wt_test1     => { -simv_args => [ 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_csr_addr=1",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_pf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_vf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_csr_addr=100",   #CSR number of addrress
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_unimp_addr=4096", ##walk_through_mode
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_rand_addr=0",     #PF/VF disabled
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_pick_addr=80",    #pick is not enabled due to wt mode
+                                                      #"+hqm_pfvf_space_acc_seq_stim_config::unimp_addr_wt_step=0",  #0, 1, 2, 4, 4, ...; specify in cmd line
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr_gap_addr_stoffset=65536",  #0x1_0000
+
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr0_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr1_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr2_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr3_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr4_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr5_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr6_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr7_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr8_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr9_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr10_enable=0", 
+
+                                                      "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_test0.cft",
+                                                      "+HQM_DATA_SEQ=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_write_test0.cft",
+                                                      "+HQM_DATA_SEQ2=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_read_test0.cft",
+                                                      "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+
+                                                     ], 
+                                     },
+      ##hqm_sif_csr
+      csr_hqmiosfcsr_wt_test1     => { -simv_args => [ 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_csr_addr=1",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_pf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_vf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_csr_addr=100",   #CSR number of addrress
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_unimp_addr=4096", ##walk_through_mode
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_rand_addr=0",     #PF/VF disabled
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_pick_addr=80",    #pick is not enabled due to wt mode
+                                                      #"+hqm_pfvf_space_acc_seq_stim_config::unimp_addr_wt_step=0",  #0, 1, 2, 4, 4, ...; specify in cmd line
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr_gap_addr_stoffset=65536",  #0x1_0000
+
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr0_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr1_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr2_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr3_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr4_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr5_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr6_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr7_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr8_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr9_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr10_enable=0", 
+
+                                                      "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_test0.cft",
+                                                      "+HQM_DATA_SEQ=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_write_test0.cft",
+                                                      "+HQM_DATA_SEQ2=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_read_test0.cft",
+                                                      "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+
+                                                     ], 
+                                     },
+
+      ##aqed_pipe
+      csr_aqedpipe_wt_test1     => { -simv_args => [ 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_csr_addr=1",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_pf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_vf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_csr_addr=100",   #CSR number of addrress
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_unimp_addr=4096", ##walk_through_mode
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_rand_addr=0",     #PF/VF disabled
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_pick_addr=80",    #pick is not enabled due to wt mode
+                                                      #"+hqm_pfvf_space_acc_seq_stim_config::unimp_addr_wt_step=0",  #0, 1, 2, 4, 4, ...; specify in cmd line
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr_gap_addr_stoffset=65536",  #0x1_0000
+
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr0_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr1_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr2_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr3_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr4_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr5_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr6_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr7_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr8_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr9_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr10_enable=0", 
+
+                                                      "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_test0.cft",
+                                                      "+HQM_DATA_SEQ=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_write_test0.cft",
+                                                      "+HQM_DATA_SEQ2=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_read_test0.cft",
+                                                      "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+
+                                                     ], 
+                                     },
+
+      ##atm_pipe
+      csr_atmpipe_wt_test1     => { -simv_args => [ 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_csr_addr=1",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_pf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_vf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_csr_addr=100",   #CSR number of addrress
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_unimp_addr=4096", ##walk_through_mode
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_rand_addr=0",     #PF/VF disabled
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_pick_addr=80",    #pick is not enabled due to wt mode
+                                                      #"+hqm_pfvf_space_acc_seq_stim_config::unimp_addr_wt_step=0",  #0, 1, 2, 4, 4, ...; specify in cmd line
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr_gap_addr_stoffset=65536",  #0x1_0000
+
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr0_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr1_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr2_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr3_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr4_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr5_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr6_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr7_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr8_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr9_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr10_enable=0", 
+
+                                                      "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_test0.cft",
+                                                      "+HQM_DATA_SEQ=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_write_test0.cft",
+                                                      "+HQM_DATA_SEQ2=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_read_test0.cft",
+                                                      "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+
+                                                     ], 
+                                     },
+
+      ##credit_hist_pipe
+      csr_credithistpipe_wt_test1     => { -simv_args => [ 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_csr_addr=1",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_pf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_vf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_csr_addr=100",   #CSR number of addrress
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_unimp_addr=4096", ##walk_through_mode
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_rand_addr=0",     #PF/VF disabled
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_pick_addr=80",    #pick is not enabled due to wt mode
+                                                      #"+hqm_pfvf_space_acc_seq_stim_config::unimp_addr_wt_step=0",  #0, 1, 2, 4, 4, ...; specify in cmd line
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr_gap_addr_stoffset=65536",  #0x1_0000
+
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr0_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr1_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr2_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr3_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr4_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr5_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr6_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr7_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr8_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr9_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr10_enable=0", 
+
+                                                      "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_test0.cft",
+                                                      "+HQM_DATA_SEQ=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_write_test0.cft",
+                                                      "+HQM_DATA_SEQ2=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_read_test0.cft",
+                                                      "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+
+                                                     ], 
+                                     },
+
+      ##direct_pipe
+      csr_directpipe_wt_test1     => { -simv_args => [ 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_csr_addr=1",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_pf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_vf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_csr_addr=100",   #CSR number of addrress
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_unimp_addr=4096", ##walk_through_mode
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_rand_addr=0",     #PF/VF disabled
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_pick_addr=80",    #pick is not enabled due to wt mode
+                                                      #"+hqm_pfvf_space_acc_seq_stim_config::unimp_addr_wt_step=0",  #0, 1, 2, 4, 4, ...; specify in cmd line
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr_gap_addr_stoffset=65536",  #0x1_0000
+
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr0_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr1_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr2_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr3_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr4_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr5_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr6_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr7_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr8_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr9_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr10_enable=0", 
+
+                                                      "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_test0.cft",
+                                                      "+HQM_DATA_SEQ=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_write_test0.cft",
+                                                      "+HQM_DATA_SEQ2=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_read_test0.cft",
+                                                      "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+
+                                                     ], 
+                                     },
+
+      ##qed_pipe
+      csr_qedpipe_wt_test1     => { -simv_args => [ 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_csr_addr=1",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_pf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_vf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_csr_addr=100",   #CSR number of addrress
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_unimp_addr=4096", ##walk_through_mode
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_rand_addr=0",     #PF/VF disabled
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_pick_addr=80",    #pick is not enabled due to wt mode
+                                                      #"+hqm_pfvf_space_acc_seq_stim_config::unimp_addr_wt_step=0",  #0, 1, 2, 4, 4, ...; specify in cmd line
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr_gap_addr_stoffset=65536",  #0x1_0000
+
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr0_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr1_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr2_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr3_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr4_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr5_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr6_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr7_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr8_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr9_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr10_enable=0", 
+
+                                                      "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_test0.cft",
+                                                      "+HQM_DATA_SEQ=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_write_test0.cft",
+                                                      "+HQM_DATA_SEQ2=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_read_test0.cft",
+                                                      "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+
+                                                     ], 
+                                     },
+
+      ##nalb_pipe
+      csr_nalbpipe_wt_test1     => { -simv_args => [ 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_csr_addr=1",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_pf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_vf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_csr_addr=100",   #CSR number of addrress
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_unimp_addr=4096", ##walk_through_mode
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_rand_addr=0",     #PF/VF disabled
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_pick_addr=80",    #pick is not enabled due to wt mode
+                                                      #"+hqm_pfvf_space_acc_seq_stim_config::unimp_addr_wt_step=0",  #0, 1, 2, 4, 4, ...; specify in cmd line
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr_gap_addr_stoffset=65536",  #0x1_0000
+
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr0_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr1_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr2_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr3_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr4_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr5_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr6_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr7_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr8_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr9_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr10_enable=0", 
+
+                                                      "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_test0.cft",
+                                                      "+HQM_DATA_SEQ=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_write_test0.cft",
+                                                      "+HQM_DATA_SEQ2=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_read_test0.cft",
+                                                      "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+
+                                                     ], 
+                                     },
+
+      ##reorder_pipe
+      csr_reorderpipe_wt_test1     => { -simv_args => [ 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_csr_addr=1",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_pf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_vf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_csr_addr=100",   #CSR number of addrress
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_unimp_addr=4096", ##walk_through_mode
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_rand_addr=0",     #PF/VF disabled
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_pick_addr=80",    #pick is not enabled due to wt mode
+                                                      #"+hqm_pfvf_space_acc_seq_stim_config::unimp_addr_wt_step=0",  #0, 1, 2, 4, 4, ...; specify in cmd line
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr_gap_addr_stoffset=65536",  #0x1_0000
+
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr0_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr1_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr2_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr3_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr4_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr5_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr6_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr7_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr8_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr9_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr10_enable=0", 
+
+                                                      "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_test0.cft",
+                                                      "+HQM_DATA_SEQ=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_write_test0.cft",
+                                                      "+HQM_DATA_SEQ2=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_read_test0.cft",
+                                                      "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+
+                                                     ], 
+                                     },
+
+      ##list_sel_pipe
+      csr_listselpipe_wt_test1     => { -simv_args => [ 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_csr_addr=1",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_pf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_vf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_csr_addr=100",   #CSR number of addrress
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_unimp_addr=4096", ##walk_through_mode
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_rand_addr=0",     #PF/VF disabled
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_pick_addr=80",    #pick is not enabled due to wt mode
+                                                      #"+hqm_pfvf_space_acc_seq_stim_config::unimp_addr_wt_step=0",  #0, 1, 2, 4, 4, ...; specify in cmd line
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr_gap_addr_stoffset=65536",  #0x1_0000
+
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr0_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr1_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr2_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr3_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr4_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr5_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr6_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr7_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr8_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr9_enable=1", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr10_enable=0", 
+
+                                                      "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_test0.cft",
+                                                      "+HQM_DATA_SEQ=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_write_test0.cft",
+                                                      "+HQM_DATA_SEQ2=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_read_test0.cft",
+                                                      "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+
+                                                     ], 
+                                     },
+
+      ##config_master
+      csr_configmaster_wt_test1     => { -simv_args => [ 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_csr_addr=1",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_pf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_vf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_csr_addr=100",   #CSR number of addrress
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_unimp_addr=4096", ##walk_through_mode
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_rand_addr=0",     #PF/VF disabled
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_pick_addr=80",    #pick is not enabled due to wt mode
+                                                      #"+hqm_pfvf_space_acc_seq_stim_config::unimp_addr_wt_step=0",  #0, 1, 2, 4, 4, ...; specify in cmd line
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr_gap_addr_stoffset=65536",  #0x1_0000
+
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr0_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr1_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr2_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr3_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr4_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr5_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr6_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr7_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr8_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr9_enable=0", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_csr10_enable=1", 
+
+                                                      "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_test0.cft",
+                                                      "+HQM_DATA_SEQ=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_write_test0.cft",
+                                                      "+HQM_DATA_SEQ2=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_read_test0.cft",
+                                                      "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+
+                                                     ], 
+                                     },
+
+      #############################################################
+      ##PFVF sample
+      #############################################################
+      pfvf_smoke                  => { -simv_args => [ 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_csr_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_pf_addr=1",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_vf_addr=1",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_csr_addr=0",  #CSR number of addrress
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_unimp_addr=0", ##walk_through_disabled
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_rand_addr=10", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_pick_addr=10", 
+
+
+                                                      "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_test0.cft",
+                                                      "+HQM_DATA_SEQ=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_write_test1.cft",
+                                                      "+HQM_DATA_SEQ2=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_read_test0.cft",
+                                                      "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+
+                                                     ], 
+                                     },
+
+      pfvf_test0                  => { -simv_args => [ 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_csr_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_pf_addr=1",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_vf_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_csr_addr=0",  #CSR number of addrress
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_unimp_addr=0", ##walk_through_disabled
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_rand_addr=10", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_pick_addr=100", 
+
+
+                                                      "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_test0.cft",
+                                                      "+HQM_DATA_SEQ=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_write_test0.cft",
+                                                      "+HQM_DATA_SEQ2=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_read_test0.cft",
+                                                      "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+
+                                                     ], 
+                                     },
+
+      pfvf_test1                  => { -simv_args => [ 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_csr_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_pf_addr=1",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_vf_addr=1",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_unimp_addr=0", ##walk_through_disabled
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_rand_addr=100", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_pick_addr=100", 
+
+                                                      "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_test0.cft",
+                                                      "+HQM_DATA_SEQ=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_write_test0.cft",
+                                                      "+HQM_DATA_SEQ2=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_read_test0.cft",
+                                                      "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+
+                                                     ], 
+                                     },
+
+      pfvf_test2                  => { -simv_args => [ 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_csr_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_pf_addr=1",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_vf_addr=1",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_unimp_addr=0", ##walk_through_disabled
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_rand_addr=100", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_pick_addr=300", 
+
+                                                      "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_test0.cft",
+                                                      "+HQM_DATA_SEQ=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_write_test0.cft",
+                                                      "+HQM_DATA_SEQ2=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_read_test0.cft",
+                                                      "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+
+                                                     ], 
+                                     },
+
+#      pfvf_test2                  => { -simv_args => [ 
+#                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_pf_addr=1",   
+#                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_vf_addr=1",   
+#                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_csr_addr=50",   #CSR number of addrress collected by hqm_ral.gen_unimp_addresses
+#                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_unimp_addr=0",  ##walk_through_disabled
+#                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_rand_addr=100", #PF/VF number of addresses collected by hqm_ral.gen_unimp_addresses 
+#                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_pick_addr=300", #sample pickup addresses
+#
+#                                                      "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_test0.cft",
+#                                                      "+HQM_DATA_SEQ=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_write_test0.cft",
+#                                                      "+HQM_DATA_SEQ2=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_read_test0.cft",
+#                                                      "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+#
+#                                                     ], 
+#                                     },
+
+
+
+    ######################################################
+    #unimp addr selection: walk-through
+    ######################################################    
+      pfvf_wt_test0                  => { -simv_args => [ 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_csr_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_pf_addr=1",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_vf_addr=1",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_unimp_addr=256", ## > 0 : walk_through_enabled
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_addr_incr_min=4",
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_addr_incr_max=4",
+                                                     ## "+hqm_pfvf_space_acc_seq_stim_config::unimp_addr_wt_step=0",  #0, 1, 2, 4, 4, ...; specify in cmd line
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_vf_addr_stoffset=256", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_pf_gap_addr_stoffset=256", 
+
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_rand_addr=10", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_pick_addr=10", 
+
+
+                                                      "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_test0.cft",
+                                                      "+HQM_DATA_SEQ=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_write_test0.cft",
+                                                      "+HQM_DATA_SEQ2=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_read_test0.cft",
+                                                      "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+
+                                                     ], 
+                                     },
+
+      pfvf_wt_incr4                => { -simv_args => [ 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_csr_addr=0",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_pf_addr=1",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::has_vf_addr=1",   
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_unimp_addr=1024", ## > 0 : walk_through_enabled , specify in test cm
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_addr_incr_min=4",
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_addr_incr_max=4",
+                                                     ## "+hqm_pfvf_space_acc_seq_stim_config::unimp_addr_wt_step=1",  #0, 1, 2, 4, 4, ...; specify in cmd line
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_vf_addr_stoffset=4096", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::unimp_pf_gap_addr_stoffset=4096", 
+
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_rand_addr=60", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_pick_addr=10", 
+
+                                                      "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_test0.cft",
+                                                      "+HQM_DATA_SEQ=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_write_test0.cft",
+                                                      "+HQM_DATA_SEQ2=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_read_test0.cft",
+                                                      "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+
+                                                     ], 
+                                     },
+
+
+    ##################
+    ## save
+    ##################
+      pfvf_try000                  => { -simv_args => [ 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_unimp_addr=0", ##walk_through_disabled
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_rand_addr=10", 
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::num_pick_addr=10", 
+
+                                                      #HCW space
+                                                      #"+hqm_pfvf_space_acc_seq_stim_config::hcw_space0_addr_max=34603007",  #0x0205_ffff (default), change to 0x020f_ffff
+                                                      #"+hqm_pfvf_space_acc_seq_stim_config::hcw_space1_addr_max=35651583",  #0x0213_ffff (default), change to 0x021f_ffff
+
+                                                      #"+hqm_pfvf_space_acc_seq_stim_config::hcw_space0_addr_max=34603007",  #0x0205_ffff (default), change to 0x020f_ffff
+                                                      #"+hqm_pfvf_space_acc_seq_stim_config::hcw_space1_addr_max=41943039",  #0x0213_ffff (default), change to 0x027f_ffff
+
+                                                      #"+hqm_pfvf_space_acc_seq_stim_config::hcw_space0_addr_max=34603007",  #0x0205_ffff (default), change to 0x020f_ffff
+                                                      #"+hqm_pfvf_space_acc_seq_stim_config::hcw_space1_addr_max=50331647",  #0x0213_ffff (default), change to 0x02ff_ffff
+
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::hcw_space0_addr_max=34603007",  #0x0205_ffff (default), change to 0x020f_ffff
+                                                      "+hqm_pfvf_space_acc_seq_stim_config::hcw_space1_addr_max=67108863",  #0x0213_ffff (default), change to 0x03ff_ffff
+
+ 							## vf_unimp_addr_min_q[0]=0x4004        ::  vf_unimp_addr_max_q[0]=0x3ffffff  
+ 							## vf_unimp_addr_min_q[1]=0x4004004     ::  vf_unimp_addr_max_q[1]=0x7ffffff  
+ 							## vf_unimp_addr_min_q[2]=0x8004004     ::  vf_unimp_addr_max_q[2]=0xbffffff  
+ 							## vf_unimp_addr_min_q[3]=0xc004004     ::  vf_unimp_addr_max_q[3]=0xfffffff  
+ 							## vf_unimp_addr_min_q[4]=0x10004004    ::  vf_unimp_addr_max_q[4]=0x13ffffff  
+ 							## vf_unimp_addr_min_q[5]=0x14004004    ::  vf_unimp_addr_max_q[5]=0x17ffffff  
+ 							## vf_unimp_addr_min_q[6]=0x18004004    ::  vf_unimp_addr_max_q[6]=0x1bffffff  
+ 							## vf_unimp_addr_min_q[7]=0x1c004004    ::  vf_unimp_addr_max_q[7]=0x1fffffff  
+ 							## vf_unimp_addr_min_q[8]=0x20004004    ::  vf_unimp_addr_max_q[8]=0x23ffffff  
+ 							## vf_unimp_addr_min_q[9]=0x24004004    ::  vf_unimp_addr_max_q[9]=0x27ffffff  
+ 							## vf_unimp_addr_min_q[10]=0x28004004   ::  vf_unimp_addr_max_q[10]=0x2bffffff  
+ 							## vf_unimp_addr_min_q[11]=0x2c004004   ::  vf_unimp_addr_max_q[11]=0x2fffffff  
+ 							## vf_unimp_addr_min_q[12]=0x30004004   ::  vf_unimp_addr_max_q[12]=0x33ffffff  
+							## vf_unimp_addr_min_q[13]=0x34004004   ::  vf_unimp_addr_max_q[13]=0x37ffffff  
+							## vf_unimp_addr_min_q[14]=0x38004004   ::  vf_unimp_addr_max_q[14]=0x3bffffff  
+							## vf_unimp_addr_min_q[15]=0x3c004004   ::  vf_unimp_addr_max_q[15]=0x3fffffff
+
+                                                        #"+hqm_pfvf_space_acc_seq_stim_config::unimp_vf0_addr_max=50331647",  #0x02ff_ffff
+                                                        #"+hqm_pfvf_space_acc_seq_stim_config::unimp_vf1_addr_max=68157439",  #0x040f_ffff
+                                                       #"+hqm_pfvf_space_acc_seq_stim_config::unimp_vf2_addr_max=135266303",  #0x080f_ffff 
+                                                       #"+hqm_pfvf_space_acc_seq_stim_config::unimp_vf3_addr_max=202375167",  #0x0c0f_ffff 
+                                                       #"+hqm_pfvf_space_acc_seq_stim_config::unimp_vf4_addr_max=269484031",  #0x100f_ffff 
+                                                       #"+hqm_pfvf_space_acc_seq_stim_config::unimp_vf5_addr_max=336592895",  #0x140f_ffff 
+                                                       #"+hqm_pfvf_space_acc_seq_stim_config::unimp_vf6_addr_max=403701759",  #0x180f_ffff 
+                                                       #"+hqm_pfvf_space_acc_seq_stim_config::unimp_vf7_addr_max=470810623",  #0x1c0f_ffff 
+                                                       #"+hqm_pfvf_space_acc_seq_stim_config::unimp_vf8_addr_max=537919487",  #0x200f_ffff 
+                                                       #"+hqm_pfvf_space_acc_seq_stim_config::unimp_vf9_addr_max=605028351",  #0x240f_ffff 
+                                                      #"+hqm_pfvf_space_acc_seq_stim_config::unimp_vf10_addr_max=672137215",  #0x280f_ffff 
+                                                      #"+hqm_pfvf_space_acc_seq_stim_config::unimp_vf11_addr_max=739246079",  #0x2c0f_ffff 
+                                                      #"+hqm_pfvf_space_acc_seq_stim_config::unimp_vf12_addr_max=806354943",  #0x300f_ffff 
+                                                      #"+hqm_pfvf_space_acc_seq_stim_config::unimp_vf13_addr_max=873463807",  #0x340f_ffff
+                                                     #"+hqm_pfvf_space_acc_seq_stim_config::unimp_vf14_addr_max=940572671",   #0x380f_ffff  (0x3800_4004 -  0x38ff_ffff          
+                                                     #"+hqm_pfvf_space_acc_seq_stim_config::unimp_vf15_addr_max=1007681535",  #0x3c0f_ffff  (0x3c00_4004 -  0x3cff_ffff 
+ 						 
+
+                                                      "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_test0.cft",
+                                                      "+HQM_DATA_SEQ=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_write_test0.cft",
+                                                      "+HQM_DATA_SEQ2=aceroot/verif/tb/hqm/tests/hqm_pf_vf_func_msix_read_test0.cft",
+                                                      "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+
+                                                     ], 
+                                     },
+    ######################################################
+    #HCW space write 
+    ######################################################
+      #trex hqm_pfvf_space_acc_test:pfvf_test0+has_hcw_wr  -dirtag pfvf_test0.hcw.wr
+      has_hcw_wr => {
+          -simv_args => [    
+                         "+hqm_pfvf_space_acc_seq_stim_config::has_pf_hcw_wr=1",
+                         "+HQM_EXCESS_TOKEN_RETURN_OK",
+                         "+EXP_UNWANTED_TXN_TO_HQM",
+                         "+EXP_EP_MSIX0_CNT=1",
+                         "+DISABLE_MSIX_COUNT_CHECK",
+                         "+hqm_eot_rd_seq_stim_config::do_chp_syndrome_chk=0",
+                         "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc5010191/0x00000000",
+                         "+HQM_AQED_QED_PARITY_ERROR_INJECTION_TEST",
+                         "+HQM_AQED_QED_PARITY_ERROR_INJECTION_TEST",
+                         "+HQM_CHP_HCW_ENQ_USER_PARITY_ERROR_INJECTION_TEST",
+                         "+HQM_CHP_HCW_ENQ_DATA_PARITY_ERROR_INJECTION_TEST",
+                         "+HQM_CHP_FLID_PARITY_ERROR_INJECTION_TEST",
+                         "+HQM_CHP_INGRESS_ERROR_OUT_OF_CREDIT_TEST",
+                         "+HQM_CHP_INGRESS_ERROR_EXCESS_FRAG_TEST",
+                         "+HQM_CHP_INGRESS_ERROR_EXCESS_COMP_TEST",
+                         "+HQM_CHP_INGRESS_ERROR_RELEASE_QTYPE_TEST",
+                         "+HQM_CHP_INGRESS_ERROR_EXCESS_TOKEN_TEST",
+                         "+HQM_CHP_INGRESS_ERROR_EXCESS_TOKEN_TEST",
+                         "+HQM_CHP_SCHPIPE_HCW_MB_INJECTION_TEST",
+                         "+HQM_CHP_SCHPIPE_HCW_SB_INJECTION_TEST",
+                        ],
+      },
+
+    ######################################################
+    #CSR register write/read run with -hqm_atr
+    ######################################################
+      has_csr_wr => {
+          -simv_args => [    
+                         "+hqm_pfvf_space_acc_seq_stim_config::has_csr_attr=1",
+                         "+HAS_CSR_ATTR",
+                         "+HQM_TB_EOT_CHECK_DISABLE",
+                        ],
+      },
+
+      eot_bypass => {
+          -simv_args => [
+                        # "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_quiesce_cfg.cft",
+                         "+HQM_PCIE_SKIP_EOT_SEQ",
+                         "+HQM_TB_EOT_CHECK_DISABLE",
+                         "+HQMS_NO_EOT_CNT_CHECKS",
+                         "+HQMS_NO_WBO_EOT_CHECK",
+                         "+HQM_DISABLE_EOT_CHECK",
+                         "+HQM_EXCESS_TOKEN_RETURN_OK",
+                         "+hqm_tb_hcw_eot_file_mode_seq_stim_config::do_eot_rd_seq=0",
+                         "+HQM_SKIP_AGITATE_SEQ  +HQM_NO_PRE_FLUSH_PHASE",
+                        ],
+      },
+
+
+      ################################################
+      #hqm_sif_csr          
+      ################################################
+      hqm_sif_csr_seg01 => {
+          -simv_args => ["+hraisrfn=hqm_sif_csr",
+                         "+hraisseg=1",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=1",
+                        ],
+      },
+
+      ################################################
+      #hqm_system_csr_reg_count          = 16000;
+      ################################################
+      hqm_system_csr_seg01 => {
+          -simv_args => ["+hraisrfn=hqm_system_csr",
+                         "+hraisseg=1",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=0",
+                        ],
+      },
+      hqm_system_csr_seg02 => {
+          -simv_args => ["+hraisrfn=hqm_system_csr",
+                         "+hraisseg=2",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=0",
+                        ],
+      },
+      hqm_system_csr_seg03 => {
+          -simv_args => ["+hraisrfn=hqm_system_csr",
+                         "+hraisseg=3",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=0",
+                        ],
+      },
+      hqm_system_csr_seg04 => {
+          -simv_args => ["+hraisrfn=hqm_system_csr",
+                         "+hraisseg=4",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=0",
+                        ],
+      },
+      hqm_system_csr_seg05 => {
+          -simv_args => ["+hraisrfn=hqm_system_csr",
+                         "+hraisseg=5",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=0",
+                        ],
+      },
+      hqm_system_csr_seg06 => {
+          -simv_args => ["+hraisrfn=hqm_system_csr",
+                         "+hraisseg=6",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=0",
+                        ],
+      },
+      hqm_system_csr_seg07 => {
+          -simv_args => ["+hraisrfn=hqm_system_csr",
+                         "+hraisseg=7",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=0",
+                        ],
+      },
+      hqm_system_csr_seg08 => {
+          -simv_args => ["+hraisrfn=hqm_system_csr",
+                         "+hraisseg=8",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=0",
+                        ],
+      },
+      hqm_system_csr_seg09 => {
+          -simv_args => ["+hraisrfn=hqm_system_csr",
+                         "+hraisseg=9",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=0",
+                        ],
+      },
+      hqm_system_csr_seg10 => {
+          -simv_args => ["+hraisrfn=hqm_system_csr",
+                         "+hraisseg=10",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=0",
+                        ],
+      },
+      hqm_system_csr_seg11 => {
+          -simv_args => ["+hraisrfn=hqm_system_csr",
+                         "+hraisseg=11",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=0",
+                        ],
+      },
+      hqm_system_csr_seg12 => {
+          -simv_args => ["+hraisrfn=hqm_system_csr",
+                         "+hraisseg=12",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=0",
+                        ],
+      },
+      hqm_system_csr_seg13 => {
+          -simv_args => ["+hraisrfn=hqm_system_csr",
+                         "+hraisseg=13",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=0",
+                        ],
+      },
+      hqm_system_csr_seg14 => {
+          -simv_args => ["+hraisrfn=hqm_system_csr",
+                         "+hraisseg=14",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=0",
+                        ],
+      },
+      hqm_system_csr_seg15 => {
+          -simv_args => ["+hraisrfn=hqm_system_csr",
+                         "+hraisseg=15",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=0",
+                        ],
+      },
+      hqm_system_csr_seg16 => {
+          -simv_args => ["+hraisrfn=hqm_system_csr",
+                         "+hraisseg=16",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1500",
+                         "+hraisfin=1",
+                         "+HQM_PFVF_SEG_ADJ=1",
+                        ],
+      },
+
+      ################################################
+      #aqed_reg_count          = 10340; : 10 segments
+      ################################################
+      aqed_pipe_seg01 => {
+          -simv_args => [    
+                         "+hraisrfn=aqed_pipe",
+                         "+hraisseg=1",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1100",
+                         "+hraisfin=0",
+                        ],
+      },
+      aqed_pipe_seg02 => {
+          -simv_args => [    
+                         "+hraisrfn=aqed_pipe",
+                         "+hraisseg=2",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1100",
+                         "+hraisfin=0",
+                        ],
+      },
+      aqed_pipe_seg03 => {
+          -simv_args => [    
+                         "+hraisrfn=aqed_pipe",
+                         "+hraisseg=3",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1100",
+                         "+hraisfin=0",
+                        ],
+      },
+      aqed_pipe_seg04 => {
+          -simv_args => [    
+                         "+hraisrfn=aqed_pipe",
+                         "+hraisseg=4",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1100",
+                         "+hraisfin=0",
+                        ],
+      },
+      aqed_pipe_seg05 => {
+          -simv_args => [    
+                         "+hraisrfn=aqed_pipe",
+                         "+hraisseg=5",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1100",
+                         "+hraisfin=0",
+                        ],
+      },
+      aqed_pipe_seg06 => {
+          -simv_args => [    
+                         "+hraisrfn=aqed_pipe",
+                         "+hraisseg=6",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1100",
+                         "+hraisfin=0",
+                        ],
+      },
+      aqed_pipe_seg07 => {
+          -simv_args => [    
+                         "+hraisrfn=aqed_pipe",
+                         "+hraisseg=7",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1100",
+                         "+hraisfin=0",
+                        ],
+      },
+      aqed_pipe_seg08 => {
+          -simv_args => [    
+                         "+hraisrfn=aqed_pipe",
+                         "+hraisseg=8",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1100",
+                         "+hraisfin=0",
+                        ],
+      },
+      aqed_pipe_seg09 => {
+          -simv_args => [    
+                         "+hraisrfn=aqed_pipe",
+                         "+hraisseg=9",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1100",
+                         "+hraisfin=0",
+                        ],
+      },
+      aqed_pipe_seg10 => {
+          -simv_args => [    
+                         "+hraisrfn=aqed_pipe",
+                         "+hraisseg=10",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1100",
+                         "+hraisfin=1",
+                        ],
+      },
+
+      ################################################
+      #atm_pipe          = ;
+      ################################################
+      atm_pipe_seg01 => {
+          -simv_args => [
+                         "+hraisrfn=atm_pipe",
+                         "+hraisseg=1",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1100",
+                         "+hraisfin=1",
+                        ],
+      },
+
+      ################################################
+      #credit_hist_pipe_reg_count          = 2340;  HQMV30 => 6395
+      ################################################
+      credit_hist_pipe_seg01 => {
+          -simv_args => [    
+                         "+hraisrfn=credit_hist_pipe",
+                         "+hraisseg=1",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1500",
+                         "+hraisfin=0",
+                        ],
+      },
+      credit_hist_pipe_seg02 => {
+          -simv_args => [    
+                         "+hraisrfn=credit_hist_pipe",
+                         "+hraisseg=2",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1500",
+                         "+hraisfin=0",
+                        ],
+      },
+      credit_hist_pipe_seg03 => {
+          -simv_args => [    
+                         "+hraisrfn=credit_hist_pipe",
+                         "+hraisseg=3",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1500",
+                         "+hraisfin=0",
+                        ],
+      },
+      credit_hist_pipe_seg04 => {
+          -simv_args => [    
+                         "+hraisrfn=credit_hist_pipe",
+                         "+hraisseg=4",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1500",
+                         "+hraisfin=0",
+                        ],
+      },
+      credit_hist_pipe_seg05 => {
+          -simv_args => [    
+                         "+hraisrfn=credit_hist_pipe",
+                         "+hraisseg=5",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1500",
+                         "+hraisfin=0",
+                        ],
+      },
+      credit_hist_pipe_seg06 => {
+          -simv_args => [    
+                         "+hraisrfn=credit_hist_pipe",
+                         "+hraisseg=6",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1500",
+                         "+hraisfin=0",
+                        ],
+      },
+      credit_hist_pipe_seg07 => {
+          -simv_args => [    
+                         "+hraisrfn=credit_hist_pipe",
+                         "+hraisseg=7",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1500",
+                         "+hraisfin=0",
+                        ],
+      },
+      credit_hist_pipe_seg08 => {
+          -simv_args => [    
+                         "+hraisrfn=credit_hist_pipe",
+                         "+hraisseg=8",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1500",
+                         "+hraisfin=0",
+                        ],
+      },
+
+      credit_hist_pipe_seg09 => {
+          -simv_args => [    
+                         "+hraisrfn=credit_hist_pipe",
+                         "+hraisseg=9",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1500",
+                         "+hraisfin=0",
+                        ],
+      },
+
+      credit_hist_pipe_seg10 => {
+          -simv_args => [    
+                         "+hraisrfn=credit_hist_pipe",
+                         "+hraisseg=10",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1500",
+                         "+hraisfin=0",
+                        ],
+      },
+
+      credit_hist_pipe_seg11 => {
+          -simv_args => [    
+                         "+hraisrfn=credit_hist_pipe",
+                         "+hraisseg=11",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1500",
+                         "+hraisfin=0",
+                        ],
+      },
+
+      credit_hist_pipe_seg12 => {
+          -simv_args => [    
+                         "+hraisrfn=credit_hist_pipe",
+                         "+hraisseg=12",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1500",
+                         "+hraisfin=0",
+                        ],
+      },
+
+      credit_hist_pipe_seg13 => {
+          -simv_args => [    
+                         "+hraisrfn=credit_hist_pipe",
+                         "+hraisseg=13",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1500",
+                         "+hraisfin=0",
+                        ],
+      },
+
+      credit_hist_pipe_seg14 => {
+          -simv_args => [    
+                         "+hraisrfn=credit_hist_pipe",
+                         "+hraisseg=14",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1500",
+                         "+hraisfin=0",
+                        ],
+      },
+
+      credit_hist_pipe_seg15 => {
+          -simv_args => [    
+                         "+hraisrfn=credit_hist_pipe",
+                         "+hraisseg=15",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=3000",
+                         "+hraisfin=1",
+                        ],
+      },
+      ################################################
+      #direct_pipe          
+      ################################################
+      direct_pipe_seg01 => {
+          -simv_args => [    
+                         "+hraisrfn=direct_pipe",
+                         "+hraisseg=1",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=500",
+                         "+hraisfin=1",
+                        ],
+      },
+      ################################################
+      #qed_pipe          
+      ################################################
+      qed_pipe_seg01 => {
+          -simv_args => [    
+                         "+hraisrfn=qed_pipe",
+                         "+hraisseg=1",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=1",
+                        ],
+      },
+      ################################################
+      #nalb_pipe          
+      ################################################
+      nalb_pipe_seg01 => {
+          -simv_args => [    
+                         "+hraisrfn=nalb_pipe",
+                         "+hraisseg=1",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=1",
+                        ],
+      },
+
+      ################################################
+      #reorder_pipe_reg_count       12500   
+      ################################################
+      reorder_pipe_seg01 => {
+          -simv_args => [    
+                         "+hraisrfn=reorder_pipe",
+                         "+hraisseg=1",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=0",
+                        ],
+      },
+      reorder_pipe_seg02 => {
+          -simv_args => [    
+                         "+hraisrfn=reorder_pipe",
+                         "+hraisseg=2",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=0",
+                        ],
+      },
+      reorder_pipe_seg03 => {
+          -simv_args => [    
+                         "+hraisrfn=reorder_pipe",
+                         "+hraisseg=3",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=0",
+                        ],
+      },
+      reorder_pipe_seg04 => {
+          -simv_args => [    
+                         "+hraisrfn=reorder_pipe",
+                         "+hraisseg=4",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=0",
+                        ],
+      },
+      reorder_pipe_seg05 => {
+          -simv_args => [    
+                         "+hraisrfn=reorder_pipe",
+                         "+hraisseg=5",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=0",
+                        ],
+      },
+      reorder_pipe_seg06 => {
+          -simv_args => [    
+                         "+hraisrfn=reorder_pipe",
+                         "+hraisseg=6",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=0",
+                        ],
+      },
+      reorder_pipe_seg07 => {
+          -simv_args => [    
+                         "+hraisrfn=reorder_pipe",
+                         "+hraisseg=7",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=0",
+                        ],
+      },
+      reorder_pipe_seg08 => {
+          -simv_args => [    
+                         "+hraisrfn=reorder_pipe",
+                         "+hraisseg=8",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=0",
+                        ],
+      },
+      reorder_pipe_seg09 => {
+          -simv_args => [    
+                         "+hraisrfn=reorder_pipe",
+                         "+hraisseg=9",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=0",
+                        ],
+      },
+      reorder_pipe_seg10 => {
+          -simv_args => [    
+                         "+hraisrfn=reorder_pipe",
+                         "+hraisseg=10",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=0",
+                        ],
+      },
+      reorder_pipe_seg11 => {
+          -simv_args => [    
+                         "+hraisrfn=reorder_pipe",
+                         "+hraisseg=11",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=0",
+                        ],
+      },
+      reorder_pipe_seg12 => {
+          -simv_args => [    
+                         "+hraisrfn=reorder_pipe",
+                         "+hraisseg=12",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=0",
+                        ],
+      },
+      reorder_pipe_seg13 => {
+          -simv_args => [    
+                         "+hraisrfn=reorder_pipe",
+                         "+hraisseg=13",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=1",
+                        ],
+      },
+
+      ################################################
+      #list_sel_pipe_reg_count       3500   
+      ################################################
+      list_sel_pipe_seg01 => {
+          -simv_args => [    
+                         "+hraisrfn=list_sel_pipe",
+                         "+hraisseg=1",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=0",
+                        ],
+      },
+      list_sel_pipe_seg02 => {
+          -simv_args => [    
+                         "+hraisrfn=list_sel_pipe",
+                         "+hraisseg=2",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=0",
+                        ],
+      },
+      list_sel_pipe_seg03 => {
+          -simv_args => [    
+                         "+hraisrfn=list_sel_pipe",
+                         "+hraisseg=3",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=0",
+                        ],
+      },
+      list_sel_pipe_seg04 => {
+          -simv_args => [    
+                         "+hraisrfn=list_sel_pipe",
+                         "+hraisseg=4",
+                         "+hraisatr=1",
+                         "+hraisprdp_def=3",
+                         "+hraisrcnt=1000",
+                         "+hraisfin=1",
+                        ],
+      },
+
+
+
+
+     
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+
+
+

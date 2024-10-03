@@ -1,0 +1,106 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup FUNC_VF BAR to a base address of 0x00000003_xxxxxxxx
+#### wr hqm_pf_cfg_i.sriov_cap_func_bar_l 0x00000000
+#### wr hqm_pf_cfg_i.sriov_cap_func_bar_u 0x00000003
+###################################
+# Enable PF memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+###################################
+wr config_master.cfg_pm_pmcsr_disable.disable 0x0
+rd config_master.cfg_pm_pmcsr_disable.disable 0x0
+##
+###poll to Wait for reset to be done
+poll config_master.cfg_diagnostic_reset_status 0x800003ff 0x800003ff 500
+###poll to Wait for unit_idle to be done
+poll config_master.cfg_diagnostic_idle_status 0x0007ffff 0x0007ffff 500
+###################################
+
+
+
+###################################
+# Setup LUTs used by HCWs
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+   #MSIX programming
+   msix_alarm 0 addr=0xbeefcafe0000110 data=0xbeefcace enable=1
+  								    
+   
+   msix_cq  1  addr=0x2000cafebebc000 data=0xbb331000 is_ldb=1 cq=0
+   msix_cq  2  addr=0x2010cafebebc010 data=0xbb331001 is_ldb=1 cq=1
+   msix_cq  3  addr=0x2020cafebebc020 data=0xbb331002 is_ldb=1 cq=2
+   msix_cq  4  addr=0x2030cafebebc030 data=0xbb331003 is_ldb=1 cq=3
+ 								    
+   msix_cq 33 addr=0xab001111bce0000 data=0x55aa5a00 is_ldb=0 cq=0  
+   msix_cq 34 addr=0xab011111cde0100 data=0x55aa5a01 is_ldb=0 cq=1   
+   msix_cq 35 addr=0xab021111bce0200 data=0x55aa5a02 is_ldb=0 cq=2   
+   msix_cq 36 addr=0xab031111cde0300 data=0x55aa5a03 is_ldb=0 cq=3   
+  
+  dir qid 0 qid_its=1
+  dir qid 1 qid_its=1
+  dir qid 2 qid_its=1
+  dir qid 3 qid_its=1
+
+  ldb qid 0  qid_its=1 qid_ldb_inflight_limit=512 fid_cfg_v=1 fid_limit=1024   #aqed_freelist_base=0     aqed_freelist_limit=0x1ff ord_mode=3 ord_slot=0 ord_grp=0 sn_cfg_v=1
+  ldb qid 1  qid_its=1 qid_ldb_inflight_limit=512 fid_cfg_v=1 fid_limit=1024   aqed_freelist_base=0x200 aqed_freelist_limit=0x3ff ord_mode=3 ord_slot=1 ord_grp=0 sn_cfg_v=1     ao_cfg_v=1
+  ldb qid 2  qid_its=1 qid_ldb_inflight_limit=512 fid_cfg_v=1 fid_limit=1024   aqed_freelist_base=0x400 aqed_freelist_limit=0x5ff ord_mode=3 ord_slot=0 ord_grp=1 sn_cfg_v=1     ao_cfg_v=1
+  ldb qid 3  qid_its=1 qid_ldb_inflight_limit=512 fid_cfg_v=1 fid_limit=1024   #aqed_freelist_base=0x600 aqed_freelist_limit=0x7ff ord_mode=3 ord_slot=1 ord_grp=1 sn_cfg_v=1
+
+  vas 0  credit_cnt=[255:16384]
+  #vas 0  credit_cnt=[127,128,129,255,256,257,511,512,513,1023,1024,1025,2019,2047,2048,2049,3111,4095,4096,4097,7777,8191,8192,8193,16333,16383,16384] 
+  vas 0  dir_qidv0=1 dir_qidv1=1 dir_qidv2=1 dir_qidv3=1
+  vas 0  ldb_qidv0=1 ldb_qidv1=1 ldb_qidv2=1 ldb_qidv3=1
+
+  dir pp 0  vas=0
+  dir pp 1  vas=0
+  dir pp 2  vas=0
+  dir pp 3  vas=0
+
+  dir cq 0  cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,2,3] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq 1  cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,2,3] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq 2  cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,2,3] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  dir cq 3  cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,2,3] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+
+  ldb pp 0  vas=0
+  ldb pp 1  vas=0
+  ldb pp 2  vas=0
+  ldb pp 3  vas=0
+
+  ldb cq 0  wu_limit=[63:8191] wu_limit_tolerance=40 cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x000 hist_list_limit=0x1ff qidv0=1 qidix0=0 pri0=0 qidv1=0 qidix1=1 pri1=0 qidv2=0 qidix2=2 pri0=0 qidv3=0 qidix3=3 pri3=0  cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,2,3] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  ldb cq 1  wu_limit=[63:8191] wu_limit_tolerance=40 cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x200 hist_list_limit=0x3ff qidv0=0 qidix0=0 pri0=0 qidv1=1 qidix1=1 pri1=0 qidv2=0 qidix2=2 pri0=0 qidv3=0 qidix3=3 pri3=0  cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,2,3] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  ldb cq 2  wu_limit=[63:8191] wu_limit_tolerance=40 cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x400 hist_list_limit=0x5ff qidv0=0 qidix0=0 pri0=0 qidv1=0 qidix1=1 pri1=0 qidv2=1 qidix2=2 pri0=0 qidv3=0 qidix3=3 pri3=0  cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,2,3] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+  ldb cq 3  wu_limit=[63:8191] wu_limit_tolerance=40 cq_depth=[8,16,32,64,128,256,512,1024] gpa=sm hist_list_base=0x600 hist_list_limit=0x7ff qidv0=0 qidix0=0 pri0=0 qidv1=0 qidix1=1 pri1=0 qidv2=0 qidix2=2 pri0=0 qidv3=1 qidix3=3 pri3=0  cq_timer_intr_thresh=[0,1,2,10,20,30] cq_timer_intr_ena=1 cq_depth_intr_thresh=[0,1,2,3] cq_depth_intr_ena=1 cq_cwdt_intr_ena=1
+
+
+cfg_end
+
+####reorder_pipe.cfg_grp_sn_mode.sn_mode_0=3
+####reorder_pipe.cfg_grp_sn_mode.sn_mode_1=3
+wr reorder_pipe.cfg_grp_sn_mode.sn_mode_0 3 
+wr reorder_pipe.cfg_grp_sn_mode.sn_mode_1 3 
+rd reorder_pipe.cfg_grp_sn_mode.sn_mode_0 3 
+rd reorder_pipe.cfg_grp_sn_mode.sn_mode_1 3 
+
+##ingress alarm enable
+#wr hqm_system_csr.ingress_alarm_enable 0xffffffff
+#rd hqm_system_csr.ingress_alarm_enable 0x0000003f
+
+
+

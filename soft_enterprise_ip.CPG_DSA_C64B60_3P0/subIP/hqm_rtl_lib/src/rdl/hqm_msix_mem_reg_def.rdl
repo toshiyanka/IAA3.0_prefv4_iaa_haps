@@ -1,0 +1,69 @@
+<% use hqm_params; %>
+
+regfile hqm_msix_table_rf {
+        reg vector_ctrl_r {
+  HqmClassification="PCI_CFG_REG_PFVF_65";
+                name = "Vector Ctrl";
+                desc = "MSI-X Vector Control Register";
+                regwidth = 32;
+                shared;
+                HandCoded=true;
+                IntelRsvd = false;
+
+                field { name = "Vec Mask"; desc = "MSI-X Vector Mask"; PowerWell="vcccfn_gated"; AccessType = "RW"; } VEC_MASK [0:0] = 1'h1;
+        };
+
+        reg msg_data_r {
+  HqmClassification="PCI_CFG_REG_PFVF_65";
+                name = "Msg Data";
+                desc = "MSI-X Message Data Register";
+                regwidth = 32;
+                shared;
+                HandCoded=true;
+                IntelRsvd = false;
+
+                field { name = "Msg Data"; desc = "MSI-X Message Data"; PowerWell="vcccfn_gated"; AccessType = "RW"; } MSG_DATA [31:0] = 32'h00000000;
+        };
+
+        reg msg_addr_l_r {
+  HqmClassification="PCI_CFG_REG_PFVF_65";
+                name = "Msg Addr L";
+                desc = "MSI-X Message Address Lower Register";
+                regwidth = 32;
+                shared;
+                HandCoded=true;
+                IntelRsvd = false;
+
+                field { name = "Msg Addr L"; desc = "MSI-X Message Address Lower"; PowerWell="vcccfn_gated"; AccessType = "RW"; } MSG_ADDR_L [31:2] = 30'h00000000;
+                field { name = "rsvd"; desc = "Reserved"; PowerWell="vcccfn_gated"; AccessType = "RW"; } RSVD [1:0] = 2'h0;
+        };
+
+        reg msg_addr_u_r {
+  HqmClassification="PCI_CFG_REG_PFVF_65";
+                name = "Msg Addr U";
+                desc = "MSI-X Message Address Upper Register";
+                regwidth = 32;
+                shared;
+                HandCoded=true;
+                IntelRsvd = false;
+
+                field { name = "Msg Addr U"; desc = "MSI-X Message Address Upper"; PowerWell="vcccfn_gated"; AccessType = "RW"; } MSG_ADDR_U [31:0] = 32'h00000000;
+        };
+
+        msg_addr_l_r            MSG_ADDR_L      @0x00000000;
+        msg_addr_u_r            MSG_ADDR_U      @0x00000004;
+        msg_data_r              MSG_DATA        @0x00000008;
+        vector_ctrl_r           VECTOR_CTRL     @0x0000000c;
+};
+
+reg hqm_msix_pba_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+        name = "Hqm Msix Pba";
+        desc = "MSIX Pending Bit Array";
+        regwidth = 32;
+        shared;
+        IntelRsvd = false;
+
+        field { name = "Pending"; desc = "Pending Bits"; PowerWell="vcccfn_gated"; AccessType = "RO/V"; } PENDING [31:0] = 32'h00000000;
+};
+

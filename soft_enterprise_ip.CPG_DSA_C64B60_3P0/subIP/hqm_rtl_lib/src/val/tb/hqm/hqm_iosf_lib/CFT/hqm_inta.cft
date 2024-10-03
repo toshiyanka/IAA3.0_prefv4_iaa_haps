@@ -1,0 +1,21 @@
+idle 400
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+###################################
+# set write_bad_parity
+wr hqm_system_csr.parity_ctl 0x00000001
+wr hqm_system_csr.vf_dir_vpp_v[0] 0x0
+# cause perr by reading (this should cause an INTA)
+rd hqm_system_csr.vf_dir_vpp_v[0] 0x0
+# reset write_bad_parity
+wr hqm_system_csr.parity_ctl 0x00000000

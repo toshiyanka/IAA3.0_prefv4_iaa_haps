@@ -1,0 +1,38 @@
+#enable enable the idle logic the hqm_core and dm_core must also be configured 
+wr config_master.cfg_control_general.cfg_enable_unit_idle 1
+#wr dm_master.cfg_mstr_control_general.cfg_enable_unit_idle 1
+
+#enable idle based clock gating
+wr hqm_sif_csr.prim_cdc_ctl 0x00004444
+rd hqm_sif_csr.prim_cdc_ctl 0x00004444
+idle 20
+
+#####################################
+# Enable primary clock gating
+wr hqm_sif_csr.iosfp_cgctl 0x00000110
+rd hqm_sif_csr.iosfp_cgctl 0x00000110
+###################################
+idle 5000
+
+
+
+#check device status and no error to be set
+rd hqm_pf_cfg_i.device_status 0x0010
+
+#check aer_cap_uncorr_err_status  and expect no error
+rd hqm_pf_cfg_i.aer_cap_uncorr_err_status 0x00000000
+
+
+#check ERror status
+rd hqm_pf_cfg_i.pcie_cap_device_status 0x0000
+
+#force hqm_tb_top.u_hqm.prim_ism_fabric 1
+idle 20
+#release hqm_tb_top.u_hqm.prim_ism_fabric
+#force hqm_tb_top.u_hqm.prim_ism_fabric 3
+idle 400
+#release hqm_tb_top.u_hqm.prim_ism_fabric
+idle 500
+
+
+

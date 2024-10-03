@@ -1,0 +1,44 @@
+#!/bin/tcsh -f
+# date: 2/15/11
+# auth: Hafijur Rahman
+# Updated by H. Rahman on 03/19/12
+
+###run Lintra ####
+cd ../tools/lintra
+./run_lintra_sbebase
+
+###run VISA ####
+cd ../visa/run
+./run_sbebase
+
+###run CDC ####
+cd ../../cdc/endpoint
+./run_cdc_sbebase
+
+###run Synthesis ####
+cd ../../syn/sbebase
+./run_syn
+
+###run FEV ####
+cd ../../lec/sbebase
+./run_lec
+
+
+grep 'Lintra' ../../../scripts/log.txt
+grep 'Danger' ../../lintra/lint_sbebase.log
+grep 'Error' ../../lintra/lint_sbebase.log
+
+grep 'VISA' ../../../scripts/log.txt
+grep 'Test Passed' ../../visa/sim/sbebase.log
+grep 'Test Failed' ../../visa/sim/sbebase.log
+
+grep 'cdc' ../../../scripts/log.txt
+grep 'Violations' ../../cdc/endpoint/sbebase_cdc.log
+grep 'Cautions' ../../cdc/endpoint/sbebase_cdc.log
+
+grep 'Synthesis' ../../../scripts/log.txt
+grep 'Error' ../../syn/sbebase/logs/dc.log
+
+grep 'LEC' ../../../scripts/log.txt
+grep 'Equivalent' ../../lec/sbebase/sbebase_lec.log
+grep 'Non-equiv' ../../lec/sbebase/sbebase_lec.log

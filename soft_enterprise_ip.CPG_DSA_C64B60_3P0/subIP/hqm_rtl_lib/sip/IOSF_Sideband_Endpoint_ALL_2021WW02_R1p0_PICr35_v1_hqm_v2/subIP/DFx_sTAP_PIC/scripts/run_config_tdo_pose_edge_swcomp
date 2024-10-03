@@ -1,0 +1,25 @@
+cd $IP_ROOT
+rm -rf pwa/results .acetestinfo.log
+
+\cp source/rtl/include/configs/stap_params_include_tdo_posedge.inc source/rtl/include/stap_params_include.inc
+\cp verif/tb/include/configs/STapTop_tdo_posedge.sv                verif/tb/STapTop.sv
+
+ace -cc -pwa pwa_tdo_pose_edge_swcomp
+ace -x TapTestOnlyBypass \
+       TapTestOnlySLVIDCODE \
+       TapTestBypass \
+       TapTestRegisterAccess \
+       TapTestRegisterAccess_EnDebug \
+       TapTestFsmStates \
+       TapTestTmsGlitch \
+       TapTestNetworkRegisterAccess \
+       TapTestRandom \
+       TapTestBoundaryRegisterAccess \
+       TapTestReservedOpcodeAccess \
+       TapTestOrangeGreenRegisterAccess \
+       TapTestGreenRegisterAccess -pwa pwa_tdo_pose_edge_swcomp -nb -nbmon
+
+grep -ir status pwa/results/tests/*/postsim.log
+
+\cp source/rtl/include/configs/stap_params_include_default_swcomp.inc source/rtl/include/stap_params_include.inc
+\cp verif/tb/include/configs/STapTop_def_ext_lb.sv             verif/tb/STapTop.sv

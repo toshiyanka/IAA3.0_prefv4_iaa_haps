@@ -1,0 +1,193 @@
+#
+# ccu_vc Specific Internal IVARs
+#
+
+# Current Scope
+my $SCOPE = 'ccu_vc';
+
+#
+# Determine Saola/Debussy target architecture#!/usr/intel/bin/perl
+%audf = (
+    HDLSpec => {
+        -src_type => {
+	    # Add extensions that you use for include files; ACE only looks at 
+	    # .v (for Verilog) and .sv,.svh,.vh,.sv (for SystemVerilog) by default
+	    # Suggested by Russ Jackson (Ace developer) in 
+	    # https://vthsd.fm.intel.com/hsd/da_all/da_help/default.aspx?da_help_id=577466, 
+	    # to support Ace detecting changes in source files, and recompiling as necessary.
+            SystemVerilog => {
+                -extension => '/\.(sv[ah]?|v[shmf]?)$/',
+            },
+	    Verilog => {
+                -extension => '/\.(vh?)$/',
+	    },
+        },
+    },
+    InterfaceVars => {
+        -elab_opts => { default => [ '+vcs+lic+wait', '-lca' ] },
+        -simv_args => { default => [ '+vcs+lic+wait', '-lca' ] },
+
+        $ENV{ACE_PROJECT} => {
+            __PROTOTYPES => {
+                import => ["TEST","LOWPOWER","CDC",],
+            },
+            -test_elab_opts => { default => [ '+vcs+lic+wait' ] },  
+        },
+    },
+);
+
+
+#
+my $sla_platform;
+my $debussy_pli_target;
+
+if ($ENV{VCS_TARGET_ARCH} eq 'suse64') {
+   $debussy_pli_target = "LINUX64";
+   $sla_platform = "Linux_x86_64",
+} elsif ($ENV{VCS_TARGET_ARCH} eq 'suse32') {
+   $debussy_pli_target = "LINUX";
+   $sla_platform = "Linux",
+}
+
+# ACE Hash
+%audf = (
+  OSData => {
+      -debussy_pli_libs => {
+           -enable_flag => "-enable_debussy", # or -fsdb
+           -error_if_not_found  => 1,
+           vcs => {
+             'Linux-SuSE' => {
+                i686 => [
+                         "$ENV{VERDI_HOME}/share/PLI/vcsd_latest/LINUX/vcsd.tab",
+                         "$ENV{VERDI_HOME}/share/PLI/vcsd_latest/LINUX/pli.a",
+                         ],
+                'x86-64' => [
+                         "$ENV{VERDI_HOME}/share/PLI/snps_unified/LINUX64/novas.tab",
+                         "$ENV{VERDI_HOME}/share/PLI/snps_unified/LINUX64/pli.a",
+                         ],
+              }, ## End of Linux-SuSE
+           }, ## End of vcs
+        }, ## End of debussy_pli_libs
+   }, ## End of OSData
+
+   # -------------------------------------------------------------------------------
+   # The InterfaceVars catagory defines command-line options.
+   # Projects can use this section to define new variables, shortcuts, aliases,
+   # or to modify the behaviours of existing variables
+   # -------------------------------------------------------------------------------
+   InterfaceVars => {
+      #
+      # Scoped ivars
+      #
+      -create_postmortem_file => {
+         default => 1,
+      },
+      
+      $SCOPE => {                                        
+         # If scope has tests, then import the 'TEST' prototype variable definitions
+         __PROTOTYPES   => {
+            import => ["TEST"],
+         },
+
+         -implicit_runmode_libs => {
+             default => [],
+         },
+
+        -test_run_touch_files => {
+            default => [
+            ],
+         },
+
+         # Valuating some pre-defined ivars
+         # The following override the default values for imported variables
+         #
+         -test                   => { default => "ccu_vc_test", },
+         -test_pkg               => { default => "ccu_vc_test_pkg", },
+         -model                  => { default => "ccu_vc", },
+         -test_build_target      => { default => "all",},
+
+         # Defining some new scoped ivars
+         -debug_fsdb             => {
+            alias       => "-bod -run_debussy -itt",
+            shortcut    => "dfsdb",
+            help        => {
+               desc => "build test and load fsdb into debussy viewer"
+            },
+         },  
+      }, # for $SCOPE
+
+      #
+      # Non scoped ivars
+      #
+      -use_incdir_fulldepth_searchpath => { default => 1 },
+      -post_process_pattern_file => { default   => "ace/ccu_vc_postsim.pp", },
+      -enable_debussy            => { default   => 1}, 
+      -enable_sub_libraries      => { default   => 1},
+      
+      #
+      # For FSDB Generation 
+      #
+      -fsdb_generation           => {
+         alias => "-enable_debussy -simv_args +fsdb=ccu_vc.fsdb -nocleanup",
+         type => "BOOLEAN",
+         shortcut => "dump_fsdb",
+         help => {
+                 desc => "link debussy pli and dump fsdb",
+                 group => "DEBUSSY",
+         },
+      },
+
+      #
+      # Default verilog compilation options for this scope
+      #
+      -vlog_opts                 => { 
+         default => [
+            "-sverilog", 
+            "-timescale=1ps/1ps", 
+            "-ntb_opts pcs",
+            "-ntb_opts ext+sv_fmt",
+            "+define+VCSSIM -assert svaext",
+         ], 
+      },
+
+      #
+      # Default VHDL compilation options for this scope
+      #
+      -vcom_opts                 => {
+         default => [
+            "-q",
+         ],
+      },
+
+      # Default verilog elaboration options for this scope
+      -elab_opts                 => {
+         default => [
+            "-timescale=1ps/1ps", 
+            "-sverilog",
+            "+vcsd  +vpi",
+            "$ENV{SAOLA_HOME}/libs/$sla_platform/libsla.so",
+            "-ntb_opts ext+sv_fmt",
+            "-debug_all",
+            "-lca",
+            "-assert disable_rep_opt",
+
+         ],
+      },
+      
+      #
+      # Simv arguments
+      #
+      -simv_args                 => { 
+         default => [" +ASYNCSEED=532", "-assert nopostproc", "+OVM_VERBOSITY=OVM_HIGH"],
+      },
+
+      #
+      # Other options
+      #
+      -test_in_model       => { default => 1 },
+      -elab_models         => { default => 1 },
+      -models_to_compile   => { default => ['ccu_vc'] },
+
+   }, # InterfaceVars
+
+); #audf

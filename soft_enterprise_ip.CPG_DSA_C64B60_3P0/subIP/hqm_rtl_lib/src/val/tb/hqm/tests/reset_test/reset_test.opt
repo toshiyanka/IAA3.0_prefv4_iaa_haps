@@ -1,0 +1,35 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => [
+            "+AW_CONTINUE_ON_ERROR", "+iosf_tracker_filename=iosf_trk", "-assert nopostproc", "+HQMS_DEBUG", "+HQMI_DEBUG", "+vcs+lic+wait",
+            ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+
+    %runModes = (
+      test0 => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ","+PRIMARY_RESET_CHECK",],
+
+      },
+
+      test1 => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ","+IOSF_PRIM_FILE=back2back_cfgrd_seq",],
+      },
+
+    test2 => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ","+PRIMARY_RESET_CHECK","+IOSF_PRIM_FILE=back2back_cfgrd_seq", ],
+
+      },
+ 
+         );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+
+  }
+
+

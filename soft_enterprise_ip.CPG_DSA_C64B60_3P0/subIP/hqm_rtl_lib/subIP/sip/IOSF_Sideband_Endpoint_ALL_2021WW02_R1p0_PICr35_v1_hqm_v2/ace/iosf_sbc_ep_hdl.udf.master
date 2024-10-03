@@ -1,0 +1,42 @@
+#!/usr/intel/bin/perl
+%audf = (HDLSpec => 
+    {IOSF_SBC_EP => {
+    libs =>  {
+        ovm             => {-hdl_spec       => ["ace/ovm.hdl"             ,],}, 
+        iosf_sbc_ep     => {-hdl_spec       => ["ace/iosf_sbc_ep.hdl"        ,],
+                            -dependent_libs => [                           ],},
+        iosf_svc_ep     => {-hdl_spec       => ["ace/iosf_svc_ep.hdl" ,], 
+                            -dependent_libs => ["ovm"                     ,],}, 
+        iosf_sbc_ep_tb  => {-hdl_spec       => ["ace/iosf_sbc_ep_tb.hdl" ,], 
+                            -dependent_libs => ["ovm", "iosf_svc_ep", "iosf_sbc_ep",],}, 
+#PA        lp_checker_lib  => {-hdl_spec       => ["ace/lp_checker_lib.hdl"  ,],}, 
+    }, # end libs
+    models => {
+        IosfSbEpTestbench => {
+            top         =>  "tb_top",
+            libs        => ["ovm", "iosf_svc_ep" , "iosf_sbc_ep" , "iosf_sbc_ep_tb" ,],
+            export      => {libs => ["iosf_sbc_ep"                  ,],},
+        }, # end IosfSbEpTestbench
+#PA        Ep_pa => {
+#PA            top         => 'tb_top lp_checker_lib.sw_out_off lp_checker_lib.primary_power_off',
+#PA            libs        => ["ovm", "iosf_svc_ep" , "iosf_sbc_ep" , "iosf_sbc_ep_tb" , "lp_checker_lib", ],
+#PA            export      => {libs => ["iosf_sbc_ep"                  ,],},
+#PA            power_intent => {
+#PA                power_top => 'tb_top',
+#PA                upf_files => ['tools/upf/sbendpoint/ChipTop.upf'],
+#PA                lpa_bind_file => 'tools/upf/sbendpoint/lpa_bind.tcl',
+#PA            },
+#PA            testcase_globals => {
+#PA                  -pwr_elab_opts_vcs => [ "-liblist UPF+LPA", 
+#PA                                          "-power=dccompat_gen_separator", 
+#PA                                          "-power=coverage", 
+#PA                                          "-power=always_on", ],
+#PA                  -simv_args         => ['+en_pwr'],
+#PA            },
+#PA        }, # end Ep_pa
+    }, # end models
+},},); # end %audf 
+
+
+
+#            power_top => 'tb_top/genblk1/genblk1/sbendpoint',

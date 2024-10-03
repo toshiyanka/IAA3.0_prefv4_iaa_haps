@@ -1,0 +1,213 @@
+//------------------------------------------------------------------------------
+//
+//  -- Intel Proprietary
+//  -- Copyright (C) 2015 Intel Corporation
+//  -- All Rights Reserved
+//
+//  INTEL CONFIDENTIAL
+//
+//  Copyright 2009-2021 Intel Corporation All Rights Reserved.
+//
+//  The source code contained or described herein and all documents related
+//  to the source code (Material) are owned by Intel Corporation or its
+//  suppliers or licensors. Title to the Material remains with Intel
+//  Corporation or its suppliers and licensors. The Material contains trade
+//  secrets and proprietary and confidential information of Intel or its
+//  suppliers and licensors. The Material is protected by worldwide copyright
+//  and trade secret laws and treaty provisions. No part of the Material may
+//  be used, copied, reproduced, modified, published, uploaded, posted,
+//  transmitted, distributed, or disclosed in any way without Intel's prior
+//  express written permission.
+//
+//  No license under any patent, copyright, trade secret or other intellectual
+//  property right is granted to or conferred upon you by disclosure or
+//  delivery of the Materials, either expressly, by implication, inducement,
+//  estoppel or otherwise. Any license under such intellectual property rights
+//  must be express and approved by Intel in writing.
+//
+//------------------------------------------------------------------------------
+//
+//  Collateral Description:
+//  IOSF - Sideband Channel IP
+//
+//  Source organization:
+//  SEG / SIP / IOSF IP Engineering
+//
+//  Support Information:
+//  WEB: http://moss.amr.ith.intel.com/sites/SoftIP/Shared%20Documents/Forms/AllItems.aspx
+//  HSD: https://vthsd.fm.intel.com/hsd/seg_softip/default.aspx
+//
+//  Revision:
+//  2021WW02_PICr35
+//
+////////////////////////////
+
+// lintra push -60056
+
+  typedef struct packed {
+        logic srcidck_err_out;
+        logic parity_err_out;
+        logic int_pok;
+        logic cg_en;
+        logic [1:0] func_valid_visa;
+        logic idle;
+        logic pcxfr;
+        logic npxfr;
+        logic pccredits;
+        logic npcredits;
+        logic pcmsgip;
+        logic npmsgip;
+        logic outmsg_cup;
+        logic [3:0] npqcount;
+        logic [3:0] pcqcount;
+  } visa_port_tier1;
+
+  typedef struct packed {
+        logic [2:0] ism;
+        logic mpcput;
+        logic mnpput;
+        logic [2:0] fencecntr;
+        logic [3:0] npcuphold_sendcnt;
+        logic [3:0] pccuphold_sendcnt;
+  } visa_port_tier2;
+
+  typedef struct packed {
+// HSD BUG 5075765 - Order of the signals disagreed between the assignment in
+//                   the arbiter block and the structure defined here - START
+        logic [3:0] npipend;
+        logic [3:0] pcipend;
+        logic [3:0] npimsgip;
+        logic [3:0] pcimsgip;
+        logic [3:0] dpsel;
+        logic [3:0] nppendsel;
+        logic [3:0] pcpendsel;
+        logic [3:0] portmapsel;
+// HSD BUG 5075765 - Order of the signals disagreed between the assignment in
+//                   the arbiter block and the structure defined here - FINISH
+  } visa_arb;
+
+  typedef struct packed {
+        logic        visa_sbr_srcidck_err;
+        logic        visa_sbr_parity_err_in;
+        logic [15:0] egrvec;
+        logic [2:0]  pcmsgip;
+        logic        cmsgpend;
+        logic [2:0]  np_cmsgip;
+        logic        coalesce;
+        logic [3:0]  ingsel;
+        logic        rsp_pwrdn;
+        logic        rsp_error;
+        logic [1:0]  cmpxfr;
+  } visa_vp;
+
+  typedef struct packed {
+        logic       enpirdy;
+        logic       epcirdy;
+        logic [5:0] enc_gray_rwptr;
+  } visa_ififo_tier1;
+
+  typedef struct packed {
+        logic       npqempty;
+        logic [4:0] enc_nprwptr;
+        logic       xor_gray_rptr;
+        logic       xor_gray_wptr_ff2;
+  } visa_ififo_tier2;
+
+  typedef struct packed {
+        logic xor_gray_rptr_ff2;
+        logic xor_gray_wptr;
+        logic [5:0] enc_gray_rwptr;
+  } visa_efifo_tier1;
+
+  typedef struct packed {
+        logic xor_gray_nprptr_ff2;
+        logic xor_gray_npwptr;
+        logic [5:0] enc_gray_nprwptr;
+  } visa_efifo_tier2;
+
+  typedef struct packed {
+        visa_efifo_tier1 efifo;
+        visa_ififo_tier1 ififo;
+  } visa_epfifo_tier1_sb;
+
+  typedef struct packed {
+        visa_efifo_tier2 efifo;
+        visa_ififo_tier2 ififo;
+  } visa_epfifo_tier2_sb;
+
+  typedef struct packed {
+        visa_ififo_tier1 ififo;
+        visa_efifo_tier1 efifo;
+  } visa_epfifo_tier1_ag;
+
+  typedef struct packed {
+        visa_ififo_tier2 ififo;
+        visa_efifo_tier2 efifo;
+  } visa_epfifo_tier2_ag;
+
+  typedef struct packed {
+        logic target_nphdrdrop;
+        logic target_pchdrdrop;
+        logic [1:0] target_npfsm;
+        logic target_npmsgip;
+        logic target_pcmsgip;
+        logic [4:0] unused;
+        logic master_cfence;
+        logic master_cmsgip;
+        logic master_np;
+        logic master_npmsgip;
+        logic master_pcmsgip;
+   } visa_agent_tier1;
+
+  typedef struct packed {
+        logic [7:0] unused;
+        logic [3:0] pcsel_bin;
+        logic [3:0] npsel_bin;
+   } visa_agent_tier2;
+
+  typedef struct packed {
+        logic mreg_np;
+        logic mreg_trdy;
+        logic mmsg_npirdy;
+        logic mmsg_pcirdy;
+        logic mmsg_npeom;
+        logic mmsg_pceom;
+        logic mreg_nmsgip;
+        logic mreg_pmsgip;
+        logic treg_cirdy;
+        logic treg_ctregcerr;
+        logic [1:0] treg_ctregxfr;
+        logic treg_npignore;
+        logic treg_np;
+        logic treg_irdy;
+        logic treg_err;
+  } visa_reg_tier1;
+
+  typedef struct packed {
+        logic mreg_qword;
+        logic mreg_write;
+        logic [2:0] mreg_ncount;
+        logic [2:0] mreg_pcount;
+        logic [3:0] treg_ncount;
+        logic [3:0] treg_pcount;
+  } visa_reg_tier2;
+
+  // KBP VISA PCR HSD 1204977900 - START
+  typedef struct packed {
+        logic [2:0] dfxseq_ps;
+        logic pgcb_ip_pg_rdy_ack_b;
+        logic pgcb_ip_pg_rdy_nak_b;
+        logic [4:0] zero;
+        logic pgcb_pwrdwnidle;
+        logic pgcb_pwrupidle;
+        logic [1:0] cnt_load_val;
+        logic int_sleep_en;
+        logic int_pg_type;
+        logic sync_pmc_pgcb_pg_ack_b;
+        logic pgcb_pmc_pg_req_b;
+        logic ip_pgcb_pg_rdy_req_b;
+        logic [4:0] pgcb_ps;
+  } visa_pgcb;
+  // KBP VISA PCR HSD 1204977900 - END
+
+// lintra pop

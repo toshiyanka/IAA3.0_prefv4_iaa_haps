@@ -1,0 +1,189 @@
+# Test flow 1
+
+tap_utils::set_seed $seed
+
+iNote "-INFO- Test Fow 1"
+
+# All TAP registers
+set test_reg_collection [tap_utils::get_all_regs $included_instances $included_registers]
+iNote "-INFO- Initial list of registers to test [get_name_list $test_reg_collection]"
+
+set test_ir_regs [tap_utils::find_regs $ir_module_names $ir_reg_names]
+iNote "-INFO- List of TAP IR registers [get_name_list $test_ir_regs]"
+
+set network_control_regs [tap_utils::find_regs $network_control_modules $network_control_registers]
+iNote "-INFO- List of TAP network control registers [get_name_list $network_control_regs]"
+
+#iNote "-INFO- Mapping IR/DR registers to the corresponding TAPs..."
+array set tap_ir_map {}
+array set tap_dr_map {}
+array set tap_parent_map {}
+
+tap_utils::map_tap_ir_regs $test_ir_regs tap_ir_map
+#tap_utils::map_tap_regs $test_reg_collection $test_ir_regs tap_dr_map tap_ir_map
+tap_utils::map_tap_parents tap_parent_map tap_ir_map
+
+# Remove excluded registers
+tap_utils::remove_regs_from_collection test_reg_collection $excluded_modules $excluded_registers
+iNote "-INFO- List of registers to test after initial exclusions [get_name_list $test_reg_collection]"
+
+tap_utils::remove_regs_from_collection test_reg_collection $hotfix_excluded_modules $hotfix_excluded_registers
+iNote "-INFO- List of registers to test after hotfix exclusions [get_name_list $test_reg_collection]"
+
+# Initialization preamble
+iCall tap_reset_preamble
+
+if {$enable_continuity_tests && $enable_continuity_group} {
+
+   iNote "-INFO- TDI-TDO continuity test is ENABLED!"
+   # TAP continuity test for all specified registers
+   iCall tap_dr_continuity_test $test_reg_collection
+
+} else {
+
+   iNote "-WARN- TDI-TDO continuity test is DISABLED!"
+}
+
+# Remove "continuity only" registers
+tap_utils::remove_regs_from_collection test_reg_collection {} $continuity_test_only_registers
+iNote "-INFO- List of registers for remaining tests (after exclusion of 'continuity test only' registers) [get_name_list $test_reg_collection]"
+
+# TAP reset test for all specified registers
+# Rerun the test for all DFx and Functional resets in the design!
+
+if {($enable_powergood_reset_tests || $enable_trst_reset_tests || $enable_tlr_reset_tests) && $enable_reset_group} {
+
+   # Workaround for Tessent issue with modeling TRST/TLR behanior
+   set test_trst_regs [tap_utils::find_regs $dr_modules_trst $dr_registers_trst]
+   iNote "-INFO- List of TAP registers which are subject to TRST reset [get_name_list $test_trst_regs]"
+   set test_tlr_regs [tap_utils::find_regs $dr_modules_tlr $dr_registers_tlr]
+   iNote "-INFO- List of TAP registers which are subject to  TLR reset [get_name_list $test_tlr_regs]"
+}
+
+if {$enable_powergood_reset_tests && $enable_reset_group} {
+
+   iNote "-INFO- POWERGOOD reset test is ENABLED!"
+   iCall tap_dr_reset_test $test_reg_collection POWERGOOD:DFX 0 reset_name_list $test_trst_regs $test_tlr_regs $network_control_regs
+
+} else {
+
+   iNote "-WARN- POWERGOOD reset test is DISABLED!"
+}
+
+
+if {($enable_trst_reset_tests || $enable_tlr_reset_tests) && $enable_reset_group} {
+
+   # direct TRST validaiton is not supported in ICL today due to issue in Tessent with TRST/TLR modeling and limitations of IEEE1687
+   # TLR validaiton is covered by special handling in PDL
+
+   set trst_tlr_test_collection [copy_collection $test_reg_collection]
+   tap_utils::remove_regs_from_collection trst_tlr_test_collection {} $continuity_test_only_registers
+   # Applying permanent exclusions
+   tap_utils::remove_regs_from_collection trst_tlr_test_collection $trst_tlr_test_excluded_modules $trst_tlr_test_excluded_registers
+   # Applying temporary hotfix exclusions
+   tap_utils::remove_regs_from_collection trst_tlr_test_collection $hotfix_trst_tlr_test_excluded_modules $hotfix_trst_tlr_test_excluded_registers
+
+   iNote "-INFO- List of registers for TRST/TLR reset tests [get_name_list $trst_tlr_test_collection]"
+
+   if {$enable_trst_reset_tests} {
+      iNote "-INFO- TRST reset tests are ENABLED!"
+      iCall tap_dr_reset_test $trst_tlr_test_collection TRST 0 reset_name_list $test_trst_regs $test_tlr_regs $network_control_regs
+   } else {
+      iNote "-WARN- TRST reset tests are DISABLED!"
+   }
+
+   if {$enable_tlr_reset_tests} {
+      iNote "-INFO- TLR reset tests are ENABLED!"
+      iCall tap_dr_reset_test $trst_tlr_test_collection TLR  0 reset_name_list $test_trst_regs $test_tlr_regs $network_control_regs
+   } else {
+      iNote "-WARN- TLR reset tests are DISABLED!"
+   }
+
+} else {
+
+   iNote "-WARN- TRST/TLR reset tests are DISABLED!"
+}
+
+if {$enable_rw_tests && $enable_rw_group} {
+
+   iNote "-INFO- TAP DR read-write access tests are ENABLED!"
+   # TAP DR Read-Write test for all specified registers
+   iCall tap_dr_rw_test $test_reg_collection 01
+
+   # TAP DR Read-Write test - DR RANDOM
+   iCall tap_dr_rw_random_test $test_reg_collection 2 
+
+   if {$enable_rw_dr_field_tests} {
+      # TAP DR Read-Write test - DR field (Alias) RANDOM
+      iCall tap_dr_field_rw_random_test $test_reg_collection 2
+   }
+
+} else {
+
+   iNote "-WARN- TAP DR read-write access tests are DISABLED!"
+}
+
+# initialize everything before security tests
+#iCall tap_reset POWERGOOD:DFX 10 reset_name_list
+
+# TAP Read-Write Secure test for all specified registers
+# FIXME: requiers Tessent fix to work
+#iCall tap_dr_rw_secure_test $test_reg_collection GREEN tap_dr_map
+
+# NOTE: All opcode/security tests are guaranteed to work for TAP/ICL from Intel/DTEG only!
+
+if {$enable_all_opcodes_security_tests && $enable_all_opcodes_security_group} {
+
+   iNote "-INFO- TAP All Opcodes/Security tests are ENABLED!"
+
+   # Security level 0x2
+   iCall tap_set_secure_policy RED
+   iRunLoop 10
+   
+   # TAP Reserved opcode test for all TAPs
+   # The test assumes RED security level (0x2) - all TAPs registers are accessible
+   iCall tap_reserved_opcodes_test $tap_opcodes_tap_instances tap_opcodes_to_exclude {} tap_ir_map 
+
+   array set excluded_levels_hash {}
+   foreach excluded_level $excluded_security_levels {
+      set excluded_levels_hash([expr $excluded_level]) ""
+      iNote "-WARN- Excluding test for security level $excluded_level"
+   }
+
+   # TAP All opcode tests with Security
+   # Security level 0x4
+   if {![info exists excluded_levels_hash([expr 4])]} {
+      iCall tap_all_opcodes_security_test $tap_opcodes_tap_instances RED4   tap_opcodes_to_exclude {} tap_ir_map 
+   }
+   # Security level 0x5
+   if {![info exists excluded_levels_hash([expr 5])]} {
+      iCall tap_all_opcodes_security_test $tap_opcodes_tap_instances ORANGE tap_opcodes_to_exclude {} tap_ir_map 
+   }
+   # Security level 0x0
+   if {![info exists excluded_levels_hash([expr 0])]} {
+      iCall tap_all_opcodes_security_test $tap_opcodes_tap_instances GREEN  tap_opcodes_to_exclude {} tap_ir_map 
+   }
+
+   # Test below must be run for all not yet covered security levels up to 0xF
+   if {$enable_security_tests_all_levels} {
+
+      set security_levels {1 3 6 7 8 9 0xa 0xb 0xc 0xd 0xe 0xf}
+
+      foreach level $security_levels {
+
+   	 if {[info exists excluded_levels_hash([expr $level])]} {continue}
+
+	 iCall tap_all_opcodes_security_test $tap_opcodes_tap_instances $level tap_opcodes_to_exclude {} tap_ir_map 
+      }
+   }
+} else {
+
+   iNote "-WARN- TAP All Opcodes/Security tests are DISABLED!"
+}
+
+# Printing info about not readable registers/fields
+# IMPORTANT: All reported registers and bits/fields were not covered by basic TAP tsts above and
+# need special directed tests for validation!!!
+tap_utils::print_all_capture_source_x_info $test_reg_collection
+
+# End of test flow

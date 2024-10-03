@@ -1,0 +1,31 @@
+cd $IP_ROOT/subIP/ip-tap-network/
+
+\cp verif/tb/include/configs/default/TapTests.sv               verif/tests/
+\cp verif/tb/include/configs/default/TapSeqLib.sv              verif/tb/
+\cp verif/tb/include/configs/default/TapTop.sv                 verif/tb/
+\cp verif/tb/include/configs/default/mtap_tapnw_taps.sv        verif/tb/
+
+\cp verif/tb/include/configs/default/mtap0_params_include.inc  verif/tb/include/configs/
+\cp verif/tb/include/configs/default/stap0_params_include.inc  verif/tb/include/configs/
+\cp verif/tb/include/configs/default/stap1_params_include.inc  verif/tb/include/configs/
+\cp verif/tb/include/configs/default/stap2_params_include.inc  verif/tb/include/configs/
+\cp verif/tb/include/configs/default/stap3_params_include.inc  verif/tb/include/configs/
+\cp verif/tb/include/configs/default/tapnw0_params_include.inc verif/tb/include/configs/
+\cp verif/tb/include/configs/default/tb_param.inc              verif/tb/include/
+
+ace -cc -pwa pwa_default
+ace -x TapTestAllPrimary \
+       TapTestAllSecondaryNormal \
+       TapTestAllSecondaryNormalDecoupled \
+       TapTestAllSecondaryNormalShadow \
+       TapTestMiscConfig \
+       TapTestNWp7ConfigOVR \
+       TapTestALLsTAPSEC \
+       TapTestAllPriSecInParallel \
+       TapTestTry -nb -nbmon -pwa pwa_default
+
+cd $IP_ROOT/subIP/ip-tap-network/
+
+\cp verif/tb/include/configs/default/TapTests.sv               verif/tests/
+
+cd $IP_ROOT/

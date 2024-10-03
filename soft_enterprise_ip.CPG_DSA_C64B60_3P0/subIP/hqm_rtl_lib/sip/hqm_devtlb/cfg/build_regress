@@ -1,0 +1,18 @@
+#!/usr/intel/pkgs/perl/5.26.1/bin/perl -w
+
+die "ERROR:  no model root defined \n" unless ( defined $ENV{GK_MODELROOT} );
+chdir ("$ENV{GK_MODELROOT}") || die "ERROR: Cannot cd to Modelroot: $!\n";
+$ENV{'GK_UTILS_CONFIG_DIR'} = "$ENV{GK_MODELROOT}/cfg";
+
+# Workaround for Gatekeeper bug. $RTLD_DEEPBIND must be set to 0 to
+# ensure compatibility with Spyglass LP and VC LP
+#$ENV{RTLD_DEEPBIND} = 0;
+
+## Cheetah is non HDK Environment
+$ENV{'GK_DISABLE_HDK_CHECK'} = 1;
+
+$ENV{'PROJECT'} = "CTH";
+
+my $gk_utils_exec = '/p/hdk/rtl/proj_tools/gatekeeper_utils/1.01.92/gk-utils.pl';
+exec { $gk_utils_exec } ( $gk_utils_exec, '-env_setup', 'cth_psetup' );
+ 

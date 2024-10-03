@@ -1,0 +1,29 @@
+ # Options passed to the CDC static verification
+ {
+   %opts = (
+     -model                 => 'cdc_pgcb_collection', 
+     -static_check_top      => 'cdc_ClockDomainController_lib.ClockDomainController', #Refer to the top level module in the test
+     -static_check_tools    => [ "spyglass", ],
+     -enable_spyglass_group_run => 0,
+     -enable_cdc_lint       => 1,
+     -spyglass_goals        => [
+                                "cdc/cdc_verify_struct",
+                               ],
+     -spyglass_ctrl_files => [
+                              "$ENV{MODEL_ROOT}/tools/spyglasscdc/ClockDomainController/cdc_pgcb_collection_ClockDomainController.sgdc",
+     ],
+     -spyglass_waiver_files => ["$ENV{MODEL_ROOT}/tools/spyglasscdc/ClockDomainController/sgcdc_ClockDomainController_time0_waiver.awl","$ENV{MODEL_ROOT}/tools/spyglasscdc/ClockDomainController/sgcdc_ClockDomainController_p1274_time0_waiver.awl"],
+     -post_process_pattern_file   => "$ENV{ACE_HOME}/udf/ace_base_postsim.pp",
+     -spyglass_post_process_modes => "AceSpyglassCDC_default,AceCDCLint_default",
+     -spyglass_exe_opts  => [],
+     -spyglass_exe_scrag_recipe   => [],
+   ); 
+
+   %runModes = (
+       SetupChk => {
+          -enable_cdc_lint             => 0,
+          -ASSIGN => [ -spyglass_goals => ["cdc/cdc_setup_check",], ],
+          -spyglass_post_process_modes => "AceSpyglassCDC_default",
+       },
+  );
+ }

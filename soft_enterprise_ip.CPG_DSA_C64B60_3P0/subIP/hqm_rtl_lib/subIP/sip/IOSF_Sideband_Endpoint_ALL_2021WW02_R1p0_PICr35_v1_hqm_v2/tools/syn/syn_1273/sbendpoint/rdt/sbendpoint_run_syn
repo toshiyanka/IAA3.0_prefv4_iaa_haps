@@ -1,0 +1,31 @@
+#!/bin/tcsh -f
+
+set SIP_TOOL_NAME=`echo $0 | sed -e 's/.*\///'`
+##############################
+# UNIX Environment setup
+##############################
+if (! $?SIP_NO_SETUP) then
+   pushd  ../../../../../scripts
+   source setup -ft
+   popd
+endif
+
+############  Setting PROCESS  ################
+setenv KIT_PATH       /p/kits/intel/p1273/p1273_0.8.0
+source $KIT_PATH/kit_setup
+setenv CAD_ROOT       /p/com/eda/dt/linus_2.6.5_x86-64
+setenv DESIGN_NAME    sbendpoint
+echo   "$KIT_PATH"
+echo   "environment set"
+
+/bin/rm -r inputs outputs logs synopsys_cache alib-52 reports
+
+dc_shell-t -f $KIT_PATH/flows/rdt/common/scripts/run.tcl -topo <<EOFDC
+start_gui
+#runRDT -init
+change_names -rules verilog -verbose
+write_test_protocol -output outputs/${DESIGN_NAME}_atpg.final.spf
+write -format verilog -output outputs/${DESIGN_NAME}_atpg.final.v -hier
+exit
+EOFDC
+

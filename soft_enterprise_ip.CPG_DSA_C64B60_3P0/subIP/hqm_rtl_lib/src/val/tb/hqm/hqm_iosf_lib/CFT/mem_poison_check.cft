@@ -1,0 +1,67 @@
+idle 1000
+
+#check device status and detected parity error to be set
+rd hqm_pf_cfg_i.device_status 0x8010
+
+#check aer_cap_uncorr_err_status and poison TLP
+rd hqm_pf_cfg_i.aer_cap_uncorr_err_status 0x00001000
+
+#check ERror status
+rd hqm_pf_cfg_i.pcie_cap_device_status 0x0004 
+
+
+#Check register  update happened or not
+rd hqm_sif_csr.ri_phdr_fifo_ctl  0x0000000F
+
+
+#EOT check 
+sai hostia_boot_sai     # Should be SAI index 4
+
+
+########################################
+#read all HQM CSR policy register 
+wr hqm_sif_csr.hqm_csr_cp_lo 0xFFFFFFFF
+wr hqm_sif_csr.hqm_csr_cp_hi 0xFFFFFFFF
+rd hqm_sif_csr.hqm_csr_cp_lo 0xFFFFFFFF
+rd hqm_sif_csr.hqm_csr_cp_hi 0xFFFFFFFF
+
+sai hostia_ucode_sai    # Should be SAI index 1
+
+############################################
+#HQM CSR Read Access Policy Low Register
+wr hqm_sif_csr.hqm_csr_rac_lo 0xFFFFFFFF
+wr hqm_sif_csr.hqm_csr_rac_hi 0xFFFFFFFF
+rd hqm_sif_csr.hqm_csr_rac_lo 0xFFFFFFFF
+rd hqm_sif_csr.hqm_csr_rac_hi 0xFFFFFFFF
+##################################################
+#HQM CSR Write Access Policy Low Register
+wr hqm_sif_csr.hqm_csr_wac_lo 0xFFFFFFFF
+wr hqm_sif_csr.hqm_csr_wac_hi 0xFFFFFFFF
+rd hqm_sif_csr.hqm_csr_wac_lo 0xFFFFFFFF
+rd hqm_sif_csr.hqm_csr_wac_hi 0xFFFFFFFF
+
+#check EOT_seq
+wr  hqm_pf_cfg_i.aer_cap_corr_err_status 0xFFFFFFFF
+rd  hqm_pf_cfg_i.aer_cap_corr_err_status 0x00000000
+
+
+wr hqm_pf_cfg_i.aer_cap_uncorr_err_status 0xFFFFFFFF
+rd hqm_pf_cfg_i.aer_cap_uncorr_err_status 0x00000000
+
+wr hqm_pf_cfg_i.device_status 0xFFFF
+rd hqm_pf_cfg_i.device_status 0x0010
+
+wr hqm_pf_cfg_i.pcie_cap_device_status 0xFFFF
+rd hqm_pf_cfg_i.pcie_cap_device_status 0x0000 
+
+
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+
+
+
+
+
+
+
+
+

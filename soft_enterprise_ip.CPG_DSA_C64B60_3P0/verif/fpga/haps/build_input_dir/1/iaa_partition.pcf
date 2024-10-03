@@ -1,0 +1,177 @@
+###==== BEGIN Header
+# ProtoCompiler Constraint Editor 
+# Thu Sep 4 2014 20:55:33
+#
+###==== END Header
+
+assign_port { pcie_ref_clk_n } -trace {connAM1_2.REFCLKN[0] }
+assign_port { pcie_ref_clk_p } -trace {connAM1_2.REFCLKP[0] }
+assign_port { pci_exp_txn[3:0] } -trace {connAM1_2.TXN[3:0] }
+assign_port { pci_exp_txp[3:0] } -trace {connAM1_2.TXP[3:0] }
+assign_port { pci_exp_rxn[3:0] } -trace {connAM1_2.RXN[3:0] }
+assign_port { pci_exp_rxp[3:0] } -trace {connAM1_2.RXP[3:0] }
+
+#assign_port { gmt_pcie_ref_clk_n } -trace {connDM1_2.REFCLKN[0] }
+#assign_port { gmt_pcie_ref_clk_p } -trace {connDM1_2.REFCLKP[0] }
+#assign_port { gmt_pcie_txn[3:0] } -trace {connDM1_2.TXN[3:0] }
+#assign_port { gmt_pcie_txp[3:0] } -trace {connDM1_2.TXP[3:0] }
+#assign_port { gmt_pcie_rxn[3:0] } -trace {connDM1_2.RXN[3:0] }
+#assign_port { gmt_pcie_rxp[3:0] } -trace {connDM1_2.RXP[3:0] }
+
+
+# UHFI PCIe interface connections
+net_attribute {led_green} -function PANEL_LED
+assign_port {led_green} -trace {{mb1.A_LED_GRN[1]}}
+
+net_attribute {led_red} -function PANEL_LED
+assign_port {led_red} -trace {{mb1.A_LED_RED[1]}}
+
+net_attribute {perst} -function SLOW_MGB_GPIO
+net_attribute {prsnt_n} -function SLOW_MGB_GPIO
+net_attribute {pwron_n} -function SLOW_MGB_GPIO
+net_attribute {wake_n} -function SLOW_MGB_GPIO
+assign_port {perst} -trace {connAM1_2.PERST}
+assign_port {prsnt_n} -trace {connAM1_2.PRSNT_n}
+
+assign_port {pwron_n} -trace {connAM1_2.PWRON_n}
+assign_port {wake_n} -trace {connAM1_2.WAKE_n}
+
+# AAL PCIe interface connections
+#net_attribute {gmt_led_grn2} -function PANEL_LED
+#assign_port {gmt_led_grn2} -trace {{mb1.D_LED_GRN[1]}}
+#
+#net_attribute {gmt_led_red2} -function PANEL_LED
+#assign_port {gmt_led_red2} -trace {{mb1.D_LED_RED[1]}}
+#
+#net_attribute {gmt_perst} -function SLOW_MGB_GPIO
+#assign_port {gmt_perst} -trace {connDM1_2.PERST}
+#
+#net_attribute {gmt_pcie_PRSNT_n} -function SLOW_MGB_GPIO
+#assign_port {gmt_pcie_PRSNT_n} -trace {connDM1_2.PRSNT_n}
+#
+#net_attribute {gmt_pwron_n} -function SLOW_MGB_GPIO
+#assign_port {gmt_pwron_n} -trace {connDM1_2.PWRON_n}
+#
+#net_attribute {gmt_pcie_WAKE_n} -function SLOW_MGB_GPIO
+#assign_port {gmt_pcie_WAKE_n} -trace {connDM1_2.WAKE_n}
+
+net_attribute {sys_rst_n} -function SINGLE_FPGA_RESET
+assign_port {sys_rst_n} -trace {mb1.A_USER_RESETN}
+
+#assign_port { sys_clk_n_x8 } -trace {connBM1_2.REFCLKN[0] }
+#assign_port { sys_clk_p_x8 } -trace {connBM1_2.REFCLKP[0] }
+#assign_port { pci_exp_txn_x8[3:0] } -trace {connBM1_2.TXN[3:0] }
+#assign_port { pci_exp_txp_x8[3:0] } -trace {connBM1_2.TXP[3:0] }
+#assign_port { pci_exp_rxn_x8[3:0] } -trace {connBM1_2.RXN[3:0] }
+#assign_port { pci_exp_rxp_x8[3:0] } -trace {connBM1_2.RXP[3:0] }
+
+
+#GPIO Assignments ## need to check !!!
+#assign_port {gpio_link_out} -trace {mb1.A_GPIOLINK_OUT}
+#assign_port {gpio_link_in} -trace {mb1.A_GPIOLINK_IN}
+
+#assign_port {gpioLink_out_x8} -trace {mb1.B_GPIOLINK_OUT}
+#assign_port {gpioLink_in_x8} -trace {mb1.B_GPIOLINK_IN}
+
+#net_attribute sys_rst_n -function RESET
+#assign_port {sys_rst_n} {mb1.reset}
+
+bin_attribute mb1.uB -locked
+bin_attribute mb1.uC -locked
+bin_attribute mb1.uD -locked
+
+#bin_utilization -all_bins -resource_ratio {LUT 0.60}
+#bin_utilization -all_bins -resource_ratio {FF 0.60}
+#bin_utilization -all_bins -resource_ratio {BRAM 1.50}
+#bin_utilization -all_bins -resource_ratio {DSP 0.70}
+
+bin_utilization -bin mb1.uA -resource_ratio {LUT 0.8}
+#bin_utilization -bin mb1.uB -resource_ratio {LUT 0.6}
+##bin_utilization -bin mb1.uB -resource_ratio {LUT 0.80}
+#bin_utilization -bin mb1.uC -resource_ratio {LUT 0.6}
+#bin_utilization -bin mb1.uD -resource_ratio {LUT 0.6}
+
+
+#enable auto cabling
+#auto_tss_control -enable 1
+#abstract_tss -add_trace_group {mb1.uA mb1.uB mb1.uC mb1.uD} -width 250 -connect_all
+#abstract_tss -add_trace_group {mb1.uA mb1.uC} -width 500 -connect_all
+#abstract_tss -add_trace_group {mb1.uB mb1.uC} -width 500 -connect_all
+
+#net_attribute GCLK0_P -function GCLK0_100MHz -differential GCLK0_N -is_clock 1
+#assign_port GCLK0_P mb1.clk.osc_100mhz
+
+##Side Clock
+net_attribute {GCLK1_P} -function GCLK -differential GCLK1_N -is_clock 1
+assign_global_net {GCLK1_P} {mb1.GCLK1}
+#replicate_cell {i_clk_gclk1_bufg} -all_bins 1
+
+##prim Clock
+net_attribute {GCLK2_P} -function GCLK -differential GCLK2_N -is_clock 1
+assign_global_net {GCLK2_P} {mb1.GCLK2}
+#replicate_cell {i_clk_gclk2_bufg} -all_bins 1
+
+##debug idc clock
+net_attribute {GCLK3_P} -function GCLK -differential GCLK3_N -is_clock 1
+assign_global_net {GCLK3_P} {mb1.GCLK3}
+#replicate_cell {i_clk_gclk3_bufg} -all_bins 1
+
+#p_clk (cpm_clk)
+net_attribute {GCLK4_P} -function GCLK -differential GCLK4_N -is_clock 1
+assign_global_net {GCLK4_P} {mb1.GCLK4}
+#replicate_cell {i_clk_gclk4_bufg} -all_bins 1
+
+#aal_fifo_clk
+net_attribute {GCLK5_P} -function GCLK -differential GCLK5_N -is_clock 1
+assign_global_net {GCLK5_P} {mb1.GCLK5}
+
+##pgcb_clk
+net_attribute {GCLK6_P} -function GCLK -differential GCLK6_N -is_clock 1
+assign_global_net {GCLK6_P} {mb1.GCLK6}
+assign_cell  {i_fuse_top} {mb1.uA} 
+
+assign_cell  {i_ru_top} {mb1.uA}
+
+assign_cell  {i_sideband_network} {mb1.uA}
+
+assign_cell  {uhfi} {mb1.uA}
+
+#assign_cell  {i_cpm_top.parcpmaram} {mb1.uA} 
+#
+#assign_cell  {i_cpm_top.parcpmcast1} {mb1.uA} 
+#
+#assign_cell  {i_cpm_top.parcpmhi} {mb1.uA} 
+#
+#assign_cell  {i_cpm_top.parcpmssma_xa} {mb1.uD}
+#
+#
+##assign_cell  {i_cpm_top.parcpmssmb} {mb1.uB}
+#assign_cell {i_cpm_top.parcpmssmb.i_cpmssmb_0.i_cpm_cpr_main_logic_0.i_hsh} {mb1.uB}
+# # LUT 77760 DFF 32799
+#assign_cell {i_cpm_top.parcpmssmb.i_cpmssmb_0.i_cpm_cpr_main_logic_0.i_oel} {mb1.uC}
+#  # LUT 36150 DFF 23521 
+#  assign_cell {i_cpm_top.parcpmssmb.i_cpmssmb_0.i_cpm_cpr_main_logic_0.i_cpr_pre_dmm} {mb1.uB}
+#   # LUT 18203 DFF 1192 
+#assign_cell {i_cpm_top.parcpmssmb.i_cpmssmb_0.i_cpm_cpr_main_logic_0.i_cpr_cfg_reg} {mb1.uC}
+#   # LUT 11024 DFF 1749 DSP 38
+# 
+#assign_cell  {i_cpm_top.parcpmssmc_xa_0} {mb1.uA} 
+#assign_cell  {i_cpm_top.parcpmssmc_xa_1} {mb1.uD} 
+#
+#assign_cell  {i_cpm_top.parcpmssmd_xa} {mb1.uC} 
+#
+#assign_cell  {i_cpm_top.parcpmssmf_0} {mb1.uB} 
+#
+#assign_cell  {i_cpm_top.parcpmssmf_1} {mb1.uB} 
+#assign_cell  {i_cpm_top.parcpmssmf_2} {mb1.uB} 
+#
+#assign_cell  {i_cpm_top.parcpmssmf_3} {mb1.uC} 
+#
+#assign_cell  {i_cpm_top.parcpmssmg_xa_0} {mb1.uD} 
+#assign_cell  {i_cpm_top.parcpmssmg_xa_1} {mb1.uC} 
+#
+#assign_cell  {i_cpm_top.parcpmssmh_xa_0} {mb1.uA} 
+#assign_cell  {i_cpm_top.parcpmssmh_xa_1} {mb1.uC} 
+#assign_cell  {i_cpm_top.parcpmssmh_xa_2} {mb1.uD}  
+#assign_cell  {i_cpm_top.parcpmssmh_xa_3} {mb1.uD} 
+

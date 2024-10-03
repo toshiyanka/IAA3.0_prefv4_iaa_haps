@@ -1,0 +1,23 @@
+## -- Setup LUTs used by HCWs
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+  msix_alarm 0 enable=0x1 addr=0xaaaa5555aaaa5555 data=0xaaaa5555
+
+  dir qid 0
+
+  vas 0 dir_qidv0=1 credit_cnt=0x100
+ 
+  dir pp 0 vas=0 
+  dir cq 0 cq_depth=1024 gpa=sm 
+
+cfg_end
+
+wr hqm_pf_cfg_i.msix_cap_control.fm     0x0
+wr hqm_msix_mem.vector_ctrl[0].vec_mask 0x1
+wr hqm_pf_cfg_i.msix_cap_control.msixen 0x1
+
+rd hqm_pf_cfg_i.msix_cap_control.fm     0x0
+rd hqm_msix_mem.vector_ctrl[0].vec_mask 0x1
+rd hqm_pf_cfg_i.msix_cap_control.msixen 0x1

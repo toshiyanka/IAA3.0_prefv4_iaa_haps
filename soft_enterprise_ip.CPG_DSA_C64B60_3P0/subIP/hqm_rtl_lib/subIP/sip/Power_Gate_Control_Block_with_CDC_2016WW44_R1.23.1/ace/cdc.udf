@@ -1,0 +1,104 @@
+#---*-perl-*---
+# Set up the project UDF
+my $PROJECT = $ENV{ACE_PROJECT};
+
+%audf = (
+
+    CommandMapper => {
+    
+        $PROJECT => {
+            -test_manager => {
+                remove_mod => {
+                    static_check => [
+                        "Ace::WorkModules::StaticChecks::QuestaCDC",
+                        "Ace::WorkModules::StaticChecks::Spyglass",
+                        "Ace::WorkModules::PostSimResults",
+                        "Ace::WorkModules::Cleanup",				     
+                        ],
+                    },
+		    
+                add_mod => {
+                    static_check => [
+                        "common::QuestaCDC_TCL",
+                        "Ace::WorkModules::StaticChecks::Spyglass",
+                        "Ace::WorkModules::PostSimResults",
+                        "Ace::WorkModules::Cleanup",
+                        ]
+                    },
+             },
+        },
+    },
+
+    InterfaceVars =>  {
+        -enable_liblist_elab_order => { default => '1', },
+
+	#Defining some new scoped variables
+    	$PROJECT =>	{
+           # __PROTOTYPES    => { import  => [ "TEST","CDC",] },
+           #Configuration switches for CDC
+            -zin_check_results_files => {
+                clear_default => 1,
+               	default => ["cdc_design.rpt", "cdc.rpt",], # add CDC options.
+            },
+            -zin_opts => {
+               	default => ["-c -licq",], # add CDC options.
+            },
+    	}, ##end of InterfaceVars->$PROJECT
+    }, ## end of InterfaceVars
+    
+#-------------------------------------------------------------------------------
+#The following are "CDC models and Libs". In the libs part please include all the 
+#Synthesizable RTL required to compiile the module.
+#-------------------------------------------------------------------------------
+    HDLSpec => {
+  	
+	$PROJECT => {
+       libs => {
+          cdc_synccell_lib => {
+             -hdl_spec => [ 'sync_cell.hdl', ],
+             -vlog_opts=> ["-sv","+define+DC","+libext+.sv+.v+.vs",],
+          },
+
+          cdc_pgcbunit_lib => {
+             -hdl_spec => [ 'src/rtl/pgcbunit/pgcbunit.hdl', ],
+             -dependent_libs => [ "cdc_synccell_lib", ],
+             -sub_libs => [ "$ENV{CTECH_LIB_NAME_CDC}",  ],
+             -vlog_opts=> ["-sv","+define+DC","+libext+.sv+.v+.vs",],
+          },
+          cdc_ClockDomainController_lib => {
+             -hdl_spec => [ 'src/rtl/ClockDomainController/ClockDomainController.hdl', ],
+             -dependent_libs => [ "cdc_synccell_lib", ],
+             -sub_libs => [ "$ENV{CTECH_LIB_NAME_CDC}",  ],
+             -vlog_opts=> ["-sv","+define+DC","+libext+.sv+.v+.vs",],
+          },
+          cdc_pgcbcg_lib => {
+             -hdl_spec => [ 'ace/cdc_pgcbcg.hdl',
+                            'src/rtl/pcguunit/pcguunit.hdl', ],
+             -dependent_libs => [ "cdc_synccell_lib", ],
+             -sub_libs => [ "$ENV{CTECH_LIB_NAME_CDC}",  ],
+             -vlog_opts=> ["-sv","+define+DC","+libext+.sv+.v+.vs",],
+          },
+          cdc_tooltb_lib => {
+             -hdl_spec => [ 'verif/tooltb/tooltb.hdl', ],
+             -dependent_libs => [ "cdc_synccell_lib", "cdc_pgcbunit_lib", "cdc_ClockDomainController_lib", "cdc_pgcbcg_lib" ],
+             -sub_libs => [ "$ENV{CTECH_LIB_NAME_CDC}",  ],
+             -vlog_opts=> ["-sv","+define+DC","+libext+.sv+.v+.vs",],
+          },
+       },
+	
+	    models => {
+            cdc_pgcb_collection => {
+               top => 'cdc_tooltb_lib.tooltb',
+               libs => [
+                  'cdc_pgcbunit_lib',
+                  'cdc_ClockDomainController_lib',
+                  'cdc_pgcbcg_lib',
+                  'cdc_synccell_lib',
+                  'cdc_tooltb_lib',
+               ],
+            },
+        }, #End of models
+    }, #End of PROJECT
+    }, #End of HDLSpec
+);
+

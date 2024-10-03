@@ -1,0 +1,32 @@
+#!/bin/bash 
+# name: runGLS_EP
+
+lib_name=p1271
+test=test01
+
+while getopts ht: flag; do
+   case $flag in
+   h) 
+      echo ""
+      echo "  runGLS_EP [-t <testname>] "
+      echo ""
+      echo "   -h               print this help message"
+      echo "  Remember to check if you have set KIT_PATH"
+      echo "  according to your requirement default:p1273" 
+      echo "   -t <testname>    testname "
+      echo "    "
+      echo ""
+      exit 0
+      ;;
+   t) 
+      test=$OPTARG
+      ;;
+   esac
+done
+
+
+./runFullConfig -endpoint
+cd ../../tools
+./gls_config_runSynth
+cd ../verif/sim
+make iptest INT=0 TEST=$test GLS=1 LIB_NAME=p1271

@@ -1,0 +1,109 @@
+idle 400
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+
+wr config_master.cfg_pm_pmcsr_disable.disable 0
+rd config_master.cfg_pm_pmcsr_disable
+
+###################################
+# Setup FUNC_VF BAR to a base address of 0x00000003_xxxxxxxx
+###################################
+# 16 VF
+###################################
+# Enable VF and VF memory operations
+#### wr hqm_vf_cfg_i[0].device_command 0x4
+#### wr hqm_vf_cfg_i[1].device_command 0x4
+#### wr hqm_vf_cfg_i[2].device_command 0x4
+#### wr hqm_vf_cfg_i[3].device_command 0x4
+#### wr hqm_vf_cfg_i[4].device_command 0x4
+#### wr hqm_vf_cfg_i[5].device_command 0x4
+#### wr hqm_vf_cfg_i[6].device_command 0x4
+#### wr hqm_vf_cfg_i[7].device_command 0x4
+#### wr hqm_vf_cfg_i[8].device_command 0x4
+#### wr hqm_vf_cfg_i[9].device_command 0x4
+#### wr hqm_vf_cfg_i[10].device_command 0x4
+#### wr hqm_vf_cfg_i[11].device_command 0x4
+#### wr hqm_vf_cfg_i[12].device_command 0x4
+#### wr hqm_vf_cfg_i[13].device_command 0x4
+#### wr hqm_vf_cfg_i[14].device_command 0x4
+#### wr hqm_vf_cfg_i[15].device_command 0x4
+###################################
+# poll to Wait for reset to be done 
+poll config_master.cfg_diagnostic_reset_status 0x80000bff 0x80000bff 500
+# poll to Wait for unit_idle to be done 
+poll config_master.cfg_diagnostic_idle_status 0x0007ffff 0x0007ffff 500
+###################################
+
+# Setup LUTs used by HCWs
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+  # pf_dirpp_dirqid     - VAS  0 PF    DIR PP 0x3c DIR QID 0x3c
+  # pf_dirpp_ldbqid     - VAS  1 PF    DIR PP 0x3d LDB QID 0x00
+  # pf_ldbpp_dirqid     - VAS  1 PF    LDB PP 0x04 DIR QID 0x3d
+  # pf_ldbpp_ldbqid     - VAS  2 PF    LDB PP 0x05 LDB QID 0x01
+  # vf_dirpp_dirqid     - VAS 29 VF  0 DIR PP 0x3e DIR QID 0x3e
+  # vf_dirpp_ldbqid     - VAS 30 VF 10 DIR PP 0x3f LDB QID 0x02
+  # vf_ldbpp_dirqid     - VAS 30 VF 10 LDB PP 0x06 DIR QID 0x3f
+  # vf_ldbpp_ldbqid     - VAS 31 VF 15 LDB PP 0x07 LDB QID 0x03
+
+  dir qid 0x3c
+  dir qid 0x3d
+  dir qid 0x3e
+  dir qid 0x3f
+
+  ldb qid 0  qid_ldb_inflight_limit=256
+  ldb qid 1  qid_ldb_inflight_limit=256
+  ldb qid 2  qid_ldb_inflight_limit=256
+  ldb qid 3  qid_ldb_inflight_limit=256
+
+  vas 0  credit_cnt=1024    dir_qidv60=1 
+  vas 1  credit_cnt=2048 dir_qidv61=1 ldb_qidv0=1
+  vas 2  credit_cnt=2048              ldb_qidv1=1 
+  vas 29 credit_cnt=1024    dir_qidv62=1  
+  vas 30 credit_cnt=2048 dir_qidv63=1 ldb_qidv2=1  
+  vas 31 credit_cnt=2048              ldb_qidv3=1  
+
+  dir pp 0x3c vas=0   
+  dir pp 0x3d vas=1   
+  dir pp 0x3e vas=29   
+  dir pp 0x3f vas=30   
+
+  dir cq 0x3c cq_depth=1024 gpa=sm    
+  dir cq 0x3d cq_depth=1024 gpa=sm    
+  dir cq 0x3e cq_depth=1024 gpa=sm    
+  dir cq 0x3f cq_depth=1024 gpa=sm    
+
+  ldb pp 4  vas=1    
+  ldb pp 5  vas=2    
+  ldb pp 6  vas=30    
+  ldb pp 7  vas=31    
+
+  ldb cq 4  cq_depth=1024 gpa=sm hist_list_base=0x000 hist_list_limit=0x0ff qidv0=1 qidix0=0 pri0=0   
+  ldb cq 5  cq_depth=1024 gpa=sm hist_list_base=0x200 hist_list_limit=0x3ff qidv0=1 qidix0=1 pri0=0   
+  ldb cq 6  cq_depth=1024 gpa=sm hist_list_base=0x400 hist_list_limit=0x5ff qidv0=1 qidix0=2 pri0=0   
+  ldb cq 7  cq_depth=1024 gpa=sm hist_list_base=0x600 hist_list_limit=0x7ff qidv0=1 qidix0=3 pri0=0   
+
+  #vdev  1 dir_pp60_v=1  dir_vqid60_qid=60
+  #vdev  2 dir_pp61_v=1  dir_vqid61_qid=61
+  #vdev  3  ldb_pp4_v=1   ldb_vqid4_qid=4
+  #vdev  4  ldb_pp5_v=1   ldb_vqid5_qid=5
+
+  vdev  0 dir_pp62_v=1  dir_vqid62_qid=62
+  vdev 10 dir_pp63_v=1  dir_vqid63_qid=63  ldb_pp6_v=1  ldb_vqid2_qid=2
+  vdev 15                                  ldb_pp7_v=1  ldb_vqid3_qid=3
+cfg_end
+
+rd hqm_pf_cfg_i.vendor_id

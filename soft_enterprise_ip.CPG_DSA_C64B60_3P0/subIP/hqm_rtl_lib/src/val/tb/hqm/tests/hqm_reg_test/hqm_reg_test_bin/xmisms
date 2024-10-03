@@ -1,0 +1,59 @@
+rm *mism*.txt *lsti*.txt
+#rm not_testable.txt
+rm ipths.txt
+rm ipthpatns.txt
+rm vpths.txt
+rm vpthpatns.txt
+rm istestables.txt
+rm istestpatns.txt
+rm untestables.txt
+rm untestpatns.txt
+rm pgc_errors.txt
+rm pgc_regns.txt
+rm ral_mismatches.txt
+zgrep OVM_ERROR *pgc*/*.log.gz | grep addr= >> pgc_errors.txt
+cat pgc_errors.txt | sed -e "s/^.*pg=/pg=/" | sed -e "s/\[[0-9]*\]/\[*\]/" | sort | uniq > pgc_regns.txt
+chmod o+r pgc*
+
+zgrep OVM_INFO *_pth*/hqm*.log.gz | grep vpth=0 | sed -e "s/^.*mfn=//" | sed -e "s/ <EOM>//" >> ipths.txt
+zgrep OVM_INFO *_pth*/hqm*.log.gz | grep vpth=0 | sed -e "s/^.*mfn=//" | sed -e "s/ <EOM>//" | sed -e "s/\[[0-9]*\]\./\[\*\]\./" | sed -e "s/\[[0-9]*\]\./\[\*\]\./"  | sort | uniq >> ipthpatns.txt
+
+zgrep OVM_INFO *_pth*/hqm*.log.gz | grep vpth=1 | sed -e "s/^.*mfn=//" | sed -e "s/ <EOM>//" >> vpths.txt
+zgrep OVM_INFO *_pth*/hqm*.log.gz | grep vpth=1 | sed -e "s/^.*mfn=//" | sed -e "s/ <EOM>//" | sed -e "s/\[[0-9]*\]\./\[\*\]\./" | sed -e "s/\[[0-9]*\]\./\[\*\]\./"  | sort | uniq >> vpthpatns.txt
+
+zgrep OVM_ERROR */hqm*.log.gz | grep -i Mismatch >> ral_mismatches.txt
+#zgrep is_testable *_pth*/*log.gz >is_testable.txt
+zgrep is_testable *_pth*/*log.gz | sed -e "s/^.*rfn=//" | sed -e "s/ regn=/:/" | sed -e "s/ <EOM>//" >istestables.txt
+zgrep is_testable *_pth*/*log.gz | sed -e "s/^.*rfn=//" | sed -e "s/ regn=/:/" | sed -e "s/ <EOM>//" | sed -e "s/\[[0-9]*\]$/\[\*\]/" | sed -e "s/\[[0-9]*\]:/\[\*\]:/" | sort | uniq >istestpatns.txt
+#zgrep not_testable *_pth/*log.gz >not_testable.txt
+zgrep not_testable *_pth*/*log.gz | sed -e "s/^.*rfn=//" | sed -e "s/ regn=/:/" | sed -e "s/ <EOM>//" >untestables.txt
+zgrep not_testable *_pth*/*log.gz | sed -e "s/^.*rfn=//" | sed -e "s/ regn=/:/" | sed -e "s/ <EOM>//" | sed -e "s/\[[0-9]*\]$/\[\*\]/" | sed -e "s/\[[0-9]*\]:/\[\*\]:/" | sort | uniq >untestpatns.txt
+mod_reg_cnt.py
+xmism config_master
+xmism hqm_vf_cfg
+xmism list_sel_pipe
+xmism hqm_system_csr
+xmism nalb_pipe
+xmism dqed_pipe
+xmism dm_cmd_unit
+xmism dm_cmp_unit
+xmism dm_dma_unit
+xmism dm_hbm_unit
+xmism dm_ing_unit
+xmism dm_master
+xmism dm_mem_unit
+xmism dm_vpa_unit
+xmism aqed_pipe
+xmism cred_hist_pipe
+xmism _qed_pipe
+xmism direct_pipe
+xmism atm_pipe
+xmism reorder_pipe
+echo ""
+rm0txts
+lsti >>lsti.txt
+pwd
+chmod o+r *.txt
+echo ""
+ls -ltr *.txt
+tail -5 lst*.txt

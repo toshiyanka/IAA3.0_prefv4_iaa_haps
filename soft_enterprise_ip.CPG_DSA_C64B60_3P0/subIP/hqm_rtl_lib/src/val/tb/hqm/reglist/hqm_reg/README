@@ -1,0 +1,112 @@
+#########################################
+##    Register Regression list info    ##
+#########################################
+
+
+
+1.  hqm_reg_tests.list
+    This list contains below lists
+    a.  reg_tests.list
+        i.  reg_tests_path.list
+            This list ensures the hdl path to the register is correct. 
+            To enable this, we need to pass +hraispth=1 as argument in hqm_reg_test.opt. 
+        ii. reg_tests_seg.list
+            This list reads the default value of registers present in the given
+            register file name. 
+            All default arguments present in test_hqm_ral_attr_seq.sv are applicable. 
+
+    b.  reg_tests_def.list  //To be updated further. Amol
+        This list checks the default values of the registers present in given Register File.
+        The difference between reg_tests_seg.list and reg_tests_def.list is,
+        in case of reg_tests_def.list, +hraisprdp_def=3 which initiate second time read 
+        for all the registers present in Register File after reset is issued for second time. 
+        In case of reg_tests_seg.list, registers are read only once.
+        Argument passed is -hqm_def which enables +hraisdef=1. 
+
+    c.  reg_tests_atr.list
+        Here, the registers are written with random values and read back if they 
+        are updated correctly. 
+        Argument passed is -hqm_atr which enables hraisatr=1. 
+
+    d.  reg_tests_atr_wom0.list
+        This is similar to reg_tests_atr.list but only difference is the registers 
+        are written with inverted values and read back if they are updated correctly. 
+        Argument passed is -hqm_atr which enables hraisatr=1 and + hraiswom = 0 
+        which issues inverse writes to registers
+
+    e.  reg_tests_sai.list
+        SAI stands for Security Attributes for Initiators. Here, SAI values are randomized
+        for every transaction. Valid and Invalid SAIs are sent along with Rd/Wr transactions.
+        Valid SAI for write transaction will result in successful write to the register and 
+        for Read transaction, it will return the data present in the targeted register.
+        Invalid SAI for write transaction should lead to no register update. 
+        Invalid SAI for read transaction should lead to return data = 0. 
+        Argument passed is -hqm_sai. This argument selects the SAI of RAND type 
+        which will generate random values of SAI, valid and invalid.
+
+    f.  reg_tests_sb.list
+        This is similar to reg_tests_seg.list only difference is the transactions
+        happen via IOSF Sideband Interface. 
+        Argument passed is -sideband. This argument is internally passed to a sequence 
+        which runs the transaction on the sequencer defined. -sideband will issue the
+        transaction on IOSF Sideband interface.
+
+    g.  reg_tests_sb_sai.list
+        This is similar to reg_tests_sai.list only difference is the transactions happen 
+        via IOSF Sideband Interface.
+        Argument passed is -sideband and -hqm_sai
+
+    h.  reg_tests_uad.list
+        UAD is Undefined Addresses Check with only Read transactions. Theory behind this is,
+        in register map, there could be lot of addresses where no register would be implemented.
+        For such addresses, we try issuing read transactions. 
+        Details about how unimplemented registers are given in PVIM: 
+        https://hsdes.intel.com/appstore/article/#/1409202197
+        The return data is expected to be 0. 
+        Argument passed is -hqm_uad
+
+    i.  reg_tests_uat.list
+        UAT is Undefined Addresses Check with Attribute = 1, it means all read and write
+        transactions are issued to Unimplemented addresses. Such addresses are written with 
+        non-zero values and read back to check if the written value gets updated in 
+        the given address location.
+        Argument passed is -hqm_uat
+
+
+2.  hqm_reg_reset_tests.list 
+    Here, the registers are read against default value, then updated with Random value. 
+    Then below mentioned type of reset is issued and again the registers are read back to 
+    check if the registers got affected by the reset. 
+    Different registers are affected differently as per the type of Reset issued.
+
+    This list contains below lists
+    a.  reg_tests_rs1.list
+        Registers are read against default value, updated with Random number and 
+        Cold reset is issued. hqm_cold_reset_sequence.sv is used in issuing cold reset. 
+        Argument passed is -hqm_rs1
+    b.  reg_tests_rs2.list
+        Here, instead of cold reset, Warm reset is issued. hqm_non_standard_warm_reset_seq.sv 
+        is used for issuing Warm reset. 
+        Argument passed is -hqm_rs2
+    c.  reg_tests_rs3.list
+        Reset issued is D0-D3. hqm_pwr_D0_to_D3hot_check_nsr_seq.sv is 
+        used in issuing this reset. 
+        Argument passed is -hqm_rs3
+    d.  reg_tests_flr0.list
+        Here PF FLR reset is issued. 
+        Argument passed is -hqm_flr0
+    e.  reg_tests_flr1.list to reg_tests_flr10.list
+        This is for VF FLR reset. 
+        Argument passed is -hqm_flr1 to -hqm_flr10 for 16 VF functions.
+
+
+Basic information: 
+  Register reglists are present in:
+  $IP_MODELS/hqm/hqm-srvr10nm-wave4-latest/verif/tb/hqm/tests/hqm_reg_test/
+  Register file name is provided in .opt via argument +hraisrfn. 
+  Sometimes the total number of registers present could be in 1000s. So, a particular rfn
+  is divided into smaller fragments called Segments. +hraisseg  defines the number of segments
+  given rfn is divided into. Each segment will further have number of registers.  +hraisrcnt is
+  used to define the number of registers. 
+      
+  Total number of registers = No. of Segments (hraisseg) * Register count (hraisrcnt). 

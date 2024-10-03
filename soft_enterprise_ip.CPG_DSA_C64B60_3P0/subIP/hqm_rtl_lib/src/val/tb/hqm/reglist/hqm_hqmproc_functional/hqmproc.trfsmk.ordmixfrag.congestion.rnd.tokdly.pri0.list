@@ -1,0 +1,695 @@
+######################################################
+#
+#General congestion tests
+# -simv_args +hqmproc_lsp_qidthreshold_enable=1
+# -simv_args +hqm_lsp_qid_depthres_rnd -simv_args +hqm_lsp_qid_depth_thresh_qidmax=4
+#hold tok returns for a while then return tok    +rtn_tok_rnddly0
+#run with fixed priority and rnd priority (-simv_args +has_qpri_sel_mode=9 (rndpri [0:7])
+#
+######################################################
++defaults  -ace_args -simv_args +hqmproc_lsp_qidthreshold_enable=1 -simv_args +hqm_lsp_qid_depthres_rnd -simv_args +hqm_lsp_qid_depth_thresh_qidmax=32  -ace_args-
+
+############################################
+############################################
+############################################
+###############
+##### 4DIRPP+4LDBPP QID1MAP and QIDMMAP Test
+###############
+############################################
+############################################
+#rnd0: cfgrnd0
+############################################
+###Added ORD
+#      -simv_args +has_qid_sel_mode=3 -simv_args +has_qtype_sel_mode=5 (5: DIR/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=3 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map renq: +has_renq_qid_sel_mode=3  +has_renq_qtype_sel_mode=2
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb4ppdir4pp_qid1map_ordmix_rnd0+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_ORDMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=68 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=4 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=4   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=512 -simv_args +has_qid_sel_mode=3 -simv_args +has_qtype_sel_mode=5  -simv_args +has_renq_qid_sel_mode=3 -simv_args +has_renq_qtype_sel_mode=2   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+
+
+#mmap -simv_args +has_qid_sel_mode=3  -simv_args +has_qtype_sel_mode=5 ; +has_renq_qid_sel_mode=3  +has_renq_qtype_sel_mode=2
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb4ppdir4pp_qidmmap_ordmix_rnd0+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_MMAP_ORDMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=68 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=4 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=4    -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=512 -simv_args +has_qid_sel_mode=3 -simv_args +has_qtype_sel_mode=5 -simv_args +has_renq_qid_sel_mode=3 -simv_args +has_renq_qtype_sel_mode=2     -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor
+
+
+###Added UNO+ORD
+#      -simv_args +has_qid_sel_mode=3 -simv_args +has_qtype_sel_mode=7 (6: UNO/ATM/ORD; 7: DIR/UNO/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=3 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map renq: +has_renq_qid_sel_mode=3  +has_renq_qtype_sel_mode=2
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb4ppdir4pp_qid1map_ldbmix_rnd0+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=68 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=4 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=4   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=512 -simv_args +has_qid_sel_mode=3 -simv_args +has_qtype_sel_mode=7  -simv_args +has_renq_qid_sel_mode=3 -simv_args +has_renq_qtype_sel_mode=2   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+
+
+#mmap -simv_args +has_qid_sel_mode=3  -simv_args +has_qtype_sel_mode=7 ; +has_renq_qid_sel_mode=3  +has_renq_qtype_sel_mode=2
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb4ppdir4pp_qidmmap_ldbmix_rnd0+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_MMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=68 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=4 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=4    -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=512 -simv_args +has_qid_sel_mode=3 -simv_args +has_qtype_sel_mode=7 -simv_args +has_renq_qid_sel_mode=3 -simv_args +has_renq_qtype_sel_mode=2     -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor
+
+
+
+
+############################################
+############################################
+############################################
+###############
+##### 8DIRPP+8LDBPP QID1MAP and QIDMMAP Test
+###############
+############################################
+############################################
+#rnd0: cfgrnd0
+############################################
+########
+### parallel of any pp
+#+hqmproc_alltrf_sel=2     -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=72  
+########
+#_TRF_QID_SELMODE=1 (qid: {0,1})
+#_TRF_QID_SELMODE=2 (qid: {0,1,2})
+#_TRF_QID_SELMODE=3 (qid: {0,1,2,3})
+#_TRF_QID_SELMODE=4 (qid: {0,1,2,3,4,5,6,7})
+#
+# +LDB_PP0_TRF_QTYPE_SELMODE=1 (DIR/UNO)
+#                            2 (DIR/ATM)
+#                            3 (UNO/ATM)  
+#                            4 (DIR/UNO/ATM)
+#                            5 (ORD/ATM/DIR)
+#                            6 (ORD/ATM/UNO)
+#                            7 (ORD/ATM/UNO/DIR)
+#
+####Added ORD
+#      -simv_args +has_qid_sel_mode=3 -simv_args +has_qtype_sel_mode=5  
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=2 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map +has_qid_sel_mode=4 -simv_args +has_qtype_sel_mode=5 ;  renq: +has_renq_qid_sel_mode=4  +has_renq_qtype_sel_mode=2
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb8ppdir8pp_qid1map_ordmix_rnd0+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb8ppdir8pp_8LDB8DIR_SMAP_ORDMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=72 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=8 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=8   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=512 -simv_args +has_qid_sel_mode=4 -simv_args +has_qtype_sel_mode=5 -simv_args +has_renq_qid_sel_mode=4  -simv_args +has_renq_qtype_sel_mode=2   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+ 
+#mmap +has_qid_sel_mode=4 -simv_args +has_qtype_sel_mode=5; renq: +has_renq_qid_sel_mode=4  +has_renq_qtype_sel_mode=2
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb8ppdir8pp_qidmmap_ordmix_rnd0+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb8ppdir8pp_8LDB8DIR_MMAP_ORDMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=72 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=8 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=8   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=512 -simv_args +has_qid_sel_mode=4 -simv_args +has_qtype_sel_mode=5 -simv_args +has_renq_qid_sel_mode=4  -simv_args +has_renq_qtype_sel_mode=2   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+ 
+
+####Added UNO+ORD
+#      -simv_args +has_qid_sel_mode=3 -simv_args +has_qtype_sel_mode=7 (6: UNO/ATM/ORD; 7: DIR/UNO/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=3 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map +has_qid_sel_mode=4 -simv_args +has_qtype_sel_mode=7 ;  renq: +has_renq_qid_sel_mode=4  +has_renq_qtype_sel_mode=2
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb8ppdir8pp_qid1map_ldbmix_rnd0+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb8ppdir8pp_8LDB8DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=72 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=8 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=8   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=512 -simv_args +has_qid_sel_mode=4 -simv_args +has_qtype_sel_mode=7 -simv_args +has_renq_qid_sel_mode=4  -simv_args +has_renq_qtype_sel_mode=2   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+ 
+#mmap +has_qid_sel_mode=4 -simv_args +has_qtype_sel_mode=7; renq: +has_renq_qid_sel_mode=4  +has_renq_qtype_sel_mode=2
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb8ppdir8pp_qidmmap_ldbmix_rnd0+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb8ppdir8pp_8LDB8DIR_MMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=72 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=8 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=8   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=512 -simv_args +has_qid_sel_mode=4 -simv_args +has_qtype_sel_mode=7 -simv_args +has_renq_qid_sel_mode=4  -simv_args +has_renq_qtype_sel_mode=2   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+ 
+
+############################################
+############################################
+############################################
+###############
+##### 16DIRPP+16LDBPP QID1MAP and QIDMMAP Test
+###############
+############################################
+############################################
+#rnd0: cfgrnd0
+############################################
+########
+### parallel of any pp
+#+hqmproc_alltrf_sel=2     -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=80  
+########
+#_TRF_QID_SELMODE=1 (qid: {0,1})
+#_TRF_QID_SELMODE=2 (qid: {0,1,2})
+#_TRF_QID_SELMODE=3 (qid: {0,1,2,3})
+#_TRF_QID_SELMODE=4 (qid: {0,1,2,3,4,5,6,7})
+#_TRF_QID_SELMODE=5 (qid: {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15})
+#
+# +LDB_PP0_TRF_QTYPE_SELMODE=1 (DIR/UNO)
+#                            2 (DIR/ATM)
+#                            3 (UNO/ATM)  
+#                            4 (DIR/UNO/ATM)
+#                            5 (ORD/ATM/DIR)
+#                            6 (ORD/ATM/UNO)
+#                            7 (ORD/ATM/UNO/DIR)
+#
+####Added ORD
+#      -simv_args +has_qid_sel_mode=5 -simv_args +has_qtype_sel_mode=5  
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=5 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map +has_qid_sel_mode=5 -simv_args +has_qtype_sel_mode=5 and specify renq qid/qtype
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb16ppdir16pp_qid1map_ordmix_rnd0+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb16ppdir16pp_16LDB16DIR_SMAP_ORDMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=80 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=16 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=16   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=512 -simv_args +has_qid_sel_mode=5 -simv_args +has_qtype_sel_mode=5 -simv_args +has_renq_qtype_sel_mode=2 -simv_args +has_renq_qid_sel_mode=5   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+ 
+
+#mmap +has_qid_sel_mode=5 -simv_args +has_qtype_sel_mode=5  and specify renq qid/qtype
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb16ppdir16pp_qidmmap_ordmix_rnd0+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb16ppdir16pp_16LDB16DIR_MMAP_ORDMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=80 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=16 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=16   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=512 -simv_args +has_qid_sel_mode=5 -simv_args +has_qtype_sel_mode=5 -simv_args +has_renq_qtype_sel_mode=2 -simv_args +has_renq_qid_sel_mode=5   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+ 
+
+####Added UNO+ORD
+#      -simv_args +has_qid_sel_mode=3 -simv_args +has_qtype_sel_mode=7 (6: UNO/ATM/ORD; 7: DIR/UNO/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=5 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map +has_qid_sel_mode=5 -simv_args +has_qtype_sel_mode=7 and specify renq qid/qtype
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb16ppdir16pp_qid1map_ldbmix_rnd0+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb16ppdir16pp_16LDB16DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=80 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=16 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=16   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=512 -simv_args +has_qid_sel_mode=5 -simv_args +has_qtype_sel_mode=7 -simv_args +has_renq_qtype_sel_mode=2 -simv_args +has_renq_qid_sel_mode=5   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+
+#mmap +has_qid_sel_mode=5 -simv_args +has_qtype_sel_mode=7  and specify renq qid/qtype
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb16ppdir16pp_qidmmap_ldbmix_rnd0+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb16ppdir16pp_16LDB16DIR_MMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=80 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=16 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=16   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=512 -simv_args +has_qid_sel_mode=5 -simv_args +has_qtype_sel_mode=7 -simv_args +has_renq_qtype_sel_mode=2 -simv_args +has_renq_qid_sel_mode=5   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+ 
+
+
+
+############################################
+############################################
+############################################
+###############
+##### 32DIRPP+32LDBPP QID1MAP and QIDMMAP Test
+###############
+############################################
+#rnd0: cfgrnd0
+############################################
+########
+### parallel of any pp
+#+hqmproc_alltrf_sel=2     -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=80  
+########
+#_TRF_QID_SELMODE=1 (qid: {0,1})
+#_TRF_QID_SELMODE=2 (qid: {0,1,2})
+#_TRF_QID_SELMODE=3 (qid: {0,1,2,3})
+#_TRF_QID_SELMODE=4 (qid: {0,1,2,3,4,5,6,7})
+#_TRF_QID_SELMODE=5 (qid: {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15})
+#
+# +LDB_PP0_TRF_QTYPE_SELMODE=1 (DIR/UNO)
+#                            2 (DIR/ATM)
+#                            3 (UNO/ATM)  
+#                            4 (DIR/UNO/ATM)
+#
+####Added ORD
+#      -simv_args +has_qid_sel_mode=6 -simv_args +has_qtype_sel_mode=5  
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=6 (%/2) =3 (%4) =4(%8) =5(%16) =6(%32)
+####
+#1map +has_qid_sel_mode=6 -simv_args +has_qtype_sel_mode=5 and specify renq qid/qtype
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb32ppdir32pp_qid1map_ordmix_rnd0+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb32ppdir32pp_32LDB32DIR_SMAP_ORDMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=96 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=32 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=32   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=256 -simv_args +has_qid_sel_mode=6 -simv_args +has_qtype_sel_mode=5 -simv_args +has_renq_qtype_sel_mode=2 -simv_args +has_renq_qid_sel_mode=6   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+ 
+#mmap +has_qid_sel_mode=6 -simv_args +has_qtype_sel_mode=5 and specify renq qid/qtype
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb32ppdir32pp_qidmmap_ordmix_rnd0+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb32ppdir32pp_32LDB32DIR_MMAP_ORDMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=96 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=32 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=32   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=256 -simv_args +has_qid_sel_mode=6 -simv_args +has_qtype_sel_mode=5  -simv_args +has_renq_qtype_sel_mode=2 -simv_args +has_renq_qid_sel_mode=6   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+ 
+
+####Added UNO+ORD
+#      -simv_args +has_qid_sel_mode=3 -simv_args +has_qtype_sel_mode=7 (6: UNO/ATM/ORD; 7: DIR/UNO/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=6 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map +has_qid_sel_mode=6 -simv_args +has_qtype_sel_mode=4 and specify renq qid/qtype
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb32ppdir32pp_qid1map_ldbmix_rnd0+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb32ppdir32pp_32LDB32DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=96 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=32 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=32   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=256 -simv_args +has_qid_sel_mode=6 -simv_args +has_qtype_sel_mode=7 -simv_args +has_renq_qtype_sel_mode=2 -simv_args +has_renq_qid_sel_mode=6   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+ 
+#mmap +has_qid_sel_mode=6 -simv_args +has_qtype_sel_mode=4 and specify renq qid/qtype
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb32ppdir32pp_qidmmap_ldbmix_rnd0+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb32ppdir32pp_32LDB32DIR_MMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=96 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=32 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=32   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=256 -simv_args +has_qid_sel_mode=6 -simv_args +has_qtype_sel_mode=7  -simv_args +has_renq_qtype_sel_mode=2 -simv_args +has_renq_qid_sel_mode=6   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+ 
+
+
+
+############################################
+############################################
+############################################
+###############
+##### 64DIRPP+64LDBPP QID1MAP and QIDMMAP Test
+###############
+########
+### parallel of any pp
+#+hqmproc_alltrf_sel=2     -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=80  
+########
+############################################
+#rnd0: cfgrnd0
+############################################
+#_TRF_QID_SELMODE=1 (qid: {0,1})
+#_TRF_QID_SELMODE=2 (qid: {0,1,2})
+#_TRF_QID_SELMODE=3 (qid: {0,1,2,3})
+#_TRF_QID_SELMODE=4 (qid: {0,1,2,3,4,5,6,7})
+#_TRF_QID_SELMODE=5 (qid: {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15})
+#
+# +LDB_PP0_TRF_QTYPE_SELMODE=1 (DIR/UNO)
+#                            2 (DIR/ATM)
+#                            3 (UNO/ATM)  
+#                            4 (DIR/UNO/ATM)
+#
+####Added ORD  64LDB+96DIR
+####Added ORD
+#      -simv_args +has_qid_sel_mode=6 or 13  -simv_args +has_qtype_sel_mode=5  
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=6 (%/2) =3 (%4) =4(%8) =5(%16) =6(%32)
+####
+#1map +has_qid_sel_mode=13 -simv_args +has_qtype_sel_mode=5
+ 
+#1map +has_qid_sel_mode=13 -simv_args +has_qtype_sel_mode=5 and specify renq qid/qtype
+ 
+#mmap +has_qid_sel_mode=13 -simv_args +has_qtype_sel_mode=5
+  
+#mmap +has_qid_sel_mode=13 -simv_args +has_qtype_sel_mode=5 and specify renq qid/qtype
+  
+
+####Added UNO+ORD
+#      -simv_args +has_qid_sel_mode=3 -simv_args +has_qtype_sel_mode=7 (6: UNO/ATM/ORD; 7: DIR/UNO/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=6 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map +has_qid_sel_mode=13 -simv_args +has_qtype_sel_mode=7
+ 
+#1map +has_qid_sel_mode=13 -simv_args +has_qtype_sel_mode=7 and specify renq qid/qtype
+ 
+#mmap +has_qid_sel_mode=13 -simv_args +has_qtype_sel_mode=7
+  
+#mmap +has_qid_sel_mode=13 -simv_args +has_qtype_sel_mode=7 and specify renq qid/qtype
+  
+
+
+############################################
+############################################
+############################################
+###############
+##### 96DIRPP+64LDBPP QID1MAP and QIDMMAP Test
+######################
+###Run DIR from 0-95
+###Run LDB from 0-63
+####Added ORD  64LDB+96DIR
+####Added ORD
+#      -simv_args +has_qid_sel_mode=6 or 13  -simv_args +has_qtype_sel_mode=5  
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=6 (%/2) =3 (%4) =4(%8) =5(%16) =6(%32)
+####
+#1map +has_qid_sel_mode=13 -simv_args +has_qtype_sel_mode=5
+ 
+#1map +has_qid_sel_mode=13 -simv_args +has_qtype_sel_mode=5 and specify renq qid/qtype
+ 
+#mmap +has_qid_sel_mode=13 -simv_args +has_qtype_sel_mode=5
+  
+#mmap +has_qid_sel_mode=13 -simv_args +has_qtype_sel_mode=5 and specify renq qid/qtype
+  
+
+####Added UNO+ORD
+#      -simv_args +has_qid_sel_mode=3 -simv_args +has_qtype_sel_mode=7 (6: UNO/ATM/ORD; 7: DIR/UNO/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=6 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map +has_qid_sel_mode=13 -simv_args +has_qtype_sel_mode=7
+ 
+#1map +has_qid_sel_mode=13 -simv_args +has_qtype_sel_mode=7 and specify renq qid/qtype
+ 
+#mmap +has_qid_sel_mode=13 -simv_args +has_qtype_sel_mode=7
+  
+#mmap +has_qid_sel_mode=13 -simv_args +has_qtype_sel_mode=7 and specify renq qid/qtype
+  
+
+
+####################################################
+####################################################
+############################################
+###############
+##### 4DIRPP+4LDBPP QID1MAP Test
+###############
+############################################
+#_TRF_QID_SELMODE=1 (qid: {0,1})
+#_TRF_QID_SELMODE=2 (qid: {0,1,2})
+#_TRF_QID_SELMODE=3 (qid: {0,1,2,3})
+#
+# +LDB_PP0_TRF_QTYPE_SELMODE=1 (DIR/UNO)
+#                            2 (DIR/ATM)
+#                            3 (UNO/ATM)  
+#                            4 (DIR/UNO/ATM)
+#                            5 (ORD/ATM/DIR)
+#                            6 (ORD/ATM/UNO)
+#                            7 (ORD/ATM/UNO/DIR)
+#
+############################################
+#rnd1: cfgrnd1
+############################################
+###Added ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=5 (5: DIR/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb4ppdir4pp_qid1map_ordmix_rnd1+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_ORDMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDS_RND1TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=68 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=4 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=4   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=512 -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=5  -simv_args +has_renq_qid_sel_mode=0 -simv_args +has_renq_qtype_sel_mode=2   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+
+
+###Added UNO+ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=7 (6: UNO/ATM/ORD; 7: DIR/UNO/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb4ppdir4pp_qid1map_ldbmix_rnd1+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb4ppdir4pp_4LDB4DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDS_RND1TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=68 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=4 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=4   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=512 -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=7  -simv_args +has_renq_qid_sel_mode=0 -simv_args +has_renq_qtype_sel_mode=2   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+
+
+####################################################
+####################################################
+############################################
+###############
+##### 8DIRPP+8LDBPP QID1MAP Test
+###############
+############################################
+############################################
+#rnd1: cfgrnd1 4VAS
+############################################
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb8ppdir8pp_qid1map_rnd1+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb8ppdir8pp_8LDB8DIR_SMAP_RND1TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=72 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=8 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=8   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=512 -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=4  -simv_args +has_renq_qid_sel_mode=0 -simv_args +has_renq_qtype_sel_mode=2   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+
+###Added ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=5 (5: DIR/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb8ppdir8pp_qid1map_ordmix_rnd1+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb8ppdir8pp_8LDB8DIR_SMAP_ORDMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDS_RND1TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=72 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=8 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=8   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=512 -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=5  -simv_args +has_renq_qid_sel_mode=0 -simv_args +has_renq_qtype_sel_mode=2   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+
+###Added UNO+ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=7 (6: UNO/ATM/ORD; 7: DIR/UNO/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb8ppdir8pp_qid1map_ldbmix_rnd1+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb8ppdir8pp_8LDB8DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDS_RND1TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=72 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=8 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=8   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=512 -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=7  -simv_args +has_renq_qid_sel_mode=0 -simv_args +has_renq_qtype_sel_mode=2   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+
+############################################
+#rnd2: cfgrnd2 8VAS
+############################################
+###Added ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=5 (5: DIR/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb8ppdir8pp_qid1map_ordmix_rnd2+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb8ppdir8pp_8LDB8DIR_SMAP_ORDMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDS_RND2TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=72 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=8 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=8   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=512 -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=5  -simv_args +has_renq_qid_sel_mode=0 -simv_args +has_renq_qtype_sel_mode=2   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+
+###Added UNO+ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=7 (6: UNO/ATM/ORD; 7: DIR/UNO/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb8ppdir8pp_qid1map_ldbmix_rnd2+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb8ppdir8pp_8LDB8DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDS_RND2TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=72 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=8 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=8   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=512 -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=7  -simv_args +has_renq_qid_sel_mode=0 -simv_args +has_renq_qtype_sel_mode=2   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+
+
+
+
+####################################################
+####################################################
+############################################
+###############
+##### 16DIRPP+16LDBPP QID1MAP Test
+###############
+############################################
+############################################
+############################################
+#rnd1: cfgrnd1 4VAS
+############################################
+###Added ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=5 (5: DIR/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb16ppdir16pp_qid1map_ordmix_rnd1+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb16ppdir16pp_16LDB16DIR_SMAP_ORDMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDS_RND1TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=80 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=16 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=16   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=256 -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=5  -simv_args +has_renq_qid_sel_mode=0 -simv_args +has_renq_qtype_sel_mode=2   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+
+###Added UNO+ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=7 (6: UNO/ATM/ORD; 7: DIR/UNO/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb16ppdir16pp_qid1map_ldbmix_rnd1+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb16ppdir16pp_16LDB16DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDS_RND1TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=80 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=16 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=16   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=256 -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=7  -simv_args +has_renq_qid_sel_mode=0 -simv_args +has_renq_qtype_sel_mode=2   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+
+############################################
+#rnd2: cfgrnd2 8VAS
+############################################
+###Added ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=5 (5: DIR/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb16ppdir16pp_qid1map_ordmix_rnd2+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb16ppdir16pp_16LDB16DIR_SMAP_ORDMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDS_RND2TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=80 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=16 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=16   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=256 -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=5  -simv_args +has_renq_qid_sel_mode=0 -simv_args +has_renq_qtype_sel_mode=2   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+
+###Added UNO+ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=7 (6: UNO/ATM/ORD; 7: DIR/UNO/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb16ppdir16pp_qid1map_ldbmix_rnd2+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb16ppdir16pp_16LDB16DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDS_RND2TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=80 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=16 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=16   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=256 -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=7  -simv_args +has_renq_qid_sel_mode=0 -simv_args +has_renq_qtype_sel_mode=2   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+
+
+############################################
+#rnd3: cfgrnd3 16VAS
+############################################
+###Added ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=5 (5: DIR/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb16ppdir16pp_qid1map_ordmix_rnd3+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb16ppdir16pp_16LDB16DIR_SMAP_ORDMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDS_RND3TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=80 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=16 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=16   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=256 -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=5  -simv_args +has_renq_qid_sel_mode=0 -simv_args +has_renq_qtype_sel_mode=2   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+
+###Added UNO+ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=7 (6: UNO/ATM/ORD; 7: DIR/UNO/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb16ppdir16pp_qid1map_ldbmix_rnd3+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb16ppdir16pp_16LDB16DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDS_RND3TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=80 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=16 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=16   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=256 -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=7  -simv_args +has_renq_qid_sel_mode=0 -simv_args +has_renq_qtype_sel_mode=2   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+
+
+
+
+
+
+####################################################
+####################################################
+############################################
+###############
+##### 32DIRPP+32LDBPP QID1MAP Test
+###############
+############################################
+############################################
+#rnd1: cfgrnd1 4VAS
+############################################
+###Added ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=5 (5: DIR/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb32ppdir32pp_qid1map_ordmix_rnd1+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb32ppdir32pp_32LDB32DIR_SMAP_ORDMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDS_RND1TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=96 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=32 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=32   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=128 -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=5  -simv_args +has_renq_qid_sel_mode=0 -simv_args +has_renq_qtype_sel_mode=2   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+
+###Added UNO+ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=7 (6: UNO/ATM/ORD; 7: DIR/UNO/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb32ppdir32pp_qid1map_ldbmix_rnd1+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb32ppdir32pp_32LDB32DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDS_RND1TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=96 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=32 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=32   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=128 -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=7  -simv_args +has_renq_qid_sel_mode=0 -simv_args +has_renq_qtype_sel_mode=2   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+
+############################################
+#rnd2: cfgrnd2 8VAS
+############################################
+###Added ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=5 (5: DIR/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb32ppdir32pp_qid1map_ordmix_rnd2+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb32ppdir32pp_32LDB32DIR_SMAP_ORDMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDS_RND2TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=96 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=32 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=32   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=128 -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=5  -simv_args +has_renq_qid_sel_mode=0 -simv_args +has_renq_qtype_sel_mode=2   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+
+###Added UNO+ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=7 (6: UNO/ATM/ORD; 7: DIR/UNO/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb32ppdir32pp_qid1map_ldbmix_rnd2+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb32ppdir32pp_32LDB32DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDS_RND2TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=96 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=32 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=32   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=128 -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=7  -simv_args +has_renq_qid_sel_mode=0 -simv_args +has_renq_qtype_sel_mode=2   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+
+
+############################################
+#rnd3: cfgrnd3 16VAS
+############################################
+###Added ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=5 (5: DIR/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb32ppdir32pp_qid1map_ordmix_rnd3+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb32ppdir32pp_32LDB32DIR_SMAP_ORDMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDS_RND3TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=96 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=32 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=32   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=128 -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=5  -simv_args +has_renq_qid_sel_mode=0 -simv_args +has_renq_qtype_sel_mode=2   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+
+###Added UNO+ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=7 (6: UNO/ATM/ORD; 7: DIR/UNO/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb32ppdir32pp_qid1map_ldbmix_rnd3+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb32ppdir32pp_32LDB32DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDS_RND3TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=96 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=32 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=32   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=128 -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=7  -simv_args +has_renq_qid_sel_mode=0 -simv_args +has_renq_qtype_sel_mode=2   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+
+############################################
+#rnd4: cfgrnd4 32VAS
+############################################
+###Added ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=5 (5: DIR/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb32ppdir32pp_qid1map_ordmix_rnd4+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb32ppdir32pp_32LDB32DIR_SMAP_ORDMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDS_RND4TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=96 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=32 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=32   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=128 -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=5  -simv_args +has_renq_qid_sel_mode=0 -simv_args +has_renq_qtype_sel_mode=2   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+
+###Added UNO+ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=7 (6: UNO/ATM/ORD; 7: DIR/UNO/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb32ppdir32pp_qid1map_ldbmix_rnd4+rtn_tok_rnddly0  -dut hqm -model hqm -dirtag HQM_hqmproc_enqtrf_ldb32ppdir32pp_32LDB32DIR_SMAP_LDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDS_RND4TEST202 -ace_args -simv_args +hqmproc_sel=1 -simv_args +hqmproc_alltrf_sel=2 -simv_args +hqmproc_ppnum_min=0 -simv_args +hqmproc_ppnum_max=96 -simv_args +hqmproc_ldbppnum_min=0 -simv_args +hqmproc_ldbppnum_max=32 -simv_args +hqmproc_dirppnum_min=0 -simv_args +hqmproc_dirppnum_max=32   -simv_args +has_pp_cq_enable=1 -simv_args +has_num_hcw_gen=128 -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=7  -simv_args +has_renq_qid_sel_mode=0 -simv_args +has_renq_qtype_sel_mode=2   -simv_args +has_frag_ctrl=11 -simv_args +has_frag_num_min=0 -simv_args +has_frag_num_max=8     -simv_args +hqmproc_return_flow=1  -ace_args- -hqm_cfg_backdoor  
+
+
+
+
+
+####################################################
+####################################################
+############################################
+###############
+##### 64DIRPP+64LDBPP QID1MAP Test
+###############
+############################################
+############################################
+#rnd1: cfgrnd1 4VAS
+############################################
+###Added ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=5 (5: DIR/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map  
+
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+
+###Added UNO+ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=7 (6: UNO/ATM/ORD; 7: DIR/UNO/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map  
+
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+
+############################################
+#rnd2: cfgrnd2 8VAS
+############################################
+###Added ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=5 (5: DIR/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map  
+
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+
+###Added UNO+ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=7 (6: UNO/ATM/ORD; 7: DIR/UNO/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map  
+
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+
+
+############################################
+#rnd3: cfgrnd3 16VAS
+############################################
+###Added ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=5 (5: DIR/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map  
+
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+
+###Added UNO+ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=7 (6: UNO/ATM/ORD; 7: DIR/UNO/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map  
+
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+
+############################################
+#rnd4: cfgrnd4 32VAS
+############################################
+#1map  
+
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+
+###Added ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=5 (5: DIR/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map  
+
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+
+###Added UNO+ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=7 (6: UNO/ATM/ORD; 7: DIR/UNO/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map  
+
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+
+
+
+
+####################################################
+####################################################
+############################################
+###############
+##### 96DIRPP+64LDBPP QID1MAP Test
+###############
+############################################
+############################################
+#rnd1: cfgrnd1 4VAS
+############################################
+###Added ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=5 (5: DIR/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map  
+
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+
+###Added UNO+ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=7 (6: UNO/ATM/ORD; 7: DIR/UNO/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map  
+
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+
+############################################
+#rnd2: cfgrnd2 8VAS
+############################################
+###Added ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=5 (5: DIR/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map  
+
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+
+###Added UNO+ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=7 (6: UNO/ATM/ORD; 7: DIR/UNO/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map  
+
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+
+
+############################################
+#rnd3: cfgrnd3 16VAS
+############################################
+###Added ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=5 (5: DIR/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map  
+
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+
+###Added UNO+ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=7 (6: UNO/ATM/ORD; 7: DIR/UNO/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map  
+
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+
+############################################
+#rnd4: cfgrnd4 32VAS
+############################################
+###Added ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=5 (5: DIR/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map  
+
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+
+###Added UNO+ORD
+#      -simv_args +has_qid_sel_mode=0 -simv_args +has_qtype_sel_mode=7 (6: UNO/ATM/ORD; 7: DIR/UNO/ATM/ORD)
+#      -simv_args +has_renq_qtype_sel_mode=2 (atm/dir) -simv_args +has_renq_qid_sel_mode=0 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map  
+
+#1map renq: +has_renq_qid_sel_mode=0  +has_renq_qtype_sel_mode=2
+
+
+
+
+
+-defaults  -ace_args -simv_args +hqmproc_lsp_qidthreshold_enable=1 -simv_args +hqm_lsp_qid_depthres_rnd -simv_args +hqm_lsp_qid_depth_thresh_qidmax=32  -ace_args-

@@ -1,0 +1,36 @@
+-include $WORKAREA/src/val/tof/hqm_cfg_test/hqm_cfg_test.to
+-dirtag ldb_traffic
+-simv_args
+  "+LDB_TRAFFIC", ], },
+  w0_ls => { -simv_args => [ "+HQM_SBECC_ERROR_TYPE=INJ_SB_ECC_WBUF_W0_LS", "+EXP_EP_MSIX0_CNT=1",},
+-simv_args-
+-simv_args
+  "+HQM_SBECC_ERROR_TYPE=INJ_SB_ECC_WBUF_W0_MS", "+EXP_EP_MSIX0_CNT=1", ], },
+  w1_ls => { -simv_args => [ "+HQM_SBECC_ERROR_TYPE=INJ_SB_ECC_WBUF_W1_LS", "+EXP_EP_MSIX0_CNT=1",},
+-simv_args-
+-simv_args
+  "+HQM_SBECC_ERROR_TYPE=INJ_SB_ECC_WBUF_W1_MS", "+EXP_EP_MSIX0_CNT=1", ], },
+  hcw_enq_ls => { -simv_args => [ "+HQM_SBECC_ERROR_TYPE=INJ_SB_ECC_HCW_ENQ_LS", "+EXP_EP_MSIX0_CNT=1",},
+-simv_args-
+-simv_args
+  "+HQM_SBECC_ERROR_TYPE=INJ_SB_ECC_HCW_ENQ_MS", "+EXP_EP_MSIX0_CNT=1", ], },
+  ecc_cfg  => { -simv_args => [ "+HQM_SBECC_ERROR_TYPE=INJ_SB_ECC_CFG", "+EXP_EP_MSIX0_CNT=1",},
+-simv_args-
+-simv_args
+  "+HQM_SBECC_ERROR_TYPE=WRITE_BAD_SB_ECC", "+EXP_EP_MSIX0_CNT=3", ], },
+  vpp2pp => { -simv_args => [ "+HQM_SBECC_ERROR_SUB_TYPE=VPP2PP",},
+-simv_args-
+-simv_args
+  "+HQM_SBECC_ERROR_SUB_TYPE=VQID2QID_DIR", ], },
+  vqid2qid_ldb => { -simv_args => [ "+HQM_SBECC_ERROR_SUB_TYPE=VQID2QID_LDB",},
+-simv_args-
+mbecc_check => {
+-simv_args
+  +HQM_USER_DATA_SEQ_OVERRIDE=hqm_ecc_error_seq
+  +hqm_pcie_init_stim_config::skip_msix_cfg=0
+  +hqm_pcie_init_stim_config::skip_msi_cfg=0
+  +HQM_SEQ_CFG=$WORKAREA/src/val/tb/hqm/tests/hqm_functional/hqm_sb_ecc_cfg.cft
+  +HQM_TB_EOT_STATUS_FILE=$WORKAREA/src/val/tb/hqm/tests/hqm_system_eot.cft
+  +HQM_SYSTEM_CONTINUE_ON_ECCERR
+  +HQM_BYPASS_SCH_CHECK
+-simv_args-

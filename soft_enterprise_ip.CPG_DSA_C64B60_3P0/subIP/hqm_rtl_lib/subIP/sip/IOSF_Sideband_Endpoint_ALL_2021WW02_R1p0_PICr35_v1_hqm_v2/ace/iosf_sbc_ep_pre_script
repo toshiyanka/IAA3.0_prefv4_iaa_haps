@@ -1,0 +1,1213 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use Carp;
+use Data::Dumper;
+use Encode qw(encode);
+
+my $toolName = 'iosf_sbc_ep_pre_script';
+my $filehandle;
+
+my %config = (
+   debug => {
+      value     => 0,
+      arguments => 'toggle',
+      help      => 'Turn on debug mode options',
+      group     => 'Debug',
+   },
+   #ctech => {
+   #   value     => 0,
+   #   arguments => 'toggle',
+   #   help      => 'Generate CTECH_hdl.udf',
+   #   group     => 'ACE',
+   #},
+   #ctech_file => {
+   #   value     => "$ENV{IP_ROOT}/ace/CTECH_hdl.udf",
+   #   arguments => 'string',
+   #   help      => 'CTECH_hdl.udf file path',
+   #   group     => 'ACE',
+   #},
+   prescript_seed => {
+      value     => 0,
+      arguments => 'integer',
+      help      => 'Seed value passed in from ace',
+      group     => 'General',
+   },
+   csv => {
+      value     => "$ENV{IP_ROOT}/source/gen/csv/endpoint/config.csv",
+      arguments => 'string',
+      help      => 'Provide a pointer to a csv configuration file',
+      group     => 'General',
+   },
+   ace => {
+      value     => 0,
+      arguments => 'toggle',
+      help      => 'Loaded into the ace environment',
+      group     => 'ACE',
+   },
+   params_file => {
+      value     => "$ENV{IP_ROOT}/verif/tests/ep_tests/ep_params.svh",
+      arguments => 'string',
+      help      => 'Parameter file to be written out to',
+      group     => 'SIM',
+   },
+   gen_csv => {
+      value     => "$ENV{IP_ROOT}/source/gen/endpoint/csv/gen_config.csv",
+      arguments => 'string',
+      help      => 'Generates a csv file',
+      group     => 'General',
+   },
+);
+
+my %tool = (
+   name          => "$toolName",
+   description   => "Prescript for Endpoint ACE Environment",
+   author        => "Jesse Krigelman",
+   std_print     => sub {
+      print shift( @_ );
+   },
+   debug_print   => sub {
+      print $toolName . " -D- " . shift( @_ ) . "\n" if( $config{debug}{value} );
+   },
+   info_print    => sub {
+      print $toolName . " -I- " . shift( @_ ) . "\n";
+   },
+   warning_print => sub {
+      print $toolName . " -W- " . shift( @_ ) . "\n";
+   },
+   error_print   => sub {
+      croak $toolName . " -E- " . shift( @_ ) . "\n";
+   },
+   fatal_print   => sub {
+      confess $toolName . " -F- " . shift( @_ ) . "\n";
+   },
+   file_print    => sub {
+      if( defined( $filehandle ) ) {
+         print $filehandle shift( @_ );
+      } else {
+         print shift( @_ );
+      }
+   },
+);
+
+my %parameters = (
+   MAXPLDBIT => {
+      list  => [7,15,31],
+      value => 7,
+      type  => 'RTL',
+      help  => 'IOSF Interface payload width',
+   },
+   MATCHED_INTERNAL_WIDTH => {
+      list  => [0, 1],
+      value => 0, 
+      type  => 'RTL',
+	  help  => 'variable payload width',
+   },
+   VARIABLE_CLAIM_DELAY => {
+      list  => [0, 1],
+      value => 0, 
+      type  => 'VAL',
+	  help  => 'inserting repeater',
+   },
+   SB_PARITY_REQUIRED => {
+      list  => [0, 1],
+      value => 0, 
+      type  => 'RTL',
+	  help  => 'parity enable',
+   },
+   GLOBAL_EP => {
+      refn   => 'GLOBAL_EP_IS_STRAP', 
+      list  => [0,1],
+      value => 0, 
+      type  => 'RTL',
+	  help  => 'global ep enable',
+   },
+   GLOBAL_EP_IS_STRAP => {
+      list  => [0,1],
+      value => 0, 
+      type  => 'RTL',
+	  help  => 'global ep enable using strap',
+   },
+   DO_SERR_MASTER => {
+      list  => [0, 1],
+      value => 0, 
+      type  => 'RTL',
+	  help  => 'serr msg enable',
+   },
+   NPQUEUEDEPTH => {
+      min   => 1,
+      max   => 31,
+      value => 3,
+      type  => 'RTL',
+      help  => 'Non-Posted Ingress Queue Depth',
+   },
+   PCQUEUEDEPTH => {
+      min   => 1,
+      max   => 31,
+      value => 3,
+      type  => 'RTL',
+      help  => 'Posted Ingress Queue Depth',
+   },
+   CUP2PUT1CYC => {
+      const => 0,
+      value => 0,
+      type  => 'RTL',
+      help  => 'Deprecated function',
+   },
+   LATCHQUEUES => {
+      list  => [0, 1],
+      value => 0,
+      type  => 'RTL',
+      help  => 'Uses VRAM model for latches',
+   },
+   RELATIVE_PLACEMENT_EN => {
+      list  => [0, 1],
+      value => 0,
+      type  => 'RTL',
+      help  => 'Uses VRAM model for latches',
+   },
+   MAXPCTRGT => {
+      min   => 0,
+      max   => 16,
+      value => 0,
+      type  => 'RTL',
+      help  => 'Maximum number of Posted/Completion target widgets',
+   },
+   MAXNPTRGT => {
+      min   => 0,
+      max   => 16,
+      value => 0,
+      type  => 'RTL',
+      help  => 'Maximum number of Non-Posted target widgets',
+   },
+   MAXPCMSTR => {
+      min   => 0,
+      max   => 16,
+      value => 0,
+      type  => 'RTL',
+      help  => 'Maximum number of Posted/Completion master widgets',
+   },
+   MAXNPMSTR => {
+      min   => 0,
+      max   => 16,
+      value => 0,
+      type  => 'RTL',
+      help  => 'Maximum number of Non-Posted master widgets',
+   },
+   ASYNCENDPT => {
+      list  => [0, 1],
+      value => 0,
+      type  => 'RTL',
+      help  => 'Asynchronous Endpoint when this values is a 1',
+   },
+   ASYNCIQDEPTH => {
+      min   => 1,
+      max   => 32,
+      value => 2,
+      type  => 'RTL',
+      help  => 'Queue depth of the asynchronous ingress FIFO',
+   },
+   ASYNCEQDEPTH => {
+      min   => 1,
+      max   => 32,
+      value => 2,
+      type  => 'RTL',
+      help  => 'Queue depth of the asynchronous egress FIFO',
+   },
+   TARGETREG => {
+      list  => [0, 1],
+      value => 1,
+      type  => 'RTL',
+      help  => 'Target register module inserted when value is a 1',
+   },
+   BULKRDWR => {
+      list  => [1, 0],
+      value => 1,
+      type  => 'RTL',
+      help  => 'Target register module inserted when value is a 1',
+   },
+   BULK_PERF => {
+   refrand  => 'BULKRDWR',
+      list  => [1, 0],
+      value => 1,
+      type  => 'RTL',
+      help  => 'Target register module inserted when value is a 1',
+   },   
+   MASTERREG => {
+      list  => [0, 1],
+      value => 1, 
+      type  => 'RTL',
+      help  => 'Master register module inserted when value is a 1',
+   },
+   MAXTRGTADDR => {
+      list  => [15,31,47],
+      value => 31,
+      type  => 'RTL',
+      help  => 'Maximum address bits for target register module',
+   },
+   MAXTRGTDATA => {
+      list  => [31,63],
+      value => 63,
+      type  => 'RTL',
+      help  => 'Maximum data bits for target register module',
+   },
+   MAXMSTRADDR => {
+      list  => [15,31,47],
+      value => 31,
+      type  => 'RTL',
+      help  => 'Maximum address bits for master register module',
+   },
+   MAXMSTRDATA => {
+      list  => [31,63],
+      value => 63,
+      type  => 'RTL',
+      help  => 'Maximum data bits for master register module',
+   },
+   VALONLYMODEL => {
+      const => 0,
+      value => 0,
+      type  => 'RTL',
+      help  => 'Deprecated parameter',
+   },
+   DUMMY_CLKBUF => {
+      const => 0,
+      value => 0,
+      type  => 'RTL',
+   },
+   RX_EXT_HEADER_SUPPORT => {
+      refp   => 'SB_PARITY_REQUIRED',
+      list  => [1],
+      ## ENABLE TBD list  => [0, 1],
+      value => 0,
+      type  => 'RTL',
+   },
+   RX_EXT_HEADER_IDS => {
+      min   => 0,
+      max   => 127,
+      value => 0,
+      type  => 'RTL',
+   },
+   NUM_RX_EXT_HEADERS => {
+      const  => 0,    #RTL supports only 1DW of ext-header
+      value  => 0,
+      type   => 'RTL',
+      format => '%s+1',
+   },
+   TX_EXT_HEADER_SUPPORT => {
+      list  => [1],
+      ## ENABLE TBD list  => [0, 1],
+      value => 0,
+      type  => 'RTL',
+   },
+   NUM_TX_EXT_HEADERS => {
+      const  => 0,     #RTL supports only 1DW of ext-header
+      value  => 0,
+      type   => 'RTL',
+      format => '%s+1', 
+   },
+   DISABLE_COMPLETION_FENCING => {
+      refn   => 'VARIABLE_CLAIM_DELAY',
+      list  => [0, 1],
+      ## ENABLE TBD list  => [0, 1],
+      value => 0,
+      type  => 'RTL',
+   },
+   SBE_VISA_ID_PARAM => {
+      const => 11,
+      value => 11,
+      type  => 'RTL',
+   },
+   NUMBER_OF_BITS_PER_LANE => {
+      const => 8,
+      value => 8,
+      type  => 'RTL',
+   },
+   NUMBER_OF_VISAMUX_MODULES => {
+      const => 1,
+      value => 1,
+      type  => 'RTL',
+   },
+   NUMBER_OF_OUTPUT_LANES => {
+      const => 1,
+      value => 1,
+      type  => 'RTL',
+   },
+   SKIP_ACTIVEREQ => {
+      list  => [1],
+      ## ENABLE TBD list  => [0, 1],
+      value => 1,
+      type  => 'RTL',
+   },
+   PIPEISMS => {
+      list  => [0, 1],
+      value => 0,
+      type  => 'RTL',
+   },
+   PIPEINPS => {
+      refpc   => 'PIPEISMS',
+      list  => [0, 1],
+      value => 0,
+      type  => 'RTL',
+   },
+   USYNC_ENABLE => {
+      list  => [0, 1],
+      value => 0,
+      type  => 'RTL',
+   },
+   UNIQUE_EXT_HEADERS => {
+      list  => [1],
+      ## ENABLE TBD list  => [0, 1],
+      value => 0,
+      type  => 'RTL',
+   },
+   SAIWIDTH => {
+      min   => 0,
+      max   => 16,
+      value => 15,
+      type  => 'RTL',
+   },
+   RSWIDTH => {
+      min   => 0,
+      max   => 4,
+      value => 3,
+      type  => 'RTL',
+   },
+   FBRC_EXT_HEADER_SUPPORT => {
+      refp   => 'TX_EXT_HEADER_SUPPORT',
+      type  => 'SIM',
+   },
+   AGT_EXT_HEADER_SUPPORT => {
+      list  => [1],
+      ## ENABLE TBD list  => [0, 1],
+      value => 0,
+      type  => 'SIM',
+   },
+   IOSFSB_EP_SPEC_REV => {
+      const => '11',     #Const type has priority, to make this random, remove this line
+      list  => ['090','1','11'],
+      value => '11',
+      type  => 'SIM',
+   },
+   IOSFSB_FBRC_SPEC_REV => {
+      const => '11',     #Const type has priority, to make this random, remove this line
+      list  => ['090','1','11'],
+      value => '11',
+      type  => 'SIM',
+   },
+   AGT_CLK_PERIOD => {
+      min     => 250,   # 4 GHz
+      max     => 10000, # 100 MHz
+      value   => 10000, # 100 MHz
+      type    => 'SIM',
+# chek where this parameter needs the "ps" suffix      
+#      format  => '%sps',
+   },
+   FAB_CLK_PERIOD => {
+      min     => 250,   # 4 GHz
+      max     => 10000, # 100 MHz
+      value   => 10000, # 100 MHz
+      type    => 'SIM',
+#      format  => '%sps',
+   },
+   AGENT_USYNC_DELAY => {
+      min   => 1,
+      max   => 2,
+      # TBD Change max   => 10,
+      value => 1,
+      type  => 'RTL',
+   },
+   SIDE_USYNC_DELAY => {
+      min   => 1,
+      max   => 2,
+      # TBD Change max   => 10,
+      value => 1,
+      type  => 'RTL',
+   },
+   EXPECTED_COMPLETIONS_COUNTER => {
+      refp   => 'ISM_COMPLETION_FENCING',
+      list  => [0, 1],
+      value => 0,
+      type  => 'RTL',
+   },
+   ISM_COMPLETION_FENCING => {
+      list  => [0, 1],
+      value => 0,
+      type  => 'RTL',
+   },
+   CLKREQDEFAULT => {
+      list  => [0, 1],
+      value => 0,
+      type  => 'RTL',
+   },
+   DEASSERT_CLK_SIGS => {
+      refa   => 'CLKREQDEFAULT',
+      list  => [0, 1],
+      value => 0,
+      type  => 'VAL',
+   },
+   NUM_REPEATER => {
+      min   => 0,
+      max   => 3,
+      value => 1,
+      type  => 'VAL',
+   },
+   NUM_CLAIM_REPEATER => {
+      min   => 0,
+      max   => 3,
+      value => 1,
+      type  => 'VAL',
+   },
+);
+
+my %ctech_libs = (
+   p1271 => {
+      b05 => [
+         "ln",
+         "nn",
+         "un",
+      ],
+      b14 => [
+         "ln",
+      ],
+   },
+   p1273 => {
+      d04 => [
+         "gd",
+         "ln",
+         "nn",
+         "wn",
+         "xn",
+      ],
+   },
+   p1274 => {
+      e05 => [
+         "ln",
+         "nn",
+         "wn",
+      ],
+   },
+   p1275 => {
+      f05 => [
+         "ln",
+         "nn",
+         "wn",
+         "xn",
+      ],
+   },
+);
+
+foreach my $param (keys( %parameters ) ) {
+   if( !exists( $parameters{$param}{refp} ) && 
+       !exists( $parameters{$param}{refp1} ) &&
+       !exists( $parameters{$param}{refn} ) && 
+       !exists( $parameters{$param}{refa} ) &&
+       !exists( $parameters{$param}{refpc} )) {
+      my $lparam = lc($param);
+
+      if( !exists( $parameters{$param}{help} ) ) {
+         $parameters{$param}{help} = sprintf(
+            "Sets the parameter %s to a given value",
+            $param,
+         );
+      }
+      if( !exists( $parameters{$param}{default} ) ) {
+         $parameters{$param}{default} = $parameters{$param}{value};
+      }
+
+      $config{$lparam}{value}      = $parameters{$param}{default};
+      $config{$lparam}{arguments}  = 'string';
+      $config{$lparam}{required}   = 0;
+      $config{$lparam}{group}      = "$parameters{$param}{type} Parameter";
+      $config{$lparam}{help}       = $parameters{$param}{help};
+   }
+}
+
+my @clean_compile_cmds = (
+  "clean_compile",              "cc",
+  "clean_compile_cdc",          "ccz",
+  "clean_compile_debussy",      "ccd",
+  "clean_compile_only_cdc",     "ccoz",
+  "clean_compile_only_debussy", "ccod",
+  "clean_compile_spyglass",     "ccsg",
+);
+
+my @compile_cmds = (
+   "compile_and_exec_test", "cx",
+   "compile_cdc",           "cz",
+   "compile_debussy",       "cd",
+   "compile_hdl",           "c",
+   "compile_only_cdc",      "coz",
+   "compile_only_debussy",  "cod",
+   "compile_spyglass",      "csg",
+   "models_to_compile",     "mc",
+);
+
+foreach my $compile_cmd (@compile_cmds) {
+   $config{$compile_cmd}{value}     = 0;
+   $config{$compile_cmd}{arguments} = 'toggle';
+   $config{$compile_cmd}{help}      = 'Compile switch';
+   $config{$compile_cmd}{group}     = 'ACE';
+}
+
+foreach my $clean_compile_cmd (@clean_compile_cmds) {
+   $config{$clean_compile_cmd}{value}     = 0;
+   $config{$clean_compile_cmd}{arguments} = 'toggle';
+   $config{$clean_compile_cmd}{help}      = 'Clean compile switch';
+   $config{$clean_compile_cmd}{group}     = 'ACE';
+
+   push( @compile_cmds, $clean_compile_cmd );
+}
+
+command_line_parser( 0, 1 );
+
+my $clean_compile = 0;
+my $compile = 0;
+
+foreach my $compile_cmd (@compile_cmds) {
+   if( $config{$compile_cmd}{value} ) {
+      $compile = 1;
+   }
+}
+
+foreach my $clean_compile_cmd (@clean_compile_cmds) {
+   if( $config{$clean_compile_cmd}{value} ) {
+      $clean_compile = 1;
+   }
+}
+
+if( !$config{prescript_seed}{updated} ) {
+   $config{prescript_seed}{value} = int(rand(0xFFFFFFFF+1));
+}
+
+srand( $config{prescript_seed}{value} );
+
+$tool{info_print}(
+   sprintf( "Seed value of %s in use.",
+      $config{prescript_seed}{value}
+   )
+);
+
+#generate_ctech_hdl( )        if( $clean_compile or $config{ctech}{value} );
+load_environment_from_csv( ) if(  $config{csv}{updated} and ( $clean_compile or $config{gen_csv}{updated} ) );
+randomize_environment( )     if( !$config{csv}{updated} and ( $clean_compile or $config{gen_csv}{updated} ) );
+override_environment_from_cmdline( );
+generate_ep_params( )        if( $clean_compile );
+
+generate_csv_config( )       if( $config{gen_csv}{updated} );
+
+
+# Generate Backend?
+
+exit 0;
+
+
+
+
+
+
+
+#######################
+# Begin Sub-Functions #
+#######################
+sub generate_ctech_hdl {
+   open( $filehandle, '>', $config{ctech_file}{value} );
+
+   $tool{file_print}( "my \$SCOPE = \$ENV{ACE_PROJECT};\n\n" );
+   $tool{file_print}( "\%audf = (\n" );
+   $tool{file_print}( "   HDLSpec => {\n" );
+   $tool{file_print}( "      \${SCOPE} => {\n" );
+   $tool{file_print}( "         libs => {\n" );
+   foreach my $process ( keys( %ctech_libs ) ) {
+      foreach my $type ( keys( %{$ctech_libs{$process}} ) ) {
+         foreach my $vt ( @{$ctech_libs{$process}{$type}} ) {
+            my $full_name = "${process}_${type}_${vt}";
+
+            $tool{file_print}( "            CTECH_${full_name}_rtl_lib => {\n" );
+            $tool{file_print}( "               -sub_libs => [\n" );
+            $tool{file_print}( "                  \"CTECH_${full_name}_synth_rtl_lib\",\n" );
+            $tool{file_print}( "                  \"CTECH_${full_name}_nonsynth_rtl_lib\",\n" );
+            $tool{file_print}( "               ],\n" );
+            $tool{file_print}( "            },\n\n" );
+            $tool{file_print}( "            CTECH_${full_name}_synth_rtl_lib => {\n" );
+            $tool{file_print}( "               -hdl_spec => [\n" );
+            $tool{file_print}( "                  \"source/${process}/${type}/${vt}/CTECH_${full_name}_rtl_lib.hdl\",\n" );
+            $tool{file_print}( "               ],\n" );
+            $tool{file_print}( "               -dependent_libs => [\n" );
+            $tool{file_print}( "                  \"CTECH_${full_name}_nonsynth_rtl_lib\",\n" );
+            $tool{file_print}( "               ],\n" );
+            $tool{file_print}( "               -vlog_opts => [\n" );
+            $tool{file_print}( "                  \"-sv\",\n" );
+            $tool{file_print}( "                  \"+define+DC\",\n" );
+            $tool{file_print}( "                  \"+define+INTEL_SVA_OFF\",\n" );
+            $tool{file_print}( "                  \"+libext+.sv+.v+.vs\",\n" );
+            $tool{file_print}( "               ],\n" ); 
+            $tool{file_print}( "            },\n\n" );
+            $tool{file_print}( "            CTECH_${full_name}_nonsynth_rtl_lib => {\n" );
+            $tool{file_print}( "               -tag => \"nonsynth\",\n" );
+            $tool{file_print}( "               -hdl_spec => [\n" );
+            $tool{file_print}( "                  \"ace/${process}_${type}_stdcells.hdl\",\n" );
+            $tool{file_print}( "               ],\n" );
+            $tool{file_print}( "               -vlog_opts => [\n" );
+            $tool{file_print}( "                  \"-sv\",\n" );
+            $tool{file_print}( "                  \"+define+DC\",\n" );
+            $tool{file_print}( "                  \"+define+INTEL_SVA_OFF\",\n" );
+            $tool{file_print}( "                  \"+libext+.sv+.v+.vs\",\n" );
+            $tool{file_print}( "               ],\n" ); 
+            $tool{file_print}( "            },\n\n" );
+         }
+      }
+   }
+   $tool{file_print}( "            CTECH_v_rtl_lib => {\n" );
+   $tool{file_print}( "               -hdl_spec => [\n" );
+   $tool{file_print}( "                  \"source/v/CTECH_v_rtl_lib.hdl\",\n" );
+   $tool{file_print}( "               ],\n" );
+   $tool{file_print}( "            },\n\n" );
+   $tool{file_print}( "         },\n\n" );
+   $tool{file_print}( "      },\n\n" );
+   $tool{file_print}( "   },\n\n" );
+   $tool{file_print}( "),\n\n" );
+
+   close( $filehandle );
+
+   $tool{info_print}(
+      sprintf(
+         "Generated CTECH file %s",
+         $config{ctech_file}{value},
+      )
+   );
+}
+
+sub generate_ep_params {
+   open( $filehandle, '>', $config{params_file}{value} ) or croak $!;
+   
+   # Generate ep_params.svh for simulation environment
+   foreach my $param (keys( %parameters ) ) {
+      my $format_value = "%s";
+
+      if( exists( $parameters{$param}{format} ) ) {
+         $format_value = $parameters{$param}{format};
+      }
+
+      my $value = sprintf(
+         $format_value,
+         get_value( $param ),
+      );
+
+      $tool{file_print}(
+         sprintf(
+            "parameter %s=%s;\n",
+            $param,
+            $value,
+         )
+      );
+   }
+   
+   close( $filehandle );
+
+   $tool{info_print}(
+      sprintf(
+         "Generated parameter file %s",
+         $config{params_file}{value},
+      )
+   );
+}
+
+sub generate_csv_config {
+   open( $filehandle, '>', $config{gen_csv}{value} ) or croak $!;
+
+   # Generate gen_config.csv for backend environment
+   $tool{file_print}(
+      sprintf(
+         # In the future, may want to randomly pick sbebase
+         "RTLTOP,sbendpoint\n",
+      )
+   );
+
+   $tool{file_print}(
+      sprintf(
+         "COMMENT,Generated csv with -prescript_seed %s\n",
+         $config{prescript_seed}{value},
+      )
+   );
+
+   foreach my $param (keys( %parameters ) ) {
+      # May want to eventually support TB Parameters in CSV
+      if( $parameters{$param}{type} eq 'SIM' ) {
+         next;
+      }
+
+      # Maybe eventually the defautl value will not match the default parameter
+      # So eventually it may be required to not do this anymore. For now, the
+      # defaults do match. So don't print them to the CSV file. This just makes
+      # it easier to identify the values that have been updated.
+      if( $parameters{$param}{value} eq $parameters{$param}{default} ) {
+         next;
+      }
+
+      my $format_value = "PARAM,%s,%s\n";
+
+      $tool{file_print}(
+         sprintf(
+            $format_value,
+            $param,
+            get_value( $param )
+         )
+      );
+   }
+
+   close( $filehandle );
+
+   $tool{info_print}(
+      sprintf(
+         "Generated csv file %s",
+         $config{gen_csv}{value},
+      )
+   );
+}
+
+sub override_environment_from_cmdline {
+   # Override values with things from the command line.
+   foreach my $param (keys( %parameters )) {
+      my $lparam = lc($param);
+      if( $config{$lparam}{updated} ) {
+         assign_value( $param, $config{$lparam}{value} );
+      }
+   }
+}
+
+sub load_environment_from_csv {
+   # Set all the RTL parameters from the CSV
+   open( my $csv, '<', $config{csv}{value} ) or croak $!;
+
+   while( my $line = <$csv> ) {
+      if( $line =~ m/RTLTOP,(.*)$/i ) {
+      } elsif( $line =~ m/COMMENT,(.*)$/i ) {
+      } elsif( $line =~ m/PARAM,(.*),(.*)$/i ) {
+         assign_value( $1, $2 );
+      }
+   }
+
+   close( $csv );
+
+   $tool{info_print}(
+      sprintf(
+         "Generated parameter inputs from CSV file %s",
+         $config{csv}{value},
+      )
+   );
+
+   foreach my $param (keys( %parameters )) {
+      if( $parameters{$param}{type} eq 'SIM' ) {
+         assign_random_value( $param );
+      }
+   }
+
+   $tool{info_print}( "Randomized testbench parameters" );
+}
+
+# Randomize the simulation parameters or use CSV?
+sub randomize_environment {
+   # Fully random environment
+   foreach my $param (keys( %parameters )) {
+      assign_random_value( $param );
+   }
+
+   $tool{info_print}( "Randomized environment parameters" );
+}
+
+sub get_value {
+   my ($param) = @_;
+
+   if( !exists( $parameters{$param} ) ) {
+      $tool{error_print}(
+         sprintf(
+            "The parameter %s does not exists",
+            $param
+         )
+      );
+   }
+   
+   if( exists( $parameters{$param}{refp} ) ) {
+    if(get_value( $parameters{$param}{refp} ) == 1) {
+      $parameters{$param}{value} = 1;
+    }
+   }
+   
+   if( exists( $parameters{$param}{refp1} ) ) {
+    if((get_value( $parameters{$param}{refp1} ) == 1) || 
+       (get_value( $parameters{$param}{refp} ) == 1)) {
+      $parameters{$param}{value} = 1;
+    }
+   }
+
+   if( exists( $parameters{$param}{refpc} ) ) {
+    if(get_value( $parameters{$param}{refpc} ) == 1) {
+      $parameters{$param}{value} = 1;
+    } else {
+      $parameters{$param}{value} = 0;  
+    }
+   }
+
+   if( exists( $parameters{$param}{refn} ) ) {
+    if(get_value( $parameters{$param}{refn}) == 1) {
+      $parameters{$param}{value} = 0;
+    }  
+   }
+   
+   if( exists( $parameters{$param}{refa} ) ) {
+    if(get_value( $parameters{$param}{refa}) == 0) {
+      $parameters{$param}{value} = 0;
+    }  
+   }
+# randomize parameter within limits, only after the parent parameter is set, otherwise set it to 0
+   if( exists( $parameters{$param}{refrand} ) ) {
+    if(get_value( $parameters{$param}{refrand}) == 1) {
+        assign_random_value( $param );
+    }
+    else {
+      $parameters{$param}{value} = 0;
+    }
+
+   }          
+
+   if( !exists( $parameters{$param}{value} ) ) {
+      $tool{fatal_print}(
+         sprintf(
+            "The parameter %s does not have a value",
+            $param
+         )
+      );
+   }
+
+   return $parameters{$param}{value};
+}
+
+
+sub assign_random_value {
+   my ($param) = @_;
+   
+   if( !exists( $parameters{$param} ) ) {
+      $tool{error_print}(
+         sprintf(
+            "The parameter %s does not exists",
+            $param
+         )
+      );
+   } elsif( exists( $parameters{$param}{const} ) ) {
+   } #elsif( exists( $parameters{$param}{refp} ) ) {
+   #} elsif( exists( $parameters{$param}{refn} ) ) {
+   #} elsif( exists( $parameters{$param}{list} ) ) {
+   elsif( exists( $parameters{$param}{list} ) ) {
+      my $count    = scalar( @{$parameters{$param}{list}} );
+      my $rndvalue = int(rand( $count ));
+      assign_value( $param, $parameters{$param}{list}[$rndvalue] );
+   } elsif( exists( $parameters{$param}{min} ) or
+            exists( $parameters{$param}{max} ) ) {
+      my $max_exists = exists( $parameters{$param}{max} );
+      my $min_exists = exists( $parameters{$param}{min} );
+      my $max = 256;
+      my $min = 0;
+
+      $max = $parameters{$param}{max} if( $max_exists );
+      $min = $parameters{$param}{min} if( $min_exists );
+      my $range = $max - $min;
+      my $rndvalue = int(rand( $range )) + $min;
+      assign_value( $param, $rndvalue );
+   }
+      
+}
+
+sub assign_value {
+   my ($param, $value) = @_;
+
+   if( !exists( $parameters{$param} ) ) {
+      $tool{error_print}(
+         sprintf(
+            "The parameter %s does not exists",
+            $param
+         )
+      );
+   }
+   
+   if( exists( $parameters{$param}{const} ) ) {
+      if( $parameters{$param}{const} ne $value ) {
+         $tool{warning_print}(
+            sprintf(
+               "The constant parameter %s was overridden with the new value %s",
+               $param,
+               $value
+            )
+         );
+      }
+      $parameters{$param}{value} = $value;
+   } elsif( exists( $parameters{$param}{list} ) ) {
+      my $found = 0;
+      foreach my $item (@{$parameters{$param}{list}}) {
+         if( $item eq $value ) {
+            $found = 1;
+            $parameters{$param}{value} = $value;
+         }
+      }
+
+      if( !$found ) {
+         $tool{error_print}(
+            sprintf(
+               "The list parameter %s cannot accept the value %s.",
+               $param,
+               $value
+            )
+         );
+      }
+   } elsif( exists( $parameters{$param}{refp} ) ) {
+      assign_value( $parameters{$param}{refp}, $value );
+   } elsif( exists( $parameters{$param}{refn} ) ) {
+      assign_value( $parameters{$param}{refn}, $value );   
+   } elsif( exists( $parameters{$param}{refa} ) ) {
+      assign_value( $parameters{$param}{refa}, $value );   
+   } elsif( exists( $parameters{$param}{min} ) or
+            exists( $parameters{$param}{max} ) ) {
+      if( exists( $parameters{$param}{max} ) and
+          ( $value > $parameters{$param}{max} ) ) {
+         $tool{error_print}(
+            sprintf(
+               "The parameter %s maximum value of %s was exceeded with %s",
+               $param,
+               $parameters{$param}{max},
+               $value
+            )
+         );
+      }
+      if( exists( $parameters{$param}{min} ) and
+          ( $value < $parameters{$param}{min} ) ) {
+         $tool{error_print}(
+            sprintf(
+               "The parameter %s minimum value of %s was exceeded with %s",
+               $param,
+               $parameters{$param}{min},
+               $value
+            )
+         );
+      }
+
+      $parameters{$param}{value} = $value;
+   } else {
+      $tool{fatal_print}(
+         sprintf(
+            "The parameter %s does not fit the type:\nconst\nlist\nrefp\nmin/max",
+            $param
+         )
+      );
+   }
+
+   return 0;
+}
+
+# Command line parser
+sub command_line_parser {
+   my ($terminate_on_errors, $terminate_on_help) = @_;
+
+   my $argument = "";
+   my $switch   = "";
+   my $switches_have_errors = 0;
+
+   foreach my $arg ( @ARGV ) {
+      $arg = encode( 'ascii', $arg );
+      $tool{debug_print}(
+         sprintf(
+            "Received from commandline '%s'",
+            $arg,
+         )
+      );
+
+      if( $arg =~ m/-([_=\.\/\\\w\d]+)/i ) {
+         my $tmp = $1;
+         if( $switch ne "" ) {
+            $config{$switch}{value}     = 1;
+            $config{$switch}{arguments} = 'appended';
+            $config{$switch}{help}      = 'Unexpected command line input';
+            if( $terminate_on_errors ) {
+               $tool{error_print}(
+                  sprintf(
+                     "Unknown switch %s interrupted",
+                     $switch,
+                  )
+               );
+            } else {
+               $tool{warning_print}(
+                  sprintf(
+                     "Unknown switch %s interrupted",
+                     $switch,
+                  )
+               );
+            }
+         }
+
+         $switch = $tmp;
+
+         if( $switch =~ m/(.*)=(.*)/ ) {
+            $switch                 = $1;
+            $config{$switch}{value} = $2;
+
+            if( !exists( $config{$switch}{arguments} ) ) {
+               if( $terminate_on_errors ) {
+                  $tool{error_print}(
+                     sprintf(
+                        "Unknown switch %s with assignment %s",
+                        $switch,
+                        $config{$switch}{value},
+                     )
+                  );
+               } else {
+                  $tool{warning_print}(
+                     sprintf(
+                        "Unknown switch %s with assignment %s",
+                        $switch,
+                        $config{$switch}{value},
+                     )
+                  );
+               }
+
+               $config{$switch}{arguments} = 'appended';
+            } else {
+               $tool{debug_print}(
+                  sprintf(
+                     "Automatic assignment of %s with %s",
+                     $switch,
+                     $config{$switch}{value},
+                  )
+               );
+            }
+
+            $switch   = "";
+            $argument = "";
+         } elsif( $switch eq "help" or $switch eq "h" ) {
+            $tool{std_print}( "Usage:       $tool{name} [-<switch> [<argument]]\n" );
+            $tool{std_print}( "Description: $tool{description}\n" );
+            $tool{std_print}( "Author:      $tool{author}\n" );
+            $tool{std_print}( "=" x 80 . "\n" );
+            $tool{std_print}(
+               sprintf(
+                  "%-20s %-20s %-40s\n",
+                  "Switch",
+                  "Argument Type",
+                  "Current Value",
+               )
+            );
+            $tool{std_print}( "-" x 80 . "\n" );
+            my $oldgroup = "";
+            foreach my $configval ( sort { $config{$a}{group} cmp $config{$b}{group} } keys( %config ) ) {
+               if( $config{$configval}{group} ne $oldgroup ) {
+                  $oldgroup = $config{$configval}{group};
+                  $tool{std_print}(
+                     sprintf(
+                        "\n%s Commands:\n\n",
+                        $oldgroup,
+                     )
+                  );
+               }
+               my $required = 0;
+               $required = $config{$configval}{required} if( exists( $config{$configval}{required} ) );
+               my $printrequired = "";
+               if( $required ) {
+                  $printrequired = "-REQUIRED-\n\n";
+               }
+                  
+               $tool{std_print}(
+                  sprintf(
+                     "%s%-20s %-20s %-40s\nDescription:\n%s\n---\n",
+                     $printrequired,
+                     $configval,
+                     $config{$configval}{arguments},
+                     $config{$configval}{value},
+                     $config{$configval}{help},
+                  )
+               );
+            }
+            $switch = "";
+            exit 0;
+         } elsif( exists( $config{$switch} ) ) {
+            $argument = $config{$switch}{arguments};
+            if( $argument eq "toggle" ) {
+               if( $config{$switch}{value} ) {
+                  $config{$switch}{value} = 0;
+               } else {
+                  $config{$switch}{value} = 1;
+               }
+               $tool{debug_print}(
+                  sprintf( "toggled %s to %d",
+                     $switch,
+                     $config{$switch}{value}
+                  )
+               );
+               $switch   = "";
+               $argument = "";
+            } elsif( $argument eq "" ) {
+               $tool{error_print}(
+                  sprintf( "%s is configured incorectly",
+                     $switch,
+                  )
+               );
+               $switch               = "";
+               $switches_have_errors = 1;
+            }
+         } else {
+            if( $terminate_on_errors ) {
+               $tool{error_print}( "Unknown switch $arg" );
+            } else {
+               $tool{warning_print}( "Unknown switch $arg" );
+            }
+
+            $config{$switch}{arguments} = 'appended';
+         }
+      } elsif( $switch ne "" ) {
+         $config{$switch}{value}     = $arg;
+         $config{$switch}{changed}   = 1;
+         $tool{debug_print}(
+            sprintf( "set %s to %s",
+               $switch,
+               $config{$switch}{value}
+            )
+         );
+         $switch   = "";
+         $argument = "";
+      } elsif( $arg =~ m/(--.*)/ ) {
+         $tool{debug_print}(
+            sprintf( "Received '%s' argument, need custom handler.",
+               $1
+            )
+         );
+         $switch   = "";
+         $argument = "";
+      } else {
+         $tool{fatal_print}(
+            sprintf( "Received unknown argument '%s'",
+               $arg,
+            )
+         );
+      }
+   }
+
+   foreach my $switch ( keys( %config ) ) {
+      my $required = 0;
+      my $updated = 0;
+
+      $required = $config{$switch}{required} if( defined( $config{$switch}{required} ) );
+      $updated = $config{$switch}{changed} if( defined( $config{$switch}{changed} ) );
+      $config{$switch}{changed} = 0;
+      $config{$switch}{updated} = $updated;
+      
+      if( $required and !$updated ) {
+         $switches_have_errors = 1;
+         $tool{error_print}(
+            sprintf( "%s is required",
+               $switch,
+            )
+         );
+      }
+   }
+   if( $switches_have_errors and $terminate_on_errors ) {
+      $tool{error_print}( "Switches have errors\n" );
+   }
+}

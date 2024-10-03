@@ -1,0 +1,93 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+###################################
+wr config_master.cfg_pm_pmcsr_disable.disable 0x0
+rd config_master.cfg_pm_pmcsr_disable.disable 0x0
+##
+###poll to Wait for reset to be done 
+poll config_master.cfg_diagnostic_reset_status 0x800003ff 0x800003ff 500
+###poll to Wait for unit_idle to be done 
+poll config_master.cfg_diagnostic_idle_status 0x0007ffff 0x0007ffff 500
+###################################
+# Setup LUTs used by HCWs
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+  dir qid QID_0:*
+  dir qid QID_1:*
+  dir qid QID_2:*
+  dir qid QID_3:*
+  dir qid QID_4:*
+  dir qid QID_5:*
+  dir qid QID_6:*
+  dir qid QID_7:*
+  dir qid QID_8:*
+  dir qid QID_9:*
+  dir qid QID_10:*
+  dir qid QID_11:*
+  dir qid QID_12:*
+  dir qid QID_13:*
+  dir qid QID_14:*
+  dir qid QID_15:*
+
+  vas 0 dir_qidv:QID_0=1 dir_qidv:QID_1=1 dir_qidv:QID_2=1 dir_qidv:QID_3=1 dir_qidv:QID_4=1 dir_qidv:QID_5=1 dir_qidv:QID_6=1 dir_qidv:QID_7=1 dir_qidv:QID_8=1 dir_qidv:QID_9=1 dir_qidv:QID_10=1 dir_qidv:QID_11=1 dir_qidv:QID_12=1 dir_qidv:QID_13=1 dir_qidv:QID_14=1 dir_qidv:QID_15=1 credit_cnt=8192
+
+  dir pp QID_0  vas=0
+  dir pp QID_1  vas=0
+  dir pp QID_2  vas=0
+  dir pp QID_3  vas=0
+  dir pp QID_4  vas=0
+  dir pp QID_5  vas=0
+  dir pp QID_6  vas=0
+  dir pp QID_7  vas=0
+  dir pp QID_8  vas=0
+  dir pp QID_9  vas=0
+  dir pp QID_10 vas=0
+  dir pp QID_11 vas=0
+  dir pp QID_12 vas=0
+  dir pp QID_13 vas=0
+  dir pp QID_14 vas=0
+  dir pp QID_15 vas=0
+
+  dir cq QID_0  cq_depth=1024 gpa=sm
+  dir cq QID_1  cq_depth=1024 gpa=sm
+  dir cq QID_2  cq_depth=1024 gpa=sm
+  dir cq QID_3  cq_depth=1024 gpa=sm
+  dir cq QID_4  cq_depth=1024 gpa=sm
+  dir cq QID_5  cq_depth=1024 gpa=sm
+  dir cq QID_6  cq_depth=1024 gpa=sm
+  dir cq QID_7  cq_depth=1024 gpa=sm
+  dir cq QID_8  cq_depth=1024 gpa=sm
+  dir cq QID_9  cq_depth=1024 gpa=sm
+  dir cq QID_10 cq_depth=1024 gpa=sm
+  dir cq QID_11 cq_depth=1024 gpa=sm
+  dir cq QID_12 cq_depth=1024 gpa=sm
+  dir cq QID_13 cq_depth=1024 gpa=sm
+  dir cq QID_14 cq_depth=1024 gpa=sm
+  dir cq QID_15 cq_depth=1024 gpa=sm
+
+cfg_end
+
+wr hqm_system_csr.write_buffer_ctl.SCH_RATE_LIMIT    0x00000003
+rd hqm_pf_cfg_i.vendor_id
+
+idle 100

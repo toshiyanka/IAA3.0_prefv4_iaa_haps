@@ -1,0 +1,59 @@
+##################################################
+##         Command to Run the Script            ##
+##################################################
+1. Include all the register's name in input.txt for which coverage bins need to be generated. Commented lines ("#","\s#") and blank lines in the input.txt will be taken care by the script hqm_reg_func_cov.pl in the following lines (99-117) . 
+
+#normal mode
+% perl $MODEL_ROOT/verif/tb/hqm/scripts/hqm_reg_func_cov/hqm_reg_func_cov.pl
+#debug mode (To retain intermediate outputs) 
+% perl $MODEL_ROOT/verif/tb/hqm/scripts/hqm_reg_func_cov/hqm_reg_func_cov.pl debug
+
+##################################################
+##              Script Output                   ##
+##################################################
+
+Script output will be generated in following path
+$MODEL_ROOT/output
+
+## coverage module and associated define file name
+1. hqm_reg_func_cov_define.sv
+2. hqm_reg_func_cov_groups.sv
+
+## Intermediate output for debug purpose
+1.grepoutput.sv - Includes the output of the grep command  
+2.path_defines.sv - Includes the defines of the register paths
+3.register_field_define.sv - Includes the defines of the register fields 
+4.coverpoints.sv - Includes the coverpoints of the register fields 
+
+##################################################
+##  Integrating Output Files in The Testbench   ##
+##################################################
+1. copy hqm_reg_func_cov_define.sv & hqm_reg_func_cov_groups.sv in following path
+$MODEL_ROOT/verif/tb/hqm/coverage/
+
+2. create a instance of hqm_reg_func_cov_groups.sv in hqm_tb_top.sv 
+e.g. hqm_reg_func_cov_groups i_hqm_reg_func_cov_groups();
+or
+bind hqm_tb_top hqm_reg_func_cov_groups i_hqm_reg_func_cov_groups();
+
+3. include hqm_reg_func_cov_define.sv & hqm_reg_func_cov_groups.sv in 
+$MODEL_ROOT/verif/tb/hqm/hqm_tb_lib.hdl under -vlog_files option.
+
+Note: coverage file is gated with "HQM_COVER_ON" define which enabled with -hqm_fcov 
+
+4. command to build [ This is default build option in hqmv25] 
+% bman -dut hqm -mc hqm -btb:mpp nodelete_flow_data" -hqm_fcov & 
+
+
+
+
+##################################################
+##                     About The Script         ##
+##################################################
+Intent of the script is to generate the covergroups for computing the coverage of the registers, This script help
+verification engineer to check coverage of control and status register (or any other intended register) with 
+functional covergroup, Covergroups are created for each register and Coverpoints are created for each field of the register. 
+
+
+
+

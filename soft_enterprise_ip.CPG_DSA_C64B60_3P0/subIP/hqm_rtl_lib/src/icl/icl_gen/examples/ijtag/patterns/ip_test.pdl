@@ -1,0 +1,106 @@
+iProcsForModule ip
+
+iProc ip_test {} {
+
+   iReset
+   iRunLoop 1 -tck
+   iNote "Activate selection for scan mux chain_1.sib_top.scan_in_mux, selection 0: sib = 1'b0 -> scan_in_mux = si"
+   iNote "Scan in verification pattern to the following scan register:"
+   iNote "  chain_1.sib_top.sib\[0:0\], load value = 1"
+   iWrite chain_1.sib_top.sib[0] 0b1
+   iApply -end_in_pause
+
+   iNote "Scan out verification pattern from the following scan register:"
+   iNote "  chain_1.sib_top.sib\[0:0\], expected value = 1"
+   iWrite chain_1.sib_top.sib[0] 0b1
+   iRead  chain_1.sib_top.sib[0] 0b1
+   iApply
+
+   iNote "Activate selection of the following scan muxes:"
+   iNote "  chain_1.sib_top.scan_in_mux, selection 1: sib = 1'b1 -> scan_in_mux = inst_so"
+   iNote "  chain_1.sibA.scan_in_mux, selection 0: sib = 1'b0 -> scan_in_mux = si"
+   iNote "  chain_1.sibB.scan_in_mux, selection 0: sib = 1'b0 -> scan_in_mux = si"
+   iNote "Scan in verification pattern to the following scan registers:"
+   iNote "  chain_1.sibB.sib\[0:0\], load value = 1"
+   iNote "  chain_1.sibA.sib\[0:0\], load value = 0"
+   iNote "  chain_1.sib_top.sib\[0:0\], load value = 1"
+   iWrite chain_1.sibB.sib[0] 0b1
+   iWrite chain_1.sibA.sib[0] 0b0
+   iWrite chain_1.sib_top.sib[0] 0b1
+   iApply -end_in_pause
+
+   iNote "Scan out verification pattern from the following scan registers:"
+   iNote "  chain_1.sibB.sib\[0:0\], expected value = 1"
+   iNote "  chain_1.sibA.sib\[0:0\], expected value = 0"
+   iNote "  chain_1.sib_top.sib\[0:0\], expected value = 1"
+   iWrite chain_1.sibB.sib[0] 0b0
+   iRead  chain_1.sibB.sib[0] 0b1
+   iWrite chain_1.sibA.sib[0] 0b1
+   iRead  chain_1.sibA.sib[0] 0b0
+   iWrite chain_1.sib_top.sib[0] 0b1
+   iRead  chain_1.sib_top.sib[0] 0b1
+   iApply
+
+   iNote "Activate selection of the following scan muxes:"
+   iNote "  chain_1.sib_top.scan_in_mux, selection 1: sib = 1'b1 -> scan_in_mux = inst_so"
+   iNote "  chain_1.sibA.scan_in_mux, selection 1: sib = 1'b1 -> scan_in_mux = inst_so"
+   iNote "  chain_1.sibB.scan_in_mux, selection 0: sib = 1'b0 -> scan_in_mux = si"
+   iNote "Scan in verification pattern to the following scan registers:"
+   iNote "  chain_1.sibB.sib\[0:0\], load value = 1"
+   iNote "  chain_1.regA.DR\[5:0\], load value = 110011"
+   iNote "  chain_1.sibA.sib\[0:0\], load value = 0"
+   iNote "  chain_1.sib_top.sib\[0:0\], load value = 1"
+   iWrite chain_1.sibB.sib[0] 0b1
+   iWrite chain_1.regA.DR[5:0] 0b110011
+   iWrite chain_1.sibA.sib[0] 0b0
+   iWrite chain_1.sib_top.sib[0] 0b1
+   iApply -end_in_pause
+
+   iNote "Scan out verification pattern from the following scan registers:"
+   iNote "  chain_1.sibB.sib\[0:0\], expected value = 1"
+   iNote "  chain_1.regA.DR\[5:0\], expected value = 110011"
+   iNote "  chain_1.sibA.sib\[0:0\], expected value = 0"
+   iNote "  chain_1.sib_top.sib\[0:0\], expected value = 1"
+   iWrite chain_1.sibB.sib[0] 0b1
+   iRead  chain_1.sibB.sib[0] 0b1
+   iWrite chain_1.regA.DR[5:0] 0b000000
+   iRead  chain_1.regA.DR[5:0] 0b110011
+   iWrite chain_1.sibA.sib[0] 0b0
+   iRead  chain_1.sibA.sib[0] 0b0
+   iWrite chain_1.sib_top.sib[0] 0b1
+   iRead  chain_1.sib_top.sib[0] 0b1
+   iApply
+
+   iNote "Activate selection of the following scan muxes:"
+   iNote "  chain_1.sib_top.scan_in_mux, selection 1: sib = 1'b1 -> scan_in_mux = inst_so"
+   iNote "  chain_1.sibA.scan_in_mux, selection 0: sib = 1'b0 -> scan_in_mux = si"
+   iNote "  chain_1.sibB.scan_in_mux, selection 1: sib = 1'b1 -> scan_in_mux = inst_so"
+   iNote "Scan in verification pattern to the following scan registers:"
+   iNote "  chain_1.regB.DR\[11:0\], load value = 100111100001"
+   iNote "  chain_1.sibB.sib\[0:0\], load value = 1"
+   iNote "  chain_1.sibA.sib\[0:0\], load value = 0"
+   iNote "  chain_1.sib_top.sib\[0:0\], load value = 1"
+   iWrite chain_1.regB.DR[11:0] 0b100111100001
+   iRead  chain_1.regB.DR[11:0] 0bXXXXXXXX0101
+   iWrite chain_1.sibB.sib[0] 0b1
+   iWrite chain_1.sibA.sib[0] 0b0
+   iWrite chain_1.sib_top.sib[0] 0b1
+   iApply -end_in_pause
+
+   iNote "Scan out verification pattern from the following scan registers:"
+   iNote "  chain_1.regB.DR\[11:0\], expected value = 100111100001"
+   iNote "  chain_1.sibB.sib\[0:0\], expected value = 1"
+   iNote "  chain_1.sibA.sib\[0:0\], expected value = 0"
+   iNote "  chain_1.sib_top.sib\[0:0\], expected value = 1"
+   iWrite chain_1.regB.DR[11:0] 0b000000000101
+   iRead  chain_1.regB.DR[11:0] 0b100111100001
+   iWrite chain_1.sibB.sib[0] 0b0
+   iRead  chain_1.sibB.sib[0] 0b1
+   iWrite chain_1.sibA.sib[0] 0b0
+   iRead  chain_1.sibA.sib[0] 0b0
+   iWrite chain_1.sib_top.sib[0] 0b0
+   iRead  chain_1.sib_top.sib[0] 0b1
+   iApply
+
+
+}

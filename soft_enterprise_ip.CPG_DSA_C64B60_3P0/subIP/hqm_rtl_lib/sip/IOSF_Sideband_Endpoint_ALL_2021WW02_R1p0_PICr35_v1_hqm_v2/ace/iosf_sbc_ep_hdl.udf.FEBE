@@ -1,0 +1,161 @@
+#!/usr/intel/bin/perl
+my $SCOPE = "IOSF_SBC_EP";
+
+%audf = (
+   HDLSpec => {
+      $SCOPE => {
+         # Define all the libraries which could be compiled 
+         libs => {
+            ovm  => {
+               -tag => 'nonsynth',
+               -hdl_spec => [
+                  "$ENV{SAOLA_HOME}/sla.hdl",
+                  "ace/ovm.hdl",
+               ],
+            }, 
+   
+            iosf_sbc_ep_rtl_lib => {
+               -hdl_spec       => [
+                   "ace/iosf_sbc_ep.hdl",
+                   ($ENV{SB_STDCELLS_HDL} =~ /SB_STDCELLS_HDL/) ? "ace/$ENV{KIT_HDL}" : " ",
+
+               ],
+               -sub_libs => [
+                   "$ENV{CTECH_LIB_NAME}",
+               ],
+            },
+   
+            iosf_svc_ep => {
+               -tag => 'nonsynth',
+               -hdl_spec       => [
+                  "ace/iosf_svc_ep.hdl" ,
+                  "verif/bfm/ccu_vc/verif/ccu-vc/ccu_vc_pkg.hdl",
+                  "verif/bfm/ccu_vc/verif/lib/sip_vintf_manager/sip_vintf_manager.hdl",
+               ],
+   
+               -dependent_libs => [
+                    "ovm",
+               ],
+            }, 
+   
+            iosf_sbc_ep_tb  => {
+               -tag => 'nonsynth',
+               -hdl_spec       => [
+                  "ace/iosf_sbc_ep_tb.hdl",
+               ], 
+               -dependent_libs => [
+                  "ovm",
+                  "iosf_svc_ep",
+                  "iosf_sbc_ep_rtl_lib",
+               ],
+            }, 
+   
+            iosf_sbc_ep_ti_lib  => {
+               -tag => 'nonsynth',
+               -hdl_spec => [
+                    "ace/iosf_sbc_ep_ti.hdl",
+               ], 
+               -dependent_libs => [
+                  "ovm",
+                  "iosf_svc_ep", 
+                  "iosf_sbc_ep_rtl_lib",
+               ],
+            }, 
+   
+            lp_checker_lib  => {
+               -tag => 'nonsynth',
+               -hdl_spec => [
+                  "ace/lp_checker_lib.hdl",
+               ],
+            }, 
+         }, # end libs
+
+         models => {
+            cdc_sbendpoint => {
+               top       => "iosf_sbc_ep_rtl_lib.sbendpoint",
+               libs      => [
+                  "iosf_sbc_ep_rtl_lib",
+               ],
+            },
+            cdc_sbebase => {
+               top       => "iosf_sbc_ep_rtl_lib.sbebase",
+               libs      => [
+                  "iosf_sbc_ep_rtl_lib",
+               ],
+            },
+
+            sbe_cfg => {
+               top         =>  "iosf_sbc_ep_tb.tb_top",
+               libs => [
+                  "ovm",
+                  "iosf_svc_ep",
+                  "iosf_sbc_ep_rtl_lib",
+                  "iosf_sbc_ep_tb",
+               ],
+               pli_libs => ['-debussy_pli_libs',
+               ],
+               export => {
+                  libs => [
+                     "iosf_sbc_ep_rtl_lib",
+                     "iosf_sbc_ep_ti_lib",
+                  ],
+               },
+            }, # end sbe_cfg
+
+            IosfSbEpTestbench => {
+               top         =>  "iosf_sbc_ep_tb.tb_top",
+               libs => [
+                  "ovm",
+                  "iosf_svc_ep",
+                  "iosf_sbc_ep_rtl_lib",
+                  "iosf_sbc_ep_tb",
+               ],
+               pli_libs => ['-debussy_pli_libs',
+               ],
+               export => {
+                  libs => [
+                     "iosf_sbc_ep_rtl_lib",
+                     "iosf_sbc_ep_ti_lib",
+                  ],
+               },
+            }, # end IosfSbEpTestbench
+            Ep_pa => {
+               top => 'iosf_sbc_ep_tb.tb_top ',
+               libs => [
+                  "ovm",
+                  "iosf_svc_ep",
+                  "iosf_sbc_ep_rtl_lib",
+                  "iosf_sbc_ep_tb",
+                  "lp_checker_lib",
+               ],
+               pli_libs => ['-debussy_pli_libs',
+               ],
+               export => {
+                  libs => [
+                     "iosf_sbc_ep_rtl_lib",
+                     "iosf_sbc_ep_ti_lib",
+                  ],
+               },
+               power_intent => {
+                   power_top => 'iosf_sbc_ep_tb.tb_top',
+                   upf_files => ['tools/upf/sbendpoint/sbe_top.upf'],
+                   lpa_bind_file => 'tools/upf/sbendpoint/lpa_bind.tcl',
+               },
+               testcase_globals => {
+                  -pwr_elab_opts_vcs => [
+                     "-liblist UPF+LPA", 
+                     "-power=dccompat_gen_separator", 
+                     "-power=coverage", 
+                     "-power=always_on",
+                  ],
+                  -simv_args => [
+                     '+en_pwr'
+                  ],
+               },
+            }, # end Ep_pa
+         }, # end models
+      }, # end $SCOPE
+   }, # end HDLSpec
+); # end %audf 
+
+#            power_top => 'tb_top/genblk1/genblk1/sbendpoint',

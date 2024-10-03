@@ -1,0 +1,33 @@
+unsetenv LM_PROJECT
+setenv LM_PROJECT EIG_PMC
+echo $CDC_FLOW_RELEASE
+
+## Compile the CDC Model using Mentor compiler
+ace -ccoz -ASSIGN -mc=cdc_pgcb_collection
+
+## Run CDC on the PGCB/CDC/PCGU
+##  This step isn't necessary now that you can runn on the tooltb and verify multiple combinations
+##  of all the blocks
+#ace -xz -t cdc_pgcbunit -nocleanup -nocpmf  -results $MODEL_ROOT/tools/cdc
+#ace -xz -t cdc_ClockDomainController -nocleanup -nocpmf -results $MODEL_ROOT/tools/cdc
+#ace -xz -t cdc_pgcbcg -nocleanup -nocpmf -results $MODEL_ROOT/tools/cdc
+
+
+## Run CDC on the Tool Testbench to verify multiple
+##  Puts the results under tools/cdc for ONDA to check
+ace -xz -t cdc_tooltb -nocleanup -nocpmf -results $MODEL_ROOT/tools/cdc
+#Note: Cannot put waivers on TB runs.  Run individual FUBs
+#      The TB run is to analyze the IP level impact only.  Not for IRR release
+
+## qcdc_da.tcl => calls global scripts from eda/intel/cdc
+##		  calls tools/cdc/tooltb/tooltb_cdc.tcl
+## 		  calls wavier.tcl files
+##		   runs cdc
+
+
+## Run ONDA:
+onda cdc -ver $CDC_VER -ip $ACE_PROJECT -sd $MODEL_ROOT
+## Creates output => tools/report/cdc_zqa.log
+
+## GUI:
+qcdc results/pgcb_collection/tests/cdc_ClockDomainController/cdc.db 

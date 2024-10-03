@@ -1,0 +1,71 @@
+##----*-perl-*------------------------------------------------------
+use lib "$ENV{RTL_PROJ_BIN}/perllib";
+use ToolConfig();
+use lib ToolConfig::get_tool_path("ipconfig/vc_contour").":/cfg";
+use vc_contour_API();
+
+%acerc = (
+   UDF => [
+      #"$ENV{CTECH_LIBRARY}/ace/CTECH_hdl.udf", # remove once you switch to ctech 2.0 methodology
+      "ace/iosf_sbc_rtr.udf",
+   ],
+   LIBS	             => ["ace/lib",], 
+   SHARED_RESULTS_DIR => ["results_ace",],
+   TEST_PATTERNS      => ["tools/", "tools/lintra"],
+   SUB_SCOPES => {
+     subscopes => {
+          IOSF_SBC_RTR => [
+                             "jtagbfm", 
+                             #'CTECH',
+                             "CTECH", 
+                             "CTECH_EXP", 
+                             "ovm",
+                             "uvm",
+                             "xvm",
+                             "saola",
+                             "IOSF_SVC",
+                             "sipmanager",
+                             "ccu_vc",
+                             "ChassisPowerGatingVC",
+                             "VccModeling",
+          ],
+     }
+   },
+   SEARCH_PATHS       => {
+      "CTECH" => [
+                       "$ENV{CTECH_LIBRARY}",
+      ],
+      "CTECH_EXP" => [
+                       "$ENV{CTECH_EXP_LIBRARY}",
+      ],
+      IOSF_SBC_RTR => [
+         "$ENV{IP_ROOT}/verif/bfm/psmi_oob",
+         #"$ENV{IP_ROOT}/verif/bfm/ccu_vc",
+         #"$ENV{IP_ROOT}/verif/bfm/sideband_vc",
+         #"$ENV{IP_ROOT}/verif/bfm/pgcb_vc",
+         #"$ENV{CTECH_LIBRARY}",
+         "$ENV{IP_ROOT}/subIP/CHASSIS_JTAGBFM_2014WW24_R2.1",
+         "$ENV{IP_ROOT}/subIP/CHASSIS_JTAGBFM_2014WW24_R2.1/ace",
+         "$ENV{IP_ROOT}/subIP/CHASSIS_JTAGBFM_2014WW24_R2.1/verif/tb/JtagBfm",
+      ],
+	  jtagbfm => [  "$ENV{IP_ROOT}/subIP/CHASSIS_JTAGBFM_2014WW24_R2.1",
+					"$ENV{IP_ROOT}/subIP/CHASSIS_JTAGBFM_2014WW24_R2.1/ace", 
+      ],
+      #CTECH => [ "$ENV{CTECH_LIBRARY}" ],
+      ovm                  => [ &ToolConfig::get_tool_var("ipconfig/ovm",                  "SEARCH_PATHS"), ],
+      uvm                  => [ &ToolConfig::get_tool_var("ipconfig/uvm",                  "SEARCH_PATHS"), ],
+      xvm                  => [ &ToolConfig::get_tool_var("ipconfig/xvm",                  "SEARCH_PATHS"), ],
+      saola                => [ &ToolConfig::get_tool_var("ipconfig/saola",                "SEARCH_PATHS"), ],
+      IOSF_SVC             => [ &ToolConfig::get_tool_var("ipconfig/IOSF_SVC",             "SEARCH_PATHS"), ],
+      sipmanager           => [ &ToolConfig::get_tool_var("ipconfig/sipmanager",           "SEARCH_PATHS"), ],
+      ccu_vc               => [ &ToolConfig::get_tool_var("ipconfig/ccu_vc",               "SEARCH_PATHS"), ],
+      ChassisPowerGatingVC => [ &ToolConfig::get_tool_var("ipconfig/ChassisPowerGatingVC", "SEARCH_PATHS"), ],
+      VccModeling          => [ &ToolConfig::get_tool_var("ipconfig/VccModeling",          "SEARCH_PATHS"), ],
+   },
+   PRE_SCRIPT => {
+      -enable_prescripts => 0,
+      -scripts => [	
+         ["ace/iosf_sbc_pre_script",],
+      ],
+   },
+);

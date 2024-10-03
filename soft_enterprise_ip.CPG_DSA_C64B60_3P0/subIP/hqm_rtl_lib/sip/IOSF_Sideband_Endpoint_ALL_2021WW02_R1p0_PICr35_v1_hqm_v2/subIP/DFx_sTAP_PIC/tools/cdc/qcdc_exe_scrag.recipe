@@ -1,0 +1,40 @@
+# This is example on how to create a RECIPE for creating run script around 'ace calculated qcdc command'
+# Available Usage syntax:
+#      i. environment variables
+#             $ENV{ACE_HOME}
+#      ii. QuestaCDC command key word.  This is where the ace caclucated qcdc command to be placed
+#              _QCDC_EXE_COMMAND_
+#      iii. Reference to ACE flag
+#                <scope_name::flag name> 
+#      iv. Locate file on 'ace -show_search_path'
+#                  FIND_FILE:'partial path to file' 
+#      v. Locate directory on 'ace -show_search_path'
+#                  FIND_DIR:'partial path to directory' 
+#      vi. Only one Unix command per-line can be specified
+# The user may inject UNIX command before/after _QCDC_EXE_COMMAND_ command.  
+# Or, the user may write a wrapper script around _QCDC_EXE_COMMAND_ command
+
+#Example:
+
+# locate Readme file on search path and copy to qcdc execution directory.
+cp FIND_FILE:doc/templates/Readme .
+
+# example on some other command with ENV var in it.
+ls $ENV{ ACE_HOME }/doc/templates/
+
+# example on referencing ace  flag
+tree <-model_compile_results_dir>/makefiles
+
+# the ace calcuated command executes here
+_QCDC_EXE_COMMAND_
+\cp $SIP_ROOT/target/stap/$CUSTOMER/aceroot/pwa/results/tests/cdc_test_stap/cdc.rpt $SIP_ROOT/tools/cdc/reports/.
+\cp $SIP_ROOT/target/stap/$CUSTOMER/aceroot/pwa/results/tests/cdc_test_stap/cdc.db $SIP_ROOT/tools/cdc/reports/.
+\cp $SIP_ROOT/target/stap/$CUSTOMER/aceroot/pwa/results/tests/cdc_test_stap/cdc_design.rpt $SIP_ROOT/tools/cdc/reports/.
+\cp $SIP_ROOT/target/stap/$CUSTOMER/aceroot/pwa/results/tests/cdc_test_stap/cdc_run.log $SIP_ROOT/tools/cdc/reports/.
+\cp $SIP_ROOT/target/stap/$CUSTOMER/aceroot/pwa/results/tests/cdc_test_stap/cdc_hier_ctrl_stap.v $SIP_ROOT/tools/cdc/reports/.
+\cp $SIP_ROOT/target/stap/$CUSTOMER/aceroot/pwa/results/tests/cdc_test_stap/cdc_setting.rpt $SIP_ROOT/tools/cdc/reports/.
+
+
+# example of unix command to run after qcdc
+echo DONE_WITH_QCDC_EXE_SCRAG_RECIPE
+

@@ -1,0 +1,516 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => ["+AW_CONTINUE_ON_ERROR", "+iosf_tracker_filename=iosf_trk", "-assert nopostproc", "+HQM_NO_PCIE_CONFIG_PHASE", 
+                     "+vcs+lic+wait",
+                     "+SLA_MAX_RUN_CLOCK=800000",
+                     "+SLA_USER_DATA_PHASE_TIMEOUT=800000",
+                     "+SLA_CONFIG_PHASE_TIMEOUT=200000",
+
+                     "+HQM_SKIP_AGITATE_SEQ_POST_CONFIG_PHASE", ##--Disable hw agitator config in POST_CONFIG_PHASE. Instead start agitation in the test.--##
+
+                     "+HQMS_DEBUG",
+                     "+HQMI_DEBUG",
+
+                     "+HQM_LSP_CQ_QID_CFG_CHECK_DIS",
+                     #"+HQM_EOT_RD_SEQ_ENABLE_CREDIT_CHECK",
+
+                     "+DIR_PP0_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP0_cq_token_return_burst_size=32",
+                     "+DIR_PP0_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP0_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP0_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP0_cq_token_return_enable_mean=1",
+                     "+DIR_PP0_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP0_cq_token_return_enable_min=1",
+                     "+DIR_PP0_cq_token_return_enable_max=1",
+                     "+DIR_PP0_cq_token_return_disable_mean=0",
+                     "+DIR_PP0_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP0_cq_token_return_disable_min=0",
+                     "+DIR_PP0_cq_token_return_disable_max=0",
+                     "+DIR_PP0_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP1_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP1_cq_token_return_burst_size=32",
+                     "+DIR_PP1_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP1_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP1_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP1_cq_token_return_enable_mean=1",
+                     "+DIR_PP1_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP1_cq_token_return_enable_min=1",
+                     "+DIR_PP1_cq_token_return_enable_max=1",
+                     "+DIR_PP1_cq_token_return_disable_mean=0",
+                     "+DIR_PP1_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP1_cq_token_return_disable_min=0",
+                     "+DIR_PP1_cq_token_return_disable_max=0",
+                     "+DIR_PP1_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP2_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP2_cq_token_return_burst_size=32",
+                     "+DIR_PP2_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP2_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP2_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP2_cq_token_return_enable_mean=1",
+                     "+DIR_PP2_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP2_cq_token_return_enable_min=1",
+                     "+DIR_PP2_cq_token_return_enable_max=1",
+                     "+DIR_PP2_cq_token_return_disable_mean=0",
+                     "+DIR_PP2_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP2_cq_token_return_disable_min=0",
+                     "+DIR_PP2_cq_token_return_disable_max=0",
+                     "+DIR_PP2_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP3_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP3_cq_token_return_burst_size=32",
+                     "+DIR_PP3_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP3_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP3_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP3_cq_token_return_enable_mean=1",
+                     "+DIR_PP3_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP3_cq_token_return_enable_min=1",
+                     "+DIR_PP3_cq_token_return_enable_max=1",
+                     "+DIR_PP3_cq_token_return_disable_mean=0",
+                     "+DIR_PP3_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP3_cq_token_return_disable_min=0",
+                     "+DIR_PP3_cq_token_return_disable_max=0",
+                     "+DIR_PP3_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP4_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP4_cq_token_return_burst_size=32",
+                     "+DIR_PP4_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP4_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP4_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP4_cq_token_return_enable_mean=1",
+                     "+DIR_PP4_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP4_cq_token_return_enable_min=1",
+                     "+DIR_PP4_cq_token_return_enable_max=1",
+                     "+DIR_PP4_cq_token_return_disable_mean=0",
+                     "+DIR_PP4_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP4_cq_token_return_disable_min=0",
+                     "+DIR_PP4_cq_token_return_disable_max=0",
+                     "+DIR_PP4_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP5_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP5_cq_token_return_burst_size=32",
+                     "+DIR_PP5_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP5_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP5_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP5_cq_token_return_enable_mean=1",
+                     "+DIR_PP5_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP5_cq_token_return_enable_min=1",
+                     "+DIR_PP5_cq_token_return_enable_max=1",
+                     "+DIR_PP5_cq_token_return_disable_mean=0",
+                     "+DIR_PP5_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP5_cq_token_return_disable_min=0",
+                     "+DIR_PP5_cq_token_return_disable_max=0",
+                     "+DIR_PP5_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP6_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP6_cq_token_return_burst_size=32",
+                     "+DIR_PP6_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP6_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP6_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP6_cq_token_return_enable_mean=1",
+                     "+DIR_PP6_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP6_cq_token_return_enable_min=1",
+                     "+DIR_PP6_cq_token_return_enable_max=1",
+                     "+DIR_PP6_cq_token_return_disable_mean=0",
+                     "+DIR_PP6_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP6_cq_token_return_disable_min=0",
+                     "+DIR_PP6_cq_token_return_disable_max=0",
+                     "+DIR_PP6_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP7_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP7_cq_token_return_burst_size=32",
+                     "+DIR_PP7_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP7_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP7_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP7_cq_token_return_enable_mean=1",
+                     "+DIR_PP7_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP7_cq_token_return_enable_min=1",
+                     "+DIR_PP7_cq_token_return_enable_max=1",
+                     "+DIR_PP7_cq_token_return_disable_mean=0",
+                     "+DIR_PP7_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP7_cq_token_return_disable_min=0",
+                     "+DIR_PP7_cq_token_return_disable_max=0",
+                     "+DIR_PP7_cq_token_return_sel_algorithm=fifo",
+
+ ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+      sec_2_1_1_3      => { -simv_args => ["",], },
+      short => {
+          -simv_args => [
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_num_hcw=128",
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_hcw_delay_min=4",
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_hcw_delay_max=8",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_num_hcw=64",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_hcw_delay_min=4",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_hcw_delay_max=20",
+                        ],
+      },
+      q8_vdev1 => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_vdev=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=8",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=8",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                     "+HQM_DISABLE_BACKGROUND_CFG_GEN_SEQ",
+                        ],
+      },
+
+      rtdr_taptrigger_1 => {
+          -simv_args => [
+                     ######
+                     #select which phase, default is before WARM_RESET_PHASE
+                     ######
+                     "+HAS_RTDR_TRIGGER_PHASE", 
+                     "+SLA_RTDR_TRIGGER_PHASE_TIMEOUT=800000",
+                     #"+HQM_RTDR_TRIGGER_PHASE_BEFORE=<>",
+
+                     ######
+                     #BUS
+                     ######
+                     "+EN_PLUS_ARG",     #
+                     "+TAP_CLK_EN",      #
+                     "+USE_HQM_TAP_RTDR_BUS=1", #
+
+                     ######
+                     #TapDataLoadSeq_T0
+                     ######
+                     "+has_tap_dataload_seq",           #sequence TapDataLoadSeq_T0 
+                     #program reg2 only for taptrigger
+                     "+has_rtdr_reg2_cfg_trigger", 
+                     "+HQM_RTDR_DATA2_0=0xbfffffff", #bit[30]=0 and bit[29:0] are three 10-bit trigger
+                     "+HQM_RTDR_DATA2_1=0x7fffffff", #bit[30]=1 
+
+                     #########
+                     "+hqm_trigger_seq_stim_config::trigger_on=1",
+                     "+hqm_trigger_seq_stim_config::skip_pmcsr_disable=0",
+                     "+hqm_trigger_seq_stim_config::issue_hw_reset_force_pwr_on=0",
+                        ],
+      },
+
+      rtdr_taptrigger_2 => {
+          -simv_args => [
+                     ######
+                     #select which phase, default is before WARM_RESET_PHASE
+                     ######
+                     "+HAS_RTDR_TRIGGER_PHASE", 
+                     "+SLA_RTDR_TRIGGER_PHASE_TIMEOUT=800000",
+                     #"+HQM_RTDR_TRIGGER_PHASE_BEFORE=<>",
+
+                     ######
+                     #BUS
+                     ######
+                     "+EN_PLUS_ARG",     #
+                     "+TAP_CLK_EN",      #
+                     "+USE_HQM_TAP_RTDR_BUS=1", #
+
+                     ######
+                     #TapDataLoadSeq_T0
+                     ######
+                     "+has_tap_dataload_seq",           #sequence TapDataLoadSeq_T0 
+                     #program reg2 only for taptrigger
+                     "+has_rtdr_reg2_cfg_trigger", 
+
+                     #program rtdr (taptrigger) bit[9:0] = 0x3ff as TRIG_IOSF mask, it works
+                     "+HQM_RTDR_DATA2_0=0xb00003ff", #bit[30]=0 and bit[29:0] are three 10-bit trigger
+                     "+HQM_RTDR_DATA2_1=0x400003ff", #bit[30]=1 
+
+                     #########
+                     "+hqm_trigger_seq_stim_config::trigger_on=1",
+                     "+hqm_trigger_seq_stim_config::skip_pmcsr_disable=0",
+                     "+hqm_trigger_seq_stim_config::issue_hw_reset_force_pwr_on=0",
+                        ],
+      },
+
+      rtdr_taptrigger_3 => {
+          -simv_args => [
+                     ######
+                     #select which phase, default is before WARM_RESET_PHASE
+                     ######
+                     "+HAS_RTDR_TRIGGER_PHASE", 
+                     "+SLA_RTDR_TRIGGER_PHASE_TIMEOUT=800000",
+                     #"+HQM_RTDR_TRIGGER_PHASE_BEFORE=<>",
+
+                     ######
+                     #BUS
+                     ######
+                     "+EN_PLUS_ARG",     #
+                     "+TAP_CLK_EN",      #
+                     "+USE_HQM_TAP_RTDR_BUS=1", #
+
+                     ######
+                     #TapDataLoadSeq_T0
+                     ######
+                     "+has_tap_dataload_seq",           #sequence TapDataLoadSeq_T0 
+                     #program reg2 only for taptrigger
+                     "+has_rtdr_reg2_cfg_trigger", 
+
+                     #program rtdr (taptrigger) once, it works
+                     "+HQM_RTDR_DATA2_0=0x80000000", #bit[30]=0 and bit[29:0] are three 10-bit trigger
+                     "+HQM_RTDR_DATA2_1=0x7fffffff", #bit[30]=1 
+
+                     #########
+                     "+hqm_trigger_seq_stim_config::trigger_on=1",
+                     "+hqm_trigger_seq_stim_config::skip_pmcsr_disable=0",
+                     "+hqm_trigger_seq_stim_config::issue_hw_reset_force_pwr_on=0",
+                        ],
+      },
+
+      rtdr_taptrigger_4 => {
+          -simv_args => [
+                     ######
+                     #select which phase, default is before WARM_RESET_PHASE
+                     ######
+                     "+HAS_RTDR_TRIGGER_PHASE", 
+                     "+SLA_RTDR_TRIGGER_PHASE_TIMEOUT=800000",
+                     #"+HQM_RTDR_TRIGGER_PHASE_BEFORE=<>",
+
+                     ######
+                     #BUS
+                     ######
+                     "+EN_PLUS_ARG",     #
+                     "+TAP_CLK_EN",      #
+                     "+USE_HQM_TAP_RTDR_BUS=1", #
+
+                     ######
+                     #TapDataLoadSeq_T0
+                     ######
+                     "+has_tap_dataload_seq",           #sequence TapDataLoadSeq_T0 
+                     #program reg2 only for taptrigger
+                     "+has_rtdr_reg2_cfg_trigger", 
+
+                     #program rtdr (taptrigger) bit[9:0] = 0x3ff as TRIG_IOSF mask, it works
+                     "+HQM_RTDR_DATA2_0=0x00000000", #bit[30]=0 and bit[29:0] are three 10-bit trigger
+                     "+HQM_RTDR_DATA2_1=0x00000001", #bit[30]=0 
+                     "+HQM_RTDR_DATA2_2=0x00000001", #bit[30]=0 
+                     "+HQM_RTDR_DATA2_3=0x40000001", #bit[30]=1 
+
+                     #########
+                     "+hqm_trigger_seq_stim_config::trigger_on=1",
+                     "+hqm_trigger_seq_stim_config::skip_pmcsr_disable=0",
+                     "+hqm_trigger_seq_stim_config::issue_hw_reset_force_pwr_on=0",
+                        ],
+      },
+
+
+      rtdr_taptrigger_iosf => {
+          -simv_args => [
+                     ######
+                     #select which phase, default is before WARM_RESET_PHASE
+                     ######
+                     "+HAS_RTDR_TRIGGER_PHASE", 
+                     "+SLA_RTDR_TRIGGER_PHASE_TIMEOUT=800000",
+                     #"+HQM_RTDR_TRIGGER_PHASE_BEFORE=<>",
+
+                     ######
+                     #BUS
+                     ######
+                     "+EN_PLUS_ARG",     #
+                     "+TAP_CLK_EN",      #
+                     "+USE_HQM_TAP_RTDR_BUS=1", #
+
+                     ######
+                     #TapDataLoadSeq_T0
+                     ######
+                     "+has_tap_dataload_seq",           #sequence TapDataLoadSeq_T0 
+                     #program reg2 only for taptrigger
+                     "+has_rtdr_reg2_cfg_trigger", 
+
+                     #program rtdr (taptrigger) bit[9:0] = 0x3ff as TRIG_IOSF mask, it works
+                     "+HQM_RTDR_DATA2_0=0xb0000000", #bit[30]=0 and bit[29:0] are three 10-bit trigger
+                     "+HQM_RTDR_DATA2_1=0x400003ff", #bit[30]=1 
+
+                     #########
+                     "+hqm_trigger_seq_stim_config::trigger_on=1",
+                     "+hqm_trigger_seq_stim_config::skip_pmcsr_disable=0",
+                     "+hqm_trigger_seq_stim_config::issue_hw_reset_force_pwr_on=0",
+
+                        ],
+      },
+
+      rtdr_taptrigger_pm0 => {
+          -simv_args => [
+                     ######
+                     #select which phase, default is before WARM_RESET_PHASE
+                     ######
+                     "+HAS_RTDR_TRIGGER_PHASE", 
+                     "+SLA_RTDR_TRIGGER_PHASE_TIMEOUT=800000",
+                     #"+HQM_RTDR_TRIGGER_PHASE_BEFORE=<>",
+
+                     ######
+                     #BUS
+                     ######
+                     "+EN_PLUS_ARG",     #
+                     "+TAP_CLK_EN",      #
+                     "+USE_HQM_TAP_RTDR_BUS=1", #
+
+                     ######
+                     #TapDataLoadSeq_T0
+                     ######
+                     "+has_tap_dataload_seq",           #sequence TapDataLoadSeq_T0 
+                     #program reg2 only for taptrigger
+                     "+has_rtdr_reg2_cfg_trigger", 
+
+                     #program rtdr (taptrigger) bit[9:0] = 0x3ff as TRIG_IOSF mask, it works
+                     "+HQM_RTDR_DATA2_0=0xb0000000", #bit[30]=0 and bit[29:0] are three 10-bit trigger
+                     "+HQM_RTDR_DATA2_1=0x403ff000", #bit[30]=1 
+
+                     #########
+                     "+hqm_trigger_seq_stim_config::trigger_on=1",
+                     "+hqm_trigger_seq_stim_config::skip_pmcsr_disable=0",
+                     "+hqm_trigger_seq_stim_config::issue_hw_reset_force_pwr_on=0",
+                        ],
+      },
+
+      rtdr_taptrigger_pm1 => {
+          -simv_args => [
+                     ######
+                     #select which phase, default is before WARM_RESET_PHASE
+                     ######
+                     "+HAS_RTDR_TRIGGER_PHASE", 
+                     "+SLA_RTDR_TRIGGER_PHASE_TIMEOUT=800000",
+                     #"+HQM_RTDR_TRIGGER_PHASE_BEFORE=<>",
+
+                     ######
+                     #BUS
+                     ######
+                     "+EN_PLUS_ARG",     #
+                     "+TAP_CLK_EN",      #
+                     "+USE_HQM_TAP_RTDR_BUS=1", #
+
+                     ######
+                     #TapDataLoadSeq_T0
+                     ######
+                     "+has_tap_dataload_seq",           #sequence TapDataLoadSeq_T0 
+                     #program reg2 only for taptrigger
+                     "+has_rtdr_reg2_cfg_trigger", 
+
+                     #program rtdr (taptrigger) bit[9:0] = 0x3ff as TRIG_IOSF mask, it works
+                     "+HQM_RTDR_DATA2_0=0xb0000000", #bit[30]=0 and bit[29:0] are three 10-bit trigger
+                     "+HQM_RTDR_DATA2_1=0x7ff00000", #bit[30]=1 
+
+                     #########
+                     "+hqm_trigger_seq_stim_config::trigger_on=1",
+                     "+hqm_trigger_seq_stim_config::skip_pmcsr_disable=0",
+                     "+hqm_trigger_seq_stim_config::issue_hw_reset_force_pwr_on=0",
+                        ],
+      },
+
+
+      ##################
+      ##hw_reset_force_pwr_on is moved from input port to RTDR.tapconfig bit 11
+      ##################
+      rtdr_tapconfig_force_pwr_on => {
+          -simv_args => [
+                     ######
+                     #select which phase, default is before WARM_RESET_PHASE
+                     ######
+                     "+HAS_RTDR_TRIGGER_PHASE", 
+                     "+SLA_RTDR_TRIGGER_PHASE_TIMEOUT=800000",
+                     #"+HQM_RTDR_TRIGGER_PHASE_BEFORE=<>",
+
+                     ######
+                     #BUS
+                     ######
+                     "+EN_PLUS_ARG",     #
+                     "+TAP_CLK_EN",      #
+                     "+USE_HQM_TAP_RTDR_BUS=1", #
+
+                     ######
+                     #TapDataLoadSeq_T0
+                     ######
+                     "+has_tap_dataload_seq",           #sequence TapDataLoadSeq_T0 
+                     #program reg1 only for tapconfig
+                     "+has_rtdr_reg1_cfg_force_pwr_on", 
+
+                     #########
+                     #program rtdr (tapconfig) bit11 
+                     "+HQM_RTDR_DATA1_0=0x00000000", #bit[11]=0 The rtdr bit which will now control the internal hw_reset_force_pwr_on signal is i_hqm_rtdr_tapconfig bit 11. 
+                     "+HQM_RTDR_DATA1_1=0x00000800", #bit[11]=1 
+                     "+HQM_RTDR_DATA1_2=0x00000800", #bit[11]=1 
+
+                     "+HQM_RTDR_DATA1_CFG_wait_0=100",
+                     "+HQM_RTDR_DATA1_CFG_wait_1=100",
+                     "+HQM_RTDR_DATA1_CFG_wait_2=100",
+
+                     #########
+                     "+hqm_trigger_seq_stim_config::trigger_on=0",
+                     "+hqm_trigger_seq_stim_config::issue_hw_reset_force_pwr_on=0",
+
+                        ],
+      },
+
+      rtdr_tapconfig_force_pwr_switch => {
+          -simv_args => [
+                     ######
+                     #select which phase, default is before WARM_RESET_PHASE
+                     ######
+                     "+HAS_RTDR_TRIGGER_PHASE", 
+                     "+SLA_RTDR_TRIGGER_PHASE_TIMEOUT=800000",
+                     #"+HQM_RTDR_TRIGGER_PHASE_BEFORE=<>",
+
+                     ######
+                     #BUS
+                     ######
+                     "+EN_PLUS_ARG",     #
+                     "+TAP_CLK_EN",      #
+                     "+USE_HQM_TAP_RTDR_BUS=1", #
+
+                     ######
+                     #TapDataLoadSeq_T0
+                     ######
+                     "+has_tap_dataload_seq",           #sequence TapDataLoadSeq_T0 
+                     #program reg1 only for tapconfig
+                     "+has_rtdr_reg1_cfg_force_pwr_on", 
+
+                     #########
+                     #program rtdr (tapconfig) bit11 
+                     "+HQM_RTDR_DATA1_0=0x00000800", #bit[11]=1 The rtdr bit which will now control the internal hw_reset_force_pwr_on signal is i_hqm_rtdr_tapconfig bit 11. 
+                     "+HQM_RTDR_DATA1_1=0x00000000", #bit[11]=0 
+                     "+HQM_RTDR_DATA1_2=0x00000800", #bit[11]=1 
+
+                     "+HQM_RTDR_DATA1_CFG_wait_0=100",
+                     "+HQM_RTDR_DATA1_CFG_wait_1=9000",
+                     "+HQM_RTDR_DATA1_CFG_wait_2=5000",
+
+                     #########
+                     "+hqm_trigger_seq_stim_config::trigger_on=0",
+                     "+hqm_trigger_seq_stim_config::issue_hw_reset_force_pwr_on=0",
+
+                        ],
+      },
+
+
+      pmcsr_disable => {
+          -simv_args => [
+                     ######
+                     "+hqm_trigger_seq_stim_config::skip_pmcsr_disable=0",
+                        ],
+      },
+
+      skip_pmcsr_disable => {
+          -simv_args => [
+                     ######
+                     "+hqm_trigger_seq_stim_config::skip_pmcsr_disable=1",
+                     "+hqm_pcie_init_stim_config::skip_pmcsr_disable=1",
+                     "+HQM_SKIP_PMCSR_DISABLE",  #keep pm_pmcsr_disable=1
+                        ],
+      },
+
+
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

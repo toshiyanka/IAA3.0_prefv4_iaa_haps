@@ -1,0 +1,111 @@
+idle 100
+# Good HCW
+HCW DIR:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302
+idle 100
+rd hqm_pf_cfg_i.device_status           0x00000010
+rd hqm_pf_cfg_i.pcie_cap_device_status  0x00000000
+rd hqm_pf_cfg_i.aer_cap_corr_err_status 0x00000000
+rd hqm_sif_csr.ri_parity_err            0x00000000
+rd hqm_sif_csr.ti_parity_err            0x00000000
+rd hqm_sif_csr.iosf_parity_err          0x00000000
+###HQMV30  rd hqm_sif_csr.phdr_rxq_fifo_status    0x00000010      # Empty
+rd hqm_system_csr.alarm_hw_synd         0x00000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000
+rd hqm_system_csr.msix_31_0_synd        0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.hqm_system_cnt_0      0x00000001      # Input     HCWs
+rd hqm_system_csr.hqm_system_cnt_2      0x00000001      # Output    HCWs
+rd hqm_system_csr.hqm_system_cnt_4      0x00000000      # Dropped   HCWs
+rd hqm_system_csr.hqm_system_cnt_6      0x00000001      # Scheduled HCWs
+rd hqm_system_csr.hqm_system_cnt_8      0x00000001      # SCH->WBUF HCWs
+rd hqm_system_csr.hqm_system_cnt_12     0x00000000      # MSIs
+rd hqm_system_csr.hqm_system_cnt_14     0x00000000      # MSI-Xs
+rd hqm_system_csr.hqm_system_cnt_16     0x00000001      # IOSF writes
+##################################################################################################################
+idle 100
+# Force posted header parity error
+force hqm_tb_top.u_hqm.i_hqm_sip.hqm_sip_aon_wrap.i_hqm_sif.i_hqm_sif_core.i_hqm_iosfp_core.i_hqm_iosf_rxq.phdr_rxq_fifo_pop_data.pcie64.at 1
+# Setting ingress drop because the scheduled hcw will get stuck because it looks like it has a parity error
+HCW DIR:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302 ingress_drop=1
+# The schedule write for this should cause an RXQ posted header parity error.
+# That will lock up the RXQ and prevent further mastering on IOSF primary.
+# Sideband should stil be accessible so that's why this is a sideband test
+idle 200
+rd hqm_sif_csr.ri_parity_err            0x00000000
+rd hqm_sif_csr.ti_parity_err            0x00000000
+rd hqm_sif_csr.iosf_parity_err          0x00000002
+rd hqm_sif_csr.iosf_alarm_err           0x00000040
+###HQMV30  rd hqm_sif_csr.phdr_rxq_fifo_status    0x00000200      # Bad hcw + MSI-X behind it
+rd hqm_system_csr.alarm_hw_synd         0x88068402      # v=1 src=2 unit=0 aid=6 cls=2 alarm=1 rid=ph_perr
+rd hqm_system_csr.alarm_pf_synd0        0x00000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_0      0x00000002      # Input     HCWs
+rd hqm_system_csr.hqm_system_cnt_2      0x00000002      # Output    HCWs
+rd hqm_system_csr.hqm_system_cnt_4      0x00000000      # Dropped   HCWs
+rd hqm_system_csr.hqm_system_cnt_6      0x00000002      # Scheduled HCWs
+rd hqm_system_csr.hqm_system_cnt_8      0x00000002      # SCH->WBUF HCWs
+rd hqm_system_csr.hqm_system_cnt_12     0x00000000      # MSIs
+rd hqm_system_csr.hqm_system_cnt_14     0x00000001      # MSI-Xs
+rd hqm_system_csr.hqm_system_cnt_16     0x00000003      # IOSF writes
+wr hqm_sif_csr.iosf_parity_err          0x00000002
+rd hqm_sif_csr.iosf_parity_err          0x00000000
+wr hqm_sif_csr.iosf_alarm_err           0x00000040
+rd hqm_sif_csr.iosf_alarm_err           0x00000000
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+rd hqm_system_csr.alarm_hw_synd         0x00000000  0x80000000
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000000
+wr hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_ack              0x00000000
+##################################################################################################################
+idle 100
+# Setting ingress drop because the scheduled hcw will get stuck behind errored hcw already stuck in the RXQ PH FIFO
+HCW DIR:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302 ingress_drop=1
+idle 200
+rd hqm_sif_csr.ri_parity_err            0x00000000
+rd hqm_sif_csr.ti_parity_err            0x00000000
+rd hqm_sif_csr.iosf_parity_err          0x00000000
+rd hqm_sif_csr.iosf_alarm_err           0x00000000
+###HQMV30  rd hqm_sif_csr.phdr_rxq_fifo_status    0x00000300      # 1 good hcw stuck behind other transactions
+rd hqm_system_csr.alarm_hw_synd         0x00000000  0x80000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000
+rd hqm_system_csr.msix_31_0_synd        0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.hqm_system_cnt_0      0x00000003      # Input     HCWs
+rd hqm_system_csr.hqm_system_cnt_2      0x00000003      # Output    HCWs
+rd hqm_system_csr.hqm_system_cnt_4      0x00000000      # Dropped   HCWs
+rd hqm_system_csr.hqm_system_cnt_6      0x00000003      # Scheduled HCWs
+rd hqm_system_csr.hqm_system_cnt_8      0x00000003      # SCH->WBUF HCWs
+rd hqm_system_csr.hqm_system_cnt_12     0x00000000      # MSIs
+rd hqm_system_csr.hqm_system_cnt_14     0x00000001      # MSI-Xs
+rd hqm_system_csr.hqm_system_cnt_16     0x00000004      # IOSF writes
+##################################################################################################################
+idle 100
+# Setting ingress drop because the scheduled hcw will get stuck behind errored hcw already stuck in the RXQ PH FIFO
+HCW DIR:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302 ingress_drop=1
+idle 200
+rd hqm_sif_csr.ri_parity_err            0x00000000
+rd hqm_sif_csr.ti_parity_err            0x00000000
+rd hqm_sif_csr.iosf_parity_err          0x00000000
+rd hqm_sif_csr.iosf_alarm_err           0x00000000
+###HQMV30 rd hqm_sif_csr.phdr_rxq_fifo_status    0x00000440      # 2 good hcws stuck behind other transactions, FIFO afull
+rd hqm_system_csr.alarm_hw_synd         0x00000000  0x80000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000
+rd hqm_system_csr.msix_31_0_synd        0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.hqm_system_cnt_0      0x00000004      # Input     HCWs
+rd hqm_system_csr.hqm_system_cnt_2      0x00000004      # Output    HCWs
+rd hqm_system_csr.hqm_system_cnt_4      0x00000000      # Dropped   HCWs
+rd hqm_system_csr.hqm_system_cnt_6      0x00000004      # Scheduled HCWs
+rd hqm_system_csr.hqm_system_cnt_8      0x00000004      # SCH->WBUF HCWs
+rd hqm_system_csr.hqm_system_cnt_12     0x00000000      # MSIs
+rd hqm_system_csr.hqm_system_cnt_14     0x00000001      # MSI-Xs
+rd hqm_system_csr.hqm_system_cnt_16     0x00000005      # IOSF writes
+##################################################################################################################
+HCW DIR:0 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x003 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302
+

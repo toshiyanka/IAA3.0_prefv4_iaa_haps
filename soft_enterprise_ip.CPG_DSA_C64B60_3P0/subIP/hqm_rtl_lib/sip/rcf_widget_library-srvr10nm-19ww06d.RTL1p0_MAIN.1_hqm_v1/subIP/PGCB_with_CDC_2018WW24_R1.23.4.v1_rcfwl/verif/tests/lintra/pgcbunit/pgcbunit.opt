@@ -1,0 +1,29 @@
+{
+    %opts = (
+        -static_check_top      => "lintra_pgcbunit_lib.pgcbunit",
+        -model                 => "lintra_tooltb",
+        -static_check_tools    => [ "lintra", ],
+        -static_check_cfg_file => [ "tools/lint/ace_static_check.lintra_pgcbunit.cfg", ],
+        -lintra_goal           => "lint",
+        -lintra_exe_opts => ["--report_rules :full:xml"],
+        -lira_exe_opts         => [
+            "-mfcu",
+            "-D INTEL_SVA_OFF",
+            " -bb modules:$ENV{MODEL_ROOT}/tools/lint/lintra_bb_list", 
+            #" -cfg $ENV{MODEL_ROOT}/tools/lint/lira_cfg/pgcb_lira_cfg.f", #ylai4: obsolete setup
+            "-I $ENV{MODEL_ROOT}/src/rtl/pgcbunit", 
+            # '-gp \'DEF_PWRON=0,ISOLLATCH_NOSR_EN=0,USE_DFX_SEQ=1\'',
+        ],
+        -post_process_pattern_file => "$ENV{ACE_HOME}/udf/ace_base_postsim.pp",
+        -lintra_waiver_files => [
+            "$ENV{MODEL_ROOT}/tools/lint/waivers/pwrmisc_pgcbunit_waivers.lwv",
+            "$ENV{MODEL_ROOT}/tools/lint/waivers/pwrmisc_pgcb_ctech_waivers.lwv", ],
+    );
+
+    %runModes = (
+        FLG => {
+            #  use `ace -show_lintra_goals' to get a list of available goals
+            -lintra_goal     =>  "flg",
+        },
+    );
+}

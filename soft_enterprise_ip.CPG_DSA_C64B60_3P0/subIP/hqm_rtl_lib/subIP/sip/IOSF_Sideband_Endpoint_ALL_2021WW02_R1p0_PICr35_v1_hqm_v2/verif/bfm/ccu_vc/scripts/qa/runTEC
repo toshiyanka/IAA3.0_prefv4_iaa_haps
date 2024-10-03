@@ -1,0 +1,54 @@
+#!/bin/tcsh -f
+# name: runTEC
+# date: <DATE>
+# auth: <AUTHOR>
+# desc: Timing exception checker
+# Status codes: 0=pass, 1-49=fail, 50=TBD, 60=N/A
+
+setenv SIP_QA_MODULE "Timing exceptions"
+
+#########################################
+# Define variables
+#########################################
+set SIP_TOOL_NAME=`echo $0 | sed -e 's/.*\///'`
+setenv SIP_PWD $cwd
+#if (! $?SIP_IP_NAME) then
+#  setenv SIP_IP_NAME psf
+#endif
+
+set flag=0
+#####################################################
+# UNIX Environment setup
+#####################################################
+cd ..
+if (! $?SIP_NO_SETUP) then
+#  source setup -ft
+endif
+
+#####################################################
+# Run commands
+#####################################################
+set status=50   # Default status = TBD
+# <COMMANDS>
+set exitStatus=$status
+
+#####################################################
+# Report
+#####################################################
+if ($?SIP_CREATE_REPORT) then
+endif
+
+#####################################################
+# Verification
+#####################################################
+if ($exitStatus == 50) then
+  echo "Note: $SIP_QA_MODULE TBD.  ($SIP_TOOL_NAME)"
+else if ($exitStatus == 60) then
+  echo "Note: $SIP_QA_MODULE N/A.  ($SIP_TOOL_NAME)"
+else if ($exitStatus) then
+  echo "Error: $SIP_QA_MODULE failed.  ($SIP_TOOL_NAME)"
+else
+  echo "Note: $SIP_QA_MODULE passed.  ($SIP_TOOL_NAME)"
+endif
+
+exit $exitStatus

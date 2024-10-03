@@ -1,0 +1,119 @@
+##############################################################
+# Setup
+# verify cq intruupt generated via threshold and timer  
+# timer:cq_timer_intr_thresh=10, cq_timer_intr_ena=1 
+# threshold:  cq_depth_intr_thresh=3 cq_depth_intr_ena=1
+# cq_isr_en_code= [0-disable; 1-VF, 2-PF]
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+  dir qid 0
+  dir qid 1 
+  dir qid 2 
+  dir qid 3 
+
+  dir qid 4
+  dir qid 5 
+  dir qid 6 
+  dir qid 7 
+
+  dir qid 8
+  dir qid 9 
+  dir qid 10
+  dir qid 11
+
+  dir qid 12
+  dir qid 13
+  dir qid 14
+  dir qid 15
+
+
+  vas VAS0:* credit_cnt=1024 dir_qidv0=1 dir_qidv1=1 dir_qidv2=1 dir_qidv3=1 dir_qidv4=1 dir_qidv5=1 dir_qidv6=1 dir_qidv7=1 dir_qidv8=1 dir_qidv9=1 dir_qidv10=1 dir_qidv11=1 dir_qidv12=1 dir_qidv13=1 dir_qidv14=1 dir_qidv15=1
+
+  dir pp 0  vas=VAS0 
+  dir pp 1  vas=VAS0 
+  dir pp 2  vas=VAS0 
+  dir pp 3  vas=VAS0 
+
+  dir pp 4  vas=VAS0 
+  dir pp 5  vas=VAS0 
+  dir pp 6  vas=VAS0 
+  dir pp 7  vas=VAS0 
+
+  dir pp 8  vas=VAS0 
+  dir pp 9  vas=VAS0 
+  dir pp 10 vas=VAS0 
+  dir pp 11 vas=VAS0 
+
+  dir pp 12 vas=VAS0 
+  dir pp 13 vas=VAS0 
+  dir pp 14 vas=VAS0 
+  dir pp 15 vas=VAS0 
+
+
+  ##VF+threshold on cq [0,3]
+  dir cq 0  gpa=sm cq_depth=16 cq_timer_intr_thresh=10  cq_timer_intr_ena=0 cq_depth_intr_thresh=3 cq_depth_intr_ena=1 cq_isr_en_code=1  cq_isr_vf=0
+  dir cq 1  gpa=sm cq_depth=16
+  dir cq 2  gpa=sm cq_depth=16
+  dir cq 3  gpa=sm cq_depth=16 cq_timer_intr_thresh=10  cq_timer_intr_ena=0 cq_depth_intr_thresh=3 cq_depth_intr_ena=1 cq_isr_en_code=1  cq_isr_vf=3
+  ##VF+timer on cq[4,5]
+  dir cq 4  gpa=sm cq_depth=16 cq_timer_intr_thresh=80  cq_timer_intr_ena=1 cq_depth_intr_thresh=3 cq_depth_intr_ena=0 cq_isr_en_code=1  cq_isr_vf=4
+  dir cq 5  gpa=sm cq_depth=16 cq_timer_intr_thresh=100 cq_timer_intr_ena=1 cq_depth_intr_thresh=3 cq_depth_intr_ena=0 cq_isr_en_code=1  cq_isr_vf=5
+  dir cq 6  gpa=sm cq_depth=16
+  dir cq 7  gpa=sm cq_depth=16
+
+  ##Disable+Thrshold+Timer > cq intr armed but no msi
+  dir cq 8  gpa=sm cq_depth=16 cq_timer_intr_thresh=80  cq_timer_intr_ena=1 cq_depth_intr_thresh=3 cq_depth_intr_ena=0 cq_isr_en_code=0  cq_isr_vf=8
+  dir cq 9  gpa=sm cq_depth=16 cq_timer_intr_thresh=100 cq_timer_intr_ena=1 cq_depth_intr_thresh=3 cq_depth_intr_ena=0 cq_isr_en_code=0  cq_isr_vf=9
+  dir cq 10 gpa=sm cq_depth=16 cq_timer_intr_thresh=10  cq_timer_intr_ena=0 cq_depth_intr_thresh=3 cq_depth_intr_ena=1 cq_isr_en_code=0  cq_isr_vf=10
+  dir cq 11 gpa=sm cq_depth=16 cq_timer_intr_thresh=10  cq_timer_intr_ena=0 cq_depth_intr_thresh=3 cq_depth_intr_ena=1 cq_isr_en_code=0  cq_isr_vf=11
+
+  ##VF+dis_Thrshold+dis_Timer > cq intr not armed ,no msi
+  dir cq 12 gpa=sm cq_depth=16 cq_timer_intr_thresh=10 cq_timer_intr_ena=0 cq_depth_intr_thresh=3 cq_depth_intr_ena=0 cq_isr_en_code=1  cq_isr_vf=12
+  dir cq 13 gpa=sm cq_depth=16 cq_timer_intr_thresh=10 cq_timer_intr_ena=0 cq_depth_intr_thresh=3 cq_depth_intr_ena=0 cq_isr_en_code=1  cq_isr_vf=13
+  dir cq 14 gpa=sm cq_depth=16 cq_timer_intr_thresh=10 cq_timer_intr_ena=0 cq_depth_intr_thresh=3 cq_depth_intr_ena=0 cq_isr_en_code=1  cq_isr_vf=14
+  dir cq 15 gpa=sm cq_depth=16 cq_timer_intr_thresh=10 cq_timer_intr_ena=0 cq_depth_intr_thresh=3 cq_depth_intr_ena=0 cq_isr_en_code=1  cq_isr_vf=15
+
+  ##cq0,3
+  vf 0 dir_vpp0_v=1 dir_vpp0_pp=0 dir_vqid0_v=1 dir_vqid0_qid=0 msi_enable=1 msi_multi_msg_en=5 msi_addr=0x22222220aaaaaa00 msi_data=0xa5a55a00 msi0_dir_vcq=0 
+  vf 1 dir_vpp1_v=1 dir_vpp1_pp=1 dir_vqid1_v=1 dir_vqid1_qid=1 msi_enable=1 msi_multi_msg_en=5 msi_addr=0x33333330aaaaaa10 msi_data=0x5a5a5a01 msi0_dir_vcq=1
+  vf 2 dir_vpp2_v=1 dir_vpp2_pp=2 dir_vqid2_v=1 dir_vqid2_qid=2 msi_enable=1 msi_multi_msg_en=5 msi_addr=0x33333330aaaaaa20 msi_data=0x5a5a5a02 msi0_dir_vcq=2
+  vf 3 dir_vpp3_v=1 dir_vpp3_pp=3 dir_vqid3_v=1 dir_vqid3_qid=3 msi_enable=1 msi_multi_msg_en=5 msi_addr=0x33333330aaaaaa30 msi_data=0x5a5a5a03 msi0_dir_vcq=3
+ 
+  vf 4 dir_vpp0_v=1 dir_vpp0_pp=4 dir_vqid0_v=1 dir_vqid0_qid=4 msi_enable=1 msi_multi_msg_en=5 msi_addr=0x22222220aaaaaa40 msi_data=0xa5a55a04 msi0_dir_vcq=0
+  vf 5 dir_vpp1_v=1 dir_vpp1_pp=5 dir_vqid1_v=1 dir_vqid1_qid=5 msi_enable=1 msi_multi_msg_en=5 msi_addr=0x33333330aaaaaa50 msi_data=0x5a5a5a05 msi0_dir_vcq=1
+  vf 6 dir_vpp2_v=1 dir_vpp2_pp=6 dir_vqid2_v=1 dir_vqid2_qid=6 msi_enable=1 msi_multi_msg_en=5 msi_addr=0x22222220aaaaaa60 msi_data=0xa5a55a06 msi0_dir_vcq=2
+  vf 7 dir_vpp3_v=1 dir_vpp3_pp=7 dir_vqid3_v=1 dir_vqid3_qid=7 msi_enable=1 msi_multi_msg_en=5 msi_addr=0x22222220aaaaaa70 msi_data=0xa5a55a07 msi0_dir_vcq=3
+
+  vf 8  dir_vpp4_v=1 dir_vpp4_pp=8  dir_vqid4_v=1 dir_vqid4_qid=8  msi_enable=1 msi_multi_msg_en=5 msi_addr=0x22222220aaaaaa80 msi_data=0xa5a55a08 msi0_dir_vcq=4
+  vf 9  dir_vpp5_v=1 dir_vpp5_pp=9  dir_vqid5_v=1 dir_vqid5_qid=9  msi_enable=1 msi_multi_msg_en=5 msi_addr=0x33333330aaaaaa90 msi_data=0x5a5a5a09 msi0_dir_vcq=5
+  vf 10 dir_vpp6_v=1 dir_vpp6_pp=10 dir_vqid6_v=1 dir_vqid6_qid=10 msi_enable=1 msi_multi_msg_en=5 msi_addr=0x33333330aaaaaaa0 msi_data=0x5a5a5a0a msi0_dir_vcq=6
+  vf 11 dir_vpp7_v=1 dir_vpp7_pp=11 dir_vqid7_v=1 dir_vqid7_qid=11 msi_enable=1 msi_multi_msg_en=5 msi_addr=0x33333330aaaaaab0 msi_data=0x5a5a5a0b msi0_dir_vcq=7
+
+  vf 12 dir_vpp4_v=1 dir_vpp4_pp=12 dir_vqid4_v=1 dir_vqid4_qid=12 msi_enable=1 msi_multi_msg_en=5 msi_addr=0x22222220aaaaaac0 msi_data=0xa5a55a0c msi0_dir_vcq=4
+  vf 13 dir_vpp5_v=1 dir_vpp5_pp=13 dir_vqid5_v=1 dir_vqid5_qid=13 msi_enable=1 msi_multi_msg_en=5 msi_addr=0x33333330aaaaaad0 msi_data=0x5a5a5a0d msi0_dir_vcq=5
+  vf 14 dir_vpp6_v=1 dir_vpp6_pp=14 dir_vqid6_v=1 dir_vqid6_qid=14 msi_enable=1 msi_multi_msg_en=5 msi_addr=0x33333330aaaaaae0 msi_data=0x5a5a5a0e msi0_dir_vcq=6
+  vf 15 dir_vpp7_v=1 dir_vpp7_pp=15 dir_vqid7_v=1 dir_vqid7_qid=15 msi_enable=1 msi_multi_msg_en=5 msi_addr=0x33333330aaaaaaf0 msi_data=0x5a5a5a0f msi0_dir_vcq=7
+cfg_end
+
+
+
+##configuration reg set only for cq for which inter en is set
+rd credit_hist_pipe.cfg_dir_cq_intr_armed0 0x0
+wr credit_hist_pipe.cfg_dir_cq_intr_armed0 0x0000FFFF
+rd credit_hist_pipe.cfg_dir_cq_intr_armed0 0x00000F39
+## Interrupt timer enable bit. &SAMPLE_INTERVAL required for timer intr case
+wr credit_hist_pipe.cfg_dir_cq_timer_ctl.enb 1
+wr credit_hist_pipe.cfg_dir_cq_timer_ctl.sample_interval 1
+rd credit_hist_pipe.cfg_dir_cq_timer_ctl.enb 1
+rd credit_hist_pipe.cfg_dir_cq_timer_ctl.sample_interval 1
+
+
+##ingress alarm enable
+rd hqm_system_csr.ingress_alarm_enable 0x00000000
+wr hqm_system_csr.ingress_alarm_enable 0xffffffff
+rd hqm_system_csr.ingress_alarm_enable 0x0000003f
+
+

@@ -1,0 +1,117 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => [
+            "+AW_CONTINUE_ON_ERROR", "+iosf_tracker_filename=iosf_trk", "-assert nopostproc", "+HQMS_DEBUG", "+HQMI_DEBUG", "+vcs+lic+wait",
+            ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+
+    %runModes = (
+
+      test0 => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ","+CFG_MEMWR_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+           "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mix_check.cft",
+           "+IOSF_PRI_FILE=mix_cfg_mem_seq",],
+      },
+
+
+
+       test1 => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ","+CFG_NPMEMWR_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+           "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mix_check.cft",
+           "+IOSF_PRI_FILE=mix_cfg_mem_seq",],
+      },
+
+      
+       test2 => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ","+MEM_CFGWR_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+           "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mix_check.cft",
+           "+IOSF_PRI_FILE=mix_mem_cfg_seq",],
+      },
+
+
+    
+       test3 => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ","+MEMRD_CFGWR_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+           "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mix_rd_check.cft",
+           "+IOSF_PRI_FILE=mix_mem_cfg_seq",],
+      },
+
+    
+    WRWR => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up_mem.cft",
+          "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+          "+IOSF_PRI_FILE=mix_generic_seq","+CFG_MODE=WRWR_rand",],
+      },
+
+       WWRR => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up_mem.cft",
+           "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+           "+IOSF_PRI_FILE=mix_generic_seq","+CFG_MODE=WWRR_addr",],
+      },
+
+       WWWR => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up_mem.cft",
+            "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+          "+IOSF_PRI_FILE=mix_generic_seq","+CFG_MODE=WWWR_addr",],
+      },
+      
+      WRRR => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up_mem.cft",
+            "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+          "+IOSF_PRI_FILE=mix_generic_seq","+CFG_MODE=WRRR_addr",],
+      },
+
+      PNPN => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up_mem.cft",
+          "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+          "+IOSF_PRI_FILE=mix_generic_seq1","+CFG_MODE=WRWR_rand",],
+      },
+
+       PPNN => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up_mem.cft",
+           "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+           "+IOSF_PRI_FILE=mix_generic_seq1","+CFG_MODE=WWRR_addr",],
+      },
+
+       PPPN => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up_mem.cft",
+            "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+          "+IOSF_PRI_FILE=mix_generic_seq1","+CFG_MODE=WWWR_addr",],
+      },
+      
+      PNNN => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up_mem.cft",
+            "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+          "+IOSF_PRI_FILE=mix_generic_seq1","+CFG_MODE=WRRR_addr",],
+      },
+
+
+
+
+    
+ 
+         );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+
+  }
+
+

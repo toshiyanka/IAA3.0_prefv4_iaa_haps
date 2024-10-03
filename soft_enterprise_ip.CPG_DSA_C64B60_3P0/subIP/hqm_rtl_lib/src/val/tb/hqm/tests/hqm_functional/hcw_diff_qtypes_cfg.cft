@@ -1,0 +1,20 @@
+###################################
+# Setup LUTs used by HCWs
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+  dir qid DQ_A:*
+  ldb qid LQ:* fid_cfg_v=1
+  vas VS:* ldb_qidv:LQ=1 dir_qidv:DQ_A=1 credit_cnt=100
+
+  dir pp DQ_A  vas=VS 
+  dir cq DQ_A  cq_depth=512 gpa=sm
+
+  ldb pp PP:* vas=VS 
+  ldb cq PP   gpa=sm qidv0=1 qidix0=LQ
+
+cfg_end
+
+rd hqm_pf_cfg_i.vendor_id

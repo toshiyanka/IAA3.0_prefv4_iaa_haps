@@ -1,0 +1,511 @@
+idle 100
+###################################################################################
+# Data Mover should have generated 2 prefetch reads which should be held in the egress DB
+rd hqm_system_csr.ingress_db_status.dmv_ar_db_depth         2
+rd hqm_system_csr.hqm_system_cnt_12                         0x00000002
+# Release first prefetch read
+wr hqm_system_csr.egress_ctl.single_step_np                 1
+wr hqm_system_csr.egress_ctl.single_step_np                 0
+rd hqm_system_csr.ingress_db_status.dmv_ar_db_depth         1
+rd hqm_system_csr.hqm_system_cnt_12                         0x00000002
+# Release second prefetch read
+wr hqm_system_csr.egress_ctl.single_step_np                 1
+wr hqm_system_csr.egress_ctl.single_step_np                 0
+rd hqm_system_csr.ingress_db_status.dmv_ar_db_depth         0
+rd hqm_system_csr.hqm_system_cnt_12                         0x00000002
+# First 2 prefetch completions should be held in ingress DBs and FIFOs (4 beats total)
+rd hqm_system_csr.ingress_db_status.dmv_r_db_depth          2
+rd hqm_system_csr.cmpl_hdr_fifo_status.depth                1
+rd hqm_system_csr.cmpl_data_fifo_status.depth               1
+rd hqm_system_csr.hqm_system_cnt_8                          0x00000002
+rd hqm_system_csr.hqm_system_cnt_10                         0x00000000
+rd hqm_system_csr.dm_cmpl_stat_debug                        0x00000000
+rd hqm_system_csr.dm_cmpl_data_debug[0]                     0x7d440000
+rd hqm_system_csr.dm_cmpl_data_debug[1]                     0x0000000e
+rd hqm_system_csr.dm_cmpl_data_debug[2]                     0x7d440100
+rd hqm_system_csr.dm_cmpl_data_debug[3]                     0x0000000e
+rd hqm_system_csr.dm_cmpl_data_debug[4]                     0x7d440200
+rd hqm_system_csr.dm_cmpl_data_debug[5]                     0x0000000e
+rd hqm_system_csr.dm_cmpl_data_debug[6]                     0x7d440300
+rd hqm_system_csr.dm_cmpl_data_debug[7]                     0x0000000e
+# Release first prefetch completion word 0
+wr hqm_system_csr.ingress_ctl.single_step_cmpl              1
+wr hqm_system_csr.ingress_ctl.single_step_cmpl              0
+rd hqm_system_csr.ingress_db_status.dmv_r_db_depth          2
+rd hqm_system_csr.cmpl_hdr_fifo_status.depth                0
+rd hqm_system_csr.cmpl_data_fifo_status.depth               0
+rd hqm_system_csr.hqm_system_cnt_8                          0x00000002
+rd hqm_system_csr.hqm_system_cnt_10                         0x00000001
+rd hqm_system_csr.dm_cmpl_stat_debug                        0x00000400
+rd hqm_system_csr.dm_cmpl_data_debug[0]                     0x7d440400
+rd hqm_system_csr.dm_cmpl_data_debug[1]                     0x0000000e
+rd hqm_system_csr.dm_cmpl_data_debug[2]                     0x7d440500
+rd hqm_system_csr.dm_cmpl_data_debug[3]                     0x0000000e
+rd hqm_system_csr.dm_cmpl_data_debug[4]                     0x7d440600
+rd hqm_system_csr.dm_cmpl_data_debug[5]                     0x0000000e
+rd hqm_system_csr.dm_cmpl_data_debug[6]                     0x7d440700
+rd hqm_system_csr.dm_cmpl_data_debug[7]                     0x0000000e
+# Release first prefetch completion word 1
+wr hqm_system_csr.ingress_ctl.single_step_cmpl              1
+wr hqm_system_csr.ingress_ctl.single_step_cmpl              0
+rd hqm_system_csr.ingress_db_status.dmv_r_db_depth          2
+rd hqm_system_csr.cmpl_hdr_fifo_status.depth                0
+rd hqm_system_csr.cmpl_data_fifo_status.depth               0
+rd hqm_system_csr.hqm_system_cnt_8                          0x00000002
+rd hqm_system_csr.hqm_system_cnt_10                         0x00000002
+rd hqm_system_csr.dm_cmpl_stat_debug                        0x00000001
+rd hqm_system_csr.dm_cmpl_data_debug[0]                     0x82bb0000
+rd hqm_system_csr.dm_cmpl_data_debug[1]                     0x00000001
+rd hqm_system_csr.dm_cmpl_data_debug[2]                     0x82bb0800
+rd hqm_system_csr.dm_cmpl_data_debug[3]                     0x00000001
+rd hqm_system_csr.dm_cmpl_data_debug[4]                     0x82bb1000
+rd hqm_system_csr.dm_cmpl_data_debug[5]                     0x00000001
+rd hqm_system_csr.dm_cmpl_data_debug[6]                     0x82bb1800
+rd hqm_system_csr.dm_cmpl_data_debug[7]                     0x00000001
+# Release second prefetch completion word 0
+wr hqm_system_csr.ingress_ctl.single_step_cmpl              1
+wr hqm_system_csr.ingress_ctl.single_step_cmpl              0
+rd hqm_system_csr.ingress_db_status.dmv_r_db_depth          1
+rd hqm_system_csr.cmpl_hdr_fifo_status.depth                0
+rd hqm_system_csr.cmpl_data_fifo_status.depth               0
+rd hqm_system_csr.hqm_system_cnt_10                         0x00000003
+rd hqm_system_csr.dm_cmpl_stat_debug                        0x00000401
+rd hqm_system_csr.dm_cmpl_data_debug[0]                     0x82bb2000
+rd hqm_system_csr.dm_cmpl_data_debug[1]                     0x00000001
+rd hqm_system_csr.dm_cmpl_data_debug[2]                     0x82bb2800
+rd hqm_system_csr.dm_cmpl_data_debug[3]                     0x00000001
+rd hqm_system_csr.dm_cmpl_data_debug[4]                     0x82bb3000
+rd hqm_system_csr.dm_cmpl_data_debug[5]                     0x00000001
+rd hqm_system_csr.dm_cmpl_data_debug[6]                     0x82bb3800
+rd hqm_system_csr.dm_cmpl_data_debug[7]                     0x00000001
+# Release second prefetch completion word 1
+wr hqm_system_csr.ingress_ctl.single_step_cmpl              1
+wr hqm_system_csr.ingress_ctl.single_step_cmpl              0
+rd hqm_system_csr.ingress_db_status.dmv_r_db_depth          0
+###################################################################################
+# Data mover should have generated 2 more prefetches which are held in the egress DB
+rd hqm_system_csr.ingress_db_status.dmv_ar_db_depth         2
+rd hqm_system_csr.hqm_system_cnt_12                         0x00000004
+# Release third prefetch read
+wr hqm_system_csr.egress_ctl.single_step_np                 1
+wr hqm_system_csr.egress_ctl.single_step_np                 0
+rd hqm_system_csr.ingress_db_status.dmv_ar_db_depth         1
+rd hqm_system_csr.hqm_system_cnt_12                         0x00000004
+# Release fourth prefetch read
+wr hqm_system_csr.egress_ctl.single_step_np                 1
+wr hqm_system_csr.egress_ctl.single_step_np                 0
+rd hqm_system_csr.ingress_db_status.dmv_ar_db_depth         0
+rd hqm_system_csr.hqm_system_cnt_12                         0x00000004
+# Last 2 prefetch completions should be held in ingress DBs and FIFOs (4 beats total)
+rd hqm_system_csr.ingress_db_status.dmv_r_db_depth          2
+rd hqm_system_csr.cmpl_hdr_fifo_status.depth                1
+rd hqm_system_csr.cmpl_data_fifo_status.depth               1
+rd hqm_system_csr.hqm_system_cnt_8                          0x00000004
+rd hqm_system_csr.hqm_system_cnt_10                         0x00000004
+rd hqm_system_csr.dm_cmpl_stat_debug                        0x00000000
+rd hqm_system_csr.dm_cmpl_data_debug[0]                     0x7d440800
+rd hqm_system_csr.dm_cmpl_data_debug[1]                     0x0000000e
+rd hqm_system_csr.dm_cmpl_data_debug[2]                     0x7d440900
+rd hqm_system_csr.dm_cmpl_data_debug[3]                     0x0000000e
+rd hqm_system_csr.dm_cmpl_data_debug[4]                     0x7d440a00
+rd hqm_system_csr.dm_cmpl_data_debug[5]                     0x0000000e
+rd hqm_system_csr.dm_cmpl_data_debug[6]                     0x7d440b00
+rd hqm_system_csr.dm_cmpl_data_debug[7]                     0x0000000e
+# Release third prefetch completion word 0
+wr hqm_system_csr.ingress_ctl.single_step_cmpl              1
+wr hqm_system_csr.ingress_ctl.single_step_cmpl              0
+rd hqm_system_csr.ingress_db_status.dmv_r_db_depth          2
+rd hqm_system_csr.cmpl_hdr_fifo_status.depth                0
+rd hqm_system_csr.cmpl_data_fifo_status.depth               0
+rd hqm_system_csr.hqm_system_cnt_8                          0x00000004
+rd hqm_system_csr.hqm_system_cnt_10                         0x00000005
+rd hqm_system_csr.dm_cmpl_stat_debug                        0x00000400
+rd hqm_system_csr.dm_cmpl_data_debug[0]                     0x7d440c00
+rd hqm_system_csr.dm_cmpl_data_debug[1]                     0x0000000e
+rd hqm_system_csr.dm_cmpl_data_debug[2]                     0x7d440d00
+rd hqm_system_csr.dm_cmpl_data_debug[3]                     0x0000000e
+rd hqm_system_csr.dm_cmpl_data_debug[4]                     0x7d440e00
+rd hqm_system_csr.dm_cmpl_data_debug[5]                     0x0000000e
+rd hqm_system_csr.dm_cmpl_data_debug[6]                     0x7d440f00
+rd hqm_system_csr.dm_cmpl_data_debug[7]                     0x0000000e
+# Release third prefetch completion word 1
+wr hqm_system_csr.ingress_ctl.single_step_cmpl              1
+wr hqm_system_csr.ingress_ctl.single_step_cmpl              0
+rd hqm_system_csr.ingress_db_status.dmv_r_db_depth          2
+rd hqm_system_csr.cmpl_hdr_fifo_status.depth                0
+rd hqm_system_csr.cmpl_data_fifo_status.depth               0
+rd hqm_system_csr.hqm_system_cnt_8                          0x00000004
+rd hqm_system_csr.hqm_system_cnt_10                         0x00000006
+rd hqm_system_csr.dm_cmpl_stat_debug                        0x00000001
+rd hqm_system_csr.dm_cmpl_data_debug[0]                     0x82bb4000
+rd hqm_system_csr.dm_cmpl_data_debug[1]                     0x00000001
+rd hqm_system_csr.dm_cmpl_data_debug[2]                     0x82bb4800
+rd hqm_system_csr.dm_cmpl_data_debug[3]                     0x00000001
+rd hqm_system_csr.dm_cmpl_data_debug[4]                     0x82bb5000
+rd hqm_system_csr.dm_cmpl_data_debug[5]                     0x00000001
+rd hqm_system_csr.dm_cmpl_data_debug[6]                     0x82bb5800
+rd hqm_system_csr.dm_cmpl_data_debug[7]                     0x00000001
+# Release fourth prefetch completion word 0
+wr hqm_system_csr.ingress_ctl.single_step_cmpl              1
+wr hqm_system_csr.ingress_ctl.single_step_cmpl              0
+rd hqm_system_csr.ingress_db_status.dmv_r_db_depth          1
+rd hqm_system_csr.cmpl_hdr_fifo_status.depth                0
+rd hqm_system_csr.cmpl_data_fifo_status.depth               0
+rd hqm_system_csr.hqm_system_cnt_10                         0x00000007
+rd hqm_system_csr.dm_cmpl_stat_debug                        0x00000401
+rd hqm_system_csr.dm_cmpl_data_debug[0]                     0x82bb6000
+rd hqm_system_csr.dm_cmpl_data_debug[1]                     0x00000001
+rd hqm_system_csr.dm_cmpl_data_debug[2]                     0x82bb6800
+rd hqm_system_csr.dm_cmpl_data_debug[3]                     0x00000001
+rd hqm_system_csr.dm_cmpl_data_debug[4]                     0x82bb7000
+rd hqm_system_csr.dm_cmpl_data_debug[5]                     0x00000001
+rd hqm_system_csr.dm_cmpl_data_debug[6]                     0x82bb7800
+rd hqm_system_csr.dm_cmpl_data_debug[7]                     0x00000001
+# Release fourth prefetch completion word 2
+wr hqm_system_csr.ingress_ctl.single_step_cmpl              1
+wr hqm_system_csr.ingress_ctl.single_step_cmpl              0
+rd hqm_system_csr.ingress_db_status.dmv_r_db_depth          0
+rd hqm_system_csr.cmpl_hdr_fifo_status.depth                0
+rd hqm_system_csr.cmpl_data_fifo_status.depth               0
+rd hqm_system_csr.hqm_system_cnt_10                         0x00000008
+###################################################################################
+# Prefetching complete - Send 3 HCWs to DIR QID 65 through DM to LDB QID 0
+HCW LDB:0 dsi=0x0100 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x0000 msgtype=0 qpri=0 qtype=dir qid=64 ptr=0x0000000000001000
+HCW LDB:0 dsi=0x0100 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x0000 msgtype=0 qpri=0 qtype=dir qid=64 ptr=0x0000000000002000
+HCW LDB:0 dsi=0x0100 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x0000 msgtype=0 qpri=0 qtype=dir qid=64 ptr=0x0000000000003000
+idle 100
+# HCWs will be held up in the hcw_enq FIFO
+rd hqm_system_csr.hcw_enq_fifo_status.depth                 3
+rd hqm_system_csr.ingress_db_status.hcw_enq_aw_db_depth     0
+rd hqm_system_csr.ingress_db_status.hcw_enq_w_db_depth      0
+# Release first HCW and it should be held up in the hcw_enq double buffer
+wr hqm_system_csr.ingress_ctl.single_step_enq               1
+wr hqm_system_csr.ingress_ctl.single_step_enq               0
+rd hqm_system_csr.hcw_enq_fifo_status.depth                 2
+rd hqm_system_csr.ingress_db_status.hcw_enq_aw_db_depth     1
+rd hqm_system_csr.ingress_db_status.hcw_enq_w_db_depth      1
+rd hqm_system_csr.hcw_req_debug                             0x00020000
+rd hqm_system_csr.hqm_hcw_data_debug[0]                     0x00001000
+rd hqm_system_csr.hqm_hcw_data_debug[1]                     0x00000000
+rd hqm_system_csr.hqm_hcw_data_debug[2]                     0x03400100
+rd hqm_system_csr.hqm_hcw_data_debug[3]                     0x08000000
+# Release second HCW and it should be held up in the hcw_enq double buffer
+wr hqm_system_csr.ingress_ctl.single_step_enq               1
+wr hqm_system_csr.ingress_ctl.single_step_enq               0
+rd hqm_system_csr.hcw_enq_fifo_status.depth                 1
+rd hqm_system_csr.ingress_db_status.hcw_enq_aw_db_depth     2
+rd hqm_system_csr.ingress_db_status.hcw_enq_w_db_depth      2
+rd hqm_system_csr.ingress_status                            0x00000000
+rd hqm_system_csr.hcw_req_debug                             0x00020000
+rd hqm_system_csr.hqm_hcw_data_debug[0]                     0x00001000
+rd hqm_system_csr.hqm_hcw_data_debug[1]                     0x00000000
+rd hqm_system_csr.hqm_hcw_data_debug[2]                     0x03400100
+rd hqm_system_csr.hqm_hcw_data_debug[3]                     0x08000000
+# Release third HCW and it should be held up in the last stage of the ingress pipeline
+wr hqm_system_csr.ingress_ctl                               0x0002001e
+rd hqm_system_csr.hcw_enq_fifo_status.depth                 0
+rd hqm_system_csr.ingress_db_status.hcw_enq_aw_db_depth     2
+rd hqm_system_csr.ingress_db_status.hcw_enq_w_db_depth      2
+rd hqm_system_csr.ingress_status                            0x00000100
+rd hqm_system_csr.hcw_req_debug                             0x00020000
+rd hqm_system_csr.hqm_hcw_data_debug[0]                     0x00001000
+rd hqm_system_csr.hqm_hcw_data_debug[1]                     0x00000000
+rd hqm_system_csr.hqm_hcw_data_debug[2]                     0x03400100
+rd hqm_system_csr.hqm_hcw_data_debug[3]                     0x08000000
+# Release first HCW to the hqm_core
+wr hqm_system_csr.ingress_ctl                               0x00020c1e
+wr hqm_system_csr.ingress_ctl                               0x0002001e
+rd hqm_system_csr.ingress_db_status.hcw_enq_aw_db_depth     2
+rd hqm_system_csr.ingress_db_status.hcw_enq_w_db_depth      2
+rd hqm_system_csr.ingress_status                            0x00000000
+rd hqm_system_csr.hcw_req_debug                             0x00020000
+rd hqm_system_csr.hqm_hcw_data_debug[0]                     0x00002000
+rd hqm_system_csr.hqm_hcw_data_debug[1]                     0x00000000
+rd hqm_system_csr.hqm_hcw_data_debug[2]                     0x03400100
+rd hqm_system_csr.hqm_hcw_data_debug[3]                     0x08000000
+# Release second HCW to the hqm_core
+wr hqm_system_csr.ingress_ctl                               0x00020c1e
+wr hqm_system_csr.ingress_ctl                               0x0002001e
+rd hqm_system_csr.ingress_db_status.hcw_enq_aw_db_depth     1
+rd hqm_system_csr.ingress_db_status.hcw_enq_w_db_depth      1
+rd hqm_system_csr.hcw_req_debug                             0x00020000
+rd hqm_system_csr.hqm_hcw_data_debug[0]                     0x00003000
+rd hqm_system_csr.hqm_hcw_data_debug[1]                     0x00000000
+rd hqm_system_csr.hqm_hcw_data_debug[2]                     0x03400100
+rd hqm_system_csr.hqm_hcw_data_debug[3]                     0x08000000
+# Release third HCW to the hqm_core
+wr hqm_system_csr.ingress_ctl                               0x00020012
+rd hqm_system_csr.ingress_db_status.hcw_enq_aw_db_depth     0
+rd hqm_system_csr.ingress_db_status.hcw_enq_w_db_depth      0
+###################################################################################
+# HCWs should have generated a push_ptr update
+# Push pointer write should be held in DB
+rd hqm_system_csr.egress_db_status.push_ptr_aw_db_depth     1
+rd hqm_system_csr.egress_db_status.push_ptr_w_db_depth      2
+rd hqm_system_csr.pp_req_debug                              0x00050003
+rd hqm_system_csr.pp_data_debug[0]                          0x00000035
+rd hqm_system_csr.pp_data_debug[1]                          0x00000000
+rd hqm_system_csr.pp_data_debug[2]                          0x00000000
+rd hqm_system_csr.pp_data_debug[3]                          0x00000000
+rd hqm_system_csr.pptr_data_fifo_status.depth               0
+# Let the push pointer write and first data word through
+wr hqm_system_csr.egress_ctl                                0x000001cf
+wr hqm_system_csr.egress_ctl                                0x0000010f
+rd hqm_system_csr.egress_db_status.push_ptr_aw_db_depth     0
+rd hqm_system_csr.egress_db_status.push_ptr_w_db_depth      2
+rd hqm_system_csr.pp_data_debug[0]                          0x00000000
+rd hqm_system_csr.pp_data_debug[1]                          0x00000000
+rd hqm_system_csr.pp_data_debug[2]                          0x00000000
+rd hqm_system_csr.pp_data_debug[3]                          0x00000000
+rd hqm_system_csr.pptr_data_fifo_status.depth               1
+# Let the push pointer second data word through
+wr hqm_system_csr.egress_ctl                                0x0000014f
+wr hqm_system_csr.egress_ctl                                0x0000010f
+rd hqm_system_csr.egress_db_status.push_ptr_aw_db_depth     0
+rd hqm_system_csr.egress_db_status.push_ptr_w_db_depth      2
+rd hqm_system_csr.pp_data_debug[0]                          0x00000000
+rd hqm_system_csr.pp_data_debug[1]                          0x00000000
+rd hqm_system_csr.pp_data_debug[2]                          0x00000000
+rd hqm_system_csr.pp_data_debug[3]                          0x00000000
+rd hqm_system_csr.pptr_data_fifo_status.depth               2
+# Let the push pointer third data word through
+wr hqm_system_csr.egress_ctl                                0x0000014f
+wr hqm_system_csr.egress_ctl                                0x0000010f
+rd hqm_system_csr.egress_db_status.push_ptr_aw_db_depth     0
+rd hqm_system_csr.egress_db_status.push_ptr_w_db_depth      1
+rd hqm_system_csr.pp_data_debug[0]                          0x00000000
+rd hqm_system_csr.pp_data_debug[1]                          0x00000000
+rd hqm_system_csr.pp_data_debug[2]                          0x00000000
+rd hqm_system_csr.pp_data_debug[3]                          0x00000000
+rd hqm_system_csr.pptr_data_fifo_status.depth               3
+# Let the push pointer last data word through
+wr hqm_system_csr.egress_ctl                                0x00000103
+rd hqm_system_csr.egress_db_status.push_ptr_aw_db_depth     0
+rd hqm_system_csr.egress_db_status.push_ptr_w_db_depth      0
+rd hqm_system_csr.pptr_data_fifo_status.depth               4
+# Push pointer write should be held in write buffer arb
+rd hqm_system_csr.hqm_system_cnt_36                         0x00000000
+rd hqm_system_csr.hqm_system_cnt_30                         0x00000000
+# Let the push pointer write out to the IOSF
+wr hqm_system_csr.write_buffer_ctl.single_step_pptr         1
+wr hqm_system_csr.write_buffer_ctl.single_step_pptr         0
+rd hqm_system_csr.pptr_data_fifo_status.depth               0
+rd hqm_system_csr.hqm_system_cnt_36                         0x00000001
+rd hqm_system_csr.hqm_system_cnt_30                         0x00000002
+###################################################################################
+# All 3 scheduled HCWs should now be queued up to the DMV
+rd hqm_system_csr.egress_status                             0x40400c20  # p5_hw_dsi, p5_hcw_v, sch_p5_v
+rd hqm_system_csr.egress_db_status.dmv_enq_w_db_depth       2
+rd hqm_system_csr.dmv_hcw_debug                             0x00000000
+rd hqm_system_csr.dmv_hcw_data_debug[0]                     0x00001000
+rd hqm_system_csr.dmv_hcw_data_debug[1]                     0x00000000
+rd hqm_system_csr.dmv_hcw_data_debug[2]                     0x00000100
+rd hqm_system_csr.dmv_hcw_data_debug[3]                     0x01000400
+rd hqm_system_csr.hqm_system_cnt_8                          0x00000004
+rd hqm_system_csr.hqm_system_cnt_10                         0x00000008
+rd hqm_system_csr.hqm_system_cnt_12                         0x00000004
+wr hqm_system_csr.write_buffer_ctl.arb_pptr_mask            0
+# Release first HCW to DMV
+wr hqm_system_csr.egress_ctl.single_step_hcw                1
+wr hqm_system_csr.egress_ctl.single_step_hcw                0
+rd hqm_system_csr.egress_status.sch_p5_v                    0
+rd hqm_system_csr.egress_db_status.dmv_enq_w_db_depth       2
+rd hqm_system_csr.dmv_hcw_debug                             0x00000000
+rd hqm_system_csr.dmv_hcw_data_debug[0]                     0x00002000
+rd hqm_system_csr.dmv_hcw_data_debug[1]                     0x00000000
+rd hqm_system_csr.dmv_hcw_data_debug[2]                     0x00000100
+rd hqm_system_csr.dmv_hcw_data_debug[3]                     0x01000400
+# Release second HCW to DMV
+wr hqm_system_csr.egress_ctl.single_step_hcw                1
+wr hqm_system_csr.egress_ctl.single_step_hcw                0
+rd hqm_system_csr.egress_db_status.dmv_enq_w_db_depth       1
+rd hqm_system_csr.dmv_hcw_debug                             0x00000000
+rd hqm_system_csr.dmv_hcw_data_debug[0]                     0x00003000
+rd hqm_system_csr.dmv_hcw_data_debug[1]                     0x00000000
+rd hqm_system_csr.dmv_hcw_data_debug[2]                     0x00000100
+rd hqm_system_csr.dmv_hcw_data_debug[3]                     0x01000400
+# Release third HCW to DMV
+wr hqm_system_csr.egress_ctl.hold_hcw                       0
+rd hqm_system_csr.egress_db_status.dmv_enq_w_db_depth       0
+###################################################################################
+# Data mover reads should be held in egress DB
+rd hqm_system_csr.ingress_db_status.dmv_ar_db_depth         2
+rd hqm_system_csr.hqm_system_cnt_12                         0x00000006
+# Release first DMV read 
+wr hqm_system_csr.egress_ctl.single_step_np                 1
+wr hqm_system_csr.egress_ctl.single_step_np                 0
+rd hqm_system_csr.ingress_db_status.dmv_ar_db_depth         2
+rd hqm_system_csr.hqm_system_cnt_12                         0x00000007
+# Completion should be held in ingress DB
+rd hqm_system_csr.ingress_db_status.dmv_r_db_depth          1
+rd hqm_system_csr.dm_cmpl_stat_debug                        0x00000400
+rd hqm_system_csr.dm_cmpl_data_debug[0]                     0xaabb0000
+rd hqm_system_csr.dm_cmpl_data_debug[1]                     0x00000040
+rd hqm_system_csr.dm_cmpl_data_debug[2]                     0x00000000
+rd hqm_system_csr.dm_cmpl_data_debug[3]                     0x00000000
+rd hqm_system_csr.dm_cmpl_data_debug[4]                     0x00000000
+rd hqm_system_csr.dm_cmpl_data_debug[5]                     0x80000040
+rd hqm_system_csr.dm_cmpl_data_debug[6]                     0x00000000
+rd hqm_system_csr.dm_cmpl_data_debug[7]                     0x00000010
+# Release last 2 DMV reads
+wr hqm_system_csr.egress_ctl.hold_np                        0
+rd hqm_system_csr.ingress_db_status.dmv_ar_db_depth         0
+rd hqm_system_csr.ingress_db_status.dmv_r_db_depth          2
+rd hqm_system_csr.hqm_system_cnt_12                         0x00000007
+# Release first completion
+wr hqm_system_csr.ingress_ctl.single_step_cmpl              1
+wr hqm_system_csr.ingress_ctl.single_step_cmpl              0
+rd hqm_system_csr.ingress_db_status.dmv_r_db_depth          2
+rd hqm_system_csr.hqm_system_cnt_10                         0x00000009
+rd hqm_system_csr.dm_cmpl_stat_debug                        0x00000401
+rd hqm_system_csr.dm_cmpl_data_debug[0]                     0xaabb0000
+rd hqm_system_csr.dm_cmpl_data_debug[1]                     0x00000040
+rd hqm_system_csr.dm_cmpl_data_debug[2]                     0x00000003
+rd hqm_system_csr.dm_cmpl_data_debug[3]                     0x00000000
+rd hqm_system_csr.dm_cmpl_data_debug[4]                     0x00000000
+rd hqm_system_csr.dm_cmpl_data_debug[5]                     0x80000040
+rd hqm_system_csr.dm_cmpl_data_debug[6]                     0x00000000
+rd hqm_system_csr.dm_cmpl_data_debug[7]                     0x00000010
+# Release second completion
+wr hqm_system_csr.ingress_ctl.single_step_cmpl              1
+wr hqm_system_csr.ingress_ctl.single_step_cmpl              0
+rd hqm_system_csr.ingress_db_status.dmv_r_db_depth          2
+rd hqm_system_csr.hqm_system_cnt_10                         0x0000000a
+rd hqm_system_csr.dm_cmpl_stat_debug                        0x00000402
+rd hqm_system_csr.dm_cmpl_data_debug[0]                     0xaabb0000
+rd hqm_system_csr.dm_cmpl_data_debug[1]                     0x00000040
+rd hqm_system_csr.dm_cmpl_data_debug[2]                     0x00000006
+rd hqm_system_csr.dm_cmpl_data_debug[3]                     0x00000000
+rd hqm_system_csr.dm_cmpl_data_debug[4]                     0x00000000
+rd hqm_system_csr.dm_cmpl_data_debug[5]                     0x80000040
+rd hqm_system_csr.dm_cmpl_data_debug[6]                     0x00000000
+rd hqm_system_csr.dm_cmpl_data_debug[7]                     0x00000010
+# Release rest of completions
+wr hqm_system_csr.ingress_ctl.hold_cmpl                     0
+idle 200
+rd hqm_system_csr.ingress_db_status.dmv_r_db_depth          0
+rd hqm_system_csr.hqm_system_cnt_10                         0x00000017
+###################################################################################
+# The DMV writes should be held in the wbuf DB and FIFO
+rd hqm_system_csr.wbuf_db_status.dmv_aw_db_depth            2
+rd hqm_system_csr.dmv_wdata_fifo_status.depth               8
+# Release the first write
+wr hqm_system_csr.write_buffer_ctl.single_step_dmvw         1
+wr hqm_system_csr.write_buffer_ctl.single_step_dmvw         0
+rd hqm_system_csr.wbuf_db_status.dmv_aw_db_depth            2
+rd hqm_system_csr.dmv_wdata_fifo_status.depth               0xa
+rd hqm_system_csr.hqm_system_cnt_36                         0x00000002
+rd hqm_system_csr.hqm_system_cnt_30                         0x00000003
+# Release the second write
+wr hqm_system_csr.write_buffer_ctl.single_step_dmvw         1
+wr hqm_system_csr.write_buffer_ctl.single_step_dmvw         0
+rd hqm_system_csr.wbuf_db_status.dmv_aw_db_depth            2
+rd hqm_system_csr.dmv_wdata_fifo_status.depth               0xa
+rd hqm_system_csr.hqm_system_cnt_36                         0x00000003
+rd hqm_system_csr.hqm_system_cnt_30                         0x00000004
+# Release the rest of the writes
+wr hqm_system_csr.write_buffer_ctl.arb_dmvw_mask            0
+idle 200
+rd hqm_system_csr.wbuf_db_status.dmv_aw_db_depth            0
+rd hqm_system_csr.dmv_wdata_fifo_status.depth               0
+rd hqm_system_csr.hqm_system_cnt_36                         0x0000000d
+rd hqm_system_csr.hqm_system_cnt_30                         0x00000017
+###################################################################################
+# Data mover scheduled HCWs should be held in FIFO
+rd hqm_system_csr.dmv_hcw_fifo_status.depth                 3
+# Release first DMV HCW and hold it up in the hcw_enq double buffer
+wr hqm_system_csr.ingress_ctl                               0x0002020e
+wr hqm_system_csr.ingress_ctl                               0x0002000e
+rd hqm_system_csr.dmv_hcw_fifo_status.depth                 2
+rd hqm_system_csr.ingress_db_status.hcw_enq_aw_db_depth     1
+rd hqm_system_csr.ingress_db_status.hcw_enq_w_db_depth      1
+rd hqm_system_csr.hcw_req_debug                             0x00000040
+rd hqm_system_csr.hqm_hcw_data_debug[0]                     0x7d440000
+rd hqm_system_csr.hqm_hcw_data_debug[1]                     0x0000000e
+rd hqm_system_csr.hqm_hcw_data_debug[2]                     0x01000000
+rd hqm_system_csr.hqm_hcw_data_debug[3]                     0x0900aabb
+# Release second DMV HCW
+wr hqm_system_csr.ingress_ctl.single_step_dmv               1
+wr hqm_system_csr.ingress_ctl.single_step_dmv               0
+rd hqm_system_csr.dmv_hcw_fifo_status.depth                 1
+rd hqm_system_csr.ingress_db_status.hcw_enq_aw_db_depth     2
+rd hqm_system_csr.ingress_db_status.hcw_enq_w_db_depth      2
+rd hqm_system_csr.hcw_req_debug                             0x00000040
+rd hqm_system_csr.hqm_hcw_data_debug[0]                     0x7d440000
+rd hqm_system_csr.hqm_hcw_data_debug[1]                     0x0000000e
+rd hqm_system_csr.hqm_hcw_data_debug[2]                     0x01000000
+rd hqm_system_csr.hqm_hcw_data_debug[3]                     0x0900aabb
+# Release third DMV HCW
+wr hqm_system_csr.ingress_ctl.hold_hcw_dmv                  0
+rd hqm_system_csr.dmv_hcw_fifo_status.depth                 0
+rd hqm_system_csr.ingress_db_status.hcw_enq_aw_db_depth     2
+rd hqm_system_csr.ingress_db_status.hcw_enq_w_db_depth      2
+rd hqm_system_csr.ingress_status                            0x00000100
+rd hqm_system_csr.hcw_req_debug                             0x00000040
+rd hqm_system_csr.hqm_hcw_data_debug[0]                     0x7d440000
+rd hqm_system_csr.hqm_hcw_data_debug[1]                     0x0000000e
+rd hqm_system_csr.hqm_hcw_data_debug[2]                     0x01000000
+rd hqm_system_csr.hqm_hcw_data_debug[3]                     0x0900aabb
+# Release first DMV HCW to the hqm_core
+wr hqm_system_csr.ingress_ctl                               0x00020c0c
+wr hqm_system_csr.ingress_ctl                               0x0002000c
+rd hqm_system_csr.ingress_db_status.hcw_enq_aw_db_depth     2
+rd hqm_system_csr.ingress_db_status.hcw_enq_w_db_depth      2
+rd hqm_system_csr.ingress_status                            0x00000000
+rd hqm_system_csr.hcw_req_debug                             0x00000040
+rd hqm_system_csr.hqm_hcw_data_debug[0]                     0x7d440200
+rd hqm_system_csr.hqm_hcw_data_debug[1]                     0x0000000e
+rd hqm_system_csr.hqm_hcw_data_debug[2]                     0x01000000
+rd hqm_system_csr.hqm_hcw_data_debug[3]                     0x0900aabb
+# Release second DMV HCW to the hqm_core
+wr hqm_system_csr.ingress_ctl                               0x00020c0c
+wr hqm_system_csr.ingress_ctl                               0x0002000c
+rd hqm_system_csr.ingress_db_status.hcw_enq_aw_db_depth     1
+rd hqm_system_csr.ingress_db_status.hcw_enq_w_db_depth      1
+rd hqm_system_csr.ingress_status                            0x00000000
+rd hqm_system_csr.hcw_req_debug                             0x00000040
+rd hqm_system_csr.hqm_hcw_data_debug[0]                     0x7d440400
+rd hqm_system_csr.hqm_hcw_data_debug[1]                     0x0000000e
+rd hqm_system_csr.hqm_hcw_data_debug[2]                     0x01000000
+rd hqm_system_csr.hqm_hcw_data_debug[3]                     0x0900aabb
+# Release third DMV HCW to the hqm_core
+wr hqm_system_csr.ingress_ctl                               0x00020000
+rd hqm_system_csr.ingress_db_status.hcw_enq_aw_db_depth     0
+rd hqm_system_csr.ingress_db_status.hcw_enq_w_db_depth      0
+idle 200
+###################################################################################
+# The final scheduled HCWs should be held up in the write buffer
+rd hqm_system_csr.wbuf_status                               0xa25000b7
+rd hqm_system_csr.wbuf_status2                              0x00000e02
+# Release first scheduled HCW
+wr hqm_system_csr.write_buffer_ctl.single_step_sch          1
+wr hqm_system_csr.write_buffer_ctl.single_step_sch          0
+rd hqm_system_csr.hqm_system_cnt_36                         0x0000000e
+rd hqm_system_csr.hqm_system_cnt_30                         0x00000019
+rd hqm_system_csr.wbuf_status                               0xa2500077
+rd hqm_system_csr.wbuf_status2                              0x00000012
+# Release second scheduled HCW
+wr hqm_system_csr.write_buffer_ctl.single_step_sch          1
+wr hqm_system_csr.write_buffer_ctl.single_step_sch          0
+rd hqm_system_csr.hqm_system_cnt_36                         0x0000000f
+rd hqm_system_csr.hqm_system_cnt_30                         0x0000001b
+rd hqm_system_csr.wbuf_status                               0xa2480076
+rd hqm_system_csr.wbuf_status2                              0x00000012
+# Release last scheduled HCW
+wr hqm_system_csr.write_buffer_ctl.arb_sch_mask             0
+rd hqm_system_csr.write_buffer_ctl.arb_sch_mask             0
+rd hqm_system_csr.hqm_system_cnt_36                         0x00000010
+rd hqm_system_csr.hqm_system_cnt_30                         0x0000001d
+rd hqm_system_csr.wbuf_status                               0x32480070
+rd hqm_system_csr.wbuf_status2                              0x00000010
+###################################################################################
+wr hqm_system_csr.write_buffer_ctl                          0x00000000
+wr hqm_system_csr.egress_ctl                                0x00000000
+wr hqm_system_csr.ingress_ctl                               0x00000000
+###################################################################################
+idle 200
+HCW LDB:0 dsi=0x0100 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x0000 msgtype=0 qpri=0 qtype=dir qid=0
+HCW LDB:0 dsi=0x0100 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x0000 msgtype=0 qpri=0 qtype=dir qid=0
+HCW LDB:0 dsi=0x0100 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x0000 msgtype=0 qpri=0 qtype=dir qid=0
+HCW LDB:0 dsi=0x0100 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x0002 msgtype=0 qpri=0 qtype=dir qid=0
+idle 200

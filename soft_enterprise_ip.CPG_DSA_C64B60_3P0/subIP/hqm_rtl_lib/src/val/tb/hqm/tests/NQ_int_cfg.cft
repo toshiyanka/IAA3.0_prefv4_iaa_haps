@@ -1,0 +1,166 @@
+idle 400
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Set MPS to 512
+wr hqm_pf_cfg_i.pcie_cap_device_control.mps 0x2
+###################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+
+
+# Setup MSI-X Table entries
+wr hqm_msix_mem.msg_addr_l[3]  0xdeadf00c
+wr hqm_msix_mem.msg_addr_u[3]  0xfeeddeaf
+wr hqm_msix_mem.msg_data[3]    0xa11c0ded
+wr hqm_msix_mem.vector_ctrl[3] 0x00000000
+
+wr hqm_msix_mem.msg_addr_l[5]  0xeeadf11c
+wr hqm_msix_mem.msg_addr_u[5]  0xfffdd000
+wr hqm_msix_mem.msg_data[5]    0x1ce1cebb
+wr hqm_msix_mem.vector_ctrl[5] 0x00000000
+
+rd hqm_msix_mem.msg_addr_l[3]  0xdeadf00c
+rd hqm_msix_mem.msg_addr_u[3]  0xfeeddeaf
+rd hqm_msix_mem.msg_data[3]    0xa11c0ded
+rd hqm_msix_mem.vector_ctrl[3] 0x00000000
+
+rd hqm_msix_mem.msg_addr_l[5]  0xeeadf11c
+rd hqm_msix_mem.msg_addr_u[5]  0xfffdd000
+rd hqm_msix_mem.msg_data[5]    0x1ce1cebb
+rd hqm_msix_mem.vector_ctrl[5] 0x00000000
+
+###################################
+# Enable MSI-X
+wr hqm_pf_cfg_i.msix_cap_control 0x8000
+rd hqm_pf_cfg_i.msix_cap_control 0x8047
+###################################
+# Wait for reset to be done (including hardware memory init)
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+
+###################################
+# Setup LUTs used by HCWs
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+  dir qid 64 chain=1 dvas=0
+  dir qid 65 chain=1 dvas=1
+  dir qid 66 chain=1 dvas=2
+  dir qid 67 chain=1 dvas=3
+  dir qid 68 chain=1 dvas=4
+  dir qid 69 chain=1 dvas=5
+  dir qid 70 chain=1 dvas=6
+  dir qid 71 chain=1 dvas=7
+
+  ldb qid 0 qid_ldb_inflight_limit=512
+  ldb qid 1 qid_ldb_inflight_limit=512
+  ldb qid 2 qid_ldb_inflight_limit=512
+  ldb qid 3 qid_ldb_inflight_limit=512
+  ldb qid 4 qid_ldb_inflight_limit=512
+  ldb qid 5 qid_ldb_inflight_limit=512
+  ldb qid 6 qid_ldb_inflight_limit=512
+  ldb qid 7 qid_ldb_inflight_limit=512
+
+  dir pool 0 credit_cnt=0x0f80 credit_limit=0x1000 freelist_base=0 freelist_limit=0xfff
+  ldb pool 0 credit_cnt=0x3f80 credit_limit=0x4000 freelist_base=0 freelist_limit=0x3fff
+
+  vas 0 vas_gen=[0:3] ldb_qidv0=1 ldb_cqidv0=1 dir_qidv64=1 is_pa=1 r0_pa=0 r0_va=0 r0_len=VPA_16MB hbm_256_hptr=0 hbm_2k_hptr=0 hbm_256_base=0xa0000000 hbm_2k_base=0xb0000000 hbm_256_len=RING_32K hbm_2k_len=RING_16K hbm_256_init=24576 hbm_2k_init=24576
+  vas 1 vas_gen=[0:3] ldb_qidv1=1 ldb_cqidv1=1 dir_qidv65=1 is_pa=1 r0_pa=0 r0_va=0 r0_len=VPA_16MB hbm_256_hptr=0 hbm_2k_hptr=0 hbm_256_base=0xa0100000 hbm_2k_base=0xb0100000 hbm_256_len=RING_32K hbm_2k_len=RING_16K hbm_256_init=24576 hbm_2k_init=24576
+  vas 2 vas_gen=[0:3] ldb_qidv2=1 ldb_cqidv2=1 dir_qidv66=1 is_pa=1 r0_pa=0 r0_va=0 r0_len=VPA_16MB hbm_256_hptr=0 hbm_2k_hptr=0 hbm_256_base=0xa0200000 hbm_2k_base=0xb0200000 hbm_256_len=RING_32K hbm_2k_len=RING_16K hbm_256_init=24576 hbm_2k_init=24576
+  vas 3 vas_gen=[0:3] ldb_qidv3=1 ldb_cqidv3=1 dir_qidv67=1 is_pa=1 r0_pa=0 r0_va=0 r0_len=VPA_16MB hbm_256_hptr=0 hbm_2k_hptr=0 hbm_256_base=0xa0300000 hbm_2k_base=0xb0300000 hbm_256_len=RING_32K hbm_2k_len=RING_16K hbm_256_init=24576 hbm_2k_init=24576
+  vas 4 vas_gen=[0:3] ldb_qidv4=1 ldb_cqidv4=1 dir_qidv68=1 is_pa=1 r0_pa=0 r0_va=0 r0_len=VPA_16MB hbm_256_hptr=0 hbm_2k_hptr=0 hbm_256_base=0xa0400000 hbm_2k_base=0xb0400000 hbm_256_len=RING_32K hbm_2k_len=RING_16K hbm_256_init=24576 hbm_2k_init=24576
+  vas 5 vas_gen=[0:3] ldb_qidv5=1 ldb_cqidv5=1 dir_qidv69=1 is_pa=1 r0_pa=0 r0_va=0 r0_len=VPA_16MB hbm_256_hptr=0 hbm_2k_hptr=0 hbm_256_base=0xa0500000 hbm_2k_base=0xb0500000 hbm_256_len=RING_32K hbm_2k_len=RING_16K hbm_256_init=24576 hbm_2k_init=24576
+  vas 6 vas_gen=[0:3] ldb_qidv6=1 ldb_cqidv6=1 dir_qidv70=1 is_pa=1 r0_pa=0 r0_va=0 r0_len=VPA_16MB hbm_256_hptr=0 hbm_2k_hptr=0 hbm_256_base=0xa0600000 hbm_2k_base=0xb0600000 hbm_256_len=RING_32K hbm_2k_len=RING_16K hbm_256_init=24576 hbm_2k_init=24576
+  vas 7 vas_gen=[0:3] ldb_qidv7=1 ldb_cqidv7=1 dir_qidv71=1 is_pa=1 r0_pa=0 r0_va=0 r0_len=VPA_16MB hbm_256_hptr=0 hbm_2k_hptr=0 hbm_256_base=0xa0700000 hbm_2k_base=0xb0700000 hbm_256_len=RING_32K hbm_2k_len=RING_16K hbm_256_init=24576 hbm_2k_init=24576
+
+  dir pp 64 gpa=0x02000f00 vas=0 dir_pool=0 ldb_pool=0 ldb_credit_count=0x10 dir_min_credit_quanta=0x100 ldb_min_credit_quanta=0x40 ldb_credit_hwm=0x80 ldb_credit_lwm=0x40 mb_dm=1
+  dir cq 64 gpa=sm is_hw_dsi=1 is_keep_pf_ppid=1 is_chain=1 cq_depth=16
+
+  dir pp 65 gpa=0x02001f00 vas=1 dir_pool=0 ldb_pool=0 ldb_credit_count=0x10 dir_min_credit_quanta=0x100 ldb_min_credit_quanta=0x40 ldb_credit_hwm=0x80 ldb_credit_lwm=0x40 mb_dm=1
+  dir cq 65 gpa=0 is_hw_dsi=1 is_keep_pf_ppid=1 is_chain=1 cq_depth=16
+
+  dir pp 66 gpa=0x02002f00 vas=2 dir_pool=0 ldb_pool=0 ldb_credit_count=0x10 dir_min_credit_quanta=0x100 ldb_min_credit_quanta=0x40 ldb_credit_hwm=0x80 ldb_credit_lwm=0x40 mb_dm=1
+  dir cq 66 gpa=0 is_hw_dsi=1 is_keep_pf_ppid=1 is_chain=1 cq_depth=16
+
+  dir pp 67 gpa=0x02003f00 vas=3 dir_pool=0 ldb_pool=0 ldb_credit_count=0x10 dir_min_credit_quanta=0x100 ldb_min_credit_quanta=0x40 ldb_credit_hwm=0x80 ldb_credit_lwm=0x40 mb_dm=1
+  dir cq 67 gpa=0 is_hw_dsi=1 is_keep_pf_ppid=1 is_chain=1 cq_depth=16
+
+  dir pp 68 gpa=0x02004f00 vas=4 dir_pool=0 ldb_pool=0 ldb_credit_count=0x10 dir_min_credit_quanta=0x100 ldb_min_credit_quanta=0x40 ldb_credit_hwm=0x80 ldb_credit_lwm=0x40 mb_dm=1
+  dir cq 68 gpa=0 is_hw_dsi=1 is_keep_pf_ppid=1 is_chain=1 cq_depth=16
+
+  dir pp 69 gpa=0x02005f00 vas=5 dir_pool=0 ldb_pool=0 ldb_credit_count=0x10 dir_min_credit_quanta=0x100 ldb_min_credit_quanta=0x40 ldb_credit_hwm=0x80 ldb_credit_lwm=0x40 mb_dm=1
+  dir cq 69 gpa=0 is_hw_dsi=1 is_keep_pf_ppid=1 is_chain=1 cq_depth=16
+
+  dir pp 70 gpa=0x02006f00 vas=6 dir_pool=0 ldb_pool=0 ldb_credit_count=0x10 dir_min_credit_quanta=0x100 ldb_min_credit_quanta=0x40 ldb_credit_hwm=0x80 ldb_credit_lwm=0x40 mb_dm=1
+  dir cq 70 gpa=0 is_hw_dsi=1 is_keep_pf_ppid=1 is_chain=1 cq_depth=16
+
+  dir pp 71 gpa=0x02007f00 vas=7 dir_pool=0 ldb_pool=0 ldb_credit_count=0x10 dir_min_credit_quanta=0x100 ldb_min_credit_quanta=0x40 ldb_credit_hwm=0x80 ldb_credit_lwm=0x40 mb_dm=1
+  dir cq 71 gpa=0 is_hw_dsi=1 is_keep_pf_ppid=1 is_chain=1 cq_depth=16
+
+  ldb pp 0  gpa=sm vas=0 dir_pool=0 ldb_pool=0 dir_credit_count=0x10 ldb_credit_count=0 dir_min_credit_quanta=0x40 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x80 dir_credit_lwm=0x40 nq_pa=sm nq_sz=NQ_4K
+  ldb cq 0  gpa=sm qidv0=1 qidix0=0 cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1
+
+  ldb pp 1  gpa=sm vas=1 dir_pool=0 ldb_pool=0 dir_credit_count=0x10 ldb_credit_count=0 dir_min_credit_quanta=0x40 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x80 dir_credit_lwm=0x40 nq_pa=sm nq_sz=NQ_4K
+  ldb cq 1  gpa=sm qidv0=1 qidix0=1 cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1
+
+  ldb pp 2  gpa=sm vas=2 dir_pool=0 ldb_pool=0 dir_credit_count=0x10 ldb_credit_count=0 dir_min_credit_quanta=0x40 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x80 dir_credit_lwm=0x40 nq_pa=sm nq_sz=NQ_4K
+  ldb cq 2  gpa=sm qidv0=1 qidix0=2 cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1
+
+  ldb pp 3  gpa=sm vas=3 dir_pool=0 ldb_pool=0 dir_credit_count=0x10 ldb_credit_count=0 dir_min_credit_quanta=0x40 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x80 dir_credit_lwm=0x40 nq_pa=sm nq_sz=NQ_4K
+  ldb cq 3  gpa=sm qidv0=1 qidix0=3 cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1
+
+  ldb pp 4  gpa=sm vas=4 dir_pool=0 ldb_pool=0 dir_credit_count=0x10 ldb_credit_count=0 dir_min_credit_quanta=0x40 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x80 dir_credit_lwm=0x40 nq_pa=sm nq_sz=NQ_4K
+  ldb cq 4  gpa=sm qidv0=1 qidix0=4 cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1
+
+  ldb pp 5  gpa=sm vas=5 dir_pool=0 ldb_pool=0 dir_credit_count=0x10 ldb_credit_count=0 dir_min_credit_quanta=0x40 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x80 dir_credit_lwm=0x40 nq_pa=sm nq_sz=NQ_4K
+  ldb cq 5  gpa=sm qidv0=1 qidix0=5 cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1
+
+  ldb pp 6  gpa=sm vas=6 dir_pool=0 ldb_pool=0 dir_credit_count=0x10 ldb_credit_count=0 dir_min_credit_quanta=0x40 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x80 dir_credit_lwm=0x40 nq_pa=sm nq_sz=NQ_4K
+  ldb cq 6  gpa=sm qidv0=1 qidix0=6 cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1
+
+  ldb pp 7  gpa=sm vas=7 dir_pool=0 ldb_pool=0 dir_credit_count=0x10 ldb_credit_count=0 dir_min_credit_quanta=0x40 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x80 dir_credit_lwm=0x40 nq_pa=sm nq_sz=NQ_4K
+  ldb cq 7  gpa=sm qidv0=1 qidix0=7 cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1
+
+  msix_cq  8 addr=0x123456789abc080 data=0xc0de0008 is_ldb=1 cq=0
+  msix_cq  9 addr=0x123456789abc090 data=0xc0de0009 is_ldb=1 cq=1
+  msix_cq 10 addr=0x123456789abc0a0 data=0xc0de000a is_ldb=1 cq=2
+  msix_cq 11 addr=0x123456789abc0b0 data=0xc0de000b is_ldb=1 cq=3
+  msix_cq 12 addr=0x123456789abc0c0 data=0xc0de000c is_ldb=1 cq=4
+  msix_cq 13 addr=0x123456789abc0d0 data=0xc0de000d is_ldb=1 cq=5
+  msix_cq 14 addr=0x123456789abc0e0 data=0xc0de000e is_ldb=1 cq=6
+  msix_cq 15 addr=0x123456789abc0f0 data=0xc0de000f is_ldb=1 cq=7
+
+cfg_end
+
+wr credit_hist_pipe.cfg_ldb_cq_intr_armed0 0x000000ff
+wr credit_hist_pipe.cfg_ldb_cq_timer_ctl.enb 1
+wr credit_hist_pipe.cfg_ldb_cq_timer_ctl.sample_interval 1
+
+rd hqm_pf_cfg_i.vendor_id
+
+# Enable ingress alarms
+rd dm_cmp_unit.CFG_CMP_ALARM_CONTROL 0x00003ff0
+wr dm_cmp_unit.CFG_CMP_ALARM_CONTROL 0x00003ff3
+rd dm_cmp_unit.CFG_CMP_ALARM_CONTROL 0x00003ff3
+
+#rd dm_cmp_unit.CFG_CMP_PP_NQ_SZ 0x00000000
+rd dm_cmp_unit.CFG_CMP_CONTROL_GENERAL 0x00002000
+wr dm_cmp_unit.CFG_CMP_CONTROL_GENERAL 0x00002030
+rd dm_cmp_unit.CFG_CMP_CONTROL_GENERAL 0x00002030
+
+#enable the CMP service interrupt for all PP
+wr dm_master.CFG_MSTR_CMP_ENB_0 0xFFFFFFFF
+wr dm_master.CFG_MSTR_CMP_ENB_1 0xFFFFFFFF
+wr dm_master.CFG_MSTR_CMP_ENB_2 0xFFFFFFFF
+wr dm_master.CFG_MSTR_CMP_ENB_3 0xFFFFFFFF
+
+

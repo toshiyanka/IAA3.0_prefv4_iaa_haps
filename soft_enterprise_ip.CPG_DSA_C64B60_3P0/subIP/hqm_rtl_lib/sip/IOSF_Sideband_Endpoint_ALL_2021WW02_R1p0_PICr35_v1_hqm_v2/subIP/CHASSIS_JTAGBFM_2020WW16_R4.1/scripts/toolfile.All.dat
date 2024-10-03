@@ -1,0 +1,91 @@
+; Tool version file for Cannonlake B0/T0 stepping, this will be the converged toolfile for all subsequent IP deliveries to CNL dies/steppings 
+
+; -----------------------------
+; NOTE: 
+; a) ACE/VisaFlow has to be used as a bundle in following combination, cannot mix-n-match
+;         i) ACE 2.01.32 + VisaFlow 3.1.1
+;        ii) ACE 2.01.34 + VisaFlow 3.02.01
+;
+; b) Collage 2.5.1 combines chassis and collage automation as well as interface definition for rtl and verification is released separately. There are changes in directory structure and few setup/assembler changes would be needed to move to this release.  
+;        https://wiki.ith.intel.com/download/attachments/127407579/2.5.1.docx?version=1&modificationDate=1416607577587&api=v2
+;
+;    if IP wants to use Collage 2.5.2, must remember to setenv CHASSIS_ROOT and COLLAGE_INTF_DEF to point to 2.5.2 as well
+;
+; c) QuestaCDC V10.4 is not used by many IPs yet but is strongly desired due to significant performance improvements, the corresponding intelcdc and ONDA versions are taken from latest version, might not be fully working for V10.4, CDC WG is working on it
+;
+; d) Blueprint is EOL from Nebulon 3.0x / 14.4x / d15wwXX onwards.  Magillem is set up by sourcing $NEBULON_DIR/bin/setup but it has bug with d15ww19.4, hence $setenv is used here to set up Magillem;  The newer Nebulon/Magillem combination requires newer Saola version as well
+;
+; e) Despite Spyglass 5.3.1.6 is older than 5.4.1.6 that most EIG SIPs are using, however it has specifc bug fixes that CNL needs which Atrenta can't make to 5.4.x stream, therefore IPs have to use Spyglass 5.3.1.6 specifically for CNL delivery 
+;
+; f) Verdi3 J-2014.12-SP1 doesn't have proper PLI on snps_unified, users need to update ACE *_local_ivars.udf to point to $VERDI_HOME/share/PLI/VCS/ instead of $VERDI_HOME/share/PLI/snps_unified/, according to DTS, snps_unified version of the PLI is deprecated starting 2014.12. The recommended version of the PLI is share/VCS/* which is supposed to be a superset and the tested version with the tool suite
+; -----------------------------
+
+;Tool                     Version                       Accepted Versions
+;------------------------ ---------------               --------------------------
+ace                       2.01.32                       : 2.01.34
+collage                   2.5.1                         : 2.5.2
+conformal                 14.20.220                     : 14.10.220
+coretools                 J-2014.12-SP1-1
+designcompiler            I-2013.12-SP5-2
+fishtail                  2013.02q
+intelcdc                  v20150429
+lintra                    14.2p36_shOpt64 
+nebulon                   d15ww19.4
+ovm                       2.1.2_2_ml 
+onda                      3.6
+questaCDC                 V10.4 
+saola                     v20150417
+spyglass                  5.3.1.6
+synplifypro               I-2014.03-SP1
+tessent                   2013.2-p1 
+vcsmx                     J-2014.12-SP1-1
+verdi3                    J-2014.12-SP1
+vipcat                    11.30.028 
+VisaFlow                  3.1.1                         : 3.02.01
+VisaIT                    3.9.5                         : 3.9.4
+xa                        I-2013.12-1
+zircon                    14.47.0
+
+;NOTE: lintraConfig is used by CNL SOC only for lintraRules override, in case if SIP wants to use stricter rule then only refer to lintraConfig, else SIP should be using lintraRules
+;lintraConfig              v15ww20a
+
+;NOTE: upf_config is used by CNL SOC only , it is not globally available
+;upf_config                v15ww24a
+
+
+;----------------------------------------------------
+;sub-IP and Verification components
+;----------------------------------------------------
+;Name                   Version                           CNL Contact              IP Contact
+;-----------------      -----------------------------     -------------------      -------------------
+;CMI_VC                 cmi_vc-15ww012b
+;IOSF_PRI_VC            2015WW23r150601                   Ofir Rozmarin
+;IOSF_SB_VC             2015WW20                          Ofir Rozmarin
+;RCH_VC                 rch_vc-cdk-x0-15ww20a-drop.0
+;IOSF_SB_EP             ALL_2015WW24_R1p0_PICr7           Oren Perlmutter          Savin, Emanuel
+;DFX_SECURE_PLUGIN      DFx Secure Plugin_1.0_v3          Mikey Shahar             Revanuru, Murthy N
+;STAP                   1.0_v5                            Mikey Shahar             Revanuru, Murthy N
+;FUSE_PULLER            1.0v3                             Yossi Mordechai          Lee, Chee Siong
+;PGCB+CDC               1.16                              Oren Perlmutter
+;CRI_Master             SIPCRI_ALL_2015WW18_R0p8_v0       Noam Lupovich
+
+;Environment Variable                          Value
+;--------------------------------              -----------------------------
+$setenv KIT_PATH{Process}                      /p/hdk/cad/kits_10nm/[10nm_14.3.1.p2]
+$setenv STDCELL_DIR{Stdcell Library}           /p/hdk/cad/stdcells/e05/[14ww37.3_e05_c.0.p1_cnlgt]
+
+$setenv LINTRARULES{Lintra rules}              /p/com/eda/intel/Soc_Lintra_Collaterals/[14.40.2p5]
+
+$setenv OVM_LIB{OVM library}                   /p/com/eda/ovm/ovm/[2.1.2_2_ml]
+$setenv SLA_LIB{SLA library}                   /p/com/eda/intel/saola/[v20150417]
+
+$setenv SPG_LP_RULES{Spyglass-LP rules}        /p/com/flows/spyglass_methodology/[1.1.1]/lp_fe
+$setenv SPG_DFT_RULES{Spyglass-DFT rules}      /p/com/flows/spyglass_methodology/[1.1.1]/dft
+
+$setenv CHASSIS_ROOT{Chassis Root}             /p/com/eda/intel/collage/[2.5.1]
+$setenv COLLAGE_INTF_DEF{Chassis Interface}    /p/com/eda/intel/collage_intf_def/[2.5.1]
+
+$setenv GLOBAL_CTECH_VER{Ctech lib}            /p/com/eda/intel/ctech/[v14ww40e]
+
+$setenv MAGILLEM_INSTALL_DIR                   /p/com/eda/magillem/mre/5.6.3.7
+$setenv MAGILLEM_LICENSE_FILE                  7000@ilic2013.iil:7000@fmylic42.fm.intel.com

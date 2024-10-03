@@ -1,0 +1,22 @@
+Run HQM_MEM_GEN.scr, which calls other scripts in this directory to create memory-related collateral for HQM.
+
+Input is the per-partition <par>mem.config files which specify the type/size/name of each logical memory.  These
+config files are created by mem_access.perl.
+
+Other inputs are the underlying AW files associated with these memories.
+
+Outputs include:
+- memory container rtl for each partition's memories, grouped by type, clock and pg; and the per-partition
+  mem wrapper to instantiate them
+- uniquified copies of the per-memory-instance AW files, with corresponding updates to AW_mem_lib.hdl
+- collage fet_en connectivity scripts with arbitray ordering, per partition
+- collage isolation connectivity scripts, per partition
+- upf files for each partition's memories (power connections and HIP load_upf)
+- verilog assertions for PGCB fet_en vs. memory instance pm
+
+// ****    ****    ****    ****    ****    ****    ****    ****    ****    ****    ****    ****    ****    ****
+// NOTE: These scripts have been seen to produce different results (logically equivalent but different
+// line order) when run under SLES12 (vs. SLES11).  If you run under SLES12 and see unexpected file changes,
+// they should be reviewed to confirm they are equivalent, and then discarded.  The script output ordering
+// will be fixed in future versions of HQM but not fixed HQMV25 in order to minimize churn.
+// ****    ****    ****    ****    ****    ****    ****    ****    ****    ****    ****    ****    ****    ****

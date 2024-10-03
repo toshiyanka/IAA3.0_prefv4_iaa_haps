@@ -1,0 +1,92 @@
+#!/usr/bin/perl -w
+
+# This script first maps input constraints or generates clock constraints, depending on the flow.
+# It then generates false paths and multi-cycle paths for the design.
+#
+# Options:
+#   -skip                
+#      Skip the mapping of constraints or creation of clock constraints.
+#   -start_string <string>
+#      Do the false path and mcp generation runs in parallel, provided that enough licenses are available. <string> 
+#      should be a quoted string showing how to start a new job. For example, when using LSF, run as:
+#         % generate_all -start_string "bsub -q fast_queue -R rusage=8000 -I"
+#      An option must be provided in the start string that causes the run to wait (block) until it is complete. 
+#      For LSF, -I may be used with bsub for this. Note that the other bsub options (-q, -R) may be
+#      different on your system.
+#      If not running on LSF, start the run exactly as follows:
+#         % generate_all -start_string "start_run_mode"
+
+my $startStr = "";
+my $skipMap = 0;
+for (my $ii = 0; $ii < @ARGV; $ii++) {
+    my $currArg = $ARGV[$ii];
+
+  if ($currArg =~ /-st/) {
+    $ii++;
+    if ($ii == @ARGV) {
+      print STDERR "Error: A start string must be specified when using -start_string\n";
+      exit;
+    }
+    $startStr = $ARGV[$ii];
+  } elsif ($currArg =~ /-sk/) {
+    $skipMap = 1;
+  }
+}
+
+# first map 
+if (!$skipMap) {
+    chdir("setup");
+    if (-T "map_sdc_and_check_setup") {
+	print STDERR "  mapping constraints\n";
+	`./map_sdc_and_check_setup -skip_setup`;
+    } else {
+	print STDERR "  generating template clocks\n";
+	`./generate_template_sdc`;
+    }
+    chdir("..");
+}
+
+# obtain a common database for generation/verification
+
+  chdir("ver_db");
+  `./create_ver_db`;
+   chdir("..");
+
+
+# next start parallel fp_gen and mcp_gen runs
+if (-d "clock_group_generation") {
+    print STDERR "  generating clock groups\n";
+    &RunOneParallelTask("clock_group_generation", $startStr, "generate_clock_groups", 0);
+}
+print STDERR "  generating false paths\n";
+&RunOneParallelTask("fp_generation", $startStr, "generate_fp", 0);
+print STDERR "  generating mcps\n";
+&RunOneParallelTask("mcp_generation", $startStr, "generate_mcp", 0);
+
+sub RunOneParallelTask
+{
+  my $dir = shift(@_);
+  my $startStr = shift(@_);
+  my $task = shift(@_);
+  my $doWait = shift(@_);
+
+  chdir($dir);
+  if (length($startStr) > 0) {
+      ForkExec("$startStr \"./$task\"");
+      if ($doWait) {
+	  wait();
+      }
+  }
+  else {
+      `./$task`;
+  }
+  chdir("..");
+}
+
+sub ForkExec
+{
+  my $pid = fork();
+  if ($pid == 0) {
+    exec(@_);
+  }
+}

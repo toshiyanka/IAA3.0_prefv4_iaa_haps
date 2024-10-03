@@ -1,0 +1,279 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => [
+                     "+AW_CONTINUE_ON_ERROR",
+                     "+iosf_tracker_filename=iosf_trk",
+                     "-assert nopostproc",
+                     "+vcs+lic+wait",
+                     "+SLA_MAX_RUN_CLOCK=400000",
+                     "+SLA_USER_DATA_PHASE_TIMEOUT=400000",
+                     "+SLA_CONFIG_PHASE_TIMEOUT=200000",
+                     "+HQMS_DEBUG",
+                     "+HQM_LSP_CQ_QID_CFG_CHECK_DIS",
+                     "+HQM_RAL_SET_VARIANT_CHECK",
+                     "+EXP_UNWANTED_TXN_TO_HQM",
+                     "+HQM_PCIE_SKIP_EOT_SEQ",
+                     "+HQM_DIS_ERR_MSG_CHECK",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_hw_synd=0x00000000-0x80000000/0x80000000",
+                     "+HQM_SKIP_AGITATE_SEQ",
+                     "+iosf_sb_mem_reg_wr_stim_config::posted=1",
+
+                    ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+      basic => {
+          -simv_args => [
+                     "+HQM_EOT_RD_SEQ_ENABLE_CREDIT_CHECK",
+
+                     "+hqm_system_burst_user_data_seq_stim_config::num_bursts=200",
+                     "+hqm_system_burst_user_data_seq_stim_config::sb_burst_enable=0",
+                     "+hqm_system_burst_user_data_seq_stim_config::min_burst_size=2",
+                     "+hqm_system_burst_user_data_seq_stim_config::max_burst_size=4",
+                     "+hqm_system_burst_user_data_seq_stim_config::vf_hcw_weight=0",
+                     "+hqm_system_burst_user_data_seq_stim_config::vf_hcw_err_weight=0",
+                     "+hqm_system_burst_user_data_seq_stim_config::pf_flr_weight=0",
+
+                     "+HQM_CFG_SEQ=aceroot/verif/tb/hqm/tests/hqm_system_burst_test_cfg.cft",
+                     "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      sb_basic => {
+          -simv_args => [
+                     "+HQM_EOT_RD_SEQ_ENABLE_CREDIT_CHECK",
+
+                     "+hqm_system_burst_user_data_seq_stim_config::num_bursts=200",
+                     "+hqm_system_burst_user_data_seq_stim_config::sb_burst_enable=1",
+                     "+hqm_system_burst_user_data_seq_stim_config::min_burst_size=2",
+                     "+hqm_system_burst_user_data_seq_stim_config::max_burst_size=4",
+                     "+hqm_system_burst_user_data_seq_stim_config::vf_hcw_weight=0",
+                     "+hqm_system_burst_user_data_seq_stim_config::vf_hcw_err_weight=0",
+                     "+hqm_system_burst_user_data_seq_stim_config::pf_flr_weight=0",
+                     "+hqm_system_burst_user_data_seq_stim_config::vf_flr_weight=0",
+
+                     "+HQM_CFG_SEQ=aceroot/verif/tb/hqm/tests/hqm_system_burst_test_cfg.cft",
+                     "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      basic_with_vf_hcw => {
+          -simv_args => [
+                     "+HQM_EOT_RD_SEQ_ENABLE_CREDIT_CHECK",
+
+                     "+hqm_system_burst_user_data_seq_stim_config::num_bursts=200",
+                     "+hqm_system_burst_user_data_seq_stim_config::sb_burst_enable=0",
+                     "+hqm_system_burst_user_data_seq_stim_config::min_burst_size=2",
+                     "+hqm_system_burst_user_data_seq_stim_config::max_burst_size=4",
+                     "+hqm_system_burst_user_data_seq_stim_config::pf_flr_weight=0",
+
+                     "+HQM_CFG_SEQ=aceroot/verif/tb/hqm/tests/hqm_system_burst_test_cfg.cft",
+                     "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      sb_basic_with_vf_hcw => {
+          -simv_args => [
+                     "+HQM_EOT_RD_SEQ_ENABLE_CREDIT_CHECK",
+
+                     "+hqm_system_burst_user_data_seq_stim_config::num_bursts=200",
+                     "+hqm_system_burst_user_data_seq_stim_config::sb_burst_enable=1",
+                     "+hqm_system_burst_user_data_seq_stim_config::min_burst_size=2",
+                     "+hqm_system_burst_user_data_seq_stim_config::max_burst_size=4",
+                     "+hqm_system_burst_user_data_seq_stim_config::pf_flr_weight=0",
+                     "+hqm_system_burst_user_data_seq_stim_config::vf_flr_weight=0",
+
+                     "+HQM_CFG_SEQ=aceroot/verif/tb/hqm/tests/hqm_system_burst_test_cfg.cft",
+                     "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      basic_with_pf_flr => {
+          -simv_args => [
+                     "+HQM_EOT_RD_SEQ_ENABLE_CREDIT_CHECK",
+                     "+HQM_DISABLE_BACKGROUND_CFG_GEN_SEQ",   
+
+                     "+hqm_system_burst_user_data_seq_stim_config::num_bursts=200",
+                     "+hqm_system_burst_user_data_seq_stim_config::sb_burst_enable=0",
+                     "+hqm_system_burst_user_data_seq_stim_config::min_burst_size=2",
+                     "+hqm_system_burst_user_data_seq_stim_config::max_burst_size=4",
+                     "+hqm_system_burst_user_data_seq_stim_config::vf_hcw_weight=0",
+                     "+hqm_system_burst_user_data_seq_stim_config::vf_hcw_err_weight=0",
+
+                     "+HQM_CFG_SEQ=aceroot/verif/tb/hqm/tests/hqm_system_burst_test_cfg.cft",
+                     "+HQM_DATA_POST_PF_FLR_SEQ=aceroot/verif/tb/hqm/tests/hqm_system_burst_test_cfg.cft",
+                     "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      all => {
+          -simv_args => [
+                     "+HQM_EOT_RD_SEQ_ENABLE_CREDIT_CHECK",
+                     "+HQM_DISABLE_BACKGROUND_CFG_GEN_SEQ",   
+
+                     "+hqm_system_burst_user_data_seq_stim_config::num_bursts=200",
+                     "+hqm_system_burst_user_data_seq_stim_config::sb_burst_enable=0",
+                     "+hqm_system_burst_user_data_seq_stim_config::min_burst_size=2",
+                     "+hqm_system_burst_user_data_seq_stim_config::max_burst_size=4",
+
+                     "+HQM_CFG_SEQ=aceroot/verif/tb/hqm/tests/hqm_system_burst_test_cfg.cft",
+                     "+HQM_DATA_POST_PF_FLR_SEQ=aceroot/verif/tb/hqm/tests/hqm_system_burst_test_cfg.cft",
+                     "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      sb_all => {
+          -simv_args => [
+                     "+HQM_EOT_RD_SEQ_ENABLE_CREDIT_CHECK",
+
+                     "+hqm_system_burst_user_data_seq_stim_config::num_bursts=200",
+                     "+hqm_system_burst_user_data_seq_stim_config::sb_burst_enable=1",
+                     "+hqm_system_burst_user_data_seq_stim_config::min_burst_size=2",
+                     "+hqm_system_burst_user_data_seq_stim_config::max_burst_size=4",
+                     "+hqm_system_burst_user_data_seq_stim_config::pf_flr_weight=0",
+                     "+hqm_system_burst_user_data_seq_stim_config::vf_flr_weight=0",
+
+                     "+HQM_CFG_SEQ=aceroot/verif/tb/hqm/tests/hqm_system_burst_test_cfg.cft",
+                     "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      d0_to_d3 => {
+          -simv_args => [
+                     "+hqm_system_burst_user_data_seq_stim_config::ignore_read_mismatch=1",
+                     "+hqm_system_burst_user_data_seq_stim_config::num_bursts=100",
+                     "+hqm_system_burst_user_data_seq_stim_config::sb_burst_enable=0",
+                     "+hqm_system_burst_user_data_seq_stim_config::min_burst_size=2",
+                     "+hqm_system_burst_user_data_seq_stim_config::max_burst_size=4",
+                     "+hqm_system_burst_user_data_seq_stim_config::pf_hcw_weight=0",
+                     "+hqm_system_burst_user_data_seq_stim_config::pf_hcw_err_weight=0",
+                     "+hqm_system_burst_user_data_seq_stim_config::vf_hcw_weight=0",
+                     "+hqm_system_burst_user_data_seq_stim_config::vf_hcw_err_weight=0",
+                     "+hqm_system_burst_user_data_seq_stim_config::pf_flr_weight=0",
+                     "+hqm_system_burst_user_data_seq_stim_config::vf_flr_weight=0",
+
+                     "+HQM_CFG_SEQ=aceroot/verif/tb/hqm/tests/hqm_system_burst_test_cfg.cft",
+                     "+HQM_SEQ_BG_CFG=aceroot/verif/tb/hqm/tests/hqm_bg_rd_wr_no_ps_wr.cft",
+                     "+HQM_DATA_SEQ=aceroot/verif/tb/hqm/tests/hqm_system_burst_test_d0_to_d3.cft",
+                     "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      d3_to_d0 => {
+          -simv_args => [
+                     "+hqm_system_burst_user_data_seq_stim_config::ignore_read_mismatch=1",
+                     "+hqm_system_burst_user_data_seq_stim_config::num_bursts=100",
+                     "+hqm_system_burst_user_data_seq_stim_config::sb_burst_enable=1",
+                     "+hqm_system_burst_user_data_seq_stim_config::min_burst_size=2",
+                     "+hqm_system_burst_user_data_seq_stim_config::max_burst_size=4",
+                     "+hqm_system_burst_user_data_seq_stim_config::pf_hcw_weight=0",
+                     "+hqm_system_burst_user_data_seq_stim_config::pf_hcw_err_weight=0",
+                     "+hqm_system_burst_user_data_seq_stim_config::vf_hcw_weight=0",
+                     "+hqm_system_burst_user_data_seq_stim_config::vf_hcw_err_weight=0",
+                     "+hqm_system_burst_user_data_seq_stim_config::pf_flr_weight=0",
+                     "+hqm_system_burst_user_data_seq_stim_config::vf_flr_weight=0",
+
+                     "+HQM_CFG_SEQ=aceroot/verif/tb/hqm/tests/hqm_system_burst_test_cfg.cft",
+                     "+HQM_SEQ_BG_CFG=aceroot/verif/tb/hqm/tests/hqm_bg_rd_wr_no_ps_wr.cft",
+                     "+HQM_DATA_SEQ=aceroot/verif/tb/hqm/tests/hqm_system_burst_test_d3_to_d0.cft",
+                     "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      ##------------------------------------------------------------##
+      ##  sai_errinj 
+      ##------------------------------------------------------------##
+      sai_wr_errinj_pf => {
+          -simv_args => [
+                     "+hqm_system_burst_user_data_seq_stim_config::has_wr_sai_errinj=1",
+                        ],
+      },
+
+      sai_wr_errinj_vf => {
+          -simv_args => [
+                     "+hqm_system_burst_user_data_seq_stim_config::has_wr_sai_errinj=2",
+                        ],
+      },
+
+      sai_rd_errinj => {
+          -simv_args => [
+                     "+hqm_system_burst_user_data_seq_stim_config::has_rd_sai_errinj=1",
+                        ],
+      },
+
+      sai_sb_wr_errinj_pf => {
+          -simv_args => [
+                     "+hqm_system_burst_user_data_seq_stim_config::has_sb_wr_sai_errinj=1",
+                        ],
+      },
+
+      sai_sb_wr_errinj_vf => {
+          -simv_args => [
+                     "+hqm_system_burst_user_data_seq_stim_config::pr_burst_enable=0",
+                     "+hqm_system_burst_user_data_seq_stim_config::has_sb_wr_sai_errinj=2",
+                        ],
+      },
+
+      sai_sb_rd_errinj => {
+          -simv_args => [
+                     "+hqm_system_burst_user_data_seq_stim_config::has_sb_rd_sai_errinj=1",
+                        ],
+      },
+
+      ##------------------------------------------------------------##
+      ##  Agitations 
+      ##------------------------------------------------------------##
+      agitate_fri => {
+          -simv_args => [
+                     "-debug_all -ucli +vcs+dumparrays +HQM_DISABLE_AGITIATE_ASSERT -i aceroot/verif/tb/hqm_proc/tests/agitate/agitate_fri.tcl", 
+                        ],
+      },      
+      agitate_cfg => {
+          -simv_args => [
+                     "-debug_all -ucli +vcs+dumparrays +HQM_DISABLE_AGITIATE_ASSERT -i aceroot/verif/tb/hqm_proc/tests/agitate/agitate_cfg.tcl", 
+                        ],
+      },                   
+      agitate_sys => {
+          -simv_args => [
+                     "-debug_all -ucli +vcs+dumparrays +HQM_DISABLE_AGITIATE_ASSERT -i aceroot/verif/tb/hqm_proc/tests/agitate/agitate_sys.tcl", 
+                        ],
+      },
+      outside_doorbell_window => {
+          -simv_args => [
+                     "+HQM_EOT_RD_SEQ_ENABLE_CREDIT_CHECK",
+
+                     "+hqm_system_burst_user_data_seq_stim_config::num_bursts=200",
+                     "+hqm_system_burst_user_data_seq_stim_config::sb_burst_enable=0",
+                     "+hqm_system_burst_user_data_seq_stim_config::min_burst_size=2",
+                     "+hqm_system_burst_user_data_seq_stim_config::max_burst_size=4",
+                     "+hqm_system_burst_user_data_seq_stim_config::vf_hcw_weight=0",
+                     "+hqm_system_burst_user_data_seq_stim_config::vf_hcw_err_weight=0",
+                     "+hqm_system_burst_user_data_seq_stim_config::pf_flr_weight=0",
+
+                     "+HCW_OUTSIDE_DOORBELL_WINDOW",
+
+                     "+HQM_CFG_SEQ=aceroot/verif/tb/hqm/tests/hqm_system_burst_test_cfg.cft",
+                     "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      random_doorbell_window => {
+          -simv_args => [
+                     "+HQM_EOT_RD_SEQ_ENABLE_CREDIT_CHECK",
+
+                     "+hqm_system_burst_user_data_seq_stim_config::num_bursts=200",
+                     "+hqm_system_burst_user_data_seq_stim_config::sb_burst_enable=0",
+                     "+hqm_system_burst_user_data_seq_stim_config::min_burst_size=2",
+                     "+hqm_system_burst_user_data_seq_stim_config::max_burst_size=4",
+                     "+hqm_system_burst_user_data_seq_stim_config::vf_hcw_weight=0",
+                     "+hqm_system_burst_user_data_seq_stim_config::vf_hcw_err_weight=0",
+                     "+hqm_system_burst_user_data_seq_stim_config::pf_flr_weight=0",
+
+                     "+HCW_RANDOM_DOORBELL_WINDOW",
+
+                     "+HQM_CFG_SEQ=aceroot/verif/tb/hqm/tests/hqm_system_burst_test_cfg.cft",
+                     "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

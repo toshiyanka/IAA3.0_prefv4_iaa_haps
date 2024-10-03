@@ -1,0 +1,28 @@
+#check device status and detected parity error to be set
+rd hqm_pf_cfg_i.device_status 0x0010
+
+#check aer_cap_uncorr_err_status  and expect unexpected ccompletion
+rd hqm_pf_cfg_i.aer_cap_uncorr_err_status 0x00010000
+
+#check ERror status
+rd hqm_pf_cfg_i.pcie_cap_device_status 0x0001
+
+
+
+#EOT check 
+ 
+wr hqm_pf_cfg_i.aer_cap_uncorr_err_status 0xFFFFFFFF
+rd hqm_pf_cfg_i.aer_cap_uncorr_err_status 0x00000000
+
+wr hqm_pf_cfg_i.device_status 0xFFFF
+rd hqm_pf_cfg_i.device_status 0x0010
+
+wr  hqm_pf_cfg_i.aer_cap_corr_err_status 0xFFFFFFFF
+rd  hqm_pf_cfg_i.aer_cap_corr_err_status 0x00000000
+
+
+wr hqm_pf_cfg_i.pcie_cap_device_status 0xFFFF
+rd hqm_pf_cfg_i.pcie_cap_device_status 0x0000 
+
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+

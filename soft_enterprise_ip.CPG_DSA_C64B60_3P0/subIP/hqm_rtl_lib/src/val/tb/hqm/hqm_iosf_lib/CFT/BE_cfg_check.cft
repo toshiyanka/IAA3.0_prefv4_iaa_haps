@@ -1,0 +1,25 @@
+#check device status and detected parity error to be set
+rd hqm_pf_cfg_i.device_status 0x0010
+
+rd hqm_pf_cfg_i.aer_cap_uncorr_err_status 0x00000000
+
+
+
+#check ERror status
+rd hqm_pf_cfg_i.pcie_cap_device_status 0x0000
+
+#update check
+
+rd hqm_pf_cfg_i.func_bar_l 0x0000000C
+rd hqm_pf_cfg_i.func_bar_u 0x00000001
+
+rd hqm_pf_cfg_i.csr_bar_l 0x0000000C
+rd hqm_pf_cfg_i.csr_bar_u 0x00000002
+
+
+rd hqm_pf_cfg_i.int_line 0x00
+
+#EOT_reset_check
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+
+

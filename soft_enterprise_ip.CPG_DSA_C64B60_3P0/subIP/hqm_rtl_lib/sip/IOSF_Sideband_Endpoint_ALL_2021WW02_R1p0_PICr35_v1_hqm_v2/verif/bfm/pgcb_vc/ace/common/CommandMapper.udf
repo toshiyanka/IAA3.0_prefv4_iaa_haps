@@ -1,0 +1,37 @@
+#----*-perl-*-----
+my $ip = $ENV{ACE_PROJECT};
+%audf = (
+    CommandMapper => {
+    "$ip" => {
+        -test_manager => {
+            #replace_mod => {
+            #        'build_test' => {
+            #            'Ace::WorkModules::DefaultTestBuilder' => "${ip}::TestBuilder",
+            #        },
+            #},
+            add_mod => {
+                    exec_test => ["common::CpefPostSimProcess", "common::AssertionManager", "common::VerificationManager", "Ace::WorkModules::Cleanup","simfigen::latest::simfigen",],
+                    },
+            remove_mod => {
+                    exec_test => [
+                        "Ace::WorkModules::Cleanup",
+                        'Ace::WorkModules::ProtoNI'
+                        ],
+                    verification_manager => [
+                        'Ace::WorkModules::VerificationManager',
+                        ]
+                    },
+        },
+	    -map => {
+	        add => {
+                    power => "common::PowerEst",
+                    getpaths => "common::GetPaths",
+                },
+	    },
+	    -pre_test_order => {
+	        front => [ "power", "getpaths", ],
+	    },
+    },
+    },
+)
+

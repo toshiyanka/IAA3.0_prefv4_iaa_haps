@@ -1,0 +1,72 @@
+
+BEFORE RUNNING ANY VERIFICATION/VALIDATION, PLEASE EDIT <sideband_dir>/source/rtl/iosfsbc/common/sbc_map.sv
+=============================================================================================================
+FILE TO REPLACE SBC_*_CELL WITH TARGET PROCESS SPECIFIC CTECH CELLS.
+====================================================================
+
+
+*****************************
+*                           *
+*        Verification       *
+*                           *
+*****************************
+cd <sideband_dir>/scripts
+source setup
+cd ../verif/sim
+make cleanall
+make iptest TEST=test01 VERBOSITY=OVM_FULL INT=0
+
+
+
+*****************************
+*                           *
+*          BACKEND          *
+*                           *
+*****************************
+Customer can run whole Backend flow.
+
+For Endpoint or Base endpoint:
+================================
+
+To run whole backend flow:
+--------------------------
+1) Do toolsetup and visa too setup.
+
+  cd <sideband_dir>/scripts
+  source setup
+
+2) If it has asynchronous agent clock, set environment "async_" for asynchronous agent clock
+
+   setenv clkCross async_
+           
+	   -or-
+   
+   For synchronous endpoint-
+   
+   setenv clkCross async_
+   
+
+3) To run BE flow for endpoint- 
+   
+   ./runBEflow_sbendpoint
+   
+         -or-	 
+	 
+   To run BE flow for base-endpoint 
+   
+   ./runBEflow_sbebase
+
+
+4) Please go to each tools/<tool dir> and review log files if tool runs OK.
+
+
+To run a specific tool:
+--------------------------
+
+1) cd to tools/<tool dir>
+
+2) follow dir in readme or README file
+
+3) ./run_<*>
+
+<End>

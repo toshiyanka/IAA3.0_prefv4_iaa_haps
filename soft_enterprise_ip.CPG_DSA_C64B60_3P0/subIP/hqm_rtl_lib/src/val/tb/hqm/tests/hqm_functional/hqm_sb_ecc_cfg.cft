@@ -1,0 +1,49 @@
+cfg_begin
+
+###################################
+## PF only
+###################################
+
+  dir qid DQID0:* 
+  dir qid DQID1:* 
+  dir qid DQID2:* 
+  dir qid DQID3:* 
+
+  ldb qid LQID0:* 
+  ldb qid LQID1:* 
+  ldb qid LQID2:* 
+  ldb qid LQID3:* 
+
+  vas VAS0:* credit_cnt=128 dir_qidv:DQID0=1  dir_qidv:DQID1=1 dir_qidv:DQID2=1  dir_qidv:DQID3=1 
+  vas VAS0   ldb_qidv:LQID0=1  ldb_qidv:LQID1=1  ldb_qidv:LQID2=1  ldb_qidv:LQID3=1
+
+  dir pp DQID0 vas=VAS0
+  dir pp DQID1 vas=VAS0
+  dir pp DQID2 vas=VAS0
+  dir pp DQID3 vas=VAS0
+ 
+  ldb pp LPP0:* vas=VAS0 exp_unexp_comp=1 
+  ldb pp LPP1:* vas=VAS0 
+  ldb pp LPP2:* vas=VAS0 
+  ldb pp LPP3:* vas=VAS0 
+ 
+  dir cq DQID0 gpa=sm
+  dir cq DQID1 gpa=sm
+  dir cq DQID2 gpa=sm
+  dir cq DQID3 gpa=sm
+
+  ldb cq LPP0 gpa=sm qidv0=1 qidix0=LQID0
+  ldb cq LPP1 gpa=sm qidv0=1 qidix0=LQID1
+  ldb cq LPP2 gpa=sm qidv0=1 qidix0=LQID2
+  ldb cq LPP3 gpa=sm qidv0=1 qidix0=LQID3
+
+cfg_end
+
+# Enable MSI-X
+wr hqm_pf_cfg_i.msix_cap_control     0x8000
+rd hqm_system_csr.alarm_hw_synd      0x00000000
+rd hqm_system_csr.alarm_pf_synd0     0x00000000
+rd hqm_system_csr.alarm_pf_synd1     0x00000000
+rd hqm_system_csr.alarm_pf_synd2     0x00000000
+rd hqm_system_csr.sbe_cnt_0          0x00000000
+rd hqm_system_csr.sbe_cnt_1          0x00000000

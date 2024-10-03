@@ -1,0 +1,79 @@
+#---*-perl-*---
+# Set up the project UDF
+my $PROJECT = $ENV{ACE_PROJECT};
+
+%audf = (
+
+ CommandMapper => {
+    
+        $PROJECT => {
+           -test_manager => {
+              remove_mod => {
+                 static_check => [
+                         "Ace::WorkModules::StaticChecks::DefaultPreCheck",
+                         "Ace::WorkModules::StaticChecks::DefaultQestaCDCtcl",  
+                         "Ace::WorkModules::StaticChecks::DCshell",
+                         "Ace::WorkModules::StaticChecks::DefaultLira",
+                         "Ace::WorkModules::StaticChecks::DefaultLintra",
+                         "Ace::WorkModules::StaticChecks::Spyglass",           
+                         "Ace::WorkModules::StaticChecks::DefaultPostCheck",
+                         "Ace::WorkModules::PostSimResults",                 
+                         "Ace::WorkModules::Cleanup",                     
+                                 ],
+                            },
+            
+               add_mod => {
+                   static_check => [
+                         "Ace::WorkModules::StaticChecks::DefaultPreCheck",
+                         "common::QuestaCDC_TCL",
+                         "Ace::WorkModules::StaticChecks::DCshell",
+                         "Ace::WorkModules::StaticChecks::DefaultLira",
+                         "Ace::WorkModules::StaticChecks::DefaultLintra",
+                         "Ace::WorkModules::StaticChecks::Spyglass",         
+                         "Ace::WorkModules::StaticChecks::DefaultPostCheck",
+                         "common::PostSimResults",               
+                         "Ace::WorkModules::Cleanup",                   
+                                   ]
+                           },
+                },
+        },
+    },
+
+
+    InterfaceVars =>  {
+
+	 -enable_liblist_elab_order => { default => '1', },
+	#Defining some new scoped variables
+	$PROJECT =>	{
+    	    #Configuration switches for CDC
+            -zin_opts => {
+        	default => ["-c -licq",], #You may add your other CDC options IF required.
+            },
+          -enable_post_checker  => { default => "1", },
+   -zin_check_results_files => {
+            clear_default => 1,
+            default => [ "cdc_design.rpt","cdc.rpt",],
+            },
+              }, ##end of InterfaceVars->$PROJECT
+    }, ## end of InterfaceVars
+    
+#-------------------------------------------------------------------------------
+#The following are "CDC models and Libs". In the libs part please include all the 
+#Synthesizable RTL required to compiile the module.
+#-------------------------------------------------------------------------------
+ CheckerData => {
+       $PROJECT => {
+            post_simulation => {
+                -enable_flag => '-enable_post_checker',
+                scripts => [
+                           "/p/com/eda/intel/onda/prod/bin/onda: cdc -ver $ENV{CDC_VER} -ip dfxsecure_plugin -sd $ENV{IP_ROOT} -var1 dfxsecure_plugin -ovf $ENV{IP_ROOT}/tools/cdc/temp_cdc",
+			   ],
+                               },
+                  },
+                },
+    
+
+    
+);
+
+

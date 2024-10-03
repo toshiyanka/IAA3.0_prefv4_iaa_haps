@@ -1,0 +1,90 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => [
+                     "+AW_CONTINUE_ON_ERROR",
+                     "+iosf_tracker_filename=iosf_trk",
+                     "-assert nopostproc",
+                     "-assert maxfail=9000",
+                     "-assert finish_maxfail=9000",
+                     "-assert global_finish_maxfail=9000",
+                     "+vcs+lic+wait",
+                     "+SLA_USER_DATA_PHASE_TIMEOUT=0",
+                     "+SLA_POST_RESET_DATA_PHASE_TIMEOUT=0",
+                     "+OVM_GLOBAL_TIMEOUT=100000000000",
+                     "+SLA_MAX_RUN_CLOCK=0",
+                     "+SERVER_SIM_GPSB_RAL_ABORTED_CFG_WR_POST_1_1",
+                     "+OVM_MAX_ERRCNT=9000",
+                     "+SLA_ENABLE_RAL_MONITOR",
+                     "+SLA_RAL_MONITOR_ALL_ACCESS",
+                     "+SLA_RAL_STATUS_CHECK_ENABLE",
+                     "+hqm_pcie_init_stim_config::skip_msix_cfg=1",
+                     "+hqm_pcie_init_stim_config::skip_msi_cfg=1",
+					 "+SLA_CONFIG_PHASE_TIMEOUT=300000",
+                    ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+
+   %runModes = (
+        pp_addr_aliasing_to_reg_chk_pf => {
+           -simv_args => [
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/hcw_all_resources_pf_cfg.cft",
+                     "+HQM_USER_DATA_SEQ_OVERRIDE=hcw_all_resources_pf_hcw_seq",
+                     "+PP_ADDR_ALIASING_TO_REGS_CHK",
+                     ],
+      },
+
+
+    );
+
+   my $total_reg_count                 = 45850;  
+   my $reg_per_seg                     = 50;
+   my $seg_count                       = $total_reg_count/$reg_per_seg; 
+   my $final_seg                       = 0; 
+   for(my $i=0; $i<$seg_count; $i++) {
+      my $test_str = "register_aliasing_chk$i";
+
+     if($i == $seg_count-1) { 
+       $final_seg = 1;
+     }  
+      $runModes{"$test_str"} = { 
+      -simv_args => [
+                     "+segment_number=$i",
+                     "+final_segment=$final_seg",
+                     "+registers_per_seg=$reg_per_seg",
+                     "+hqm_pcie_init_stim_config::skip_msix_cfg=1",
+                     "+hqm_pcie_init_stim_config::skip_msi_cfg=1",
+                    ],
+      };                 
+   } 
+
+   my $total_reg_count                 = 45850;  
+   my $reg_per_seg                     = 50;
+   my $seg_count                       = $total_reg_count/$reg_per_seg; 
+   my $final_seg                       = 0; 
+   for(my $i=0; $i<$seg_count; $i++) {
+      my $test_str = "reg_alias_chk_with_pp_addr_seg$i";
+
+     if($i == $seg_count - 1) { 
+       $final_seg = 1;
+     }  
+      $runModes{"$test_str"} = { 
+      -simv_args => [
+                     "+REG_ALIAS_CHK_WITH_PP_ADDR",
+                     "+segment_number=$i",
+                     "+final_segment=$final_seg",
+                     "+registers_per_seg=$reg_per_seg",
+                     "+hqm_pcie_init_stim_config::skip_msix_cfg=1",
+                     "+hqm_pcie_init_stim_config::skip_msi_cfg=1",
+                     "+IOSF_PRIM_FILE=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/pp_addr.cft",
+                    ],
+      };                 
+   } 
+
+      import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}

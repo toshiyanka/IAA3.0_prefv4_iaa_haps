@@ -1,0 +1,67 @@
+.defaults -ace -m acerun
++defaults -build_type debug -4value 1
++defaults -ace_args -simv_args '"' +PMA_SB=ON +OVM_TESTNAME=hqm_ss_itpp_test +SLA_USER_DATA_PHASE_TIMEOUT=900000000'"' -test_in_model -enable_testcopy_with_test_in_model -ace_args-
+#+defaults -ace_args -simv_args '"' +PMA_SB=ON +SLA_TRAINING_PHASE_SEQUENCE="" +SLA_CONFIG_PHASE_TIMEOUT=1000 +SLA_CONFIG_PHASE_SEQUENCE="" +SLA_DATA_PHASE_TIMEOUT=1000 +SLA_FLUSH_PHASE_TIMEOUT=2000 +SLA_PH4_AGENT_SHARED_PLL_BRINGUP_SEQUENCE="" +SLA_PH4_AGENT_SHARED_PLL_BRINGUP_TIMEOUT=20000 +OVM_TESTNAME=hqm_ss_itpp_test '"' -test_in_model -enable_testcopy_with_test_in_model -make_testdir_script /p/hdk/rtl/proj_tools/ace/master/2.01.34.02/bin/makeTestRunDir.pl -ace_args-
+#+defaults -ace_args -simv_args '"'+OVM_VERBOSTIY=OVM_DEBUG +assertOff '"' -ace_args-
++defaults -ace_args -simv_args '"'+OVM_VERBOSTIY=OVM_DEBUG '"' -ace_args-
++defaults -ace_args -simv_args '"'+ERRCNT=200 '"' -ace_args-
+#+defaults -ace_args -simv_args '"'+SLA_MAX_RUN_CLOCK=2000000 '"' -ace_args-
++defaults -ace_args -simv_args '"'+ITPP_MACRO_FILE=$MODEL_ROOT/target/collage/work/hqm_ss/gen/tb_specs/soc_ip_hier_define.sv'"' -ace_args-
+#+defaults -ace_args -simv_args '"' -gui '"' -ace_args-
+#+defaults -ace_args -simv_args '"'-f $MODEL_ROOT/SimFH '"' -ace_args-
++defaults -ace_args -simv_args '"'+TAP_CLK_EN +STF_CLK_EN'"' -ace_args-
++defaults -save
+#+defaults -fsdb
+#+defaults -ace_args -simv_args +DIS_TELE_CFG=1,+DIS_TELE_FLUSH=1 -ace_args-
+#+defaults -ace_args -simv_args +DISABLE_TELE_ERROR=1 -ace_args-
++defaults -ace_args -simv_args +DISABLE_DTS_SB=1 -ace_args-
+
+#####################################
+# DFT ITPP TEST
+####################################
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/all_stap_rsvd_opcodes.itpp' -ace_args- -dirtag all_stap_rsvd_opcodes  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/tap_all_reg_rw_pausedr.itpp' -ace_args- -dirtag tap_all_reg_rw_pausedr -ace_args -simv_args '"' +TAP_CLK_PERIOD=10002 +TAP_CLK_SKEW=500'"' -ace_args- -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/tap_all_reg_rw_10_1000.itpp' -ace_args- -dirtag tap_all_reg_rw_10_1000 -ace_args -simv_args '"' +TAP_CLK_PERIOD=10001 +TAP_CLK_SKEW=1000'"' -ace_args- -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/tap_all_idcode.itpp' -ace_args- -dirtag tap_all_idcode -ace_args -simv_args '"' +TAP_CLK_PERIOD=40000 +TAP_CLK_SKEW=750'"' -ace_args- -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/tap_all_reg_continuity_security_green.itpp' -ace_args- -dirtag tap_all_reg_continuity_security_green -ace_args -simv_args '"' +TAP_CLK_PERIOD=20000 +TAP_CLK_SKEW=250'"' -ace_args- -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/tap_all_reg_continuity.itpp' -ace_args- -dirtag tap_all_reg_continuity  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/tap_all_reg_default.itpp' -ace_args- -dirtag tap_all_reg_default  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/tap_TL_cfg_status_rw_security_rw_cfg.itpp' -ace_args- -dirtag tap_TL_cfg_status_rw_security_rw_cfg  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/tap_TL_cfg_status_rw_security_GREEN.itpp' -ace_args- -dirtag tap_TL_cfg_status_rw_security_GREEN  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/tap_TL_cfg_status_rw_security_rw_status.itpp' -ace_args- -dirtag tap_TL_cfg_status_rw_security_rw_status  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/tap_TL_cfg_status_continuity_GREEN.itpp' -ace_args- -dirtag tap_TL_cfg_status_continuity_GREEN  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/taplink_glue_cfg_status_stap_hqm_ss_TAPCONFIG.itpp' -ace_args- -dirtag taplink_glue_cfg_status_stap_hqm_ss_TAPCONFIG  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/taplink_glue_cfg_status_stap_idv_hqm_ss_COUNTER_A.itpp' -ace_args- -dirtag taplink_glue_cfg_status_stap_idv_hqm_ss_COUNTER_A  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/taplink_glue_cfg_status_stap_mbist_hqm_ss_SLVIDCODE.itpp' -ace_args- -dirtag taplink_glue_cfg_status_stap_mbist_hqm_ss_SLVIDCODE  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/taplink_glue_cfg_status_stap_pll_hqm_ss_SLVIDCODE.itpp' -ace_args- -dirtag taplink_glue_cfg_status_stap_pll_hqm_ss_SLVIDCODE  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/taplink_glue_cfg_status_stap_dts_hqm_ss_DTSCFGFUSE.itpp' -ace_args- -dirtag taplink_glue_cfg_status_stap_dts_hqm_ss_DTSCFGFUSE  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/tap_early_reset_stap_hqm_ss_FUSE_SENSE.itpp' -ace_args- -dirtag tap_early_reset_stap_hqm_ss_FUSE_SENSE -ace_args -simv_args '"' +ITPP_TEST_PHASE=FUSE_SENSE '"' -ace_args- -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/tap_early_reset_stap_idv_hqm_ss_UNBLOCK_PMSB.itpp' -ace_args- -dirtag tap_early_reset_stap_idv_hqm_ss_UNBLOCK_PMSB -ace_args -simv_args '"' +ITPP_TEST_PHASE=UNBLOCK_PMSB '"' -ace_args- -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/tap_early_reset_stap_mbist_hqm_ss_USER_DATA_PHASE.itpp' -ace_args- -dirtag tap_early_reset_stap_mbist_hqm_ss_USER_DATA_PHASE -ace_args -simv_args '"' +ITPP_TEST_PHASE=USER_DATA_PHASE '"' -ace_args- -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/tap_early_reset_stap_pll_hqm_ss_UNBLOCK_PMSB.itpp' -ace_args- -dirtag tap_early_reset_stap_pll_hqm_ss_UNBLOCK_PMSB -ace_args -simv_args '"' +ITPP_TEST_PHASE=UNBLOCK_PMSB '"' -ace_args- -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/tap_early_reset_stap_dts_hqm_ss_UNBLOCK_PMSB.itpp' -ace_args- -dirtag tap_early_reset_stap_dts_hqm_ss_UNBLOCK_PMSB -ace_args -simv_args '"' +ITPP_TEST_PHASE=UNBLOCK_PMSB '"' -ace_args- -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/stap_hqm_ss_SLVIDCODE_gba.itpp' -ace_args- -dirtag stap_hqm_ss_SLVIDCODE_gba  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/stap_hqm_ss_TAPCONFIG_gba.itpp' -ace_args- -dirtag stap_hqm_ss_TAPCONFIG_gba  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/stap_idv_hqm_ss_SLVIDCODE_gba.itpp' -ace_args- -dirtag stap_idv_hqm_ss_SLVIDCODE_gba  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/stap_idv_hqm_ss_CHAIN_SEL_gba.itpp' -ace_args- -dirtag stap_idv_hqm_ss_CHAIN_SEL_gba  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/stap_mbist_hqm_ss_SLVIDCODE_gba.itpp' -ace_args- -dirtag stap_mbist_hqm_ss_SLVIDCODE_gba  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/stap_pll_hqm_ss_SLVIDCODE_gba.itpp' -ace_args- -dirtag stap_pll_hqm_ss_SLVIDCODE_gba  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/stap_pll_hqm_ss_STAP_DFX1_gba.itpp' -ace_args- -dirtag stap_pll_hqm_ss_STAP_DFX1_gba  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/stap_dts_hqm_ss_TAPCONFIG_gba.itpp' -ace_args- -dirtag stap_dts_hqm_ss_TAPCONFIG_gba  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/stap_dts_hqm_ss_DTSCFGFUSE_gba.itpp' -ace_args- -dirtag stap_dts_hqm_ss_DTSCFGFUSE_gba  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/stap_hqm_ss_SLVIDCODE_dba.itpp' -ace_args- -dirtag stap_hqm_ss_SLVIDCODE_dba  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/stap_hqm_ss_TAPCONFIG_dba.itpp' -ace_args- -dirtag stap_hqm_ss_TAPCONFIG_dba  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/stap_idv_hqm_ss_SLVIDCODE_dba.itpp' -ace_args- -dirtag stap_idv_hqm_ss_SLVIDCODE_dba  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/stap_idv_hqm_ss_CHAIN_SEL_dba.itpp' -ace_args- -dirtag stap_idv_hqm_ss_CHAIN_SEL_dba  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/stap_mbist_hqm_ss_SLVIDCODE_dba.itpp' -ace_args- -dirtag stap_mbist_hqm_ss_SLVIDCODE_dba  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/stap_pll_hqm_ss_SLVIDCODE_dba.itpp' -ace_args- -dirtag stap_pll_hqm_ss_SLVIDCODE_dba  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/stap_pll_hqm_ss_STAP_DFX1_dba.itpp' -ace_args- -dirtag stap_pll_hqm_ss_STAP_DFX1_dba  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/stap_dts_hqm_ss_TAPCONFIG_dba.itpp' -ace_args- -dirtag stap_dts_hqm_ss_TAPCONFIG_dba  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/stap_dts_hqm_ss_DTSCFGFUSE_dba.itpp' -ace_args- -dirtag stap_dts_hqm_ss_DTSCFGFUSE_dba  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/powergood_override_stap_hqm_ss.itpp' -ace_args- -dirtag powergood_override_stap_hqm_ss  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/powergood_override_stap_idv_hqm_ss.itpp' -ace_args- -dirtag powergood_override_stap_idv_hqm_ss  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/powergood_override_stap_pll_hqm_ss.itpp' -ace_args- -dirtag powergood_override_stap_pll_hqm_ss  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/powergood_override_stap_mbist_hqm_ss.itpp' -ace_args- -dirtag powergood_override_stap_mbist_hqm_ss  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/powergood_override_stap_dts_hqm_ss.itpp' -ace_args- -dirtag powergood_override_stap_dts_hqm_ss  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/iosfsb_ism_ovrd.itpp' -ace_args- -dirtag iosfsb_ism_ovrd  -seed 1
+hqm_ss_itpp_test -no_assert_maxfail -ace_args -simv_args '+ITPP_FILE=$MODEL_ROOT/verif/tb/tests/dft/itpp/iosfsb_pok_ovrd.itpp' -ace_args- -dirtag iosfsb_pok_ovrd  -seed 1

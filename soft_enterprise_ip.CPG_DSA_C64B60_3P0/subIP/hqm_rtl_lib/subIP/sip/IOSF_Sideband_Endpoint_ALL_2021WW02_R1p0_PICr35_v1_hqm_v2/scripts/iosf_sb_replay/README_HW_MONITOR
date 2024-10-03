@@ -1,0 +1,53 @@
+1)	The hw monitor rtl code resides in verif/bfm/sideband_vc/tb/common/iosf_sb_hw_monitor.sv
+2)	The hw monitor is instantiated in verif/tb/top_tb/sbr_config_ipxact_workspace/tb_sbr_config_ipxact_workspace.sv in a generated area.
+3)	verif/tb/top_tb/sbr_config_ipxact_workspace/rtr_port_map.svh is a file dumped by xml2csv parser script for passing parameters required for replay. This has src rtr id, src port no, destination rtr/ep , agent_mastering_sb_if information. This is required to generate correct tracker names, set rtl_path information in the replay environment.
+4)	New files added that will be required for binary dump and replay.
+        ace/iosf_jem_replay.hdl
+        scripts/setup_jem
+        verif/tb/top_program.sv
+5)	Ace files modified:
+	ace/iosf_sbc_rtr_hdl.udf
+	ace/iosf_sbc_rtr_local_ivars.udf
+	ace/iosf_svc_rtr.hdl
+6)	misc files for compatibility with latest tools used by JEM        
+		modified:   verif/bfm/ccu_vc/verif/ccu-vc/ccu_vc_pkg.sv
+        modified:   verif/bfm/pgcb_vc/source/CC/CCAgentPkg.sv
+        modified:   verif/bfm/psmi_oob/psmi_oob_ti.sv
+7)	Code change in VC
+tb/common/iosfsbm_cm_pkg.sv
+tb/common/monitor.svh
+tb/env/env.svh
+tb/common/iosf_sb_hw_monitor.sv
+tb/common/iosfsbm_rtl_tlm_common_pkg.sv
+tb/emu_replay/
+
+The hw monitor can be run in three modes
+1) ace -cc or ace -cc -vc_ph2 [depending on the vcs version]
+2) Binary dump mode where binary files are dumped for replay, while simulation is running in parallel.
+	source scripts/setup -x <project_setupfile>
+	source scripts/setup_jem
+	ace -cc -vc_ph2 -vlog_opts "+define+USE_SLA_RTL_TLM" <usual test run command> --> For regular simulation
+	Compiling commands:
+	Jem compiling
+	cd $IP_ROOT/verif/bfm/sideband_vc/tb/common
+	mkdir jem_manual_gen
+	$JEM/bin/jemsw -o ./jem_manual_gen -- -mtm $IP_ROOT/verif/bfm/sideband_vc/tb/common/iosfsbm_rtl_tlm_common_pkg.sv iosf_sb_hw_monitor.sv +incdir+$IP_ROOT/verif/bfm/sideband_vc/tb/common/ +incdir+$SAOLA_HOME/verilog +incdir+$OVM_HOME/src +incdir+$JEM/jem_rt +define+SLA_EXTERNAL_RTL_TLM_IMPL +define+USE_SLA_RTL_TLM
+
+	cd jem_manual_gen
+	cp -rp $IP_ROOT/verif/tb/jem.f $IP_ROOT/verif/bfm/sideband_vc/tb/common/jem_manual_gen/.
+	g++ -shared -fPIC -g -o libtlmgen_iosfsb_ml.so jem_tlm_dut.cpp jem_tlm_replay_ml.cpp -D JEM_ML -I . -I $MLTE_PATH//comm/cdns_uvm_ml/ml/backplane/ -I $MLTE_PATH//comm/connectors/ -I $JEM/jem_ml_rt -I $JEM/jem_rt -Wl,-rpath,$JEM/lib -Wl,-rpath-link,$JEM/lib -Wl,--disable-new-dtag
+
+jem binary dump
+	ace -cc -vc_ph2 -vlog_opts "+define+SB_ENABLE_RTR_TRACKERS" -vlog_opts "+define+USE_SLA_RTL_TLM" -x -t rtr_directed_test -jem_dump_bin -model_compile_results_dir $IP_ROOT/verif/results_jem_dump/target -results $IP_ROOT/verif/results_jem_dump
+
+jem_replay
+	ace -cc -vc_ph2 -vlog_opts "+define+SB_ENABLE_RTR_TRACKERS" -vlog_opts "+define+USE_SLA_RTL_TLM" -x -t jem_ovm_replay -simv_args "+ML_SYNC_PERIOD=1 +REPLAY_ENV_NAME=iosf_sb_replay_env +IOSF_SB_MONITORS_FILE=$IP_ROOT/verif/tb/top_tb/sbr_config_ipxact_workspace/rtr_port_map.svh" -model_compile_results_dir $IP_ROOT/verif/results_jem_replay/target -results $IP_ROOT/verif/results_jem_replay -vlog_opts "+define+SLA_EXTERNAL_RTL_TLM_IMPL +incdir+${JEM}/jem_rt" -m jem_replay -mc jem_replay -test_setenv "JEM_ML_REPLAY_TRACE_INDEX=./jem/tlm_map.txt" -test_run_link_dirs $IP_ROOT/verif/results_jem_dump/tests/rtr_directed_test/jem
+
+Compare script:
+The configuration of what to check is done here:
+setenv DUT iosf_sb_replay
+$IP_ROOT/scripts/iosf_sb_replay/te_replay_diff_opts.csv
+Generate different csv files for different networks
+The command line run is:
+run_te_replay rtr_directed_test $IP_ROOT/verif/results_jem_dump
+

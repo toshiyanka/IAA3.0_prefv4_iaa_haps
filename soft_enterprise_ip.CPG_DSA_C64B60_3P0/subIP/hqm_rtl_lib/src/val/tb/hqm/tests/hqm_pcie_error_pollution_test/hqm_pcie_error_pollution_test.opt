@@ -1,0 +1,159 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => ["+AW_CONTINUE_ON_ERROR", "+iosf_tracker_filename=iosf_trk", "-assert nopostproc",  
+                     "+hqm_pcie_init_stim_config::ptlpr_mask=0 +hqm_pcie_init_stim_config::ptlpr_sev=1",
+                     "+EXP_UNWANTED_TXN_TO_HQM", "+HQM_PVC_AUTO_TAG_GEN_DIS",
+                     "+HQMS_DEBUG", "+HQMI_DEBUG",
+                     "+SLA_FLUSH_PHASE_TIMEOUT=400000",
+                     "+vcs+lic+wait",
+                    ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+
+     ur_nf_unmask =>  { -simv_args => [ "+hqm_pcie_init_stim_config::ur_sev=0 +hqm_pcie_init_stim_config::ur_mask=0 ", "+ovm_set_config_int=*\\,sev_mask_val\\,0", ], }, 
+     ur_nf_anfes_unmask =>  { -simv_args => [ "+hqm_pcie_init_stim_config::ur_sev=0 +hqm_pcie_init_stim_config::ur_mask=0 +hqm_pcie_init_stim_config::anfes_mask=0 ", "+ovm_set_config_int=*\\,sev_mask_val\\,4", ], }, 
+     ur_f_unmask =>   { -simv_args => [ "+hqm_pcie_init_stim_config::ur_sev=1 +hqm_pcie_init_stim_config::ur_mask=0", "+ovm_set_config_int=*\\,sev_mask_val\\,1", ], }, 
+     ur_nf_mask =>    { -simv_args => [ "+hqm_pcie_init_stim_config::ur_sev=0 +hqm_pcie_init_stim_config::ur_mask=1", "+ovm_set_config_int=*\\,sev_mask_val\\,2", ], }, 
+     ur_f_mask =>     { -simv_args => [ "+hqm_pcie_init_stim_config::ur_sev=1 +hqm_pcie_init_stim_config::ur_mask=1", "+ovm_set_config_int=*\\,sev_mask_val\\,3", ], }, 
+
+     mtlp_nf_unmask => { -simv_args => ["+hqm_pcie_init_stim_config::mtlp_sev=0","+hqm_pcie_init_stim_config::mtlp_mask=0",  "+ovm_set_config_int=*\\,sev_mask_val\\,0", ], }, 
+     mtlp_f_unmask  => { -simv_args => ["+hqm_pcie_init_stim_config::mtlp_sev=1","+hqm_pcie_init_stim_config::mtlp_mask=0",  "+ovm_set_config_int=*\\,sev_mask_val\\,1", ], }, 
+     mtlp_nf_mask   => { -simv_args => ["+hqm_pcie_init_stim_config::mtlp_sev=0 +hqm_pcie_init_stim_config::mtlp_mask=1", "+ovm_set_config_int=*\\,sev_mask_val\\,2", ], }, 
+     mtlp_f_mask    => { -simv_args => ["+hqm_pcie_init_stim_config::mtlp_sev=1 +hqm_pcie_init_stim_config::mtlp_mask=1", "+ovm_set_config_int=*\\,sev_mask_val\\,3", ], },
+
+
+     uc_nf_unmask =>       { -simv_args => [ " +hqm_sla_pcie_cpl_error_stim_config::ec_sev_mask_type=nf_unmask","+hqm_pcie_init_stim_config::ec_sev=0","+hqm_pcie_init_stim_config::ec_mask=0",
+  ], }, 
+     uc_f_unmask =>        { -simv_args => [ " +hqm_sla_pcie_cpl_error_stim_config::ec_sev_mask_type=f_unmask","+hqm_pcie_init_stim_config::ec_sev=1","+hqm_pcie_init_stim_config::ec_mask=0",          ], }, 
+     uc_nf_mask =>         { -simv_args => [ " +hqm_sla_pcie_cpl_error_stim_config::ec_sev_mask_type=nf_mask","+hqm_pcie_init_stim_config::ec_sev=0","+hqm_pcie_init_stim_config::ec_mask=1",         ], }, 
+     uc_f_mask =>          { -simv_args => [ " +hqm_sla_pcie_cpl_error_stim_config::ec_sev_mask_type=f_mask","+hqm_pcie_init_stim_config::ec_sev=1","+hqm_pcie_init_stim_config::ec_mask=1",           ], }, 
+     uc_nf_anfes_unmask => { -simv_args => [ " +hqm_sla_pcie_cpl_error_stim_config::ec_sev_mask_type=nf_anfes_unmask","+hqm_pcie_init_stim_config::ec_sev=0","+hqm_pcie_init_stim_config::ec_mask=0", "+hqm_pcie_init_stim_config::anfes_mask=0", ], }, 
+
+     nf_unmask =>       { -simv_args => [ " +hqm_sla_pcie_cpl_error_stim_config::ec_sev_mask_type=nf_unmask","+hqm_pcie_init_stim_config::ec_sev=0","+hqm_pcie_init_stim_config::ec_mask=0",
+  ], }, 
+     f_unmask =>        { -simv_args => [ " +hqm_sla_pcie_cpl_error_stim_config::ec_sev_mask_type=f_unmask","+hqm_pcie_init_stim_config::ec_sev=1","+hqm_pcie_init_stim_config::ec_mask=0",          ], }, 
+     nf_mask =>         { -simv_args => [ " +hqm_sla_pcie_cpl_error_stim_config::ec_sev_mask_type=nf_mask","+hqm_pcie_init_stim_config::ec_sev=0","+hqm_pcie_init_stim_config::ec_mask=1",         ], }, 
+     f_mask =>          { -simv_args => [ " +hqm_sla_pcie_cpl_error_stim_config::ec_sev_mask_type=f_mask","+hqm_pcie_init_stim_config::ec_sev=1","+hqm_pcie_init_stim_config::ec_mask=1",           ], }, 
+     nf_anfes_unmask => { -simv_args => [ " +hqm_sla_pcie_cpl_error_stim_config::ec_sev_mask_type=nf_anfes_unmask","+hqm_pcie_init_stim_config::ec_sev=0","+hqm_pcie_init_stim_config::ec_mask=0", "+hqm_pcie_init_stim_config::anfes_mask=0", ], }, 
+
+
+     mtlp_ur_nf_unmask => { -simv_args => [ "+hqm_pcie_init_stim_config::mtlp_sev=0 +hqm_pcie_init_stim_config::mtlp_mask=0", 
+                                            "+hqm_pcie_init_stim_config::ur_sev=1   +hqm_pcie_init_stim_config::ur_mask=0  ", 
+                                            "+ovm_set_config_int=*\\,sev_mask_val\\,0", 
+                                          ], }, 
+     mtlp_ur_f_unmask  => { -simv_args => [ "+hqm_pcie_init_stim_config::mtlp_sev=1 +hqm_pcie_init_stim_config::mtlp_mask=0", 
+                                            "+hqm_pcie_init_stim_config::ur_sev=0   +hqm_pcie_init_stim_config::ur_mask=0  ", 
+                                            "+ovm_set_config_int=*\\,sev_mask_val\\,1", ], }, 
+
+     mtlp_ur_nf_mask   => { -simv_args => [ "+hqm_pcie_init_stim_config::mtlp_sev=0 +hqm_pcie_init_stim_config::mtlp_mask=1", 
+                                            "+hqm_pcie_init_stim_config::ur_sev=1   +hqm_pcie_init_stim_config::ur_mask=0  ", 
+                                            "+ovm_set_config_int=*\\,sev_mask_val\\,2", ], }, 
+
+     mtlp_ur_f_mask    => { -simv_args => [ "+hqm_pcie_init_stim_config::mtlp_sev=1 +hqm_pcie_init_stim_config::mtlp_mask=1", 
+                                            "+hqm_pcie_init_stim_config::ur_sev=1   +hqm_pcie_init_stim_config::ur_mask=0  ", 
+                                            "+ovm_set_config_int=*\\,sev_mask_val\\,3", ], },
+
+      uecpl_ptlp_then_mtlp_ptlp => { -simv_args => ["+HQM_PCIE_B2B_ERR_POLLUTION +HQM_PCIE_B2B_FIRST_ERR=uecpl_ptlp +HQM_PCIE_B2B_SECOND_ERR=mtlp_ptlp",],  },
+      mtlp_ptlp_then_uecpl_ptlp => { -simv_args => ["+HQM_PCIE_B2B_ERR_POLLUTION +HQM_PCIE_B2B_FIRST_ERR=mtlp_ptlp +HQM_PCIE_B2B_SECOND_ERR=uecpl_ptlp",],  },
+
+      uecpl_ptlp_then_ur_ptlp => { -simv_args => ["+HQM_PCIE_B2B_ERR_POLLUTION +HQM_PCIE_B2B_FIRST_ERR=uecpl_ptlp +HQM_PCIE_B2B_SECOND_ERR=ur_ptlp",],  },
+      ur_ptlp_then_uecpl_ptlp => { -simv_args => ["+HQM_PCIE_B2B_ERR_POLLUTION +HQM_PCIE_B2B_FIRST_ERR=ur_ptlp +HQM_PCIE_B2B_SECOND_ERR=uecpl_ptlp",],  },
+
+      ur_ptlp_then_mtlp_ptlp => { -simv_args => ["+HQM_PCIE_B2B_ERR_POLLUTION +HQM_PCIE_B2B_FIRST_ERR=ur_ptlp +HQM_PCIE_B2B_SECOND_ERR=mtlp_ptlp",],  },
+      mtlp_ptlp_then_ur_ptlp => { -simv_args => ["+HQM_PCIE_B2B_ERR_POLLUTION +HQM_PCIE_B2B_FIRST_ERR=mtlp_ptlp +HQM_PCIE_B2B_SECOND_ERR=ur_ptlp",],  },
+
+      skip_chk       => { -simv_args => ["+HQM_PCIE_B2B_SINGLE_ERR_SKIP_CHK",],  },
+      skip_d3_reinit => { -simv_args => ["+HQM_PCIE_B2B_ERR_SKIP_D3_REINIT +HQM_TB_EOT_CHECK_DISABLE"  ,],  },
+
+      mtlp => { -simv_args => ["+HQM_PCIE_MEM_MTLP_ERR",         ],  },
+
+      pf   => { -simv_args => ["+HQM_PCIE_ERROR_MSG_FUNC_NUM=0 ",],  },
+
+
+      ur_pf   => { -simv_args => ["+HQM_PCIE_MEM_UR_ERR_FUNC_NO=0",  ],  },
+
+
+      uc_pf   => { -simv_args => ["+HQM_PCIE_CPL_ERR_FUNC_NO=0",],  },
+
+      ur_pcie_hdr_pf    => { -simv_args => ["+pcie_exp_header_log_2=0x0000ff00",],  },
+
+      uecpl_pcie_hdr_pf    => { -simv_args => ["+pcie_exp_header_log_2=0x0000ff00",],  },
+
+      eot_pf   => { -simv_args => ["+eot_pf ",],  },
+
+      nf_uecpl_n_mtlp => { -simv_args => ["+eot_pf +pcie_ned +pcie_mtlp +pcie_ced +pcie_anfes +pcie_tfep=18 +pcie_en_H_FP_check", 
+
+                                          "+pcie_exp_header_log_0=0x60000070", 
+                                          "+pcie_exp_header_log_1=0x000000ff", 
+                                          "+pcie_exp_header_log_2=0x00000003", 
+                                          "+pcie_exp_header_log_3=0xa4000000", 
+                         ],  },
+
+      f_uecpl_n_mtlp => { -simv_args => ["+eot_pf +pcie_fed +pcie_mtlp +pcie_ec +pcie_tfep=16 +pcie_en_H_FP_check",
+
+                                          "+pcie_exp_header_log_0=0x0a084000", 
+                                          "+pcie_exp_header_log_1=0x00000004", 
+                                          "+pcie_exp_header_log_2=0x0000ff00", 
+                                          "+pcie_exp_header_log_3=0x00000000", 
+                         ],  },
+
+      pf_nf_d3ur_n_uecpl => { -simv_args => ["+pcie_ur_unc +pcie_urd +pcie_ced +pcie_anfes +pcie_ec +pcie_en_H_FP_check +pcie_tfep=20",
+
+                              "+pcie_exp_header_log_0=0x20084001", 
+                              "+pcie_exp_header_log_1=0x0000010f", 
+                              "+pcie_exp_header_log_2=0x00000003", 
+                              "+pcie_exp_header_log_3=0xa4000000", 
+             ],  },
+
+
+      pf_f_d3ur_n_uecpl  => { -simv_args => ["+pcie_ur_unc +pcie_urd +pcie_fed +pcie_ec +pcie_en_H_FP_check +pcie_tfep=20",
+
+                                             "+pcie_exp_header_log_0=0x20084001", 
+                                             "+pcie_exp_header_log_1=0x0000010f", 
+                                             "+pcie_exp_header_log_2=0x00000003", 
+                                             "+pcie_exp_header_log_3=0xa4000000", 
+                         ],  },
+
+
+      ## -- 
+      nf_uecpl_n_d3ur => { -simv_args => ["+pcie_urd +pcie_ur_unc +pcie_ced +pcie_anfes +pcie_ec +pcie_en_H_FP_check +pcie_tfep=16", 
+
+                              "+pcie_exp_header_log_0=0x0a084000", 
+                              "+pcie_exp_header_log_1=0x00000004", 
+                              "+pcie_exp_header_log_3=0x00000000", 
+             ],  },
+
+      
+      f_uecpl_n_d3ur  => { -simv_args => ["+pcie_urd +pcie_ur_unc +pcie_fed +pcie_ec +pcie_en_H_FP_check +pcie_tfep=16",
+
+                              "+pcie_exp_header_log_0=0x0a084000", 
+                              "+pcie_exp_header_log_1=0x00000004", 
+                              "+pcie_exp_header_log_3=0x00000000", 
+             ],  },
+
+      nf_d3ur_n_uecpl => { -simv_args => ["+pcie_urd +pcie_ur_unc +pcie_ced +pcie_anfes +pcie_ec +pcie_en_H_FP_check +pcie_tfep=20", 
+
+                              "+pcie_exp_header_log_0=0x20084001", 
+                              "+pcie_exp_header_log_1=0x0000010f", 
+                              "+pcie_exp_header_log_2=0x00000007", 
+             ],  },
+
+      f_d3ur_n_uecpl  => { -simv_args => ["+pcie_urd +pcie_ur_unc +pcie_fed +pcie_ec +pcie_en_H_FP_check +pcie_tfep=20",
+
+                                          "+pcie_exp_header_log_0=0x20084001", 
+                                          "+pcie_exp_header_log_1=0x0000010f", 
+                                          "+pcie_exp_header_log_2=0x00000007", 
+                         ],  },
+
+
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

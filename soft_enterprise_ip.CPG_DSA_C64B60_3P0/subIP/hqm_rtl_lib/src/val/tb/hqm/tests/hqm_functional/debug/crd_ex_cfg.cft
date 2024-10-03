@@ -1,0 +1,29 @@
+###################################
+# Setup LUTs used by HCWs
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+
+###################################
+# using pp_cq_base_seq 
+# only directed traffic 
+# 
+###################################
+
+cfg_begin
+
+  dir qid 6
+
+  vas 13 credit_cnt=0xa dir_qidv6=1
+  vas 1  credit_cnt=0x0
+
+  dir pp 4  vas=13
+  dir pp 6  vas=1
+
+  dir cq 4  gpa=sm
+  dir cq 6  gpa=sm
+
+##-- VF generating traffic
+  vf 1   dir_vpp10_v=1 dir_vpp10_pp=4 dir_vqid10_v=1 dir_vqid10_qid=6 dir_vpp6_pp=6
+
+cfg_end

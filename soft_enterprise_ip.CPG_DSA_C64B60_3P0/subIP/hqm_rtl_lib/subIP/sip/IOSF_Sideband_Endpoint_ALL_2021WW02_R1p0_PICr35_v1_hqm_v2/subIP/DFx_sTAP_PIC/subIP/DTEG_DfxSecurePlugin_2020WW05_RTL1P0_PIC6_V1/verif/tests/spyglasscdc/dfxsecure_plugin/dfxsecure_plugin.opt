@@ -1,0 +1,34 @@
+
+# Options passed to the CDC static verification
+{
+  %opts = ( 
+    -model                 => 'cdc_dfxsecure_plugin_model',
+    -static_check_top      => 'dfxsecure_plugin_rtl_lib.dfxsecure_plugin', #Refer to the top level module in the test
+    -static_check_tools    => [ "spyglass", ],
+    -enable_spyglass_group_run => 0,
+    -enable_cdc_lint       => 1,
+    -spyglass_goals        => [
+                               "cdc/cdc_verify_struct",
+                              ],
+    -spyglass_ctrl_files => [
+                             "$ENV{MODEL_ROOT}/tools/spyglass_cdc/dfxsecure_plugin/dfxsecure_plugin.sgdc",
+    ],
+    -post_process_pattern_file   => "$ENV{ACE_HOME}/udf/ace_base_postsim.pp",
+    -spyglass_post_process_modes => "AceSpyglassCDC_default,AceCDCLint_default",
+    -spyglass_exe_opts           => [ 
+                                     #'set_option dw yes',
+                                     #'set_option disable_amg no',
+                                     #'set_option lib SPY_DW_WORK ./dw_work',
+                                     'set_option dnc_param dfxsecure_plugin.DFX_USE_SB_OVR', 
+                                     'set_option dnc_param dfxsecure_plugin.DFX_VISA_BLACK', 
+                                     'set_option dnc_param dfxsecure_plugin.DFX_VISA_GREEN', 
+                                     'set_option dnc_param dfxsecure_plugin.DFX_VISA_ORANGE', 
+                                     'set_option dnc_param dfxsecure_plugin.DFX_VISA_RED', 
+                                     'set_option dnc_param dfxsecure_plugin.DFX_EARLYBOOT_FEATURE_ENABLE', 
+                                     'set_option dnc_param dfxsecure_plugin.DFX_SECURE_POLICY_MATRIX', 
+                                     ],
+    -spyglass_exe_scrag_recipe   => [],
+  );
+}
+
+

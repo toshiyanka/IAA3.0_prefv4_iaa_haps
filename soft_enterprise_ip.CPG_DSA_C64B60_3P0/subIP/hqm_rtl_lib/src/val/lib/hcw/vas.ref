@@ -1,0 +1,405 @@
+#include <string>
+#include <stdint.h>
+#include <iostream>
+#include "vas_reset.h"
+vas_reset_class::vas_reset_class ( ) 
+{ std::cout << "vas_reset_class firing up\n";fflush(NULL); 
+  int i, j;
+
+  vas     = (new vas_t[NUM_VAS]);
+  for (i = 0; i < NUM_VAS; i++) {
+    vas[i].vas_id = i; 
+    vas[i].vf_id = 0; 
+    vas[i].ldb_qe_id.id	  = (new uint8_t[NUM_LDB_QID]);
+    vas[i].dm_port_id_v	  = false; vas[i].dm_port_id = 0;
+    vas[i].ldb_qe_id.v	  = (new bool   [NUM_LDB_QID]);	  for (j= 0; j < NUM_LDB_QID; j++ )   {  vas[i].ldb_qe_id.v[j] = false; }
+    vas[i].dir_qe_id.id	  = (new uint8_t[NUM_DIR_QID]);
+    vas[i].dir_qe_id.v	  = (new bool   [NUM_DIR_QID]);	  for (j= 0; j < NUM_DIR_QID; j++ )   {  vas[i].dir_qe_id.v[j] = false; }
+    vas[i].ldb_port_pool_id.id = (new uint8_t[NUM_LDB_POOL]);
+    vas[i].ldb_port_pool_id.v  = (new bool   [NUM_LDB_POOL]);  for (j= 0; j < NUM_LDB_POOL; j++ )  {  vas[i].ldb_port_pool_id.v[j] = false; }
+    vas[i].dir_port_pool_id.id = (new uint8_t[NUM_DIR_POOL]);
+    vas[i].dir_port_pool_id.v  = (new bool   [NUM_DIR_POOL]);  for (j= 0; j < NUM_DIR_POOL; j++ )  {  vas[i].dir_port_pool_id.v[j] = false; }
+  }
+
+  ldb_pool= (new pool_t [NUM_LDB_POOL]);
+  for (i = 0; i < NUM_LDB_POOL; i++) {
+    ldb_pool[i].is_ldb_port = true;
+    ldb_pool[i].pool_id = i;
+    ldb_pool[i].port_id.id = (new uint8_t[NUM_LDB_PP]);
+    ldb_pool[i].port_id.v  = (new bool   [NUM_LDB_PP]); for (j= 0; j < NUM_LDB_PP; j++ ) {  ldb_pool[i].port_id.v[j] = false; }
+    ldb_pool[i].port_id.id = (new uint8_t[NUM_DIR_PP]);
+    ldb_pool[i].port_id.v  = (new bool   [NUM_DIR_PP]); for (j= 0; j < NUM_DIR_PP; j++ ) {  ldb_pool[i].port_id.v[j] = false; }
+  }
+
+  dir_pool = (new pool_t [NUM_LDB_POOL]);
+  for (i = 0; i < NUM_LDB_POOL; i++) {
+    dir_pool[i].is_ldb_port = false;
+    dir_pool[i].pool_id = i;
+    dir_pool[i].port_id.id = (new uint8_t[NUM_LDB_PP]);
+    dir_pool[i].port_id.v  = (new bool   [NUM_LDB_PP]); for (j= 0; j < NUM_LDB_PP; j++ ) {  dir_pool[i].port_id.v[j] = false; }
+    dir_pool[i].port_id.id = (new uint8_t[NUM_DIR_PP]);
+    dir_pool[i].port_id.v  = (new bool   [NUM_DIR_PP]); for (j= 0; j < NUM_DIR_PP; j++ ) {  dir_pool[i].port_id.v[j] = false; }
+  }
+
+  ldb_qid = (new qid_t[NUM_LDB_QID]);
+  dir_qid = (new qid_t[NUM_DIR_QID]);
+  ldb_pp  = (new pp_t [NUM_LDB_PP ]);
+  dir_pp  = (new pp_t [NUM_LDB_PP ]);
+  ldb_cq  = (new cq_t [NUM_LDB_CQ ]);
+  dir_cq  = (new cq_t [NUM_LDB_CQ ]);
+}
+vas_reset_class::~vas_reset_class () { fflush(NULL); std::cout << "vas_reset_class deconstructing\n";fflush(NULL); }
+//===========================================================================================================================//
+bool disable_cq_interrupts_for_shutdown ( bool is_ldb, uint8_t cq_id) {
+//  Disable IRQs. Pending interrupts are not blocked and will occur.
+  if (is_ldb) {/*
+    CSR_PF_BAR[cfg_ldb_cq_int_enb][cq_id].[en_depth] = 0;
+    CSR_PF_BAR[cfg_ldb_cq_int_enb][cq_id].[en_tim]   = 0;
+    CSR_PF_BAR[cfg_ldb_wd_enb_interval][cq_id].[enb] = 0;
+  */} else {/*
+    CSR_PF_BAR[cfg_dir_cq_int_enb][cq_id].[en_depth] = 0;
+    CSR_PF_BAR[cfg_dir_cq_int_enb][cq_id].[en_tim]   = 0;
+    CSR_PF_BAR[cfg_dir_wd_enb_interval][cq_id].[enb] = 0;
+  */}  
+  return (false) ;
+} 
+//===========================================================================================================================//
+bool set_vf_reset_in_progress ( uint8_t vf_id ) {/*
+
+    CSR_PF_BAR[pf_vf_reset_in_progress_r] = CSR_PF_BAR[pf_vf_reset_in_progress_r] | (1 << vf_id);
+*/
+  return(false);
+}
+//===========================================================================================================================//
+bool clr_vf_reset_in_progress ( uint8_t vf_id ) {/*
+
+    CSR_PF_BAR[pf_vf_reset_in_progress_r] = CSR_PF_BAR[pf_vf_reset_in_progress_r] & ~(1 << vf_id);
+*/
+  return(false);
+}
+//===========================================================================================================================//
+uint8_t get_dm_cq_for_vas ( uint8_t vas ) {
+  return (vas + 64);
+}
+//===========================================================================================================================//
+bool disable_pool_for_shutdown ( bool is_ldb, uint8_t pool ) {
+  if (is_ldb) {/*
+    CSR_PF_BAR[ldb_pool_enabled_r][pool].pool_enabled = 0;
+  */}
+  else {/*
+    CSR_PF_BAR[dir_pool_enabled_r][pool].pool_enabled = 0;
+  */}
+  return(false);
+}
+//===========================================================================================================================//
+bool disable_pp_for_shutdown ( bool is_ldb, uint8_t vas, uint8_t vpp ) {
+  if (is_ldb) {/*
+    CSR_PF_BAR[vf_ldb_vpp_v_r][vas *  64 + vpp].[vpp_v] = 0;
+  */}
+  else {/*
+    CSR_PF_BAR[vf_dir_vpp_v_r][vas * 128 + vpp].[vpp_v] = 0;
+  */}
+  return(false);
+}
+//===========================================================================================================================//
+bool disable_cq_for_shutdown ( bool is_ldb, uint8_t pp ) {
+  if (is_ldb) {/*
+    CSR_PF_BAR[cfg_cq_dir_disable][pp].[disabled] = 1;
+  */}
+  else {/*
+    CSR_PF_BAR[cfg_cq_ldb_disable][pp].[disabled] = 1;
+  */}
+  return(false);
+}
+//===========================================================================================================================//
+bool disable_pp_credit_update ( bool is_ldb, uint8_t pp ) {
+  if (is_ldb) {/*
+    CSR_PF_BAR[cfg_ldb_pp_credit_request_state_r][pp].[no_pp_credit_update] = 1; 
+  */}
+  else {/*
+    CSR_PF_BAR[cfg_dir_pp_credit_request_state_r][pp].[no_pp_credit_update] = 1;
+  */}
+ return (false);
+}
+//===========================================================================================================================//
+bool disable_dvas_for_shutdown ( uint8_t dvas ) {/*
+
+    CSR_PF_BAR[cfg_ing_dvas_drop_r] =  CSR_PF_BAR[cfg_ing_dvas_drop_r] | (1 << dvas );
+
+*/
+  return (false);
+}
+//===========================================================================================================================/
+bool disable_vas_qid_for_shutdown ( bool is_ldb, uint8_t vas, uint8_t qid ) {
+  if (is_ldb) {/*
+    CSR_PF_BAR[ldb_vasqid_v_r][vas * 128 + qid].[vasqid_v] = 0;
+  */}
+  else {/*
+    CSR_PF_BAR[ldb_vasqid_v_r][vas * 128 + qid].[vasqid_v] = 0;
+  */}
+  return (false) ;
+}
+//===========================================================================================================================/
+bool disable_vas_cqid_for_shutdown ( bool is_ldb, uint8_t vas, uint8_t cqid ) {
+  if (is_ldb) {/*
+    CSR_PF_BAR[ldb_vascqid_v_r][vas * 128 + cqid].[vascqid_v] = 0;
+  */}
+  else {/*
+    CSR_PF_BAR[ldb_vascqid_v_r][vas * 128 + cqid].[vascqid_v] = 0;
+  */}
+  return (false) ;
+}
+//===========================================================================================================================/
+uint8_t dir_cq_tok_count ( uint8_t cq ) {/*
+
+  return (CSR_PF_BAR[cfg_cq_dir_token_count_r][cq]);
+
+*/}
+//===========================================================================================================================/
+uint8_t dir_qid_enq_count ( uint8_t qid ) {/*
+
+  return (CSR_PF_BAR[cfg_qid_dir_enqueue_count][qid]);
+
+*/}
+//===========================================================================================================================//
+bool hw_resource_reset ( resource_e resource_type, uint8_t resource_id ) {/*
+
+  CSR_PF_BAR[cfg_reset_vf_start].vf_reset_type  = resource_type;
+  CSR_PF_BAR[cfg_reset_vf_start].vf_reset_id    = resource_id;
+  CSR_PF_BAR[cfg_reset_vf_start].vf_reset_start = 1;
+
+*/
+  return(false);
+}
+//===========================================================================================================================//
+bool master_resource_reset_in_progress ( ) {/*
+  return (CSR_PF_BAR[cfg_diagnostic_reset_status] >> 31 );
+*/}
+//===========================================================================================================================//
+bool qed_freelist_full ( uint8_t vas_id ) {/*
+
+  return ((CSR_PF_BAR[cfg_qed_freelist_pop_ptr] ^ CSR_PF_BAR[cfg_qed_freelist_push_ptr]) == 0X10000 ); 
+
+*/}
+//===========================================================================================================================//
+bool dqed_freelist_full ( uint8_t vas_id ) {/*
+
+  return ((CSR_PF_BAR[cfg_dqed_freelist_pop_ptr] ^ CSR_PF_BAR[cfg_dqed_freelist_push_ptr]) == 0X1000 ); 
+
+*/}
+//===========================================================================================================================//
+bool dvas_busy ( uint8_t vas_id ) {/*
+
+  return ((CSR_PF_BAR[cfg_ing_dvas_busy_r] >> vas_id) & 1);
+
+*/}
+//===========================================================================================================================//
+bool svas_busy ( uint8_t vas_id ) {/*
+
+  return ((CSR_PF_BAR[cfg_ing_svas_busy_r] >> vas_id) & 1);
+
+*/}
+//===========================================================================================================================//
+bool increment_svas_gen ( uint8_t dm_ppid ) {/*
+
+    CSR_PF_BAR[cfg_ing_pp_pp2vasgen_r] = (CSR_PF_BAR[cfg_ing_pp_pp2vasgen_r] + 1) % 3;
+*/
+  return (false);
+}
+
+
+
+//===========================================================================================================================//
+bool hw_reset_vas (uint8_t vas_id ) {
+  int i, j, k;
+ //========================================================================================================================//
+  disable_dvas_for_shutdown ( vas_id );				  //Drop all new DM transfers to VAS
+
+//Disable any PP from writing *to* VAS by disabling QIDs in VAS
+  for (j = 0; j < NUM_LDB_QID; j++ ) {
+    if (vas[vas_id].ldb_qe_id.v[j]) {
+      uint8_t qid = vas[vas_id].ldb_qe_id.id[j];
+      disable_vas_qid_for_shutdown ( true, vas_id, qid );	  //Disable enqueing to VAS (ldb)
+      disable_vas_cqid_for_shutdown( true, vas_id, qid );	  //Disable enqueing to VAS (ldb)
+    }
+  } //Disable VAS LDB QID
+  for (j = 0; j < NUM_DIR_QID; j++ ) {
+    if (vas[vas_id].dir_qe_id.v[j]) {
+      uint8_t qid = vas[vas_id].dir_qe_id.id[i];
+      disable_vas_qid_for_shutdown ( false, vas_id, qid );	  //Disable enqueuing to VAS (dir)
+      disable_vas_cqid_for_shutdown( false, vas_id, qid );	  //Disable enqueuing to VAS (dir)
+    }
+  } //Disable VAS DIR QID
+
+//Disable: (1) Writes *from* PPs in VAS, 
+//Disable: (2) Credit updates to PPs in VAS,
+//Disable: (3) VAS CQ Interrupts
+//Increment DM SVAS Generation (per LDB PP)
+  for (i = 0; i < NUM_LDB_POOL; i++ ) {				  
+    if (vas[vas_id].ldb_port_pool_id.v[i]) {
+      uint8_t pool_id = vas[vas_id].ldb_port_pool_id.id[i];
+      uint8_t vf_id   = vas[vas_id].vf_id;
+      for (j = 0; j < NUM_LDB_PP; j++ ) {
+	if ( ldb_pool[pool_id].port_id.v[j] ) {
+	  uint8_t pp_id  = ldb_pool[pool_id].port_id.id[j];
+	  uint8_t vpp_id = ldb_pool[pool_id].vport_id.id[j];
+	  disable_pp_for_shutdown (true, vf_id, vpp_id );	  //Disable all LDB PP
+	  disable_pp_credit_update(true, pp_id );		  //All LDB credits returned to pool
+	  disable_cq_interrupts_for_shutdown (true, pp_id );	  //Disable VAS LDB CQ interrupts
+	  increment_svas_gen ( pp_id );				  //Bump up SVAS associated with PP
+	}
+      }	//LDB PP
+    } //LDB pool
+  } //LDB port pools
+  for (i = 0; i < NUM_DIR_POOL; i++ ) {
+    if (vas[vas_id].dir_port_pool_id.v[i]) {
+      uint8_t pool_id = vas[vas_id].dir_port_pool_id.id[i];
+      uint8_t vf_id   = vas[vas_id].vf_id;
+      for (j = 0; j < NUM_DIR_PP; j++ ) {
+	if ( dir_pool[pool_id].port_id.v[j] ) {
+	  uint8_t pp_id  = dir_pool[pool_id].port_id.id[j];
+	  uint8_t vpp_id = dir_pool[pool_id].vport_id.id[j];
+	  disable_pp_for_shutdown (false,vf_id, vpp_id );	//Disable DIR PP
+	  disable_pp_credit_update(false, pp_id );		//All DIR credits returned to pool
+	  disable_cq_interrupts_for_shutdown ( false, pp_id );	//Disable VAS DIR CQ interrupts
+	}
+      }	//DIR PP
+    } //DIR pool
+  } //DIR pools
+
+//Wait for all LDB QEs enqueued **by** VAS PP to be scheduled
+//  then shut down all VAS LDB CQs
+//    Assumption: VAS LDB CQs are being drained by SW
+  for (i = 0; i < NUM_LDB_POOL; i++ ) {
+    if (vas[vas_id].ldb_port_pool_id.v[i]) {			   //Wait for all VAS QE credits in QED to be scheduled
+      uint8_t pool_id = vas[vas_id].ldb_port_pool_id.id[i];
+      for (k = 0; k < MAX_CREDIT_CHECK_LOOPS; k++ ) {		    //All QEs enq by VAS that could sched different VAS (via DM only) must 
+	if ( qed_freelist_full ( pool_id )) {			    //  return credits to VAS pool to avoid bogus post-reset VAS credit updates.
+	  goto LDB_CREDITS_BACK;				    //	  All non-DM QE (same VAS) will be erased by the HW resource reset sequence
+	}							    //	    Since PP source of QEs will be in same VAS & cleaned by hw_resource_reset
+      }
+      //QED contains QEs from VAS:
+      //  Risk of post-VAS pool credit corruption
+      //    No finite time means to purge or identify different VAS QEs that will return credits to the VAS
+LDB_CREDITS_BACK:   
+      for (j = 0; j < NUM_LDB_PP; j++ ) {
+	if ( ldb_pool[pool_id].port_id.v[j] ) {
+	  uint8_t cq_id = ldb_pool[pool_id].port_id.id[j];
+	  disable_cq_for_shutdown (true, cq_id );		    //Disable LDB CQ : No scheduling to VAS LDB CQ
+	} 
+      } //LDB PP
+    } //LDB ports
+  } //LDB pools 
+
+//Wait for all DIR QEs enqueued **by** VAS PP to be scheduled
+//  then shut down all VAS DIR CQs
+//    Assumption: VAS DIR CQs are being drained by SW
+  for (i = 0; i < NUM_DIR_POOL; i++ ) {				    //Wait for all VAS QE credits in DQED to be scheduled
+    if (vas[vas_id].dir_port_pool_id.v[i]) {
+      uint8_t pool_id = vas[vas_id].dir_port_pool_id.id[i];
+      for (k = 0; k < MAX_CREDIT_CHECK_LOOPS; k++ ) {		    //All QEs enq by VAS that could sched different VAS (via DM only) must 
+	if ( dqed_freelist_full ( pool_id )) {			    //  return credits to VAS pool to avoid bogus post-reset VAS credit updates.
+	  goto DIR_CREDITS_BACK;				    //	  All non-DM QE (same VAS) will be erased by the HW resource reset sequence
+	}							    //	    Since PP source of QEs will be in same VAS & cleaned by hw_resource_reset
+      }
+      //DQED contains QES from VAS:
+      //  Risk of post-VAS pool credit corruption
+      //    No finite time means to purge or identify different VAS QEs that will return credits to the VAS
+DIR_CREDITS_BACK:
+      for (j = 0; j < NUM_LDB_PP; j++ ) {
+	if ( dir_pool[pool_id].port_id.v[j] ) {
+	  uint8_t cq_id = dir_pool[pool_id].port_id.id[j];
+	  disable_cq_for_shutdown (false, cq_id );		    //Disable DIR CQ: No scheduling to VAS DIR CQ
+	}
+      } //DIR PP
+    } //DIR ports
+  } //DIR pools
+
+//Wait for all QEs (DIR ONLY) scheduled to the VAS's DM QID
+  if ( vas[vas_id].dm_port_id_v) {				    //VAS supports a DM function
+    uint8_t qid = vas[vas_id].ldb_qe_id.id[j];
+    for (j = 0; j < NUM_DIR_QID; j++ ) {
+      if (vas[vas_id].dir_qe_id.v[j]) {
+	for (k = 0; k < MAX_DM_QID_CHECK_LOOPS; k++ ) {		    //Make sure all QEs in DQED targeted at VAS's DM CQ
+	  if ( dir_qid_enq_count (vas[vas_id].dm_port_id) == 0 ) {  //  are scheduled (and ultimately terminated by dvas_drop function)
+	      goto DM_QID_ENQ_COUNT_ZERO;			    //	to eliminate SLIM possiblity of completing in new SVAS
+	  }
+	}
+  //VAS DM QID count not 0: corrective action
+DM_QID_ENQ_COUNT_ZERO: ;
+      }
+    }
+  }
+//Wait for all HCW's scheduled to the VAS's DM CQ to be emptied out
+  uint8_t dm_cq_id = get_dm_cq_for_vas ( vas_id );
+  for (k = 0; k < MAX_DM_CQ_CHECK_LOOPS; k++ ) {		    //Make sure all queued operations are		
+    if (dir_cq_tok_count ( dm_cq_id ) == 0 ) {			    //  are popped (and terminated by dvas_drop function)
+      goto DM_CQ_TO_VAS_EMPTY;					    //	eliminate SLIM possiblity of completing in new SVAS
+    }
+  }
+  // Not all QE assigned to VAS's DM CQ have been scheduled: corrective action
+DM_CQ_TO_VAS_EMPTY:
+//Wait for all DM Jobs issued *by* the VAS to complete
+  for (k = 0; k< MAX_SVAS_CHECK_LOOPS; k++) {
+    if (!svas_busy ( vas_id )){					    //Wait for all data_mover copies from VAS to complete: svas.gen bit should accelerate
+      goto DM_SVAS_JOBS_COMPLETE;				    // Ensure packet data copied to destination VAS before resetting vas_id
+    }
+  }
+// Not all DM jobs *to* VAS completed: corrective action
+DM_SVAS_JOBS_COMPLETE:  
+//Wait for all DM Jobs issued *to* the VAS to complete
+  for (k = 0; k< MAX_SVAS_CHECK_LOOPS; k++) {
+    if (!dvas_busy ( vas_id )){					    //Wait for all data_mover copies to VAS to complete dvas_drop should accelerate
+      goto DM_DVAS_JOBS_COMPLETE;				    // Ensure packet data copied to destination VAS before resetting vas_id
+    }
+  }
+// Not all DM jobs *to* VAS completed: corrective action
+DM_DVAS_JOBS_COMPLETE: 
+//Begin Per-Resource Hardware Reset Function 
+  for (i = 0; i < NUM_LDB_POOL; i++ ) {
+    if (vas[vas_id].ldb_port_pool_id.v[i]) {
+      disable_pool_for_shutdown (true, i );			    //Disable LDB pool
+      for (j = 0; j < NUM_LDB_QID; j++ ) {
+	if (vas[vas_id].ldb_qe_id.v[j]) {
+	  uint8_t qid = vas[vas_id].ldb_qe_id.id[i];
+	  hw_resource_reset ( QID_LDB_TYPE,  qid );		    //HW reset function for LDB QID
+	  while ( master_resource_reset_in_progress () ) {};	    //Wait for HW to finish (finite time)
+	}
+      }	//LDB QID
+      uint8_t pool_id = vas[vas_id].ldb_port_pool_id.id[i];
+      for (j = 0; j < NUM_LDB_PP; j++ ) {
+	if ( ldb_pool[pool_id].port_id.v[j] ) {
+	  uint8_t cq_id = ldb_pool[pool_id].port_id.id[j];
+	  hw_resource_reset ( CQ_LDB_TYPE,  cq_id );		    //HW reset function for LDB CQ
+	  while ( master_resource_reset_in_progress () ) {};	    //Wait for HW to finish (finite time)
+	}
+      }	//LDB PP
+    } //LDB pool
+    hw_resource_reset ( POOL_LDB_PORT_TYPE, i );		    //HW Reset Function for LDB pool
+  } //LDB pools
+  for (i = 0; i < NUM_DIR_POOL; i++ ) {
+    if (vas[vas_id].dir_port_pool_id.v[i]) {
+      disable_pool_for_shutdown (false, i );			    //Disable DIR pool
+      for (j = 0; j < NUM_DIR_QID; j++ ) {
+	if (vas[vas_id].dir_qe_id.v[j]) {
+	  uint8_t qid = vas[vas_id].dir_qe_id.id[i];
+	  hw_resource_reset ( QID_DIR_TYPE,  qid );		    //HW reset function for LDB CQ
+	  while ( master_resource_reset_in_progress () ) {};	    //Wait for HW to finish (finite time)
+	}
+      }	//DIR QID
+      uint8_t pool_id = vas[vas_id].dir_port_pool_id.id[i];
+      for (j = 0; j < NUM_DIR_PP; j++ ) {
+	if ( dir_pool[pool_id].port_id.v[j] ) {
+	  uint8_t cq_id = dir_pool[pool_id].port_id.id[j];
+	  hw_resource_reset ( CQ_DIR_TYPE,  cq_id );		    //HW reset function for LDB CQ
+	  while ( master_resource_reset_in_progress () ) {};	    //Wait for HW to finish (finite time)
+	}
+      }	//DIR PP
+    } //DIR pool
+    hw_resource_reset ( POOL_DIR_PORT_TYPE, i );		    //HW Reset Function for DIR pool
+  } //DIR pools
+}
+
+//==========================================================================================================================//
+int main ( ) { }
+

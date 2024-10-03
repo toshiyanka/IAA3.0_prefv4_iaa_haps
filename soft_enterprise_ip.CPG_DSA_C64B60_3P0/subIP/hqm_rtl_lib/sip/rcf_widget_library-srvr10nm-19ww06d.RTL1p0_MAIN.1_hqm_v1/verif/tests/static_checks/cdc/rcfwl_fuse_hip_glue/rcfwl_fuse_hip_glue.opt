@@ -1,0 +1,27 @@
+{
+   %opts = (
+          -model                        => "fuse_hip_glue",
+          -zin_top                      => "hqm_rcfwl_fuse_hip_glue_rtl_lib.hqm_rcfwl_fuse_hip_glue",
+          -zin_ctrl_files               => ["$ENV{CDC_RELEASE}/prototype/cdc_global.tcl",
+                                            "$ENV{CDC_RELEASE}/prototype/p1274/cdc_global_waivers.tcl",
+                                            "$ENV{MODEL_ROOT}/tools/cdc/inputs/rcfwl_fuse_hip_glue.tcl" ],
+          -cdc_post_process_modes       => "AceCDC_default,AceCDC_summary,",
+          -enable_runsim_postsim_checks => 1,
+          -create_postmortem_file       => 1,
+          -postsim_log_max_num_warn     => 10,
+          -post_process_parser          => "$ENV{ACE_HOME}/bin/ace_postsim.pl",
+          -post_process_pattern_file    => "$ENV{ACE_HOME}/udf/ace_base_postsim.pp",
+          -qcdc_exe_scrag_recipe        => "$ENV{CDC_RELEASE}/bin/qcdc_exe_scrag.recipe", 
+    );
+    %runModes = (
+
+      RptCLK => {
+        -zin_run_type                   => '-report_clock',
+        -cdc_post_process_modes         => "AceCDC_default",
+      },
+      hdmRUN => {
+        -zin_run_type                   =>  '-hcdc', 
+        -cdc_post_process_modes         => "AceCDC_default,AceCDC_summary,",
+      },
+    );
+}

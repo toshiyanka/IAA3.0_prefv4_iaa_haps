@@ -1,0 +1,360 @@
+#!/bin/tcsh
+
+set UNIT = "";
+
+set USAGE = "USAGE: $0 (pgcb|cdc|pcgu|pgcbcg) [test#] [-gui]\n"
+
+## Choose between CDC/PGCB/PCGU/PGCBCG
+if ( "$1" == "cdc" ) then
+   set UNIT = $1;
+else if ( "$1" == "pgcb" ) then
+   set UNIT = $1;
+else if ( "$1" == "pcgu" ) then
+   set UNIT = $1;
+else if ( "$1" == "pgcbcg" ) then
+   set UNIT = $1;
+else
+   echo "$USAGE" > /dev/stderr 
+   exit -1
+endif
+
+## Check test# is number
+set TESTNUM = 0
+if ( "$2" != "" ) then
+   echo "$2" | grep -P '^\d+$' > /dev/null
+   if ( $? || ($2 < 1) ) then
+      echo "$USAGE" > /dev/stderr
+      exit -1
+   else
+      set TESTNUM = $2
+   endif
+endif
+
+set BATCH = 1
+if ( "$3" != "" ) then
+   echo "$3" | grep -P '^-gui$' > /dev/null
+   if ( $? ) then
+      echo "$USAGE" > /dev/stderr
+      exit -1
+   else
+      set BATCH = 0
+   endif
+endif
+
+
+   ################################## PGCB ###################################
+   if ( $UNIT == "pgcb" ) then
+      set MOD=pgcbunit
+
+      set TESTS = ( \
+         "-parameter DEF_PWRON 0 -parameter ISOLLATCH_NOSR_EN 1" \
+         "-parameter DEF_PWRON 1 -parameter ISOLLATCH_NOSR_EN 0" \
+      )
+   ################################### CDC ###################################
+   else if ( $UNIT == "cdc" ) then
+      set MOD=ClockDomainController
+
+      set TESTS = ( \
+         "-parameter DEF_PWRON 1 -parameter DRIVE_POK 1 -parameter RST 1 -parameter AREQ 1 -parameter ISM_AGT_IS_NS 1 -parameter RSTR_B4_FORCE 0 -parameter PRESCC 1 -parameter DSYNC_CG_EN 1 -parameter FLOP_CG_EN 1 -parameter CG_LOCK_ISM 1" \
+         "-parameter DEF_PWRON 1 -parameter DRIVE_POK 0 -parameter RST 1 -parameter AREQ 1 -parameter ISM_AGT_IS_NS 1 -parameter RSTR_B4_FORCE 1 -parameter PRESCC 0 -parameter DSYNC_CG_EN 1 -parameter FLOP_CG_EN 1 -parameter CG_LOCK_ISM 1" \
+         "-parameter DEF_PWRON 1 -parameter DRIVE_POK 0 -parameter RST 1 -parameter AREQ 1 -parameter ISM_AGT_IS_NS 0 -parameter RSTR_B4_FORCE 0 -parameter PRESCC 0 -parameter DSYNC_CG_EN 0 -parameter FLOP_CG_EN 0 -parameter CG_LOCK_ISM 0" \
+         "-parameter DEF_PWRON 1 -parameter DRIVE_POK 1 -parameter RST 1 -parameter AREQ 1 -parameter ISM_AGT_IS_NS 0 -parameter RSTR_B4_FORCE 1 -parameter PRESCC 0 -parameter DSYNC_CG_EN 0 -parameter FLOP_CG_EN 1 -parameter CG_LOCK_ISM 0" \
+         "-parameter DEF_PWRON 0 -parameter DRIVE_POK 1 -parameter RST 1 -parameter AREQ 1 -parameter ISM_AGT_IS_NS 0 -parameter RSTR_B4_FORCE 1 -parameter PRESCC 1 -parameter DSYNC_CG_EN 1 -parameter FLOP_CG_EN 1 -parameter CG_LOCK_ISM 1" \
+         "-parameter DEF_PWRON 0 -parameter DRIVE_POK 0 -parameter RST 1 -parameter AREQ 1 -parameter ISM_AGT_IS_NS 1 -parameter RSTR_B4_FORCE 0 -parameter PRESCC 0 -parameter DSYNC_CG_EN 1 -parameter FLOP_CG_EN 1 -parameter CG_LOCK_ISM 0" \
+         "-parameter DEF_PWRON 0 -parameter DRIVE_POK 0 -parameter RST 1 -parameter AREQ 1 -parameter ISM_AGT_IS_NS 0 -parameter RSTR_B4_FORCE 1 -parameter PRESCC 0 -parameter DSYNC_CG_EN 0 -parameter FLOP_CG_EN 0 -parameter CG_LOCK_ISM 0" \
+         "-parameter DEF_PWRON 0 -parameter DRIVE_POK 1 -parameter RST 1 -parameter AREQ 1 -parameter ISM_AGT_IS_NS 1 -parameter RSTR_B4_FORCE 0 -parameter PRESCC 0 -parameter DSYNC_CG_EN 0 -parameter FLOP_CG_EN 1 -parameter CG_LOCK_ISM 1" \
+      )
+   ################################### PCGU ###################################
+   else if ( $UNIT == "pcgu" ) then
+      set MOD=pcgu_fpv_tb
+
+      set TESTS = ( \
+         "-parameter DEF_PWRON 0" \
+         "-parameter DEF_PWRON 1" \
+      )
+   ################################### PGCBCG ###################################
+   else if ( $UNIT == "pgcbcg" ) then
+      set MOD=pgcbcg_fpv_tb
+
+      set TESTS = ( \
+         "-parameter ICDC 5 -parameter NCDC 4 -parameter PGCB_FREQ 6 -parameter CDC_FREQ_2X 2 -parameter CDC_FREQ_8X 4 -parameter CDC_FREQ_CX 6 -parameter CDC_FREQ_14X 10 -parameter IGCLK_REQ_ASYNC 5 -parameter NGCLK_REQ_ASYNC 5" \
+      )
+   ################################### END ###################################
+      
+   endif
+
+   if ( $TESTNUM ) then
+      if ( $TESTNUM <= $#TESTS ) then
+         set TESTS = ( $TESTS[$TESTNUM]:q )
+      else
+         echo "ERROR: test# out of range" > /dev/stderr
+         exit -1
+      endif
+   endif
+
+   set RESDIR=$MODEL_ROOT/results/fpv/$MOD
+   mkdir -p $RESDIR
+
+
+   set LOGFILES = ( )
+   set RPTFILES = ( )
+   set PIDS = ( )
+   set STS = ( ) # 0: FINISHED; 1: RUNNING; 2: STARTED
+
+   ### Source mkformal
+   source /p/cse/avc/models/abv/setup/latest
+
+   ### Start all runs
+   set IDX=1
+   foreach TEST ($TESTS:q)
+      if ( $TESTNUM ) then
+         set TN = $TESTNUM
+      else
+         set TN = $IDX
+      endif
+
+      set VER=${UNIT}$TN
+      rm -rf $RESDIR/$VER
+      if ( $? ) then
+         exit 100
+      endif
+      
+      set LOGFILE=$RESDIR/${MOD}_${VER}.log
+
+      set RPTFILE=$RESDIR/$VER/$MOD/jg_run/$MOD.rpt
+      echo "\e[1mStarting Test \e[1;30m$TN :\e[0m \e[0;34m$TEST\e[0m"
+      echo "   \e[1mLog:\e[0m $LOGFILE\n"
+
+      if ( $BATCH ) then
+         set BATSTR1 = '-batch -jg_tcl_cmd';
+         set BATSTR2 = 'prove -all -time_limit 1h';
+      else
+         set BATSTR1 = "";
+         set BATSTR2 = "";
+      endif
+
+      ################################## PGCB ###################################
+      if ( $UNIT == "pgcb" ) then
+
+         mkformal \
+            -m $MOD \
+            -o $RESDIR \
+            -v $VER \
+            -clk pgcb_tck \
+            -clk clk \
+            -rst pgcb_rst_b \
+            -rst fdfx_powergood_rst_b \
+            -cf "$MODEL_ROOT/src/rtl/common/pgcb_ctech_map.sv" \
+            -rf "$MODEL_ROOT/src/rtl/pgcbunit/pgcbfsm.sv" \
+            -rf "$MODEL_ROOT/src/rtl/pgcbunit/pgcbdfxovr.sv" \
+            -rf "$MODEL_ROOT/src/rtl/pgcbunit/pgcbunit.sv" \
+            -rf "$GLOBAL_CTECH_ROOT/source/v/ctech_lib_doublesync_rstb.sv" \
+            -rf "$GLOBAL_CTECH_ROOT/source/v/ctech_lib_doublesync_setb.sv" \
+            -rf "$GLOBAL_CTECH_ROOT/source/v/ctech_lib_mux_2to1.sv" \
+            -rf "$GLOBAL_CTECH_ROOT/source/v/ctech_lib_dq.sv" \
+            -rf "$GLOBAL_CTECH_ROOT/source/v/ctech_lib_clk_gate_te.sv" \
+            -rf "$GLOBAL_CTECH_ROOT/source/v/ctech_lib_clk_buf.sv" \
+            -I "$MODEL_ROOT/src/rtl/pgcbunit/" \
+            -jg_elab "$TEST" \
+            #-bo "+define+PGCBWAVES +define+META_OFF +define+PULSE_WIDTH_OFF" \
+            #-bo "+define+META_OFF +define+PULSE_WIDTH_OFF +define+ASSERT_ON" \
+            -bo "+define+META_OFF +define+PULSE_WIDTH_OFF +define+SVA_FORMAL +define+CTECH_LIB_META_DISPLAY +define+CTECH_LIB_META_ON +define+CTECH_LIB_ENABLE_3TO1" \
+            -jg -f -nmr \
+            $BATSTR1 "$BATSTR2" \
+               > $LOGFILE
+
+      ################################### CDC ###################################
+      else if ( $UNIT == "cdc" ) then
+         
+         mkformal \
+            -m $MOD \
+            -o $RESDIR \
+            -v $VER -f \
+            -clk clock \
+            -clk prescc_clock \
+            -clk pgcb_clk \
+            -rst pgcb_rst_b \
+            -cf "$MODEL_ROOT/src/rtl/common/pgcb_ctech_map.sv" \
+            -rf "$MODEL_ROOT/src/rtl/ClockDomainController/CdcMainClock.sv" \
+            -rf "$MODEL_ROOT/src/rtl/ClockDomainController/CdcMainCg.sv" \
+            -rf "$MODEL_ROOT/src/rtl/ClockDomainController/CdcPgClock.sv" \
+            -rf "$MODEL_ROOT/src/rtl/ClockDomainController/ClockDomainController.sv" \
+            -rf "$GLOBAL_CTECH_ROOT/source/v/ctech_lib_doublesync_rstb.sv" \
+            -rf "$GLOBAL_CTECH_ROOT/source/v/ctech_lib_doublesync_setb.sv" \
+            -rf "$GLOBAL_CTECH_ROOT/source/v/ctech_lib_mux_2to1.sv" \
+            -rf "$GLOBAL_CTECH_ROOT/source/v/ctech_lib_dq.sv" \
+            -rf "$GLOBAL_CTECH_ROOT/source/v/ctech_lib_clk_gate_te.sv" \
+            -rf "$GLOBAL_CTECH_ROOT/source/v/ctech_lib_clk_buf.sv" \
+            -I "$MODEL_ROOT/src/rtl/ClockDomainController/" \
+            -jg_elab "$TEST" \
+            #-bo "+define+META_OFF +define+PULSE_WIDTH_OFF +define+SVA_FORMAL" \
+            -bo "+define+META_OFF +define+PULSE_WIDTH_OFF +define+SVA_FORMAL +define+CTECH_LIB_META_DISPLAY +define+CTECH_LIB_META_ON +define+CTECH_LIB_ENABLE_3TO1" \
+            -jg -f -nmr \
+            $BATSTR1 "$BATSTR2" \
+               > $LOGFILE
+         
+      ################################### PCGU ###################################
+      else if ( $UNIT == "pcgu" ) then
+         
+         mkformal \
+            -m $MOD \
+            -o $RESDIR \
+            -v $VER -f \
+            -clk pgcb_clk \
+            -rst pgcb_rst_b \
+            -cf "$MODEL_ROOT/src/rtl/common/pgcb_ctech_map.sv" \
+            -rf "$MODEL_ROOT/src/rtl/pcguunit/pcgu.sv" \
+            -rf "$MODEL_ROOT/verif/fpv/pcgu/pcgu_fpv_tb.sv" \
+            -rf "$GLOBAL_CTECH_ROOT/source/v/ctech_lib_doublesync_rstb.sv" \
+            -rf "$GLOBAL_CTECH_ROOT/source/v/ctech_lib_doublesync_setb.sv" \
+            -rf "$GLOBAL_CTECH_ROOT/source/v/ctech_lib_mux_2to1.sv" \
+            -rf "$GLOBAL_CTECH_ROOT/source/v/ctech_lib_dq.sv" \
+            -rf "$GLOBAL_CTECH_ROOT/source/v/ctech_lib_clk_gate_te.sv" \
+            -rf "$GLOBAL_CTECH_ROOT/source/v/ctech_lib_clk_buf.sv" \
+            -I "$MODEL_ROOT/src/rtl/pcguunit/" \
+            -jg_elab "$TEST" \
+            -bo "+define+META_OFF +define+PULSE_WIDTH_OFF +define+SVA_FORMAL" \
+            -jg -f -nmr \
+            $BATSTR1 "$BATSTR2" \
+               > $LOGFILE
+      
+      ################################### PGCBCG (PCGU Ref Design) ###################################
+      else if ( $UNIT == "pgcbcg" ) then
+         
+         mkformal \
+            -m $MOD \
+            -o $RESDIR \
+            -v $VER -f \
+            -clk clock \
+            -rst reset_b \
+            -cf "$MODEL_ROOT/src/rtl/common/pgcb_ctech_map.sv" \
+            -rf "$MODEL_ROOT/verif/fpv/pcgu/pgcbcg_fpv_tb.sv" \
+            -rf "$MODEL_ROOT/verif/fpv/pcgu/pcgu_clk_gen.sv" \
+            -rf "$MODEL_ROOT/verif/fpv/pcgu/icdc_clk_gen.sv" \
+            -rf "$MODEL_ROOT/verif/pcgu_ref/rtl/pgcbcg.sv" \
+            -rf "$MODEL_ROOT/src/rtl/pcguunit/pcgu.sv" \
+            -rf "$MODEL_ROOT/src/rtl/pcguunit/pcgu_aww.sv" \
+            -rf "$GLOBAL_CTECH_ROOT/source/v/ctech_lib_doublesync_rstb.sv" \
+            -rf "$GLOBAL_CTECH_ROOT/source/v/ctech_lib_doublesync_setb.sv" \
+            -rf "$GLOBAL_CTECH_ROOT/source/v/ctech_lib_mux_2to1.sv" \
+            -rf "$GLOBAL_CTECH_ROOT/source/v/ctech_lib_dq.sv" \
+            -rf "$GLOBAL_CTECH_ROOT/source/v/ctech_lib_clk_gate_te.sv" \
+            -rf "$GLOBAL_CTECH_ROOT/source/v/ctech_lib_clk_buf.sv" \
+            -I "$MODEL_ROOT/src/rtl/pcguunit/" \
+            -I "$MODEL_ROOT/verif/fpv/pcgu/" \
+            -jg_elab "$TEST" \
+            -bo "+define+META_OFF +define+PULSE_WIDTH_OFF +define+SVA_FORMAL" \
+            -jg -f -nmr \
+            $BATSTR1 "$BATSTR2" \
+               > $LOGFILE
+         
+      ################################### END ###################################
+      endif
+      
+      ## Exit if running GUI
+      if ( ! $BATCH ) then
+         exit 99
+      endif
+
+      sleep 1
+      if ( ! -e $RESDIR/$VER/$MOD/jg_run/jg_run.pid ) then
+         echo "Error: PID file was not created, check the log file"
+         exit 2
+      endif
+
+      set PID = `cat $RESDIR/$VER/$MOD/jg_run/jg_run.pid`
+
+      set LOGFILES = ( $LOGFILES $LOGFILE )
+      set RPTFILES = ( $RPTFILES $RPTFILE )
+      set PIDS = ( $PIDS $PID )
+      set STS = ( $STS 2 )
+      @ IDX++
+   end
+
+   ### Wait for all runs to finish
+   set ALLDONE = 0
+
+   printf "\n";
+   while ( ! $ALLDONE )
+      printf "\r                                                                                         "
+      printf "\r\033[0mTests Still Running: \033[1;30m"
+      set ALLDONE = 1
+      set IDX=1
+      foreach PID ($PIDS)
+         if ( $STS[$IDX] ) then
+            ps $PID > /dev/null
+            @ STS[$IDX] = ! $?
+         endif
+
+         if ($STS[$IDX]) then
+            if ( $TESTNUM ) then
+               printf " $TESTNUM"
+            else
+               printf " $IDX"
+            endif
+            set ALLDONE = 0
+         endif
+         @ IDX++
+      end
+      sleep 4
+   end
+   printf "\r\033[0m\033[1mAll Tests Complete...\033[0m                                                                  \n\n"
+   
+   ### Check if runs were successful 
+   set ERRSTS=0
+   set IDX=1
+   foreach PID ($PIDS)
+      set ERR = 0
+      if ( ! -e $LOGFILES[$IDX] ) then
+         set ERR = 1 # Log file does not exist
+         set ERRMSG = "\033[1;31mERROR:\033[0m Log File does not exist"
+      else if ( ! -e $RPTFILES[$IDX] ) then
+         echo $RPTFILES[$IDX]
+         set ERR = 2 # Report file does not exist
+         set ERRMSG = "\033[1;31mERROR:\033[0m Report File does not exist"
+      else
+         ## Check report for proofs and coverage
+         grep -P "\- proven .* \(100" $LOGFILES[$IDX] > /dev/null
+         set PSTS = $?
+
+         grep -P "\- covered .* \(100" $LOGFILES[$IDX] > /dev/null
+         set CSTS = $?
+
+         if ( $PSTS ) then
+            set ERR = 3 # Not all Assertions were proven
+            set ERRMSG = "\033[1;31mFAILED:\033[0m Unable to prove all assertions"
+         else if ( $CSTS ) then
+            set ERR = 4 # Report file does not exist
+            set ERRMSG = "\033[0;33mWARNING:\033[0m Unable to cover all properties"
+         else
+            set ERR = 0
+            set ERRMSG = "\033[1;32mSUCCESS:\033[0m FPV Complete!"
+         endif
+
+      endif
+
+      if ( $ERR ) then
+         @ ERRSTS++
+      endif
+      
+      if ( $TESTNUM ) then
+         echo "Test $TESTNUM : $ERRMSG"
+      else
+         echo "Test $IDX : $ERRMSG"
+      endif
+
+
+      @ IDX++
+   end
+   if ( $ERRSTS ) then
+      printf "\n\033[1;31mFPV Not Complete\033[0m\n\n"
+      exit 1
+   else
+      printf "\n\n\033[1;32mFPV Successful!\033[0m\n\n"
+      exit 0
+   endif
+
+endif
+
+
+

@@ -1,0 +1,146 @@
+## -------------------------------------------------------------------------
+## -- IP: <Name of the IP>
+## -- Target SoC Project: <Target SoC Project>
+## -- Author: <Authors>
+## -- Intel Proprietary
+## -- Copyright (C) YYYY Intel Corporation
+## -- All Rights Reserved
+##
+## <Information related to the UPF file>
+##
+## NOTE: Naming prefix used in the template is based on SoC DA Low Power Methodology Manual
+##
+## -------------------------------------------------------------------------
+
+### Load global config
+### IPs can elect to use a local version of the soc_upf.cfg for convergence work. 
+if { [info exists ::env(RTL_PROJ_TOOLS)] } {
+    set soc_upf_config [ exec $::env(RTL_PROJ_BIN)/ToolConfig.pl get_tool_path upf_config ]
+    if { [file exists ${soc_upf_config}/soc_upf.cfg] } {
+        puts "Sourcing from FE HDK : ${soc_upf_config}/soc_upf.cfg"
+        source ${soc_upf_config}/soc_upf.cfg
+    }
+} elseif { [info exists ::env(COMMON)] && [info exists ::env(PROJECT)] } {
+    if { [file exists $::env(COMMON)/rtl/proj_tools/upf_config/$::env(PROJECT)/latest/soc_upf.cfg] } {
+        puts "Sourcing from BE HDK : $::env(COMMON)/rtl/proj_tools/upf_config/$::env(PROJECT)/latest/soc_upf.cfg"
+        source $::env(COMMON)/rtl/proj_tools/upf_config/$::env(PROJECT)/latest/soc_upf.cfg
+    }
+}
+
+
+### Dynamically set IP_UPF_ROOT_DIR
+set IP_UPF_ROOT_DIR [file normalize [file dirname [info script]]]
+
+### IPs are required to set IP_VARIATION and DUT
+### Values must also be provided in the integration guide
+#set IP_VARIATION <VALUE>
+#set DUT <DUT>
+
+### IPs can create an IP specific cfg that will be used by SoC during integration. 
+### This config is optional.
+### Nothing in this cfg can collide with soc_upf.cfg.
+#source $IP_UPF_ROOT_DIR/tools/upf/$IP_VARIATION/$DUT/<IP_NAME>.cfg
+
+
+##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++##
+## The top level hierarchy, for which this UPF represents, is purely structural
+##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++##
+
+##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++##
+## TYPE A: IP that is all in a single power domain and has no power gated domains
+##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++##
+
+## -------------------------------------------------------------------------
+## Create non-Power Gated Domains
+## -------------------------------------------------------------------------
+## Create a default domain that will be connected to IP top level. It is recommended to use -include_scope for this domain.
+
+create_power_domain pd_glitchfree_clkmux_vccagent -include_scope
+
+## -------------------------------------------------------------------------
+##  Create Supply Ports, associated supply nets and connect them up
+## -------------------------------------------------------------------------
+## Each IP will at least have 2 power supply ports - SUPPLY and GROUND
+## Each supply port will be a combination of the following:
+## 1. A supply port
+## 2. Associated supply net
+## 3. Connection between supply net and supply port 
+
+create_supply_port $SOC_VINFAON -direction in -domain pd_glitchfree_clkmux_vccagent
+create_supply_net  $SOC_VINFAON -domain pd_glitchfree_clkmux_vccagent
+connect_supply_net $SOC_VINFAON -ports $SOC_VINFAON
+
+
+##create_supply_port $SOC_VINFAON -direction in -domain pd_glitchfree_clkmux_vccagent
+##create_supply_net  $SOC_VINFAON -domain pd_glitchfree_clkmux_vccagent
+##connect_supply_net $SOC_VINFAON -ports $SOC_VINFAON
+
+create_supply_port $SOC_GROUND -direction in -domain pd_glitchfree_clkmux_vccagent
+create_supply_net  $SOC_GROUND -domain pd_glitchfree_clkmux_vccagent
+connect_supply_net $SOC_GROUND -ports $SOC_GROUND
+
+## -------------------------------------------------------------------------
+## Set Primary Supply Nets for non-Power Gated Domain
+## Each domain will have a power net and a ground net
+## -------------------------------------------------------------------------
+set_domain_supply_net pd_glitchfree_clkmux_vccagent \
+-primary_power_net $SOC_VINFAON \
+-primary_ground_net $SOC_GROUND
+
+#add_port_state $SOC_VINFAON             -state "glitchfree_clkmux_SOC_VINFAON_MAX $SOC_SUPPLY_MAX"
+add_port_state $SOC_VINFAON             -state "glitchfree_clkmux_SOC_VINFAON_NOM $SOC_SUPPLY_NOM"
+#add_port_state $SOC_VINFAON             -state "glitchfree_clkmux_SOC_VINFAON_MIN $SOC_SUPPLY_MIN"
+add_port_state $SOC_VINFAON             -state "glitchfree_clkmux_SOC_VINFAON_OFF  off"
+add_port_state $SOC_GROUND         -state "glitchfree_clkmux_GROUND $SOC_GROUND_NOM"
+
+##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++##
+## END OF TYPE A
+##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++##
+
+##-------------------------------------------------------------------------
+## Define Power State Table & Power Modes supported by the IP
+##-------------------------------------------------------------------------
+create_pst pst_glitchfree_clkmux -supplies     "$SOC_VINFAON $SOC_GROUND"
+add_pst_state  "glitchfree_clkmux_ALL_ON"    -state { glitchfree_clkmux_SOC_VINFAON_NOM    glitchfree_clkmux_GROUND} -pst  pst_glitchfree_clkmux  
+add_pst_state  "glitchfree_clkmux_ALL_OFF"   -state { glitchfree_clkmux_SOC_VINFAON_OFF    glitchfree_clkmux_GROUND} -pst  pst_glitchfree_clkmux 
+
+
+##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++##
+## TYPE B: IP that has multiple power domains (non-Gated and/or Gated) + Isolation and level shifting is needed
+## TYPE B will require information from TYPE A as well
+##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++##
+
+##==============================================================================#
+## Load UPFs for non-HIP children that have power intent defined
+##==============================================================================#
+##load_upf " $IP_UPF_ROOT_DIR/tools/upf/$IP_VARIATION/$DUT/<CHILD_NAME>.upf" -scope "<CHILD>"
+##connect_supply_net $SOC_SUPPLY_PORT_<> -ports <CHILD>/<PORT>
+##connect_supply_net $SOC_GROUND -ports <CHILD>/<PORT>
+
+##==============================================================================#
+## Load UPFs for HIP children that have power intent defined
+##==============================================================================#
+##if {$__SIM} {
+##load_upf " $IP_UPF_ROOT_DIR/tools/upf/$IP_VARIATION/$DUT/<CHILD_NAME>.upf" -scope "<CHILD>"
+##connect_supply_net $SOC_SUPPLY_PORT_<> -ports <CHILD>/<PORT>
+##connect_supply_net $SOC_GROUND -ports <CHILD>/<PORT>
+##}
+
+## -------------------------------------------------------------------------
+## Create additional non-Power Gated Domains and/or Power Gated Domains..
+## Please follow guidelines for hierarchy, number of power domains in IP per Power Arch, Design and Validation Guidelines
+## There can be multiple non-power gated domains inside IP, but only the default uses -include_scope
+## Note : The element list can only contain 1 module, except in the case where memory co-location wrappers are used. 2 modules can be listed in the case of memory co-location wrappers.
+
+
+
+## -------------------------------------------------------------------------
+## VCS specific constructs to disable assertions and re-initialize initial blocks in BMODs
+## Use SNPS_assertion_control KILL to disable assertions in RTL when an associated domain is powered down.
+## Use SNPS_reinit on instances or power domains that contain EBB/IO blocks.
+## -------------------------------------------------------------------------
+#if {$__VCS}{
+#  set_design_attributes -elements {pd_glitchfree_clkmux_vccagent pd_glitchfree_clkmux_vccinf} -attribute SNPS_assertion_control KILL 
+#  set_design_attributes -elements {pd_glitchfree_clkmux_vccagent pd_glitchfree_clkmux_vccinf} -attribute SNPS_reinit TRUE
+#}
+

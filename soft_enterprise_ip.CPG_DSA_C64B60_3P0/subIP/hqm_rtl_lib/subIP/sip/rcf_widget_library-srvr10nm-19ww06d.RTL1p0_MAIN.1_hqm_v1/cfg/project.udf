@@ -1,0 +1,71 @@
+#---*-perl-*---------------------------------------------------------------------------------
+# INTEL CONFIDENTIAL
+#
+# Copyright (June 2005)2 (May 2008)3 Intel Corporation All Rights Reserved.
+# The source code contained or described herein and all documents related to the
+# source code ("Material") are owned by Intel Corporation or its suppliers or
+# licensors. Title to the Material remains with Intel Corporation or its
+# suppliers and licensors. The Material contains trade secrets and proprietary
+# and confidential information of Intel or its suppliers and licensors. The
+# Material is protected by worldwide copyright and trade secret laws and treaty
+# provisions. No part of the Material may be used, copied, reproduced, modified,
+# published, uploaded, posted, transmitted, distributed, or disclosed in any way
+# without Intels prior express written permission.
+#
+# No license under any patent, copyright, trade secret or other intellectual
+# property right is granted to or conferred upon you by disclosure or delivery
+# of the Materials, either expressly, by implication, inducement, estoppel or
+# otherwise. Any license under such intellectual property rights must be express
+# and approved by Intel in writing.
+#
+#--------------------------------------------------------------------------------
+# This file contain %audf    -- defines the base UDF data
+#--------------------------------------------------------------------------------------------
+package OneCfg::UDF::Reader;
+#--------------------------------------------------------------------------------------------
+# Validation subroutine returns HASH:
+# $return{error}  = 1 if fatal error;
+# $return{warning}   = 1 if warning (non-fatal);
+# $return{reason} = "string that will be printed in warn/error message."
+#--------------------------------------------------------------------------------------------
+# Standard alidation routines available:
+#       - OneCfg::UDF::InterfaceVars::test_dir_existence
+#--------------------------------------------------------------------------------------------
+%audf = (
+    BuildTreeVariantOptions => {
+         rcfwl => {
+             xprop => {
+               -enable_xprop_elab => 1,
+             },
+             xpropdebug => {
+               -enable_xprop_elab => 1,
+               -elab_opts => ["-debug_access+all+classdbg+reverse", "-genid_db", "-config_verbose"],
+             },
+             debug => {
+               -elab_opts => ["-debug_access+all+classdbg+reverse", "-genid_db", "-config_verbose"],
+             },
+         },
+    },
+    InterfaceVars => {
+        -sched => { default => 'nbfeeder', },
+        -stage => { default => [qw( -quick_syn
+                                    -qcdc
+                                    -fishtail 
+                                    -quick_syn_plus 
+                                    -noble 
+                                    -verdi 
+                                    -lintra_svtb
+                                    -msv_vcs
+                                    -sglint
+                                    )]},
+        -vcscdcbuild_cdc_wrapper => {
+            type        => "boolean",
+            alias       => "-vcstarget vcs_cdc/vcs4_value".(defined $ENV{VARIANT}?"_$ENV{VARIANT}":"")." -vlog_opts +define+INTEL_CDC_ASSERTION,-sverilog,-assert,svaext,-timescale=1ps/1pst  -elab_opts rcfwl_cdc_wrapper_cdc_assertion_lib.Assumption_mod,-kdb,-lca,-debug_access+f+pp+dmptf,-assert,svaex",
+            },  
+        -vcscdcbuild_dft_reset_sync => {
+            type        => "boolean",
+            alias       => "-vcstarget vcs_cdc/vcs4_value".(defined $ENV{VARIANT}?"_$ENV{VARIANT}":"")." -vlog_opts +define+INTEL_CDC_ASSERTION,-sverilog,-assert,svaext,-timescale=1ps/1ps  -elab_opts rcfwl_dft_reset_sync_cdc_assertion_lib.Assumption_mod,-kdb,-lca,-debug_access+f+pp+dmptf,-assert,svaext",
+            },  
+    },
+);
+

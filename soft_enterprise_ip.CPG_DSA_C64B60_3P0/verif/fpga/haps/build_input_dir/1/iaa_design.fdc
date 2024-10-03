@@ -1,0 +1,152 @@
+################################################################################
+# [HAPS 80] - FPGA Design Constraints  (FDC)
+################################################################################
+
+define_global_attribute syn_useioff {1}
+
+#-------------------------------------------------------------------------------
+# Clock Constraints
+#-------------------------------------------------------------------------------
+
+# Input Clock 100 MHz (Only Drives UHFI MMCM)
+create_clock -name {uhfi_clk} {p:*uhfi_clk} -period {10.00}
+
+# Input Clock  12.0 MHz
+create_clock -name {prim_clk} {p:*prim_clk} -period {83.333}
+
+# Input Clock   4.8 MHz
+create_clock -name {side_clk} {p:*side_clk} -period {208.333}
+
+
+
+##TRKR## # Tracker (PCIe Reference) Clock -- 100 Mhz
+##TRKR## create_clock -name {trk_pcie_refclk} {p:trk_pcie_refclk_p} -period {10.0}
+##TRKR## 
+##TRKR## # Tracker (Derived) Clock -- 125 MHz
+##TRKR## create_clock -name {trk_user_clk} {t:fpga_trackers_top.tracker_comm_inst.pcie3_ultrascale_2_i.user_clk} -period {8.0}
+
+
+
+# UHFI (PCIe Reference) Clock -- 100 MHz
+create_clock  -name {hci_refclk} {p:*uhfi_pcie_refclk_p} -period {10.00}
+
+# UHFI (Derived) Clock -- 100 MHz
+create_clock  -name {hci_sysclk} [get_pins -hier {*pcie_phy_wrapper.pcie_phy.bufg_gt_sysclk.O}] -period {10}
+
+# UHFI (Derived) Clock generated from hci_sysclk -- 125 MHz
+create_clock  -name {hci_pclk} [get_pins -hier {*pcie_phy_wrapper.pcie_phy.u_xcvu440_pcie_phy.phy_pclk}] -period {8}
+
+
+
+# Async Clock Groups (False Paths between Clock Domains)
+
+##TRKR## set_clock_groups -asynchronous -name {group_TRK_PCIE_REFCLK_P} -group [get_clocks {trk_pcie_refclk} -include_generated_clocks]
+##TRKR## 
+##TRKR## set_clock_groups -asynchronous -name {group_TRK_USER_CLK} -group [get_clocks {trk_user_clk} -include_generated_clocks]
+
+
+set_clock_groups -asynchronous -derive -name {group_HCI_IN} -group {hci_refclk hci_sysclk}
+
+set_clock_groups -asynchronous -derive -name {group_PCLK} -group {hci_pclk}
+
+
+
+# Only Drives UHFI MMCM RefClk
+set_clock_groups -asynchronous -name {group_UHFI_CLK} -group {uhfi_clk}
+
+
+set_clock_groups -asynchronous -name {group_PRIM_CLK} -group {prim_clk}
+set_clock_groups -asynchronous -name {group_SIDE_CLK} -group {side_clk}
+
+
+# Set False paths on Synopsys inferred gpiolink module
+set_clock_groups -asynchronous -name {group_UMR_CLK} -group [get_clocks {HAPS_umr_clkin} -include_generated_clocks] 
+
+
+
+#-------------------------------------------------------------------------------
+# Timing Constraints
+#-------------------------------------------------------------------------------
+
+#-------------------------------------------------------------------------------
+# Multi/false paths 
+#-------------------------------------------------------------------------------
+#False Paths
+#Not currently used inside UHFI on HAPS-80
+#set_false_path -from [get_ports {*haps_rst_n}]
+
+
+#-------------------------------------------------------------------------------
+#IOSTANDARD
+#-------------------------------------------------------------------------------
+####define_io_standard {p:*clk_100mhz_p} -delay_type input syn_pad_type {LVDS_18}
+####define_io_standard {p:*clk_100mhz_n} -delay_type input syn_pad_type {LVDS_18}
+
+
+##DAL## #-------------------------------------------------------------------------------
+##DAL## # PIN LOCATION
+##DAL## #-------------------------------------------------------------------------------
+##DAL## 
+##DAL## # Free running 100MHz clock mapped to GCLK1
+##DAL## ####define_haps_io   {p:*clk_100mhz_p} -haps_io {GCLKP[1]}
+##DAL## ####define_haps_io   {p:*clk_100mhz_n} -haps_io {GCLKN[1]}
+##DAL## ####define_attribute {p:*clk_100mhz_p} {diff_term} {true}
+##DAL## 
+##DAL## define_haps_io {p:*haps80_mgb1_io[1:10]} -haps_io {AM1_IO[1:10]}
+##DAL## define_haps_io {p:*haps80_mgb2_io[1:10]} -haps_io {AM2_IO[1:10]}
+##DAL## 
+##DAL## define_haps_io {p:*haps80_led_red[1:0]}  -haps_io {A_LED_RED[1:2]}
+##DAL## define_haps_io {p:*haps80_led_grn[1:0]}  -haps_io {A_LED_GRN[1:2]}
+##DAL## 
+##DAL## 
+##DAL## #-------------------------------------------------------------------------------
+##DAL## # Tracker PCIe    ([7:4] == J3, [3:0] == J2)
+##DAL## #-------------------------------------------------------------------------------
+##DAL## 
+##DAL## # Tracker PCIe pin locs
+##DAL## define_haps_io   {p:trk_pcie_refclk_n}  -haps_io {AM1_REFCLKN[2]}
+##DAL## define_haps_io   {p:trk_pcie_refclk_p}  -haps_io {AM1_REFCLKP[2]}
+##DAL## 
+##DAL## define_haps_io   {p:trk_pcie_rxn[3:0]}  -haps_io {AM1_RXN[7:4]}
+##DAL## define_haps_io   {p:trk_pcie_rxp[3:0]}  -haps_io {AM1_RXP[7:4]}
+##DAL## define_haps_io   {p:trk_pcie_txn[3:0]}  -haps_io {AM1_TXN[7:4]}
+##DAL## define_haps_io   {p:trk_pcie_txp[3:0]}  -haps_io {AM1_TXP[7:4]}
+##DAL## 
+##DAL## # Tracker PCIe pin attributes
+##DAL## define_attribute {p:trk_pcie_txn[0]}    {syn_insert_pad} {0}
+##DAL## define_attribute {p:trk_pcie_txn[1]}    {syn_insert_pad} {0}
+##DAL## define_attribute {p:trk_pcie_txn[2]}    {syn_insert_pad} {0}
+##DAL## define_attribute {p:trk_pcie_txn[3]}    {syn_insert_pad} {0}
+##DAL## define_attribute {p:trk_pcie_txp[0]}    {syn_insert_pad} {0}
+##DAL## define_attribute {p:trk_pcie_txp[1]}    {syn_insert_pad} {0}
+##DAL## define_attribute {p:trk_pcie_txp[2]}    {syn_insert_pad} {0}
+##DAL## define_attribute {p:trk_pcie_txp[3]}    {syn_insert_pad} {0}
+##DAL## 
+##DAL## 
+##DAL## #-------------------------------------------------------------------------------
+##DAL## # UHFI PCIe    ([7:4] == J3, [3:0] == J2)
+##DAL## #-------------------------------------------------------------------------------
+##DAL## 
+##DAL## # UHFI PCIe pin locs
+##DAL## define_haps_io   {p:*uhfi_pcie_refclk_p}  -haps_io {AM2_REFCLKP[2]}
+##DAL## define_haps_io   {p:*uhfi_pcie_refclk_n}  -haps_io {AM2_REFCLKN[2]}
+##DAL## 
+##DAL## define_haps_io   {p:uhfi_pcie_rxn[3:0]}   -haps_io {AM2_RXN[7:4]}
+##DAL## define_haps_io   {p:uhfi_pcie_rxp[3:0]}   -haps_io {AM2_RXP[7:4]}
+##DAL## define_haps_io   {p:uhfi_pcie_txn[3:0]}   -haps_io {AM2_TXN[7:4]}
+##DAL## define_haps_io   {p:uhfi_pcie_txp[3:0]}   -haps_io {AM2_TXP[7:4]}
+##DAL## 
+##DAL## # UHFI PCIe pin attributes
+##DAL## define_attribute {p:uhfi_pcie_refclk_p}   {syn_insert_pad} {0}
+##DAL## define_attribute {p:uhfi_pcie_refclk_n}   {syn_insert_pad} {0}
+##DAL## 
+##DAL## define_attribute {p:uhfi_pcie_txn[0]}     {syn_insert_pad} {0}
+##DAL## define_attribute {p:uhfi_pcie_txn[1]}     {syn_insert_pad} {0}
+##DAL## define_attribute {p:uhfi_pcie_txn[2]}     {syn_insert_pad} {0}
+##DAL## define_attribute {p:uhfi_pcie_txn[3]}     {syn_insert_pad} {0}
+##DAL## define_attribute {p:uhfi_pcie_txp[0]}     {syn_insert_pad} {0}
+##DAL## define_attribute {p:uhfi_pcie_txp[1]}     {syn_insert_pad} {0}
+##DAL## define_attribute {p:uhfi_pcie_txp[2]}     {syn_insert_pad} {0}
+##DAL## define_attribute {p:uhfi_pcie_txp[3]}     {syn_insert_pad} {0}
+
+

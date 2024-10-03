@@ -1,0 +1,51 @@
+################################################################################
+################################################################################
+
+ldb pp PP exp_unexp_comp=1
+
+## -- LDB Traffic
+HCW LDB:PP qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+
+## -- Wait for all the 10 HCWs to be scheduled
+poll_sch  ldb:PP  0xa   1000 20
+
+
+## -- Return 10 tokens using BAT_T
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x9 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+
+## -- Return 10 COMP using COMP
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x9 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x9 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x9 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x9 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x9 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x9 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x9 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x9 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x9 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x9 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+
+## -- Return 1 COMP, 1 NEW QE using RENQ (QE shouldn't be dropped)
+HCW LDB:PP qe_valid=1 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x0 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+
+poll_sch  ldb:PP  0xb   1000 20
+
+
+rd credit_hist_pipe.cfg_syndrome_00.syndvalid 1
+wr credit_hist_pipe.cfg_syndrome_00.syndvalid 1
+rd credit_hist_pipe.cfg_syndrome_00.syndvalid 0
+
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x0 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+
+## -- Check the CQ depth for CQ <PP> is zero
+poll list_sel_pipe.cfg_cq_ldb_token_count[:PP:] 0x0 0xffffffff 1000 20
+poll list_sel_pipe.cfg_qid_ldb_inflight_count[:LQ:] 0x0 0xffffffff 1000 20

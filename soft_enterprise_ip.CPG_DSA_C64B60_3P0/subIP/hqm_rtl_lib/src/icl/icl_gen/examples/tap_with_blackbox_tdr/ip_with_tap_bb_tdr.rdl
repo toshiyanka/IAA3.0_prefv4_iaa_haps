@@ -1,0 +1,135 @@
+// IP TAP RDL example:
+//    TAP controller with five TDR registers
+//    regBB is a blackbox, indicated by specifying 'TapDrIsFixedSize = false;'
+//    Specified reset size & value of all fields will be used as a DefaultLoadValue for that register in ICL.
+
+addrmap ip_with_tap_def {
+
+   name    = "IP";
+   desc    = "IP description";
+
+   TapIrCaptureValue = 8'h1;
+   TapIrLength       = 8;
+
+   // Indication of IP with TAP controller (value is not "reg_only")
+   TapType           = "";
+
+   // Register Definitions
+
+   reg TAP_IR {
+     name = "TAP IR";
+     desc = "TAP IR Opcodes";
+     TapTotalNumRegBits = 8;
+     TapShiftRegLength  = 8;
+     regwidth = 8;
+     field {
+   	 name = "TAP_IR";
+   	 desc = "Supported OpCodes ->
+   		 8'hc: SLVIDCODE TDR;
+   		 8'h30: regA1 TDR;
+   		 8'h31: regA2 TDR;
+   		 8'h40: regB TDR;
+   		 8'h50: regC TDR;
+   		 8'hff: BYPASS TDR 
+   	 ";
+   	 AccessType = "WO";
+     } TAP_IR [7:0] = 8'hc;
+   };	 //end of reg TAP_IR 
+
+   reg regA_def {
+      name = "regA register";
+      desc = "regA description";
+      TapShiftRegLength  = 6;
+      TapTotalNumRegBits = 6;
+      regwidth = 8;
+      TapRegResetType = "PWRGOOD";
+      TapOpcodeSecurityLevel = "SECURE_RED";
+   
+      field {
+         name = "f1 field";
+         desc = "f1 description";
+         AccessType = "RW";
+      } f1 [3:0] = 4'h0;
+   
+      field {
+         name = "f2 field";
+         desc = "f2 description";
+         AccessType = "RW/V";
+      } f2 [4:4] = 1'h0;
+   
+      field {
+         name = "f3 field";
+         desc = "f3 description";
+         AccessType = "WO";
+      } f3 [5:5] = 1'h0;
+   
+   }; // end of reg regA_def
+
+   reg regBB_def {
+      name = "regBB register";
+      desc = "Blackbox Register";
+      TapShiftRegLength  = 12;
+      TapTotalNumRegBits = 12;
+      regwidth = 16;
+      TapOpcodeSecurityLevel = "SECURE_GREEN";
+      TapDrIsFixedSize = false;
+   
+      field {
+         name = "f1 field";
+         desc = "f1 description";
+         AccessType = "RW";
+      } f1 [11:0] = 12'h1;
+     
+   }; // end of reg regBB_def
+
+   reg bypass_def {
+      name = "BYPASS TDR";
+      desc = "TAP BYPASS Register";
+      TapTotalNumRegBits = 1;
+      TapShiftRegLength  = 1;
+      regwidth = 8;
+      TapOpcodeSecurityLevel = "SECURE_GREEN";
+
+      field {
+   	 name = "dr";
+   	 desc = "A one bit <no action> register.
+   	 ";
+   	 AccessType = "RO";
+      } dr [0:0] = 1'h0;
+   };  // end of reg BYPASS_DR
+
+   reg slvidcode_def {
+      name = "SLVIDCODE TDR";
+      desc = "Slave ID Code register";
+      TapTotalNumRegBits = 32;
+      TapShiftRegLength  = 32;
+      regwidth = 32;
+      TapOpcodeSecurityLevel = "SECURE_GREEN";
+
+      field {
+   	 name = "value";
+   	 desc = "Slave ID code value for given TAP.
+   	 ";
+   	 AccessType = "RO";
+      } value [31:0] = 32'h01234567;
+   };  // end of reg SLVIDCODE
+
+   // Register/Chain Instantiations and opcode assignments
+
+   TAP_IR         TAP_IR;
+
+   regA_def       regA1;
+      regA1     -> RegOpcode = 0x30;
+   regA_def       regA2;
+      regA2     -> RegOpcode = 0x31;
+   regBB_def       regBB;
+      regBB      -> RegOpcode = 0x40;
+
+   slvidcode_def  SLVIDCODE;
+      SLVIDCODE -> RegOpcode = 0xc;
+   bypass_def    BYPASS;
+      BYPASS    -> RegOpcode = 0xff;
+
+
+}; // end of addrmap ip_with_tap_def
+

@@ -1,0 +1,65 @@
+## All bits are R/W as per CICG Security Working Group request
+## load fuse strap, keep CP[3] (HOSTIA_SUNPASS_SAI) =1 so able to function
+## read and check CP/WAC/RAC , value should match with fuse strap value
+## write CP/WAC/RAC to all F's, check all bits updated
+## Using alternate SAI "DEVICE_UNTRUSTED_SAI" => 63 , confirm CP[3] is R/W
+
+
+
+##1 Legal SAI 
+#sai6 0x03 legal for wr/read  
+## read strap value
+SAI HOSTIA_SUNPASS_SAI
+rd hqm_sif_csr.HQM_CSR_RAC_LO 0x0000_0008
+rd hqm_sif_csr.HQM_CSR_RAC_HI 0x0000_0000
+rd hqm_sif_csr.HQM_CSR_WAC_LO 0x0000_0008
+rd hqm_sif_csr.HQM_CSR_WAC_HI 0x0000_0000
+rd hqm_sif_csr.HQM_CSR_CP_LO  0x0000_0008
+rd hqm_sif_csr.HQM_CSR_CP_HI  0x0000_0000
+
+# All bits other than sai6 0x03 can be written to 1
+wr hqm_sif_csr.HQM_CSR_RAC_LO 0xFFFF_FFFF 
+wr hqm_sif_csr.HQM_CSR_RAC_HI 0xFFFF_FFFF
+rd hqm_sif_csr.HQM_CSR_RAC_LO 0xFFFF_FFFF
+rd hqm_sif_csr.HQM_CSR_RAC_HI 0xFFFF_FFFF
+
+wr hqm_sif_csr.HQM_CSR_WAC_LO 0xFFFF_FFFF
+wr hqm_sif_csr.HQM_CSR_WAC_HI 0xFFFF_FFFF
+rd hqm_sif_csr.HQM_CSR_WAC_LO 0xFFFF_FFFF
+rd hqm_sif_csr.HQM_CSR_WAC_HI 0xFFFF_FFFF
+
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xFFFF_FFFF 
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xFFFF_FFFF
+rd hqm_sif_csr.HQM_CSR_CP_LO 0xFFFF_FFFF
+rd hqm_sif_csr.HQM_CSR_CP_HI 0xFFFF_FFFF
+
+#All SAI are now enabled
+SAI DEVICE_UNTRUSTED_SAI
+#All bits other than CP_HO[31] (sai6 0x3f) can be written to 0
+wr hqm_sif_csr.HQM_CSR_RAC_LO 0x0000_0000 
+wr hqm_sif_csr.HQM_CSR_RAC_HI 0x0000_0000
+rd hqm_sif_csr.HQM_CSR_RAC_LO 0x0000_0000
+rd hqm_sif_csr.HQM_CSR_RAC_HI 0x0000_0000
+
+wr hqm_sif_csr.HQM_CSR_WAC_LO 0x0000_0000
+wr hqm_sif_csr.HQM_CSR_WAC_HI 0x0000_0000
+rd hqm_sif_csr.HQM_CSR_WAC_LO 0x0000_0000
+rd hqm_sif_csr.HQM_CSR_WAC_HI 0x0000_0000
+
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0000_0000 
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x8000_0000
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0000_0000
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x8000_0000
+
+#Test sai6 0x03  can be written to 1, and restore for eot checks
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0000_0008 
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0000_0008
+wr hqm_sif_csr.HQM_CSR_RAC_LO 0x0000_0008
+rd hqm_sif_csr.HQM_CSR_RAC_LO 0x0000_0008
+wr hqm_sif_csr.HQM_CSR_WAC_LO 0x0000_0008
+rd hqm_sif_csr.HQM_CSR_WAC_LO 0x0000_0008
+
+#Test CP_HI[31] can be written to 0
+SAI HOSTIA_SUNPASS_SAI
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0000
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0000

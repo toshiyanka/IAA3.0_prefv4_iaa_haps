@@ -1,0 +1,97 @@
+## -- This list contain testcases intended for filling coverage holes.
+################################################################################
+
+#comment out due to errors
+## to cover RTDR signals 
+#hqm_tap_rtdr_test:rtdr_smoke_reg0_wr_t1 -dut hqm -model hqm -dirtag HQMTAP_RTDR_smoke_reg0_wr_t1 -ace_args -simv_args '"' +HQM_FDFX_SECURE_POLICY_CTRL=2  +HQM_FDFX_SECURE_POLICY_CTRL_2=15  +has_tap_tdo_exp_seq   -assert nopostproc -assert quiet+hier=aceroot/verif/tb/hqm/tests/hqm_tap_rtdr_test/hqm_rtdr_assert.waiver  '"' -ace_args-  
+
+#hqm_tap_rtdr_test:rtdr_smoke_test_2+pwr_ovr_phase+has_skip_pmcsr_disable -dirtag HQM_tap_rtdr_pmcsr_disable1_pwrovr_test2.BF_WARMRST.POL2 -ace_args -simv_args '"' +PWR_OVR_TEST_PHASE=WARM_RESET_PHASE +HQM_FDFX_SECURE_POLICY_CTRL=2 -assert nopostproc -assert quiet+hier=aceroot/verif/tb/hqm/tests/hqm_tap_rtdr_test/hqm_rtdr_assert.waiver '"'   -ace_args-   
+
+
+
+
+
+
+## to cover HCW rsvd field
+.include hqm_rsvd_rand_val.list
+
+.repeat
+## -- Toggle coverage for posted data out of HQM
+.repeat 10
+$WORKAREA/src/val/tof/hcw_pf_test -tv q2_dir -tv perf_dir_200pct_short -tv batch4 -dirtag q2_dir_200pct_batch4
+.repeat
+## -- Toggle coverage for PCIe AER header log registers
+.repeat 4
+$WORKAREA/src/val/tof/hqm_hdr_log_cov_test -tv basic
+.repeat
+## -- Toggle coverage for sideband accesses
+$WORKAREA/src/val/tof/hcw_pf_test -tv q8 -tv short            -dirtag q8_short            -simv_args +HQM_RAL_ACCESS_PATH=sideband -simv_args-
+$WORKAREA/src/val/tof/hcw_pf_test -tv q8_msix -tv short       -dirtag q8_msix_short       -simv_args +HQM_RAL_ACCESS_PATH=sideband -simv_args-
+$WORKAREA/src/val/tof/hcw_pf_test -tv q16 -tv short           -dirtag q16_short           -simv_args +HQM_RAL_ACCESS_PATH=sideband -simv_args-
+$WORKAREA/src/val/tof/hcw_pf_test -tv q16_msix -tv short      -dirtag q16_msix_short      -simv_args +HQM_RAL_ACCESS_PATH=sideband -simv_args-
+
+## -- Line coverage i_hqm_system_ingress.i_hcw_enq_w_db 
+$WORKAREA/src/val/tof/hqm_cfg_test -tv hcw_batch_dir -tv disable_eot_ck               -dirtag hcw_batch_dir 
+
+## -- Functional coverage for HCW Enqueue with length != (16B, 32B, 48B & 64B) and
+## -- length = 16B, but fbe != 4'hf and lbe != 4'hf
+$WORKAREA/src/val/tof/hqm_cfg_test -tv hcw_enq_sz_less_than_16B -tv mps2 -dirtag hcw_enq_sz_less_than_16B 
+
+## -- Running the testcase with modified BAR values to cover MWr32
+$WORKAREA/src/val/tof/hqm_cfg_test -tv hcw_enq_sz_less_than_16B -tv bar_prog0 -tv mps2 -dirtag hcw_enq_sz_less_than_16B_mwr32 
+
+
+## -- Functional coverage for walking 1's on SAI for HCW transactions
+$WORKAREA/src/val/tof/hqm_cfg_test -tv hcw_walking_1s_sai -tv csr_wac_set0 -tv dirpp0_sai1  -dirtag hcw_walking_1s_sai_sai_00000001 
+
+## -- This strap value covers 8 bit SAI value of 2, 4 and 8
+$WORKAREA/src/val/tof/hqm_cfg_test -tv hcw_walking_1s_sai -tv csr_wac_set31 -tv dirpp2_sai2    -dirtag hcw_walking_1s_sai_sai_00000010 
+$WORKAREA/src/val/tof/hqm_cfg_test -tv hcw_walking_1s_sai -tv csr_wac_set31 -tv dirpp5_sai4    -dirtag hcw_walking_1s_sai_sai_00000100 
+$WORKAREA/src/val/tof/hqm_cfg_test -tv hcw_walking_1s_sai -tv csr_wac_set31 -tv dirpp9_sai8    -dirtag hcw_walking_1s_sai_sai_00001000 
+$WORKAREA/src/val/tof/hqm_cfg_test -tv hcw_walking_1s_sai -tv csr_wac_set31 -tv dirpp16_sai80  -dirtag hcw_walking_1s_sai_sai_10000000 
+
+## -- SAI value 16
+$WORKAREA/src/val/tof/hqm_cfg_test -tv hcw_walking_1s_sai -tv csr_wac_set8 -tv dirpp10_sai10  -dirtag hcw_walking_1s_sai_sai_00010000 
+
+## -- SAI value 32
+$WORKAREA/src/val/tof/hqm_cfg_test -tv hcw_walking_1s_sai -tv csr_wac_set16 -tv dirpp12_sai20  -dirtag hcw_walking_1s_sai_sai_00100000 
+
+## -- SAI value 64
+$WORKAREA/src/val/tof/hqm_cfg_test -tv hcw_walking_1s_sai -tv csr_wac_set32 -tv dirpp13_sai40  -dirtag hcw_walking_1s_sai_sai_01000000 
+
+
+## -- Enqueue with MWr32 and walking 1's SAI
+$WORKAREA/src/val/tof/hqm_cfg_test -tv hcw_walking_1s_sai -tv bar_prog0 -tv csr_wac_set0 -tv dirpp0_sai1  -dirtag hcw_walking_1s_sai_sai_00000001 
+
+## -- This strap value covers 8 bit SAI value of 2, 4 and 8
+$WORKAREA/src/val/tof/hqm_cfg_test -tv hcw_walking_1s_sai -tv bar_prog0 -tv csr_wac_set31 -tv dirpp2_sai2    -dirtag hcw_walking_1s_sai_sai_00000010 
+$WORKAREA/src/val/tof/hqm_cfg_test -tv hcw_walking_1s_sai -tv bar_prog0 -tv csr_wac_set31 -tv dirpp5_sai4    -dirtag hcw_walking_1s_sai_sai_00000100 
+$WORKAREA/src/val/tof/hqm_cfg_test -tv hcw_walking_1s_sai -tv bar_prog0 -tv csr_wac_set31 -tv dirpp9_sai8    -dirtag hcw_walking_1s_sai_sai_00001000 
+$WORKAREA/src/val/tof/hqm_cfg_test -tv hcw_walking_1s_sai -tv bar_prog0 -tv csr_wac_set31 -tv dirpp16_sai80  -dirtag hcw_walking_1s_sai_sai_10000000 
+
+## -- SAI value 16
+$WORKAREA/src/val/tof/hqm_cfg_test -tv hcw_walking_1s_sai -tv bar_prog0 -tv csr_wac_set8 -tv dirpp10_sai10   -dirtag hcw_walking_1s_sai_sai_00010000 
+
+## -- SAI value 32
+$WORKAREA/src/val/tof/hqm_cfg_test -tv hcw_walking_1s_sai -tv bar_prog0 -tv csr_wac_set16 -tv dirpp12_sai20  -dirtag hcw_walking_1s_sai_sai_00100000 
+## -- SAI value 64
+$WORKAREA/src/val/tof/hqm_cfg_test -tv hcw_walking_1s_sai -tv bar_prog0 -tv csr_wac_set32 -tv dirpp13_sai40  -dirtag hcw_walking_1s_sai_sai_01000000 
+
+
+## cp_cq_int_sai: cq_int sai-bit 1,2,4,5
+$WORKAREA/src/val/tof/hqm_cfg_test -tv hqm_cial_cq_thrshold -tv cq_depth_8_thres_0 -tv strap_tx_sai02   -dirtag hqm_stress_1_cq_depth_thrshold_8_0_sai_02
+$WORKAREA/src/val/tof/hqm_cfg_test -tv hqm_cial_cq_thrshold -tv cq_depth_8_thres_0 -tv strap_tx_sai04   -dirtag hqm_stress_1_cq_depth_thrshold_8_0_sai_04
+$WORKAREA/src/val/tof/hqm_cfg_test -tv hqm_cial_cq_thrshold -tv cq_depth_8_thres_0 -tv strap_tx_sai10   -dirtag hqm_stress_1_cq_depth_thrshold_8_0_sai_16
+$WORKAREA/src/val/tof/hqm_cfg_test -tv hqm_cial_cq_thrshold -tv cq_depth_8_thres_0 -tv strap_tx_sai20   -dirtag hqm_stress_1_cq_depth_thrshold_8_0_sai_32
+
+
+
+
+
+## - Testcase for covering cross of ISM state of fabric and agent
+$WORKAREA/src/val/tof/hqm_cfg_test -tv hcw_batch_dir -tv sb_ism_crd_req_delay_0      -dirtag hcw_batch_dir 
+$WORKAREA/src/val/tof/hqm_cfg_test -tv hcw_batch_dir -tv sb_ism_crd_req_delay_long   -dirtag hcw_batch_dir 
+$WORKAREA/src/val/tof/hqm_cfg_test -tv hcw_batch_dir -tv prim_stall_fab_crd_init     -dirtag hcw_batch_dir 
+
+## Testcase for functional cov point cp_pp_nm_pf_access to cover pp num95: 64
+$WORKAREA/src/val/tof/hqm_cfg_test -tv hcw_all_pp_nm_pf_dir   -dirtag hcw_all_pp_nm_pf_dir

@@ -1,0 +1,280 @@
+###########################################
+## Test1: en_code=2[PF]+Threshold CQ0&3  ## 
+###########################################
+##set arm command cq0,cq3
+HCW DIR:0 qe_valid=0 qe_orsp=1 qe_uhl=0 cq_pop=1 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302 
+HCW DIR:3 qe_valid=0 qe_orsp=1 qe_uhl=0 cq_pop=1 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=3 dsi=0x302 
+idle 100
+##Send NEW HCW [cq0, cq_threh=3]
+HCW DIR:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302 batch=1
+HCW DIR:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302 batch=1
+HCW DIR:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302 batch=1
+HCW DIR:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302
+idle 300
+##Send NEW HCW [cq1,cq2 ] No interrupt
+HCW DIR:1 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=1 dsi=0x302 batch=1
+HCW DIR:1 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=1 dsi=0x302 batch=1
+HCW DIR:1 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=1 dsi=0x302 batch=1
+HCW DIR:1 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=1 dsi=0x302
+idle 300
+HCW DIR:2 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=2 dsi=0x302 batch=1
+HCW DIR:2 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=2 dsi=0x302 batch=1
+HCW DIR:2 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=2 dsi=0x302 batch=1
+HCW DIR:2 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=2 dsi=0x302
+idle 300
+##Send NEW HCW [cq3, ]
+HCW DIR:3 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=3 dsi=0x302 batch=1
+HCW DIR:3 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=3 dsi=0x302 batch=1
+HCW DIR:3 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=3 dsi=0x302 batch=1
+HCW DIR:3 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=3 dsi=0x302
+idle 300
+poll_sch dir:0  0x4     1000 10
+
+poll_sch dir:1  0x4     1000 10
+
+poll_sch dir:2  0x4     1000 10
+
+poll_sch dir:3  0x4     1000 10
+
+idle 100
+## cq Interrupt status cq0 &cq3 
+rd hqm_system_csr.dir_cq_31_0_occ_int_status 0x9
+rd hqm_system_csr.dir_cq_63_32_occ_int_status 0x0
+
+## this will reset when cq intr is armed cq[0,3]
+rd credit_hist_pipe.cfg_dir_cq_intr_armed0  0x00000f30
+rd credit_hist_pipe.cfg_dir_cq_intr_armed1  0x0
+idle 100 
+##4-token return
+HCW DIR:0 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x03 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302 
+idle 300
+HCW DIR:1 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x03 msgtype=0 qpri=0 qtype=dir qid=1 dsi=0x302 
+idle 300
+HCW DIR:2 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x03 msgtype=0 qpri=0 qtype=dir qid=2 dsi=0x302 
+idle 300
+HCW DIR:3 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x03 msgtype=0 qpri=0 qtype=dir qid=3 dsi=0x302 
+idle 300
+
+##poll vas credit before starting new test
+poll credit_hist_pipe.cfg_vas_credit_count[:VAS0:] 0x400 0xffffffff 1000 10
+
+###########################################
+## Test2: en_code=2[PF]+Timer CQ4&5  ## 
+###########################################
+wr credit_hist_pipe.cfg_dir_cq_intr_armed0  0x00000f39
+rd credit_hist_pipe.cfg_dir_cq_intr_armed0  0x00000f39
+##set arm command cq4,cq5
+HCW DIR:4 qe_valid=0 qe_orsp=1 qe_uhl=0 cq_pop=1 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=4 dsi=0x302 
+HCW DIR:5 qe_valid=0 qe_orsp=1 qe_uhl=0 cq_pop=1 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=5 dsi=0x302 
+idle 500
+##Send NEW HCW [cq4, timer]
+HCW DIR:4 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=4 dsi=0x302 
+HCW DIR:5 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=5 dsi=0x302 
+idle 500
+##
+poll_sch dir:4  0x1     1000 10
+poll_sch dir:5  0x1     1000 10
+idle 500
+HCW DIR:4 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=4 dsi=0x302 batch=1
+HCW DIR:4 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=4 dsi=0x302 batch=1
+HCW DIR:4 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=4 dsi=0x302
+idle 300
+##Send NEW HCW [cq5, ]
+HCW DIR:5 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=5 dsi=0x302 batch=1
+HCW DIR:5 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=5 dsi=0x302 batch=1
+HCW DIR:5 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=5 dsi=0x302
+idle 300
+poll_sch dir:4  0x4     100 1
+
+poll_sch dir:5  0x4     100 1
+
+## check cq interrupt timer has started for cq4,5 
+poll credit_hist_pipe.cfg_dir_cq_intr_run_timer0 0x30 0xffffffff 10 100
+rd credit_hist_pipe.cfg_dir_cq_intr_run_timer1 0x0 
+idle 100 
+##Send NEW HCW [cq6,cq7 ] No interrupt
+HCW DIR:6 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=6 dsi=0x302 batch=1
+HCW DIR:6 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=6 dsi=0x302 batch=1
+HCW DIR:6 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=6 dsi=0x302 batch=1
+HCW DIR:6 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=6 dsi=0x302
+idle 300
+HCW DIR:7 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=7 dsi=0x302 batch=1
+HCW DIR:7 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=7 dsi=0x302 batch=1
+HCW DIR:7 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=7 dsi=0x302 batch=1
+HCW DIR:7 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=7 dsi=0x302
+idle 300
+poll_sch dir:6  0x4     100 1
+poll_sch dir:7  0x4     100 1
+idle 300
+## cq Interrupt status cq0 &cq3 
+poll hqm_system_csr.dir_cq_31_0_occ_int_status 0x39 0xffffffff 100 50
+rd hqm_system_csr.dir_cq_63_32_occ_int_status 0x0
+
+## this will reset when cq intr is armed [cq4,5]
+poll credit_hist_pipe.cfg_dir_cq_intr_armed0  0x00000f09 0xffffffff 100 50
+rd credit_hist_pipe.cfg_dir_cq_intr_armed1  0x0
+
+##4-token return
+HCW DIR:4 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x03 msgtype=0 qpri=0 qtype=dir qid=4 dsi=0x302 
+idle 300
+HCW DIR:5 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x03 msgtype=0 qpri=0 qtype=dir qid=5 dsi=0x302 
+idle 300
+HCW DIR:6 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x03 msgtype=0 qpri=0 qtype=dir qid=6 dsi=0x302 
+idle 300
+HCW DIR:7 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x03 msgtype=0 qpri=0 qtype=dir qid=7 dsi=0x302 
+idle 300
+##poll vas credit before starting new test
+poll credit_hist_pipe.cfg_vas_credit_count[:VAS0:] 0x400 0xffffffff 1000 10
+idle 300
+
+###########################################
+## Test3: en_code=0[disabled]+Timer &    ## 
+## threshold interrupt CQ8,9 10-11       ## 
+###########################################
+wr credit_hist_pipe.cfg_dir_cq_intr_armed0  0x00000f39
+rd credit_hist_pipe.cfg_dir_cq_intr_armed0  0x00000f39
+##set arm command cq8,cq9
+HCW DIR:8  qe_valid=0 qe_orsp=1 qe_uhl=0 cq_pop=1 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=8  dsi=0x302 
+idle 500
+HCW DIR:9  qe_valid=0 qe_orsp=1 qe_uhl=0 cq_pop=1 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=9  dsi=0x302 
+idle 500
+HCW DIR:10 qe_valid=0 qe_orsp=1 qe_uhl=0 cq_pop=1 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=10 dsi=0x302 
+idle 500
+HCW DIR:11 qe_valid=0 qe_orsp=1 qe_uhl=0 cq_pop=1 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=11 dsi=0x302 
+idle 500
+##timer started when cq_depth>0 && armed
+HCW DIR:8 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=8 dsi=0x302 
+idle 500
+HCW DIR:9 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=9 dsi=0x302 
+idle 500
+poll_sch dir:8   0x1      100 1
+poll_sch dir:9   0x1      100 1
+## check cq interrupt timer has started for cq8,9 
+poll credit_hist_pipe.cfg_dir_cq_intr_run_timer0 0x300 0xffffffff 10 100
+rd credit_hist_pipe.cfg_dir_cq_intr_run_timer1 0x0
+##Send NEW HCW [cq8,9 timer]
+HCW DIR:8 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=8 dsi=0x302 batch=1
+HCW DIR:8 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=8 dsi=0x302 batch=1
+HCW DIR:8 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=8 dsi=0x302
+idle 300
+HCW DIR:9 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=9 dsi=0x302 batch=1
+HCW DIR:9 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=9 dsi=0x302 batch=1
+HCW DIR:9 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=9 dsi=0x302
+idle 300
+##wait for schedule
+poll_sch dir:8   0x4     100 5
+poll_sch dir:9   0x4     100 5
+## cq Interrupt status cq8-9 ?? need to check
+poll hqm_system_csr.dir_cq_31_0_occ_int_status 0x039 0xffffffff 100 50
+rd hqm_system_csr.dir_cq_63_32_occ_int_status 0x0
+## this will reset when cq intr is armed
+poll credit_hist_pipe.cfg_dir_cq_intr_armed0  0x00000C39 0xffffffff 100 100
+rd credit_hist_pipe.cfg_dir_cq_intr_armed1  0x0
+
+
+##Send NEW HCW [cq10,11, threshold  ]
+HCW DIR:10 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=10 dsi=0x302 batch=1
+HCW DIR:10 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=10 dsi=0x302 batch=1
+HCW DIR:10 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=10 dsi=0x302 batch=1
+HCW DIR:10 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=10 dsi=0x302
+idle 300
+HCW DIR:11 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=11 dsi=0x302 batch=1
+HCW DIR:11 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=11 dsi=0x302 batch=1
+HCW DIR:11 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=11 dsi=0x302 batch=1
+HCW DIR:11 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=11 dsi=0x302
+idle 300
+poll_sch dir:10  0x4     1000 10
+
+poll_sch dir:11  0x4     1000 10
+
+## cq Interrupt status cq10-11 need to check
+poll hqm_system_csr.dir_cq_31_0_occ_int_status 0x039 0xffffffff 100 50
+rd hqm_system_csr.dir_cq_63_32_occ_int_status 0x0
+## this will reset when cq intr is armed
+poll credit_hist_pipe.cfg_dir_cq_intr_armed0  0x00000039 0xffffffff 1000 100
+rd credit_hist_pipe.cfg_dir_cq_intr_armed1  0x0
+idle 300
+##4-token return
+HCW DIR:8  qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x03 msgtype=0 qpri=0 qtype=dir qid=8  dsi=0x302 
+idle 300
+HCW DIR:9  qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x03 msgtype=0 qpri=0 qtype=dir qid=9  dsi=0x302 
+idle 300
+HCW DIR:10 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x03 msgtype=0 qpri=0 qtype=dir qid=10 dsi=0x302 
+idle 300
+HCW DIR:11 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x03 msgtype=0 qpri=0 qtype=dir qid=11 dsi=0x302 
+idle 300
+##poll vas credit before starting new test
+poll credit_hist_pipe.cfg_vas_credit_count[:VAS0:] 0x400 0xffffffff 1000 10
+idle 300
+
+
+###########################################
+## Test4: en_code=2[PF]+dis Timer &Thesh ## 
+## interrupt for CQ[12-15] No cq intr    ## 
+###########################################
+##set arm command cq[12-15]
+wr credit_hist_pipe.cfg_dir_cq_intr_armed0  0x00000f39
+rd credit_hist_pipe.cfg_dir_cq_intr_armed0  0x00000f39
+HCW DIR:12  qe_valid=0 qe_orsp=1 qe_uhl=0 cq_pop=1 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=12 dsi=0x302 
+HCW DIR:13  qe_valid=0 qe_orsp=1 qe_uhl=0 cq_pop=1 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=13 dsi=0x302 
+HCW DIR:14  qe_valid=0 qe_orsp=1 qe_uhl=0 cq_pop=1 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=14 dsi=0x302 
+HCW DIR:15  qe_valid=0 qe_orsp=1 qe_uhl=0 cq_pop=1 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=15 dsi=0x302 
+idle 500
+##Send NEW HCW [cq12:15]
+HCW DIR:12 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=12 dsi=0x302 batch=1
+HCW DIR:12 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=12 dsi=0x302 batch=1
+HCW DIR:12 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=12 dsi=0x302 batch=1
+HCW DIR:12 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=12 dsi=0x302
+idle 300
+HCW DIR:13 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=13 dsi=0x302 batch=1
+HCW DIR:13 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=13 dsi=0x302 batch=1
+HCW DIR:13 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=13 dsi=0x302 batch=1
+HCW DIR:13 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=13 dsi=0x302
+idle 300
+HCW DIR:14 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=14 dsi=0x302 batch=1
+HCW DIR:14 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=14 dsi=0x302 batch=1
+HCW DIR:14 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=14 dsi=0x302 batch=1
+HCW DIR:14 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=14 dsi=0x302
+idle 300
+HCW DIR:15 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=15 dsi=0x302 batch=1
+HCW DIR:15 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=15 dsi=0x302 batch=1
+HCW DIR:15 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=15 dsi=0x302 batch=1
+HCW DIR:15 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=15 dsi=0x302
+idle 300
+##wait for schedule
+poll_sch dir:12   0x4     1000 10
+
+poll_sch dir:13   0x4     1000 10
+
+poll_sch dir:14   0x4     1000 10
+
+poll_sch dir:15   0x4     1000 10
+
+idle 100
+## check no cq interrupt timer 
+rd credit_hist_pipe.cfg_dir_cq_intr_run_timer0 0x0 
+rd credit_hist_pipe.cfg_dir_cq_intr_run_timer1 0x0
+## check cq_intr expired  ??
+rd credit_hist_pipe.cfg_dir_cq_intr_expired0 0x0
+rd credit_hist_pipe.cfg_dir_cq_intr_expired1 0x0
+## no cq Interrupt status on cq12:15?? need to check
+rd hqm_system_csr.dir_cq_31_0_occ_int_status 0x039
+rd hqm_system_csr.dir_cq_63_32_occ_int_status 0x0
+## No cq intr is armed
+rd credit_hist_pipe.cfg_dir_cq_intr_armed0  0x00000f39
+rd credit_hist_pipe.cfg_dir_cq_intr_armed1  0x0
+idle 100 
+##4-token return
+HCW DIR:12 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x03 msgtype=0 qpri=0 qtype=dir qid=12 dsi=0x302 
+idle 300
+HCW DIR:13 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x03 msgtype=0 qpri=0 qtype=dir qid=13 dsi=0x302 
+idle 300
+HCW DIR:14 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x03 msgtype=0 qpri=0 qtype=dir qid=14 dsi=0x302 
+idle 300
+HCW DIR:15 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x03 msgtype=0 qpri=0 qtype=dir qid=15 dsi=0x302 
+idle 300
+##poll vas credit before starting new test
+poll credit_hist_pipe.cfg_vas_credit_count[:VAS0:] 0x400 0xffffffff 1000 10
+idle 300
+
+

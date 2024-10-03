@@ -1,0 +1,155 @@
+######################################
+######################################
+
+
+
+cfg_begin
+
+
+##- PF Mode Only
+
+  dir qid DQID0:*
+  dir qid DQID1:*
+  dir qid DQID2:*
+  dir qid DQID3:*
+  dir qid DQID4:*
+  dir qid DQID5:*
+  dir qid DQID6:*
+  dir qid DQID7:*
+  dir qid DQID8:*
+  dir qid DQID9:*
+  dir qid DQID10:*
+  dir qid DQID11:*
+
+  ldb qid LQID0:*   qid_ldb_inflight_limit=256
+  ldb qid LQID1:*   qid_ldb_inflight_limit=256
+  ldb qid LQID2:*   qid_ldb_inflight_limit=256
+  ldb qid LQID3:*   qid_ldb_inflight_limit=256
+  ldb qid LQID4:*   qid_ldb_inflight_limit=256
+  ldb qid LQID5:*   qid_ldb_inflight_limit=256
+  ldb qid LQID6:*   qid_ldb_inflight_limit=256
+  ldb qid LQID7:*   qid_ldb_inflight_limit=256
+  ldb qid LQID8:*   qid_ldb_inflight_limit=256
+  ldb qid LQID9:*   qid_ldb_inflight_limit=256
+  ldb qid LQID10:*  qid_ldb_inflight_limit=256
+  ldb qid LQID11:*  qid_ldb_inflight_limit=256
+
+  vas VAS0:* dir_qidv:DQID0=1  dir_qidv:DQID1=1  dir_qidv:DQID2=1  dir_qidv:DQID3=1  dir_qidv:DQID4=1  dir_qidv:DQID5=1  dir_qidv:DQID6=1  dir_qidv:DQID7=1 credit_cnt=4096
+  vas VAS0   dir_qidv:DQID8=1  dir_qidv:DQID9=1  dir_qidv:DQID10=1 dir_qidv:DQID11=1 
+  vas VAS0   ldb_qidv:LQID0=1  ldb_qidv:LQID1=1  ldb_qidv:LQID2=1  ldb_qidv:LQID3=1  ldb_qidv:LQID4=1  ldb_qidv:LQID5=1  ldb_qidv:LQID6=1  ldb_qidv:LQID7=1 
+  vas VAS0   ldb_qidv:LQID8=1  ldb_qidv:LQID9=1  ldb_qidv:LQID10=1 ldb_qidv:LQID11=1
+
+  dir pp DQID0   vas=VAS0 
+  dir pp DQID1   vas=VAS0 
+  dir pp DQID2   vas=VAS0 
+  dir pp DQID3   vas=VAS0 
+  dir pp DQID4   vas=VAS0 
+  dir pp DQID5   vas=VAS0 
+  dir pp DQID6   vas=VAS0 
+  dir pp DQID7   vas=VAS0 
+  dir pp DQID8   vas=VAS0
+  dir pp DQID9   vas=VAS0
+  dir pp DQID10  vas=VAS0
+  dir pp DQID11  vas=VAS0
+
+  ldb pp LPP0:*  vas=VAS0 
+  ldb pp LPP1:*  vas=VAS0 exp_unexp_comp=1
+  ldb pp LPP2:*  vas=VAS0 
+  ldb pp LPP3:*  vas=VAS0 
+  ldb pp LPP4:*  vas=VAS0 
+  ldb pp LPP5:*  vas=VAS0 
+  ldb pp LPP6:*  vas=VAS0 
+  ldb pp LPP7:*  vas=VAS0 
+  ldb pp LPP8:*  vas=VAS0 
+  ldb pp LPP9:*  vas=VAS0 
+  ldb pp LPP10:* vas=VAS0 
+  ldb pp LPP11:* vas=VAS0 
+
+
+  ## Threshold config
+  msix_alarm 0  enable=0x1  addr=0x2222cafebebc000 data=0xbb331000
+
+  msix_cq 1  addr=0x2222cafebebc010 data=0xbb331001 is_ldb=0 cq=DQID0
+  msix_cq 2  addr=0x2222cafebebc020 data=0xbb331002 is_ldb=0 cq=DQID1
+  msix_cq 3  addr=0x2222cafebebc030 data=0xbb331003 is_ldb=0 cq=DQID2
+  msix_cq 4  addr=0x2222cafebebc040 data=0xbb331004 is_ldb=0 cq=DQID3
+
+  msix_cq 5  addr=0x2222cafebebc050 data=0xbb331005 is_ldb=0 cq=DQID4
+  msix_cq 6  addr=0x2222cafebebc060 data=0xbb331006 is_ldb=0 cq=DQID5
+  msix_cq 7  addr=0x2222cafebebc070 data=0xbb331007 is_ldb=0 cq=DQID6
+  msix_cq 8  addr=0x2222cafebebc080 data=0xbb331008 is_ldb=0 cq=DQID7
+
+  msix_cq 16 addr=0x2222cafebebc160 data=0xbb331016 is_ldb=0 cq=DQID8
+  msix_cq 17 addr=0x2222cafebebc170 data=0xbb331017 is_ldb=0 cq=DQID9
+  msix_cq 18 addr=0x2222cafebebc180 data=0xbb331018 is_ldb=0 cq=DQID10
+  msix_cq 19 addr=0x2222cafebebc190 data=0xbb331019 is_ldb=0 cq=DQID11
+
+  ## Threshold config --ldb
+  msix_cq 9  addr=0x2222cafebebc090 data=0xbb331009 is_ldb=1 cq=LPP0
+  msix_cq 10 addr=0x2222cafebebc100 data=0xbb331010 is_ldb=1 cq=LPP1
+  msix_cq 11 addr=0x2222cafebebc110 data=0xbb331011 is_ldb=1 cq=LPP2
+  msix_cq 12 addr=0x2222cafebebc120 data=0xbb331012 is_ldb=1 cq=LPP3
+
+  msix_cq 13 addr=0x2222cafebebc130 data=0xbb331013 is_ldb=1 cq=LPP4
+  msix_cq 14 addr=0x2222cafebebc140 data=0xbb331014 is_ldb=1 cq=LPP5
+  msix_cq 15 addr=0x2222cafebebc150 data=0xbb331015 is_ldb=1 cq=LPP6
+  msix_cq 24 addr=0x2222cafebebc240 data=0xbb331024 is_ldb=1 cq=LPP7
+
+  msix_cq 25 addr=0x2222cafebebc250 data=0xbb331025 is_ldb=1 cq=LPP8
+  msix_cq 26 addr=0x2222cafebebc260 data=0xbb331026 is_ldb=1 cq=LPP9
+  msix_cq 27 addr=0x2222cafebebc270 data=0xbb331027 is_ldb=1 cq=LPP10
+  msix_cq 28 addr=0x2222cafebebc280 data=0xbb331028 is_ldb=1 cq=LPP11
+
+
+  dir cq DQID0  cq_depth=8 gpa=sm cq_timer_intr_thresh=2 cq_timer_intr_ena=0 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 cq_isr_en_code=2 
+  dir cq DQID1  cq_depth=8 gpa=sm cq_timer_intr_thresh=2 cq_timer_intr_ena=0 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 cq_isr_en_code=2  
+  dir cq DQID2  cq_depth=8 gpa=sm cq_timer_intr_thresh=2 cq_timer_intr_ena=0 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 cq_isr_en_code=2 
+  dir cq DQID3  cq_depth=8 gpa=sm cq_timer_intr_thresh=2 cq_timer_intr_ena=0 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 cq_isr_en_code=2 
+
+  dir cq DQID4  cq_depth=8 gpa=sm cq_timer_intr_thresh=2 cq_timer_intr_ena=0 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 cq_isr_en_code=2 
+  dir cq DQID5  cq_depth=8 gpa=sm cq_timer_intr_thresh=2 cq_timer_intr_ena=0 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 cq_isr_en_code=2 
+  dir cq DQID6  cq_depth=8 gpa=sm cq_timer_intr_thresh=2 cq_timer_intr_ena=0 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 cq_isr_en_code=2  
+  dir cq DQID7  cq_depth=8 gpa=sm cq_timer_intr_thresh=2 cq_timer_intr_ena=0 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 cq_isr_en_code=2 
+
+  dir cq DQID8  cq_depth=8 gpa=sm cq_timer_intr_thresh=2 cq_timer_intr_ena=0 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 cq_isr_en_code=2 
+  dir cq DQID9  cq_depth=8 gpa=sm cq_timer_intr_thresh=2 cq_timer_intr_ena=0 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 cq_isr_en_code=2 
+  dir cq DQID10 cq_depth=8 gpa=sm cq_timer_intr_thresh=2 cq_timer_intr_ena=0 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 cq_isr_en_code=2 
+  dir cq DQID11 cq_depth=8 gpa=sm cq_timer_intr_thresh=2 cq_timer_intr_ena=0 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 cq_isr_en_code=2 
+
+  ##PF+threshold on cq [0,3]
+  ldb cq LPP0   cq_depth=8 gpa=sm qidv0=1 qidix0=LQID0  cq_timer_intr_thresh=2 cq_timer_intr_ena=0 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 cq_isr_en_code=2  
+  ldb cq LPP1   cq_depth=8 gpa=sm qidv0=1 qidix0=LQID1  cq_timer_intr_thresh=2 cq_timer_intr_ena=0 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 cq_isr_en_code=2 
+  ldb cq LPP2   cq_depth=8 gpa=sm qidv0=1 qidix0=LQID2  cq_timer_intr_thresh=2 cq_timer_intr_ena=0 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 cq_isr_en_code=2 
+  ldb cq LPP3   cq_depth=8 gpa=sm qidv0=1 qidix0=LQID3  cq_timer_intr_thresh=2 cq_timer_intr_ena=0 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 cq_isr_en_code=2 
+
+  ##PF+timer on cq[4,5]
+  ldb cq LPP4   cq_depth=8 gpa=sm qidv0=1 qidix0=LQID4  cq_timer_intr_thresh=2 cq_timer_intr_ena=0 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 cq_isr_en_code=2 
+  ldb cq LPP5   cq_depth=8 gpa=sm qidv0=1 qidix0=LQID5  cq_timer_intr_thresh=2 cq_timer_intr_ena=0 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 cq_isr_en_code=2 
+  ldb cq LPP6   cq_depth=8 gpa=sm qidv0=1 qidix0=LQID6  cq_timer_intr_thresh=2 cq_timer_intr_ena=0 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 cq_isr_en_code=2 
+  ldb cq LPP7   cq_depth=8 gpa=sm qidv0=1 qidix0=LQID7  cq_timer_intr_thresh=2 cq_timer_intr_ena=0 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 cq_isr_en_code=2 
+
+  ##Disable+Thrshold+Timer > cq intr armed but no msix
+  ldb cq LPP8   cq_depth=8 gpa=sm qidv0=1 qidix0=LQID8  cq_timer_intr_thresh=2 cq_timer_intr_ena=0 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 cq_isr_en_code=2 
+  ldb cq LPP9   cq_depth=8 gpa=sm qidv0=1 qidix0=LQID9  cq_timer_intr_thresh=2 cq_timer_intr_ena=0 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 cq_isr_en_code=2 
+  ldb cq LPP10  cq_depth=8 gpa=sm qidv0=1 qidix0=LQID10 cq_timer_intr_thresh=2 cq_timer_intr_ena=0 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 cq_isr_en_code=2 
+  ldb cq LPP11  cq_depth=8 gpa=sm qidv0=1 qidix0=LQID11 cq_timer_intr_thresh=2 cq_timer_intr_ena=0 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 cq_isr_en_code=2 
+
+cfg_end
+
+wr credit_hist_pipe.cfg_dir_cq_intr_armed0 0xffffffff
+wr credit_hist_pipe.cfg_dir_cq_intr_armed1 0xffffffff
+wr credit_hist_pipe.cfg_dir_cq_timer_ctl.enb 1
+wr credit_hist_pipe.cfg_dir_cq_timer_ctl.sample_interval 1
+
+wr credit_hist_pipe.cfg_ldb_cq_intr_armed0 0xffffffff
+wr credit_hist_pipe.cfg_ldb_cq_intr_armed1 0xffffffff
+wr credit_hist_pipe.cfg_ldb_cq_timer_ctl.enb 1
+wr credit_hist_pipe.cfg_ldb_cq_timer_ctl.sample_interval 1
+
+rd credit_hist_pipe.cfg_dir_cq_intr_armed0 
+rd credit_hist_pipe.cfg_dir_cq_intr_armed1 
+rd credit_hist_pipe.cfg_ldb_cq_intr_armed0 
+rd credit_hist_pipe.cfg_ldb_cq_intr_armed1 
+
+
+

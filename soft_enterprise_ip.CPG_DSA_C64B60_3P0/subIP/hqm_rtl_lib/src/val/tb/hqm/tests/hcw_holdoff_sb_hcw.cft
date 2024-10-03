@@ -1,0 +1,45 @@
+# Turn off local clock gating and disable deassertion of prim_clk_req so external clock keeps running
+wr hqm_sif_csr.prim_cdc_ctl.CLKGATE_DISABLED        1
+wr hqm_sif_csr.side_cdc_ctl.CLKGATE_DISABLED        1
+wr hqm_sif_csr.prim_cdc_ctl.CLKREQ_CTL_DISABLED     1
+wr hqm_sif_csr.side_cdc_ctl.CLKREQ_CTL_DISABLED     1
+wr hqm_sif_csr.prim_cdc_ctl.CLKGATE_HOLDOFF         0xb
+wr hqm_sif_csr.side_cdc_ctl.CLKGATE_HOLDOFF         0xb
+wr hqm_sif_csr.prim_cdc_ctl.PWRGATE_HOLDOFF         0xb
+wr hqm_sif_csr.side_cdc_ctl.PWRGATE_HOLDOFF         0xb
+wr hqm_sif_csr.prim_cdc_ctl.CLKREQ_OFF_HOLDOFF      0xb
+wr hqm_sif_csr.side_cdc_ctl.CLKREQ_OFF_HOLDOFF      0xb
+wr hqm_sif_csr.prim_cdc_ctl.CLKREQ_SYNCOFF_HOLDOFF  0xb
+wr hqm_sif_csr.side_cdc_ctl.CLKREQ_SYNCOFF_HOLDOFF  0xb
+# Turn on smon timers
+wr hqm_system_csr.aw_smon_configuration0[0]         0x00000001
+wr hqm_sif_csr.aw_smon_configuration0[0]            0x00000001
+idle 1000
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+idle 1000
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+idle 1000
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+idle 1000
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+idle 1000
+HCW DIR:DQ_A qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x003 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302
+IDLE 1000
+# Turn off smon timers
+wr hqm_system_csr.aw_smon_configuration0[0]         0x00000000
+wr hqm_sif_csr.aw_smon_configuration0[0]            0x00000000
+wr hqm_sif_csr.prim_cdc_ctl.CLKGATE_HOLDOFF         0xb
+wr hqm_sif_csr.side_cdc_ctl.CLKGATE_HOLDOFF         0xb
+wr hqm_sif_csr.prim_cdc_ctl.PWRGATE_HOLDOFF         0xb
+wr hqm_sif_csr.side_cdc_ctl.PWRGATE_HOLDOFF         0xb
+wr hqm_sif_csr.prim_cdc_ctl.CLKREQ_OFF_HOLDOFF      0xb
+wr hqm_sif_csr.side_cdc_ctl.CLKREQ_OFF_HOLDOFF      0xb
+wr hqm_sif_csr.prim_cdc_ctl.CLKREQ_SYNCOFF_HOLDOFF  0xb
+wr hqm_sif_csr.side_cdc_ctl.CLKREQ_SYNCOFF_HOLDOFF  0xb
+wr hqm_sif_csr.prim_cdc_ctl.CLKREQ_CTL_DISABLED     0
+wr hqm_sif_csr.side_cdc_ctl.CLKREQ_CTL_DISABLED     0
+wr hqm_sif_csr.prim_cdc_ctl.CLKGATE_DISABLED        0
+wr hqm_sif_csr.side_cdc_ctl.CLKGATE_DISABLED        0
+# Check smon values (Should be > 0x1000)
+rd hqm_system_csr.aw_smon_timer[0]                  0x00001000 0xffff8000
+rd hqm_sif_csr.aw_smon_timer[0]                     0x00001000 0xffff8000

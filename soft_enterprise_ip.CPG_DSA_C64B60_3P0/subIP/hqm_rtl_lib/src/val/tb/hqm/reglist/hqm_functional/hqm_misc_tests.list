@@ -1,0 +1,46 @@
+################################################################################
+## -- The following testcases verify that during simulation if bus number is 
+## -- changed during simulation, the bus number is changed for CQ writes as well
+## -- as MSIX interrupt writes
+################################################################################
+## -- CQ writes
+hcw_ldb_test:uno_traffic_busnum -dirtag uno_pf_inj_traffic_busnum
+
+## -- MSIX interrupt writes
+hqm_top_test:dir_crd_ex_busnum  -dirtag dir_crd_ex_busnum
+
+## -- SCIOV
+hcw_ldb_test:uno_traffic_busnum_sciov -dirtag uno_traffic_busnum_sciov
+hqm_addr_within_bar_chk_test:sec_3_1_5
+
+## -- Verify fmt2 and AT bits
+hqm_cfg_test:hcw_sciov_dir_fmt2_0 -dirtag hcw_sciov_dir_fmt2_0
+hqm_cfg_test:hcw_sciov_ldb_fmt2_0 -dirtag hcw_sciov_ldb_fmt2_0
+hqm_cfg_test:hcw_sciov_dir_at     -dirtag hcw_sciov_dir_at
+hqm_cfg_test:hcw_sciov_ldb_at     -dirtag hcw_sciov_ldb_at
+
+## -- Visa test: enable all 3 muxes, programs all 3 muxes to check lane in to lane out for all lanes
+## lane out of a mux to lane in of parent mux; src_clk in of mux to ss_clk_out of mux
+hqm_visa_test -dirtag mux
+hqm_visa_test:visa_security_test -dirtag security
+
+## -- Verify the hqm_triggers toggle effect due to SW configuration (02142020: RTL changed https://hsdes.intel.com/appstore/article/#/14010887454 : use RTDR taptrigger[30:0] in latest RTL)
+##commented out +rtdr_taptrigger_1 +rtdr_taptrigger_3: to test TRIG_IOSF only in this list, and test TRIG_PM0 and TRIG_PM1 in hqm_pwr_test list
+#hqm_trigger_test:q8_vdev1+short+rtdr_taptrigger_1 -dirtag  rtdr_taptrigger_cfg1
+hqm_trigger_test:q8_vdev1+short+rtdr_taptrigger_2 -dirtag  rtdr_taptrigger_cfg2
+#hqm_trigger_test:q8_vdev1+short+rtdr_taptrigger_3 -dirtag  rtdr_taptrigger_cfg3
+hqm_trigger_test:q8_vdev1+short+rtdr_taptrigger_iosf -dirtag  rtdr_taptrigger_iosf
+
+
+## -- PVIMs 2206114635 & 2206114665  (for all MEM space FUBs)
+hqm_cfg_test:hqm_fub_rw -dirtag hqm_fub_rw
+
+
+## -- PVIMs 1409201201 (HQMV25)
+#hqm_cfg_test:hcw_sciov_nm_pf_dir
+ hqm_cfg_test:hcw_sciov_nm_pf_dir -dirtag hcw_sciov_nm_pf_dir    
+
+#hqm_cfg_test:hcw_sciov_nm_pf_ldb
+ hqm_cfg_test:hcw_sciov_nm_pf_ldb -dirtag hcw_sciov_nm_pf_ldb  
+
+

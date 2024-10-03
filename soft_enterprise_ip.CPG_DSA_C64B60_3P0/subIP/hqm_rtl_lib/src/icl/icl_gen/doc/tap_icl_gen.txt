@@ -1,0 +1,152 @@
+ICL Gen Tool v 0.1
+
+Features:
+- Converts Intel TAP RDL to ICL
+    - Current/Initial limitation: supports only single TAP
+- can read in any RDL - TAP, STF, CR, FUSE
+- integrated Perl preprocessor
+- Supported SystemRDL features:
+   > dynamic assignments
+   > default values
+   > multi-line strings
+- Notes
+   > Big numbers for reset values: string hex format, no width/radix prefix
+- RDL Limitations:
+   > printing to STDOUT in "used" .pm packages
+   > no enum support
+
+ICL WRITER:
+- Based on standard RDL structure:
+  > single file for each IP
+- Supported features:
+   > Automatic definition uniquification + user-provided prefix/suffix
+   > Support of dynamic assignments for ICL-required properties
+   > Auto MI resolution/definition uniquification
+   > A few original TAP RDL UDPs are kept as Attributes
+     RegOpcode, *Security*, desc, AccessType, and a few more
+- Limitations:
+   > no support for nested regfile components
+ 
+Usage: tap_icl_gen.pl [-rdl <file.rdl>][ -type <addrmap|regfile|reg|field>][ -name <def_name>][ -I <path>][ -U <path>][ -mode <mode>][ -debug 1|2]
+
+Options:
+     -input     FILE           RDL file name (read from STDIN, if unspecified)
+     -type      TYPE           RDL definition type to extract, one of addrmap|regfile|reg|field
+     -name      NAME           RDL definition name to extract, no upper level overrides applied
+     -inst      NAME           RDL instance to extract in the specified definition, including overrides if exist
+     -rdl                      Generate RDL output (case insensitive)
+     -icl                      Generate ICL output (case insensitive)
+     -hdr       FILE           ICL header file which defines top module names, ports/scaninterfaces, etc
+     -prefix    VALUE          ICL only: uniquification prefix
+     -suffix    VALUE          ICL only: uniquification suffix
+     -delimiter VALUE          ICL only: uniquification delimiter
+     -I         PATH           Colon-separated search path for included RDL files 
+     -U         PATH           RDL UDP file search path (current folder first then \$NEBULON_DIR if unspecified)
+                                  Can be specified as a single colon-serapated list or
+                                  using the -I switch multiple times
+                                  e.g. -I path1:path2:path3 -I path4 -I path5:path6
+     -mode      MODE           Reader modes:
+                                  'pp' - preprocess only and save to specified output file (*.rdl.pp by default)
+                                  'icl_pp' - ICL header file preprocess only and save to specified output file (*.icl.pp by default)
+                                  'qc' - quality checking only
+     -param     "NAME=VALUE"   User specified RTL parameter override; Use multiple times as needed (no white spaces!)
+                                  e.g. -param "STF_PID_SIZE=12" -param "STF_NUM_OF_PAIRS=4"
+     -nocomments|comments      Delete RDL comments (default) | keep RDL comments (for 'pp' mode only)
+     -out_dir   NAME           Directory name for output RDL
+     -out_file  NAME           Base file name (no extension) for the generated collateral
+     -log       FILE           Output log file name
+     -debug     LEVEL          Print processed RDL instead of running through Perl evaluation
+                                  - LEVEL = 1 or 2
+     -ignore|noignore          Ignore some errors if ignore specified (noignore - default)
+
+Example:
+    # read from specified file
+    tap_icl_gen.pl -inp cltap.rdl -type reg -name TAP_IR
+
+    # TAP RDL to ICL translation
+    tap_icl_gen.pl -inp ip.rdl  -icl -hdr ip_hdr.icl -pre ip -suf v1
+
+
+Interal Data Structure:
+
+DEFINITION hash (%comp_db)
+'<def_path>' => {
+    'name' => '<name>',
+    'type' => '<addrmap|regfile|reg|field>',
+    'parent' => '<parent_path>',
+    'is_inst' => <0|1>,   # 1: anonumous definition/instance
+    'child' => <0|1>,     # referenced
+    'level' => <number>,  # level in parent-child hierarchy
+    'ilist' => [          # list of internal instances (at that level)
+                '<inst0>',
+                '<instK>',
+               ],
+    'addr_idx' => <number> # order index 
+    'ovrd' => {
+                '<path1>' => {
+                            '<attr1>' => <value>,
+                            '<attrN>' => <value>
+                          },
+                '<pathM>' => {
+                            '<attr1>' => <value>,
+                            '<attrN>' => <value>
+                         },
+               },
+    'default' => {
+                            '<attr1>' => <value>,
+                            '<attrN>' => <value>
+                 },
+    'attr' => {
+                            '<attr1>' => <value>,
+                            '<attrN>' => <value>
+             },
+ },
+
+INSTANCE hash (%inst_db)
+'<inst_path>' => {
+                'iname' => '<inst_name>',
+                'comp' => '<definition name>',
+                'cpath' => '<definition path>'
+                'width' => '<number>', # array size
+                'lsb' => <lsb>,        # field only
+                'msb' => <msb>,        # field only
+                'addr' => <number>     # address
+             },
+
+ICL Comp DB hash (%icl_comp_db)
+   - today, used for interfaces only
+
+'<intf_path>' => {
+             'name' => '<ICL Module name>',
+             'port' => {
+                         '<port_type 1>' => {
+                                        '<port name 1>' => {}
+                                      },
+                          'port_type 2' => {
+                                        '<port name 2>' => {
+                                                                '<ICL property name>' => '<property value>', 
+                                                                     ## e.g. ActivePolarity 
+                                                                'attr' => {
+                                                                            '<ICL Attribute name>' => '<value>'
+                                                                            'intel_<legacy RDL UDP>' => '<value>'
+                                                                          }
+                                                                'intel_type' => '<intel port type>', 
+                                                                     ### powergood,security,tlr_reset,slvidcode
+                                                              }
+                                        },
+
+             'interface' => {
+                              '<intf_name>' => {
+                                          'map' => {
+                                                     '<port_type>' => '<port_name>', ### Auto populated!
+                                                   },
+                                          'ports' => {
+                                                       '<port_name 1>' => 0, ### ports of ScanInterface
+                                                       '<port_name 2>' => 0,
+                                                       '<port_name N>' => 0
+                                                     },
+                                          'is_tap' => 0,          ### TAP vs. RTDR (scan) interface
+                                          'is_client' => 1        ### Client (slave) vs. Host (master) interface
+                                        },
+
+

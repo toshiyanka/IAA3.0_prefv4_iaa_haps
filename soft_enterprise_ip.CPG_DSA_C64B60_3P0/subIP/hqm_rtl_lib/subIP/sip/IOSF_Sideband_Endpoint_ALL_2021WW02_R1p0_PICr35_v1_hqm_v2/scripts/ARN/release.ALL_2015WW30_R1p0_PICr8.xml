@@ -1,0 +1,120 @@
+<?xml version="1.0"?>
+<!-- Release file -->
+
+<sip_release>
+  <version>8.4 November 13, 2013</version>
+  <date>Thu Jul 23 01:34:11 PDT 2015</date>
+  <user>vnandaku</user>
+  <sip_name>31</sip_name>
+  <sip_variation>147</sip_variation>
+  <sip_variation_id>147</sip_variation_id>
+  <sip_reldate>2015WW30</sip_reldate>
+  <sip_milestone>1p0</sip_milestone>
+  <sip_relver>PICr8</sip_relver>
+  <sip_relname>ALL_2015WW30_R1p0_PICr8</sip_relname>
+  <sip_owner>vnandaku</sip_owner>
+  <sip_dist></sip_dist>
+  <sip_fixed></sip_fixed>
+  <sip_open></sip_open>
+  <sip_attachment>
+  </sip_attachment>
+  <sip_customers>
+  </sip_customers>
+  <sip_base>1921</sip_base>
+  <sip_features>
+    <sip_feature>
+<![CDATA[
+HTML
+      <h2>RTL Updates:</h2>
+      <dl>
+         <dt>HSDS: <dt>
+          <dd>
+            HSD <a href="https://hsdes.intel.com/home/default.html#article?id=1204977951">1204977951, "https://hsdes.intel.com/home/default.html#article?id=1204977951"</a>:
+            Parameterize TMSG/MMSG interface payload width, to reduce area and wires. This is enabled by
+            employing a new parameter, called MATCHED_INTERNAL_WIDTH.
+            The user enables this new feature by setting MATCHED_INTERNAL_WIDTH=1, with the effect that the
+            internal payload width has the same size as the external payload width,
+            equal to MAXPLDBIT+1 (with MAXPLDBIT = 7, 15, or 31). On the other hand, MATCHED_INTERNAL_WIDTH=0
+            selects the legacy implementation, and the internal payload width is always 32, regardless of the value of MAXPLDBIT.
+          </dd>
+          <dd>
+            HSD <a href="https://hsdes.intel.com/home/default.html#article?id=1204977982">1204977982, "https://hsdes.intel.com/home/default.html#article?id=1204977982"</a>:
+            Parameterize TMSG interface to have variable claim delay.
+            This parameter allows the agent to add delay on the tmsg_npclaim indication to the endpoint, relative to tmsg_npeom.
+            An agent might choose to use this feature due to repeater flops on tmsg_npclaim, instantiation of tmsg/mmsg buffers
+            between sbebase and the TREG/MREG widgets, or any microarchitecture pipelining that delays the worst case assertion 
+            of the tmsg_npclaim signal relative to tmsg_npeom. When enabling this feature (i.e., CLAIM_DELAY >= 1),
+            the user should also ensure that DISABLE_COMPLETION_FENCING=0.
+            The CLAIM_DELAY parameter should be set to a value that is equal to (“number of pipeline delays on tmsg_npclaim”
+            + “3x the number of tmsg/mmsg buffers between sbebase and the TREG/MREG widgets”). For instance, when the agent
+            instantiates one pipeline flop on tmsg_npclaim, and no tmsg/mmsg buffers, CLAIM_DELAY must be at least 1.
+            On the other hand, when the agent instantiates one tmsg/mmsg buffer stage, with no pipepline delay on tmsg_npclaim,
+            CLAIM_DELAY must be at least 3.
+            When this feature is not enabled (i.e., CLAIM_DELAY = 0), the endpoint samples the tmsg_npclaim indication from
+            the agent only while the NP message is in flight, until the end-of-message boundary. On the other hand, when
+            CLAIM_DELAY >= 1, the window when the endpoint samples the tmsg_npclaim from the agent is extended past the
+            end-of-message flit until tmsg_npfree is asserted for CLAIM_DELAY number of cycles.
+            In order to facilitate use of the CLAIM_DELAY feature, a reference design for a tmsg/mmsg buffer module is
+            provided with the endpoint release. It can be found in the subIP folder of the endpoint release area
+            (please see …/subIP/reference_code/sberepeater.sv).
+            Note that the claim delay math above assumes the microarchitecture of this reference design.
+            A different buffer module (designed by the user), with a different microarchitecture, might have a multiplicative
+            factor different than 3x.
+          </dd>
+          <dd>
+            HSD <a href="https://hsdes.intel.com/home/default.html#article?id=1404215572">1404215572, "https://hsdes.intel.com/home/default.html#article?id=1404215572"</a>:
+            VCS2014.12 support for  SVC, SBE and SBR was enabled for compile and tool runs
+          </dd>
+          <dd>
+            HSD <a href="https://hsdes.intel.com/home/default.html#article?id=1404284556">1404284556, "https://hsdes.intel.com/home/default.html#article?id=1404284556"</a>:
+            SB migration to Zircon 15.13.0 from 14.47.0 for IPDS scoring
+          </dd>
+          <dd>
+            HSD <a href="https://hsdes.intel.com/home/default.html#article?id=1206399338">1206399338, "https://hsdes.intel.com/home/default.html#article?id=1206399338"</a>:
+            Certain loops that were coded in sbcfunc.vm module where being reported to potentially block XPROP. 
+            These were not real issues and there is a pending synopsis HSD for the XPROP loop cases being incorrectly reported
+            as potential errors. But its fixed (rewritten) just to reduce customer complaints and to have a clean xprop report. 
+         </dd>
+          <dd>
+            HSD <a href="https://hsdes.intel.com/home/default.html#article?id=1404303935">1404303935, "https://hsdes.intel.com/home/default.html#article?id=1404303935"</a>:
+            Claim delay feature requires fencing to be enabled to prevent packets being dropped/missed because of the claim 
+            arriving after the end of message. This RTL assertion would fire immediately to identify any test/config programming 
+            issues right away.
+         </dd>
+      </dl>
+      
+      <h2>Backend Updates:</h2>
+         <dt> General updates.</dt>
+      <h2>Validation Updates:</h2>
+         <dt> General updates.</dt>]]>    </sip_feature>
+  </sip_features>
+  <sip_knissues>
+    <sip_knissue>
+<![CDATA[
+HTML
+         <dt> None. </dt>]]>    </sip_knissue>
+  </sip_knissues>
+  <sip_speccons>
+    <sip_speccon>
+<![CDATA[
+HTML
+      <h2>Integration Notes:</h2>
+    <dt>NOTE: The first Sideband Fabric  release with support for parity pins is IOSF_Sideband_Fabric_Compiler_ALL_2014WW38_R1p0_v5</dt> ]]>    </sip_speccon>
+  </sip_speccons>
+  <sip_specins>
+    <sip_specin>
+<![CDATA[
+HTML
+      <ul>
+         <li>This SBE release uses the "IOSF SVC ver 2015WW28_1"  version of SVC in IRR</li>
+         <li>For support file an <b>HSD</b> at <a href="https://hsdes.intel.com/home/default.html#magazine?id=101846185&contentId=1012194360">https://hsdes.intel.com/home/default.html#magazine?id=101846185&contentId=1012194360</a></li>
+         <li>Please note that Sideband Endpoint instantiations need to be uniquified in all IP's per the SEG POR instantiation and uniquification methodology to avoid module collisions with other instances of the endpoint with other IPs.</li>
+         <li>Please read integration guide carefully for handling current clock request logic</li>
+         <li>Please read integration guide carefully for conditions of locally clock gating the agent_clk in asynchronous endpoints.</li>
+         <li>Please read integration guide carefully for any necessary power gating logic that may be needed.</li>
+         <li>The Zircon scores are uploaded to the IPDS dashboard for the SBE IP at <a href="https://zircon.fm.intel.com/zircon/zircon/zirconReleaseDashboardTable.php?top_filter_checkbox=0&Proj_id=12686&IP_id=17324&milestone_filter=4&Ver_id=all&App_id=all&showlatest=0">https://zircon.fm.intel.com/zircon/zircon/zirconReleaseDashboardTable.php?top_filter_checkbox=0&Proj_id=12686&IP_id=17324&milestone_filter=4&Ver_id=all&App_id=all&showlatest=0</a></li>
+      </ul>]]>    </sip_specin>
+  </sip_specins>
+  <sip_models>
+  </sip_models>
+</sip_release>

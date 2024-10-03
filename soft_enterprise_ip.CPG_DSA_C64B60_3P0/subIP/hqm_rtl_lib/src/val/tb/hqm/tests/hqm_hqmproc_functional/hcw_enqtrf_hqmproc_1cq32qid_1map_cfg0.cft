@@ -1,0 +1,109 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup FUNC_VF BAR to a base address of 0x00000003_xxxxxxxx
+#### wr hqm_pf_cfg_i.sriov_cap_func_bar_l 0x00000000
+#### wr hqm_pf_cfg_i.sriov_cap_func_bar_u 0x00000003
+###################################
+# Enable PF memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+###################################
+wr config_master.cfg_pm_pmcsr_disable.disable 0x0
+rd config_master.cfg_pm_pmcsr_disable.disable 0x0
+##
+###poll to Wait for reset to be done
+poll config_master.cfg_diagnostic_reset_status 0x800003ff 0x800003ff 500
+###poll to Wait for unit_idle to be done
+poll config_master.cfg_diagnostic_idle_status 0x0007ffff 0x0007ffff 500
+###################################
+
+
+
+###################################
+# Setup LUTs used by HCWs
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+  dir qid 0
+
+   
+  ####32 ldbQIDs (2K)
+  ldb qid  0 qid_ldb_inflight_limit=64 fid_cfg_v=1 fid_limit=64 #  aqed_freelist_base=0x000 aqed_freelist_limit=0x03f ord_mode=0 ord_slot=0  ord_grp=0 sn_cfg_v=1
+  ldb qid  1 qid_ldb_inflight_limit=64 fid_cfg_v=1 fid_limit=64 #  aqed_freelist_base=0x040 aqed_freelist_limit=0x07f ord_mode=0 ord_slot=1  ord_grp=0 sn_cfg_v=1
+  ldb qid  2 qid_ldb_inflight_limit=64 fid_cfg_v=1 fid_limit=64 #  aqed_freelist_base=0x080 aqed_freelist_limit=0x0bf ord_mode=0 ord_slot=2  ord_grp=0 sn_cfg_v=1
+  ldb qid  3 qid_ldb_inflight_limit=64 fid_cfg_v=1 fid_limit=64 #  aqed_freelist_base=0x0c0 aqed_freelist_limit=0x0ff ord_mode=0 ord_slot=3  ord_grp=0 sn_cfg_v=1
+  ldb qid  4 qid_ldb_inflight_limit=64 fid_cfg_v=1 fid_limit=64 #  aqed_freelist_base=0x100 aqed_freelist_limit=0x13f ord_mode=0 ord_slot=4  ord_grp=0 sn_cfg_v=1
+  ldb qid  5 qid_ldb_inflight_limit=64 fid_cfg_v=1 fid_limit=64 #  aqed_freelist_base=0x140 aqed_freelist_limit=0x17f ord_mode=0 ord_slot=5  ord_grp=0 sn_cfg_v=1
+  ldb qid  6 qid_ldb_inflight_limit=64 fid_cfg_v=1 fid_limit=64 #  aqed_freelist_base=0x180 aqed_freelist_limit=0x1bf ord_mode=0 ord_slot=6  ord_grp=0 sn_cfg_v=1
+  ldb qid  7 qid_ldb_inflight_limit=64 fid_cfg_v=1 fid_limit=64 #  aqed_freelist_base=0x1c0 aqed_freelist_limit=0x1ff ord_mode=0 ord_slot=7  ord_grp=0 sn_cfg_v=1
+  ldb qid  8 qid_ldb_inflight_limit=64 fid_cfg_v=1 fid_limit=64 #  aqed_freelist_base=0x200 aqed_freelist_limit=0x23f ord_mode=0 ord_slot=8  ord_grp=0 sn_cfg_v=1
+  ldb qid  9 qid_ldb_inflight_limit=64 fid_cfg_v=1 fid_limit=64 #  aqed_freelist_base=0x240 aqed_freelist_limit=0x27f ord_mode=0 ord_slot=9  ord_grp=0 sn_cfg_v=1 
+  ldb qid 10 qid_ldb_inflight_limit=64 fid_cfg_v=1 fid_limit=64 #  aqed_freelist_base=0x280 aqed_freelist_limit=0x2bf ord_mode=0 ord_slot=10 ord_grp=0 sn_cfg_v=1
+  ldb qid 11 qid_ldb_inflight_limit=64 fid_cfg_v=1 fid_limit=64 #  aqed_freelist_base=0x2c0 aqed_freelist_limit=0x2ff ord_mode=0 ord_slot=11 ord_grp=0 sn_cfg_v=1   
+  ldb qid 12 qid_ldb_inflight_limit=64 fid_cfg_v=1 fid_limit=64 #  aqed_freelist_base=0x300 aqed_freelist_limit=0x33f ord_mode=0 ord_slot=12 ord_grp=0 sn_cfg_v=1
+  ldb qid 13 qid_ldb_inflight_limit=64 fid_cfg_v=1 fid_limit=64 #  aqed_freelist_base=0x340 aqed_freelist_limit=0x37f ord_mode=0 ord_slot=13 ord_grp=0 sn_cfg_v=1
+  ldb qid 14 qid_ldb_inflight_limit=64 fid_cfg_v=1 fid_limit=64 #  aqed_freelist_base=0x380 aqed_freelist_limit=0x3bf ord_mode=0 ord_slot=14 ord_grp=0 sn_cfg_v=1
+  ldb qid 15 qid_ldb_inflight_limit=64 fid_cfg_v=1 fid_limit=64 #  aqed_freelist_base=0x3c0 aqed_freelist_limit=0x3ff ord_mode=0 ord_slot=15 ord_grp=0 sn_cfg_v=1
+  ldb qid 16 qid_ldb_inflight_limit=64 fid_cfg_v=1 fid_limit=64 #  aqed_freelist_base=0x400 aqed_freelist_limit=0x43f ord_mode=0 ord_slot=0  ord_grp=1 sn_cfg_v=1
+  ldb qid 17 qid_ldb_inflight_limit=64 fid_cfg_v=1 fid_limit=64 #  aqed_freelist_base=0x440 aqed_freelist_limit=0x47f ord_mode=0 ord_slot=1  ord_grp=1 sn_cfg_v=1
+  ldb qid 18 qid_ldb_inflight_limit=64 fid_cfg_v=1 fid_limit=64 #  aqed_freelist_base=0x480 aqed_freelist_limit=0x4bf ord_mode=0 ord_slot=2  ord_grp=1 sn_cfg_v=1
+  ldb qid 19 qid_ldb_inflight_limit=64 fid_cfg_v=1 fid_limit=64 #  aqed_freelist_base=0x4c0 aqed_freelist_limit=0x4ff ord_mode=0 ord_slot=3  ord_grp=1 sn_cfg_v=1
+  ldb qid 20 qid_ldb_inflight_limit=64 fid_cfg_v=1 fid_limit=64 #  aqed_freelist_base=0x500 aqed_freelist_limit=0x53f ord_mode=0 ord_slot=4  ord_grp=1 sn_cfg_v=1
+  ldb qid 21 qid_ldb_inflight_limit=64 fid_cfg_v=1 fid_limit=64 #  aqed_freelist_base=0x540 aqed_freelist_limit=0x57f ord_mode=0 ord_slot=5  ord_grp=1 sn_cfg_v=1  
+  ldb qid 22 qid_ldb_inflight_limit=64 fid_cfg_v=1 fid_limit=64 #  aqed_freelist_base=0x580 aqed_freelist_limit=0x5bf ord_mode=0 ord_slot=6  ord_grp=1 sn_cfg_v=1
+  ldb qid 23 qid_ldb_inflight_limit=64 fid_cfg_v=1 fid_limit=64 #  aqed_freelist_base=0x5c0 aqed_freelist_limit=0x5ff ord_mode=0 ord_slot=7  ord_grp=1 sn_cfg_v=1
+  ldb qid 24 qid_ldb_inflight_limit=64 fid_cfg_v=1 fid_limit=64 #  aqed_freelist_base=0x600 aqed_freelist_limit=0x63f ord_mode=0 ord_slot=8  ord_grp=1 sn_cfg_v=1
+  ldb qid 25 qid_ldb_inflight_limit=64 fid_cfg_v=1 fid_limit=64 #  aqed_freelist_base=0x640 aqed_freelist_limit=0x67f ord_mode=0 ord_slot=9  ord_grp=1 sn_cfg_v=1
+  ldb qid 26 qid_ldb_inflight_limit=64 fid_cfg_v=1 fid_limit=64 #  aqed_freelist_base=0x680 aqed_freelist_limit=0x6bf ord_mode=0 ord_slot=10 ord_grp=1 sn_cfg_v=1
+  ldb qid 27 qid_ldb_inflight_limit=64 fid_cfg_v=1 fid_limit=64 #  aqed_freelist_base=0x6c0 aqed_freelist_limit=0x6ff ord_mode=0 ord_slot=11 ord_grp=1 sn_cfg_v=1
+  ldb qid 28 qid_ldb_inflight_limit=64 fid_cfg_v=1 fid_limit=64 #  aqed_freelist_base=0x700 aqed_freelist_limit=0x73f ord_mode=0 ord_slot=12 ord_grp=1 sn_cfg_v=1
+  ldb qid 29 qid_ldb_inflight_limit=64 fid_cfg_v=1 fid_limit=64 #  aqed_freelist_base=0x740 aqed_freelist_limit=0x77f ord_mode=0 ord_slot=13 ord_grp=1 sn_cfg_v=1
+  ldb qid 30 qid_ldb_inflight_limit=64 fid_cfg_v=1 fid_limit=64 #  aqed_freelist_base=0x780 aqed_freelist_limit=0x7bf ord_mode=0 ord_slot=14 ord_grp=1 sn_cfg_v=1
+  ldb qid 31 qid_ldb_inflight_limit=64 fid_cfg_v=1 fid_limit=64 #  aqed_freelist_base=0x7c0 aqed_freelist_limit=0x7ff ord_mode=0 ord_slot=15 ord_grp=1 sn_cfg_v=1      
+    
+    
+  vas 0  credit_cnt=4096 
+  vas 0  dir_qidv0=1 dir_qidv1=1  
+  vas 0  ldb_qidv0=1  ldb_qidv1=1  ldb_qidv2=1  ldb_qidv3=1  
+  vas 0  ldb_qidv4=1  ldb_qidv5=1  ldb_qidv6=1  ldb_qidv7=1
+  vas 0  ldb_qidv8=1  ldb_qidv9=1  ldb_qidv10=1 ldb_qidv11=1 
+  vas 0  ldb_qidv12=1 ldb_qidv13=1 ldb_qidv14=1 ldb_qidv15=1
+  vas 0  ldb_qidv16=1 ldb_qidv17=1 ldb_qidv18=1 ldb_qidv19=1 
+  vas 0  ldb_qidv20=1 ldb_qidv21=1 ldb_qidv22=1 ldb_qidv23=1
+  vas 0  ldb_qidv24=1 ldb_qidv25=1 ldb_qidv26=1 ldb_qidv27=1 
+  vas 0  ldb_qidv28=1 ldb_qidv29=1 ldb_qidv30=1 ldb_qidv31=1
+  
+  dir pp 0  vas=0
+
+  dir cq 0  cq_depth=1024 gpa=sm cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1
+
+  ldb pp 0  vas=0
+
+  #wu_limit[14:0] Must be set less than 16385
+  ldb cq 0  wu_limit=16384 cq_depth=1024 gpa=sm hist_list_base=0x000 hist_list_limit=0x7ff qidv0=1 qidix0=0 pri0=0 qidv1=1 qidix1=1 pri1=0 qidv2=1 qidix2=2 pri0=0 qidv3=1 qidix3=3 pri3=0 cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1
+
+
+cfg_end
+
+##ingress alarm enable
+#wr hqm_system_csr.ingress_alarm_enable 0xffffffff
+#rd hqm_system_csr.ingress_alarm_enable 0x0000003f
+
+
+

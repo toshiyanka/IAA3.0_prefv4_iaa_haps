@@ -1,0 +1,134 @@
+ToolData.pm $ToolConfig_tools{onecfg} = {
+     VERSION => 'v14ww42b',
+     PATH => "$RTL_PROJ_TOOLS/onecfg/master/&get_tool_version()",
+     OTHER => {
+         IMPORTS => [
+             "&get_tool_path(baseline_sip)/Baseline_ToolData_master.pm",  # File with baseline master version
+             "&get_tool_path(baseline_master)/GeneralVars.pm",
+             "&get_tool_path(baseline_master)/Baseline_ToolData.pm",
+             "&get_tool_path(baseline_sip)/Baseline_ToolData_sip_override.pm",  #Domain Override
+             "LocalToolData.pm",
+         ],
+     },
+ }; $ToolConfig_tools{baseline_sip} = {
+     VERSION => 'v14ww45a',
+     PATH => "$RTL_PROJ_TOOLS/baseline_tools/sip/&get_tool_version(baseline_sip)",
+ }; 
+*********** LocalToolData.pm ************* 
+ # DO NOT REMOVE!!!  Learn to code warning-free perl instead.
+#
+use warnings FATAL => 'all';
+
+package ToolData;
+
+
+#HDK Cleanup -Did not delete tool version lines from here, for debug help, commented them and moved to the end. Can be cleaned up at later stage.
+
+##----------------------------------------------------------------------------------
+## Tool                                        Version
+##----------------------------------------------------------------------------------
+#$ToolConfig_tools{ace}{VERSION}             = "2.01.24";
+#$ToolConfig_tools{ace}{OTHER}{TSETUP_IP_VERSIONS}{'2.01.24'} = "/p/com/eda/intel/ace/2.01.24";
+#$ToolConfig_tools{blueprint}{VERSION}       = "3.7.4";
+#$ToolConfig_tools{collage}{VERSION}         = "2.2.1";
+#$ToolConfig_tools{conformal}{VERSION}       = "14.10.100";
+#$ToolConfig_tools{coral}{VERSION}           = "2.23.3p2";
+#$ToolConfig_tools{coretools}{VERSION}       = "H-2013.03-SP2-5";
+#$ToolConfig_tools{designcompiler}{VERSION}  = "I-2013.12-SP4";
+#$ToolConfig_tools{dvt}{VERSION}             = "3.4.28";
+#
+#$ToolConfig_tools{febe3}{VERSION}           = "14.40.1";
+#push (@{$ToolConfig_tools{febe3}{OTHER}{project_settings}}, "$MODEL_ROOT/config/dc/dc_config.cfg" );
+#delete  $ToolConfig_tools{febe3}{SUB_TOOLS}{schedlib}{OTHER}{resource_def};
+#
+if(! -f @{$ToolConfig_tools{febe3}{OTHER}{project_settings}}[1]) {
+	splice @{$ToolConfig_tools{febe3}{OTHER}{project_settings}}, 1, 1;
+}
+
+push(@{$ToolConfig_tools{febe3}{OTHER}{project_settings}}, "$MODEL_ROOT/config/dc/dc_config_&get_facet(CUST).cfg");
+## $ToolConfig_tools{lintra}{VERSION}          = "13.3p43_shOpt64";
+#$ToolConfig_tools{lintra}{VERSION}          = "14.2p2_shOpt64";
+#$ToolConfig_tools{lira}{VERSION}            = "3.16.2_64";
+#$ToolConfig_tools{memorymodeler}{VERSION}   = "3.3.015g";
+#$ToolConfig_tools{nebulon}{VERSION}         = "2.07p3";
+#$ToolConfig_tools{ovm}{VERSION}             = "2.1.2_2";
+#$ToolConfig_tools{questacdc}{VERSION}       = "V10.2c_6";
+#$ToolConfig_tools{saola}{VERSION}           = "v20140417p1";
+#$ToolConfig_tools{spyglass}{VERSION}        = "5.2.0.4";
+#$ToolConfig_tools{synplifypro}{VERSION}     = "I-2014.03_p1";
+#$ToolConfig_tools{vcsmx}{VERSION}           = "H-2013.06-SP1-3";
+#$ToolConfig_tools{verdi3}{VERSION}          = "2013.07p1";
+#$ToolConfig_tools{verdi3}{OTHER}{TSETUP_IP_VERSIONS}{'2013.07p1'} = "/p/com/eda/novas/verdi3/2013.07p1";
+#$ToolConfig_tools{visait}{VERSION}          = "3.6";
+#$ToolConfig_tools{visaflow}{VERSION}        = "0.8";
+#$ToolConfig_tools{zirconqa}{VERSION}        = "14.27.0";
+
+
+##----------------------------------------------------------------------------------
+## Environment Variable                              Value
+##----------------------------------------------------------------------------------
+# $ToolConfig_tools{"lintra-rules"}{VERSION}       = "14.25.0";
+# $ToolConfig_tools{"lintra-rules"}{VERSION}       = "13.49.2";
+#$ToolConfig_tools{"lintra-rules"}{VERSION}         = "14.36.2";
+#$ToolConfig_tools{intelcdc}{VERSION}             = "v20140402";
+#$ToolConfig_tools{spyglass_methodology}{VERSION} = "1.1.1";
+#$ToolConfig_tools{chassis}{VERSION}              = "2014ww07a";
+#$ToolConfig_tools{ctech_library}{VERSION}        = "v14ww32e";
+#
+#$ToolConfig_tools{ace}{ENV}{KIT_PATH} = "/p/hdk/cad/kits_10nm/10nm_14.2.2";
+#$ToolConfig_tools{ace}{ENV}{PROCESS} = "p1271.8";
+#$ToolConfig_tools{ace}{ENV}{LIBRARY_TYPE} = "b05.8";
+#$ToolConfig_tools{ace}{ENV}{LIBRARY_VOLTAGE} = "0.74";
+#$ToolConfig_tools{ace}{ENV}{VT_TYPE} = "un";
+#
+$general_vars{"LM_PROJECT"} = "EIG_INFRA-BA";
+#
+#$general_vars{"logPrefix"}                  = "&get_facet(CUST)";
+#$general_vars{"aceroot_dpath"}              = "$ENV{MODEL_ROOT}/target/&get_facet(\"dut\")/&get_facet(CUST)/aceroot";
+#
+#$ToolConfig_tools{isaf}{VERSION}              = "1.0.6";
+#$ToolConfig_tools{isaf}{OTHER}{ip_info_dpath} = "$ENV{MODEL_ROOT}/tools/spyglassdft";
+
+$general_vars{"logPrefix"}                  = "&get_facet(CUST)";
+$general_vars{"aceroot_dpath"}              = "$ENV{MODEL_ROOT}/target/&get_facet(\"dut\")/&get_facet(CUST)/aceroot";
+
+######################################################################
+# Collage
+######################################################################
+$ToolConfig_tools{"stage_collage_build"} = {
+   PATH => "&get_tool_path('rtltools')/stages/collage_build.pm",
+   OTHER => {
+      collage_build_enable => "on",
+   },	
+};
+$ToolConfig_tools{collage}{OTHER}{collage_build_ip}        = "dfxsecure_plugin";
+$ToolConfig_tools{collage}{OTHER}{collage_build_script}    = "tools/collage/build/builder.dfxsecure_plugin.tcl";
+
+$ToolConfig_tools{starving_artist} = {
+    VERSION => '14.27.2',
+    PATH => "$RTL_PROJ_TOOLS/starving_artist/&get_tool_version()",
+    ENV => {
+        "SA_CENTRAL" => "&get_tool_path()",
+        "PTSHELL_INI" => "&get_tool_path()/scripts/procs.tcl",
+        "PA_SHELL_INI" => "&get_tool_path()/scripts/procs.tcl",
+            "SA_PROJ"   => "/tmp/power_artist/ip-itss-sip14/tools/power_artist",
+    },
+};
+
+$ToolConfig_tools{PowerArtist} = {
+    VERSION => '2014.1.3p3',
+    PATH => "/p/com/eda/apache/PowerArtist/&get_tool_version()" ,
+    ENV => {
+        APACHEDA_LICENSE_FILE => "&get_tool_getLf(apache/redhawk)",
+            APACHEDA_LICENSE_FILE => '1881@apacheda01.elic.intel.com:1881@apacheda02.elic.intel.com',
+        POWERARTIST_VERSION => "&get_tool_version()",
+    },
+    ENV_APPEND => {
+        PATH => "&get_tool_path()/bin",
+    },
+    SUB_TOOLS => {
+        "starving_artist" => "&get_tool(starving_artist)",
+    },
+};
+
+1;

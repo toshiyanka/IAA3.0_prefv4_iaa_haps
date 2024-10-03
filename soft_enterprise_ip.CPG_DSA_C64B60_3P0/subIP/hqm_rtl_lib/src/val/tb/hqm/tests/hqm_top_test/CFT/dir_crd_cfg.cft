@@ -1,0 +1,69 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+
+###################################
+# Wait for reset to be done (including hardware memory init)
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+
+###################################
+# Setup LUTs used by HCWs
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+##############################################################################################
+ #DIR hcw  config having ldb credit =0
+  dir qid 0
+  
+  vas 0 dir_qidv0=1 
+
+  dir pool 0 credit_cnt=0xf60 credit_limit=0x1000 freelist_base=0 freelist_limit=0xfff
+  ldb pool 0 credit_cnt=0x4000 credit_limit=0x4000 freelist_base=0 freelist_limit=0x3fff
+
+  dir pp  0 gpa=0x80000000 vas=0 dir_pool=0 ldb_pool=0 dir_credit_count=0x10 dir_min_credit_quanta=0x100 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x200 dir_credit_lwm=0x100
+ 
+  dir cq 0 gpa=0xf0dcba98c0de0000
+  
+
+#############################################################################################################
+  ldb qid 1 qid_ldb_inflight_limit=1024
+
+  dir pool 1 credit_cnt=0x1000 credit_limit=0x1000 freelist_base=0 freelist_limit=0xfff
+ # ldb pool 1 credit_cnt=0x3ffc credit_limit=0x4000 freelist_base=0 freelist_limit=0x3fff
+ ldb pool 1 credit_cnt=0x0000 credit_limit=0x4000 freelist_base=0 freelist_limit=0x3fff
+
+
+  vas VS:* ldb_qidv1=1 ldb_qidv0=1 dir_qidv0=1  
+
+  ldb pp 1 gpa=0x80000000 vas=VS dir_pool=1 ldb_pool=1 ldb_credit_count=0xF0  dir_credit_count=0x10 dir_min_credit_quanta=0x100 ldb_min_credit_quanta=0x100 ldb_credit_hwm=0x000 ldb_credit_lwm=0x000 dir_credit_hwm=0x200 dir_credit_lwm=0x100
+  ldb cq 1 cq_depth=1024 cq_ldb_inflight_limit=1024 hist_list_base=0x000 hist_list_limit=0x3ff gpa=0x80200000 qidv0=1 qidix0=1
+
+ 
+########################################################################################################################
+ 
+cfg_end
+
+rd hqm_pf_cfg_i.vendor_id
+
+#high watermark for that DIR PP set to 0 
+#wr hqm_system_csr.HCW_ENQ_FIFO_CTL 0x0
+#rd hqm_system_csr.HCW_ENQ_FIFO_CTL 0x0
+

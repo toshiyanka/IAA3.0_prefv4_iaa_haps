@@ -1,0 +1,319 @@
+my $PROJECT = 'CTECH_EXP';
+
+sub return_ivars {
+   my %ivars;
+   if(defined($ENV{STANDALONE_CTECH_EXP_IP_BUILD})) {
+       %ivars = (
+            # This code can be removed once 2.01.12 Ace is available
+            -static_check_cfg_file => {
+                     clear_default => 1,
+                     default => [
+                       '/p/com/flows/spyglass_methodology/1.0.1/ace_static_check.cfg',
+                       '<-eng>/<-pwa>/tools/lintra/ace_static_check.lintra.cfg'
+                     ],
+            },
+           -elab_models   => { default => 1, },
+           -test_in_model => { default => 1, },
+           -models_to_compile => { default => [
+               "CTECH_EXP_model",
+               "CTECH_EXP_v_rtl_lib_model",
+               "CTECH_EXP_p1273_d04_ln_rtl_lib_model",
+               "CTECH_EXP_p1273_d04_nn_rtl_lib_model",
+               "CTECH_EXP_p1273_d04_wn_rtl_lib_model",
+               "CTECH_EXP_p1273_d04_xn_rtl_lib_model",
+               "CTECH_EXP_p1274_e05_ln_rtl_lib_model",
+               "CTECH_EXP_p1274_e05_nn_rtl_lib_model",
+               "CTECH_EXP_p1274_ec0_ln_rtl_lib_model",
+               "CTECH_EXP_p1274_ec0_nn_rtl_lib_model",
+               "CTECH_EXP_p1274_sdgalpha_ec0_ln_rtl_lib_model",
+               "CTECH_EXP_p1274_sdgalpha_ec0_nn_rtl_lib_model",
+               "CTECH_EXP_p1274_sdgglbclk_ec0_ln_rtl_lib_model",
+               "CTECH_EXP_p1274_sdgglbclk_ec0_nn_rtl_lib_model",
+           ]},
+
+           $ENV{ACE_PROJECT} => {
+               __PROTOTYPES => {
+                   import => (
+                           [
+                             "TEST",
+                           ]
+                   ),
+               },
+               -lintra_waiver_files => {
+                   default => [
+                                'tools/lintra/common_lintra.waiv',
+                              ],
+               },
+           },
+       );
+   
+   }
+   return \%ivars;
+}
+
+%audf = (
+    Includes => [ 'CTECH_EXP:cfg/ctech_exp/CTECH_EXP_integ.udf' ],
+    InterfaceVars => &return_ivars(),
+    HDLSpec =>
+    {
+        $PROJECT =>
+        {
+            # Define all the libraries which could be compiled
+            libs =>
+            {
+                CTECH_EXP_p1273_d04_ln_rtl_lib => {
+                    -hdl_spec => ["source/p1273/d04/ln/CTECH_EXP_p1273_d04_ln_rtl_lib.hdl"],
+                },
+                CTECH_EXP_p1273_d04_nn_rtl_lib => {
+                    -hdl_spec => ["source/p1273/d04/nn/CTECH_EXP_p1273_d04_nn_rtl_lib.hdl"],
+                },
+                CTECH_EXP_p1273_d04_wn_rtl_lib => {
+                    -hdl_spec => ["source/p1273/d04/wn/CTECH_EXP_p1273_d04_wn_rtl_lib.hdl"],
+                },
+                CTECH_EXP_p1273_d04_xn_rtl_lib => {
+                    -hdl_spec => ["source/p1273/d04/xn/CTECH_EXP_p1273_d04_xn_rtl_lib.hdl"],
+                },
+                CTECH_EXP_p1274_e05_ln_rtl_lib => {
+                    -hdl_spec => ["source/p1274/e05/ln/CTECH_EXP_p1274_e05_ln_rtl_lib.hdl"],
+                },
+                CTECH_EXP_p1274_e05_nn_rtl_lib => {
+                    -hdl_spec => ["source/p1274/e05/nn/CTECH_EXP_p1274_e05_nn_rtl_lib.hdl"],
+                },
+                CTECH_EXP_p1274_ec0_ln_rtl_lib => {
+                    -hdl_spec => ["source/p1274/ec0/ln/CTECH_EXP_p1274_ec0_ln_rtl_lib.hdl"],
+                },
+                CTECH_EXP_p1274_ec0_nn_rtl_lib => {
+                    -hdl_spec => ["source/p1274/ec0/nn/CTECH_EXP_p1274_ec0_nn_rtl_lib.hdl"],
+                },
+                CTECH_EXP_p1274_sdgalpha_ec0_ln_rtl_lib => {
+                    -hdl_spec => ["source/p1274_sdgalpha/ec0/ln/CTECH_EXP_p1274_sdgalpha_ec0_ln_rtl_lib.hdl"],
+                },
+                CTECH_EXP_p1274_sdgalpha_ec0_nn_rtl_lib => {
+                    -hdl_spec => ["source/p1274_sdgalpha/ec0/nn/CTECH_EXP_p1274_sdgalpha_ec0_nn_rtl_lib.hdl"],
+                },
+                CTECH_EXP_p1274_sdgglbclk_ec0_ln_rtl_lib => {
+                    -hdl_spec => ["source/p1274_sdgglbclk/ec0/ln/CTECH_EXP_p1274_sdgglbclk_ec0_ln_rtl_lib.hdl"],
+                },
+                CTECH_EXP_p1274_sdgglbclk_ec0_nn_rtl_lib => {
+                    -hdl_spec => ["source/p1274_sdgglbclk/ec0/nn/CTECH_EXP_p1274_sdgglbclk_ec0_nn_rtl_lib.hdl"],
+                },
+                CTECH_EXP_v_rtl_lib => {
+                    -hdl_spec => ["source/v/CTECH_EXP_v_rtl_lib.hdl"],
+                },
+            },
+
+            models =>
+            {
+                CTECH_EXP_p1273_d04_ln_rtl_lib_model =>
+                {
+                    top => 'CTECH_EXP_p1273_d04_ln_rtl_lib.CTECH_EXP_p1273_d04_ln_rtl_lib_top',
+                    libs => [
+                        "CTECH_EXP_p1273_d04_ln_rtl_lib",
+                            ],
+                    testcase_globals => {
+                        $ENV{ACE_PROJECT} => {
+                            -test_vlog_opts => [],
+                            -test_vlog_files => [],
+                            -test_elab_opts => [],
+                            -test_vlog_incdirs => [],
+                        },
+                        -simv_args => [],
+                    }, # testcase_globals
+                },
+                CTECH_EXP_p1273_d04_nn_rtl_lib_model =>
+                {
+                    top => 'CTECH_EXP_p1273_d04_nn_rtl_lib.CTECH_EXP_p1273_d04_nn_rtl_lib_top',
+                    libs => [
+                        "CTECH_EXP_p1273_d04_nn_rtl_lib",
+                            ],
+                    testcase_globals => {
+                        $ENV{ACE_PROJECT} => {
+                            -test_vlog_opts => [],
+                            -test_vlog_files => [],
+                            -test_elab_opts => [],
+                            -test_vlog_incdirs => [],
+                        },
+                        -simv_args => [],
+                    }, # testcase_globals
+                },
+                CTECH_EXP_p1273_d04_wn_rtl_lib_model =>
+                {
+                    top => 'CTECH_EXP_p1273_d04_wn_rtl_lib.CTECH_EXP_p1273_d04_wn_rtl_lib_top',
+                    libs => [
+                        "CTECH_EXP_p1273_d04_wn_rtl_lib",
+                            ],
+                    testcase_globals => {
+                        $ENV{ACE_PROJECT} => {
+                            -test_vlog_opts => [],
+                            -test_vlog_files => [],
+                            -test_elab_opts => [],
+                            -test_vlog_incdirs => [],
+                        },
+                        -simv_args => [],
+                    }, # testcase_globals
+                },
+                CTECH_EXP_p1273_d04_xn_rtl_lib_model =>
+                {
+                    top => 'CTECH_EXP_p1273_d04_xn_rtl_lib.CTECH_EXP_p1273_d04_xn_rtl_lib_top',
+                    libs => [
+                        "CTECH_EXP_p1273_d04_xn_rtl_lib",
+                            ],
+                    testcase_globals => {
+                        $ENV{ACE_PROJECT} => {
+                            -test_vlog_opts => [],
+                            -test_vlog_files => [],
+                            -test_elab_opts => [],
+                            -test_vlog_incdirs => [],
+                        },
+                        -simv_args => [],
+                    }, # testcase_globals
+                },
+                CTECH_EXP_p1274_e05_ln_rtl_lib_model =>
+                {
+                    top => 'CTECH_EXP_p1274_e05_ln_rtl_lib.CTECH_EXP_p1274_e05_ln_rtl_lib_top',
+                    libs => [
+                        "CTECH_EXP_p1274_e05_ln_rtl_lib",
+                            ],
+                    testcase_globals => {
+                        $PROJECT => {
+                            -test_vlog_opts => [],
+                            -test_vlog_files => [],
+                            -test_elab_opts => [],
+                            -test_vlog_incdirs => [],
+                        },
+                        -simv_args => [],
+                    }, # testcase_globals
+                },
+                CTECH_EXP_p1274_e05_nn_rtl_lib_model =>
+                {
+                    top => 'CTECH_EXP_p1274_e05_nn_rtl_lib.CTECH_EXP_p1274_e05_nn_rtl_lib_top',
+                    libs => [
+                        "CTECH_EXP_p1274_e05_nn_rtl_lib",
+                            ],
+                    testcase_globals => {
+                        $PROJECT => {
+                            -test_vlog_opts => [],
+                            -test_vlog_files => [],
+                            -test_elab_opts => [],
+                            -test_vlog_incdirs => [],
+                        },
+                        -simv_args => [],
+                    }, # testcase_globals
+                },
+                CTECH_EXP_p1274_ec0_ln_rtl_lib_model =>
+                {
+                    top => 'CTECH_EXP_p1274_ec0_ln_rtl_lib.CTECH_EXP_p1274_ec0_ln_rtl_lib_top',
+                    libs => [
+                        "CTECH_EXP_p1274_ec0_ln_rtl_lib",
+                            ],
+                    testcase_globals => {
+                        $PROJECT => {
+                            -test_vlog_opts => [],
+                            -test_vlog_files => [],
+                            -test_elab_opts => [],
+                            -test_vlog_incdirs => [],
+                        },
+                        -simv_args => [],
+                    }, # testcase_globals
+                },
+                CTECH_EXP_p1274_ec0_nn_rtl_lib_model =>
+                {
+                    top => 'CTECH_EXP_p1274_ec0_nn_rtl_lib.CTECH_EXP_p1274_ec0_nn_rtl_lib_top',
+                    libs => [
+                        "CTECH_EXP_p1274_ec0_nn_rtl_lib",
+                            ],
+                    testcase_globals => {
+                        $PROJECT => {
+                            -test_vlog_opts => [],
+                            -test_vlog_files => [],
+                            -test_elab_opts => [],
+                            -test_vlog_incdirs => [],
+                        },
+                        -simv_args => [],
+                    }, # testcase_globals
+                },
+                CTECH_EXP_p1274_sdgalpha_ec0_ln_rtl_lib_model =>
+                {
+                    top => 'CTECH_EXP_p1274_sdgalpha_ec0_ln_rtl_lib.CTECH_EXP_p1274_sdgalpha_ec0_ln_rtl_lib_top',
+                    libs => [
+                        "CTECH_EXP_p1274_sdgalpha_ec0_ln_rtl_lib",
+                            ],
+                    testcase_globals => {
+                        $ENV{ACE_PROJECT} => {
+                            -test_vlog_opts => [],
+                            -test_vlog_files => [],
+                            -test_elab_opts => [],
+                            -test_vlog_incdirs => [],
+                        },
+                        -simv_args => [],
+                    }, # testcase_globals
+                },
+                CTECH_EXP_p1274_sdgalpha_ec0_nn_rtl_lib_model =>
+                {
+                    top => 'CTECH_EXP_p1274_sdgalpha_ec0_nn_rtl_lib.CTECH_EXP_p1274_sdgalpha_ec0_nn_rtl_lib_top',
+                    libs => [
+                        "CTECH_EXP_p1274_sdgalpha_ec0_nn_rtl_lib",
+                            ],
+                    testcase_globals => {
+                        $ENV{ACE_PROJECT} => {
+                            -test_vlog_opts => [],
+                            -test_vlog_files => [],
+                            -test_elab_opts => [],
+                            -test_vlog_incdirs => [],
+                        },
+                        -simv_args => [],
+                    }, # testcase_globals
+                },
+                CTECH_EXP_p1274_sdgglbclk_ec0_ln_rtl_lib_model =>
+                {
+                    top => 'CTECH_EXP_p1274_sdgglbclk_ec0_ln_rtl_lib.CTECH_EXP_p1274_sdgglbclk_ec0_ln_rtl_lib_top',
+                    libs => [
+                        "CTECH_EXP_p1274_sdgglbclk_ec0_ln_rtl_lib",
+                            ],
+                    testcase_globals => {
+                        $ENV{ACE_PROJECT} => {
+                            -test_vlog_opts => [],
+                            -test_vlog_files => [],
+                            -test_elab_opts => [],
+                            -test_vlog_incdirs => [],
+                        },
+                        -simv_args => [],
+                    }, # testcase_globals
+                },
+                CTECH_EXP_p1274_sdgglbclk_ec0_nn_rtl_lib_model =>
+                {
+                    top => 'CTECH_EXP_p1274_sdgglbclk_ec0_nn_rtl_lib.CTECH_EXP_p1274_sdgglbclk_ec0_nn_rtl_lib_top',
+                    libs => [
+                        "CTECH_EXP_p1274_sdgglbclk_ec0_nn_rtl_lib",
+                            ],
+                    testcase_globals => {
+                        $ENV{ACE_PROJECT} => {
+                            -test_vlog_opts => [],
+                            -test_vlog_files => [],
+                            -test_elab_opts => [],
+                            -test_vlog_incdirs => [],
+                        },
+                        -simv_args => [],
+                    }, # testcase_globals
+                },
+                CTECH_EXP_v_rtl_lib_model =>
+                {
+                    top => 'CTECH_EXP_v_rtl_lib.CTECH_EXP_v_rtl_lib_top',
+                    libs => [
+                        "CTECH_EXP_v_rtl_lib",
+                            ],
+                    testcase_globals => {
+                        $PROJECT => {
+                            -test_vlog_opts => [],
+                            -test_vlog_files => [],
+                            -test_elab_opts => [],
+                            -test_vlog_incdirs => [],
+                        },
+                        -simv_args => [],
+                    }, # testcase_globals
+                },
+            },
+        },
+    },
+);
+

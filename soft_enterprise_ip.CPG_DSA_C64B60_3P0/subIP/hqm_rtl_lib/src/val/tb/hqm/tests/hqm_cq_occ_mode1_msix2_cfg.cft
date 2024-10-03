@@ -1,0 +1,299 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable PF memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+###################################
+# Setup FUNC_VF BAR to a base address of 0x00000003_xxxxxxxx
+###################################
+# 16 VF
+###################################
+# Enable VF and VF memory operations
+###################################
+# Setup LUTs
+# lut_dir_cq_isr
+# Setting these up as even CQs -> MSIX, odd CQs -> MSI, same vec for pairs of even/odd
+# Bump VF every 8 CQs
+# So we should get 96 (64 dir and 32 ldb) MSI-X requests and 96 MSI requests
+wr hqm_system_csr.dir_cq_isr[0]   0x800
+wr hqm_system_csr.dir_cq_isr[1]   0x400
+wr hqm_system_csr.dir_cq_isr[2]   0x801
+wr hqm_system_csr.dir_cq_isr[3]   0x401
+wr hqm_system_csr.dir_cq_isr[4]   0x802
+wr hqm_system_csr.dir_cq_isr[5]   0x402
+wr hqm_system_csr.dir_cq_isr[6]   0x803
+wr hqm_system_csr.dir_cq_isr[7]   0x403
+wr hqm_system_csr.dir_cq_isr[8]   0x844
+wr hqm_system_csr.dir_cq_isr[9]   0x444
+wr hqm_system_csr.dir_cq_isr[10]  0x845
+wr hqm_system_csr.dir_cq_isr[11]  0x445
+wr hqm_system_csr.dir_cq_isr[12]  0x846
+wr hqm_system_csr.dir_cq_isr[13]  0x446
+wr hqm_system_csr.dir_cq_isr[14]  0x847
+wr hqm_system_csr.dir_cq_isr[15]  0x447
+wr hqm_system_csr.dir_cq_isr[16]  0x888
+wr hqm_system_csr.dir_cq_isr[17]  0x488
+wr hqm_system_csr.dir_cq_isr[18]  0x889
+wr hqm_system_csr.dir_cq_isr[19]  0x489
+wr hqm_system_csr.dir_cq_isr[20]  0x88a
+wr hqm_system_csr.dir_cq_isr[21]  0x48a
+wr hqm_system_csr.dir_cq_isr[22]  0x88b
+wr hqm_system_csr.dir_cq_isr[23]  0x48b
+wr hqm_system_csr.dir_cq_isr[24]  0x8cc
+wr hqm_system_csr.dir_cq_isr[25]  0x4cc
+wr hqm_system_csr.dir_cq_isr[26]  0x8cd
+wr hqm_system_csr.dir_cq_isr[27]  0x4cd
+wr hqm_system_csr.dir_cq_isr[28]  0x8ce
+wr hqm_system_csr.dir_cq_isr[29]  0x4ce
+wr hqm_system_csr.dir_cq_isr[30]  0x8cf
+wr hqm_system_csr.dir_cq_isr[31]  0x4cf
+wr hqm_system_csr.dir_cq_isr[32]  0x910
+wr hqm_system_csr.dir_cq_isr[33]  0x510
+wr hqm_system_csr.dir_cq_isr[34]  0x911
+wr hqm_system_csr.dir_cq_isr[35]  0x511
+wr hqm_system_csr.dir_cq_isr[36]  0x912
+wr hqm_system_csr.dir_cq_isr[37]  0x512
+wr hqm_system_csr.dir_cq_isr[38]  0x913
+wr hqm_system_csr.dir_cq_isr[39]  0x513
+wr hqm_system_csr.dir_cq_isr[40]  0x954
+wr hqm_system_csr.dir_cq_isr[41]  0x554
+wr hqm_system_csr.dir_cq_isr[42]  0x955
+wr hqm_system_csr.dir_cq_isr[43]  0x555
+wr hqm_system_csr.dir_cq_isr[44]  0x956
+wr hqm_system_csr.dir_cq_isr[45]  0x556
+wr hqm_system_csr.dir_cq_isr[46]  0x957
+wr hqm_system_csr.dir_cq_isr[47]  0x557
+wr hqm_system_csr.dir_cq_isr[48]  0x998
+wr hqm_system_csr.dir_cq_isr[49]  0x598
+wr hqm_system_csr.dir_cq_isr[50]  0x999
+wr hqm_system_csr.dir_cq_isr[51]  0x599
+wr hqm_system_csr.dir_cq_isr[52]  0x99a
+wr hqm_system_csr.dir_cq_isr[53]  0x59a
+wr hqm_system_csr.dir_cq_isr[54]  0x99b
+wr hqm_system_csr.dir_cq_isr[55]  0x59b
+wr hqm_system_csr.dir_cq_isr[56]  0x9dc
+wr hqm_system_csr.dir_cq_isr[57]  0x5dc
+wr hqm_system_csr.dir_cq_isr[58]  0x9dd
+wr hqm_system_csr.dir_cq_isr[59]  0x5dd
+wr hqm_system_csr.dir_cq_isr[60]  0x9de
+wr hqm_system_csr.dir_cq_isr[61]  0x5de
+wr hqm_system_csr.dir_cq_isr[62]  0x9df
+wr hqm_system_csr.dir_cq_isr[63]  0x5df
+
+# lut_ldb_cq_isr
+wr hqm_system_csr.ldb_cq_isr[0]   0x800
+wr hqm_system_csr.ldb_cq_isr[1]   0x400
+wr hqm_system_csr.ldb_cq_isr[2]   0x801
+wr hqm_system_csr.ldb_cq_isr[3]   0x401
+wr hqm_system_csr.ldb_cq_isr[4]   0x802
+wr hqm_system_csr.ldb_cq_isr[5]   0x402
+wr hqm_system_csr.ldb_cq_isr[6]   0x803
+wr hqm_system_csr.ldb_cq_isr[7]   0x403
+wr hqm_system_csr.ldb_cq_isr[8]   0x844
+wr hqm_system_csr.ldb_cq_isr[9]   0x444
+wr hqm_system_csr.ldb_cq_isr[10]  0x845
+wr hqm_system_csr.ldb_cq_isr[11]  0x445
+wr hqm_system_csr.ldb_cq_isr[12]  0x846
+wr hqm_system_csr.ldb_cq_isr[13]  0x446
+wr hqm_system_csr.ldb_cq_isr[14]  0x847
+wr hqm_system_csr.ldb_cq_isr[15]  0x447
+wr hqm_system_csr.ldb_cq_isr[16]  0x888
+wr hqm_system_csr.ldb_cq_isr[17]  0x488
+wr hqm_system_csr.ldb_cq_isr[18]  0x889
+wr hqm_system_csr.ldb_cq_isr[19]  0x489
+wr hqm_system_csr.ldb_cq_isr[20]  0x88a
+wr hqm_system_csr.ldb_cq_isr[21]  0x48a
+wr hqm_system_csr.ldb_cq_isr[22]  0x88b
+wr hqm_system_csr.ldb_cq_isr[23]  0x48b
+wr hqm_system_csr.ldb_cq_isr[24]  0x8cc
+wr hqm_system_csr.ldb_cq_isr[25]  0x4cc
+wr hqm_system_csr.ldb_cq_isr[26]  0x8cd
+wr hqm_system_csr.ldb_cq_isr[27]  0x4cd
+wr hqm_system_csr.ldb_cq_isr[28]  0x8ce
+wr hqm_system_csr.ldb_cq_isr[29]  0x4ce
+wr hqm_system_csr.ldb_cq_isr[30]  0x8cf
+wr hqm_system_csr.ldb_cq_isr[31]  0x4cf
+wr hqm_system_csr.ldb_cq_isr[32]  0x910
+wr hqm_system_csr.ldb_cq_isr[33]  0x510
+wr hqm_system_csr.ldb_cq_isr[34]  0x911
+wr hqm_system_csr.ldb_cq_isr[35]  0x511
+wr hqm_system_csr.ldb_cq_isr[36]  0x912
+wr hqm_system_csr.ldb_cq_isr[37]  0x512
+wr hqm_system_csr.ldb_cq_isr[38]  0x913
+wr hqm_system_csr.ldb_cq_isr[39]  0x513
+wr hqm_system_csr.ldb_cq_isr[40]  0x954
+wr hqm_system_csr.ldb_cq_isr[41]  0x554
+wr hqm_system_csr.ldb_cq_isr[42]  0x955
+wr hqm_system_csr.ldb_cq_isr[43]  0x555
+wr hqm_system_csr.ldb_cq_isr[44]  0x956
+wr hqm_system_csr.ldb_cq_isr[45]  0x556
+wr hqm_system_csr.ldb_cq_isr[46]  0x957
+wr hqm_system_csr.ldb_cq_isr[47]  0x557
+wr hqm_system_csr.ldb_cq_isr[48]  0x998
+wr hqm_system_csr.ldb_cq_isr[49]  0x598
+wr hqm_system_csr.ldb_cq_isr[50]  0x999
+wr hqm_system_csr.ldb_cq_isr[51]  0x599
+wr hqm_system_csr.ldb_cq_isr[52]  0x99a
+wr hqm_system_csr.ldb_cq_isr[53]  0x59a
+wr hqm_system_csr.ldb_cq_isr[54]  0x99b
+wr hqm_system_csr.ldb_cq_isr[55]  0x59b
+wr hqm_system_csr.ldb_cq_isr[56]  0x9dc
+wr hqm_system_csr.ldb_cq_isr[57]  0x5dc
+wr hqm_system_csr.ldb_cq_isr[58]  0x9dd
+wr hqm_system_csr.ldb_cq_isr[59]  0x5dd
+wr hqm_system_csr.ldb_cq_isr[60]  0x9de
+wr hqm_system_csr.ldb_cq_isr[61]  0x5de
+wr hqm_system_csr.ldb_cq_isr[62]  0x9df
+wr hqm_system_csr.ldb_cq_isr[63]  0x5df
+###################################
+# Enable MSIs
+#### wr hqm_vf_cfg_i[0].msi_cap_addr_l       0x76543f00
+#### wr hqm_vf_cfg_i[0].msi_cap_addr_u       0xfedcba98
+#### wr hqm_vf_cfg_i[0].msi_cap_msg_data     0xf000
+#### wr hqm_vf_cfg_i[0].msi_cap_msg_mask     0x00000000
+#### wr hqm_vf_cfg_i[0].msi_cap_msg_control  0x0051
+#### wr hqm_vf_cfg_i[1].msi_cap_addr_l       0x76543f10
+#### wr hqm_vf_cfg_i[1].msi_cap_addr_u       0xfedcba98
+#### wr hqm_vf_cfg_i[1].msi_cap_msg_data     0xf100
+#### wr hqm_vf_cfg_i[1].msi_cap_msg_mask     0x00000000
+#### wr hqm_vf_cfg_i[1].msi_cap_msg_control  0x0051
+#### wr hqm_vf_cfg_i[2].msi_cap_addr_l       0x76543f20
+#### wr hqm_vf_cfg_i[2].msi_cap_addr_u       0xfedcba98
+#### wr hqm_vf_cfg_i[2].msi_cap_msg_data     0xf200
+#### wr hqm_vf_cfg_i[2].msi_cap_msg_mask     0x00000000
+#### wr hqm_vf_cfg_i[2].msi_cap_msg_control  0x0051
+#### wr hqm_vf_cfg_i[3].msi_cap_addr_l       0x76543f30
+#### wr hqm_vf_cfg_i[3].msi_cap_addr_u       0xfedcba98
+#### wr hqm_vf_cfg_i[3].msi_cap_msg_data     0xf300
+#### wr hqm_vf_cfg_i[3].msi_cap_msg_mask     0x00000000
+#### wr hqm_vf_cfg_i[3].msi_cap_msg_control  0x0051
+#### wr hqm_vf_cfg_i[4].msi_cap_addr_l       0x76543f40
+#### wr hqm_vf_cfg_i[4].msi_cap_addr_u       0xfedcba98
+#### wr hqm_vf_cfg_i[4].msi_cap_msg_data     0xf400
+#### wr hqm_vf_cfg_i[4].msi_cap_msg_mask     0x00000000
+#### wr hqm_vf_cfg_i[4].msi_cap_msg_control  0x0051
+#### wr hqm_vf_cfg_i[5].msi_cap_addr_l       0x76543f50
+#### wr hqm_vf_cfg_i[5].msi_cap_addr_u       0xfedcba98
+#### wr hqm_vf_cfg_i[5].msi_cap_msg_data     0xf500
+#### wr hqm_vf_cfg_i[5].msi_cap_msg_mask     0x00000000
+#### wr hqm_vf_cfg_i[5].msi_cap_msg_control  0x0051
+#### wr hqm_vf_cfg_i[6].msi_cap_addr_l       0x76543f60
+#### wr hqm_vf_cfg_i[6].msi_cap_addr_u       0xfedcba98
+#### wr hqm_vf_cfg_i[6].msi_cap_msg_data     0xf600
+#### wr hqm_vf_cfg_i[6].msi_cap_msg_mask     0x00000000
+#### wr hqm_vf_cfg_i[6].msi_cap_msg_control  0x0051
+#### wr hqm_vf_cfg_i[7].msi_cap_addr_l       0x76543f70
+#### wr hqm_vf_cfg_i[7].msi_cap_addr_u       0xfedcba98
+#### wr hqm_vf_cfg_i[7].msi_cap_msg_data     0xf700
+#### wr hqm_vf_cfg_i[7].msi_cap_msg_mask     0x00000000
+#### wr hqm_vf_cfg_i[7].msi_cap_msg_control  0x0051
+#### wr hqm_vf_cfg_i[8].msi_cap_addr_l       0x76543f80
+#### wr hqm_vf_cfg_i[8].msi_cap_addr_u       0xfedcba98
+#### wr hqm_vf_cfg_i[8].msi_cap_msg_data     0xf800
+#### wr hqm_vf_cfg_i[8].msi_cap_msg_mask     0x00000000
+#### wr hqm_vf_cfg_i[8].msi_cap_msg_control  0x0051
+#### wr hqm_vf_cfg_i[9].msi_cap_addr_l       0x76543f90
+#### wr hqm_vf_cfg_i[9].msi_cap_addr_u       0xfedcba98
+#### wr hqm_vf_cfg_i[9].msi_cap_msg_data     0xf900
+#### wr hqm_vf_cfg_i[9].msi_cap_msg_mask     0x00000000
+#### wr hqm_vf_cfg_i[9].msi_cap_msg_control  0x0051
+#### wr hqm_vf_cfg_i[10].msi_cap_addr_l      0x76543fa0
+#### wr hqm_vf_cfg_i[10].msi_cap_addr_u      0xfedcba98
+#### wr hqm_vf_cfg_i[10].msi_cap_msg_data    0xfa00
+#### wr hqm_vf_cfg_i[10].msi_cap_msg_mask    0x00000000
+#### wr hqm_vf_cfg_i[10].msi_cap_msg_control 0x0051
+#### wr hqm_vf_cfg_i[11].msi_cap_addr_l      0x76543fb0
+#### wr hqm_vf_cfg_i[11].msi_cap_addr_u      0xfedcba98
+#### wr hqm_vf_cfg_i[11].msi_cap_msg_data    0xfb00
+#### wr hqm_vf_cfg_i[11].msi_cap_msg_mask    0x00000000
+#### wr hqm_vf_cfg_i[11].msi_cap_msg_control 0x0051
+#### wr hqm_vf_cfg_i[12].msi_cap_addr_l      0x76543fc0
+#### wr hqm_vf_cfg_i[12].msi_cap_addr_u      0xfedcba98
+#### wr hqm_vf_cfg_i[12].msi_cap_msg_data    0xfc00
+#### wr hqm_vf_cfg_i[12].msi_cap_msg_mask    0x00000000
+#### wr hqm_vf_cfg_i[12].msi_cap_msg_control 0x0051
+#### wr hqm_vf_cfg_i[13].msi_cap_addr_l      0x76543fd0
+#### wr hqm_vf_cfg_i[13].msi_cap_addr_u      0xfedcba98
+#### wr hqm_vf_cfg_i[13].msi_cap_msg_data    0xfd00
+#### wr hqm_vf_cfg_i[13].msi_cap_msg_mask    0x00000000
+#### wr hqm_vf_cfg_i[13].msi_cap_msg_control 0x0051
+#### wr hqm_vf_cfg_i[14].msi_cap_addr_l      0x76543fe0
+#### wr hqm_vf_cfg_i[14].msi_cap_addr_u      0xfedcba98
+#### wr hqm_vf_cfg_i[14].msi_cap_msg_data    0xfe00
+#### wr hqm_vf_cfg_i[14].msi_cap_msg_mask    0x00000000
+#### wr hqm_vf_cfg_i[14].msi_cap_msg_control 0x0051
+#### wr hqm_vf_cfg_i[15].msi_cap_addr_l      0x76543ff0
+#### wr hqm_vf_cfg_i[15].msi_cap_addr_u      0xfedcba98
+#### wr hqm_vf_cfg_i[15].msi_cap_msg_data    0xff00
+#### wr hqm_vf_cfg_i[15].msi_cap_msg_mask    0x00000000
+#### wr hqm_vf_cfg_i[15].msi_cap_msg_control 0x0051
+###################################
+# Setup MSI-X Table entries
+wr hqm_msix_mem.msg_addr_l[0]   0x12345678
+wr hqm_msix_mem.msg_addr_u[0]   0xc0ded400
+wr hqm_msix_mem.msg_data[0]     0xd40c0ded
+wr hqm_msix_mem.vector_ctrl[0]  0x00000000
+wr hqm_msix_mem.msg_addr_l[8]   0x12345678
+wr hqm_msix_mem.msg_addr_u[8]   0xc0ded080
+wr hqm_msix_mem.msg_data[8]     0xd08c0ded
+wr hqm_msix_mem.vector_ctrl[8]  0x00000000
+###################################
+# Set VF BM enables
+#### wr hqm_vf_cfg_i[0].device_command  0x4
+#### wr hqm_vf_cfg_i[1].device_command  0x4
+#### wr hqm_vf_cfg_i[2].device_command  0x4
+#### wr hqm_vf_cfg_i[3].device_command  0x4
+#### wr hqm_vf_cfg_i[4].device_command  0x4
+#### wr hqm_vf_cfg_i[5].device_command  0x4
+#### wr hqm_vf_cfg_i[6].device_command  0x4
+#### wr hqm_vf_cfg_i[7].device_command  0x4
+#### wr hqm_vf_cfg_i[8].device_command  0x4
+#### wr hqm_vf_cfg_i[9].device_command  0x4
+#### wr hqm_vf_cfg_i[10].device_command 0x4
+#### wr hqm_vf_cfg_i[11].device_command 0x4
+#### wr hqm_vf_cfg_i[12].device_command 0x4
+#### wr hqm_vf_cfg_i[13].device_command 0x4
+#### wr hqm_vf_cfg_i[14].device_command 0x4
+#### wr hqm_vf_cfg_i[15].device_command 0x4
+#########################################################
+# Setup the SMON to count IOSF writes
+wr hqm_system_csr.aw_smon_configuration0[0] 0x00000991
+wr hqm_system_csr.aw_smon_configuration1[0] 0x00003030
+wr hqm_system_csr.aw_smon_compare0[0]       0x00000000
+wr hqm_system_csr.aw_smon_compare1[0]       0x00000080
+wr hqm_system_csr.aw_smon_comp_mask0[0]     0x00000080
+wr hqm_system_csr.aw_smon_comp_mask1[0]     0x00000080
+wr hqm_system_csr.aw_smon_configuration0[1] 0x00000991
+wr hqm_system_csr.aw_smon_configuration1[1] 0x00002f2f
+wr hqm_system_csr.aw_smon_compare0[1]       0x00000000
+wr hqm_system_csr.aw_smon_compare1[1]       0x0000f000
+wr hqm_system_csr.aw_smon_comp_mask0[1]     0x0000f000
+wr hqm_system_csr.aw_smon_comp_mask1[1]     0x0000f000
+#########################################################
+# Put us in cq_occ msix_mode.MODE=1
+rd hqm_system_csr.msix_mode                 0x00000000
+wr hqm_system_csr.msix_mode                 0x00000001
+rd hqm_system_csr.msix_mode                 0x00000001
+wr hqm_system_csr.msix_mode                 0x00000000
+rd hqm_system_csr.msix_mode                 0x00000000
+wr hqm_system_csr.msix_mode                 0x00000001
+rd hqm_system_csr.msix_mode                 0x00000001
+###################################
+# Enable MSI-X
+idle 100
+wr hqm_pf_cfg_i.msix_cap_control 0x8000
+rd hqm_pf_cfg_i.msix_cap_control 0x8047

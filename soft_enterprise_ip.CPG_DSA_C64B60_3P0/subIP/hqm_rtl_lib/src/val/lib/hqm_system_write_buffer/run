@@ -1,0 +1,23 @@
+export VCS_HOME=`ToolConfig.pl get_tool_path vcs`
+export PATH="$VCS_HOME/bin:$PATH"
+export SNPSLMD_LICENSE_FILE="26586@synopsys34p.elic.intel.com:26586@synopsys45p.elic.intel.com:26586@synopsys14p.elic.intel.com"
+export VCS_TARGET_ARCH="suse64"
+export VCS_ARCH_OVERRIDE="suse32"
+export VCS_LIC_EXPIRE_WARNING="5"
+
+# clean
+rm -Rf printenv.log build.log run.log vc_hdrs.h simv csrc simv.daidir ucli.key dump.vpd DVEfiles
+# build $ run
+printenv > printenv.log   
+build > build.log   
+simv +ntb_random_seed=0 +AW_CONTINUE_ON_ERROR=1 > run.log
+
+if grep -q PASS run.log; then
+    echo "PASS"
+    exit 0
+else
+    echo "FAIL"
+    exit 1
+fi
+
+

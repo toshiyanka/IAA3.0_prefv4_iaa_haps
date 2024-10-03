@@ -1,0 +1,96 @@
+idle 400
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+
+###################################
+# Wait for reset to be done (including hardware memory init)
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+
+###################################
+# Setup LUTs used by HCWs
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+  dir qid 0
+  dir qid 1
+  dir qid 2
+  dir qid 3
+  dir qid 4
+  dir qid 5
+  dir qid 6
+  dir qid 7
+  dir qid 8
+  dir qid 9
+  dir qid 10
+  dir qid 11
+  dir qid 12
+  dir qid 13
+  dir qid 14
+  dir qid 15
+
+  vas  0 credit_cnt=64 dir_qidv0=1
+  vas  1 credit_cnt=64 dir_qidv1=1
+  vas  2 credit_cnt=64 dir_qidv2=1
+  vas  3 credit_cnt=64 dir_qidv3=1
+  vas  4 credit_cnt=64 dir_qidv4=1
+  vas  5 credit_cnt=64 dir_qidv5=1
+  vas  6 credit_cnt=64 dir_qidv6=1
+  vas  7 credit_cnt=64 dir_qidv7=1
+  vas  8 credit_cnt=64 dir_qidv8=1
+  vas  9 credit_cnt=64 dir_qidv9=1
+  vas 10 credit_cnt=64 dir_qidv10=1
+  vas 11 credit_cnt=64 dir_qidv11=1
+  vas 12 credit_cnt=64 dir_qidv12=1
+  vas 13 credit_cnt=64 dir_qidv13=1
+  vas 14 credit_cnt=64 dir_qidv14=1
+  vas 15 credit_cnt=64 dir_qidv15=1
+
+  dir pp 0  gpa=sm vas=0
+  dir pp 1  gpa=sm vas=1
+  dir pp 2  gpa=sm vas=2
+  dir pp 3  gpa=sm vas=3
+  dir pp 4  gpa=sm vas=4
+  dir pp 5  gpa=sm vas=5
+  dir pp 6  gpa=sm vas=6
+  dir pp 7  gpa=sm vas=7
+  dir pp 8  gpa=sm vas=8
+  dir pp 9  gpa=sm vas=9
+  dir pp 10 gpa=sm vas=10
+  dir pp 11 gpa=sm vas=11
+  dir pp 12 gpa=sm vas=12
+  dir pp 13 gpa=sm vas=13
+  dir pp 14 gpa=sm vas=14
+  dir pp 15 gpa=sm vas=15
+
+  dir cq 0  gpa=sm cq_depth=1024
+  dir cq 1  gpa=sm cq_depth=1024
+  dir cq 2  gpa=sm cq_depth=1024
+  dir cq 3  gpa=sm cq_depth=1024
+  dir cq 4  gpa=sm cq_depth=1024
+  dir cq 5  gpa=sm cq_depth=1024
+  dir cq 6  gpa=sm cq_depth=1024
+  dir cq 7  gpa=sm cq_depth=1024
+  dir cq 8  gpa=sm cq_depth=1024
+  dir cq 9  gpa=sm cq_depth=1024
+  dir cq 10 gpa=sm cq_depth=1024
+  dir cq 11 gpa=sm cq_depth=1024
+  dir cq 12 gpa=sm cq_depth=1024
+  dir cq 13 gpa=sm cq_depth=1024
+  dir cq 14 gpa=sm cq_depth=1024
+  dir cq 15 gpa=sm cq_depth=1024
+
+cfg_end
+
+rd hqm_pf_cfg_i.vendor_id

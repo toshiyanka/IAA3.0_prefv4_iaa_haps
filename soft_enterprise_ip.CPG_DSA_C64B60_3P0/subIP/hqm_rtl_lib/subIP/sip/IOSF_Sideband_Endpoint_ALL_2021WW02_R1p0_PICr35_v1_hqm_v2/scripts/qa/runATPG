@@ -1,0 +1,303 @@
+#!/bin/tcsh -f
+# name: runATPG
+
+################################################################################
+# Source a script that is called at the start of each back-end 
+# scripts/qa/run* script
+################################################################################
+source ./runPre -tool_name $0 $argv
+if( $status != 0 ) exit $status
+
+cd ../..
+
+unsetenv SB_STDCELLS_HDL
+
+set ATPGSTUCKATFAULTMIN=90
+set ATPGSTUCKATTESTMIN=90
+
+set misr_status=1
+echo $cwd | grep "_misr" >/dev/null
+if ($status == 0) then
+   set misr_status=0
+   set ATPGSTUCKATFAULTMIN=65
+   set ATPGSTUCKATTESTMIN=65
+endif
+
+echo $cwd | grep "spt_1p0" >/dev/null
+if ($status == 0 && $misr_status == 1) then
+   set ATPGSTUCKATFAULTMIN=80
+   set ATPGSTUCKATTESTMIN=80
+endif
+
+echo $SIP_SBR_MISR_ENABLED | grep "1" >/dev/null
+if ($status == 0) then
+    set ATPGSTUCKATFAULTMIN=65
+    set ATPGSTUCKATTESTMIN=65
+endif
+
+set ATPGATSPEEDFAULTMIN=80
+set ATPGATSPEEDTESTMIN=80
+
+#####################################################
+# Run commands
+#####################################################
+
+# Test if KIT_PATH exists and is valid
+if( ! $?KIT_PATH ) then
+   echo "${thisToolName} -E- KIT_PATH was not defined."
+   exit 1
+endif
+
+if( -d ${KIT_PATH} ) then
+   if( ${debug} ) echo "${thisToolName} -D- KIT_PATH set to ${KIT_PATH}"
+else
+   echo "${thisToolName} -E- KIT_PATH does not point to a valid directory."
+   exit 1
+endif
+
+# from the process we can generate a default library if one is not specified
+if (${KIT_PATH} =~ "*p1271*") then
+   set sip_process="1271"
+   if(! $?SIP_LIBRARY_TYPE) then
+      set sip_lib_type="b12.4"
+      echo "${thisToolName} -W- SIP_LIBRARY_TYPE is not defined using default value ${sip_lib_type}"
+   else
+      set sip_lib_type=${SIP_LIBRARY_TYPE}
+   endif
+else if (${KIT_PATH} =~ "*p1273*") then
+   set sip_process="1273"
+   if(! $?SIP_LIBRARY_TYPE) then
+      set sip_lib_type="d04"
+      echo "${thisToolName} -W- SIP_LIBRARY_TYPE is not defined using default value ${sip_lib_type}"
+   else
+      set sip_lib_type=${SIP_LIBRARY_TYPE}
+   endif
+else if (${KIT_PATH} =~ "*10nm*") then
+   set sip_process="1274"
+   if(! $?SIP_LIBRARY_TYPE) then
+      set sip_lib_type="e05"
+      echo "${thisToolName} -W- SIP_LIBRARY_TYPE is not defined using default value ${sip_lib_type}"
+   else
+      set sip_lib_type=${SIP_LIBRARY_TYPE}
+   endif
+else
+   set sip_process="UNDEFINED"
+   echo "${thisToolName} -E- KIT_PATH set to an unsupported process ${KIT_PATH}"
+   exit 1
+endif
+
+set sip_lib_type_strip=`echo ${sip_lib_type} | perl -pe 's/^([\w\d]+)\.?([\w\d]+)?/$1/'`
+
+set sip_custname="default"
+set atpglibext="atpglib"
+
+switch ("${sip_lib_type}")
+   case 'b05.8':
+      set vttypes=("un" "ln" "nn")
+      set sip_custname="spt"
+      set atpglibext="atpg"
+      breaksw
+   case 'b12.1':
+      set vttypes=("wn", "ln" "nn" "tg")
+      breaksw
+   case 'b12.4':
+      set vttypes=("un" "ln" "nn")
+      breaksw
+   case 'd04':
+      set vttypes=("wn" "ln" "nn")
+      breaksw
+   case 'e05':
+      set vttypes=("ln")
+      breaksw
+   default:
+      echo "${thisToolName} -E- Unsupported library type '${sip_lib_type}', update sbc_map.sv and runATPG before proceding"
+      exit 1
+endsw
+
+if( ${config} =~ "IOSF_Sideband_Endpoint" ) then
+   source ${sbrdir}/scripts/qa/ephelper.csh -rtlcfg ${component} -topdir ${sbrdir} -gentool ${thisToolName} -tooldir atpg -process ${sip_process}
+else
+   if ($DYN_OPT =~ "nonDyn") then
+      set rtltop="${component}"
+   else
+      set rtltop="${component}_sbr_generic"
+   endif
+
+   set dsttooldir="${sbrdir}/tools/atpg/atpg_${sip_process}/${component}"
+endif
+
+if (! -d "${dsttooldir}" ) then
+   echo "${thisToolName} -E- Directory ${dsttooldir} was not found"
+   exit 1
+endif
+
+if (${sip_lib_type} == "e05") then
+    set syn_outputs="${sbrdir}/tools/syn/syn_1274/${component}/rdt/outputs"
+else
+    set syn_outputs="${sbrdir}/tools/syn/syn_${sip_process}/${component}/rdt/outputs"
+endif
+
+cd ${dsttooldir}
+
+if (${sip_lib_type} == "e05") then
+    if (! -d "/p/hdk/cad/stdcells/e05/14ww45.3_e05_d.0_cnlgt/mentor") then
+        echo "${thisToolName} -E- Directory /p/hdk/cad/stdcells/e05/14ww45.3_e05_d.0_cnlgt/mentor was not found"
+        exit 1
+    endif
+else
+    if (! -d "${KIT_PATH}/stdcells/${sip_lib_type}/${sip_custname}/latest/mentor") then
+        echo "${thisToolName} -E- Directory ${KIT_PATH}/stdcells/${sip_lib_type}/default/latest/mentor was not found"
+        exit 1
+    endif
+endif
+
+
+if (! -d "${syn_outputs}") then
+   echo "${thisToolName} -E- Directory ${syn_outputs} was not found, run Synthesis prior to ${thisToolName}"
+   exit 1
+endif
+
+set atpg_libs=""
+foreach vttype (${vttypes})
+    if (${sip_lib_type} == "e05") then
+        set atpg_libs="${atpg_libs} -lib /p/hdk/cad/stdcells/e05/14ww45.3_e05_d.0_cnlgt/mentor/ln/${sip_lib_type_strip}_${vttype}_core.${atpglibext}"
+    else
+        set atpg_libs="${atpg_libs} -lib ${KIT_PATH}/stdcells/${sip_lib_type}/${sip_custname}/latest/mentor/${vttype}/${sip_lib_type_strip}_${vttype}_core.${atpglibext}"
+    endif
+end
+
+if (${sip_lib_type} == "e05") then
+    set atpg_libs="${atpg_libs} -lib /p/hdk/cad/stdcells/e05/14ww45.3_e05_d.0_cnlgt/mentor/primitives/primitive.atpglib"
+    set atpg_libs="${atpg_libs} -lib /p/hdk/cad/stdcells/e05/14ww45.3_e05_d.0_cnlgt/mentor/primitives/udp.atpglib"
+else
+    set atpg_libs="${atpg_libs} -lib ${KIT_PATH}/stdcells/${sip_lib_type}/${sip_custname}/latest/mentor/primitives/primitive.atpglib"
+    set atpg_libs="${atpg_libs} -lib ${KIT_PATH}/stdcells/${sip_lib_type}/${sip_custname}/latest/mentor/primitives/udp.atpglib"
+endif
+
+if ( -r "${dsttooldir}/ATPG" ) then
+  /bin/rm -r ${dsttooldir}/ATPG
+endif
+
+set atpgNetlist="${syn_outputs}/${rtltop}_atpg.final.v"
+set atpgSpf="${syn_outputs}/${rtltop}_atpg.final.spf"
+
+################################################################################
+# Additional ATPG Setup for UPF runs
+################################################################################
+if ( -e "${dsttooldir}/internal.dofile" ) then
+    if (${sip_lib_type} == "e05") then
+        /p/sip/utils/bin/runATPG ${atpgNetlist} ${atpgSpf} ${atpg_libs} -kd /p/hdk/cad/stdcells/e05/14ww45.3_e05_d.0_cnlgt -nr
+    else
+        /p/sip/utils/bin/runATPG ${atpgNetlist} ${atpgSpf} ${atpg_libs} -kd ${KIT_PATH}/stdcells/${sip_lib_type} -nr
+    endif
+   cp ${dsttooldir}/internal.dofile ${dsttooldir}/ATPG/dofiles/internal.dofile
+   # B05.8 is the only setup we have with retention cells for now, so stripping
+   # out that portion for anything we don't support yet (P1273 D04)
+   if ( ${sip_lib_type} != "b05.8" ) then
+      perl -pi -e 's/(.*)(upf_bypass_sleep)(.*)/\/\/$1$2$3/ig' ${dsttooldir}/ATPG/dofiles/internal.dofile
+   endif
+endif
+################################################################################
+
+echo "################################################################################"
+echo "# ATPG Stuck-At Tests"
+echo "################################################################################"
+if (${sip_lib_type} == "e05") then
+    /p/sip/utils/bin/runATPG ${atpgNetlist} ${atpgSpf} ${atpg_libs} -kd /p/hdk/cad/stdcells/e05 | tee ${component}_atpg.log
+else
+    /p/sip/utils/bin/runATPG ${atpgNetlist} ${atpgSpf} ${atpg_libs} -kd ${KIT_PATH}/stdcells/${sip_lib_type} | tee ${component}_atpg.log
+endif
+set exitStatus=$status
+
+echo "${thisToolName} -I- logs can be found at ${dsttooldir}/${component}_atpg.log"
+
+if ($exitStatus) then
+   echo "${thisToolName} -E- ATPG stuck-at mode has failed"
+   exit $exitStatus
+endif
+
+set perl_test_coverage="print "'$1'" if m/test_coverage\s+(\d+)/"
+set perl_fault_coverage="print "'$1'" if m/fault_coverage\s+(\d+)/"
+
+set stuckat_test=`perl -ne "${perl_test_coverage}"   ${component}_atpg.log`
+set stuckat_fault=`perl -ne "${perl_fault_coverage}" ${component}_atpg.log`
+
+if ( "p$stuckat_fault" == "p" || "p$stuckat_test" == "p" ) then
+   echo "${thisToolName} -E- ATPG stuck-at mode failed to run properly, please inspect the log files."
+   set exitStatus=1
+else
+   if ( $stuckat_fault < $ATPGSTUCKATFAULTMIN ) then
+      echo "${thisToolName} -W- ATPG stuck-at mode fault coverage is at ${stuckat_fault} below the minimum of ${ATPGSTUCKATFAULTMIN}"
+   endif
+
+   if ( $stuckat_test < $ATPGSTUCKATTESTMIN ) then
+      echo "${thisToolName} -E- ATPG stuck-at test coverage is at ${stuckat_test} below the minimum of ${ATPGSTUCKATTESTMIN}"
+      set exitStatus=2
+   endif
+endif
+
+if ( $exitStatus ) then
+   echo "${thisToolName} -I- Stuck-At Test:  ${stuckat_test}"
+   echo "${thisToolName} -I- Stuck-At Fault: ${stuckat_fault}"
+   exit $exitStatus
+else
+   echo "${thisToolName} -I- ATPG stuck-at mode passed with Test Coverage ${stuckat_test}, Fault Coverage ${stuckat_fault}"
+endif
+################################################################################
+
+echo "################################################################################"
+echo "# ATPG At-Speed Tests"
+echo "################################################################################"
+
+if (${sip_lib_type} == "e05") then
+    /p/sip/utils/bin/runATPG ${atpgNetlist} ${atpgSpf} ${atpg_libs} -kd /p/hdk/cad/stdcells/e05 -loc | tee ${component}_atpg_loc.log
+else
+    /p/sip/utils/bin/runATPG ${atpgNetlist} ${atpgSpf} ${atpg_libs} -kd ${KIT_PATH}/stdcells/${sip_lib_type} -loc | tee ${component}_atpg_loc.log
+endif
+set exitStatus=$status
+
+
+echo "${thisToolName} -I- logs can be found at ${dsttooldir}/${component}_atpg_loc.log"
+
+if ($exitStatus) then
+   echo "${thisToolName} -E- ATPG at-speed mode has failed"
+   exit $exitStatus
+endif
+
+set atspeed_test=`perl -ne "${perl_test_coverage}"   ${component}_atpg_loc.log`
+set atspeed_fault=`perl -ne "${perl_fault_coverage}" ${component}_atpg_loc.log`
+
+if ( "p$atspeed_fault" == "p" || "p$atspeed_test" == "p" ) then
+   echo "${thisToolName} -E- ATPG at-speed mode failed to run properly, please inspect the log files."
+   set exitStatus=1
+else
+   if ( $atspeed_fault < $ATPGATSPEEDFAULTMIN ) then
+      echo "${thisToolName} –W- ATPG at-speed fault coverage is at ${atspeed_fault} below the minimum of ${ATPGATSPEEDFAULTMIN}"
+   endif
+
+   if ( $atspeed_test < $ATPGATSPEEDTESTMIN ) then
+      echo "${thisToolName} –E- ATPG at-speed test coverage is at ${atspeed_test} below the minimum of ${ATPGATSPEEDTESTMIN}"
+      set exitStatus=2
+   endif
+endif
+
+if ( $exitStatus ) then
+   echo "${thisToolName} -I- At-Speed Test:  ${atspeed_test}"
+   echo "${thisToolName} -I- At-Speed Fault: ${atspeed_fault}"
+   exit $exitStatus
+else
+   echo "${thisToolName} -I- ATPG at-speed mode passed with Test Coverage ${atspeed_test}, Fault Coverage ${atspeed_fault}"
+endif
+################################################################################
+
+echo ""
+echo "${thisToolName} -I- ATPG Run Summaries:"
+echo "ATPG Stuck-At Log: "
+echo "${dsttooldir}/${component}_atpg.log"
+echo "ATPG Stuck-At Test/Fault Coverage: ${stuckat_test}/${stuckat_fault}"
+echo ""
+echo "ATPG At-Speed Log: "
+echo "${dsttooldir}/${component}_atpg_loc.log"
+echo "ATPG At-Speed Test/Fault Coverage: ${atspeed_test}/${atspeed_fault}"
+
+exit $exitStatus

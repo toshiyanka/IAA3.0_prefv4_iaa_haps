@@ -1,0 +1,114 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup FUNC_VF BAR to a base address of 0x00000003_xxxxxxxx
+#### wr hqm_pf_cfg_i.sriov_cap_func_bar_l 0x00000000
+#### wr hqm_pf_cfg_i.sriov_cap_func_bar_u 0x00000003
+###################################
+# Enable PF memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+###################################
+wr config_master.cfg_pm_pmcsr_disable.disable 0x0
+rd config_master.cfg_pm_pmcsr_disable.disable 0x0
+##
+###poll to Wait for reset to be done
+poll config_master.cfg_diagnostic_reset_status 0x800003ff 0x800003ff 500
+###poll to Wait for unit_idle to be done
+poll config_master.cfg_diagnostic_idle_status 0x0007ffff 0x0007ffff 500
+###################################
+ 
+
+###################################
+# Setup LUTs used by HCWs
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+##########################
+#Configurations
+########################## 
+#6ldbPP 
+#5ldbQID
+#5ldbCQ
+#
+#qid2cq mapping:
+#QID[0]=>CQ[1]
+#QID[1]=>CQ[2]
+#QID[2]=>CQ[3]
+#QID[3]=>CQ[4] 
+#QID[4]=>CQ[5] 
+#QID[5]=>CQ[6] 
+#QID[6]=>CQ[7] 
+
+cfg_begin
+   #MSIX programming
+   msix_alarm 0 addr=0xbeefcafe0000110 data=0xbeefcace enable=1
+  								    
+   
+   msix_cq  1  addr=0x2000cafebebc000 data=0xbb331000 is_ldb=1 cq=0
+   msix_cq  2  addr=0x2010cafebebc010 data=0xbb331001 is_ldb=1 cq=1
+   msix_cq  3  addr=0x2020cafebebc020 data=0xbb331002 is_ldb=1 cq=2
+   msix_cq  4  addr=0x2030cafebebc030 data=0xbb331003 is_ldb=1 cq=3
+   msix_cq  5  addr=0x2040cafebebc040 data=0xbb331004 is_ldb=1 cq=4
+   msix_cq  6  addr=0x2050cafebebc050 data=0xbb331005 is_ldb=1 cq=5
+   msix_cq  7  addr=0x2060cafebebc060 data=0xbb331006 is_ldb=1 cq=6
+   msix_cq  8  addr=0x2070cafebebc070 data=0xbb331007 is_ldb=1 cq=7
+ 		 
+   
+    
+  ldb qid 0 qid_ldb_inflight_limit=64  fid_cfg_v=1 fid_limit=64   aqed_freelist_base=0      aqed_freelist_limit=0x3f
+  ldb qid 1 qid_ldb_inflight_limit=64  fid_cfg_v=1 fid_limit=64   aqed_freelist_base=0x40   aqed_freelist_limit=0x7f
+  ldb qid 2 qid_ldb_inflight_limit=64  fid_cfg_v=1 fid_limit=64   aqed_freelist_base=0x80   aqed_freelist_limit=0xbf
+  ldb qid 3 qid_ldb_inflight_limit=64  fid_cfg_v=1 fid_limit=64   aqed_freelist_base=0xc0   aqed_freelist_limit=0xff
+  ldb qid 4 qid_ldb_inflight_limit=64  fid_cfg_v=1 fid_limit=64   aqed_freelist_base=0x100  aqed_freelist_limit=0x13f
+  ldb qid 5 qid_ldb_inflight_limit=64  fid_cfg_v=1 fid_limit=64   aqed_freelist_base=0x140  aqed_freelist_limit=0x17f
+  ldb qid 6 qid_ldb_inflight_limit=64  fid_cfg_v=1 fid_limit=64   aqed_freelist_base=0x180  aqed_freelist_limit=0x1bf
+  
+  
+  vas 0  credit_cnt=8192 
+  
+  vas 0  ldb_qidv0=1 ldb_qidv1=1 ldb_qidv2=1 ldb_qidv3=1 ldb_qidv4=1 ldb_qidv5=1 ldb_qidv6=1 ldb_qidv7=1 
+  
+  dir pp 0  vas=0 
+    
+  ldb pp 0  vas=0
+  ldb pp 1  vas=0
+  ldb pp 2  vas=0
+  ldb pp 3  vas=0
+  ldb pp 4  vas=0
+  ldb pp 5  vas=0
+  ldb pp 6  vas=0 
+  ldb pp 7  vas=0
+
+    
+  ldb cq 0   cq_depth=64 gpa=sm hist_list_base=0     hist_list_limit=0x3f  qidv0=0 qidix0=0 pri0=0  qidv1=0 qidix1=1 pri1=0 qidv2=0 qidix2=2 pri2=0 qidv3=0 qidix3=3 pri3=0 qidv4=0 qidix4=4 pri4=0 qidv5=0 qidix5=5 pri5=0 qidv6=0 qidix6=6 pri6=0 qidv7=0 qidix7=7 pri7=0 cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=0
+  ldb cq 1   cq_depth=64 gpa=sm hist_list_base=0x40  hist_list_limit=0x7f  qidv0=1 qidix0=0 pri0=0  qidv1=1 qidix1=1 pri1=0 qidv2=1 qidix2=2 pri2=0 qidv3=1 qidix3=3 pri3=0 qidv4=1 qidix4=4 pri4=0 qidv5=1 qidix5=5 pri5=0 qidv6=0 qidix6=6 pri6=0 qidv7=0 qidix7=7 pri7=0   cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=0
+  ldb cq 2   cq_depth=64 gpa=sm hist_list_base=0x80  hist_list_limit=0xbf  qidv0=1 qidix0=1 pri0=0  qidv1=1 qidix1=2 pri1=0 qidv2=1 qidix2=3 pri2=0 qidv3=1 qidix3=4 pri3=0 qidv4=1 qidix4=5 pri4=0 qidv5=1 qidix5=0 pri5=0 qidv6=0 qidix6=6 pri6=0 qidv7=0 qidix7=7 pri7=0  cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=0
+  ldb cq 3   cq_depth=64 gpa=sm hist_list_base=0xc0  hist_list_limit=0xff  qidv0=1 qidix0=2 pri0=0  qidv1=1 qidix1=3 pri1=0 qidv2=1 qidix2=4 pri2=0 qidv3=1 qidix3=5 pri3=0 qidv4=1 qidix4=0 pri4=0 qidv5=1 qidix5=1 pri5=0 qidv6=0 qidix6=6 pri6=0 qidv7=0 qidix7=7 pri7=0  cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=0
+  ldb cq 4   cq_depth=64 gpa=sm hist_list_base=0x100 hist_list_limit=0x13f qidv0=1 qidix0=3 pri0=0  qidv1=1 qidix1=4 pri1=0 qidv2=1 qidix2=5 pri2=0 qidv3=1 qidix3=0 pri3=0 qidv4=1 qidix4=1 pri4=0 qidv5=1 qidix5=2 pri5=0 qidv6=0 qidix6=6 pri6=0 qidv7=0 qidix7=7 pri7=0  cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=0
+  ldb cq 5   cq_depth=64 gpa=sm hist_list_base=0x140 hist_list_limit=0x17f qidv0=1 qidix0=4 pri0=0  qidv1=1 qidix1=5 pri1=0 qidv2=1 qidix2=0 pri2=0 qidv3=1 qidix3=1 pri3=0 qidv4=1 qidix4=2 pri4=0 qidv5=1 qidix5=3 pri5=0 qidv6=0 qidix6=6 pri6=0 qidv7=0 qidix7=7 pri7=0  cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=0
+  ldb cq 6   cq_depth=64 gpa=sm hist_list_base=0x180 hist_list_limit=0x1bf qidv0=1 qidix0=5 pri0=0  qidv1=1 qidix1=0 pri1=0 qidv2=1 qidix2=1 pri2=0 qidv3=1 qidix3=2 pri3=0 qidv4=1 qidix4=3 pri4=0 qidv5=1 qidix5=4 pri5=0 qidv6=0 qidix6=6 pri6=0 qidv7=0 qidix7=7 pri7=0  cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=0
+  ldb cq 7   cq_depth=64 gpa=sm hist_list_base=0x1c0 hist_list_limit=0x1ff qidv0=0 qidix0=6 pri0=0  qidv1=0 qidix1=1 pri1=0 qidv2=0 qidix2=2 pri2=0 qidv3=0 qidix3=3 pri3=0 qidv4=0 qidix4=4 pri4=0 qidv5=0 qidix5=5 pri5=0 qidv6=0 qidix6=6 pri6=0 qidv7=0 qidix7=7 pri7=0  cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=0
+ 
+ 
+
+cfg_end
+
+##ingress alarm enable
+#wr hqm_system_csr.ingress_alarm_enable 0xffffffff
+#rd hqm_system_csr.ingress_alarm_enable 0x0000003f
+
+
+

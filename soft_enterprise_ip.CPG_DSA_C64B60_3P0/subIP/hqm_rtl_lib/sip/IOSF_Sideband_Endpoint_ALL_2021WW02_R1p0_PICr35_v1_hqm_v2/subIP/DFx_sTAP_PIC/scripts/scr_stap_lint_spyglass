@@ -1,0 +1,28 @@
+#!/bin/csh -f
+
+
+cd $IP_ROOT/scripts
+
+echo "#\!/bin/csh -f" > $IP_ROOT/scripts/ttemp1
+
+
+##foreach i (`grep "sh " run_all_configs | awk '{print $2}' | sed -e 's/\// /g' | awk '{print $NF}'`)
+foreach i (`ls run_config*`)
+    cat $i | awk '/cd /,/ace -cc/' $i  | grep -v ace  >> $IP_ROOT/scripts/ttemp1
+   echo "cd tools/lint/"   >> $IP_ROOT/scripts/ttemp1
+   echo "source README.txt"   >> $IP_ROOT/scripts/ttemp1
+   echo "mv ../../pwa/lint/lintra.rpt lintra.rpt.$i"      >> $IP_ROOT/scripts/ttemp1
+   echo "cd ../../scripts"                 >> $IP_ROOT/scripts/ttemp1
+
+   echo "cd ../tools/spyglass/"   >> $IP_ROOT/scripts/ttemp1
+   ##echo "spyglass -f ./stap.spp"           >> $IP_ROOT/scripts/ttemp1
+   echo "source README.txt"           >> $IP_ROOT/scripts/ttemp1
+   echo "mv SPYGLASS_WDIR/spyglass_reports/moresimple.rpt moresimple.rpt.$i"           >> $IP_ROOT/scripts/ttemp1
+   echo "cd ../../scripts"                 >> $IP_ROOT/scripts/ttemp1
+   echo ""  >> $IP_ROOT/scripts/ttemp1
+end
+
+chmod +x $IP_ROOT/scripts/ttemp1
+
+##cd $IP_ROOT
+##source  $IP_ROOT/scripts/ttemp1

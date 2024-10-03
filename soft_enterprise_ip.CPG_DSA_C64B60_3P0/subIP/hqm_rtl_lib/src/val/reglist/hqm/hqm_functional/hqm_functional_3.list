@@ -1,0 +1,25 @@
+
+.include hqm_core_functional.list
+.include hqm_core_stress.list
+.include hcw_sciov_test_ims_pull_en.list
+.include hqm_agent_cov.list
+
+
+.include hqm_intermediate_reset.list
+
++defaults -simv_args  '"' +hqm_reset_cycle_sequence_stim_config::extend_prim_txns_in_rst=1 +hqm_reset_cycle_sequence_stim_config::avoid_prim_txns_in_flr=0 '"' -simv_args- -dirtag ext_prim_txns
+.include hqm_intermediate_reset.list
+-defaults -simv_args  '"' +hqm_reset_cycle_sequence_stim_config::extend_prim_txns_in_rst=1 +hqm_reset_cycle_sequence_stim_config::avoid_prim_txns_in_flr=0 '"' -simv_args- -dirtag ext_prim_txns
+
+## include list which can not run with Background cfg 
++defaults -simv_args  '"' +HQM_DISABLE_BACKGROUND_CFG_GEN_SEQ '"' -simv_args-
+.include hqm_agent_reset.list
+-defaults -simv_args  '"' +HQM_DISABLE_BACKGROUND_CFG_GEN_SEQ '"' -simv_args-
+
++defaults -simv_args  '"' +HQM_DISABLE_BACKGROUND_CFG_GEN_SEQ +HQM_SKIP_AGITATE_SEQ +HQM_NO_PRE_FLUSH_PHASE +HQM_SKIP_HCW_WR_RDY_AGITATE +HQM_DISABLE_PROCHOT_DRIVE +HQM_DIS_PRIM_ISM_DLY_OVERRIDE '"' -simv_args-
+.include hqm_taprtdr_hwrstfrpwr_test.list
+.include hqm_pfvf_space_accsample.list 
+-defaults -simv_args  '"' +HQM_DISABLE_BACKGROUND_CFG_GEN_SEQ +HQM_SKIP_AGITATE_SEQ +HQM_NO_PRE_FLUSH_PHASE +HQM_SKIP_HCW_WR_RDY_AGITATE +HQM_DISABLE_PROCHOT_DRIVE +HQM_DIS_PRIM_ISM_DLY_OVERRIDE '"' -simv_args-
+
+
+

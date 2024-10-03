@@ -1,0 +1,3112 @@
+// File created on : Wednesday, November 12, 2014 4:39:13 PM
+// Chassis TAP Tool version: 0.7.6.0
+//-----------------------------------------------------------------
+<%
+sub DWORD_per_offset {
+  $hex_str = shift;
+  $hex_str = "0x" . $hex_str;
+  $int_val = hex $hex_str;
+  return $int_val*4;
+}
+%>
+
+`include "tap_udp.rdl"
+
+addrmap SBR_TAP_def {
+  TapIpName = "instance_name";
+  TapInstName = "SBR_TAP";
+  TapSlvIdNum = 1;
+  TapModuleName = "slave_tap";
+  TapMiscUserText = "";
+  TapPowerName = "soc_core_well";
+  TapSlvIdPowerNum = 0;
+  TapRegionName = "soc_region";
+  TapSlvIdRegionNum = 0;
+  TapIsBoundaryScan = false;
+  TapIsRmtDrBussed = false;
+  TapIsRemovable = false;
+  TapPowerGoodSignal = "fdfx_powergood";
+  TapIsIntDrPrgReset = false;
+  TapIsRmtDrPrgReset = false;
+  TapIrCaptureValue = 8'h1;
+  TapTckParkValue = 0;
+  TapVersion = 0;
+  TapSecurityLevel = "SECURE_RED";
+  TapIsTertiaryPort = false;
+  TapTertiaryPortName = "";
+  TapSlvIdCodeInfo = 0;
+  TapSlvIdCodeSignal = "ftap_slvidcode";
+  TapSlvIdCodeValue = 32'h00000003;
+  TapSlvIdCodeOpcode = 8'hC;
+  TapNetworkMasterID = 0;
+  TapIdCodeValue = 32'h00000001;
+  TapNumWtaps = 0;
+  WtapIsPosTck = false;
+  WtapIsInSeries = false;
+  WtapWithSlvIdCode = false;
+  TapExiAgentNum = 0;
+  TapIsParent = false;
+  TapRmtDrSignalPrefix = "";
+  TapRtlPath = "";
+  TapNetworkID = 64'h1;
+  ChopID = "";
+
+
+      reg TAP_IR {
+        name = "TAP IR";
+        desc = "The TAP IR Opcodes";
+        TapTotalNumRegBits = 8;
+        TapShiftRegLength = 8;
+        regwidth = 8;
+        TapPriSignal = "";
+        TapShadowSignal = "";
+        TapUseSignalID = false;
+        field {
+            name = "TAP_IR";
+            desc = "Supported OpCodes
+                    [br] 8'hC: SLVIDCODE [br] This opcode enables the slave ID code capture register.
+                    [br] 8'h40: dfx_accum_sb_np_0 [br] 
+                    [br] 8'h41: dfx_accum_sb_pc_0 [br] 
+                    [br] 8'h42: dfx_accum_sb_np_1 [br] 
+                    [br] 8'h43: dfx_accum_sb_pc_1 [br] 
+                    [br] 8'h44: dfx_accum_sb_np_2 [br] 
+                    [br] 8'h45: dfx_accum_sb_pc_2 [br] 
+                    [br] 8'h46: dfx_accum_sb_np_3 [br] 
+                    [br] 8'h47: dfx_accum_sb_pc_3 [br] 
+                    [br] 8'h48: dfx_accum_sb_np_4 [br] 
+                    [br] 8'h49: dfx_accum_sb_pc_4 [br] 
+                    [br] 8'h4A: dfx_accum_sb_np_5 [br] 
+                    [br] 8'h4B: dfx_accum_sb_pc_5 [br] 
+                    [br] 8'h4C: dfx_accum_sb_np_6 [br] 
+                    [br] 8'h4D: dfx_accum_sb_pc_6 [br] 
+                    [br] 8'h4E: dfx_accum_sb_np_7 [br] 
+                    [br] 8'h4F: dfx_accum_sb_pc_7 [br] 
+                    [br] 8'h50: dfx_accum_sb_np_8 [br] 
+                    [br] 8'h51: dfx_accum_sb_pc_8 [br] 
+                    [br] 8'h52: dfx_accum_sb_np_9 [br] 
+                    [br] 8'h53: dfx_accum_sb_pc_9 [br] 
+                    [br] 8'h54: dfx_accum_sb_np_10 [br] 
+                    [br] 8'h55: dfx_accum_sb_pc_10 [br] 
+                    [br] 8'h56: dfx_accum_sb_np_11 [br] 
+                    [br] 8'h57: dfx_accum_sb_pc_11 [br] 
+                    [br] 8'h58: dfx_accum_sb_np_12 [br] 
+                    [br] 8'h59: dfx_accum_sb_pc_12 [br] 
+                    [br] 8'h5A: dfx_accum_sb_np_13 [br] 
+                    [br] 8'h5B: dfx_accum_sb_pc_13 [br] 
+                    [br] 8'h5C: dfx_accum_sb_np_14 [br] 
+                    [br] 8'h5D: dfx_accum_sb_pc_14 [br] 
+                    [br] 8'h5E: dfx_accum_sb_np_15 [br] 
+                    [br] 8'h5F: dfx_accum_sb_pc_15 [br] 
+                    [br] 8'hFF: BYPASS [br] This opcode 8selects the IEEE1149.1 spec defined 1-bit bypass register
+            ";
+            AccessType = "RW";
+        } TAP_IR [7:0] = 8'hC;
+      };    //end of reg TAP_IR 
+
+
+
+        reg BYPASS_DR_DR {
+          name = "BYPASS_DR";
+          desc = "";
+          TapTotalNumRegBits = 1;
+          TapShiftRegLength = 1;
+          TapOpcodeSecurityLevel = "SECURE_GREEN";
+          TapOpcodeEngageType = "update_dr";
+          TapRegResetType = "PWRGOOD";
+          TapShadowSleepState = "";
+          TapShadowRestoreState = "";
+          TapIsDrRemote = false;
+          regwidth = 8;
+          TapDrIsBypass = true;
+          TapDrIsFixedSize = true;
+          ChopID = "";
+          TapPriSignal = "";
+          TapShadowSignal = "";
+          TapRcvrSignal = "";
+          TapUseSignalID = false;
+          TapDrImplStatus = "";
+
+
+          field {
+              name = "DR";
+              desc = "A one bit register used to bypass this TAP in a series stitched topology.
+              ";
+              AccessType = "RO";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } DR [0:0] = 1'h0;
+        };  // end of reg BYPASS_DR
+
+
+        reg SLVIDCODE_DR {
+          name = "SLVIDCODE";
+          desc = "";
+          TapTotalNumRegBits = 32;
+          TapShiftRegLength = 32;
+          TapOpcodeSecurityLevel = "SECURE_GREEN";
+          TapOpcodeEngageType = "update_dr";
+          TapRegResetType = "PWRGOOD, TRST, TLR";
+          TapShadowSleepState = "";
+          TapShadowRestoreState = "";
+          TapIsDrRemote = false;
+          regwidth = 32;
+          TapDrIsBypass = false;
+          TapDrIsFixedSize = true;
+          ChopID = "";
+          TapPriSignal = "i_stap_drreg.slvidcode_reg";
+          TapShadowSignal = "";
+          TapRcvrSignal = "";
+          TapUseSignalID = false;
+          TapDrImplStatus = "";
+
+
+          field {
+              name = "value";
+              desc = "Slave ID code for this TAP.
+              ";
+              AccessType = "RO";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } value [31:0] = 32'h00000003;
+        };  // end of reg SLVIDCODE
+
+
+        reg dfx_accum_sb_np_0_DR {
+          name = "dfx_accum_sb_np_0";
+          desc = "";
+          TapTotalNumRegBits = 19;
+          TapShiftRegLength = 19;
+          TapOpcodeSecurityLevel = "SECURE_RED";
+          TapOpcodeEngageType = "update_dr";
+          TapRegResetType = "PWRGOOD";
+          TapShadowSleepState = "";
+          TapShadowRestoreState = "";
+          TapIsDrRemote = false;
+          regwidth = 32;
+          TapDrIsBypass = false;
+          TapDrIsFixedSize = true;
+          ChopID = "";
+          TapPriSignal = "";
+          TapShadowSignal = "";
+          TapRcvrSignal = "";
+          TapUseSignalID = false;
+          TapDrImplStatus = "";
+
+
+          field {
+              name = "np_func_ov";
+              desc = "when set to 1, will enable the accumulation every cycle
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_func_ov [18:18] = 1'h0;
+          field {
+              name = "np_enable";
+              desc = "non posted interface accumulator enable
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_enable [17:17] = 1'h0;
+          field {
+              name = "np_reset";
+              desc = "non posted interface accumulator reset
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_reset [16:16] = 1'h0;
+          field {
+              name = "np_sum";
+              desc = "non posted interface accumulator sum
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_sum [15:0] = 16'h0;
+        };  // end of reg dfx_accum_sb_np_0
+
+
+        reg dfx_accum_sb_pc_0_DR {
+          name = "dfx_accum_sb_pc_0";
+          desc = "";
+          TapTotalNumRegBits = 0;
+          TapShiftRegLength = 19;
+          TapOpcodeSecurityLevel = "SECURE_RED";
+          TapOpcodeEngageType = "update_dr";
+          TapRegResetType = "PWRGOOD";
+          TapShadowSleepState = "";
+          TapShadowRestoreState = "";
+          TapIsDrRemote = false;
+          regwidth = 32;
+          TapDrIsBypass = false;
+          TapDrIsFixedSize = true;
+          ChopID = "";
+          TapPriSignal = "";
+          TapShadowSignal = "";
+          TapRcvrSignal = "";
+          TapUseSignalID = false;
+          TapDrImplStatus = "";
+
+
+          field {
+              name = "pc_func_ov";
+              desc = "when set to 1, will enable the accumulation every cycle
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_func_ov [18:18] = 1'h0;
+          field {
+              name = "pc_enable";
+              desc = "non posted interface accumulator enable
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_enable [17:17] = 1'h0;
+          field {
+              name = "pc_reset";
+              desc = "non posted interface accumulator reset
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_reset [16:16] = 1'h0;
+          field {
+              name = "pc_sum";
+              desc = "non posted interface accumulator sum
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_sum [15:0] = 16'h0;
+        };  // end of reg dfx_accum_sb_pc_0
+
+
+        reg dfx_accum_sb_np_1_DR {
+          name = "dfx_accum_sb_np_1";
+          desc = "";
+          TapTotalNumRegBits = 0;
+          TapShiftRegLength = 19;
+          TapOpcodeSecurityLevel = "SECURE_RED";
+          TapOpcodeEngageType = "update_dr";
+          TapRegResetType = "PWRGOOD";
+          TapShadowSleepState = "";
+          TapShadowRestoreState = "";
+          TapIsDrRemote = false;
+          regwidth = 32;
+          TapDrIsBypass = false;
+          TapDrIsFixedSize = true;
+          ChopID = "";
+          TapPriSignal = "";
+          TapShadowSignal = "";
+          TapRcvrSignal = "";
+          TapUseSignalID = false;
+          TapDrImplStatus = "";
+
+
+          field {
+              name = "np_func_ov";
+              desc = "when set to 1, will enable the accumulation every cycle
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_func_ov [18:18] = 1'h0;
+          field {
+              name = "np_enable";
+              desc = "non posted interface accumulator enable
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_enable [17:17] = 1'h0;
+          field {
+              name = "np_reset";
+              desc = "non posted interface accumulator reset
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_reset [16:16] = 1'h0;
+          field {
+              name = "np_sum";
+              desc = "non posted interface accumulator sum
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_sum [15:0] = 16'h0;
+        };  // end of reg dfx_accum_sb_np_1
+
+
+        reg dfx_accum_sb_pc_1_DR {
+          name = "dfx_accum_sb_pc_1";
+          desc = "";
+          TapTotalNumRegBits = 0;
+          TapShiftRegLength = 19;
+          TapOpcodeSecurityLevel = "SECURE_RED";
+          TapOpcodeEngageType = "update_dr";
+          TapRegResetType = "PWRGOOD";
+          TapShadowSleepState = "";
+          TapShadowRestoreState = "";
+          TapIsDrRemote = false;
+          regwidth = 32;
+          TapDrIsBypass = false;
+          TapDrIsFixedSize = true;
+          ChopID = "";
+          TapPriSignal = "";
+          TapShadowSignal = "";
+          TapRcvrSignal = "";
+          TapUseSignalID = false;
+          TapDrImplStatus = "";
+
+
+          field {
+              name = "pc_func_ov";
+              desc = "when set to 1, will enable the accumulation every cycle
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_func_ov [18:18] = 1'h0;
+          field {
+              name = "pc_enable";
+              desc = "non posted interface accumulator enable
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_enable [17:17] = 1'h0;
+          field {
+              name = "pc_reset";
+              desc = "non posted interface accumulator reset
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_reset [16:16] = 1'h0;
+          field {
+              name = "pc_sum";
+              desc = "non posted interface accumulator sum
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_sum [15:0] = 16'h0;
+        };  // end of reg dfx_accum_sb_pc_1
+
+
+        reg dfx_accum_sb_np_2_DR {
+          name = "dfx_accum_sb_np_2";
+          desc = "";
+          TapTotalNumRegBits = 0;
+          TapShiftRegLength = 19;
+          TapOpcodeSecurityLevel = "SECURE_RED";
+          TapOpcodeEngageType = "update_dr";
+          TapRegResetType = "PWRGOOD";
+          TapShadowSleepState = "";
+          TapShadowRestoreState = "";
+          TapIsDrRemote = false;
+          regwidth = 32;
+          TapDrIsBypass = false;
+          TapDrIsFixedSize = true;
+          ChopID = "";
+          TapPriSignal = "";
+          TapShadowSignal = "";
+          TapRcvrSignal = "";
+          TapUseSignalID = false;
+          TapDrImplStatus = "";
+
+
+          field {
+              name = "np_func_ov";
+              desc = "when set to 1, will enable the accumulation every cycle
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_func_ov [18:18] = 1'h0;
+          field {
+              name = "np_enable";
+              desc = "non posted interface accumulator enable
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_enable [17:17] = 1'h0;
+          field {
+              name = "np_reset";
+              desc = "non posted interface accumulator reset
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_reset [16:16] = 1'h0;
+          field {
+              name = "np_sum";
+              desc = "non posted interface accumulator sum
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_sum [15:0] = 16'h0;
+        };  // end of reg dfx_accum_sb_np_2
+
+
+        reg dfx_accum_sb_pc_2_DR {
+          name = "dfx_accum_sb_pc_2";
+          desc = "";
+          TapTotalNumRegBits = 0;
+          TapShiftRegLength = 19;
+          TapOpcodeSecurityLevel = "SECURE_RED";
+          TapOpcodeEngageType = "update_dr";
+          TapRegResetType = "PWRGOOD";
+          TapShadowSleepState = "";
+          TapShadowRestoreState = "";
+          TapIsDrRemote = false;
+          regwidth = 32;
+          TapDrIsBypass = false;
+          TapDrIsFixedSize = true;
+          ChopID = "";
+          TapPriSignal = "";
+          TapShadowSignal = "";
+          TapRcvrSignal = "";
+          TapUseSignalID = false;
+          TapDrImplStatus = "";
+
+
+          field {
+              name = "pc_func_ov";
+              desc = "when set to 1, will enable the accumulation every cycle
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_func_ov [18:18] = 1'h0;
+          field {
+              name = "pc_enable";
+              desc = "non posted interface accumulator enable
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_enable [17:17] = 1'h0;
+          field {
+              name = "pc_reset";
+              desc = "non posted interface accumulator reset
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_reset [16:16] = 1'h0;
+          field {
+              name = "pc_sum";
+              desc = "non posted interface accumulator sum
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_sum [15:0] = 16'h0;
+        };  // end of reg dfx_accum_sb_pc_2
+
+
+        reg dfx_accum_sb_np_3_DR {
+          name = "dfx_accum_sb_np_3";
+          desc = "";
+          TapTotalNumRegBits = 0;
+          TapShiftRegLength = 19;
+          TapOpcodeSecurityLevel = "SECURE_RED";
+          TapOpcodeEngageType = "update_dr";
+          TapRegResetType = "PWRGOOD";
+          TapShadowSleepState = "";
+          TapShadowRestoreState = "";
+          TapIsDrRemote = false;
+          regwidth = 32;
+          TapDrIsBypass = false;
+          TapDrIsFixedSize = true;
+          ChopID = "";
+          TapPriSignal = "";
+          TapShadowSignal = "";
+          TapRcvrSignal = "";
+          TapUseSignalID = false;
+          TapDrImplStatus = "";
+
+
+          field {
+              name = "np_func_ov";
+              desc = "when set to 1, will enable the accumulation every cycle
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_func_ov [18:18] = 1'h0;
+          field {
+              name = "np_enable";
+              desc = "non posted interface accumulator enable
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_enable [17:17] = 1'h0;
+          field {
+              name = "np_reset";
+              desc = "non posted interface accumulator reset
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_reset [16:16] = 1'h0;
+          field {
+              name = "np_sum";
+              desc = "non posted interface accumulator sum
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_sum [15:0] = 16'h0;
+        };  // end of reg dfx_accum_sb_np_3
+
+
+        reg dfx_accum_sb_pc_3_DR {
+          name = "dfx_accum_sb_pc_3";
+          desc = "";
+          TapTotalNumRegBits = 0;
+          TapShiftRegLength = 19;
+          TapOpcodeSecurityLevel = "SECURE_RED";
+          TapOpcodeEngageType = "update_dr";
+          TapRegResetType = "PWRGOOD";
+          TapShadowSleepState = "";
+          TapShadowRestoreState = "";
+          TapIsDrRemote = false;
+          regwidth = 32;
+          TapDrIsBypass = false;
+          TapDrIsFixedSize = true;
+          ChopID = "";
+          TapPriSignal = "";
+          TapShadowSignal = "";
+          TapRcvrSignal = "";
+          TapUseSignalID = false;
+          TapDrImplStatus = "";
+
+
+          field {
+              name = "pc_func_ov";
+              desc = "when set to 1, will enable the accumulation every cycle
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_func_ov [18:18] = 1'h0;
+          field {
+              name = "pc_enable";
+              desc = "non posted interface accumulator enable
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_enable [17:17] = 1'h0;
+          field {
+              name = "pc_reset";
+              desc = "non posted interface accumulator reset
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_reset [16:16] = 1'h0;
+          field {
+              name = "pc_sum";
+              desc = "non posted interface accumulator sum
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_sum [15:0] = 16'h0;
+        };  // end of reg dfx_accum_sb_pc_3
+
+
+        reg dfx_accum_sb_np_4_DR {
+          name = "dfx_accum_sb_np_4";
+          desc = "";
+          TapTotalNumRegBits = 0;
+          TapShiftRegLength = 19;
+          TapOpcodeSecurityLevel = "SECURE_RED";
+          TapOpcodeEngageType = "update_dr";
+          TapRegResetType = "PWRGOOD";
+          TapShadowSleepState = "";
+          TapShadowRestoreState = "";
+          TapIsDrRemote = false;
+          regwidth = 32;
+          TapDrIsBypass = false;
+          TapDrIsFixedSize = true;
+          ChopID = "";
+          TapPriSignal = "";
+          TapShadowSignal = "";
+          TapRcvrSignal = "";
+          TapUseSignalID = false;
+          TapDrImplStatus = "";
+
+
+          field {
+              name = "np_func_ov";
+              desc = "when set to 1, will enable the accumulation every cycle
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_func_ov [18:18] = 1'h0;
+          field {
+              name = "np_enable";
+              desc = "non posted interface accumulator enable
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_enable [17:17] = 1'h0;
+          field {
+              name = "np_reset";
+              desc = "non posted interface accumulator reset
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_reset [16:16] = 1'h0;
+          field {
+              name = "np_sum";
+              desc = "non posted interface accumulator sum
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_sum [15:0] = 16'h0;
+        };  // end of reg dfx_accum_sb_np_4
+
+
+        reg dfx_accum_sb_pc_4_DR {
+          name = "dfx_accum_sb_pc_4";
+          desc = "";
+          TapTotalNumRegBits = 0;
+          TapShiftRegLength = 19;
+          TapOpcodeSecurityLevel = "SECURE_RED";
+          TapOpcodeEngageType = "update_dr";
+          TapRegResetType = "PWRGOOD";
+          TapShadowSleepState = "";
+          TapShadowRestoreState = "";
+          TapIsDrRemote = false;
+          regwidth = 32;
+          TapDrIsBypass = false;
+          TapDrIsFixedSize = true;
+          ChopID = "";
+          TapPriSignal = "";
+          TapShadowSignal = "";
+          TapRcvrSignal = "";
+          TapUseSignalID = false;
+          TapDrImplStatus = "";
+
+
+          field {
+              name = "pc_func_ov";
+              desc = "when set to 1, will enable the accumulation every cycle
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_func_ov [18:18] = 1'h0;
+          field {
+              name = "pc_enable";
+              desc = "non posted interface accumulator enable
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_enable [17:17] = 1'h0;
+          field {
+              name = "pc_reset";
+              desc = "non posted interface accumulator reset
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_reset [16:16] = 1'h0;
+          field {
+              name = "pc_sum";
+              desc = "non posted interface accumulator sum
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_sum [15:0] = 16'h0;
+        };  // end of reg dfx_accum_sb_pc_4
+
+
+        reg dfx_accum_sb_np_5_DR {
+          name = "dfx_accum_sb_np_5";
+          desc = "";
+          TapTotalNumRegBits = 0;
+          TapShiftRegLength = 19;
+          TapOpcodeSecurityLevel = "SECURE_RED";
+          TapOpcodeEngageType = "update_dr";
+          TapRegResetType = "PWRGOOD";
+          TapShadowSleepState = "";
+          TapShadowRestoreState = "";
+          TapIsDrRemote = false;
+          regwidth = 32;
+          TapDrIsBypass = false;
+          TapDrIsFixedSize = true;
+          ChopID = "";
+          TapPriSignal = "";
+          TapShadowSignal = "";
+          TapRcvrSignal = "";
+          TapUseSignalID = false;
+          TapDrImplStatus = "";
+
+
+          field {
+              name = "np_func_ov";
+              desc = "when set to 1, will enable the accumulation every cycle
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_func_ov [18:18] = 1'h0;
+          field {
+              name = "np_enable";
+              desc = "non posted interface accumulator enable
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_enable [17:17] = 1'h0;
+          field {
+              name = "np_reset";
+              desc = "non posted interface accumulator reset
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_reset [16:16] = 1'h0;
+          field {
+              name = "np_sum";
+              desc = "non posted interface accumulator sum
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_sum [15:0] = 16'h0;
+        };  // end of reg dfx_accum_sb_np_5
+
+
+        reg dfx_accum_sb_pc_5_DR {
+          name = "dfx_accum_sb_pc_5";
+          desc = "";
+          TapTotalNumRegBits = 0;
+          TapShiftRegLength = 19;
+          TapOpcodeSecurityLevel = "SECURE_RED";
+          TapOpcodeEngageType = "update_dr";
+          TapRegResetType = "PWRGOOD";
+          TapShadowSleepState = "";
+          TapShadowRestoreState = "";
+          TapIsDrRemote = false;
+          regwidth = 32;
+          TapDrIsBypass = false;
+          TapDrIsFixedSize = true;
+          ChopID = "";
+          TapPriSignal = "";
+          TapShadowSignal = "";
+          TapRcvrSignal = "";
+          TapUseSignalID = false;
+          TapDrImplStatus = "";
+
+
+          field {
+              name = "pc_func_ov";
+              desc = "when set to 1, will enable the accumulation every cycle
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_func_ov [18:18] = 1'h0;
+          field {
+              name = "pc_enable";
+              desc = "non posted interface accumulator enable
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_enable [17:17] = 1'h0;
+          field {
+              name = "pc_reset";
+              desc = "non posted interface accumulator reset
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_reset [16:16] = 1'h0;
+          field {
+              name = "pc_sum";
+              desc = "non posted interface accumulator sum
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_sum [15:0] = 16'h0;
+        };  // end of reg dfx_accum_sb_pc_5
+
+
+        reg dfx_accum_sb_np_6_DR {
+          name = "dfx_accum_sb_np_6";
+          desc = "";
+          TapTotalNumRegBits = 0;
+          TapShiftRegLength = 19;
+          TapOpcodeSecurityLevel = "SECURE_RED";
+          TapOpcodeEngageType = "update_dr";
+          TapRegResetType = "PWRGOOD";
+          TapShadowSleepState = "";
+          TapShadowRestoreState = "";
+          TapIsDrRemote = false;
+          regwidth = 32;
+          TapDrIsBypass = false;
+          TapDrIsFixedSize = true;
+          ChopID = "";
+          TapPriSignal = "";
+          TapShadowSignal = "";
+          TapRcvrSignal = "";
+          TapUseSignalID = false;
+          TapDrImplStatus = "";
+
+
+          field {
+              name = "np_func_ov";
+              desc = "when set to 1, will enable the accumulation every cycle
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_func_ov [18:18] = 1'h0;
+          field {
+              name = "np_enable";
+              desc = "non posted interface accumulator enable
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_enable [17:17] = 1'h0;
+          field {
+              name = "np_reset";
+              desc = "non posted interface accumulator reset
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_reset [16:16] = 1'h0;
+          field {
+              name = "np_sum";
+              desc = "non posted interface accumulator sum
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_sum [15:0] = 16'h0;
+        };  // end of reg dfx_accum_sb_np_6
+
+
+        reg dfx_accum_sb_pc_6_DR {
+          name = "dfx_accum_sb_pc_6";
+          desc = "";
+          TapTotalNumRegBits = 0;
+          TapShiftRegLength = 19;
+          TapOpcodeSecurityLevel = "SECURE_RED";
+          TapOpcodeEngageType = "update_dr";
+          TapRegResetType = "PWRGOOD";
+          TapShadowSleepState = "";
+          TapShadowRestoreState = "";
+          TapIsDrRemote = false;
+          regwidth = 32;
+          TapDrIsBypass = false;
+          TapDrIsFixedSize = true;
+          ChopID = "";
+          TapPriSignal = "";
+          TapShadowSignal = "";
+          TapRcvrSignal = "";
+          TapUseSignalID = false;
+          TapDrImplStatus = "";
+
+
+          field {
+              name = "pc_func_ov";
+              desc = "when set to 1, will enable the accumulation every cycle
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_func_ov [18:18] = 1'h0;
+          field {
+              name = "pc_enable";
+              desc = "non posted interface accumulator enable
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_enable [17:17] = 1'h0;
+          field {
+              name = "pc_reset";
+              desc = "non posted interface accumulator reset
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_reset [16:16] = 1'h0;
+          field {
+              name = "pc_sum";
+              desc = "non posted interface accumulator sum
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_sum [15:0] = 16'h0;
+        };  // end of reg dfx_accum_sb_pc_6
+
+
+        reg dfx_accum_sb_np_7_DR {
+          name = "dfx_accum_sb_np_7";
+          desc = "";
+          TapTotalNumRegBits = 0;
+          TapShiftRegLength = 19;
+          TapOpcodeSecurityLevel = "SECURE_RED";
+          TapOpcodeEngageType = "update_dr";
+          TapRegResetType = "PWRGOOD";
+          TapShadowSleepState = "";
+          TapShadowRestoreState = "";
+          TapIsDrRemote = false;
+          regwidth = 32;
+          TapDrIsBypass = false;
+          TapDrIsFixedSize = true;
+          ChopID = "";
+          TapPriSignal = "";
+          TapShadowSignal = "";
+          TapRcvrSignal = "";
+          TapUseSignalID = false;
+          TapDrImplStatus = "";
+
+
+          field {
+              name = "np_func_ov";
+              desc = "when set to 1, will enable the accumulation every cycle
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_func_ov [18:18] = 1'h0;
+          field {
+              name = "np_enable";
+              desc = "non posted interface accumulator enable
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_enable [17:17] = 1'h0;
+          field {
+              name = "np_reset";
+              desc = "non posted interface accumulator reset
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_reset [16:16] = 1'h0;
+          field {
+              name = "np_sum";
+              desc = "non posted interface accumulator sum
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_sum [15:0] = 16'h0;
+        };  // end of reg dfx_accum_sb_np_7
+
+
+        reg dfx_accum_sb_pc_7_DR {
+          name = "dfx_accum_sb_pc_7";
+          desc = "";
+          TapTotalNumRegBits = 0;
+          TapShiftRegLength = 19;
+          TapOpcodeSecurityLevel = "SECURE_RED";
+          TapOpcodeEngageType = "update_dr";
+          TapRegResetType = "PWRGOOD";
+          TapShadowSleepState = "";
+          TapShadowRestoreState = "";
+          TapIsDrRemote = false;
+          regwidth = 32;
+          TapDrIsBypass = false;
+          TapDrIsFixedSize = true;
+          ChopID = "";
+          TapPriSignal = "";
+          TapShadowSignal = "";
+          TapRcvrSignal = "";
+          TapUseSignalID = false;
+          TapDrImplStatus = "";
+
+
+          field {
+              name = "pc_func_ov";
+              desc = "when set to 1, will enable the accumulation every cycle
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_func_ov [18:18] = 1'h0;
+          field {
+              name = "pc_enable";
+              desc = "non posted interface accumulator enable
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_enable [17:17] = 1'h0;
+          field {
+              name = "pc_reset";
+              desc = "non posted interface accumulator reset
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_reset [16:16] = 1'h0;
+          field {
+              name = "pc_sum";
+              desc = "non posted interface accumulator sum
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_sum [15:0] = 16'h0;
+        };  // end of reg dfx_accum_sb_pc_7
+
+
+        reg dfx_accum_sb_np_8_DR {
+          name = "dfx_accum_sb_np_8";
+          desc = "";
+          TapTotalNumRegBits = 0;
+          TapShiftRegLength = 19;
+          TapOpcodeSecurityLevel = "SECURE_RED";
+          TapOpcodeEngageType = "update_dr";
+          TapRegResetType = "PWRGOOD";
+          TapShadowSleepState = "";
+          TapShadowRestoreState = "";
+          TapIsDrRemote = false;
+          regwidth = 32;
+          TapDrIsBypass = false;
+          TapDrIsFixedSize = true;
+          ChopID = "";
+          TapPriSignal = "";
+          TapShadowSignal = "";
+          TapRcvrSignal = "";
+          TapUseSignalID = false;
+          TapDrImplStatus = "";
+
+
+          field {
+              name = "np_func_ov";
+              desc = "when set to 1, will enable the accumulation every cycle
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_func_ov [18:18] = 1'h0;
+          field {
+              name = "np_enable";
+              desc = "non posted interface accumulator enable
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_enable [17:17] = 1'h0;
+          field {
+              name = "np_reset";
+              desc = "non posted interface accumulator reset
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_reset [16:16] = 1'h0;
+          field {
+              name = "np_sum";
+              desc = "non posted interface accumulator sum
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_sum [15:0] = 16'h0;
+        };  // end of reg dfx_accum_sb_np_8
+
+
+        reg dfx_accum_sb_pc_8_DR {
+          name = "dfx_accum_sb_pc_8";
+          desc = "";
+          TapTotalNumRegBits = 0;
+          TapShiftRegLength = 19;
+          TapOpcodeSecurityLevel = "SECURE_RED";
+          TapOpcodeEngageType = "update_dr";
+          TapRegResetType = "PWRGOOD";
+          TapShadowSleepState = "";
+          TapShadowRestoreState = "";
+          TapIsDrRemote = false;
+          regwidth = 32;
+          TapDrIsBypass = false;
+          TapDrIsFixedSize = true;
+          ChopID = "";
+          TapPriSignal = "";
+          TapShadowSignal = "";
+          TapRcvrSignal = "";
+          TapUseSignalID = false;
+          TapDrImplStatus = "";
+
+
+          field {
+              name = "pc_func_ov";
+              desc = "when set to 1, will enable the accumulation every cycle
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_func_ov [18:18] = 1'h0;
+          field {
+              name = "pc_enable";
+              desc = "non posted interface accumulator enable
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_enable [17:17] = 1'h0;
+          field {
+              name = "pc_reset";
+              desc = "non posted interface accumulator reset
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_reset [16:16] = 1'h0;
+          field {
+              name = "pc_sum";
+              desc = "non posted interface accumulator sum
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_sum [15:0] = 16'h0;
+        };  // end of reg dfx_accum_sb_pc_8
+
+
+        reg dfx_accum_sb_np_9_DR {
+          name = "dfx_accum_sb_np_9";
+          desc = "";
+          TapTotalNumRegBits = 0;
+          TapShiftRegLength = 19;
+          TapOpcodeSecurityLevel = "SECURE_RED";
+          TapOpcodeEngageType = "update_dr";
+          TapRegResetType = "PWRGOOD";
+          TapShadowSleepState = "";
+          TapShadowRestoreState = "";
+          TapIsDrRemote = false;
+          regwidth = 32;
+          TapDrIsBypass = false;
+          TapDrIsFixedSize = true;
+          ChopID = "";
+          TapPriSignal = "";
+          TapShadowSignal = "";
+          TapRcvrSignal = "";
+          TapUseSignalID = false;
+          TapDrImplStatus = "";
+
+
+          field {
+              name = "np_func_ov";
+              desc = "when set to 1, will enable the accumulation every cycle
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_func_ov [18:18] = 1'h0;
+          field {
+              name = "np_enable";
+              desc = "non posted interface accumulator enable
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_enable [17:17] = 1'h0;
+          field {
+              name = "np_reset";
+              desc = "non posted interface accumulator reset
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_reset [16:16] = 1'h0;
+          field {
+              name = "np_sum";
+              desc = "non posted interface accumulator sum
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_sum [15:0] = 16'h0;
+        };  // end of reg dfx_accum_sb_np_9
+
+
+        reg dfx_accum_sb_pc_9_DR {
+          name = "dfx_accum_sb_pc_9";
+          desc = "";
+          TapTotalNumRegBits = 0;
+          TapShiftRegLength = 19;
+          TapOpcodeSecurityLevel = "SECURE_RED";
+          TapOpcodeEngageType = "update_dr";
+          TapRegResetType = "PWRGOOD";
+          TapShadowSleepState = "";
+          TapShadowRestoreState = "";
+          TapIsDrRemote = false;
+          regwidth = 32;
+          TapDrIsBypass = false;
+          TapDrIsFixedSize = true;
+          ChopID = "";
+          TapPriSignal = "";
+          TapShadowSignal = "";
+          TapRcvrSignal = "";
+          TapUseSignalID = false;
+          TapDrImplStatus = "";
+
+
+          field {
+              name = "pc_func_ov";
+              desc = "when set to 1, will enable the accumulation every cycle
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_func_ov [18:18] = 1'h0;
+          field {
+              name = "pc_enable";
+              desc = "non posted interface accumulator enable
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_enable [17:17] = 1'h0;
+          field {
+              name = "pc_reset";
+              desc = "non posted interface accumulator reset
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_reset [16:16] = 1'h0;
+          field {
+              name = "pc_sum";
+              desc = "non posted interface accumulator sum
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_sum [15:0] = 16'h0;
+        };  // end of reg dfx_accum_sb_pc_9
+
+
+        reg dfx_accum_sb_np_10_DR {
+          name = "dfx_accum_sb_np_10";
+          desc = "";
+          TapTotalNumRegBits = 0;
+          TapShiftRegLength = 19;
+          TapOpcodeSecurityLevel = "SECURE_RED";
+          TapOpcodeEngageType = "update_dr";
+          TapRegResetType = "PWRGOOD";
+          TapShadowSleepState = "";
+          TapShadowRestoreState = "";
+          TapIsDrRemote = false;
+          regwidth = 32;
+          TapDrIsBypass = false;
+          TapDrIsFixedSize = true;
+          ChopID = "";
+          TapPriSignal = "";
+          TapShadowSignal = "";
+          TapRcvrSignal = "";
+          TapUseSignalID = false;
+          TapDrImplStatus = "";
+
+
+          field {
+              name = "np_func_ov";
+              desc = "when set to 1, will enable the accumulation every cycle
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_func_ov [18:18] = 1'h0;
+          field {
+              name = "np_enable";
+              desc = "non posted interface accumulator enable
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_enable [17:17] = 1'h0;
+          field {
+              name = "np_reset";
+              desc = "non posted interface accumulator reset
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_reset [16:16] = 1'h0;
+          field {
+              name = "np_sum";
+              desc = "non posted interface accumulator sum
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_sum [15:0] = 16'h0;
+        };  // end of reg dfx_accum_sb_np_10
+
+
+        reg dfx_accum_sb_pc_10_DR {
+          name = "dfx_accum_sb_pc_10";
+          desc = "";
+          TapTotalNumRegBits = 0;
+          TapShiftRegLength = 19;
+          TapOpcodeSecurityLevel = "SECURE_RED";
+          TapOpcodeEngageType = "update_dr";
+          TapRegResetType = "PWRGOOD";
+          TapShadowSleepState = "";
+          TapShadowRestoreState = "";
+          TapIsDrRemote = false;
+          regwidth = 32;
+          TapDrIsBypass = false;
+          TapDrIsFixedSize = true;
+          ChopID = "";
+          TapPriSignal = "";
+          TapShadowSignal = "";
+          TapRcvrSignal = "";
+          TapUseSignalID = false;
+          TapDrImplStatus = "";
+
+
+          field {
+              name = "pc_func_ov";
+              desc = "when set to 1, will enable the accumulation every cycle
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_func_ov [18:18] = 1'h0;
+          field {
+              name = "pc_enable";
+              desc = "non posted interface accumulator enable
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_enable [17:17] = 1'h0;
+          field {
+              name = "pc_reset";
+              desc = "non posted interface accumulator reset
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_reset [16:16] = 1'h0;
+          field {
+              name = "pc_sum";
+              desc = "non posted interface accumulator sum
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_sum [15:0] = 16'h0;
+        };  // end of reg dfx_accum_sb_pc_10
+
+
+        reg dfx_accum_sb_np_11_DR {
+          name = "dfx_accum_sb_np_11";
+          desc = "";
+          TapTotalNumRegBits = 0;
+          TapShiftRegLength = 19;
+          TapOpcodeSecurityLevel = "SECURE_RED";
+          TapOpcodeEngageType = "update_dr";
+          TapRegResetType = "PWRGOOD";
+          TapShadowSleepState = "";
+          TapShadowRestoreState = "";
+          TapIsDrRemote = false;
+          regwidth = 32;
+          TapDrIsBypass = false;
+          TapDrIsFixedSize = true;
+          ChopID = "";
+          TapPriSignal = "";
+          TapShadowSignal = "";
+          TapRcvrSignal = "";
+          TapUseSignalID = false;
+          TapDrImplStatus = "";
+
+
+          field {
+              name = "np_func_ov";
+              desc = "when set to 1, will enable the accumulation every cycle
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_func_ov [18:18] = 1'h0;
+          field {
+              name = "np_enable";
+              desc = "non posted interface accumulator enable
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_enable [17:17] = 1'h0;
+          field {
+              name = "np_reset";
+              desc = "non posted interface accumulator reset
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_reset [16:16] = 1'h0;
+          field {
+              name = "np_sum";
+              desc = "non posted interface accumulator sum
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_sum [15:0] = 16'h0;
+        };  // end of reg dfx_accum_sb_np_11
+
+
+        reg dfx_accum_sb_pc_11_DR {
+          name = "dfx_accum_sb_pc_11";
+          desc = "";
+          TapTotalNumRegBits = 0;
+          TapShiftRegLength = 19;
+          TapOpcodeSecurityLevel = "SECURE_RED";
+          TapOpcodeEngageType = "update_dr";
+          TapRegResetType = "PWRGOOD";
+          TapShadowSleepState = "";
+          TapShadowRestoreState = "";
+          TapIsDrRemote = false;
+          regwidth = 32;
+          TapDrIsBypass = false;
+          TapDrIsFixedSize = true;
+          ChopID = "";
+          TapPriSignal = "";
+          TapShadowSignal = "";
+          TapRcvrSignal = "";
+          TapUseSignalID = false;
+          TapDrImplStatus = "";
+
+
+          field {
+              name = "pc_func_ov";
+              desc = "when set to 1, will enable the accumulation every cycle
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_func_ov [18:18] = 1'h0;
+          field {
+              name = "pc_enable";
+              desc = "non posted interface accumulator enable
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_enable [17:17] = 1'h0;
+          field {
+              name = "pc_reset";
+              desc = "non posted interface accumulator reset
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_reset [16:16] = 1'h0;
+          field {
+              name = "pc_sum";
+              desc = "non posted interface accumulator sum
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_sum [15:0] = 16'h0;
+        };  // end of reg dfx_accum_sb_pc_11
+
+
+        reg dfx_accum_sb_np_12_DR {
+          name = "dfx_accum_sb_np_12";
+          desc = "";
+          TapTotalNumRegBits = 0;
+          TapShiftRegLength = 19;
+          TapOpcodeSecurityLevel = "SECURE_RED";
+          TapOpcodeEngageType = "update_dr";
+          TapRegResetType = "PWRGOOD";
+          TapShadowSleepState = "";
+          TapShadowRestoreState = "";
+          TapIsDrRemote = false;
+          regwidth = 32;
+          TapDrIsBypass = false;
+          TapDrIsFixedSize = true;
+          ChopID = "";
+          TapPriSignal = "";
+          TapShadowSignal = "";
+          TapRcvrSignal = "";
+          TapUseSignalID = false;
+          TapDrImplStatus = "";
+
+
+          field {
+              name = "np_func_ov";
+              desc = "when set to 1, will enable the accumulation every cycle
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_func_ov [18:18] = 1'h0;
+          field {
+              name = "np_enable";
+              desc = "non posted interface accumulator enable
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_enable [17:17] = 1'h0;
+          field {
+              name = "np_reset";
+              desc = "non posted interface accumulator reset
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_reset [16:16] = 1'h0;
+          field {
+              name = "np_sum";
+              desc = "non posted interface accumulator sum
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_sum [15:0] = 16'h0;
+        };  // end of reg dfx_accum_sb_np_12
+
+
+        reg dfx_accum_sb_pc_12_DR {
+          name = "dfx_accum_sb_pc_12";
+          desc = "";
+          TapTotalNumRegBits = 0;
+          TapShiftRegLength = 19;
+          TapOpcodeSecurityLevel = "SECURE_RED";
+          TapOpcodeEngageType = "update_dr";
+          TapRegResetType = "PWRGOOD";
+          TapShadowSleepState = "";
+          TapShadowRestoreState = "";
+          TapIsDrRemote = false;
+          regwidth = 32;
+          TapDrIsBypass = false;
+          TapDrIsFixedSize = true;
+          ChopID = "";
+          TapPriSignal = "";
+          TapShadowSignal = "";
+          TapRcvrSignal = "";
+          TapUseSignalID = false;
+          TapDrImplStatus = "";
+
+
+          field {
+              name = "pc_func_ov";
+              desc = "when set to 1, will enable the accumulation every cycle
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_func_ov [18:18] = 1'h0;
+          field {
+              name = "pc_enable";
+              desc = "non posted interface accumulator enable
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_enable [17:17] = 1'h0;
+          field {
+              name = "pc_reset";
+              desc = "non posted interface accumulator reset
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_reset [16:16] = 1'h0;
+          field {
+              name = "pc_sum";
+              desc = "non posted interface accumulator sum
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_sum [15:0] = 16'h0;
+        };  // end of reg dfx_accum_sb_pc_12
+
+
+        reg dfx_accum_sb_np_13_DR {
+          name = "dfx_accum_sb_np_13";
+          desc = "";
+          TapTotalNumRegBits = 0;
+          TapShiftRegLength = 19;
+          TapOpcodeSecurityLevel = "SECURE_RED";
+          TapOpcodeEngageType = "update_dr";
+          TapRegResetType = "PWRGOOD";
+          TapShadowSleepState = "";
+          TapShadowRestoreState = "";
+          TapIsDrRemote = false;
+          regwidth = 32;
+          TapDrIsBypass = false;
+          TapDrIsFixedSize = true;
+          ChopID = "";
+          TapPriSignal = "";
+          TapShadowSignal = "";
+          TapRcvrSignal = "";
+          TapUseSignalID = false;
+          TapDrImplStatus = "";
+
+
+          field {
+              name = "np_func_ov";
+              desc = "when set to 1, will enable the accumulation every cycle
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_func_ov [18:18] = 1'h0;
+          field {
+              name = "np_enable";
+              desc = "non posted interface accumulator enable
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_enable [17:17] = 1'h0;
+          field {
+              name = "np_reset";
+              desc = "non posted interface accumulator reset
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_reset [16:16] = 1'h0;
+          field {
+              name = "np_sum";
+              desc = "non posted interface accumulator sum
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_sum [15:0] = 16'h0;
+        };  // end of reg dfx_accum_sb_np_13
+
+
+        reg dfx_accum_sb_pc_13_DR {
+          name = "dfx_accum_sb_pc_13";
+          desc = "";
+          TapTotalNumRegBits = 0;
+          TapShiftRegLength = 19;
+          TapOpcodeSecurityLevel = "SECURE_RED";
+          TapOpcodeEngageType = "update_dr";
+          TapRegResetType = "PWRGOOD";
+          TapShadowSleepState = "";
+          TapShadowRestoreState = "";
+          TapIsDrRemote = false;
+          regwidth = 32;
+          TapDrIsBypass = false;
+          TapDrIsFixedSize = true;
+          ChopID = "";
+          TapPriSignal = "";
+          TapShadowSignal = "";
+          TapRcvrSignal = "";
+          TapUseSignalID = false;
+          TapDrImplStatus = "";
+
+
+          field {
+              name = "pc_func_ov";
+              desc = "when set to 1, will enable the accumulation every cycle
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_func_ov [18:18] = 1'h0;
+          field {
+              name = "pc_enable";
+              desc = "non posted interface accumulator enable
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_enable [17:17] = 1'h0;
+          field {
+              name = "pc_reset";
+              desc = "non posted interface accumulator reset
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_reset [16:16] = 1'h0;
+          field {
+              name = "pc_sum";
+              desc = "non posted interface accumulator sum
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_sum [15:0] = 16'h0;
+        };  // end of reg dfx_accum_sb_pc_13
+
+
+        reg dfx_accum_sb_np_14_DR {
+          name = "dfx_accum_sb_np_14";
+          desc = "";
+          TapTotalNumRegBits = 0;
+          TapShiftRegLength = 19;
+          TapOpcodeSecurityLevel = "SECURE_RED";
+          TapOpcodeEngageType = "update_dr";
+          TapRegResetType = "PWRGOOD";
+          TapShadowSleepState = "";
+          TapShadowRestoreState = "";
+          TapIsDrRemote = false;
+          regwidth = 32;
+          TapDrIsBypass = false;
+          TapDrIsFixedSize = true;
+          ChopID = "";
+          TapPriSignal = "";
+          TapShadowSignal = "";
+          TapRcvrSignal = "";
+          TapUseSignalID = false;
+          TapDrImplStatus = "";
+
+
+          field {
+              name = "np_func_ov";
+              desc = "when set to 1, will enable the accumulation every cycle
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_func_ov [18:18] = 1'h0;
+          field {
+              name = "np_enable";
+              desc = "non posted interface accumulator enable
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_enable [17:17] = 1'h0;
+          field {
+              name = "np_reset";
+              desc = "non posted interface accumulator reset
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_reset [16:16] = 1'h0;
+          field {
+              name = "np_sum";
+              desc = "non posted interface accumulator sum
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_sum [15:0] = 16'h0;
+        };  // end of reg dfx_accum_sb_np_14
+
+
+        reg dfx_accum_sb_pc_14_DR {
+          name = "dfx_accum_sb_pc_14";
+          desc = "";
+          TapTotalNumRegBits = 0;
+          TapShiftRegLength = 19;
+          TapOpcodeSecurityLevel = "SECURE_RED";
+          TapOpcodeEngageType = "update_dr";
+          TapRegResetType = "PWRGOOD";
+          TapShadowSleepState = "";
+          TapShadowRestoreState = "";
+          TapIsDrRemote = false;
+          regwidth = 32;
+          TapDrIsBypass = false;
+          TapDrIsFixedSize = true;
+          ChopID = "";
+          TapPriSignal = "";
+          TapShadowSignal = "";
+          TapRcvrSignal = "";
+          TapUseSignalID = false;
+          TapDrImplStatus = "";
+
+
+          field {
+              name = "pc_func_ov";
+              desc = "when set to 1, will enable the accumulation every cycle
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_func_ov [18:18] = 1'h0;
+          field {
+              name = "pc_enable";
+              desc = "non posted interface accumulator enable
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_enable [17:17] = 1'h0;
+          field {
+              name = "pc_reset";
+              desc = "non posted interface accumulator reset
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_reset [16:16] = 1'h0;
+          field {
+              name = "pc_sum";
+              desc = "non posted interface accumulator sum
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_sum [15:0] = 16'h0;
+        };  // end of reg dfx_accum_sb_pc_14
+
+
+        reg dfx_accum_sb_np_15_DR {
+          name = "dfx_accum_sb_np_15";
+          desc = "";
+          TapTotalNumRegBits = 0;
+          TapShiftRegLength = 19;
+          TapOpcodeSecurityLevel = "SECURE_RED";
+          TapOpcodeEngageType = "update_dr";
+          TapRegResetType = "PWRGOOD";
+          TapShadowSleepState = "";
+          TapShadowRestoreState = "";
+          TapIsDrRemote = false;
+          regwidth = 32;
+          TapDrIsBypass = false;
+          TapDrIsFixedSize = true;
+          ChopID = "";
+          TapPriSignal = "";
+          TapShadowSignal = "";
+          TapRcvrSignal = "";
+          TapUseSignalID = false;
+          TapDrImplStatus = "";
+
+
+          field {
+              name = "np_func_ov";
+              desc = "when set to 1, will enable the accumulation every cycle
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_func_ov [18:18] = 1'h0;
+          field {
+              name = "np_enable";
+              desc = "non posted interface accumulator enable
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_enable [17:17] = 1'h0;
+          field {
+              name = "np_reset";
+              desc = "non posted interface accumulator reset
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_reset [16:16] = 1'h0;
+          field {
+              name = "np_sum";
+              desc = "non posted interface accumulator sum
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } np_sum [15:0] = 16'h0;
+        };  // end of reg dfx_accum_sb_np_15
+
+
+        reg dfx_accum_sb_pc_15_DR {
+          name = "dfx_accum_sb_pc_15";
+          desc = "";
+          TapTotalNumRegBits = 0;
+          TapShiftRegLength = 19;
+          TapOpcodeSecurityLevel = "SECURE_RED";
+          TapOpcodeEngageType = "update_dr";
+          TapRegResetType = "PWRGOOD";
+          TapShadowSleepState = "";
+          TapShadowRestoreState = "";
+          TapIsDrRemote = false;
+          regwidth = 32;
+          TapDrIsBypass = false;
+          TapDrIsFixedSize = true;
+          ChopID = "";
+          TapPriSignal = "";
+          TapShadowSignal = "";
+          TapRcvrSignal = "";
+          TapUseSignalID = false;
+          TapDrImplStatus = "";
+
+
+          field {
+              name = "pc_func_ov";
+              desc = "when set to 1, will enable the accumulation every cycle
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_func_ov [18:18] = 1'h0;
+          field {
+              name = "pc_enable";
+              desc = "non posted interface accumulator enable
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_enable [17:17] = 1'h0;
+          field {
+              name = "pc_reset";
+              desc = "non posted interface accumulator reset
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_reset [16:16] = 1'h0;
+          field {
+              name = "pc_sum";
+              desc = "non posted interface accumulator sum
+              ";
+              AccessType = "RW";
+              TapFieldSliceID = "";
+              TapFieldIsVarSize = false;
+              TapWrEnField = "";
+              TapWrEnPolarity = 1;
+              TapFieldIsNoInit = false;
+              TapPriSignal = "";
+              TapShadowSignal = "";
+              TapRcvrSignal = "";
+              TapUseSignalID = false;
+              ChopID = "";
+          } pc_sum [15:0] = 16'h0;
+        };  // end of reg dfx_accum_sb_pc_15
+
+
+        // Register Map
+
+          TAP_IR  TAP_IR;
+          SLVIDCODE_DR               SLVIDCODE;
+          SLVIDCODE->                RegOpcode = 0x0C;
+          dfx_accum_sb_np_0_DR       dfx_accum_sb_np_0;
+          dfx_accum_sb_np_0->        RegOpcode = 0x40;
+          dfx_accum_sb_pc_0_DR       dfx_accum_sb_pc_0;
+          dfx_accum_sb_pc_0->        RegOpcode = 0x41;
+          dfx_accum_sb_np_1_DR       dfx_accum_sb_np_1;
+          dfx_accum_sb_np_1->        RegOpcode = 0x42;
+          dfx_accum_sb_pc_1_DR       dfx_accum_sb_pc_1;
+          dfx_accum_sb_pc_1->        RegOpcode = 0x43;
+          dfx_accum_sb_np_2_DR       dfx_accum_sb_np_2;
+          dfx_accum_sb_np_2->        RegOpcode = 0x44;
+          dfx_accum_sb_pc_2_DR       dfx_accum_sb_pc_2;
+          dfx_accum_sb_pc_2->        RegOpcode = 0x45;
+          dfx_accum_sb_np_3_DR       dfx_accum_sb_np_3;
+          dfx_accum_sb_np_3->        RegOpcode = 0x46;
+          dfx_accum_sb_pc_3_DR       dfx_accum_sb_pc_3;
+          dfx_accum_sb_pc_3->        RegOpcode = 0x47;
+          dfx_accum_sb_np_4_DR       dfx_accum_sb_np_4;
+          dfx_accum_sb_np_4->        RegOpcode = 0x48;
+          dfx_accum_sb_pc_4_DR       dfx_accum_sb_pc_4;
+          dfx_accum_sb_pc_4->        RegOpcode = 0x49;
+          dfx_accum_sb_np_5_DR       dfx_accum_sb_np_5;
+          dfx_accum_sb_np_5->        RegOpcode = 0x4A;
+          dfx_accum_sb_pc_5_DR       dfx_accum_sb_pc_5;
+          dfx_accum_sb_pc_5->        RegOpcode = 0x4B;
+          dfx_accum_sb_np_6_DR       dfx_accum_sb_np_6;
+          dfx_accum_sb_np_6->        RegOpcode = 0x4C;
+          dfx_accum_sb_pc_6_DR       dfx_accum_sb_pc_6;
+          dfx_accum_sb_pc_6->        RegOpcode = 0x4D;
+          dfx_accum_sb_np_7_DR       dfx_accum_sb_np_7;
+          dfx_accum_sb_np_7->        RegOpcode = 0x4E;
+          dfx_accum_sb_pc_7_DR       dfx_accum_sb_pc_7;
+          dfx_accum_sb_pc_7->        RegOpcode = 0x4F;
+          dfx_accum_sb_np_8_DR       dfx_accum_sb_np_8;
+          dfx_accum_sb_np_8->        RegOpcode = 0x50;
+          dfx_accum_sb_pc_8_DR       dfx_accum_sb_pc_8;
+          dfx_accum_sb_pc_8->        RegOpcode = 0x51;
+          dfx_accum_sb_np_9_DR       dfx_accum_sb_np_9;
+          dfx_accum_sb_np_9->        RegOpcode = 0x52;
+          dfx_accum_sb_pc_9_DR       dfx_accum_sb_pc_9;
+          dfx_accum_sb_pc_9->        RegOpcode = 0x53;
+          dfx_accum_sb_np_10_DR      dfx_accum_sb_np_10;
+          dfx_accum_sb_np_10->       RegOpcode = 0x54;
+          dfx_accum_sb_pc_10_DR      dfx_accum_sb_pc_10;
+          dfx_accum_sb_pc_10->       RegOpcode = 0x55;
+          dfx_accum_sb_np_11_DR      dfx_accum_sb_np_11;
+          dfx_accum_sb_np_11->       RegOpcode = 0x56;
+          dfx_accum_sb_pc_11_DR      dfx_accum_sb_pc_11;
+          dfx_accum_sb_pc_11->       RegOpcode = 0x57;
+          dfx_accum_sb_np_12_DR      dfx_accum_sb_np_12;
+          dfx_accum_sb_np_12->       RegOpcode = 0x58;
+          dfx_accum_sb_pc_12_DR      dfx_accum_sb_pc_12;
+          dfx_accum_sb_pc_12->       RegOpcode = 0x59;
+          dfx_accum_sb_np_13_DR      dfx_accum_sb_np_13;
+          dfx_accum_sb_np_13->       RegOpcode = 0x5A;
+          dfx_accum_sb_pc_13_DR      dfx_accum_sb_pc_13;
+          dfx_accum_sb_pc_13->       RegOpcode = 0x5B;
+          dfx_accum_sb_np_14_DR      dfx_accum_sb_np_14;
+          dfx_accum_sb_np_14->       RegOpcode = 0x5C;
+          dfx_accum_sb_pc_14_DR      dfx_accum_sb_pc_14;
+          dfx_accum_sb_pc_14->       RegOpcode = 0x5D;
+          dfx_accum_sb_np_15_DR      dfx_accum_sb_np_15;
+          dfx_accum_sb_np_15->       RegOpcode = 0x5E;
+          dfx_accum_sb_pc_15_DR      dfx_accum_sb_pc_15;
+          dfx_accum_sb_pc_15->       RegOpcode = 0x5F;
+          BYPASS_DR_DR               BYPASS;
+          BYPASS->                   RegOpcode = 0xFF;
+
+
+// TAP network information.
+};   //end of addmap SBR_TAP_top

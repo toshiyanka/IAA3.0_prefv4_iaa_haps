@@ -1,0 +1,100 @@
+//------------------------------------------------------------------------------
+//
+//  -- Intel Proprietary
+//  -- Copyright (C) 2015 Intel Corporation
+//  -- All Rights Reserved
+//
+//  INTEL CONFIDENTIAL
+//
+//  Copyright 2009-2021 Intel Corporation All Rights Reserved.
+//
+//  The source code contained or described herein and all documents related
+//  to the source code (Material) are owned by Intel Corporation or its
+//  suppliers or licensors. Title to the Material remains with Intel
+//  Corporation or its suppliers and licensors. The Material contains trade
+//  secrets and proprietary and confidential information of Intel or its
+//  suppliers and licensors. The Material is protected by worldwide copyright
+//  and trade secret laws and treaty provisions. No part of the Material may
+//  be used, copied, reproduced, modified, published, uploaded, posted,
+//  transmitted, distributed, or disclosed in any way without Intel's prior
+//  express written permission.
+//
+//  No license under any patent, copyright, trade secret or other intellectual
+//  property right is granted to or conferred upon you by disclosure or
+//  delivery of the Materials, either expressly, by implication, inducement,
+//  estoppel or otherwise. Any license under such intellectual property rights
+//  must be express and approved by Intel in writing.
+//
+//------------------------------------------------------------------------------
+//
+//  Collateral Description:
+//  IOSF - Sideband Channel IP
+//
+//  Source organization:
+//  SEG / SIP / IOSF IP Engineering
+//
+//  Support Information:
+//  WEB: http://moss.amr.ith.intel.com/sites/SoftIP/Shared%20Documents/Forms/AllItems.aspx
+//  HSD: https://vthsd.fm.intel.com/hsd/seg_softip/default.aspx
+//
+//  Revision:
+//  2021WW02_PICr35
+//
+//  Module sbcglobal : The global include file for SB collateral
+//
+//------------------------------------------------------------------------------
+
+// PCR 58001 & 58002 - Increase the ingress queue depths - START
+// 5 credit counter ingress queue depth maximum and constant
+// egress credit counter width.
+localparam SBCMAXCREDITCOUNTBIT = 4;
+
+localparam EXPCOMPCOUNTBIT = 4;
+
+// 4 credit counter bits means that you can count from 0 to 31, which means
+// that the maximum ingress and egress queue depth is 31
+localparam SBCMAXQUEUEDEPTH = 31;
+// PCR 58001 & 58002 - Increase the ingress queue depths - FINISH
+
+// SBC OP_CODE definitions (from PBC SBC chap)
+localparam [7:0] SBCOP_REGACC_MRD  =   8'b00000000;   // 8'h00
+localparam [7:0] SBCOP_REGACC_MWR  =   8'b00000001;   // 8'h01
+localparam [7:0] SBCOP_REGACC_IORD =   8'b00000010;   // 8'h02
+localparam [7:0] SBCOP_REGACC_IOWR =   8'b00000011;   // 8'h03
+localparam [7:0] SBCOP_REGACC_CFGRD=   8'b00000100;   // 8'h04
+localparam [7:0] SBCOP_REGACC_CFGWR=   8'b00000101;   // 8'h05
+localparam [7:0] SBCOP_REGACC_CRRD =   8'b00000110;   // 8'h06
+localparam [7:0] SBCOP_REGACC_CRWR =   8'b00000111;   // 8'h07
+
+localparam [7:0] SBCOP_CMP         =   8'b00100000;   // 8'h20
+localparam [7:0] SBCOP_CMPD        =   8'b00100001;   // 8'h21
+
+// PCR 12042104 - Unique Extended Headers - START
+localparam [6:0] EHOP_SAIRS = 7'b0000000; // 7'h00
+
+localparam NUM_UNIQUE_HEADERS = 0;
+localparam EHVB_SAIRS         = 0;
+// PCR 12042104 - Unique Extended Headers - FINISH
+
+// Clock gating ISMs           
+localparam [2:0]  ISM_AGENT_IDLE       = 3'b000;
+localparam [2:0]  ISM_AGENT_IDLEREQ    = 3'b001;
+localparam [2:0]  ISM_AGENT_ACTIVE     = 3'b011;
+localparam [2:0]  ISM_AGENT_ACTIVEREQ  = 3'b010;
+localparam [2:0]  ISM_AGENT_CREDITREQ  = 3'b100;
+localparam [2:0]  ISM_AGENT_CREDITINIT = 3'b101;
+localparam [2:0]  ISM_AGENT_CREDITDONE = 3'b110;
+localparam [2:0]  ISM_AGENT_RSV7       = 3'b111;
+
+localparam [2:0]  ISM_FABRIC_IDLE      = 3'b000;
+localparam [2:0]  ISM_FABRIC_IDLENAK   = 3'b001;
+localparam [2:0]  ISM_FABRIC_ACTIVE    = 3'b011;
+localparam [2:0]  ISM_FABRIC_ACTIVEREQ = 3'b010;
+localparam [2:0]  ISM_FABRIC_CREDITREQ = 3'b100;
+localparam [2:0]  ISM_FABRIC_CREDITACK = 3'b110;
+localparam [2:0]  ISM_FABRIC_CREDITINIT= 3'b101;
+localparam [2:0]  ISM_FABRIC_RSV7      = 3'b111;
+
+localparam [1:0] CI_SM_IDLE = 2'b00;
+localparam [1:0] CI_SM_HOLD = 2'b01;
+localparam [1:0] CI_SM_DONE = 2'b10;

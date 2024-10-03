@@ -1,0 +1,24 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => [
+            "+AW_CONTINUE_ON_ERROR", "+iosf_tracker_filename=iosf_trk", "-assert nopostproc", "+HQMS_DEBUG", "+HQMI_DEBUG", "+vcs+lic+wait", "+SLA_FLUSH_PHASE_TIMEOUT=400000",
+            ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+      pf   => {  
+          -simv_args => ["+func_no=0",],   
+          },
+      smoke => {
+          -simv_args => ["+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_cfg_smoke.cft",],
+      },
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

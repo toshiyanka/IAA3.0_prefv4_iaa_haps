@@ -1,0 +1,47 @@
+
+cfg_begin
+
+    rndcfg num_ldb_pool=1  max_num_pp_per_ldb_pool=8  max_num_pkt_per_pool=90   min_num_pkt_per_pool=10
+    rndcfg num_dir_pool=0
+    rndcfg pool_l0_num_pp=4 pool_l0_num_cq=2
+    rndcfg pool_l0_freelist_limit=0x3fff pool_l0_freelist_base=0x0 pool_l0_credit_cnt=0x3800 pool_l0_credit_limit=0x4000
+
+    rndcfg pool_l0_weight=20 pool_l0_num_pkt=32 
+
+    rndcfg pool_l0_pp_0_pp_id=0 pool_l0_pp_0_address=0x80000000 
+    rndcfg pool_l0_pp_1_pp_id=1 pool_l0_pp_1_address=0x80010000
+    rndcfg pool_l0_pp_2_pp_id=2 pool_l0_pp_2_address=0x80020000
+    rndcfg pool_l0_pp_3_pp_id=3 pool_l0_pp_3_address=0x80030000
+
+    rndcfg pool_l0_pp_0_credit_hwm=256 pool_l0_pp_0_credit_lwm=64 pool_l0_pp_0_credit=0x100 pool_l0_pp_0_ldb_min_crdt_quanta=64
+    rndcfg pool_l0_pp_1_credit_hwm=256 pool_l0_pp_1_credit_lwm=64 pool_l0_pp_1_credit=0x100 pool_l0_pp_1_ldb_min_crdt_quanta=64
+    rndcfg pool_l0_pp_2_credit_hwm=256 pool_l0_pp_2_credit_lwm=64 pool_l0_pp_2_credit=0x100 pool_l0_pp_2_ldb_min_crdt_quanta=64
+    rndcfg pool_l0_pp_3_credit_hwm=256 pool_l0_pp_3_credit_lwm=64 pool_l0_pp_3_credit=0x100 pool_l0_pp_3_ldb_min_crdt_quanta=64
+
+    rndcfg pool_l0_pp_0_num_pkt=20 pool_l0_pp_0_weight=30
+    rndcfg pool_l0_pp_1_num_pkt=5  pool_l0_pp_1_weight=10
+    rndcfg pool_l0_pp_2_num_pkt=5  pool_l0_pp_2_weight=10
+
+    rndcfg pool_l0_num_qid=1
+    rndcfg pool_l0_qid_0_qid_id=6  pool_l0_qid_0_inflight_limit=512
+
+    rndcfg pool_l0_cq_0_cq_id=8 pool_l0_cq_0_address=0x80280000  pool_l0_cq_0_depth=4  # pool_l0_cq_0_hist_list_base=0x000 pool_l0_cq_0_hist_list_limit=0x1ff
+    rndcfg pool_l0_cq_1_cq_id=9 pool_l0_cq_1_address=0x80290000  pool_l0_cq_0_depth=4  # pool_l0_cq_0_hist_list_base=0x200 pool_l0_cq_0_hist_list_limit=0x3ff
+
+cfg_end
+
+runtst sys_init=pool
+idle 400
+
+rd hqm_pf_cfg_i.vendor_id
+
+HCW LDB:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=6 dsi=0x302
+HCW LDB:1 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=6 dsi=0x302
+HCW LDB:2 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=6 dsi=0x302
+HCW LDB:3 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=6 dsi=0x302
+
+rd hqm_pf_cfg_i.device_id
+
+runtst go=1
+
+

@@ -1,0 +1,136 @@
+
+   1. The files in this Folder are ONLY for HDK
+   2. Key comments about HDK.
+        - HDK stands forHardwareDesignKit. It is a Kit of tools on FrontEnd and BackEnd
+        - 'simbuild' is a flow manager for FrontEnd tools.  'simbuild' usage is optional.
+        - 'febe' is a flow manager for BackEnd tools.
+        - HDK setup files:
+                a. cfg/ToolData.pm - common HDK tools setup file (do not EDIT) 
+                b. cfg/LocalToolData.pm  - local HDK tool override 
+                c. cfg/sbr.cfg, common.cfg, ace/sbr.cfg and ace/common.cfg - DUT configuration file 
+                d. cfg/ip_release.smap - default command settings for FEBE' flow 'ip_release'
+                e. cfg/ace/templates/common.env.template - template that creates souce script in target/sbr/cnl/aceroot/ace/sbr.env
+                f. cfg/custom_post.cnl.setup.DiffCopy - copied scripts/custom_post.cnl.setup for common.env.template to track any changes. 
+                g. cfg/custom_pre.cnl.setup.DiffCopy - copied scripts/custom_pre.cnl.setup for common.env.template to track any changes. 
+
+   3. Deployed usage-case.
+        - ensure correct group permissions for target technology, e.g.
+          % wash -n intelall users soc socenv coe73 dk1273 coeenv soc73 soc73proc dk10nm hdk10nm hdk10nmproc siphdk fabric hdk22nm hdk22nmproc
+        - source hdk.rc
+          % source /p/hdk/rtl/hdk.rc -cfg sip -reentrant
+          % setenv MODEL_ROOT $cwd
+        - run lintra_build and lintra_elab (<CUST> could be, for instance LKF1B/p1273/p1274/p1222)
+          % febe -dut sbr -1c -CUST LKF1B -1c- -s all +s lintra_build
+          % febe -dut sbr -1c -CUST LKF1B -1c- -s all +s sbr0_sbr_generic.lintra_elab
+        - run design compiler
+          % febe -dut sbr -1c -CUST LKF1B -1c- -s all +s build_blocksinfo +s sbr0_sbr_generic.dc
+        - run FEV
+          % febe -dut sbr -1c -CUST LKF1B -1c- -s all +s sbr0_sbr_generic.fv
+        - run spyglass_build, spyglass_lp, sgdft, and sage:
+          % febe -dut sbr -1c -CUST LKF1B -1c- -s all +s spyglass_build
+          % febe -dut sbr -1c -CUST LKF1B -1c- -s all +s sbr0_sbr_generic.spyglass_lp
+          % febe -dut sbr -1c -CUST LKF1B -1c- -s all +s sbr0_sbr_generic.sgdft
+          % febe -dut sbr -1c -CUST LKF1B -1c- -s all +s sbr0_sbr_generic.sage
+        - run spyglass_lp with GUI
+          % simbuild -dut sbr -1c -CUST LKF1B -1c- -ace xterm &
+          In the newly created xterm type (update for inst names)
+          %spyglass -project target/sbr/p1274/aceroot/verif/results/sbr_config_ipxact_workspace/tests/spyglasslp_sbr1_sbr_generic/sbr1_sbr_generic.prj
+        -SAGE options
+          Sage is run on "atspeed" mode by default for all routers. To run sage on "stuckat" mode, 
+            .go to MODEL_ROOT/tools/sage/inputs/<CUST>/<routername>/scripts/atpg_local_ovr.pl
+            .comment out ATPG_FAULT_MODE = atspeed and uncomment ATPG_FAULT_MODE = stuckat
+            .rerun sage
+            .stuckat coverage will be generated at MODEL_ROOT/target/sbr/<CUST>/aceroot/results/DC/<routername>/sage/WORK/
+          Per this HSD, enabling parallel run of both atspeed and stuckat in HDK is WIP:
+          https://hsded.intel.com/appstore/article/#/220200404
+          When parallel run becomes available, the command to use will be: febe -dut sbr -1c -CUST LKF1B -1c- -s all +s sbr0_sbr_generic.sage_loc -parallel
+        - run VCLP
+          %febe -dut sbr -1c -CUST LKF1B -1c- -s all +s vclp_build
+          %febe -dut sbr -1c -CUST LKF1B -1c- -s all +s sbrsa_sbr_generic.vclp_test
+          run VCLP with GUI
+          1 Enable debug_mode in cfg/LocalToolData.pm
+            -args => "-ASSIGN -mc=cdc_sbr3_sbr_generic -vclp_debug"
+          2 With the debug_mode enabled, running the vclp_test command to open 
+          3 In the GUI window, at the vc_static_shell prompt, type
+            "source scripts/vclp.tcl"
+        - run SG-Lint
+          - command to run the build stage
+          %simbuild -dut sbr -1c -CUST p1274 -1c- -s all +s sglint_build -sglint_build "-ASSIGN -mc=sglint_sbr1_sbr_generic"
+          - command to run the test stage
+          %simbuild -dut sbr -1c -CUST p1274 -1c- -s all +s sglint_test -sglint_test "-t spyglasslint/sbr1_sbr_generic -noepi"
+        - run SGCDC
+          - generate the sgcdc files for the router
+            % setenv RTL_PROJ_TOOLS /p/hdk/rtl/proj_tools
+            % setenv SPYGLASS_METHODOLOGY_CDC $RTL_PROJ_TOOLS/spyglass_methodology_cdc/master/1.00.16
+            % $SPYGLASS_METHODOLOGY_CDC/scripts/questaConstraints_to_sgdc.tcl -qcdc_dir $MODEL_ROOT/tools/cdc/results/sbrsa_sbr_generic/tests/cdc_tests_sbrsa_sbr_generic
+            NOTE: the sgcdc file is generated under $MODEL_ROOT/tools/spyglasscdc/sbrsa_sbr_generic/sbrsa_sbr_generic.sgdc
+          - compile
+          % simbuild -dut sbr -1c -CUST p1274 -1c- -s all +s sgcdc_build -sgcdc_build "-ASSIGN -mc=sbr_config_ipxact_workspace -vlog_opts +define+functional+IOSF_SB_PH2"
+          - SGCDC test: SETUP_CHECK goal
+          % simbuild -dut sbr -1c -CUST p1274 -1c- -s all +s sgcdc_test -sgcdc_test "-t spyglass_cdc/sbrsa_sbr_generic:SetupChk"
+          - SGCDC test: Verify_struct goal
+          % simbuild -dut sbr -1c -CUST p1274 -1c- -s all +s sgcdc_test -sgcdc_test "-t spyglass_cdc/sbrsa_sbr_generic"
+          - using GUI
+simbuild -dut sbr -1c -CUST p1274 -1c- -s all +s sgcdc_gui -sgcdc_prj_file "/nfs/fm/disks/fm_infrach_00003/STORE_AND_FORWARD/cnlsoc_2015ww02_xbonly_SGCDC/workspace/sideband_network/target/sbr/p1274/aceroot/results/sgcdc/tests/spyglass_cdc_sbrsa_sbr_generic_SetupChk/sbrsa_sbr_generic.prj"
+        - run simbuild front end tools
+          % cd $MODEL_ROOT/tools
+          % sbr0_runLintra_HDKLKF1B / sbr0_runLintra_HDKp1273 /sbr0_runLintra_HDKp1274
+          % sbr0_runACEVisa_HDKLKF1B / sbr0_runACEVisa_HDKp1273 / sbr0_runACEVisa_HDKp1274
+        - run Questa CDC under ACE in HDK environment
+          % simbuild -dut sbr -1c -CUST LKF1B -1c- -ace xterm &
+          In the newly created xterm:
+          % cd $MODEL_ROOT/tools
+          % sbr0_runACECDC
+        - run simulations / regressions in HDK environment
+          % simbuild -dut sbr -1c -CUST LKF1B -1c- -ace xterm &
+          In the newly created xterm:
+          % cd $MODEL_ROOT/verif/sim
+          % ace -cc
+          % ace -x
+          % acereg -x -tl ../../ace/iosf_sbc_rtr_mini.list -trsd RANDSEED -nb -nbmon &
+        - run scan_audit
+          % febe -dut sbr -1c -CUST p1274 -1c- -s all +s sbrsa_sbr_generic.scan_audit
+        - run array_dft_audit
+          % febe -dut sbr -1c -CUST p1274 -1c- -s all +s sbrsa_sbr_generic.array_dft_audit
+        - run Zircon (for SBR - ipconfigid=88396, PICr25 - dssmsid=99966)
+          % /p/hdk/rtl/proj_tools/zircon/master/2.10.01/bin/zirconQA -ipconfigid 88396 -dssmsid 99966 -app SIP -ovf tools/zirconqa/zirconqa_overrides_2.10.ini -alias sbrsa -auto -verbose -cat CDC -fn 2.310.a
+
+      optional
+        % simbuild -dut sbr -ace '<ACE COMMAND>'
+
+   4. Helpful commands
+        a. Get ToolData.pm tool VERSION/PATH on commandline
+					% ToolConfig.pl get_tool_version ace 
+					% ToolConfig.pl get_tool_path ace
+				b. Report all awailable Stages by FEBE and quit
+					% febe -dut sbr -printstages
+				c. Report all Stages to be executed by FEBE and quick
+					% febe -dut sbr -pas
+					% febe -dut sbr +s .fv -pas
+				d. Remove 'build_lintra' stage from execution
+				  % febe -dut sbr -s lintra_build
+				e. Remove all DC stages from execution
+				  % febe -dut sbr -s .dc
+				f. Add all DC stages from execution
+				  % febe -dut sbr +s .dc
+
+   5. Run post-Visa SGCDC
+        a. Run visa insert for the router
+           cd $MODEL_ROOT/tools
+           sbr0_pm_runVisa_HDKp1274
+        b. Swap the spyglasscdc_postvisa folder with the functional spyglasscdc directory
+           mv $MODEL_ROOT/tools/spyglasscdc $MODEL_ROOT/tools/spyglasscdc_previsa
+           cp -r $MODEL_ROOT/tools/spyglasscdc_postvisa $MODEL_ROOT/tools/spyglasscdc
+        c. Swap the spyglass_cdc_postvisa folder with the functional spyglass_cdc directory
+           mv $MODEL_ROOT/verif/tests/static_checks/spyglass_cdc $MODEL_ROOT/verif/tests/static_checks/spyglass_cdc_previsa
+           cp -r $MODEL_ROOT/verif/tests/static_checks/spyglass_cdc_postvisa $MODEL_ROOT/verif/tests/static_checks/spyglass_cdc
+        d. Swap the top-level post-visa RTL, sbr0_pm_sbr_generic.sv_visaInserted, with the functional top-level, sbr0_pm_sbr_generic.sv
+           mv $MODEL_ROOT/source/rtl/iosfsbc/router/sbr0_pm_sbr_generic.sv $MODEL_ROOT/source/rtl/iosfsbc/router/sbr0_pm_sbr_generic.sv_preVisa
+           cp $MODEL_ROOT/source/rtl/iosfsbc/router/sbr0_pm_sbr_generic.sv_visaInserted $MODEL_ROOT/source/rtl/iosfsbc/router/sbr0_pm_sbr_generic.sv
+
+        e. Run SGCDC:
+           simbuild -dut sbr -1c -CUST p1274 -1c- -s all +s sgcdc_build -sgcdc_build "-ASSIGN -mc=sbr_config_ipxact_workspace -vlog_opts +define+functional+IOSF_SB_PH2"
+           simbuild -dut sbr -1c -CUST p1274 -1c- -s all +s sgcdc_test -sgcdc_test "-t spyglass_cdc/sbr0_pm_sbr_generic:SetupChk"
+           simbuild -dut sbr -1c -CUST p1274 -1c- -s all +s sgcdc_test -sgcdc_test "-t spyglass_cdc/sbr0_pm_sbr_generic"
+
+

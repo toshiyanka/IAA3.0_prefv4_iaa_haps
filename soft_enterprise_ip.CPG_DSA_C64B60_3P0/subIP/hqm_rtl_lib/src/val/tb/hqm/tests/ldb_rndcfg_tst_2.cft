@@ -1,0 +1,22 @@
+cfg_begin
+    rndcfg num_ldb_pool=2
+    rndcfg max_num_pp_per_ldb_pool=8  min_num_cq_per_ldb_pool=2
+
+    rndcfg num_dir_pool=0
+    rndcfg max_num_pkt_per_pool=60   min_num_pkt_per_pool=5
+    rndcfg pool_l1_num_pkt=40 pool_l0_num_pkt=30
+    rndcfg pool_l0_qid_0_free_list_base=0x0000     pool_l0_qid_0_free_list_limit=0x00ff
+    rndcfg pool_l1_qid_0_free_list_base=0x0100     pool_l1_qid_0_free_list_limit=0x01ff
+    rndcfg pool_l0_qid_0_inflight_limit=0x100 pool_l1_qid_0_inflight_limit=0x100
+cfg_end
+
+runtst sys_init=pool
+
+rd hqm_pf_cfg_i.device_id
+idle 800
+runtst go=1
+
+rd hqm_pf_cfg_i.device_id
+
+
+

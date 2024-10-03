@@ -1,0 +1,33 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => ["+AW_CONTINUE_ON_ERROR", "+iosf_tracker_filename=iosf_trk", "-assert nopostproc", "+hqm_ral_rand_bus_id=1", 
+                     "+HQM_PCIE_RC_VIP_PRESENT +HQM_PCIE_EP_VIP_ABSENT=0 +HQM_PCIE_MSI_EOT_CHK +HQMI_DEBUG +HQMS_DEBUG",
+                     "+EXP_UNWANTED_TXN_TO_HQM",
+                     "+SLA_FLUSH_PHASE_TIMEOUT=400000",
+                     "+SLA_MAX_RUN_CLOCK=400000",
+                     "+vcs+lic+wait",
+                     "-assert quiet+hier=aceroot/verif/tb/hqm/tests/hqm_tlp_length_test//hqm_tlp_length_test_assert.waiver",
+                    ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+      ur_np_only      => { -simv_args => ["+hqm_tlp_length_stim_config::mode=ur_np_only","+pcie_urd +pcie_anfes +pcie_ced +eot_pf",],  },
+      ur_p_only       => { -simv_args => ["+hqm_tlp_length_stim_config::mode=ur_p_only","+pcie_urd +pcie_ned +eot_pf +pcie_ur_unc +pcie_ned +HQM_PF_EXP_NFATAL_MSG_CNT=1",],  },
+      ur_np_p         => { -simv_args => ["+hqm_tlp_length_stim_config::mode=ur_np_p","+pcie_urd +pcie_anfes +pcie_ced +eot_pf +pcie_ur_unc +pcie_ned +HQM_PF_EXP_NFATAL_MSG_CNT=1",],  },
+      ur_p_np         => { -simv_args => ["+hqm_tlp_length_stim_config::mode=ur_p_np","+pcie_urd +pcie_anfes +pcie_ced +eot_pf +pcie_ur_unc +pcie_ned +HQM_PF_EXP_NFATAL_MSG_CNT=1",],  },
+      mtlp_mps_128B   => { -simv_args => ["+hqm_pcie_init_stim_config::mps=0 +hqm_tlp_length_stim_config::mode=mtlp_mps_128B","+pcie_mtlp +pcie_fed +eot_pf +HQM_PF_EXP_FATAL_MSG_CNT=1",],  },
+      mtlp_mps_256B   => { -simv_args => ["+hqm_pcie_init_stim_config::mps=1 +hqm_tlp_length_stim_config::mode=mtlp_mps_256B","+pcie_mtlp +pcie_fed +eot_pf +HQM_PF_EXP_FATAL_MSG_CNT=1",],  },
+      mtlp_mps_512B   => { -simv_args => ["+hqm_pcie_init_stim_config::mps=2 +hqm_tlp_length_stim_config::mode=mtlp_mps_512B","+pcie_mtlp +pcie_fed +eot_pf +HQM_PF_EXP_FATAL_MSG_CNT=1",],  },
+
+      sec_2_2_1       => { -simv_args => ["",],  },
+
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

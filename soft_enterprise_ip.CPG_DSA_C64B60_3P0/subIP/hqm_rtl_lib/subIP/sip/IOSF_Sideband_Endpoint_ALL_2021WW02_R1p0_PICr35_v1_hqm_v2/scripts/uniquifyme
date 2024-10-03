@@ -1,0 +1,67 @@
+#!/usr/intel/bin/tcsh
+
+# Uniquify script for endpoint
+# Will need to be in a HDK sourced xterm
+# source /p/hdk/rtl/hdk.rc -cfg sip -reentrant
+
+# Usage source uniquifyme <prefix>
+
+set prefix=$1
+set ipname="sbendpoint"
+set subipname="sberepeater"
+
+set uniquify_version="16.04.02"
+set uniquify_path="/p/hdk/rtl/proj_tools/uniquify/$uniquify_version"
+
+# RTL uniquification
+# whats the difference between prefix and top? our IP has 2 possible tops (sbebase and sbendpoint)
+
+#10nm teams found this is the only way "en__" switches in ace ll get uniquified.
+#uniquify doesn't seem to work with files in the ace area properly. Moving them to cfg (and moving it back to ace) is the only way it works
+mv ace/iosf_sbc_ep_hdl.udf cfg/iosf_sbc_ep_hdl.udf
+mv ace/iosf_sbc_ep_local_ivars.udf cfg/iosf_sbc_ep_local_ivars.udf
+mv ace/iosf_sbc_ep.acerc cfg/iosf_sbc_ep.acerc
+
+$uniquify_path/uniquify -dirs source/rtl/iosfsbc+subIP/reference_code+subIP/genram_base_ward -prefix $prefix -top $prefix -rtl_libs scripts/liblist
+
+#need to uniquify subIPs all
+#DFX ll have to be uniquified to SB and then again by customer
+
+# uniquify doesnt seem to uniquify the verif/tb file, so doing it separately
+sed -i "s/$ipname/$prefix\_$ipname/g" verif/tb/ep_tb/tb_top.sv
+sed -i "s/$subipname/$prefix\_$subipname/g" verif/tb/ep_tb/rpt_module_wrap.sv
+
+# Manually change "scope" in ace files since uniquify doesnt do that either
+#updated below for cfg sed -i "s/IOSF_SBC_EP/$prefix\_IOSF_SBC_EP/g" ace/iosf_sbc_ep_hdl.udf
+#updated below for cfg sed -i "s/IOSF_SBC_EP/$prefix\_IOSF_SBC_EP/g" ace/iosf_sbc_ep_local_ivars.udf
+#updated below for cfg sed -i "s/IOSF_SBC_EP/$prefix\_IOSF_SBC_EP/g" ace/iosf_sbc_ep.acerc
+sed -i "s/IOSF_SBC_EP/$prefix\_IOSF_SBC_EP/g" cfg/iosf_sbc_ep_hdl.udf
+sed -i "s/IOSF_SBC_EP/$prefix\_IOSF_SBC_EP/g" cfg/iosf_sbc_ep_local_ivars.udf
+sed -i "s/IOSF_SBC_EP/$prefix\_IOSF_SBC_EP/g" cfg/iosf_sbc_ep.acerc
+sed -i "s/IOSF_SBC_EP/$prefix\_IOSF_SBC_EP/g" cfg/ace/sbe/sbe.acerc
+sed -i "s/IOSF_SBC_EP/$prefix\_IOSF_SBC_EP/g" cfg/ace/templates/custom_post.env.template
+sed -i "s/IOSF_SBC_EP/$prefix\_IOSF_SBC_EP/g" scripts/custom_post.ep.setup
+# sed -i "s/genram/$prefix\_genram/g" subIP/genram_base_ward/source/rtl/*genram_macros.vh
+sed -i "s/genram_clogb2/$prefix\_genram_clogb2/g" subIP/genram_base_ward/source/rtl/*genram*
+
+# HDK setup changes
+sed -i "s/IOSF_SBC_EP/$prefix\_IOSF_SBC_EP/g" cfg/ToolData.pm
+
+#move the files back
+mv cfg/iosf_sbc_ep_hdl.udf ace/iosf_sbc_ep_hdl.udf
+mv cfg/iosf_sbc_ep_local_ivars.udf ace/iosf_sbc_ep_local_ivars.udf
+mv cfg/iosf_sbc_ep.acerc ace/iosf_sbc_ep.acerc
+
+# added hack for HSD https://hsdes.intel.com/appstore/article/#/2209649254
+mv tools/spyglasscdc/sbendpoint/sbendpoint.opt cfg/sbendpoint.opt
+mv tools/spyglasscdc/sbendpoint/sbendpoint.sgdc cfg/sbendpoint.sgdc
+mv source/cfg/endpoint/csv/sbendpoint.csv cfg/sbendpoint.csv
+sed -i "s/cdc_sbendpoint/cdc\_$prefix\_sbendpoint/g" cfg/iosf_sbc_ep_hdl.udf
+sed -i "s/sbendpoint/$prefix\_sbendpoint/g" cfg/sbendpoint.opt
+sed -i "s/iosf_sbc_ep_rtl_lib/$prefix\_iosf_sbc_ep_rtl_lib/g" cfg/sbendpoint.opt
+sed -i "s/current_design sbendpoint/current_design $prefix\_sbendpoint/g" cfg/sbendpoint.sgdc
+sed -i "s/sbendpoint/$prefix\_sbendpoint/g" cfg/sbendpoint.csv
+mv cfg/sbendpoint.opt tools/spyglasscdc/sbendpoint/${prefix}_sbendpoint.opt
+mv cfg/sbendpoint.sgdc tools/spyglasscdc/sbendpoint/${prefix}_sbendpoint.sgdc
+mv tools/spyglasscdc/sbendpoint tools/spyglasscdc/${prefix}_sbendpoint
+mv cfg/sbendpoint.csv source/cfg/endpoint/csv/${prefix}_sbendpoint.csv

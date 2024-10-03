@@ -1,0 +1,615 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => ["+AW_CONTINUE_ON_ERROR", "+iosf_tracker_filename=iosf_trk", "-assert nopostproc", "+HQMS_DEBUG", "+HQMI_DEBUG","+eot_pf  +EXP_UNWANTED_TXN_TO_HQM", "+vcs+lic+wait", "+SLA_FLUSH_PHASE_TIMEOUT=400000", "+SLA_MAX_RUN_CLOCK=400000",
+					],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+      sec_2_2_1   => { -simv_args => [ "", ], }, 
+      sec_6_2_3_2_3  => { -simv_args => [ "", ], }, 
+      posted_expect_ur => {
+          -simv_args => [
+                         "+pcie_urd +pcie_ur_unc +pcie_ned ",
+                        ],
+      },
+      non_posted_expect_ur => {
+          -simv_args => [
+                         "+pcie_urd +pcie_anfes +pcie_ced ",
+                        ],
+      },
+      per_1 => {
+          -simv_args => [
+                         " +hqm_pcie_init_stim_config::per=1",
+                        ],
+      },
+      unexpected_cpl => {
+          -simv_args => [
+                         "+pcie_anfes +pcie_ced ",
+                        ],
+      },
+      np_p_mem => {
+          -simv_args => [
+                         "+hqm_sla_pcie_unsupported_req_stim_config::cmd_type=np_p_mem +UR_TXN",
+                        ],
+      },
+      p_np_mem => {
+          -simv_args => [
+                         "+hqm_sla_pcie_unsupported_req_stim_config::cmd_type=p_np_mem +UR_TXN",
+                        ],
+      },
+      pf_func_bar_less_4g => {
+          -simv_args => [
+                         " +PF_FUNC_BAR_LESS_4G",
+                         #" +hqm_pcie_init_stim_config::pf_func_bar_63_26=0 +hqm_pcie_init_stim_config::sriov_bar_63_26=1024 +hqm_pcie_init_stim_config::pf_csr_bar_63_32=1 ",
+                        ],
+      },
+      pf_func_bar_greater_4g => {
+          -simv_args => [
+                         " +hqm_pcie_init_stim_config::pf_func_bar_63_26=512 +hqm_pcie_init_stim_config::sriov_bar_63_26=1024 +hqm_pcie_init_stim_config::pf_csr_bar_63_32=1 ",
+                        ],
+      },
+      IOWr => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=IOWr +UR_TXN",
+                        ],
+      },
+      IORd => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=IORd +UR_TXN",
+                        ],
+      },
+      MRdLk32 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=MRdLk32 +UR_TXN +LOCK +HQM_GEN_CPLLK_EXP", "-assert quiet+hier=aceroot/verif/tb/hqm/tests/hqm_pcie_unsupported_req_test/pri_156.waiver",
+                        ],
+      },
+      LTMRd32 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=LTMRd32 +UR_TXN +LOCK", "-assert quiet+hier=aceroot/verif/tb/hqm/tests/hqm_pcie_unsupported_req_test/pri_156.waiver",
+                        ],
+      },
+      NPMWr32 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=NPMWr32 +UR_TXN", "-assert quiet+hier=aceroot/verif/tb/hqm/tests/hqm_pcie_unsupported_req_test/NPMWr.waiver",
+
+                        ],
+      },
+      MRdLk64 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=MRdLk64 +UR_TXN +LOCK +HQM_GEN_CPLLK_EXP", "-assert quiet+hier=aceroot/verif/tb/hqm/tests/hqm_pcie_unsupported_req_test/pri_156.waiver",
+                        ],
+      },
+      LTMRd64 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=LTMRd64 +UR_TXN +LOCK", "-assert quiet+hier=aceroot/verif/tb/hqm/tests/hqm_pcie_unsupported_req_test/pri_156.waiver",
+                        ],
+      },
+      NPMWr64 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=NPMWr64 +UR_TXN", "-assert quiet+hier=aceroot/verif/tb/hqm/tests/hqm_pcie_unsupported_req_test/NPMWr.waiver",
+
+                        ],
+      },
+      LTMWr32 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=LTMWr32",
+                        ],
+      },
+      LTMWr64 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=LTMWr64",
+                        ],
+      },
+      FAdd32 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=FAdd32 +UR_TXN ",
+                        ],
+      },
+      Swap32 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Swap32 +UR_TXN ",
+                        ],
+      },
+      CAS32 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=CAS32 +UR_TXN ",
+                        ],
+      },
+      FAdd64 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=FAdd64 +UR_TXN +ATOMIC_ERROR", "-assert quiet+hier=aceroot/verif/tb/hqm/tests/hqm_pcie_unsupported_req_test/atomic.waiver",
+                        ],
+      },
+      Swap64 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Swap64 +UR_TXN +ATOMIC_ERROR", "-assert quiet+hier=aceroot/verif/tb/hqm/tests/hqm_pcie_unsupported_req_test/atomic.waiver",
+
+                        ],
+      },
+      CAS64 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=CAS64 +UR_TXN +ATOMIC_ERROR",
+                        ],
+      },
+      CfgRd1 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=CfgRd1 +UR_TXN ",
+                        ],
+      },
+      CfgWr1 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=CfgWr1 +UR_TXN ",
+                        ],
+      },
+
+      inta_msg            => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=32 +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg4 ", ], },
+      intb_msg            => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=33 +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg4 ", ], },
+      intc_msg            => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=34 +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg4 ", ], },
+      intd_msg            => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=35 +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg4 ", ], },
+
+      deassert_inta_msg   => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=36 +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg4 ", ], },
+      deassert_intb_msg   => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=37 +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg4 ", ], },
+      deassert_intc_msg   => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=38 +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg4 ", ], },
+      deassert_intd_msg   => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=39 +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg4 ", ], },
+
+      pm_active_state_nak => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=20 +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg4 ", ], },
+      pm_pme              => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=24 +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg0 ", ], },
+      pme_turn_off        => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=25 +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg3 ", ], },
+      pme_to_ack          => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=26 +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg5 ", ], },
+
+      err_corr_msg        => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=48 +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg0 ", ], },
+      err_nonfatal_msg    => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=49 +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg0 ", ], },
+      err_fatal_msg       => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=51 +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg0 ", ], },
+
+      unlock_msg          => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=0  +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg3 ", ], },
+
+      set_slot_pwr_limit  => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=80  +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=MsgD4 ", ], },
+
+      ln_msg_direct       => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=127 +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=MsgD2 +hqm_sla_pcie_unsupported_req_stim_config::len=2 ", ], },
+
+      ln_msg_broadcast    => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=127 +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=MsgD3 +hqm_sla_pcie_unsupported_req_stim_config::len=2 ", ], },
+
+      drs_msg             => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=127 +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg4 ", ], },
+
+      frs_msg             => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=127 +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg0 ", ], },
+
+      hier_id_msg         => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=127 +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=MsgD3 +hqm_sla_pcie_unsupported_req_stim_config::len=4 ", ], },
+
+      ltr_msg             => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=16  +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg4 ", ], },
+
+      obff_msg            => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=18  +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg4 ", ], },
+
+      ptm_req_msg         => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=82  +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg4 ", ], },
+      ptm_rsp_msg         => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=83  +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg4 ", ], },
+      ptm_rspd_msg        => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=83  +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=MsgD4 ", ], },
+
+      ignored_msgd4_65_0x41 => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=65 +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=MsgD4 ", ], },
+      ignored_msgd4_67_0x43 => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=67 +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=MsgD4 ", ], },
+      ignored_msgd4_64_0x40 => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=64 +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=MsgD4 ", ], },
+      ignored_msgd4_69_0x45 => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=69 +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=MsgD4 ", ], },
+      ignored_msgd4_71_0x47 => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=71 +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=MsgD4 ", ], },
+      ignored_msgd4_68_0x44 => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=68 +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=MsgD4 ", ], },
+      ignored_msgd4_72_0x48 => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=72 +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=MsgD4 ", ], },
+
+      ignored_msg4_65_0x41 => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=65 +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg4 ", ], },
+      ignored_msg4_67_0x43 => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=67 +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg4 ", ], },
+      ignored_msg4_64_0x40 => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=64 +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg4 ", ], },
+      ignored_msg4_69_0x45 => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=69 +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg4 ", ], },
+      ignored_msg4_71_0x47 => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=71 +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg4 ", ], },
+      ignored_msg4_68_0x44 => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=68 +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg4 ", ], },
+      ignored_msg4_72_0x48 => {   -simv_args => [ " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=72 +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg4 ", ], },
+
+      skip_pcie_eot => {   -simv_args => [ " +HQM_DIS_ERR_MSG_CHECK +HQM_PCIE_SKIP_EOT_SEQ ", ], },
+
+      pci_sig_vendor_id => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::vendor_id=pci_sig_vid ",
+                        ],
+      },
+
+      intel_vendor_id => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::vendor_id=intel_vid ",
+                        ],
+      },
+
+      vdm1_msgD0 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=MsgD0 +hqm_sla_pcie_unsupported_req_stim_config::msg_code=127",
+                        ],
+      },
+
+      vdm1_msgD2 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=MsgD2 +hqm_sla_pcie_unsupported_req_stim_config::msg_code=127",
+                        ],
+      },
+
+      vdm1_msgD3 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=MsgD3 +hqm_sla_pcie_unsupported_req_stim_config::msg_code=127",
+                        ],
+      },
+
+      vdm1_msgD4 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=MsgD4 +hqm_sla_pcie_unsupported_req_stim_config::msg_code=127",
+                        ],
+      },
+
+
+      vdm1_msg0 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg0 +hqm_sla_pcie_unsupported_req_stim_config::msg_code=127",
+                        ],
+      },
+
+      vdm1_msg2 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg2 +hqm_sla_pcie_unsupported_req_stim_config::msg_code=127",
+                        ],
+      },
+
+      vdm1_msg3 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg3 +hqm_sla_pcie_unsupported_req_stim_config::msg_code=127",
+                        ],
+      },
+
+      vdm1_msg4 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg4 +hqm_sla_pcie_unsupported_req_stim_config::msg_code=127",
+                        ],
+      },
+
+      Msg0 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg0 ",
+                        ],
+      },
+      Msg1 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg1 ",
+                        ],
+      },
+      Msg2 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg2 ",
+                        ],
+      },
+      Msg3 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg3 ",
+                        ],
+      },
+      Msg4 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg4 ",
+                        ],
+      },
+      Msg5 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg5 ",
+                        ],
+      },
+      Msg6 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg6 ",
+                        ],
+      },
+      Msg7 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Msg7 ",
+                        ],
+      },
+      MsgD0 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=MsgD0 ",
+                        ],
+      },
+      MsgD1 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=MsgD1 ",
+                        ],
+      },
+      MsgD2 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=MsgD2 ",
+                        ],
+      },
+      MsgD3 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=MsgD3 ",
+                        ],
+      },
+      MsgD4 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=MsgD4 ",
+                        ],
+      },
+      MsgD5 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=MsgD5 ",
+                        ],
+      },
+      MsgD6 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=MsgD6 ",
+                        ],
+      },
+      MsgD7 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=MsgD7 ",
+                        ],
+      },
+      Cpl => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Cpl ", "-assert quiet+hier=aceroot/verif/tb/hqm/tests/hqm_pcie_unsupported_req_test/pri_199.waiver",
+                        ],
+      },
+      CplD => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=CplD +UNWANTED_TXN", "-assert quiet+hier=aceroot/verif/tb/hqm/tests/hqm_pcie_unsupported_req_test/pri_199.waiver",
+                        ],
+      },
+      CplLk => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=CplLk  ",  "-assert quiet+hier=aceroot/verif/tb/hqm/tests/hqm_pcie_unsupported_req_test/pri_199.waiver",
+                        ],
+      },
+      CplDLk => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=CplDLk  ",  "-assert quiet+hier=aceroot/verif/tb/hqm/tests/hqm_pcie_unsupported_req_test/pri_199.waiver",
+                        ],
+      },
+      UR_Poision => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=UR_Poision ",
+                        ],
+      },
+      EC_Poision => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=EC_Poision ", "-assert quiet+hier=aceroot/verif/tb/hqm/tests/hqm_pcie_unsupported_req_test/pri_199.waiver",
+                        ],
+      },
+      Rsvd_fmt_type => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cmd_type=Rsvd_fmt_type ",
+                        ],
+      },
+      cpl_status_1 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cpl_status=1 ",
+                        ],
+      },
+      cpl_status_2 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cpl_status=2 ",
+                        ],
+      },
+      cpl_status_3 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cpl_status=3 ",
+                        ],
+      },
+      cpl_status_4 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::cpl_status=4 ",
+                        ],
+      },
+      msg_code32 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=32 ",
+                        ],
+      },
+      msg_code33 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=33 ",
+                        ],
+      },
+      msg_code34 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=34 ",
+                        ],
+      },
+      msg_code35 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=35 ",
+                        ],
+      },
+      msg_code36 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=36 ",
+                        ],
+      },
+      msg_code37 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=37 ",
+                        ],
+      },
+      msg_code38 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=38 ",
+                        ],
+      },
+      msg_code39 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=39 ",
+                        ],
+      },
+      msg_code18 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=18 ",
+                        ],
+      },
+      msg_code24 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=24 ",
+                        ],
+      },
+      msg_code25 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=25 ",
+                        ],
+      },
+      msg_code27 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=27 ",
+                        ],
+      },
+      msg_code48 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=48 ",
+                        ],
+      },
+      msg_code49 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=49 ",
+                        ],
+      },
+      msg_code51 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=51 ",
+                        ],
+      },
+      msg_code0 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=0 ",
+                        ],
+      },
+      msg_code80 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=80 ",
+                        ],
+      },
+      msg_code126 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=126 ",
+                        ],
+      },
+      msg_code127 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=127 ",
+                        ],
+      },
+      msg_code65 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=65 ",
+                        ],
+      },
+      msg_code67 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=67 ",
+                        ],
+      },
+      msg_code64 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=64 ",
+                        ],
+      },
+      msg_code69 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=69 ",
+                        ],
+      },
+      msg_code71 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=71 ",
+                        ],
+      },
+      msg_code68 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=68 ",
+                        ],
+      },
+      msg_code72 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=72 ",
+                        ],
+      },
+      msg_code16 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=16 ",
+                        ],
+      },
+      msg_code18 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=18 ",
+                        ],
+      },
+      msg_code82 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=82 ",
+                        ],
+      },
+      msg_code83 => {
+          -simv_args => [
+                         " +hqm_sla_pcie_unsupported_req_stim_config::msg_code=83 ",
+                        ],
+      },
+      ingress_errors => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_ingress_errors.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hcw_ingress_errors.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_ingress_errors_eot.cft",
+                        ],
+      },
+      lut_cfg_errors => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_lut_cfg_errors.cft",
+                         "+HQM_SYSTEM_CONTINUE_ON_PERR",
+                         "+HQM_SYSTEM_CONTINUE_ON_ECCERR",
+                        ],
+      },
+      p2v_mb => {
+          -simv_args => ["+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pf_to_vf_mailbox_isr.cft",],
+      },
+      v2p_mb => {
+          -simv_args => ["+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_vf_to_pf_mailbox_isr.cft",],
+      },
+      func_pf_bar => {
+          -simv_args => ["+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_func_bar_test0.cft",],
+      },
+      msix_tbl => {
+          -simv_args => ["+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_msix_tbl.cft",],
+      },
+      cq_occ_int => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_cq_occ_interrupt.cft",
+                         "+HQM_SYSTEM_TEST_INTERRUPT",
+                        ],
+      },
+      luts => {
+          -simv_args => ["+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/iosf_prim_basic_test0.cft",],
+      },
+      hcw => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_test0_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hcw_test1.cft",
+                        ],
+      },
+      hcw2 => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_test2_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hcw_test2.cft",
+                        ],
+      },
+      hcw_ord => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_ord_test0_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hcw_test1.cft",
+                        ],
+      },
+      smoke => {
+          -simv_args => ["+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_cfg_smoke.cft",],
+      },
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

@@ -1,0 +1,65 @@
+#!/usr/intel/bin/tcsh -f
+set machineOS=`uname`
+set machineCPU=`uname -p`
+alias osetup 'eval `/p/hdk/rtl/proj_tools/onecfg/master/1.02.07/bin/ToolSetup.pl \!*`'
+osetup uvm -v 
+osetup ace -v
+#setenv XVM_HOME /p/com/eda/intel/xvm/1.0.3
+osetup ovm -v
+osetup xvm -v
+osetup collage -v
+osetup conformal -v
+osetup coretools -v
+osetup designcompiler -v
+osetup fishtail -v
+osetup intelcdc -v
+osetup lintra -v
+osetup nebulon -v
+osetup onda -v
+osetup saola -v
+osetup spyglass -v
+osetup synplifypro -v
+osetup tessent -v
+osetup vcsmx -v
+osetup verdi3 -v
+osetup vipcat -v
+osetup xa -v
+osetup zircon -v
+
+setenv SNPS_USE_NOVAS_HOME 1
+setenv DEBUSSY_HOME $VERDI_HOME
+setenv NBQSLOT /DTEG/IP
+setenv NBCLASS "16G&&SLES12"
+#setenv NBCLASS "8G&&SLES11"
+setenv NBPOOL iind_normal
+#if ($machineOS == "Linux") then
+#    if ($machineCPU == "x86_64") then
+#        setenv LD_LIBRARY_PATH ${VCS_HOME}/suse64/lib:$LD_LIBRARY_PATH
+#    else
+#        setenv LD_LIBRARY_PATH ${VCS_HOME}/suse32/lib:$LD_LIBRARY_PATH
+#    endif
+#else
+#    echo ""
+#    echo "$machineOS is not officially supported for sims. Please login to an HP or Linux machine."
+#    echo ""
+#    echo ""
+#    exit(1)
+#endif
+#
+setenv LD_LIBRARY_PATH "/p/dt/sde/tools/em64t_SLES12/syslibs/for_sles12:/p/dt/sde/tools/em64t_SLES12/syslibs/for_sles12"
+
+cd $PROJECT_BASE
+
+echo "----------------------------------------------------------"
+echo "Environment variables for $ACE_PROJECT....."
+echo "----------------------------------------------------------"
+echo "ACE_PROJECT:           $ACE_PROJECT"
+echo "PROJECT_BASE:          $PROJECT_BASE"
+echo "ACE_ENG:               $ACE_ENG"
+echo "ACE_RC:                $ACE_RC"
+echo "LD_LIBRARY_PATH:       $LD_LIBRARY_PATH"
+echo "----------------------------------------------------------"
+source /nfs/site/eda/group/cse/setups/synopsys/synopsysDC_VCS.lic
+#setenv GCC_HOME /usr/intel/pkgs/gcc/4.9.2
+#setenv GCC_LIB_VER 4.9.2
+echo "\n\nTools setup done...\n\n"

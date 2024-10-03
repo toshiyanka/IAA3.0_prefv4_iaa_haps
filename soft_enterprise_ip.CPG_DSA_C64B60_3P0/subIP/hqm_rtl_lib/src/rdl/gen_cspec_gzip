@@ -1,0 +1,43 @@
+#!/usr/intel/bin/tcsh
+
+nebulon -input hqm_map.rdl -cspec -cspec_udps_reg "diag_reg" -I "$NEBULON_DATA/include . ../../subIP/sip/AW/src/rdl" -out_dir .
+
+if ($status != 0) then
+  echo "$0 Error: hqm_map.rdl nebulon command failed"
+  exit
+endif
+
+sed -e "s/<w:t>\[0\]:\([a-fA-F0-9h]*\).*<\/w:t>/<w:t>[0]:\1<\/w:t>/" -e "s/<w:t>\[0\]\[0\]:\([a-fA-F0-9h]*\).*<\/w:t>/<w:t>[0][0]:\1<\/w:t>/" output/cspec/hqm_map.doc.xml >hqm_map.xml
+
+if ($status != 0) then
+  echo "$0 Error: hqm_map.rdl sed command failed"
+  exit
+endif
+
+gzip hqm_map.xml
+
+if ($status != 0) then
+  echo "$0 Error: hqm_map.rdl gzip command failed"
+  exit
+endif
+
+nebulon -input hqm_map.rdl -cspec -cspec_internal -cspec_udps_reg "diag_reg" -I "$NEBULON_DATA/include . ../../subIP/sip/AW/src/rdl" -out_dir .
+
+if ($status != 0) then
+  echo "$0 Error: hqm_map.rdl internal nebulon command failed"
+  exit
+endif
+
+sed -e "s/<w:t>\[0\]:\([a-fA-F0-9h]*\).*<\/w:t>/<w:t>[0]:\1<\/w:t>/" -e "s/<w:t>\[0\]\[0\]:\([a-fA-F0-9h]*\).*<\/w:t>/<w:t>[0][0]:\1<\/w:t>/" output/cspec/hqm_map.doc.xml >hqm_map_int.xml
+
+if ($status != 0) then
+  echo "$0 Error: hqm_map.rdl internal sed command failed"
+  exit
+endif
+
+gzip hqm_map_int.xml
+
+if ($status != 0) then
+  echo "$0 Error: hqm_map.rdl internal gzip command failed"
+  exit
+endif

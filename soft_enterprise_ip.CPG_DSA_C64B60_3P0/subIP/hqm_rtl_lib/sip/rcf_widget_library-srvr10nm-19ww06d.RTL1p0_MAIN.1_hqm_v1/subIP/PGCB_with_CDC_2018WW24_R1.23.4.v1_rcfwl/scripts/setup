@@ -1,0 +1,466 @@
+#!/usr/intel/bin/tcsh -f
+# name: setup
+# date: 6/22/10
+# auth: D. Lavin
+# desc: Setup the tools for this IP
+# hist: 1.0 6/22/10  Original
+#       1.1 8/13/10  Added -32 switch
+#       1.2 9/30/10  Allow full path when verifying this is being sourced
+#       2.0 9/30/10  Source optional license override utility
+#       2.1 10/19/10 Account for -tcsh when sourcing
+#       3.0 1/26/11  Add tag filtering
+#       4.0 2/1/11   Use new path for mergeToolFiles path
+#       4.1 2/11/11  Add no custom switch
+#       4.2 3/14/11  Added -list switch
+#       5.0 5/19/11  Defined NB variables and added -long option
+#       5.1 6/22/11  Added NB variable omit capability
+#       5.2 8/16/22  Allow for scripts directory override
+#       5.3 01/23/12 Allow multiple -only tags
+#       5.4 05/01/12 Added setenv capability
+#       5.5 07/03/12 Added SOC env var toolfile.dat override
+#       5.6 08/07/12 Added variation config and allow sourcing from root
+#       5.7 09/07/12 Allow variationConfig script to handle SETUP_VARIATION
+
+set thisToolName="setup"
+set thisToolVer="5.7"
+
+####################################################
+# User arguments
+####################################################
+# Read command line argument
+set socname=""
+set soctag=""
+set iptag=""
+set custtag=""
+set varitag=""
+set bitSwitch=""
+set forceTcsh=0
+set onlyCmd=""
+set doList=0
+set useCustom=1
+set doSetenv=1
+set classOpt=""
+set ignore="NO"
+foreach arg ($argv)
+  if ( "$ignore" == 'socname' ) then
+    set socname="$arg"
+    set ignore="NO"
+  else if ( "$ignore" == 'soctag' ) then
+    set soctag="$arg"
+    set ignore="NO"
+  else if ( "$ignore" == 'iptag' ) then
+    set iptag="$arg"
+    set ignore="NO"
+  else if ( "$ignore" == 'custtag' ) then
+    set custtag="$arg"
+    set ignore="NO"
+  else if ( "$ignore" == 'vari' ) then
+    set varitag="$arg"
+    set ignore="NO"
+  else if ( "$ignore" == 'only' ) then
+    set onlyCmd="-tag $arg"
+    set ignore="NO"
+  else if ( "$ignore" == 'itag' ) then
+    set iptag="$arg"
+    set custtag="$arg"
+    set ignore="NO"
+  else if ( "$arg" == '-noenv' ) then
+    set doSetenv=0
+  else if ( "$arg" == '-ft' ) then
+    set forceTcsh=1
+  else if ( "$arg" == '-nc' ) then
+    set useCustom=0
+  else if ( "$arg" == '-list' ) then
+    set doList=1
+  else if ( "$arg" == '-long' ) then
+    set classOpt="-ljc"
+  else if ( "$arg" == '-s' ) then
+    set ignore="socname"
+  else if ( "$arg" == '-st' ) then
+    set ignore="soctag"
+  else if ( "$arg" == '-it' ) then
+    set ignore="iptag"
+  else if ( "$arg" == '-ct' ) then
+    set ignore="custtag"
+  else if ( "$arg" == '-t' ) then
+    set ignore="itag"
+  else if ( "$arg" == '-x' ) then
+    set ignore="vari"
+  else if ( "$arg" == '-only' ) then
+    set ignore="only"
+  else if ( "$arg" == '-32' ) then
+    set bitSwitch="-32"
+    set ignore="NO"
+  else if ( "$arg" == '-version' ) then
+    echo "Version=$thisToolVer"
+    exit 0
+  else if ( "$arg" == '-h' ) then
+    goto HELP;
+  else
+    echo "Warning: Ignoring argument $arg.  ($thisToolName)"
+  endif
+end
+
+####################################################
+# Make sure this script is sourced
+####################################################
+if (! $forceTcsh) then
+  if (`echo $0 | sed -e 's/.*\///' | sed -e 's/^\-//'` != "tcsh") then
+    echo "Error: This script must be sourced.  ($thisToolName)"
+    exit 1
+  endif
+endif
+
+####################################################
+# Make sure the user is in the scripts directory
+####################################################
+set thisPwd=`pwd`
+set lastDir=`echo $thisPwd | sed -e 's/.*\///'`
+if (-f ./.projpath) then
+  set projPath="$thisPwd/`cat ./.projpath`"
+else
+  if ("$lastDir" != "scripts") then
+    if (-d "scripts") then
+      set projPath="$thisPwd/scripts"
+    else
+      echo "Error: You must source this script from the root or scripts directory.  ($thisToolName)"
+      exit 1
+    endif
+  endif
+
+  ####################################################
+  # Define project path based on current location
+  ####################################################
+  set projPath=`echo $thisPwd | sed -e 's/\/scripts//'`
+endif
+if (! -d $projPath) then
+  echo "Error: The project path $projPath was not found ($thisToolName)"
+  exit 1
+endif
+
+####################################################
+# Misc checks
+####################################################
+grep -s perl ~/.itools
+if ($status == 0) then
+   echo "Warning: You should remove perl from  ~/.itools file.  ($thisToolName)"
+endif
+
+####################################################
+# Make sure the variation configuration script exists
+####################################################
+#set variScript="/nfs/site/home/dlavin/tmp/work_DA_Global/da-intel-siputils/bin/variationConfig"
+set variScript="/p/com/eda/intel/siputils/prod/bin/variationConfig"
+if (! -f $variScript) then
+  if (-f "./variationConfig") then
+    set variScript="./variationConfig"
+  else
+    echo "Error: The variation config script $variScript was not found.  ($thisToolName)"
+    exit 1
+  endif
+endif
+if (! -x $variScript) then
+  echo "Error: The variation config script $variScript is not executable.  ($thisToolName)"
+  exit 1
+endif
+
+####################################################
+# Define default input file names
+####################################################
+#if ($varitag == "" && $?SETUP_VARIATION) then
+#  set varitag=$SETUP_VARIATION
+#  echo "Note: Using SETUP_VARIATION defined variation $varitag.  ($thisToolName)"
+#endif
+set defToolFile="$projPath/scripts/toolfile.dat"
+set defPreFile="$projPath/scripts/custom_pre.setup"
+set defPostFile="$projPath/scripts/custom_post.setup"
+set defToolFile=`$variScript $varitag -1 -bd $projPath/scripts`
+set exitStatus=$status
+if ($exitStatus == 1) then
+  echo "Warning: File for variation '$varitag' toolfile.dat not found, using default ($thisToolName)"
+else if ($exitStatus == 2) then
+  if ("$varitag" == "") then
+    echo "Error: Default variation in default_config.dat was not found in the $projPath/scripts/variation_config.dat file.  ($thisToolName)"
+  else
+    echo "Error: Variation $varitag was not found in the $projPath/scripts/variation_config.dat file.  ($thisToolName)"
+  endif
+  echo “Note: List of legal variations:”
+  set thisCmd="$variScript -list -bd $projPath/scripts"
+  $thisCmd
+  exit 1
+else if ($exitStatus == 3) then
+  echo "Error: Variation config file $projPath/scripts/variation_config.dat was not found ($thisToolName)"
+  exit 1
+endif
+set defPreFile=`$variScript $varitag -2 -bd $projPath/scripts`
+set exitStatus=$status
+if ($exitStatus == 1) then
+  echo "Warning: File for variation '$varitag' custom_pre file not found, using default ($thisToolName)"
+endif
+set defPostFile=`$variScript $varitag -3 -bd $projPath/scripts`
+set exitStatus=$status
+if ($exitStatus == 1) then
+  echo "Warning: File for variation '$varitag' custom_post file not found, using default ($thisToolName)"
+endif
+set thisBitSwitch=`$variScript $varitag -cs 32 -bd $projPath/scripts`
+#echo "debug> thisBitSwitch=$thisBitSwitch"
+if ("$thisBitSwitch" == '-32') then
+  set bitSwitch='-32'
+else if ("$thisBitSwitch" == '-64') then
+  set bitSwitch=''
+endif
+#echo "debug> bitSwitch=$bitSwitch"
+
+####################################################
+# Locate the tool file in the scripts directory
+####################################################
+set toolFile="$defToolFile"
+if (! -f $toolFile) then
+  echo "Error: The tool file $toolFile was not found.  ($thisToolName)"
+  exit 1
+endif
+
+####################################################
+# Make sure the merge script exists
+####################################################
+#set mergeScript="/nfs/site/home/dlavin/tmp/work_DA_Global/da-intel-siputils/bin/mergeToolFiles"
+set mergeScript="/p/com/eda/intel/siputils/prod/bin/mergeToolFiles"
+if (! -f $mergeScript) then
+  if (-f "./mergeToolFiles") then
+    set mergeScript="./mergeToolFiles"
+  else
+    echo "Error: The merge script $mergeScript was not found.  ($thisToolName)"
+    exit 1
+  endif
+endif
+if (! -x $mergeScript) then
+  echo "Error: The merge script $mergeScript is not executable.  ($thisToolName)"
+  exit 1
+endif
+
+####################################################
+# Make sure the defineNB script exists
+####################################################
+set defineNBCmd='/p/com/eda/intel/siputils/prod/bin/defineNB'
+if (! -f $defineNBCmd) then
+  echo "Error: The define NB script $defineNBCmd was not found.  ($thisToolName)"
+endif
+
+####################################################
+# Define SOC specific tool file - if specified
+####################################################
+set stoolfile=""
+if ("$socname" != "") then
+  if ("$soctag" != "") then
+    set socname="${socname}.${soctag}"
+  endif
+  set stoolfile="/p/sip/utils/data/soc/${socname}.dat"
+  # Site data file override
+  if (-f "/p/sip/utils/site/soc/${socname}.dat") then
+    set stoolfile="/p/sip/utils/site/soc/${socname}.dat"
+  endif
+  if (! -f $stoolfile) then
+    echo "Error: The SOC tool file $stoolfile was not found.  ($thisToolName)"
+    exit 1
+  endif
+else
+  ####################################################
+  # Toolfile.dat override for SOC
+  # Requires both SIPREG_PROJECT and toolfile.proj.<project>.dat (2)
+  #         - or -
+  # Requires both SIPREG_VARIATION and toolfile.vari.<variation>.dat (1)
+  ####################################################
+  if ($?SIPREG_PROJECT) then
+    set tmpToolFile="toolfile.proj.${SIPREG_PROJECT}.dat"
+    if (-f $tmpToolFile) then
+      set stoolfile=$tmpToolFile
+    endif
+  endif
+  if ($?SIPREG_VARIATION) then
+    set tmpToolFile="toolfile.vari.${SIPREG_VARIATION}.dat"
+    if (-f $tmpToolFile) then
+      set stoolfile=$tmpToolFile
+    endif
+  endif
+endif
+
+####################################################
+# Define IP tool file
+####################################################
+set itoolfile=$defToolFile
+if ("$iptag" != "") then
+  set itoolfile="toolfile.${iptag}.dat"
+endif
+if (! -f $itoolfile) then
+  echo "Error: The IP tools file $itoolfile was not found.  ($thisToolName)"
+  exit 1
+endif
+
+####################################################
+# Pre custom setup - if found
+####################################################
+if (! $doList) then
+  set customFile=$defPreFile
+  if ("$custtag" != "") then
+    set customFile="custom_pre.${custtag}.setup"
+  endif
+  if (-f $customFile) then
+    if ($useCustom) then
+      echo "Note: Sourcing custom pre file $customFile.  ($thisToolName)"
+      source $customFile $projPath
+      if ($status) then
+        echo "Error: Terminating because custom pre file $customFile failed.  ($thisToolName)"
+        exit 1
+      endif
+    endif
+  else
+    echo "Warning: The custom pre file $customFile was not found.  ($thisToolName)"
+  endif
+endif
+
+####################################################
+# SIP specific netbatch setup
+####################################################
+if (! $?SIP_DISABLE_NB_SETUP) then
+  setenv NBPOOL       `$defineNBCmd -pool -q`
+  setenv NBQSLOT      `$defineNBCmd -slot -q`
+  setenv NBCLASS      `$defineNBCmd -class $classOpt -q`
+  if ("$NBCLASS" == "") then
+    unsetenv NBCLASS
+  endif
+endif
+
+####################################################
+# Setup tools defined in tool file
+####################################################
+set licList=""
+set tsetupCmd="/p/com/env/psetup/5.3/bin/setupTool"
+foreach item (`$mergeScript -L -SM $itoolfile $stoolfile $bitSwitch $onlyCmd`)
+  set item=`echo $item | sed -e 's/__/ /g'`
+
+  # Strip off license override file to be sourced
+  set licFile=`echo $item | perl -nle 'if (/\s+\-L(.*)$/) { print $1 }'`
+  set item=`echo $item | perl -npe 's/\s+\-L(.*)$//'`
+
+  set myTool=`echo $item | awk '{ print $2 }'`
+  set doSetup="source $tsetupCmd $item"
+  if ($doList) then
+    echo "Note: Setup $item"
+  else
+    $doSetup
+
+    set licFile=`echo $licFile | sed -e 's/:/ /g'`
+    foreach thisLicFile ($licFile)
+
+      # Storing the license override file to be sourced later
+      if ("$thisLicFile" != "") then
+        if ("$licList" == "") then
+          set licList=$thisLicFile
+        else
+          set licList=($licList $thisLicFile)
+        endif
+      endif
+
+    end
+
+  endif
+
+end
+if ($doList) then
+  exit 0
+endif
+
+####################################################
+# Source license override utilites
+####################################################
+foreach item (`echo $licList | perl -nle 'foreach $a (split) { $u{$a}=1 } foreach (sort keys %u) { print }'`)
+  echo "Note: Sourcing license override file $item.  ($thisToolName)"
+  source $item >& /dev/null
+end
+
+####################################################
+# Define setenv items
+# Only do this if using mergeToolFile script ver 7+
+####################################################
+if ($doSetenv) then
+  set tver=`$mergeScript -version | awk '{ print $2 }' | sed -e 's/\..*//'`
+  if ("$tver" > 6) then
+    foreach item (`$mergeScript -env $itoolfile $stoolfile`)
+      set item=`echo $item | sed -e 's/__/ /'`
+      set item1=`echo $item | awk '{ print $1 }'`
+      set item2=`echo $item | awk '{ print $2 }'`
+      set item2=`echo $item2 | sed -e 's/__/ /'`
+      echo "Note: Defining $item1 as $item2.  ($thisToolName)"
+      setenv $item1 "$item2"
+    end
+  endif
+endif
+
+####################################################
+# Post custom setup - if found
+####################################################
+set customFile=$defPostFile
+if ("$custtag" != "") then
+  set customFile="custom_post.${custtag}.setup"
+endif
+if (-f $customFile) then
+  if ($useCustom) then
+    echo "Note: Sourcing custom post file $customFile.  ($thisToolName)"
+    source $customFile $projPath
+  endif
+else
+  echo "Warning: The custom post file $customFile was not found.  ($thisToolName)"
+endif
+
+exit 0
+
+HELP:
+echo "usage: source $thisToolName"
+echo "       -s <name>          Override with this SOC tool file"
+echo "       -st <tag>          Use SOC tool file with this tag"
+echo "       -x <variation>     Define data file using variation defined in variation_config.dat"
+echo "       -t <tag>           Use tool and custom files with this tag"
+echo "       -it <tag>          Use IP tool file with this tag"
+echo "       -ct <tag>          Use custom pre and post files with this tag"
+echo "       -only <tag>[,...]  Only setup tools with this tag in the toolfile dat file"
+echo "       -list              List tools being setup and exit"
+echo "       -long              Setup netbatch for long jobs"
+echo "       -nc                Do not source pre or post custom files"
+echo "       -32                Use 32 bit when applicable"
+echo "       -ft                Override required source error"
+echo "       -noenv             Do not setup setenv items"
+echo "       -version           Print the tool version and exit"
+echo "       -h                 Print this help"
+echo "Note: Must be sourced from the 'scripts' or IP_ROOT directory"
+echo "Note: Can use SETUP_VARIATION in lieu of '-x <variation>'"
+echo "File names:"
+echo "    Tool file = toolfile[.<tag>].dat"
+echo "    Variation tool file = toolfile.vari."\$"{SIPREG_VARIATION}.dat (optional 1)"
+echo "    Project tool file = toolfile.proj."\$"{SIPREG_PROJECT}.dat (optional 2)"
+echo "    Custom file = custom_{pre|post}[.<tag>].setup"
+echo "    Variation configuration file = variation_config.dat"
+echo "Tool file format:"
+echo "  A. Tool version support"
+echo "   ; comment"
+echo "   <tool> <version> [-top] [-tag <tag>] [-onlytag <tag>] [-32] [-noshow] [-lic <lic>[,...]] [+lic <lic>[,...]]"
+echo "   where:"
+echo "      -top             Moves that item to the top of the list"
+echo "      -tag <tag>       Tags this tool for the only switch"
+echo "      -onlytag <tag>   Tags this tool for ONLY the only switch"
+echo "      -32              Uses 32 bit binaries if available"
+echo "      -noshow          Do not include this item in merge lists"
+echo "      -lic <lic>[,...] Override license source file"
+echo "      +lic <lic>[,...] Add license source file"
+echo "   Example: toola 1.0"
+echo "  B. System environment variable support"
+echo '   $setenv <variable>[{<alias>}] <path>'
+echo "   where:"
+echo "     <variable>        The system environment variable name"
+echo "     <alias>           The alternate name (default is <variable>"
+echo "     <path>            Value for variable.  Can tag section with square brackets."
+echo '   Example: $setenv ABC{sample} /a/b/c/[d]'
+echo "Variation configuration file format:"
+echo "  ; comment"
+echo "  <variation>  {<toolfile>|-}  {<custom_pre>|-}   {<custom_post>|-}  [-32]"
+
+exit 0

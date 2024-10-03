@@ -1,0 +1,123 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => [
+                     "+AW_CONTINUE_ON_ERROR",
+                     "+iosf_tracker_filename=iosf_trk",
+                     "-assert nopostproc",
+                     "+vcs+lic+wait",
+                     "+SLA_MAX_RUN_CLOCK=400000",
+                     "+SLA_USER_DATA_PHASE_TIMEOUT=400000",
+                     "+SLA_CONFIG_PHASE_TIMEOUT=300000",
+                    ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+
+      req_drop_err => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_config_master_test/hqm_master_cfg_req_drop_err.cft",
+                         "+HQM_NO_PCIE_CONFIG_PHASE",
+                         "+HQM_DISABLE_BACKGROUND_CFG_GEN_SEQ +HQM_SKIP_AGITATE_SEQ +HQM_NO_PRE_FLUSH_PHASE +HQM_DISABLE_PROCHOT_DRIVE +HQM_DIS_PRIM_ISM_DLY_OVERRIDE",
+                        ],
+      },
+      
+      perr_AddrRdataWdata => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_config_master_test/hqm_master_cfg_perr_AddrRdataWdata.cft",
+                         "+HQM_NO_PCIE_CONFIG_PHASE +HQM_IOSF_CONTINUE_ON_PERR",
+                        ],
+      },
+
+      perr_Addr => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_config_master_test/hqm_master_cfg_perr_Addr.cft",
+                         "+HQM_NO_PCIE_CONFIG_PHASE +HQM_IOSF_CONTINUE_ON_PERR",
+                        ],
+      },
+
+      perr_Rdata => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_config_master_test/hqm_master_cfg_perr_Rdata.cft",
+                         "+HQM_NO_PCIE_CONFIG_PHASE +HQM_IOSF_CONTINUE_ON_PERR",
+                        ],
+      },
+
+      perr_Wdata => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_config_master_test/hqm_master_cfg_perr_Wdata.cft",
+                         "+HQM_NO_PCIE_CONFIG_PHASE +HQM_IOSF_CONTINUE_ON_PERR",
+                        ],
+      },
+
+      
+      perr_AddrWdata_disable_ring => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_config_master_test/hqm_master_cfg_perr_AddrWdata_disable_ring.cft",
+                         "+HQM_NO_PCIE_CONFIG_PHASE",
+                        ],
+      },
+
+      perr_Rdata_disable_ring => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_config_master_test/hqm_master_cfg_perr_Rdata_disable_ring.cft",
+                         "+HQM_NO_PCIE_CONFIG_PHASE  +HQM_IOSF_CONTINUE_ON_PERR",
+                        ],
+      },
+
+      cdc_ctl_clkgate_disabled => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_config_master_test/hqm_master_cfg_cdc_ctl_clkgate_disabled.cft",
+                        ],
+      },
+
+      cdc_ctl_pwrgate_holdoff => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_config_master_test/hqm_master_cfg_cdc_ctl_pwrgate_holdoff.cft",
+                        ],
+      },
+
+      override_clk_gate_1 => {
+
+          -simv_args => ["+HQM_HARD_RESET_PHASE_SEQ=hqm_iosf_reg_access_in_side_rst_seq", "+HQM_OVERRIDE_CLK_GATE_GPSB_ONLY",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_config_master_test/hqm_master_cfg_override_clk_gate.cft",
+                         "+HQM_NO_PCIE_CONFIG_PHASE ",
+                         "+HQM_RAL_ACCESS_PATH=sideband",
+                        ],
+      },
+
+      clk_switch_control => {
+          -simv_args => ["+HQM_HARD_RESET_PHASE_SEQ=hqm_iosf_reg_access_in_side_rst_seq", "+HQM_OVERRIDE_CLK_SWITCH_CONTROL_GPSB_ONLY",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_config_master_test/hqm_master_cfg_clk_switch_control.cft",
+                         "+HQM_NO_PCIE_CONFIG_PHASE ",
+                         "+HQM_RAL_ACCESS_PATH=sideband",
+                        ],
+      },
+
+      ##------------------------------------------------------------##
+      ##  Agitations 
+      ##------------------------------------------------------------##
+      agitate_fri => {
+          -simv_args => [
+                     "-debug_all -ucli +vcs+dumparrays +HQM_DISABLE_AGITIATE_ASSERT -i aceroot/verif/tb/hqm_proc/tests/agitate/agitate_fri.tcl", 
+                        ],
+      },      
+      agitate_cfg => {
+          -simv_args => [
+                     "-debug_all -ucli +vcs+dumparrays +HQM_DISABLE_AGITIATE_ASSERT -i aceroot/verif/tb/hqm_proc/tests/agitate/agitate_cfg.tcl", 
+                        ],
+      },                   
+      agitate_sys => {
+          -simv_args => [
+                     "-debug_all -ucli +vcs+dumparrays +HQM_DISABLE_AGITIATE_ASSERT -i aceroot/verif/tb/hqm_proc/tests/agitate/agitate_sys.tcl", 
+                        ],
+      },         
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

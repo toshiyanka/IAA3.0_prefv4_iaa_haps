@@ -1,0 +1,27 @@
+current_design rcfwl_gclk_glitchfree_clkmux
+
+#CLOCKS
+clock -name "rcfwl_gclk_glitchfree_clkmux.agentclk"
+clock -name "rcfwl_gclk_glitchfree_clkmux.x12clk"
+
+#RESETS
+reset -name "rcfwl_gclk_glitchfree_clkmux.iso_b" -value 0
+abstract_port -ports "rcfwl_gclk_glitchfree_clkmux.iso_b" -clock VCLK_iso_b -combo no
+
+#enable_seq_propagation -module gclk_glitchfree_clkmux
+
+//Functional mode, iso_b is 1
+#set_case_analysis -name "i_x12clk_ctech_lib_doublesync_rstb.ctech_lib_doublesync_rstb.\sync_reg[1][0] .Q" -value 1
+set_case_analysis -name "rcfwl_gclk_glitchfree_clkmux.x12clk_ff2_reg.Q" -value 1
+set_case_analysis -name "rcfwl_gclk_glitchfree_clkmux.agtclk_ff2_reg.Q" -value 1
+set_case_analysis -name "rcfwl_gclk_glitchfree_clkmux.x12clk_ctech_lib_latch_async_rst.ctech_lib_latch_async_rst.o" -value 1
+set_case_analysis -name "rcfwl_gclk_glitchfree_clkmux.agtclk_ctech_lib_latch_async_rst.ctech_lib_latch_async_rst.o" -value 1
+//Combo logic
+cdc_attribute -exclusive iso_b x12clk_ff2
+cdc_attribute -exclusive iso_b agtclk_ff2
+cdc_attribute -exclusive  x12clk_ff4 x12clk_ff2
+
+//Reset/Clock interaction
+//Note: This only works if the clocks are not active on deassertion of reset
+//(only on agentclk)
+#reset_filter_path -from_rst iso_b -clock agentclk -type reset_sync02

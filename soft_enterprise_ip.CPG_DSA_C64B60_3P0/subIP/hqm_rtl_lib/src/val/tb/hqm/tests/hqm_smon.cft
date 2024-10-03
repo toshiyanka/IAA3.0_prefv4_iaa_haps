@@ -1,0 +1,285 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+###################################
+wr config_master.cfg_pm_pmcsr_disable.disable 0x0
+rd config_master.cfg_pm_pmcsr_disable.disable 0x0
+##
+###poll to Wait for reset to be done 
+poll config_master.cfg_diagnostic_reset_status 0x800003ff 0x800003ff 500
+###poll to Wait for unit_idle to be done 
+poll config_master.cfg_diagnostic_idle_status 0x0007ffff 0x0007ffff 500
+###################################
+# Just test read/write of smon regs
+# Initial values
+rd hqm_system_csr.aw_smon_configuration0[0]     0x40000000
+rd hqm_system_csr.aw_smon_configuration1[0]     0x00000000
+rd hqm_system_csr.aw_smon_compare0[0]           0x00000000
+rd hqm_system_csr.aw_smon_compare1[0]           0x00000000
+rd hqm_system_csr.aw_smon_activitycounter0[0]   0x00000000
+rd hqm_system_csr.aw_smon_activitycounter1[0]   0x00000000
+rd hqm_system_csr.aw_smon_timer[0]              0x00000000
+rd hqm_system_csr.aw_smon_maximum_timer[0]      0x00000000
+rd hqm_system_csr.aw_smon_comp_mask0[0]         0xffffffff
+rd hqm_system_csr.aw_smon_comp_mask1[0]         0xffffffff
+rd hqm_system_csr.aw_smon_configuration0[1]     0x40000000
+rd hqm_system_csr.aw_smon_configuration1[1]     0x00000000
+rd hqm_system_csr.aw_smon_compare0[1]           0x00000000
+rd hqm_system_csr.aw_smon_compare1[1]           0x00000000
+rd hqm_system_csr.aw_smon_activitycounter0[1]   0x00000000
+rd hqm_system_csr.aw_smon_activitycounter1[1]   0x00000000
+rd hqm_system_csr.aw_smon_timer[1]              0x00000000
+rd hqm_system_csr.aw_smon_maximum_timer[1]      0x00000000
+rd hqm_system_csr.aw_smon_comp_mask0[1]         0xffffffff
+rd hqm_system_csr.aw_smon_comp_mask1[1]         0xffffffff
+rd hqm_system_csr.perf_smon_configuration0      0x40000000
+rd hqm_system_csr.perf_smon_configuration1      0x00000000
+rd hqm_system_csr.perf_smon_compare0            0x00000000
+rd hqm_system_csr.perf_smon_compare1            0x00000000
+rd hqm_system_csr.perf_smon_activitycounter0    0x00000000
+rd hqm_system_csr.perf_smon_activitycounter1    0x00000000
+rd hqm_system_csr.perf_smon_timer               0x00000000
+rd hqm_system_csr.perf_smon_maximum_timer       0x00000000
+rd hqm_system_csr.perf_smon_comp_mask0          0xffffffff
+rd hqm_system_csr.perf_smon_comp_mask1          0xffffffff
+rd hqm_sif_csr.aw_smon_configuration0[0]        0x40000000
+rd hqm_sif_csr.aw_smon_configuration1[0]        0x00000000
+rd hqm_sif_csr.aw_smon_compare0[0]              0x00000000
+rd hqm_sif_csr.aw_smon_compare1[0]              0x00000000
+rd hqm_sif_csr.aw_smon_activitycounter0[0]      0x00000000
+rd hqm_sif_csr.aw_smon_activitycounter1[0]      0x00000000
+rd hqm_sif_csr.aw_smon_timer[0]                 0x00000000
+rd hqm_sif_csr.aw_smon_maximum_timer[0]         0x00000000
+rd hqm_sif_csr.aw_smon_comp_mask0[0]            0xffffffff
+rd hqm_sif_csr.aw_smon_comp_mask1[0]            0xffffffff
+rd hqm_sif_csr.aw_smon_configuration0[1]        0x40000000
+rd hqm_sif_csr.aw_smon_configuration1[1]        0x00000000
+rd hqm_sif_csr.aw_smon_compare0[1]              0x00000000
+rd hqm_sif_csr.aw_smon_compare1[1]              0x00000000
+rd hqm_sif_csr.aw_smon_activitycounter0[1]      0x00000000
+rd hqm_sif_csr.aw_smon_activitycounter1[1]      0x00000000
+rd hqm_sif_csr.aw_smon_timer[1]                 0x00000000
+rd hqm_sif_csr.aw_smon_maximum_timer[1]         0x00000000
+rd hqm_sif_csr.aw_smon_comp_mask0[1]            0xffffffff
+rd hqm_sif_csr.aw_smon_comp_mask1[1]            0xffffffff
+
+wr hqm_system_csr.aw_smon_configuration0[0]     0x1f7ffff0
+wr hqm_system_csr.aw_smon_configuration1[0]     0x0000ffff
+wr hqm_system_csr.aw_smon_compare0[0]           0xffffffff
+wr hqm_system_csr.aw_smon_compare1[0]           0xffffffff
+wr hqm_system_csr.aw_smon_activitycounter0[0]   0xffffffff
+wr hqm_system_csr.aw_smon_activitycounter1[0]   0xffffffff
+wr hqm_system_csr.aw_smon_timer[0]              0xffffffff
+wr hqm_system_csr.aw_smon_maximum_timer[0]      0xffffffff
+wr hqm_system_csr.aw_smon_comp_mask0[0]         0x00000000
+wr hqm_system_csr.aw_smon_comp_mask1[0]         0x00000000
+wr hqm_system_csr.aw_smon_configuration0[1]     0x1f7ffff0
+wr hqm_system_csr.aw_smon_configuration1[1]     0x0000ffff
+wr hqm_system_csr.aw_smon_compare0[1]           0xffffffff
+wr hqm_system_csr.aw_smon_compare1[1]           0xffffffff
+wr hqm_system_csr.aw_smon_activitycounter0[1]   0xffffffff
+wr hqm_system_csr.aw_smon_activitycounter1[1]   0xffffffff
+wr hqm_system_csr.aw_smon_timer[1]              0xffffffff
+wr hqm_system_csr.aw_smon_maximum_timer[1]      0xffffffff
+wr hqm_system_csr.aw_smon_comp_mask0[1]         0x00000000
+wr hqm_system_csr.aw_smon_comp_mask1[1]         0x00000000
+wr hqm_system_csr.perf_smon_configuration0      0x1f7ffff0
+wr hqm_system_csr.perf_smon_configuration1      0x0000ffff
+wr hqm_system_csr.perf_smon_compare0            0xffffffff
+wr hqm_system_csr.perf_smon_compare1            0xffffffff
+wr hqm_system_csr.perf_smon_activitycounter0    0xffffffff
+wr hqm_system_csr.perf_smon_activitycounter1    0xffffffff
+wr hqm_system_csr.perf_smon_timer               0xffffffff
+wr hqm_system_csr.perf_smon_maximum_timer       0xffffffff
+wr hqm_system_csr.perf_smon_comp_mask0          0x00000000
+wr hqm_system_csr.perf_smon_comp_mask1          0x00000000
+wr hqm_sif_csr.aw_smon_configuration0[0]        0x1f7ffff0
+wr hqm_sif_csr.aw_smon_configuration1[0]        0x0000ffff
+wr hqm_sif_csr.aw_smon_compare0[0]              0xffffffff
+wr hqm_sif_csr.aw_smon_compare1[0]              0xffffffff
+wr hqm_sif_csr.aw_smon_activitycounter0[0]      0xffffffff
+wr hqm_sif_csr.aw_smon_activitycounter1[0]      0xffffffff
+wr hqm_sif_csr.aw_smon_timer[0]                 0xffffffff
+wr hqm_sif_csr.aw_smon_maximum_timer[0]         0xffffffff
+wr hqm_sif_csr.aw_smon_comp_mask0[0]            0x00000000
+wr hqm_sif_csr.aw_smon_comp_mask1[0]            0x00000000
+wr hqm_sif_csr.aw_smon_configuration0[1]        0x1f7ffff0
+wr hqm_sif_csr.aw_smon_configuration1[1]        0x0000ffff
+wr hqm_sif_csr.aw_smon_compare0[1]              0xffffffff
+wr hqm_sif_csr.aw_smon_compare1[1]              0xffffffff
+wr hqm_sif_csr.aw_smon_activitycounter0[1]      0xffffffff
+wr hqm_sif_csr.aw_smon_activitycounter1[1]      0xffffffff
+wr hqm_sif_csr.aw_smon_timer[1]                 0xffffffff
+wr hqm_sif_csr.aw_smon_maximum_timer[1]         0xffffffff
+wr hqm_sif_csr.aw_smon_comp_mask0[1]            0x00000000
+wr hqm_sif_csr.aw_smon_comp_mask1[1]            0x00000000
+
+rd hqm_system_csr.aw_smon_configuration0[0]     0x5f7ffff0
+rd hqm_system_csr.aw_smon_configuration1[0]     0x0000ffff
+rd hqm_system_csr.aw_smon_compare0[0]           0xffffffff
+rd hqm_system_csr.aw_smon_compare1[0]           0xffffffff
+rd hqm_system_csr.aw_smon_activitycounter0[0]   0xffffffff
+rd hqm_system_csr.aw_smon_activitycounter1[0]   0xffffffff
+rd hqm_system_csr.aw_smon_timer[0]              0xffffffff
+rd hqm_system_csr.aw_smon_maximum_timer[0]      0xffffffff
+rd hqm_system_csr.aw_smon_comp_mask0[0]         0x00000000
+rd hqm_system_csr.aw_smon_comp_mask1[0]         0x00000000
+rd hqm_system_csr.aw_smon_configuration0[1]     0x5f7ffff0
+rd hqm_system_csr.aw_smon_configuration1[1]     0x0000ffff
+rd hqm_system_csr.aw_smon_compare0[1]           0xffffffff
+rd hqm_system_csr.aw_smon_compare1[1]           0xffffffff
+rd hqm_system_csr.aw_smon_activitycounter0[1]   0xffffffff
+rd hqm_system_csr.aw_smon_activitycounter1[1]   0xffffffff
+rd hqm_system_csr.aw_smon_timer[1]              0xffffffff
+rd hqm_system_csr.aw_smon_maximum_timer[1]      0xffffffff
+rd hqm_system_csr.aw_smon_comp_mask0[1]         0x00000000
+rd hqm_system_csr.aw_smon_comp_mask1[1]         0x00000000
+rd hqm_system_csr.perf_smon_configuration0      0x5f7ffff0
+rd hqm_system_csr.perf_smon_configuration1      0x0000ffff
+rd hqm_system_csr.perf_smon_compare0            0xffffffff
+rd hqm_system_csr.perf_smon_compare1            0xffffffff
+rd hqm_system_csr.perf_smon_activitycounter0    0xffffffff
+rd hqm_system_csr.perf_smon_activitycounter1    0xffffffff
+rd hqm_system_csr.perf_smon_timer               0xffffffff
+rd hqm_system_csr.perf_smon_maximum_timer       0xffffffff
+rd hqm_system_csr.perf_smon_comp_mask0          0x00000000
+rd hqm_system_csr.perf_smon_comp_mask1          0x00000000
+rd hqm_sif_csr.aw_smon_configuration0[0]        0x5f7ffff0
+rd hqm_sif_csr.aw_smon_configuration1[0]        0x0000ffff
+rd hqm_sif_csr.aw_smon_compare0[0]              0xffffffff
+rd hqm_sif_csr.aw_smon_compare1[0]              0xffffffff
+rd hqm_sif_csr.aw_smon_activitycounter0[0]      0xffffffff
+rd hqm_sif_csr.aw_smon_activitycounter1[0]      0xffffffff
+rd hqm_sif_csr.aw_smon_timer[0]                 0xffffffff
+rd hqm_sif_csr.aw_smon_maximum_timer[0]         0xffffffff
+rd hqm_sif_csr.aw_smon_comp_mask0[0]            0x00000000
+rd hqm_sif_csr.aw_smon_comp_mask1[0]            0x00000000
+rd hqm_sif_csr.aw_smon_configuration0[1]        0x5f7ffff0
+rd hqm_sif_csr.aw_smon_configuration1[1]        0x0000ffff
+rd hqm_sif_csr.aw_smon_compare0[1]              0xffffffff
+rd hqm_sif_csr.aw_smon_compare1[1]              0xffffffff
+rd hqm_sif_csr.aw_smon_activitycounter0[1]      0xffffffff
+rd hqm_sif_csr.aw_smon_activitycounter1[1]      0xffffffff
+rd hqm_sif_csr.aw_smon_timer[1]                 0xffffffff
+rd hqm_sif_csr.aw_smon_maximum_timer[1]         0xffffffff
+rd hqm_sif_csr.aw_smon_comp_mask0[1]            0x00000000
+rd hqm_sif_csr.aw_smon_comp_mask1[1]            0x00000000
+
+wr hqm_system_csr.aw_smon_configuration0[0]     0x00000000
+wr hqm_system_csr.aw_smon_configuration1[0]     0x00000000
+wr hqm_system_csr.aw_smon_compare0[0]           0x00000000
+wr hqm_system_csr.aw_smon_compare1[0]           0x00000000
+wr hqm_system_csr.aw_smon_activitycounter0[0]   0x00000000
+wr hqm_system_csr.aw_smon_activitycounter1[0]   0x00000000
+wr hqm_system_csr.aw_smon_timer[0]              0x00000000
+wr hqm_system_csr.aw_smon_maximum_timer[0]      0x00000000
+wr hqm_system_csr.aw_smon_comp_mask0[0]         0xffffffff
+wr hqm_system_csr.aw_smon_comp_mask1[0]         0xffffffff
+wr hqm_system_csr.aw_smon_configuration0[1]     0x00000000
+wr hqm_system_csr.aw_smon_configuration1[1]     0x00000000
+wr hqm_system_csr.aw_smon_compare0[1]           0x00000000
+wr hqm_system_csr.aw_smon_compare1[1]           0x00000000
+wr hqm_system_csr.aw_smon_activitycounter0[1]   0x00000000
+wr hqm_system_csr.aw_smon_activitycounter1[1]   0x00000000
+wr hqm_system_csr.aw_smon_timer[1]              0x00000000
+wr hqm_system_csr.aw_smon_maximum_timer[1]      0x00000000
+wr hqm_system_csr.aw_smon_comp_mask0[1]         0xffffffff
+wr hqm_system_csr.aw_smon_comp_mask1[1]         0xffffffff
+wr hqm_system_csr.perf_smon_configuration0      0x00000000
+wr hqm_system_csr.perf_smon_configuration1      0x00000000
+wr hqm_system_csr.perf_smon_compare0            0x00000000
+wr hqm_system_csr.perf_smon_compare1            0x00000000
+wr hqm_system_csr.perf_smon_activitycounter0    0x00000000
+wr hqm_system_csr.perf_smon_activitycounter1    0x00000000
+wr hqm_system_csr.perf_smon_timer               0x00000000
+wr hqm_system_csr.perf_smon_maximum_timer       0x00000000
+wr hqm_system_csr.perf_smon_comp_mask0          0xffffffff
+wr hqm_system_csr.perf_smon_comp_mask1          0xffffffff
+wr hqm_sif_csr.aw_smon_configuration0[0]        0x00000000
+wr hqm_sif_csr.aw_smon_configuration1[0]        0x00000000
+wr hqm_sif_csr.aw_smon_compare0[0]              0x00000000
+wr hqm_sif_csr.aw_smon_compare1[0]              0x00000000
+wr hqm_sif_csr.aw_smon_activitycounter0[0]      0x00000000
+wr hqm_sif_csr.aw_smon_activitycounter1[0]      0x00000000
+wr hqm_sif_csr.aw_smon_timer[0]                 0x00000000
+wr hqm_sif_csr.aw_smon_maximum_timer[0]         0x00000000
+wr hqm_sif_csr.aw_smon_comp_mask0[0]            0xffffffff
+wr hqm_sif_csr.aw_smon_comp_mask1[0]            0xffffffff
+wr hqm_sif_csr.aw_smon_configuration0[1]        0x00000000
+wr hqm_sif_csr.aw_smon_configuration1[1]        0x00000000
+wr hqm_sif_csr.aw_smon_compare0[1]              0x00000000
+wr hqm_sif_csr.aw_smon_compare1[1]              0x00000000
+wr hqm_sif_csr.aw_smon_activitycounter0[1]      0x00000000
+wr hqm_sif_csr.aw_smon_activitycounter1[1]      0x00000000
+wr hqm_sif_csr.aw_smon_timer[1]                 0x00000000
+wr hqm_sif_csr.aw_smon_maximum_timer[1]         0x00000000
+wr hqm_sif_csr.aw_smon_comp_mask0[1]            0xffffffff
+wr hqm_sif_csr.aw_smon_comp_mask1[1]            0xffffffff
+
+rd hqm_system_csr.aw_smon_configuration0[0]     0x40000000
+rd hqm_system_csr.aw_smon_configuration1[0]     0x00000000
+rd hqm_system_csr.aw_smon_compare0[0]           0x00000000
+rd hqm_system_csr.aw_smon_compare1[0]           0x00000000
+rd hqm_system_csr.aw_smon_activitycounter0[0]   0x00000000
+rd hqm_system_csr.aw_smon_activitycounter1[0]   0x00000000
+rd hqm_system_csr.aw_smon_timer[0]              0x00000000
+rd hqm_system_csr.aw_smon_maximum_timer[0]      0x00000000
+rd hqm_system_csr.aw_smon_comp_mask0[0]         0xffffffff
+rd hqm_system_csr.aw_smon_comp_mask1[0]         0xffffffff
+rd hqm_system_csr.aw_smon_configuration0[1]     0x40000000
+rd hqm_system_csr.aw_smon_configuration1[1]     0x00000000
+rd hqm_system_csr.aw_smon_compare0[1]           0x00000000
+rd hqm_system_csr.aw_smon_compare1[1]           0x00000000
+rd hqm_system_csr.aw_smon_activitycounter0[1]   0x00000000
+rd hqm_system_csr.aw_smon_activitycounter1[1]   0x00000000
+rd hqm_system_csr.aw_smon_timer[1]              0x00000000
+rd hqm_system_csr.aw_smon_maximum_timer[1]      0x00000000
+rd hqm_system_csr.aw_smon_comp_mask0[1]         0xffffffff
+rd hqm_system_csr.aw_smon_comp_mask1[1]         0xffffffff
+rd hqm_system_csr.perf_smon_configuration0      0x40000000
+rd hqm_system_csr.perf_smon_configuration1      0x00000000
+rd hqm_system_csr.perf_smon_compare0            0x00000000
+rd hqm_system_csr.perf_smon_compare1            0x00000000
+rd hqm_system_csr.perf_smon_activitycounter0    0x00000000
+rd hqm_system_csr.perf_smon_activitycounter1    0x00000000
+rd hqm_system_csr.perf_smon_timer               0x00000000
+rd hqm_system_csr.perf_smon_maximum_timer       0x00000000
+rd hqm_system_csr.perf_smon_comp_mask0          0xffffffff
+rd hqm_system_csr.perf_smon_comp_mask1          0xffffffff
+rd hqm_sif_csr.aw_smon_configuration0[0]        0x40000000
+rd hqm_sif_csr.aw_smon_configuration1[0]        0x00000000
+rd hqm_sif_csr.aw_smon_compare0[0]              0x00000000
+rd hqm_sif_csr.aw_smon_compare1[0]              0x00000000
+rd hqm_sif_csr.aw_smon_activitycounter0[0]      0x00000000
+rd hqm_sif_csr.aw_smon_activitycounter1[0]      0x00000000
+rd hqm_sif_csr.aw_smon_timer[0]                 0x00000000
+rd hqm_sif_csr.aw_smon_maximum_timer[0]         0x00000000
+rd hqm_sif_csr.aw_smon_comp_mask0[0]            0xffffffff
+rd hqm_sif_csr.aw_smon_comp_mask1[0]            0xffffffff
+rd hqm_sif_csr.aw_smon_configuration0[1]        0x40000000
+rd hqm_sif_csr.aw_smon_configuration1[1]        0x00000000
+rd hqm_sif_csr.aw_smon_compare0[1]              0x00000000
+rd hqm_sif_csr.aw_smon_compare1[1]              0x00000000
+rd hqm_sif_csr.aw_smon_activitycounter0[1]      0x00000000
+rd hqm_sif_csr.aw_smon_activitycounter1[1]      0x00000000
+rd hqm_sif_csr.aw_smon_timer[1]                 0x00000000
+rd hqm_sif_csr.aw_smon_maximum_timer[1]         0x00000000
+rd hqm_sif_csr.aw_smon_comp_mask0[1]            0xffffffff
+rd hqm_sif_csr.aw_smon_comp_mask1[1]            0xffffffff
+

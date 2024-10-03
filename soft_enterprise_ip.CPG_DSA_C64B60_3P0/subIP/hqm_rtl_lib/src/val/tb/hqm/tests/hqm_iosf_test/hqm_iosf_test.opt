@@ -1,0 +1,1321 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library; 
+{
+   %opts = (
+      -simv_args => [
+                     "+AW_CONTINUE_ON_ERROR",
+                     "+iosf_tracker_filename=iosf_trk",
+                     "-assert nopostproc",
+                     "+vcs+lic+wait",
+                     "+SLA_MAX_RUN_CLOCK=10000000",
+                     "+HQM_SKIP_PCIE_EOT=1",
+                     "+SLA_USER_DATA_PHASE_TIMEOUT=600000000",
+                     "+SLA_EXTRA_DATA_PHASE_TIMEOUT=600000",
+                     "+SLA_CONFIG_PHASE_TIMEOUT=200000",
+                     "+SLA_FLUSH_PHASE_TIMEOUT=4000000",
+                     "+HQMS_DEBUG",
+                     "+HQMI_DEBUG",
+                    ],
+                    -test_in_model => 1,
+                    -enabled_post_process_modes => "hqm_test",
+      );
+   %runModes = (
+      smoke => {
+          -simv_args => [
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      run_with_cfg_trf_smoke => {
+          -simv_args => [
+                         "+HQM_IOSF_USR_TRF=1",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/hcw_ingress_check_test1_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_functional/hqm_cmd_hcw_smoke.cft",
+                         "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                         "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_hw_synd=0x88048400/0x0:hqm_sif_csr.iosf_alarm_err=0x10/0x0:hqm_sif_csr.ri_parity_err=0x8/0x0", #iosf_alarm_err.RI_PARITY_ERR=1;ri_parity_err.PD_FIFO_PERR=1
+                        ],
+      },
+
+      reg_access_sb_in_side_rst => {
+          -simv_args => [
+                         "+HQM_HARD_RESET_PHASE_SEQ=hqm_iosf_reg_access_in_side_rst_seq",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      crd_chk_in_pf_flr => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_CREDIT_CHECK_FLR_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+HQM_IOSF_SETGNTGAP +HQM_IOSF_EN_ORDERINGRULES +HQM_IOSF_GNT_DLY_MIN=50 +HQM_IOSF_GNT_DLY_MAX=100",
+                         "+HQM_IOSF_EN_RAND_CLKACKDLY +HQM_IOSF_CLK_ACK_DLY_MAX=10",
+                         "+hqm_iosf_credit_check_with_pf_flr_seq_stim_config::number_of_txns=50",
+                        ],
+      },
+      flr_with_txns => {
+          -simv_args => [
+                         "+hqm_iosf_credit_check_with_pf_flr_seq_stim_config::flr_with_txns=1",
+                         "+HQM_EOT_CPLID_CHK_DIS",
+                         "+HQM_PCIE_SKIP_EOT_SEQ",
+                         "+MMIO_WR_WGHT=50",
+                        ], 
+      },
+      mask_cfg_wr_in_flr => {
+          -simv_args => [
+                         "+hqm_iosf_credit_check_with_pf_flr_seq_stim_config::mask_cfg_wr=1",
+                        ], 
+      },
+
+      asyncGnt => {
+          -simv_args => [
+                         "+HQM_IOSF_EN_ASYNCGNT",
+                        ],
+      },
+      sb_interleaving => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_INTERLEAVING_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      sb_mem_access_wo_bar_cfg => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_MEM_ACCESS_WO_BAR_CFG_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+HQM_NO_PCIE_CONFIG_PHASE=1",
+                        ],
+      },
+      sb_b2b_cfg_wr_with_bd_read => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_B2B_CFG_WR_WITH_BD_READ_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      sb_credit_exhaust => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_CREDIT_EXHAUST_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+HQM_IOSF_SB_NP_CRD_BUF=1",
+                         "+HQM_IOSF_SB_P_CRD_BUF=1",
+                         "+HQM_FLIT_PUT_CREDIT_UPDATE_CLK_N_CHK",
+                        ],
+      },
+      sb_intermediate_reset_prep_between_np_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_INTERMEDIATE_RESET_PREP_BETWEEN_NP_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+HQM_IOSF_SB_TXNS_NUM=4",
+                         "+HQM_IOSF_SB_RESET_PREP_NUM=1",
+                         "+hqm_warm_reset_sequence_stim_config::adr_flow=1",
+                        ],
+      },
+      sb_intermediate_reset_prep_between_np_b2b_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_INTERMEDIATE_RESET_PREP_BETWEEN_NP_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+HQM_IOSF_SB_TXNS_NUM=4",
+                         "+HQM_IOSF_SB_RESET_PREP_NUM=1",
+                         "+hqm_warm_reset_sequence_stim_config::adr_flow=1",
+                         "+hqm_iosf_sb_intermediate_reset_prep_between_np_seq_stim_config::b2b=1",
+                        ],
+      },
+      sb_test_fid => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_TEST_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+RANDOM_FID",
+                        ],
+      },
+      prim_back2back_cfgrd => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_PRIM_BACK2BACK_CFGRD_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      prim_back2back_cfgwr => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_PRIM_BACK2BACK_CFGWR_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      prim_wrwr => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_PRIM_CFG_GENERIC_SEQ",
+                         "+CFG_MODE=WRWR_rand",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+RD_CPL_TXN",
+                        ],
+      },
+      prim_rrwwrr => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_PRIM_CFG_GENERIC_SEQ",
+                         "+CFG_MODE=RRWWRR",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+RD_CPL_TXN",
+                        ],
+      },
+      prim_wwrr => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_PRIM_CFG_GENERIC_SEQ",
+                         "+CFG_MODE=WWRR_addr",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+RD_CPL_TXN",
+                        ],
+      },
+      prim_wwwr => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_PRIM_CFG_GENERIC_SEQ",
+                         "+CFG_MODE=WWWR_addr",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+RD_CPL_TXN",
+                        ],
+      },
+      prim_wrrr => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_PRIM_CFG_GENERIC_SEQ",
+                         "+CFG_MODE=WRRR_addr",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+RD_CPL_TXN",
+                        ],
+      },
+      prim_parallel_wrwr => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_PRIM_CFG_GENERIC_PARALLEL_SEQ",
+                         "+CFG_MODE=WRWR_rand",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      prim_parallel_wwrr => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_PRIM_CFG_GENERIC_PARALLEL_SEQ",
+                         "+CFG_MODE=WWRR_addr",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      prim_parallel_wwwr => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_PRIM_CFG_GENERIC_PARALLEL_SEQ",
+                         "+CFG_MODE=WWWR_addr",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      prim_parallel_wrrr => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_PRIM_CFG_GENERIC_PARALLEL_SEQ",
+                         "+CFG_MODE=WRRR_addr",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      prim_back2back_memrd1 => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_PRIM_BACK2BACK_MEMRD_SEQ1",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      prim_back2back_memrd => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_PRIM_BACK2BACK_MEMRD_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      write_once_register_post_reset_check => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_PRIM_BACK2BACK_MEMRD_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+WRITE_ONCE_REGISTER_CHECK",
+                         "+BLOCKING_IOSF_TXN",
+                        ],
+      },
+      prim_back2back_memrd_rqid_txn => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_PRIM_BACK2BACK_MEMRD_SEQ1",
+                         "+RQID_TXN","+BLOCKING_IOSF_TXN",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      prim_memwrwr => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_PRIM_MEM_GENERIC_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+CFG_MODE=WRWR_rand",
+                        ],
+      },
+      prim_memwwrr => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_PRIM_MEM_GENERIC_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+CFG_MODE=WWRR_addr",
+                        ],
+      },
+      prim_memwwwr => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_PRIM_MEM_GENERIC_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+CFG_MODE=WWWR_addr",
+                        ],
+      },
+      prim_memwrrr => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_PRIM_MEM_GENERIC_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+CFG_MODE=WRRR_addr",
+                        ],
+      },
+      prim_cfgrd_memrd => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_PRIM_CFGRD_MEMRD",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      prim_memwr_cfgrd => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_PRIM_MEMWR_CFGRD",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+BLOCKING_IOSF_TXN",
+                        ],
+      },
+      prim_memwr_cfgwr => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_PRIM_MEMWR_CFGWR",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+BLOCKING_IOSF_TXN",
+                        ],
+      },
+      prim_b2b_posted_wrd => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_PRIM_BACK2BACK_POSTED_WRD_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+BLOCKING_IOSF_TXN",
+                        ],
+      },
+      prim_b2b_posted => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_PRIM_BACK2BACK_POSTED_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+BLOCKING_IOSF_TXN",
+                        ],
+      },
+      prim_b2b_posted2 => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_PRIM_BACK2BACK_POSTED_SEQ2",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+BLOCKING_IOSF_TXN",
+                        ],
+      },
+      sb_b2b_cfgwr => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_BACK2BACK_CFGWR_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+BLOCKING_IOSF_CFGRD_TXN",
+                        ],
+      },
+      sb_b2b_cfgrd => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_BACK2BACK_CFGRD_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+BLOCKING_IOSF_CFGRD_TXN",
+                        ],
+      },
+      sb_b2b_cfgrd_with_ecrc_check => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_BACK2BACK_CFGRD_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+BLOCKING_IOSF_CFGRD_TXN",
+                         "+ECRC_CHECK",
+                        ],
+      },
+      sb_b2b_memwr_func_pf_regs => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_BACK2BACK_MEMWR_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+BLOCKING_IOSF_MEMRD_TXN",
+                         "+FUNC_PF_REGS_CHECK",
+                        ],
+      },
+      sb_b2b_memwr_func_vf_regs => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_BACK2BACK_MEMWR_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+BLOCKING_IOSF_MEMRD_TXN",
+                         "+FUNC_VF_REGS_CHECK",
+                        ],
+      },
+      sb_b2b_memwr_csr_regs => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_BACK2BACK_MEMWR_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+BLOCKING_IOSF_MEMRD_TXN",
+                         "+CSR_SYSTEM_REGS_CHECK",
+                        ],
+      },
+      sb_b2b_memrd => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_BACK2BACK_MEMRD_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+MEM64_TXN",
+                        ],
+      },
+      sb_b2b_memrd_32 => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_BACK2BACK_MEMRD_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+MEM32_TXN",
+                         "+BLOCKING_IOSF_MEMRD_TXN",
+                        ],
+      },
+      sb_unsupported_wr_iowr => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_UNSUPPORTED_WR_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+IOWR_TXN",
+                        ],
+      },
+      sb_unsupported_wr_crwr => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_UNSUPPORTED_WR_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+CRWR_TXN",
+                        ],
+      },
+      sb_unsupported_local_sync => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_UNSUPPORTED_WR_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+LOCAL_SYNC_TXN",
+                        ],
+      },
+      sb_unsupported_crwr_posted => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_UNSUPPORTED_WR_SEQ1",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+CRWR_POSTED_TXN",
+                        ],
+      },
+      sb_unsupported_virtual_wire => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_UNSUPPORTED_WR_SEQ1",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+VIRTUAL_TXN",
+                        ],
+      },
+      sb_unsupported_do_pme => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_UNSUPPORTED_WR_SEQ1",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+DO_PME_TXN",
+                        ],
+      },
+      sb_unsupported_iord => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_UNSUPPORTED_RD_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+IORD_TXN",
+                        ],
+      },
+      sb_unsupported_crrd => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_UNSUPPORTED_RD_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+CRRD_TXN",
+                        ],
+      },
+      sb_unsupported_iowr_sai => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_UNSUPPORT_SAI_WR_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+IOWR_TXN",
+                        ],
+      },
+      sb_unsupported_crwr_sai => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_UNSUPPORT_SAI_WR_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+CRWR_TXN",
+                        ],
+      },
+      sb_unsupported_crrd_sai => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_UNSUPPORT_SAI_RD_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+CRRD_TXN", "+UR_SAI_TXN",
+                        ],
+      },
+      sb_unsupported_iord_sai => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_UNSUPPORT_SAI_RD_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+IORD_TXN", "+UR_SAI_TXN",
+                        ],
+      },
+      sb_boot_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_BOOT_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      sb_pm_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_PM_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      sb_global_txn_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_GLOBAL_OPCODE",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+GLOBAL_TXN",
+                        ],
+      },
+      sb_global_txn_seq1 => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_GLOBAL_OPCODE",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      sb_epspec_opcode => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_EPSPEC_OPCODE",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+HQM_EPSPEC_SEQ=1",
+                        ],
+      },
+      sb_np_memwr32 => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_NP_MEMWR",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+NP_MEMWR_TXN",
+                         "+MEM32",
+                        ],
+      },
+      sb_np_memwr64 => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_NP_MEMWR",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+NP_MEMWR_TXN",
+                         "+MEM64",
+                        ],
+      },
+      zero_sbe_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_ZERO_SBE",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      sb_cfgwr_rd => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_CFGWR_RD",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+BLOCKING_IOSF_CFGRD_TXN",
+                        ],
+      },
+      sb_cpl_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_CPL_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cpl_sb_error.waiver",
+                         "+CHK_DISABLE",
+                        ],
+      },
+      sb_cplD_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_CPLD_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cpl_sb_error.waiver",
+                         "+CHK_DISABLE",
+                        ],
+      },
+      sb_unsupport_memwr_seq=> {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_UNSUPPORT_MEMWR",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+MODE0",
+                        ],
+      },
+      sb_unsupport_memwr_seq1=> {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_UNSUPPORT_MEMWR",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+MODE1",
+                        ],
+      },
+      sb_cfgwr_fid_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_CFGWR_FID_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      sb_cfgrd_fid_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_CFGRD_FID_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      sb_memrd_fid_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_MEMRD_FID_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      sb_cfgrd_fbe_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_CFGRD_FBE_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      sb_cfgwr_fbe_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_CFGWR_FBE_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+BLOCKING_IOSF_CFGRD_TXN","+CFGWR_ALL",
+                         "+hqm_pcie_init_stim_config::skip_msi_cfg=1",
+                        ],
+      },
+      sb_memrd_fbe_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_MEMRD_FBE_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      sb_memwr_fbe_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_MEMWR_FBE_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      sb_cfgrd_sbe_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_CFGRD_SBE_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      sb_cfgwr_sbe_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_CFGWR_SBE_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      sb_memrd_sbe_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_MEMRD_SBE_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      sb_memwr_sbe_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_MEMWR_SBE_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      sb_npmemwr_sbe_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_NPMEMWR_SBE_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      sb_npmemwr32_sbe_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_NPMEMWR_SBE_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+MEM32",
+                        ],
+      },
+      sb_npmemwr32_fbe_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_NPMEMWR_FBE_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+MEM32",
+                        ],
+      },
+      sb_npmemwr_fbe_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_NPMEMWR_FBE_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      cfgrd_baddata_parity_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_CFGRD_BADDATA_PARITY_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+BLOCKING_IOSF_TXN",
+                        ],
+      },
+      cfgwr_baddata_parity_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_CFGWR_BADDATA_PARITY_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+BLOCKING_IOSF_TXN",
+                         "+DATA_PARITY_CHECK",
+                         "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_error.waiver",
+                         "+PCIE_TXN",
+                         "+pcie_dpe",
+                         "+pcie_fed",
+                         "+pcie_ptlpr",
+                         "+eot_pf",
+                         "+HQM_PF_EXP_FATAL_MSG_CNT=1",
+                        ],
+      },
+      bad_req_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_CFGWR_BAD_TXN_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+BLOCKING_IOSF_TXN","+BAD_REQTYPE",
+                         "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/badreq_error.waiver",
+                        ],
+      },
+      memwr_bad_data_parity_seq1 => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_MEMWR_BAD_DATA_PARITY_SEQ1",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+BLOCKING_IOSF_TXN",
+                         "+HQM_PF_EXP_FATAL_MSG_CNT=1",
+                         "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.waiver",
+                         "+DATA_PARITY_CHECK",
+                         "+PCIE_TXN",
+                         "+pcie_dpe",
+                         "+pcie_fed",
+                         "+pcie_ptlpr",
+                         "+eot_pf",
+                        ],
+      },
+
+      memwr_bad_data_parity_seq1_iosf_alarm => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_MEMWR_BAD_DATA_PARITY_SEQ1",
+                         #"+HQM_SKIP_HCW_CFG_SEQ=1",
+
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/crd_disable_dir_pp_cfg.cft",
+                         "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                         "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_hw_synd=0x88048400/0xffffffff:hqm_sif_csr.iosf_alarm_err=0x10/0x1ff:hqm_sif_csr.ri_parity_err=0x8/0x1ff", #iosf_alarm_err.RI_PARITY_ERR=1;ri_parity_err.PD_FIFO_PERR=1
+
+                         "+DISABLE_MSIX_COUNT_CHECK",
+
+                         "+BLOCKING_IOSF_TXN",
+                         "+HQM_PF_EXP_FATAL_MSG_CNT=1",
+                         "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.waiver",
+                         "+DATA_PARITY_CHECK",
+                         "+PCIE_TXN",
+                         "+pcie_dpe",
+                         "+pcie_fed",
+                         "+pcie_ptlpr",
+                         "+eot_pf",
+                        ],
+      },
+
+      memwr_bad_data_parity_seq1_iosf_alarm_trf => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_MEMWR_BAD_DATA_PARITY_SEQ1",
+                         #"+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+HQM_IOSF_USR_TRF=1",
+
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/hcw_ingress_check_test1_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hqm_functional/hqm_cmd_hcw_smoke.cft",
+                         "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                         "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_hw_synd=0x88048400/0xffffffff:hqm_sif_csr.iosf_alarm_err=0x10/0x1ff:hqm_sif_csr.ri_parity_err=0x8/0x1ff", #iosf_alarm_err.RI_PARITY_ERR=1;ri_parity_err.PD_FIFO_PERR=1
+
+
+                         "+DISABLE_MSIX_COUNT_CHECK",
+
+                         "+BLOCKING_IOSF_TXN",
+                         "+HQM_PF_EXP_FATAL_MSG_CNT=1",
+                         "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.waiver",
+                         "+DATA_PARITY_CHECK",
+                         "+PCIE_TXN",
+                         "+pcie_dpe",
+                         "+pcie_fed",
+                         "+pcie_ptlpr",
+                         "+eot_pf",
+                        ],
+      },
+
+     hqm_iosf_cbd_drop_hpar_test => {
+          -simv_args => [
+                         "+HQM_IOSF_USR_TRF=1",
+                         "+HQM_IOSF_CONTINUE_ON_PERR",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/memwr_np.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/hqm_iosf_cbd_drop_hpar.cft",
+                        ],
+      },
+      hqm_iosf_ri_par_dis => {
+          -simv_args => [
+                         "+HQM_IOSF_USR_TRF=1",
+                         "+HQM_IOSF_CONTINUE_ON_PERR",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/memwr_np.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/hqm_iosf_ri_par_dis.cft",
+                        ],
+      },
+
+      memwr_bad_data_parity_seq2 => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_MEMWR_BAD_DATA_PARITY_SEQ2",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+BLOCKING_IOSF_TXN",
+                         "+HQM_PF_EXP_FATAL_MSG_CNT=1",
+                         "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.waiver",
+                         "+DATA_PARITY_CHECK",
+                         "+PCIE_TXN",
+                         "+pcie_dpe",
+                         "+pcie_fed",
+                         "+pcie_ptlpr",
+                         "+eot_pf",
+                        ],
+      },
+      memrd_baddata_parity_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_MEMRD_BAD_DATA_PARITY_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+BLOCKING_IOSF_TXN",
+                        ],
+      },
+      memwr_vf_baddata_parity_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_VF_MEMWR_BADDATA_PARITY_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+BLOCKING_IOSF_TXN",
+                         "+PCIE_TXN",
+                         "+pcie_dpe",
+                         "+pcie_fed",
+                         "+pcie_ptlpr",
+                         "+eot_vf",
+                         "+DATA_PARITY_CHECK",  "+HQM_VF_0_EXP_FATAL_MSG_CNT=1",
+                         "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.waiver",
+                        ],
+      },
+      memwr_baddata_parity_qw_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_MEMWR_BADDATA_PARITY_QW_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+BLOCKING_IOSF_TXN",
+                         "+pcie_ned",
+                         "+pcie_urd",
+                         "+pcie_ur_unc",
+                         "+eot_pf",
+                         "+MODE1","+DATA_PARITY_CHECK", "+HQM_PF_EXP_NFATAL_MSG_CNT=1",
+                         "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.waiver",
+                         "+EXP_UNWANTED_TXN_TO_HQM", "+PCIE_TXN",
+                        ],
+      },
+      cfgwr_badcmd_parity_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_PRIM_CFGWR_BADCMD_PARITY_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+BLOCKING_IOSF_TXN",
+                         "+HQM_EOT_CPLID_CHK_DIS",     
+                         "+HQM_COMMAND_PARITY_CHECK",
+                         "+eot_pf","+pcie_unc_ecrc",   "+HQM_PF_EXP_FATAL_MSG_CNT=1","+PCIE_TXN",
+                         "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_bad_cmd_parity.waiver",
+                        ],
+      },
+      parity_ctl_chk_inj_iosf_mcperr => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_PRIM_PARITY_CTL_REG_CHK_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+BLOCKING_IOSF_TXN",
+                         "+INJ_IOSF_MCPERR",
+                         "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/hqm_iosf_m_perr.waiver",
+                        ],
+      },
+      parity_ctl_chk_inj_iosf_mdperr => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_PRIM_PARITY_CTL_REG_CHK_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+BLOCKING_IOSF_TXN",
+                         "+INJ_IOSF_MDPERR",
+                         "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/hqm_iosf_mdata_perr.waiver",
+                        ],
+      },
+      parity_ctl_chk_ri_par_off => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_PRIM_PARITY_CTL_REG_CHK_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+BLOCKING_IOSF_TXN",
+                         "+DISABLE_FAB_PARITY_CHK",
+                         "+HQM_DIS_PRIM_ISM_DLY_OVERRIDE",
+                         "+RI_PAR_OFF",
+                         "+IGNORE_DUE_TO_SIDEBAND_RESET",
+                         "+DATA_PARITY_CHECK",
+                         "+hqm_warm_reset_sequence_stim_config::skip_for_sideband_reset=1",
+                         "+eot_pf",
+                         "+pcie_unc_ecrc",   
+                         "+HQM_EOT_CPLID_CHK_DIS",     
+                         "+HQM_PF_EXP_FATAL_MSG_CNT=1",
+                         "+PCIE_TXN",
+                         "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/hqm_iosf_parity_reg_ctl_reg.waiver",
+                        ],
+      },
+      parity_ctl_chk_ti_par_off => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_PRIM_PARITY_CTL_REG_CHK_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+DISABLE_FAB_PARITY_CHK",
+                         "+IGNORE_DUE_TO_SIDEBAND_RESET",
+                         "+hqm_warm_reset_sequence_stim_config::skip_for_sideband_reset=1",
+                         "+HQM_DIS_PRIM_ISM_DLY_OVERRIDE",
+                         "+DATA_PARITY_CHECK",
+                         "+BLOCKING_IOSF_TXN",
+                         "+TI_PAR_OFF",
+                         "+eot_pf",
+                         "+pcie_unc_ecrc",   
+                         "+HQM_EOT_CPLID_CHK_DIS",     
+                         "+HQM_PF_EXP_FATAL_MSG_CNT=1",
+                         "+PCIE_TXN",
+                         "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/hqm_iosf_parity_reg_ctl_reg.waiver",
+                        ],
+      },
+      parity_ctl_chk_iosfp_par_off => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_PRIM_PARITY_CTL_REG_CHK_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+BLOCKING_IOSF_TXN",
+                         "+HQM_DIS_PRIM_ISM_DLY_OVERRIDE",
+                         "+IOSFP_PAR_OFF",
+                         "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_bad_cmd_parity.waiver",
+                         "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/hqm_iosf_master_perr.waiver",
+                        ],
+      },
+      cfgrd_badcmd_parity_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_PRIM_CFGRD_BADCMD_PARITY_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+BLOCKING_IOSF_TXN",
+                         "+HQM_EOT_CPLID_CHK_DIS",     
+                         "+HQM_COMMAND_PARITY_CHECK",
+                         "+eot_pf","+pcie_unc_ecrc",   "+HQM_PF_EXP_FATAL_MSG_CNT=1","+PCIE_TXN",
+                         "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_bad_cmd_parity.waiver",
+                        ],
+      },
+      memrd_badcmd_parity_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_PRIM_MEMRD_BADCMD_PARITY_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+HQM_EOT_CPLID_CHK_DIS",     
+                         "+HQM_COMMAND_PARITY_CHECK",
+                         "+eot_pf","+pcie_unc_ecrc",   "+HQM_PF_EXP_FATAL_MSG_CNT=1","+PCIE_TXN",
+                         "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_bad_cmd_parity.waiver",
+                        ],
+      },
+      memwr_badcmd_parity_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_PRIM_MEMWR_BADCMD_PARITY_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+HQM_EOT_CPLID_CHK_DIS",     
+                         "+HQM_COMMAND_PARITY_CHECK",
+                         "+eot_pf","+pcie_unc_ecrc",   "+HQM_PF_EXP_FATAL_MSG_CNT=1","+PCIE_TXN",
+                         "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_bad_cmd_parity.waiver",
+                        ],
+      },
+      sb_memwr_bad_parity_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_MEMWR_BAD_PARITY_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1", "+DISABLE_FAB_PARITY_CHK",
+                         "+IGNORE_DUE_TO_SIDEBAND_RESET",
+                         "+BLOCKING_IOSF_TXN", "+CFG_MODE=WRWR_rand",
+                         "+PARITY=ON",
+                         "+hqm_warm_reset_sequence_stim_config::skip_for_sideband_reset=1",
+                         "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/sb_error.waiver", 
+                        ],
+      },
+      sb_memrd_bad_parity_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_MEMRD_BAD_PARITY_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1", "+DISABLE_FAB_PARITY_CHK",
+                         "+IGNORE_DUE_TO_SIDEBAND_RESET",
+                         "+BLOCKING_IOSF_TXN", "+CFG_MODE=WRWR_rand",
+                         "+hqm_warm_reset_sequence_stim_config::skip_for_sideband_reset=1",
+                         "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/sb_error.waiver", 
+                        ],
+      },
+      sb_npmemwr_bad_parity_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_NPMEMWR_BAD_PARITY_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1", "+DISABLE_FAB_PARITY_CHK",
+                         "+IGNORE_DUE_TO_SIDEBAND_RESET",
+                         "+BLOCKING_IOSF_TXN", "+CFG_MODE=WRWR_rand",
+                         "+hqm_warm_reset_sequence_stim_config::skip_for_sideband_reset=1",
+                         "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/sb_error.waiver", 
+                        ],
+      },
+      sb_cfgwr_bad_parity_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_CFGWR_BAD_PARITY_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1", "+DISABLE_FAB_PARITY_CHK",
+                         "+IGNORE_DUE_TO_SIDEBAND_RESET",
+                         "+BLOCKING_IOSF_TXN", "+CFG_MODE=WRWR_rand",
+                         "+hqm_warm_reset_sequence_stim_config::skip_for_sideband_reset=1",
+                         "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/sb_error.waiver", 
+                        ],
+      },
+      sb_cfgrd_bad_parity_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_CFGRD_BAD_PARITY_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1", "+DISABLE_FAB_PARITY_CHK",
+                         "+IGNORE_DUE_TO_SIDEBAND_RESET",
+                         "+BLOCKING_IOSF_TXN", "+CFG_MODE=WRWR_rand",
+                         "+hqm_warm_reset_sequence_stim_config::skip_for_sideband_reset=1",
+                         "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/sb_error.waiver", 
+                        ],
+      },
+      sb_npmemwr_unsupported_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_NPMEMWR_UNSUPPORTED_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      sb_memrd_unsupported_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_MEMRD_UNSUPPORTED_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      sb_npmemwr_sbe_fbe_ff_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_NPMEMWR_SBE_FBE_FF_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      sb_memwr_sbe_fbe_ff_seq => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_MEMWR_SBE_FBE_FF_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      side_cg => {
+        -simv_args => [
+                        "+HQM_IOSF_SEQ=HQM_IOSF_CG_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+MEM64_TXN",
+                         "+BLOCKING_IOSF_MEMRD_TXN",
+                         "+SIDE_CG",
+                      ],
+      },
+      side_cg1 => {
+        -simv_args => [
+                        "+HQM_IOSF_SEQ=HQM_IOSF_CG_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+MEM64_TXN",
+                         "+BLOCKING_IOSF_MEMRD_TXN",
+                         "+SIDE_CG1",
+                      ],
+      },
+      prim_cg => {
+        -simv_args => [
+                        "+HQM_IOSF_SEQ=HQM_IOSF_CG_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+PRIM_CG",
+                      ],
+      },
+      prim_cg1 => {
+        -simv_args => [
+                        "+HQM_IOSF_SEQ=HQM_IOSF_CG_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+PRIM_CG1",
+                      ],
+      },
+      prim_cg2 => {
+        -simv_args => [
+                        "+HQM_IOSF_SEQ=HQM_IOSF_CG_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+PRIM_CG2",
+                      ],
+      },
+      idle_nak => {
+        -simv_args => [
+                        "+HQM_IOSF_SEQ=HQM_IOSF_CG_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+IDLE_NAK",
+                      ],
+      },
+      idle_sb_nak => {
+        -simv_args => [
+                        "+HQM_IOSF_SEQ=HQM_IOSF_CG_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+SIDE_NAK",
+                         "+IDLE_SB_NAK",
+                      ],
+      },
+      idle_sb_nak1 => {
+        -simv_args => [
+                        "+HQM_IOSF_SEQ=HQM_IOSF_CG_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+SIDE_NAK",
+                         "+IDLE_SB_NAK1",
+                      ],
+      },
+      sb_test_sbe => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_TEST_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+RANDOM_SBE",
+                        ],
+      },
+      sb_test_fbe => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_TEST_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+RANDOM_FBE",
+                        ],
+      },
+      sb_test_fbe_zero_sbe_non_zero => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_TEST_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+FBE_ZERO_SBE_NON_ZERO",
+                        ],
+      },
+      sb_test_src_fe_dst_notff=> {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_TEST_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+SRC_FE_DST_notFF",
+                        ],
+      },
+      sb_test_src_0_dst_ff=> {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_TEST_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+SRC_0_DST_FF",
+                        ],
+      },
+      sb_test_rd_opcodes => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_TEST_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+RD_OPCODES",
+                        ],
+      },
+      sb_test_src_fe => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_TEST_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+SRC_FE_DST_FF",
+                        ],
+      },
+      sb_test_dw3 => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_SB_TEST_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+SEND_DW_3",
+                        ],
+      },
+      random_ecrc => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_IOSF_RANDOM_ECRC_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                        ],
+      },
+      fbrc_idle_nak => {
+          -simv_args => [
+                         "+HQM_IOSF_PRIM_FBRC_EN_RANDIDLENAK",
+                        ],
+      },
+      fbrc_randismdly => {
+          -simv_args => [
+                         "+HQM_IOSF_PRIM_FBRC_DIS_RANDISMDELAY",
+                         "+HQM_IOSF_PRIM_MAXISMDLY=20",
+                        ],
+      },
+      prim_crdt_req_rollover_100 => {
+          -simv_args => [
+                         "+hqm_iosf_prim_req_credits=100",
+                         "+HQM_IOSF_SEQ=HQM_IOSF_CREDIT_CHECK_FLR_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+HQM_IOSF_SETGNTGAP +HQM_IOSF_EN_ORDERINGRULES +HQM_IOSF_GNT_DLY_MIN=200 +HQM_IOSF_GNT_DLY_MAX=300",
+                         "+HQM_IOSF_EN_RAND_CLKACKDLY +HQM_IOSF_CLK_ACK_DLY_MAX=10",
+                         "+HQM_P_CREDIT_ROLLOVER_COV",
+                         "+HQM_CMPL_CREDIT_ROLLOVER_COV",
+                        ],
+      },
+      prim_crdt_req_rollover_32 => {
+          -simv_args => [
+                         "+hqm_iosf_prim_req_credits=32",
+                         "+HQM_IOSF_SEQ=HQM_IOSF_CREDIT_CHECK_FLR_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+HQM_IOSF_SETGNTGAP +HQM_IOSF_EN_ORDERINGRULES +HQM_IOSF_GNT_DLY_MIN=200 +HQM_IOSF_GNT_DLY_MAX=300",
+                         "+HQM_IOSF_EN_RAND_CLKACKDLY +HQM_IOSF_CLK_ACK_DLY_MAX=10",
+                         "+HQM_P_CREDIT_ROLLOVER_COV",
+                         "+HQM_CMPL_CREDIT_ROLLOVER_COV",
+                        ],
+      },
+      prim_req_crdt_exhaustion_5 => {
+          -simv_args => [
+                         "+hqm_iosf_prim_req_credits=5",
+                         "+HQM_IOSF_SEQ=HQM_IOSF_CREDIT_CHECK_FLR_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+HQM_IOSF_SETGNTGAP +HQM_IOSF_EN_ORDERINGRULES +HQM_IOSF_GNT_DLY_MIN=50 +HQM_IOSF_GNT_DLY_MAX=150",
+                         "+HQM_IOSF_EN_RAND_CLKACKDLY +HQM_IOSF_CLK_ACK_DLY_MAX=10",
+                         "+HQM_P_CREDIT_5_EXHAUSTION_COV",
+                         "+HQM_CMPL_CREDIT_5_EXHAUSTION_COV",
+                        ],
+      },
+      prim_req_crdt_exhaustion_2 => {
+          -simv_args => [
+                         "+hqm_iosf_prim_req_credits=2",
+                         "+HQM_IOSF_SEQ=HQM_IOSF_CREDIT_CHECK_FLR_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+HQM_IOSF_SETGNTGAP +HQM_IOSF_EN_ORDERINGRULES +HQM_IOSF_GNT_DLY_MIN=50 +HQM_IOSF_GNT_DLY_MAX=150",
+                         "+HQM_IOSF_EN_RAND_CLKACKDLY +HQM_IOSF_CLK_ACK_DLY_MAX=10",
+                         "+HQM_P_CREDIT_2_EXHAUSTION_COV",
+                         "+HQM_CMPL_CREDIT_2_EXHAUSTION_COV",
+                        ],
+      },
+      crd_return_p_ur => { 
+           -simv_args => [              
+                         "+HQM_IOSF_SEQ=HQM_IOSF_CRD_RETURN_B2B_P_UR_SEQ",
+                         "+EXP_UNWANTED_TXN_TO_HQM",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         ],
+      },    
+      write_once_register => {
+          -simv_args => [
+                         "+HQM_IOSF_SEQ=HQM_WRITE_ONCE_REGISTER_SEQ",
+                         "+HQM_SKIP_HCW_CFG_SEQ=1",
+                         "+hqm_pcie_init_stim_config::skip_pmcsr_disable=1",
+                         "+BLOCKING_IOSF_TXN",
+                        ],
+      },
+      posted_expect_ur => {
+          -simv_args => [
+                         "+eot_pf +pcie_urd +pcie_ur_unc +pcie_ned +PCIE_TXN",
+                        ],
+      },
+      non_posted_expect_ur => {
+          -simv_args => [
+                         "+eot_pf +pcie_urd +pcie_anfes +pcie_ced ",
+                        ],
+      },
+      pf_func_bar_less_4g => {
+          -simv_args => [
+                         " +PF_FUNC_BAR_LESS_4G",
+                         #" +hqm_pcie_init_stim_config::pf_func_bar_63_26=0 +hqm_pcie_init_stim_config::pf_csr_bar_63_32=1 ",
+                        ],
+      },
+      pf_func_bar_greater_4g => {
+          -simv_args => [
+                         " +hqm_pcie_init_stim_config::pf_func_bar_63_26=512 +hqm_pcie_init_stim_config::pf_csr_bar_63_32=1 ",
+                        ],
+      },
+      MRdLk32 => {
+          -simv_args => [
+                         " +hqm_iosf_crd_return_b2b_p_ur_seq_stim_config::cmd_type=MRdLk32 +UR_TXN +LOCK +HQM_GEN_CPLLK_EXP", "-assert quiet+hier=aceroot/verif/tb/hqm/tests/hqm_iosf_test/pri_156.waiver",
+                        ],
+      },
+      LTMRd32 => {
+          -simv_args => [
+                         " +hqm_iosf_crd_return_b2b_p_ur_seq_stim_config::cmd_type=LTMRd32 +UR_TXN +LOCK", "-assert quiet+hier=aceroot/verif/tb/hqm/tests/hqm_iosf_test/pri_156.waiver",
+                        ],
+      },
+      NPMWr32 => {
+          -simv_args => [
+                         " +hqm_iosf_crd_return_b2b_p_ur_seq_stim_config::cmd_type=NPMWr32 +UR_TXN", "-assert quiet+hier=aceroot/verif/tb/hqm/tests/hqm_iosf_test/NPMWr.waiver",
+
+                        ],
+      },
+      MRdLk64 => {
+          -simv_args => [
+                         " +hqm_iosf_crd_return_b2b_p_ur_seq_stim_config::cmd_type=MRdLk64 +UR_TXN +LOCK +HQM_GEN_CPLLK_EXP", "-assert quiet+hier=aceroot/verif/tb/hqm/tests/hqm_iosf_test/pri_156.waiver",
+                        ],
+      },
+      LTMRd64 => {
+          -simv_args => [
+                         " +hqm_iosf_crd_return_b2b_p_ur_seq_stim_config::cmd_type=LTMRd64 +UR_TXN +LOCK", "-assert quiet+hier=aceroot/verif/tb/hqm/tests/hqm_iosf_test/pri_156.waiver",
+                        ],
+      },
+      NPMWr64 => {
+          -simv_args => [
+                         " +hqm_iosf_crd_return_b2b_p_ur_seq_stim_config::cmd_type=NPMWr64 +UR_TXN", "-assert quiet+hier=aceroot/verif/tb/hqm/tests/hqm_iosf_test/NPMWr.waiver",
+
+                        ],
+      },
+      LTMWr32 => {
+          -simv_args => [
+                         " +hqm_iosf_crd_return_b2b_p_ur_seq_stim_config::cmd_type=LTMWr32",
+                        ],
+      },
+      LTMWr64 => {
+          -simv_args => [
+                         " +hqm_iosf_crd_return_b2b_p_ur_seq_stim_config::cmd_type=LTMWr64",
+                        ],
+      },
+      Msg0 => {
+          -simv_args => [
+                         " +hqm_iosf_crd_return_b2b_p_ur_seq_stim_config::cmd_type=Msg0 ",
+                        ],
+      },
+      Msg1 => {
+          -simv_args => [
+                         " +hqm_iosf_crd_return_b2b_p_ur_seq_stim_config::cmd_type=Msg1 ",
+                        ],
+      },
+      Msg2 => {
+          -simv_args => [
+                         " +hqm_iosf_crd_return_b2b_p_ur_seq_stim_config::cmd_type=Msg2 ",
+                        ],
+      },
+      Msg3 => {
+          -simv_args => [
+                         " +hqm_iosf_crd_return_b2b_p_ur_seq_stim_config::cmd_type=Msg3 ",
+                        ],
+      },
+      Msg4 => {
+          -simv_args => [
+                         " +hqm_iosf_crd_return_b2b_p_ur_seq_stim_config::cmd_type=Msg4 ",
+                        ],
+      },
+      Msg5 => {
+          -simv_args => [
+                         " +hqm_iosf_crd_return_b2b_p_ur_seq_stim_config::cmd_type=Msg5 ",
+                        ],
+      },
+      Msg6 => {
+          -simv_args => [
+                         " +hqm_iosf_crd_return_b2b_p_ur_seq_stim_config::cmd_type=Msg6 ",
+                        ],
+      },
+      Msg7 => {
+          -simv_args => [
+                         " +hqm_iosf_crd_return_b2b_p_ur_seq_stim_config::cmd_type=Msg7 ",
+                        ],
+      },
+      MsgD0 => {
+          -simv_args => [
+                         " +hqm_iosf_crd_return_b2b_p_ur_seq_stim_config::cmd_type=MsgD0 ",
+                        ],
+      },
+      MsgD1 => {
+          -simv_args => [
+                         " +hqm_iosf_crd_return_b2b_p_ur_seq_stim_config::cmd_type=MsgD1 ",
+                        ],
+      },
+      MsgD2 => {
+          -simv_args => [
+                         " +hqm_iosf_crd_return_b2b_p_ur_seq_stim_config::cmd_type=MsgD2 ",
+                        ],
+      },
+      MsgD3 => {
+          -simv_args => [
+                         " +hqm_iosf_crd_return_b2b_p_ur_seq_stim_config::cmd_type=MsgD3 ",
+                        ],
+      },
+      MsgD4 => {
+          -simv_args => [
+                         " +hqm_iosf_crd_return_b2b_p_ur_seq_stim_config::cmd_type=MsgD4 ",
+                        ],
+      },
+      MsgD5 => {
+          -simv_args => [
+                         " +hqm_iosf_crd_return_b2b_p_ur_seq_stim_config::cmd_type=MsgD5 ",
+                        ],
+      },
+      MsgD6 => {
+          -simv_args => [
+                         " +hqm_iosf_crd_return_b2b_p_ur_seq_stim_config::cmd_type=MsgD6 ",
+                        ],
+      },
+      MsgD7 => {
+          -simv_args => [
+                         " +hqm_iosf_crd_return_b2b_p_ur_seq_stim_config::cmd_type=MsgD7 ",
+                        ],
+      },
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

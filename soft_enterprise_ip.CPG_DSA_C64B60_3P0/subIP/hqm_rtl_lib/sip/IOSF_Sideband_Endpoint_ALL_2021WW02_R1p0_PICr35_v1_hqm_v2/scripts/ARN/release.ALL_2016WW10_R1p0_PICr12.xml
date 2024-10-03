@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<!-- Release file -->
+
+<sip_release>
+  <version>8.4 November 13, 2013</version>
+  <date>Fri Mar 11 15:06:01 PST 2016</date>
+  <user>vnandaku</user>
+  <sip_name>31</sip_name>
+  <sip_variation>147</sip_variation>
+  <sip_variation_id>147</sip_variation_id>
+  <sip_reldate>2016WW10</sip_reldate>
+  <sip_milestone>1p0</sip_milestone>
+  <sip_relver>PICr12</sip_relver>
+  <sip_relname>ALL_2016WW10_R1p0_PICr12</sip_relname>
+  <sip_owner>vnandaku</sip_owner>
+  <sip_dist></sip_dist>
+  <sip_fixed></sip_fixed>
+  <sip_open></sip_open>
+  <sip_attachment>
+  </sip_attachment>
+  <sip_customers>
+  </sip_customers>
+  <sip_base>0</sip_base>
+  <sip_features>
+    <sip_feature>
+<![CDATA[
+HTML
+
+      <h2>RTL Updates:</h2>
+      <dl>
+         <dt>HSDs: <dt>
+         <dd>
+            1. <a href="https://hsdes.intel.com/home/default.html#article?id=1404787801">1404787801, "SBE has long path on the credit update output signals and timing doesnt meet when run at 500Mhz @ 50% IO delay."</a>:
+            The parity logic on output flops causes long feed through paths, which causes timing issues. The endpoint outputs are now directly driven off flops, with no additional logic, to meet timing requirements. Parity checking in the ingress (to return credits) and parity corruption in the egress (mparity) are now shifted to be before the flops. This affects only the customers who enable PARITY in endpoint. If PARITY is disabled, these paths are not created (synthesized)/do not exist.
+         </dd> 
+         <dd>
+            2. <a href="https://hsdes.intel.com/home/default.html#article?id=1504162617">1504162617, "Sideband Endpoint Unable to Send DO_SERR Message if Agent Clock is Gated AND Parity Error hits in the First Byte of Target Payload"</a>:
+            When the fabric has parity error on the very first payload, the sbe_clkreq to agent, to wake up the agent clock input to endpoint does not factor in parity error condition. This is added and now the EP requests agent clock, if there is a parity error to send out DO_SERR message. This also only affects customers who enable PARITY and DO_SERR in endpoints. If not enabling parity, this issue is not seen.
+         </dd>
+         <dd>         
+            3. <a href="https://hsdes.intel.com/home/default.html#article?id=1404793891">1404793891, "SBEP + Variable claim delay (delay of 9) prevents UR for unclaimed NP to be sent out (because it internally gates side clock)"</a>:
+           If VARIABLE CLAIM DELAY is enabled, When a non posted message from fabric to agent is sent out of the EP target and not claimed by agents, there is no UR completion, because of the fabric clock being locally gated. EP doesnt factor in the delay due to repeaters. This issue is seen only if you enable REPEATERS in endpoint through the VARIABLE CLAIM DELAY feature. If not, this issue is not present.
+         </dd>
+         <dd>         
+            4. <a href="https://hsdes.intel.com/home/default.html#article?id=1404827111">1404827111, "SB EP TRGTREG address output gets overwritten when MAXTRGTADDR is greater than payload width"</a>:
+           When MAXTRGTADDR >15,the lower 2bytes of address gets overwritten with upper2 bytes in a 4 byte message. This issue is only seen when the parameter MATCHED_INTERNAL_WIDTH is set to 1 and the payload width (MAXPLDBIT) is not 31 and TREG that is provided with EP is enabled. The issue is non existent otherwise.
+         </dd> 
+      </dl>      
+      <h2>Backend Updates:</h2>
+         <dt> General updates.</dt>
+      <h2>Validation Updates:</h2>
+         <dt> General updates.</dt>]]>    </sip_feature>
+  </sip_features>
+  <sip_knissues>
+    <sip_knissue>
+<![CDATA[
+HTML
+         <dt> None. </dt>]]>    </sip_knissue>
+  </sip_knissues>
+  <sip_speccons>
+    <sip_speccon>
+<![CDATA[
+HTML
+      <h2>Integration Notes:</h2>
+    <dt>NOTE: The first Sideband Fabric  release with support for parity pins is IOSF_Sideband_Fabric_Compiler_ALL_2014WW38_R1p0_v5</dt> ]]>    </sip_speccon>
+  </sip_speccons>
+  <sip_specins>
+    <sip_specin>
+<![CDATA[
+HTML
+      <ul>
+         <li>This SBE release uses the "IOSF_SVC_2016WW11"  version of SVC in IRR</li>
+         <li>For support file an <b>HSD</b> at <a href="https://hsdes.intel.com/home/default.html#magazine?id=101846185&contentId=1012194360">https://hsdes.intel.com/home/default.html#magazine?id=101846185&contentId=1012194360</a></li>
+         <li>Please note that Sideband Endpoint instantiations need to be uniquified in all IP's per the SEG POR instantiation and uniquification methodology to avoid module collisions with other instances of the endpoint with other IPs.</li>
+         <li>Please read integration guide carefully for handling current clock request logic</li>
+         <li>Please read integration guide carefully for conditions of locally clock gating the agent_clk in asynchronous endpoints.</li>
+         <li>Please read integration guide carefully for any necessary power gating logic that may be needed.</li>
+         <li>The Zircon scores are uploaded to the IPDS dashboard for the SBE IP at <a href="https://zircon.fm.intel.com/zircon/zircon/zirconReleaseDashboardTable.php?top_filter_checkbox=0&Proj_id=12686&IP_id=17324&milestone_filter=4&Ver_id=all&App_id=all&showlatest=0">https://zircon.fm.intel.com/zircon/zircon/zirconReleaseDashboardTable.php?top_filter_checkbox=0&Proj_id=12686&IP_id=17324&milestone_filter=4&Ver_id=all&App_id=all&showlatest=0</a></li>
+      </ul>]]>    </sip_specin>
+  </sip_specins>
+  <sip_models>
+  </sip_models>
+</sip_release>

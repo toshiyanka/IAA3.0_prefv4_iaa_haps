@@ -1,0 +1,47 @@
+idle 400
+idle 500
+idle 1000
+
+#read all HQM CSR policy register 
+wr hqm_sif_csr.hqm_csr_cp_lo 0xFFFFFFFF
+wr hqm_sif_csr.hqm_csr_cp_hi 0xFFFFFFFF
+wr hqm_sif_csr.hqm_csr_rac_lo 0xFFFFFFFF
+wr hqm_sif_csr.hqm_csr_rac_hi 0xFFFFFFFF
+wr hqm_sif_csr.hqm_csr_wac_lo 0xFFFFFFFF
+wr hqm_sif_csr.hqm_csr_wac_hi 0xFFFFFFFF
+
+#check device status and 
+rd hqm_pf_cfg_i.device_status 0x0010
+
+#check aer_cap_uncorr_err_status
+rd hqm_pf_cfg_i.aer_cap_uncorr_err_status 0x00000000
+
+
+
+#check ERror status
+rd hqm_pf_cfg_i.pcie_cap_device_status 0x0000
+
+
+#Check register  update happened or not
+rd hqm_system_csr.ingress_alarm_enable 0x00000000 
+rd hqm_system_csr.sys_alarm_int_enable 0x000003FF
+rd hqm_system_csr.sys_alarm_sb_ecc_int_enable 0x0000003FF
+rd hqm_system_csr.sys_alarm_mb_ecc_int_enable 0x0000000FF
+rd hqm_system_csr.alarm_pf_synd0 0x00000000
+rd hqm_system_csr.msix_ack 0x00000000
+rd hqm_system_csr.msix_passthrough 0x00000000
+rd hqm_system_csr.alarm_err 0x00000000
+rd hqm_system_csr.alarm_sb_ecc_err 0x00000000
+rd hqm_system_csr.alarm_mb_ecc_err 0x00000000
+rd hqm_system_csr.alarm_pf_synd0 0x00000000
+rd hqm_system_csr.ALARM_HW_SYND 0x00000000
+rd hqm_system_csr.ALARM_LUT_PERR 0x00000000
+rd hqm_system_csr.EGRESS_LUT_ERR 0x000000000
+rd hqm_system_csr.INGRESS_LUT_ERR 0x00000000
+rd hqm_sif_csr.RI_PARITY_ERR 0x00000000
+rd hqm_sif_csr.TI_PARITY_ERR 0x00000000
+#rd hqm_system_csr.dir_pool_enabled0
+#
+#wait for reset done
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+

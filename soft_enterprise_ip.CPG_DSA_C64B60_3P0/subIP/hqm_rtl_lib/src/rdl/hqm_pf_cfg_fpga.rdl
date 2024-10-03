@@ -1,0 +1,60 @@
+`include "lib_udp.rdl"
+`include "hqm_udp.rdl"
+
+addrmap hqm_pf_cfg {
+	name = "Hqm Pf Cfg";
+	Space = "CFG";
+	BaseAddress = "0/0/0";// Changed from 0x_00_00_00 to resolve ERR013
+
+        `include "hqm_pcie_msix_cap_reg_def.rdl"
+        `include "hqm_pcie_cap_reg_def.rdl"
+        `include "hqm_pcie_acs_cap_reg_def.rdl"
+        `include "hqm_pcie_pm_cap_reg_def.rdl"
+        `include "hqm_pcie_aer_cap_reg_def.rdl"
+        `include "hqm_pcie_ari_cap_reg_def.rdl"
+        `include "hqm_pcie_pasid_cap_reg_def.rdl"
+        `include "hqm_pcie_sciov_cap_reg_def.rdl"
+
+	// Instance PF Registers
+
+        `include "hqm_pcie_hdr_reg_def.rdl"
+	CAP_PTR.CP->reset = 8'h60;
+	CAP_PTR.CP->desc = "Capability Pointer (MSI-X Capabilities)";
+	HEADER_TYPE.MFD->reset = 1'b0;
+
+	hqm_pcie_msix_cap_rf hqm_pcie_msix_cap @0x60;
+	hqm_pcie_msix_cap.MSIX_CAP_NEXT_CAP_PTR.CAP_PTR->reset = 8'h6c;
+	hqm_pcie_msix_cap.MSIX_CAP_NEXT_CAP_PTR.CAP_PTR->desc = "Next Capability Pointer (PCIe Capabilities)";
+
+	hqm_pcie_cap_rf hqm_pcie_cap @0x6c;
+	hqm_pcie_cap.PCIE_CAP_NEXT_CAP_PTR.CAP_PTR->reset = 8'hb0;
+	hqm_pcie_cap.PCIE_CAP_NEXT_CAP_PTR.CAP_PTR->desc = "Next Capability Pointer (Power Management Capabilities)";
+	hqm_pcie_cap.PCIE_CAP.DPT->reset = 4'b0000;
+	hqm_pcie_cap.PCIE_CAP.DPT->desc = "Device/Port Type: Indicates the type of PCI Express logical device. Set to 0000b for FPGAs (PCIe Endpoint)";
+
+	hqm_pcie_pm_cap_rf hqm_pcie_pm_cap @0xb0;
+	hqm_pcie_pm_cap.PM_CAP_NEXT_CAP_PTR.CAP_PTR->reset = 8'h00;
+	hqm_pcie_pm_cap.PM_CAP_NEXT_CAP_PTR.CAP_PTR->desc = "Next Capability Poiner (This is the last capability structure)";
+
+	hqm_pcie_acs_cap_rf hqm_pcie_acs_cap @0x100;
+	hqm_pcie_acs_cap.ACS_CAP_VERSION_NEXT_PTR.CAP_PTR->reset = 12'h148;
+	hqm_pcie_acs_cap.ACS_CAP_VERSION_NEXT_PTR.CAP_PTR->desc = "Next Capability Pointer (PASID Capabilties)";
+
+    hqm_pcie_pasid_cap_rf hqm_pcie_pasid_cap @0x148;
+    hqm_pcie_pasid_cap.PASID_CAP_VERSION_NEXT_PTR.CAP_PTR->reset = 12'h150;
+    hqm_pcie_pasid_cap.PASID_CAP_VERSION_NEXT_PTR.CAP_PTR->desc = "Next Capability Pointer (SCIOV (DVSEC) Capabilties)";
+
+    hqm_pcie_sciov_cap_rf hqm_pcie_sciov_cap @0x150;
+    hqm_pcie_sciov_cap.DVSEC_CAP_VERSION_NEXT_PTR.CAP_PTR->reset = 12'h168;
+    hqm_pcie_sciov_cap.DVSEC_CAP_VERSION_NEXT_PTR.CAP_PTR->desc = "Next Capability Pointer (AER Capabilties)";
+
+    hqm_pcie_aer_cap_rf hqm_pcie_aer_cap @0x168;
+	hqm_pcie_aer_cap.AER_CAP_VERSION_NEXT_PTR.CAP_PTR->reset = 12'h1b0;
+	hqm_pcie_aer_cap.AER_CAP_VERSION_NEXT_PTR.CAP_PTR->desc = "Next Capability Pointer (ARI Capabilities)";
+
+	hqm_pcie_ari_cap_rf hqm_pcie_ari_cap @0x1b0;
+	hqm_pcie_ari_cap.ARI_CAP_VERSION_NEXT_PTR.CAP_PTR->reset = 12'h000;
+	hqm_pcie_ari_cap.ARI_CAP_VERSION_NEXT_PTR.CAP_PTR->desc = "Next Capability Pointer (This is the last extended capability structure)";
+
+};
+

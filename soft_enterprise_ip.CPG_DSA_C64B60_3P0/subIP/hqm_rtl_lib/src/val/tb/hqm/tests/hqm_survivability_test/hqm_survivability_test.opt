@@ -1,0 +1,445 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+our $field_num;
+
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => [
+                     "+AW_CONTINUE_ON_ERROR",
+                     "+iosf_tracker_filename=iosf_trk",
+                     "-assert nopostproc",
+                     "+vcs+lic+wait",
+                     "+SLA_MAX_RUN_CLOCK=4000000",
+                     "+SLA_EXTRA_DATA_PHASE_TIMEOUT=4000000",
+                     "+SLA_USER_DATA_PHASE_TIMEOUT=4000000",
+                     #"+SLA_WARM_RESET_PHASE_TIMEOUT=130000",
+                     "+SLA_WARM_RESET_PHASE_TIMEOUT=2000000",
+                     "+SLA_CONFIG_PHASE_TIMEOUT=200000",
+                     "+SLA_PCIE_FLUSH_PHASE_TIMEOUT=30000000",
+                     "+OVM_GLOBAL_TIMEOUT=30000ms", 
+                     "-assert finish_maxfail=50000000",
+                     "-assert global_finish_maxfail=50000000",
+                     "+HQMS_DEBUG",
+                     "+HQMI_DEBUG",
+                     "+HQM_LSP_CQ_QID_CFG_CHECK_DIS",
+                     "+HQM_EOT_RD_SEQ_ENABLE_CREDIT_CHECK",
+
+                     "+DIR_PP0_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP0_cq_token_return_burst_size=32",
+                     "+DIR_PP0_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP0_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP0_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP0_cq_token_return_enable_mean=1",
+                     "+DIR_PP0_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP0_cq_token_return_enable_min=1",
+                     "+DIR_PP0_cq_token_return_enable_max=1",
+                     "+DIR_PP0_cq_token_return_disable_mean=0",
+                     "+DIR_PP0_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP0_cq_token_return_disable_min=0",
+                     "+DIR_PP0_cq_token_return_disable_max=0",
+                     "+DIR_PP0_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP1_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP1_cq_token_return_burst_size=32",
+                     "+DIR_PP1_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP1_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP1_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP1_cq_token_return_enable_mean=1",
+                     "+DIR_PP1_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP1_cq_token_return_enable_min=1",
+                     "+DIR_PP1_cq_token_return_enable_max=1",
+                     "+DIR_PP1_cq_token_return_disable_mean=0",
+                     "+DIR_PP1_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP1_cq_token_return_disable_min=0",
+                     "+DIR_PP1_cq_token_return_disable_max=0",
+                     "+DIR_PP1_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP2_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP2_cq_token_return_burst_size=32",
+                     "+DIR_PP2_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP2_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP2_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP2_cq_token_return_enable_mean=1",
+                     "+DIR_PP2_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP2_cq_token_return_enable_min=1",
+                     "+DIR_PP2_cq_token_return_enable_max=1",
+                     "+DIR_PP2_cq_token_return_disable_mean=0",
+                     "+DIR_PP2_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP2_cq_token_return_disable_min=0",
+                     "+DIR_PP2_cq_token_return_disable_max=0",
+                     "+DIR_PP2_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP3_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP3_cq_token_return_burst_size=32",
+                     "+DIR_PP3_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP3_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP3_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP3_cq_token_return_enable_mean=1",
+                     "+DIR_PP3_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP3_cq_token_return_enable_min=1",
+                     "+DIR_PP3_cq_token_return_enable_max=1",
+                     "+DIR_PP3_cq_token_return_disable_mean=0",
+                     "+DIR_PP3_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP3_cq_token_return_disable_min=0",
+                     "+DIR_PP3_cq_token_return_disable_max=0",
+                     "+DIR_PP3_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP4_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP4_cq_token_return_burst_size=32",
+                     "+DIR_PP4_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP4_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP4_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP4_cq_token_return_enable_mean=1",
+                     "+DIR_PP4_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP4_cq_token_return_enable_min=1",
+                     "+DIR_PP4_cq_token_return_enable_max=1",
+                     "+DIR_PP4_cq_token_return_disable_mean=0",
+                     "+DIR_PP4_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP4_cq_token_return_disable_min=0",
+                     "+DIR_PP4_cq_token_return_disable_max=0",
+                     "+DIR_PP4_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP5_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP5_cq_token_return_burst_size=32",
+                     "+DIR_PP5_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP5_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP5_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP5_cq_token_return_enable_mean=1",
+                     "+DIR_PP5_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP5_cq_token_return_enable_min=1",
+                     "+DIR_PP5_cq_token_return_enable_max=1",
+                     "+DIR_PP5_cq_token_return_disable_mean=0",
+                     "+DIR_PP5_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP5_cq_token_return_disable_min=0",
+                     "+DIR_PP5_cq_token_return_disable_max=0",
+                     "+DIR_PP5_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP6_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP6_cq_token_return_burst_size=32",
+                     "+DIR_PP6_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP6_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP6_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP6_cq_token_return_enable_mean=1",
+                     "+DIR_PP6_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP6_cq_token_return_enable_min=1",
+                     "+DIR_PP6_cq_token_return_enable_max=1",
+                     "+DIR_PP6_cq_token_return_disable_mean=0",
+                     "+DIR_PP6_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP6_cq_token_return_disable_min=0",
+                     "+DIR_PP6_cq_token_return_disable_max=0",
+                     "+DIR_PP6_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP7_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP7_cq_token_return_burst_size=32",
+                     "+DIR_PP7_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP7_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP7_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP7_cq_token_return_enable_mean=1",
+                     "+DIR_PP7_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP7_cq_token_return_enable_min=1",
+                     "+DIR_PP7_cq_token_return_enable_max=1",
+                     "+DIR_PP7_cq_token_return_disable_mean=0",
+                     "+DIR_PP7_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP7_cq_token_return_disable_min=0",
+                     "+DIR_PP7_cq_token_return_disable_max=0",
+                     "+DIR_PP7_cq_token_return_sel_algorithm=fifo",
+
+                    ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+    if ($main::ACE_RUN_MODE =~ /^survivability_field_/) {
+	$field_num = $main::ACE_RUN_MODE;
+	$field_num =~ s/survivability_field_//;     # Extracts the actual survivability_field_  value from the runmode
+    }
+
+   %runModes = (
+      smoke => {-simv_args => ["",],},
+      limit_field_chk => {-simv_args => ["+SURVIVABILITY_NUM_FIELDS_TO_CHECK=65",],},
+      primary => {-simv_args => ["+HQM_SURVIVABILITY_ACCESS=primary",],},
+      gpsb_only_reg_access => {-simv_args => ["+HQM_HARD_RESET_PHASE_SEQ=hqm_iosf_reg_access_in_side_rst_seq", "+HQM_SURVIVABILITY_GPSB_ONLY",],},
+	
+      "survivability_field_".$field_num	=> {
+	    -simv_args => [ 
+           "+SURVI_FIELD_NUM=$field_num ",],
+	  },
+
+
+      q1 => {
+          -simv_args => [
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_msix=0",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_dir_pp=1",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_ldb_pp=1",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      q1_dir => {
+          -simv_args => [
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_msix=0",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_dir_pp=1",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_ldb_pp=0",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      q1_ldb => {
+          -simv_args => [
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_msix=0",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_dir_pp=0",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_ldb_pp=1",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      q8 => {
+          -simv_args => [
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_msix=0",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_dir_pp=8",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_ldb_pp=8",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      q8_dir => {
+          -simv_args => [
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_msix=0",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_dir_pp=8",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_ldb_pp=0",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      q8_ldb => {
+          -simv_args => [
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_msix=0",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_dir_pp=0",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_ldb_pp=8",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      q8_msix => {
+          -simv_args => [
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_msix=1",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_dir_pp=8",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_ldb_pp=8",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      q16 => {
+          -simv_args => [
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_msix=0",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_dir_pp=16",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_ldb_pp=16",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      q16_msix => {
+          -simv_args => [
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_msix=1",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_dir_pp=16",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_ldb_pp=16",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      q32 => {
+          -simv_args => [
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_msix=0",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_dir_pp=32",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_ldb_pp=32",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      q32_msix => {
+          -simv_args => [
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_msix=1",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_dir_pp=32",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_ldb_pp=32",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      long => {
+          -simv_args => [
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_num_hcw=1024",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_delay_min=31",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_delay_max=63",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_num_hcw=512",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_delay_min=4",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_delay_max=20",
+                        ],
+      },
+      short => {
+          -simv_args => [
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_num_hcw=128",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_delay_min=31",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_delay_max=63",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_num_hcw=64",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_delay_min=4",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_delay_max=20",
+                        ],
+      },
+      perf_dir_200pct_short => {
+          -simv_args => [
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_time=5000",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_delay_min=2",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_num_hcw=0",
+                        ],
+      },
+      perf_dir_100pct_long => {
+          -simv_args => [
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_time=50000",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_delay_min=4",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_num_hcw=0",
+                        ],
+      },
+      perf_dir_100pct_short => {
+          -simv_args => [
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_time=5000",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_delay_min=4",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_num_hcw=0",
+                        ],
+      },
+      perf_dir_50pct_long => {
+          -simv_args => [
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_time=50000",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_delay_min=8",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_num_hcw=0",
+                        ],
+      },
+      perf_dir_50pct_short => {
+          -simv_args => [
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_time=5000",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_delay_min=8",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_num_hcw=0",
+                        ],
+      },
+      perf_dir_10pct_long => {
+          -simv_args => [
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_time=50000",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_delay_min=40",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_num_hcw=0",
+                        ],
+      },
+      perf_dir_10pct_short => {
+          -simv_args => [
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_time=5000",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_delay_min=40",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_num_hcw=0",
+                        ],
+      },
+      perf_ldb_100pct_long => {
+          -simv_args => [
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_time=50000",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_delay_min=8",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_num_hcw=0",
+                        ],
+      },
+      perf_ldb_100pct_short => {
+          -simv_args => [
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_time=5000",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_delay_min=8",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_num_hcw=0",
+                        ],
+      },
+      perf_ldb_50pct_long => {
+          -simv_args => [
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_time=50000",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_delay_min=16",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_num_hcw=0",
+                        ],
+      },
+      perf_ldb_50pct_short => {
+          -simv_args => [
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_time=5000",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_delay_min=16",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_num_hcw=0",
+                        ],
+      },
+      perf_ldb_10pct_long => {
+          -simv_args => [
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_time=50000",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_delay_min=80",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_num_hcw=0",
+                        ],
+      },
+      perf_ldb_10pct_short => {
+          -simv_args => [
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_time=5000",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_delay_min=80",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_num_hcw=0",
+                        ],
+      },
+      perf_dir_ldb_100pct_long => {
+          -simv_args => [
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_time=50000",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_delay_min=4",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_time=50000",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_delay_min=8",
+                        ],
+      },
+      perf_dir_ldb_100pct_short => {
+          -simv_args => [
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_time=5000",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_delay_min=4",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_time=5000",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_delay_min=8",
+                        ],
+      },
+      perf_dir_ldb_50pct_long => {
+          -simv_args => [
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_time=50000",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_delay_min=8",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_time=50000",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_delay_min=16",
+                        ],
+      },
+      perf_dir_ldb_50pct_short => {
+          -simv_args => [
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_time=5000",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_delay_min=8",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_time=5000",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_delay_min=16",
+                        ],
+      },
+      perf_dir_ldb_10pct_long => {
+          -simv_args => [
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_time=50000",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_delay_min=40",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_time=50000",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_delay_min=80",
+                        ],
+      },
+      perf_dir_ldb_10pct_short => {
+          -simv_args => [
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_time=5000",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_delay_min=40",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_time=5000",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_delay_min=80",
+                        ],
+      },
+      non_common_survivability_regs => {
+         -simv_args => [
+                        "+CHECK_NON_COMMON_REGISTERS",
+                        "+RANDOM_PRI",
+                       ],
+      },
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

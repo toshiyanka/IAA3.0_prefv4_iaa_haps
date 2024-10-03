@@ -1,0 +1,655 @@
+<% use security; %>
+<% my %Security_Props = security::GetSecurityInfo(); %>
+
+reg cfg_grp_sn_mode_r {
+      IntelRsvd=false;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      shared;
+      HqmClassification="CONFIG_REG_NA_1";
+      name = "Cfg Grp Sn Mode";
+        desc = "Order group mode configuration. Supported mode/#slt/#sn cobinations are: 0/16/64, 1/8/128, 2/4/256, 3/2/512, 4/1/1024"; 
+        regwidth = 32;
+        HandCoded=true;
+        field { name = "Rsvz1"; desc = "rsvz1";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_grp_sn_mode.internal_f[31:11]";} RSZV1[31:11] =  21'd0;
+        field { name = "Sn Mode_1"; desc = "Group 1 sequence number mapping mode"; encode = sn_mode_enum;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_grp_sn_mode.internal_f[10:8]";} SN_MODE_1[10:8] =  3'd0;
+        field { name = "Rsvz0"; desc = "rsvz0";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_grp_sn_mode.internal_f[7:3]";} RSZV0[7:3] =  5'd0;
+        field { name = "Sn Mode_0"; desc = "Group 0 sequence number mapping mode"; encode = sn_mode_enum;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_grp_sn_mode.internal_f[2:0]";} SN_MODE_0[2:0] =  3'd0;
+  };
+reg cfg_control_general_0_r {
+      IntelRsvd=false;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="CONFIG_REG_NA_1";
+      name = "Cfg Control General_0";
+        desc = "Non-default settings may cause UNDEFINED behavior.This is generatal control regisetr for enabing hqm features such as single HCW function step mode.";
+        regwidth = 32;
+        HandCoded=true;
+        field { name = "Rsvz0"; desc = "rsvz0";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_control_general_0.internal_f[31:2]";} RSZV0[31:2] = 30'd0 ;
+        field { name = "RR mode enable"; desc = "When set the internal arbiter for SN_GET_ORDER_ST_STARTREORDER_UPDATE_ORDER_ST will operate in RR mode";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_control_general_0.internal_f[1:1]";} RR_EN[1:1] = 1'h0;
+        field { name = "Unit Single Step Mode"; desc = "When set incoming commands will be processed in single step mode";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_control_general_0.internal_f[0:0]";} UNIT_SINGLE_STEP_MODE[0:0] = 1'h0;
+  };
+reg cfg_syndrome_00_r {
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="DEBUG_ONLY_REG_NA_1";
+      name = "Cfg Syndrome 00";
+        desc = "Non-default settings may cause UNDEFINED behavior.This register contains syndrome information.
+   [br]([30:00]==3'd4                                    ) : ecc_check_hcw_err_mb [IntelRsvd] data integrity failure [/IntelRsvd]
+   [br]([30:00]==3'd8                                    ) : ecc_check_hcw_err_sb [IntelRsvd] data integrity failure [/IntelRsvd]
+        ";
+        regwidth = 32;
+        HandCoded=true;
+      field { name = "Syndvalid"; desc = "contents are valid"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RW/1C/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_syndrome_00.i_hqm_AW_register_wtcfg.internal_f[31:31]";} SYNDVALID[31:31] = 1'b0;
+      field { name = "Syndtype"; desc = "type of error captured. "; fieldwidth = 3;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_syndrome_00.i_hqm_AW_register_wtcfg.internal_f[30:28]";} SYNDTYPE[30:28] = 3'h0;
+      field { name = "Synddata"; desc = "Syndrom data. The data format correlates to the type."; fieldwidth = 28;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_syndrome_00.i_hqm_AW_register_wtcfg.internal_f[27:0]";} SYNDDATA[27:0] = 28'h0;
+  };
+reg cfg_syndrome_01_r {
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="DEBUG_ONLY_REG_NA_1";
+      name = "Cfg Syndrome 01";
+        desc = "Non-default settings may cause UNDEFINED behavior.This register contains syndrome information.
+   [br]([30:28]==3'd1                                    [ 00: 00]=1   ) : chp_rop_hcw_fifo_of                                                    [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd1                                    [ 01: 01]=1   ) : chp_rop_hcw_fifo_uf                                                    [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd1                                    [ 02: 02]=1   ) : dir_rply_req_fifo_uf                                                   [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd1                                    [ 03: 03]=1   ) : dir_rply_req_fifo_of                                                   [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd1                                    [ 04: 04]=1   ) : ldb_rply_req_fifo_uf                                                   [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd1                                    [ 05: 05]=1   ) : ldb_rply_req_fifo_of                                                   [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd1                                    [ 06: 06]=1   ) : sn_ordered_fifo_uf                                                     [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd1                                    [ 07: 07]=1   ) : sn_ordered_fifo_of                                                     [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd1                                    [ 08: 08]=1   ) : sn_complete_fifo_uf                                                    [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd1                                    [ 09: 09]=1   ) : sn_complete_fifo_of                                                    [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd1                                    [ 10: 10]=1   ) : lsp_reordercmp_fifo_uf                                                 [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd1                                    [ 11: 11]=1   ) : lsp_reordercmp_fifo_of                                                 [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd1                                    [ 12: 12]=1   ) : rop_cfg_ring_top_rx_fifo_uf                                            [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd1                                    [ 13: 13]=1   ) : rop_cfg_ring_top_rx_fifo_of                                            [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd1                                    [ 14: 14]=1   ) : chp_rop_hcw_db2_hist_list_info_parity_error_f                          [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd1                                    [ 15: 15]=1   ) : (frag_hist_list_qtype_not_ordered & chp_rop_hcw_db2_out_ready)         [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd1                                    [ 16: 16]=1   ) : frag_integrity_cnt_nxt_tmp0_underflow_f                                [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd1                                    [ 17: 17]=1   ) : frag_integrity_cnt_nxt_tmp1_underflow_f                                [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd1                                    [ 18: 18]=1   ) : frag_integrity_cnt_nxt_tmp2_overflow_f                                 [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd1                                    [ 19: 19]=1   ) : access_sn_integrity_err_f                                              [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd1                                    [ 20: 20]=1   ) : invalid_hcw_cmd_err                                                    [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd1                                    [ 21: 21]=1   ) : (chp_rop_hcw_db2_out_data.flid_parity_err & chp_rop_hcw_db2_out_ready) [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd1                                    [ 22: 22]=1   ) : chp_rop_hcw_fifo_parity_error_f                                        [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd1                                    [ 23: 23]=1   ) : dir_rply_req_fifo_parity_error_f                                       [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd1                                    [ 24: 24]=1   ) : ldb_rply_req_fifo_parity_error_f                                       [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd1                                    [ 25: 25]=1   ) : sn_ordered_fifo_parity_error_f                                         [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd1                                    [ 26: 26]=1   ) : sn_complete_fifo_parity_error_f                                        [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd1                                    [ 27: 27]=1   ) : lsp_reordercmp_fifo_parity_error_f                                     [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd2                                    [ 00: 00]=1   ) : reord_st_rmw_mem_4pipe_status_f           [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd2                                    [ 01: 01]=1   ) : reord_lbhp_rmw_mem_4pipe_status_f;        [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd2                                    [ 02: 02]=1   ) : reord_lbtp_rmw_mem_4pipe_status_f;        [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd2                                    [ 03: 03]=1   ) : reord_dirhp_rmw_mem_4pipe_status_f        [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd2                                    [ 04: 04]=1   ) : reord_dirtp_rmw_mem_4pipe_status_f        [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd2                                    [ 05: 05]=1   ) : reord_cnt_rmw_mem_4pipe_status_f;         [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd2                                    [ 06: 06]=1   ) : sn_order_rmw_mem_3pipe_status_f[0]        [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd2                                    [ 07: 07]=1   ) : sn_order_rmw_mem_3pipe_status_f[1]        [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd2                                    [ 08: 08]=1   ) : mem_access_error_f                        [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd2                                    [ 09: 09]=1   ) : sn_order_shft_data_residue_check_err_f[0] [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd2                                    [ 10: 10]=1   ) : sn_order_shft_data_residue_check_err_f[1] [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd2                                    [ 11: 11]=1   ) : sn_state_err_any_f[0]                     [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd2                                    [ 12: 12]=1   ) : sn_state_err_any_f[1]                     [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd2                                    [ 13: 13]=1   ) : rply_cnt_residue_chk_lb_err               [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd2                                    [ 14: 14]=1   ) : rply_cnt_residue_chk_dir_err              [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd2                                    [ 15: 15]=1   ) : rf_ipar_error                                       [IntelRsvd] rf_ipar_error [/IntelRsvd]
+   [br]([30:28]==3'd2                                    [ 16: 16]=1   ) : na                                        [IntelRsvd] na [/IntelRsvd]
+   [br]([30:28]==3'd2                                    [ 17: 17]=1   ) : na                                        [IntelRsvd] na [/IntelRsvd]
+   [br]([30:28]==3'd2                                    [ 18: 18]=1   ) : na                                        [IntelRsvd] na [/IntelRsvd]
+   [br]([30:28]==3'd2                                    [ 19: 19]=1   ) : rply_cnt_lb_eq_16_v_f                     [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd2                                    [ 20: 20]=1   ) : rply_cnt_dir_eq_16_v_f                    [IntelRsvd] structure integrity failure [/IntelRsvd]
+   [br]([30:28]==3'd2                                    [ 27: 21]=1   ) : rply_cnt_eq_16_qid_f                      [IntelRsvd] structure integrity failure [/IntelRsvd]
+        ";
+        regwidth = 32;
+        HandCoded=true;
+      field { name = "Syndvalid"; desc = "contents are valid"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RW/1C/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_syndrome_01.i_hqm_AW_register_wtcfg.internal_f[31:31]";} SYNDVALID[31:31] = 1'b0;
+      field { name = "Syndtype"; desc = "type of error captured. "; fieldwidth = 3;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_syndrome_01.i_hqm_AW_register_wtcfg.internal_f[30:28]";} SYNDTYPE[30:28] = 3'h0;
+      field { name = "Synddata"; desc = "Syndrom data. The data format correlates to the type."; fieldwidth = 28;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_syndrome_01.i_hqm_AW_register_wtcfg.internal_f[27:0]";} SYNDDATA[27:0] = 28'h0;
+  };
+reg cfg_reorder_state_qid_qidix_cq_r {
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="DEBUG_RUNTIMEARCHSTATE_MEM_NA_2048";
+      name = "Cfg Reorder State Qid Qidix Cq";
+        desc = "Reorder state cq, qidix, qid, qpri and vld bit";
+        regwidth = 32;
+        HandCoded=true;
+        field { name = "Reorder St Vld";   desc = "vld indicating this SN entry is active.";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; } VLD[22:22] = 1'h0;
+        field { name = "Rsvz0";   desc = "rsvz0";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; } RSZV0[21:21] = 1'h0;
+        field { name = "Reorder St User";  desc = "user bit forwarded to lsp to be used for enhanced credit management.";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; } USER[20:20] = 1'h0;
+        field { name = "Reorder St Qpri";  desc = "Qpri associated with contents of the SN entry.";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; } QPRI[19:17] = 3'h0;
+        field { name = "Reorder St Qid";   desc = "Qid associated with contents of the SN entry.";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; } QID[16:10] = 7'h0;
+        field { name = "Reorder St Qidix"; desc = "Qidix associated with contents of the SN entry.";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; } QIDIX[9:7] = 3'h0;
+        field { name = "Reorder St Cq";    desc = "Consumer queue (CQ) associated with contents of the SN entry.";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; } CQ[6:0] = 7'h0;
+  };
+reg cfg_reorder_state_nalb_hp_r {
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="DEBUG_RUNTIMEARCHSTATE_MEM_NA_2048";
+      name = "Cfg Reorder State Nalb Hp";
+        desc = "Load balanced reorder state head pointer";
+        regwidth = 32;
+        HandCoded=true;
+        field { name = "Reorder St Hp"; desc = "Load balanced type reorder state head pointer (HP) associated with contents of ths SN entry.";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; } HP[13:0] = 14'h0;
+  };
+reg cfg_grp_0_slot_shift_r {
+      IntelRsvd=false;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      shared;
+      HqmClassification="CONFIG_VIRT_MEM_NA_16";
+      name = "Cfg Grp_0 Slot Shift";
+        desc = "Sequence group 0 shift register used by hw to determine bit position in the per slot completion vector. Indexed by slot. ";
+        regwidth = 32;
+        HandCoded=true;
+        field { name = "Shift"; desc = "Shift value used to recover sequence based on bit vector position for the slot";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; } CHANGE[9:0] = 10'd0;
+  };
+reg cfg_grp_1_slot_shift_r {
+      IntelRsvd=false;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      shared;
+      HqmClassification="CONFIG_VIRT_MEM_NA_16";
+      name = "Cfg Grp_1 Slot Shift";
+        desc = "Sequence group 1 shift register used by hw to determine bit position in the per slot completion vector. Indexed by slot. ";
+        regwidth = 32;
+        HandCoded=true;
+        field { name = "Shift"; desc = "Shift value used to recover sequence based on bit vector position for the slot";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; } CHANGE[9:0] = 10'd0;
+  };
+reg cfg_pipe_health_seqnum_state_grp0_r {
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="RUNTIMEARCHSTATE_MEM_NA_32";
+      name = "Cfg Pipe Health Seqnum State Grp0";
+        desc = "Sequence group 0 completion vector.";
+        regwidth = 32;
+        HandCoded=true;
+        field { name = "SN_ACTIVE"; desc = "when bits are set there are active SNs in system. Use the qid group, slot, slot shift value and mode to derive SN";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; } SN_ACTIVE[31:0] = 32'd0;
+  };
+reg cfg_pipe_health_seqnum_state_grp1_r {
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="RUNTIMEARCHSTATE_MEM_NA_32";
+      name = "Cfg Pipe Health Seqnum State Grp1";
+        desc = "Sequence group 1 completion vector.";
+        regwidth = 32;
+        HandCoded=true;
+        field { name = "SN_ACTIVE"; desc = "when bits are set there are active SNs in system. Use the qid group, slot, slot shift value and mode to derive SN";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; } SN_ACTIVE[31:0] = 32'd0;
+  };
+reg cfg_pipe_health_hold_rop_nalb_r { 
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="STATUS_REG_NA_1";
+      name = "Cfg Pipe Health Hold Rop Nalb";
+        desc = "This is pipe health register showing status of rop_nalb pipe hold bits.";
+        regwidth = 32;
+        HandCoded=true;
+        field { name = "P2 Rop Nalb F.hold"; desc = "p2_rop_nalb_f.hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_nalb.status[2:2]";} P2_ROP_NALB_F_HOLD[2:2] = 1'd0;
+        field { name = "P1 Rop Nalb F.hold"; desc = "p1_rop_nalb_f.hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_nalb.status[1:1]";} P1_ROP_NALB_F_HOLD[1:1] = 1'd0;
+        field { name = "P0 Rop Nalb F.hold"; desc = "p0_rop_nalb_f.hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_nalb.status[0:0]";} P0_ROP_NALB_F_HOLD[0:0] = 1'd0;
+  } ;
+reg cfg_pipe_health_valid_rop_nalb_r { 
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="STATUS_REG_NA_1";
+      name = "Cfg Pipe Health Valid Rop Nalb";
+        desc = "This is pipe health register showing status of rop_nalb pipe valid and enable bits.";
+        regwidth = 32;
+        HandCoded=true;
+        field { name = "P2 Rop Nalb F.v"; desc = "p2_rop_nalb_f.v value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_nalb.status[2:2]";} P2_ROP_NALB_F_V[2:2] = 1'd0;
+        field { name = "P1 Rop Nalb F.v"; desc = "p1_rop_nalb_f.v value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_nalb.status[1:1]";} P1_ROP_NALB_F_V[1:1] = 1'd0;
+        field { name = "P0 Rop Nalb F.v"; desc = "p0_rop_nalb_f.v value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_nalb.status[0:0]";} P0_ROP_NALB_F_V[0:0] = 1'd0;
+  } ;
+reg cfg_pipe_health_hold_rop_dp_r {  
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="STATUS_REG_NA_1";
+      name = "Cfg Pipe Health Hold Rop Dp";
+        desc = "This is pipe health register showing status of rop_dp pipe hold bits.";
+        regwidth = 32;
+        HandCoded=true;
+        field { name = "P2 Rop Dp Enq F.hold"; desc = "p2_rop_dp_enq_f.hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_dp.status[2:2]";} P2_ROP_DP_ENQ_F_HOLD[2:2] = 1'd0;
+        field { name = "P1 Rop Dp Enq F.hold"; desc = "p1_rop_dp_enq_f.hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_dp.status[1:1]";} P1_ROP_DP_ENQ_F_HOLD[1:1] = 1'd0;
+        field { name = "P0 Rop Dp Enq F.hold"; desc = "p0_rop_dp_enq_f.hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_dp.status[0:0]";} P0_ROP_DP_ENQ_F_HOLD[0:0] = 1'd0;
+ } ;
+reg cfg_pipe_health_valid_rop_dp_r {  
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="STATUS_REG_NA_1";
+      name = "Cfg Pipe Health Valid Rop Dp";
+        desc = "This is pipe health register showing status of rop_dp pipe valid bits.";
+        regwidth = 32;
+        HandCoded=true;
+        field { name = "P2 Rop Dp Enq F.v"; desc = "p2_rop_dp_enq_f.v value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_dp.status[2:2]";} P2_ROP_DP_ENQ_F_V[2:2] = 1'd0;
+        field { name = "P1 Rop Dp Enq F.v"; desc = "p1_rop_dp_enq_f.v value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_dp.status[1:1]";} P1_ROP_DP_ENQ_F_V[1:1] = 1'd0;
+        field { name = "P0 Rop Dp Enq F.v"; desc = "p0_rop_dp_enq_f.v value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_dp.status[0:0]";} P0_ROP_DP_ENQ_F_V[0:0] = 1'd0;
+  } ;
+reg cfg_pipe_health_hold_rop_qed_dqed_r {  
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="STATUS_REG_NA_1";
+      name = "Cfg Pipe Health Hold Rop Qed Dqed";
+        desc = "This is pipe health register showing status of rop_qed_dqed pipe hold bits.";
+        regwidth = 32;
+        HandCoded=true;
+        field { name = "P1 Qed Dqed Enq Ctl.hold"; desc = "p1_qed_dqed_enq_ctl.hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_qed_dqed.status[1:1]";} P1_QED_DQED_ENQ_CTL_HOLD[1:1] = 1'd0;
+        field { name = "P0 Qed Dqed Enq Ctl.hold"; desc = "p0_qed_dqed_enq_ctl.hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_qed_dqed.status[0:0]";} P0_QED_DQED_ENQ_CTL_HOLD[0:0] = 1'd0;
+  } ;
+reg cfg_pipe_health_valid_rop_qed_dqed_r {  
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="STATUS_REG_NA_1";
+      name = "Cfg Pipe Health Valid Rop Qed Dqed";
+        desc = "This is pipe health register showing status of rop_qed_dqed pipe valid bits.";
+        regwidth = 32;
+        HandCoded=true;
+        field { name = "Chp Rop Hcw Db2 Out Valid"; desc = "chp_rop_hcw_db2_out_valid value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_qed_dqed.status[2:2]";} CHP_ROP_HCW_DB2_OUT_VALID[2:2] = 1'd0;
+        field { name = "P1 Qed Dqed Enq Ctl.v"; desc = "p1_qed_dqed_enq_ctl.v value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_qed_dqed.status[1:1]";} P1_QED_DQED_ENQ_CTL_V[1:1] = 1'd0;
+        field { name = "P0 Qed Dqed Enq Ctl.v"; desc = "p0_qed_dqed_enq_ctl.v value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_qed_dqed.status[0:0]";} P0_QED_DQED_ENQ_CTL_V[0:0] = 1'd0;
+ } ;
+reg cfg_pipe_health_hold_rop_lsp_reordcomp_r {  
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="STATUS_REG_NA_1";
+      name = "Cfg Pipe Health Hold Rop Lsp Reordcomp";
+        desc = "This is pipe health register showing status of reorder ctl, dirtp, dirhp, lbtp, lbhp and st pipe hold bits.";
+        regwidth = 32;
+        HandCoded=true;
+        field { name = "P3 Reord Ctl Hold"; desc = "p3_reord_ctl_hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_lsp_reordcomp.status[31:31]";} P3_REORD_CTL_HOLD[31:31] = 1'd0;
+        field { name = "P2 Reord Ctl Hold"; desc = "p2_reord_ctl_hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_lsp_reordcomp.status[30:30]";} P2_REORD_CTL_HOLD[30:30] = 1'd0;
+        field { name = "P1 Reord Ctl Hold"; desc = "p1_reord_ctl_hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_lsp_reordcomp.status[29:29]";} P1_REORD_CTL_HOLD[29:29] = 1'd0;
+        field { name = "P0 Reord Ctl Hold"; desc = "p0_reord_ctl_hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_lsp_reordcomp.status[28:28]";} P0_REORD_CTL_HOLD[28:28] = 1'd0;
+        field { name = "P3 Reord Cnt Hold"; desc = "p3_reord_cnt_hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_lsp_reordcomp.status[27:27]";} P3_REORD_CNT_HOLD[27:27] = 1'd0;
+        field { name = "P2 Reord Cnt Hold"; desc = "p2_reord_cnt_hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_lsp_reordcomp.status[26:26]";} P2_REORD_CNT_HOLD[26:26] = 1'd0;
+        field { name = "P1 Reord Cnt Hold"; desc = "p1_reord_cnt_hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_lsp_reordcomp.status[25:25]";} P1_REORD_CNT_HOLD[25:25] = 1'd0;
+        field { name = "P0 Reord Cnt Hold"; desc = "p0_reord_cnt_hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_lsp_reordcomp.status[24:24]";} P0_REORD_CNT_HOLD[24:24] = 1'd0;
+        field { name = "P3 Reord Dirtp Hold"; desc = "p3_reord_dirtp_hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_lsp_reordcomp.status[23:23]";} P3_REORD_DIRTP_HOLD[23:23] = 1'd0;
+        field { name = "P2 Reord Dirtp Hold"; desc = "p2_reord_dirtp_hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_lsp_reordcomp.status[22:22]";} P2_REORD_DIRTP_HOLD[22:22] = 1'd0;
+        field { name = "P1 Reord Dirtp Hold"; desc = "p1_reord_dirtp_hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_lsp_reordcomp.status[21:21]";} P1_REORD_DIRTP_HOLD[21:21] = 1'd0;
+        field { name = "P0 Reord Dirtp Hold"; desc = "p0_reord_dirtp_hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_lsp_reordcomp.status[20:20]";} P0_REORD_DIRTP_HOLD[20:20] = 1'd0;
+        field { name = "P3 Reord Dirhp Hold"; desc = "p3_reord_dirhp_hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_lsp_reordcomp.status[19:19]";} P3_REORD_DIRHP_HOLD[19:19] = 1'd0;
+        field { name = "P2 Reord Dirhp Hold"; desc = "p2_reord_dirhp_hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_lsp_reordcomp.status[18:18]";} P2_REORD_DIRHP_HOLD[18:18] = 1'd0;
+        field { name = "P1 Reord Dirhp Hold"; desc = "p1_reord_dirhp_hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_lsp_reordcomp.status[17:17]";} P1_REORD_DIRHP_HOLD[17:17] = 1'd0;
+        field { name = "P0 Reord Dirhp Hold"; desc = "p0_reord_dirhp_hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_lsp_reordcomp.status[16:16]";} P0_REORD_DIRHP_HOLD[16:16] = 1'd0;
+        field { name = "P3 Reord Lbtp Hold"; desc = "p3_reord_lbtp_hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_lsp_reordcomp.status[15:15]";} P3_REORD_LBTP_HOLD[15:15] = 1'd0;
+        field { name = "P2 Reord Lbtp Hold"; desc = "p2_reord_lbtp_hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_lsp_reordcomp.status[14:14]";} P2_REORD_LBTP_HOLD[14:14] = 1'd0;
+        field { name = "P1 Reord Lbtp Hold"; desc = "p1_reord_lbtp_hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_lsp_reordcomp.status[13:13]";} P1_REORD_LBTP_HOLD[13:13] = 1'd0;
+        field { name = "P0 Reord Lbtp Hold"; desc = "p0_reord_lbtp_hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_lsp_reordcomp.status[12:12]";} P0_REORD_LBTP_HOLD[12:12] = 1'd0;
+        field { name = "P3 Reord Lbhp Hold"; desc = "p3_reord_lbhp_hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_lsp_reordcomp.status[11:11]";} P3_REORD_LBHP_HOLD[11:11] = 1'd0;
+        field { name = "P2 Reord Lbhp Hold"; desc = "p2_reord_lbhp_hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_lsp_reordcomp.status[10:10]";} P2_REORD_LBHP_HOLD[10:10] = 1'd0;
+        field { name = "P1 Reord Lbhp Hold"; desc = "p1_reord_lbhp_hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_lsp_reordcomp.status[9:9]";} P1_REORD_LBHP_HOLD[9:9] = 1'd0;
+        field { name = "P0 Reord Lbhp Hold"; desc = "p0_reord_lbhp_hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_lsp_reordcomp.status[8:8]";} P0_REORD_LBHP_HOLD[8:8] = 1'd0;
+        field { name = "P3 Reord St Hold"; desc = "p3_reord_st_hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_lsp_reordcomp.status[7:7]";} P3_REORD_ST_HOLD[7:7] = 1'd0;
+        field { name = "P2 Reord St Hold"; desc = "p2_reord_st_hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_lsp_reordcomp.status[6:6]";} P2_REORD_ST_HOLD[6:6] = 1'd0;
+        field { name = "P1 Reord St Hold"; desc = "p1_reord_st_hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_lsp_reordcomp.status[5:5]";} P1_REORD_ST_HOLD[5:5] = 1'd0;
+        field { name = "P0 Reord St Hold"; desc = "p0_reord_st_hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_rop_lsp_reordcomp.status[4:4]";} P0_REORD_ST_HOLD[4:4] = 1'd0;
+ } ;
+reg cfg_pipe_health_valid_rop_lsp_reordcomp_r {  
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="STATUS_REG_NA_1";
+      name = "Cfg Pipe Health Valid Rop Lsp Reordcomp";
+        desc = "This is pipe health register showing status of reorder ctl, dirtp, dirhp, lbtp, lbhp and st pipe valid bits.";
+        regwidth = 32;
+        HandCoded=true;
+        field { name = "P2 Reord F.v"; desc = "p2_reord_f.v value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_lsp_reordcomp.status[30:30]";} P2_REORD_F_V[30:30] = 1'd0;
+        field { name = "P1 Reord F.v"; desc = "p1_reord_f.v value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_lsp_reordcomp.status[29:29]";} P1_REORD_F_V[29:29] = 1'd0;
+        field { name = "P0 Reord F.v"; desc = "p0_reord_f.v value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_lsp_reordcomp.status[28:28]";} P0_REORD_F_V[28:28] = 1'd0;
+        field { name = "P3 Reord Cnt V F"; desc = "p3_reord_cnt_v_f value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_lsp_reordcomp.status[27:27]";} P3_REORD_CNT_V_F[27:27] = 1'd0;
+        field { name = "P2 Reord Cnt V F"; desc = "p2_reord_cnt_v_f value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_lsp_reordcomp.status[26:26]";} P2_REORD_CNT_V_F[26:26] = 1'd0;
+        field { name = "P1 Reord Cnt V F"; desc = "p1_reord_cnt_v_f value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_lsp_reordcomp.status[25:25]";} P1_REORD_CNT_V_F[25:25] = 1'd0;
+        field { name = "P0 Reord Cnt V F"; desc = "p0_reord_cnt_v_f value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_lsp_reordcomp.status[24:24]";} P0_REORD_CNT_V_F[24:24] = 1'd0;
+        field { name = "P3 Reord Dirtp V F"; desc = "p3_reord_dirtp_v_f value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_lsp_reordcomp.status[23:23]";} P3_REORD_DIRTP_V_F[23:23] = 1'd0;
+        field { name = "P2 Reord Dirtp V F"; desc = "p2_reord_dirtp_v_f value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_lsp_reordcomp.status[22:22]";} P2_REORD_DIRTP_V_F[22:22] = 1'd0;
+        field { name = "P1 Reord Dirtp V F"; desc = "p1_reord_dirtp_v_f value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_lsp_reordcomp.status[21:21]";} P1_REORD_DIRTP_V_F[21:21] = 1'd0;
+        field { name = "P0 Reord Dirtp V F"; desc = "p0_reord_dirtp_v_f value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_lsp_reordcomp.status[20:20]";} P0_REORD_DIRTP_V_F[20:20] = 1'd0;
+        field { name = "P3 Reord Dirhp V F"; desc = "p3_reord_dirhp_v_f value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_lsp_reordcomp.status[19:19]";} P3_REORD_DIRHP_V_F[19:19] = 1'd0;
+        field { name = "P2 Reord Dirhp V F"; desc = "p2_reord_dirhp_v_f value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_lsp_reordcomp.status[18:18]";} P2_REORD_DIRHP_V_F[18:18] = 1'd0;
+        field { name = "P1 Reord Dirhp V F"; desc = "p1_reord_dirhp_v_f value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_lsp_reordcomp.status[17:17]";} P1_REORD_DIRHP_V_F[17:17] = 1'd0;
+        field { name = "P0 Reord Dirhp V F"; desc = "p0_reord_dirhp_v_f value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_lsp_reordcomp.status[16:16]";} P0_REORD_DIRHP_V_F[16:16] = 1'd0;
+        field { name = "P3 Reord Lbtp V F"; desc = "p3_reord_lbtp_v_f value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_lsp_reordcomp.status[15:15]";} P3_REORD_LBTP_V_F[15:15] = 1'd0;
+        field { name = "P2 Reord Lbtp V F"; desc = "p2_reord_lbtp_v_f value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_lsp_reordcomp.status[14:14]";} P2_REORD_LBTP_V_F[14:14] = 1'd0;
+        field { name = "P1 Reord Lbtp V F"; desc = "p1_reord_lbtp_v_f value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_lsp_reordcomp.status[13:13]";} P1_REORD_LBTP_V_F[13:13] = 1'd0;
+        field { name = "P0 Reord Lbtp V F"; desc = "p0_reord_lbtp_v_f value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_lsp_reordcomp.status[12:12]";} P0_REORD_LBTP_V_F[12:12] = 1'd0;
+        field { name = "P3 Reord Lbhp V F"; desc = "p3_reord_lbhp_v_f value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_lsp_reordcomp.status[11:11]";} P3_REORD_LBHP_V_F[11:11] = 1'd0;
+        field { name = "P2 Reord Lbhp V F"; desc = "p2_reord_lbhp_v_f value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_lsp_reordcomp.status[10:10]";} P2_REORD_LBHP_V_F[10:10] = 1'd0;
+        field { name = "P1 Reord Lbhp V F"; desc = "p1_reord_lbhp_v_f value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_lsp_reordcomp.status[9:9]";} P1_REORD_LBHP_V_F[9:9] = 1'd0;
+        field { name = "P0 Reord Lbhp V F"; desc = "p0_reord_lbhp_v_f value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_lsp_reordcomp.status[8:8]";} P0_REORD_LBHP_V_F[8:8] = 1'd0;
+        field { name = "P3 Reord St V F"; desc = "p3_reord_st_v_f value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_lsp_reordcomp.status[7:7]";} P3_REORD_ST_V_F[7:7] = 1'd0;
+        field { name = "P2 Reord St V F"; desc = "p2_reord_st_v_f value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_lsp_reordcomp.status[6:6]";} P2_REORD_ST_V_F[6:6] = 1'd0;
+        field { name = "P1 Reord St V F"; desc = "p1_reord_st_v_f value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_lsp_reordcomp.status[5:5]";} P1_REORD_ST_V_F[5:5] = 1'd0;
+        field { name = "P0 Reord St V F"; desc = "p0_reord_st_v_f value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_rop_lsp_reordcomp.status[4:4]";} P0_REORD_ST_V_F[4:4] = 1'd0;
+  } ;
+reg cfg_pipe_health_hold_grp0_r {  
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="STATUS_REG_NA_1";
+      name = "Cfg Pipe Health Hold Grp0";
+        desc = "Sequence reorder group 0 completion and shift pipe hold status.";
+        regwidth = 32;
+        HandCoded=true;
+        field { name = "P2 Cmp F.hold"; desc = "hqm_AW_sn_order p2_cmp_f.hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_grp0.status[5:5]";} P2_CMP_F_HOLD[5:5] = 1'd0;
+        field { name = "P1 Cmp F.hold"; desc = "hqm_AW_sn_order p1_cmp_f.hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_grp0.status[4:4]";} P1_CMP_F_HOLD[4:4] = 1'd0;
+        field { name = "P0 Cmp F.hold"; desc = "hqm_AW_sn_order p0_cmp_f.hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_grp0.status[3:3]";} P0_CMP_F_HOLD[3:3] = 1'd0;
+        field { name = "P2 Shft F.hold"; desc = "hqm_AW_sn_order p2_shft_f.hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_grp0.status[2:2]";} P2_SHFT_F_HOLD[2:2] = 1'd0;
+        field { name = "P1 Shft F.hold"; desc = "hqm_AW_sn_order p1_shft_f.hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_grp0.status[1:1]";} P1_SHFT_F_HOLD[1:1] = 1'd0;
+ } ;
+reg cfg_pipe_health_valid_grp0_r {  
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="STATUS_REG_NA_1";
+      name = "Cfg Pipe Health Valid Grp0";
+        desc = "Sequence reorder group 0 completion and shift pipe valid status.";
+        regwidth = 32;
+        HandCoded=true;
+        field { name = "sn_shift"; desc = "hqm_AW_sn_order sn_shift";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_grp0.status[31:22]";} SN_SHIFT_DEBUG[31:22] = 10'd0;
+        field { name = "slt_state"; desc = "hqm_AW_sn_order slt state";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_grp0.status[9:9]";} SLT_STATE[9:9] = 1'd0;
+        field { name = "P3 Cmp F.v"; desc = "hqm_AW_sn_order p3_cmp_f.v value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_grp0.status[7:7]";} P3_CMP_F_V[7:7] = 1'd0;
+        field { name = "P2 Cmp F.v"; desc = "hqm_AW_sn_order p2_cmp_f.v value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_grp0.status[6:6]";} P2_CMP_F_V[6:6] = 1'd0;
+        field { name = "P1 Cmp F.v"; desc = "hqm_AW_sn_order p1_cmp_f.v value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_grp0.status[5:5]";} P1_CMP_F_V[5:5] = 1'd0;
+        field { name = "P0 Cmp F.v"; desc = "hqm_AW_sn_order p0_cmp_f.v value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_grp0.status[4:4]";} P0_CMP_F_V[4:4] = 1'd0;
+        field { name = "P2 Shft F.v"; desc = "hqm_AW_sn_order p2_shft_f.v value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_grp0.status[3:3]";} P2_SHFT_F_V[3:3] = 1'd0;
+        field { name = "P1 Shft F.v"; desc = "hqm_AW_sn_order p1_shft_f.v value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_grp0.status[2:2]";} P1_SHFT_F_V[2:2] = 1'd0;
+        field { name = "P0 Shft F.v"; desc = "hqm_AW_sn_order p0_shft_f.v value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_grp0.status[1:1]";} P0_SHFT_F_V[1:1] = 1'd0;
+        field { name = "reserved"; desc = "hqm_AW_sn_order p0_shft_f.v value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_grp0.status[0:0]";} RSVD0[0:0] = 1'd0;
+ } ;
+reg cfg_pipe_health_hold_grp1_r {  
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="STATUS_REG_NA_1";
+      name = "Cfg Pipe Health Hold Grp1";
+        desc = "Sequence reorder group 1 completion and shift pipe hold status.";
+        regwidth = 32;
+        HandCoded=true;
+        field { name = "P2 Cmp F.hold"; desc = "hqm_AW_sn_order p2_cmp_f.hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_grp1.status[5:5]";} P2_CMP_F_HOLD[5:5] = 1'd0;
+        field { name = "P1 Cmp F.hold"; desc = "hqm_AW_sn_order p1_cmp_f.hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_grp1.status[4:4]";} P1_CMP_F_HOLD[4:4] = 1'd0;
+        field { name = "P0 Cmp F.hold"; desc = "hqm_AW_sn_order p0_cmp_f.hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_grp1.status[3:3]";} P0_CMP_F_HOLD[3:3] = 1'd0;
+        field { name = "P2 Shft F.hold"; desc = "hqm_AW_sn_order p2_shft_f.hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_grp1.status[2:2]";} P2_SHFT_F_HOLD[2:2] = 1'd0;
+        field { name = "P1 Shft F.hold"; desc = "hqm_AW_sn_order p1_shft_f.hold value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_hold_grp1.status[1:1]";} P1_SHFT_F_HOLD[1:1] = 1'd0;
+ } ;
+reg cfg_pipe_health_valid_grp1_r {  
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="STATUS_REG_NA_1";
+      name = "Cfg Pipe Health Valid Grp1";
+        desc = "Sequence reorder group 1 completion and shift pipe valid status.";
+        regwidth = 32;
+        HandCoded=true;
+        field { name = "P2 Cmp F.v"; desc = "hqm_AW_sn_order p2_cmp_f.v value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_grp1.status[5:5]";} P2_CMP_F_V[5:5] = 1'd0;
+        field { name = "P1 Cmp F.v"; desc = "hqm_AW_sn_order p1_cmp_f.v value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_grp1.status[4:4]";} P1_CMP_F_V[4:4] = 1'd0;
+        field { name = "P0 Cmp F.v"; desc = "hqm_AW_sn_order p0_cmp_f.v value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_grp1.status[3:3]";} P0_CMP_F_V[3:3] = 1'd0;
+        field { name = "P2 Shft F.v"; desc = "hqm_AW_sn_order p2_shft_f.v value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_grp1.status[2:2]";} P2_SHFT_F_V[2:2] = 1'd0;
+        field { name = "P1 Shft F.v"; desc = "hqm_AW_sn_order p1_shft_f.v value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_grp1.status[1:1]";} P1_SHFT_F_V[1:1] = 1'd0;
+        field { name = "P0 Shft F.v"; desc = "hqm_AW_sn_order p0_shft_f.v value";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_pipe_health_valid_grp1.status[0:0]";} P0_SHFT_F_V[0:0] = 1'd0;
+ } ;
+reg cfg_interface_status_r {  
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="STATUS_REG_NA_1";
+      name = "Cfg Interface Status";
+        desc = "This register captures status of the interface *_v and *_ready bits.";
+        regwidth = 32;
+        HandCoded=true;
+        field { name = "int idle"; desc = "int ring idle inverted"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_interface_status.status[31:31]";} INT_IDLE_B[31:31] = 1'h0;
+        field { name = "Rop Lsp Reordercmp V      "; desc = "rop_lsp_reordercmp_v      ";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_interface_status.status[13:13]";} ROP_LSP_REORDERCMP_V[13:13] = 1'b0;
+        field { name = "Rop Lsp Reordercmp Ready  "; desc = "rop_lsp_reordercmp_ready  ";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_interface_status.status[12:12]";} ROP_LSP_REORDERCMP_READY[12:12] = 1'b1;
+        field { name = "Rop Qed Dqed Enq V        "; desc = "rop_qed_dqed_enq_v        ";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_interface_status.status[11:11]";} ROP_QED_DQED_ENQ_V  [11:11] = 1'b0;
+        field { name = "Rop Qed Enq Ready         "; desc = "rop_qed_enq_ready         ";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_interface_status.status[10:10]";} ROP_QED_ENQ_READY   [10:10] = 1'b0;
+        field { name = "Rop Nalb Enq V            "; desc = "rop_nalb_enq_v            ";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_interface_status.status[9:9]";} ROP_NALB_ENQ_V      [9:9] = 1'b0;
+        field { name = "Rop Nalb Enq Ready        "; desc = "rop_nalb_enq_ready        ";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_interface_status.status[8:8]";} ROP_NALB_ENQ_READY  [8:8] = 1'b1;
+        field { name = "Rop Dp Enq V              "; desc = "rop_dp_enq_v              ";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_interface_status.status[7:7]";} ROP_DP_ENQ_V        [7:7] = 1'b0;
+        field { name = "Rop Dp Enq Ready          "; desc = "rop_dp_enq_ready          ";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_interface_status.status[6:6]";} ROP_DP_ENQ_READY    [6:6] = 1'b1;
+        field { name = "Chp Rop Hcw V             "; desc = "chp_rop_hcw_v             ";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_interface_status.status[5:5]";} CHP_ROP_HCW_V       [5:5] = 1'b0;
+        field { name = "Chp Rop Hcw Ready         "; desc = "chp_rop_hcw_ready         ";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_interface_status.status[4:4]";} CHP_ROP_HCW_READY   [4:4] = 1'b1;
+        field { name = "Rop Alarm Down V          "; desc = "rop_alarm_down_v          ";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_interface_status.status[3:3]";} ROP_ALARM_DOWN_V    [3:3] = 1'b0;
+        field { name = "Rop Alarm Down Ready      "; desc = "rop_alarm_down_ready      ";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_interface_status.status[2:2]";} ROP_ALARM_DOWN_READY[2:2] = 1'b1;
+        field { name = "Rop Alarm Up V            "; desc = "rop_alarm_up_v            ";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_interface_status.status[1:1]";} ROP_ALARM_UP_V      [1:1] = 1'b0;
+        field { name = "Rop Alarm Up Ready        "; desc = "rop_alarm_up_ready        ";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_interface_status.status[0:0]";} ROP_ALARM_UP_READY  [0:0] = 1'b1;
+ } ;
+reg cfg_diagnostic_aw_status_r {  
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="STATUS_REG_NA_1";
+      name = "Cfg Diagnostic Aw Status";
+        desc = "This register reflects status of the double_buffers in the module.";
+        regwidth = 32;
+        HandCoded=true;
+        field { name = "Chp Rop Hcw Db2 Status[2:0]"; desc = "chp_rop_hcw_db2_status[2:0]";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_diagnostic_aw_status.status[8:6]";} CHP_ROP_HCW_DB2_STATUS[8:6] = 3'd0;
+        field { name = "Lsp Reordercmp Db Status[2:0]"; desc = "lsp_reordercmp_db_status[2:0]";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_diagnostic_aw_status.status[5:3]";} LSP_REORDERCMP_DB_STATUS[5:3] = 3'd4;
+        field { name = "Chp Rop Hcw Db Status[2:0]"; desc = "chp_rop_hcw_db_status[2:0]";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_diagnostic_aw_status.status[2:0]";} CHP_ROP_HCW_DB_STATUS[2:0] = 3'd0;
+ } ;
+reg cfg_serializer_status_r {
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="STATUS_REG_NA_1";
+      name = "Cfg Serializer Status";
+      desc = "Internal Diagnostic status register";
+      regwidth = 32;
+      HandCoded=true;
+      field { fieldwidth = 18; name = "Rsvz0"; desc = "rsvz0";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_serializer_status.status[31:14]";} RSZV0[31:14] = 18'h00000; 
+      field { fieldwidth = 1; name = "db_down_input_stalled"; desc = "Interrupt serializer status.";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_serializer_status.status[13:13]";} DB_DOWN_INPUT_STALLED[13:13] = 1'b0; 
+      field { fieldwidth = 1; name = "db_down_input_taken"; desc = "Interrupt serializer status.";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_serializer_status.status[12:12]";} DB_DOWN_INPUT_TAKEN[12:12] = 1'b0; 
+      field { fieldwidth = 1; name = "db_down_out_stalled"; desc = "Interrupt serializer status.";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_serializer_status.status[11:11]";} DB_DOWN_OUT_STALLED[11:11] = 1'b0; 
+      field { fieldwidth = 1; name = "db_down_out_taken"; desc = "Interrupt serializer status.";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_serializer_status.status[10:10]";} DB_DOWN_OUT_TAKEN[10:10] = 1'b0; 
+      field { fieldwidth = 1; name = "db_down_out_ready"; desc = "Interrupt serializer status.";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_serializer_status.status[9:9]";} DB_DOWN_OUT_READY[9:9] = 1'b1; 
+      field { fieldwidth = 2; name = "db_down_depth"; desc = "Interrupt serializer status.";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_serializer_status.status[8:7]";} DB_DOWN_DEPTH[8:7] = 2'd0; 
+      field { fieldwidth = 1; name = "db_up_input_stalled"; desc = "Interrupt serializer status.";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_serializer_status.status[6:6]";} DB_UP_INPUT_STALLED[6:6] = 1'b0; 
+      field { fieldwidth = 1; name = "db_up_input_taken"; desc = "Interrupt serializer status.";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_serializer_status.status[5:5]";} DB_UP_INPUT_TAKEN[5:5] = 1'b0; 
+      field { fieldwidth = 1; name = "db_up_out_stalled"; desc = "Interrupt serializer status.";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_serializer_status.status[4:4]";} DB_UP_OUT_STALLED[4:4] = 1'b0; 
+      field { fieldwidth = 1; name = "db_up_out_taken"; desc = "Interrupt serializer status.";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_serializer_status.status[3:3]";} DB_UP_OUT_TAKEN[3:3] = 1'b0; 
+      field { fieldwidth = 1; name = "db_up_out_ready"; desc = "Interrupt serializer status.";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_serializer_status.status[2:2]";} DB_UP_OUT_READY[2:2] = 1'b0; 
+      field { fieldwidth = 2; name = "db_up_depth"; desc = "Interrupt serializer status.";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_serializer_status.status[1:0]";} DB_UP_DEPTH[1:0] = 2'd0; 
+ };
+reg cfg_rop_csr_control_r {
+      IntelRsvd=false;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      shared;
+      HqmClassification="SURVIVE_REG_NA_1";
+      name="Cfg Rop Csr Control";
+      desc="Interrup enable register";
+      regwidth = 32;
+      HandCoded=true;
+      field { name="sb_ecc_cap_en"; fieldwidth = 1; desc = "SB ecc syndrome capture enable";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_rop_csr_control.internal_f[31:31]";} SB_ECC_CAP_EN[31:31] = 1'h0;
+      field { name="vas_reset_disable"; fieldwidth = 1; desc = "VAS reset disable. When set disabled the VAS reset.";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_rop_csr_control.internal_f[30:30]";} VAS_RESET_DISABLE[30:30] = 1'h0;
+      field { name="rszv0"; fieldwidth = 16; desc = "rsvz0";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_rop_csr_control.internal_f[29:14]";} RSZV0[29:14] = 16'h0;
+      field { name="enable13"; fieldwidth = 1; desc = "sb ecc err en";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_rop_csr_control.internal_f[13:13]";} ENABLE13[13:13] = 1'b1; 
+      field { name="enable12"; fieldwidth = 1; desc = "reply_cnt_eq_16 int en";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_rop_csr_control.internal_f[12:12]";} ENABLE12[12:12] = 1'b1; 
+      field { name="enable11"; fieldwidth = 1; desc = "reserved";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_rop_csr_control.internal_f[11:11]";} ENABLE11[11:11] = 1'b1; 
+      field { name="enable10"; fieldwidth = 1; desc = "ord cnt int en";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_rop_csr_control.internal_f[10:10]";} ENABLE10[10:10] = 1'b1; 
+      field { name="enable9"; fieldwidth = 1; desc = "ord access inte err en";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_rop_csr_control.internal_f[9:9]";} ENABLE9[9:9] = 1'b1; 
+      field { name="enable8"; fieldwidth = 1; desc = "qtype not ord err en";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_rop_csr_control.internal_f[8:8]";} ENABLE8[8:8] = 1'b1; 
+      field { name="enable7"; fieldwidth = 1; desc = "hist list parity en";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_rop_csr_control.internal_f[7:7]";} ENABLE7[7:7] = 1'b0; 
+      field { name="enable6"; fieldwidth = 1; desc = "fifo uf/of en";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_rop_csr_control.internal_f[6:6]";} ENABLE6[6:6] = 1'b1; 
+      field { name="enable5"; fieldwidth = 1; desc = "fifo parity en";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_rop_csr_control.internal_f[5:5]";} ENABLE5[5:5] = 1'b1; 
+      field { name="enable4"; fieldwidth = 1; desc = "order residue/st err en";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_rop_csr_control.internal_f[4:4]";} ENABLE4[4:4] = 1'b1; 
+      field { name="enable3"; fieldwidth = 1; desc = "order mode err en";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_rop_csr_control.internal_f[3:3]";} ENABLE3[3:3] = 1'b1; 
+      field { name="enable2"; fieldwidth = 1; desc = "mb ecc error en";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_rop_csr_control.internal_f[2:2]";} ENABLE2[2:2] = 1'b1; 
+      field { name="enable1"; fieldwidth = 1; desc = "flid error en";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_rop_csr_control.internal_f[1:1]";} ENABLE1[1:1] = 1'b1; 
+      field { name="enable0"; fieldwidth = 1; desc = "cmd error en";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_rop_csr_control.internal_f[0:0]";} ENABLE0[0:0] = 1'b1; 
+};
+reg cfg_frag_integrity_count_r {
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="STATUS_REG_NA_1";
+      name = "Cfg Frag Integrity Count";
+      desc = "Integrity Counter for Frag enqs and dqs.";
+      regwidth = 32;
+      HandCoded=true;
+      donttest=true;
+      field { name = "Rsvz0"; desc = "rsvz0";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_frag_integrity_count.status[31:16]";} RSZV0[31:16] = 16'd0;
+      field { name = "Integrity Counter"; desc = "This field counts fragment enqs and deques. When all traffic has stopped this count has to be 0.";  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_frag_integrity_count.status[15:0]";} INTEGRITY_COUNT[15:0] = 16'd0;
+};
+reg cfg_patch_control_r {
+      donttest = true;
+      IntelRsvd=false;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="SURVIVE_REG_NA_1";
+      name="Cfg Patch Control";
+      desc="Non-default settings may cause UNDEFINED behavior.Common Control register with Patch config access";
+      HandCoded=true;
+      regwidth=32;
+      field { name = "delay_clockoff"; desc = "specify the number of idle clocks required to turn off clocks"; fieldwidth = 8;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_patch_control.internal_f[7:0]";} DELAY_CLOCKOFF[7:0] = 8'h40;
+      field { name = "delay_clkoff_bypass"; desc = "specify the number of clocks required to stay in clk_off bypass state, max supported value is 63 clocks"; fieldwidth = 6;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_patch_control.internal_f[13:8]";} DELAY_CLKOFF_BYPASS[13:8] = 6'h7;
+      field { name = "Rsvz1";    desc = "rsvz1"; fieldwidth = 2;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_patch_control.internal_f[15:14]";} RSVZ1[15:14] = 2'h0;
+      field { name = "Rsvz0";    desc = "rsvz0"; fieldwidth = 15;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_patch_control.internal_f[30:16]";} RSVZ0[30:16] = 15'h0;
+      field { name = "disable_clockoff"; desc = "set this bit to disable turning off the clock for the partitiion"; fieldwidth = 1;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_reorder_pipe_core.i_hqm_reorder_pipe_register_pfcsr.i_hqm_rop_target_cfg_patch_control.internal_f[31:31]";} DISABLE_CLOCKOFF[31:31] = 1'h0;
+};
+reg cfg_reorder_state_cnt_r {
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="DEBUG_RUNTIMEARCHSTATE_MEM_NA_2048";
+      name="Cfg Reorder State Cnt";
+      desc="Reorder state frag counts";
+      HandCoded=true;
+      regwidth=32;
+      field { name = "Reserved"; desc = "Reserved"; fieldwidth = 22;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; } RESERVED[31:10] = 22'h0; 
+      field { name = "Ldb_frag_count"; desc = "Count of fragments"; fieldwidth = 5;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; } LDB_FRAG_CNT[9:5] = 5'h0; 
+      field { name = "Dir_frag_count"; desc = "Count of fragments"; fieldwidth = 5;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; } DIR_FRAG_CNT[4:0] = 5'h0; 
+};
+reg cfg_reorder_state_nalb_tp_r {
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="DEBUG_RUNTIMEARCHSTATE_MEM_NA_2048";
+      name="Cfg Reorder State Nalb Tp";
+      desc="Reorder frag state nalb tp";
+      HandCoded=true;
+      regwidth=32;
+      field { name = "Reorder St nalb tp"; desc = "Load balance type reorder state tail pointe (TP) associated with contents of the SN entry."; fieldwidth = 14;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; } TP[13:0] = 14'h0; 
+};
+reg cfg_reorder_state_dir_hp_r {
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="DEBUG_RUNTIMEARCHSTATE_MEM_NA_2048";
+      name="Cfg Reorder State Dir Hp";
+      desc="Reorder St dir hp";
+      HandCoded=true;
+      regwidth=32;
+      field { name = "Reorder St dir hp"; desc = "Directed type reorder state head pointer (HP) associated with contents of the SN entry."; fieldwidth = 14;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; } HP[13:0] = 14'h0; 
+};
+reg cfg_reorder_state_dir_tp_r {
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="DEBUG_RUNTIMEARCHSTATE_MEM_NA_2048";
+      name="Cfg Reorder State Dir Tp";
+      desc="Reorder St dir tp";
+      HandCoded=true;
+      regwidth=32;
+      field { name = "Reorder St dir tp"; desc = "Directed type reorder state tail pointer (TP) associated with contents of the SN entry."; fieldwidth = 14;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; } TP[13:0] = 14'h0; 
+};

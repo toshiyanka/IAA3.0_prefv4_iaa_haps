@@ -1,0 +1,29 @@
+# This list is intended to be used as a full HQM SS check.
+# Only passing tests are expected to be included in this list.
+# Level 0 tests are already in GateKeeper therefore not included here.
+hqm_ss_dfd_sai_reg_test -dut hqm_ss -model hqm_ss -no_assert_maxfail -seed 1
+hqm_ss_gpsb_reg_rw_test -dut hqm_ss -model hqm_ss -no_assert_maxfail -seed 1
+hqm_ss_gpsb_reg_test -dut hqm_ss -model hqm_ss -no_assert_maxfail -seed 1
+hqm_ss_cfg_reg_sai_test -dut hqm_ss -model hqm_ss -no_assert_maxfail -seed 1
+hqm_ss_gpsb_sai_test -dut hqm_ss -model hqm_ss -no_assert_maxfail -seed 1
+hqm_ss_disable_mode_test -dut hqm_ss -model hqm_ss -no_assert_maxfail -seed 1
+hqm_ss_pwr_idle_test -dut hqm_ss -model hqm_ss -no_assert_maxfail -seed 1
+hqm_ss_dts_ral_test -dut hqm_ss -model hqm_ss -no_assert_maxfail -seed 1
+hqm_ss_pcie_err_test:poison -dut hqm_ss -model hqm_ss -no_assert_maxfail -seed 1
+hqm_ss_surprise_warm_reset_test:tail -dut hqm_ss -model hqm_ss -no_assert_maxfail -seed 1
+# Visa test for all muxes
+.include $MODEL_ROOT/verif/reglist/hqm_ss_visa_val_test_list/patgen_dvp_plm0/hqm_ss_visa_val_full_list
+.include $MODEL_ROOT/verif/reglist/hqm_ss_visa_val_test_list/patgen_global_muxes/hqm_ss_global_muxes_visa_patgen_test_full_list
+.include $MODEL_ROOT/verif/reglist/hqm_ss_visa_val_test_list/source_dvp_plm/hqm_ss_visa_source_test_dvp_plm_output_full_list
+.include $MODEL_ROOT/verif/reglist/hqm_ss_visa_val_test_list/source_global_muxes/hqm_ss_visa_val_global_muxes_source_prog_test_list
+# S-WRST test with user-defined delay
+.options -ace_args -simv_args +WRST_DELAY=1200 -ace_args-
+hqm_ss_surprise_warm_reset_test:tail -dut hqm_ss -model hqm_ss -no_assert_maxfail -seed 1
+# PKGS test combinations
+.options -ace_args -simv_args +PKGS_MODE=S3 -ace_args-
+hqm_ss_pkgs_test          -dut hqm_ss -model hqm_ss -no_assert_maxfail -seed 1
+hqm_ss_pkgs_test:b2btail  -dut hqm_ss -model hqm_ss -no_assert_maxfail -seed 1
+.options -ace_args -simv_args +corruptDis -ace_args-
+hqm_ss_pkgc_test:tail    -dut hqm_ss -model hqm_ss -no_assert_maxfail -seed 1
+hqm_ss_pkgc_test:b2btail -dut hqm_ss -model hqm_ss -no_assert_maxfail -seed 1
+hqm_ss_pkgc_test:btw     -dut hqm_ss -model hqm_ss -no_assert_maxfail -seed 1

@@ -1,0 +1,87 @@
+
+################################################################################
+###### Scenario: declare 2 VAS which has 1 VF/VDEV each; send traffic through first VF/VDEV to exhaust credits of VAS 1 and then start sending HCWs through 2nd VF/VDEV of VAS 2, these should NOT get dropped; 
+################################################################################
+
+## -- Disable the CQs for scheduling HCWs
+wr list_sel_pipe.cfg_cq_dir_disable[:DQ_A:].disabled 0x1
+rd list_sel_pipe.cfg_cq_dir_disable[:DQ_A:].disabled 0x1
+wr list_sel_pipe.cfg_cq_dir_disable[:DQ_B:].disabled 0x1
+rd list_sel_pipe.cfg_cq_dir_disable[:DQ_B:].disabled 0x1
+wr list_sel_pipe.cfg_cq_ldb_disable[:LDB_PP_A:].disabled 0x1
+rd list_sel_pipe.cfg_cq_ldb_disable[:LDB_PP_A:].disabled 0x1
+wr list_sel_pipe.cfg_cq_ldb_disable[:LDB_PP_B:].disabled 0x1
+rd list_sel_pipe.cfg_cq_ldb_disable[:LDB_PP_B:].disabled 0x1
+
+## -- Send 4 HCW to DIR QID DQ_A from DIR Port of VF_A
+HCW DIR:0 vf_num=VF_A  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=1 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=0  dsi=0x302
+HCW DIR:0 vf_num=VF_A  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=0  dsi=0x302
+HCW DIR:0 vf_num=VF_A  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=1 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=0  dsi=0x302
+HCW DIR:0 vf_num=VF_A  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=0  dsi=0x302
+
+## -- Send 4 HCW to LDB QID LQ_A from LDB Port of VF_A
+HCW LDB:0 vf_num=VF_A  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302
+HCW LDB:0 vf_num=VF_A  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302
+HCW LDB:0 vf_num=VF_A  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302
+HCW LDB:0 vf_num=VF_A  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302
+
+poll list_sel_pipe.cfg_qid_dir_tot_enq_cntl[:DQ_A:]  0x4   0xffffffff 1000 20
+poll list_sel_pipe.cfg_qid_dir_tot_enq_cnth[:DQ_A:]  0x0   0xffffffff 1000 20
+poll list_sel_pipe.cfg_qid_ldb_enqueue_count[:LQ_A:] 0x4 0xffffffff 1000 200
+
+rd credit_hist_pipe.cfg_syndrome_00.syndvalid 0
+
+## -- Send 4 HCW to DIR QID DQ_B from DIR Port of VF_B
+HCW DIR:1 vf_num=VF_B  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=1 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=1  dsi=0x302
+HCW DIR:1 vf_num=VF_B  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=1  dsi=0x302
+HCW DIR:1 vf_num=VF_B  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=1 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=1  dsi=0x302
+HCW DIR:1 vf_num=VF_B  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=1  dsi=0x302
+
+## -- Send 4 HCW to LDB QID LQ_B from LDB Port of VF_B
+HCW LDB:1 vf_num=VF_B  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=atm qid=1 dsi=0x302 
+HCW LDB:1 vf_num=VF_B  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=atm qid=1 dsi=0x302
+HCW LDB:1 vf_num=VF_B  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=atm qid=1 dsi=0x302
+HCW LDB:1 vf_num=VF_B  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=atm qid=1 dsi=0x302
+IDLE 300
+
+rd credit_hist_pipe.cfg_syndrome_00.syndvalid 0
+
+## -- Enable the CQs for scheduling HCWs
+wr list_sel_pipe.cfg_cq_dir_disable[:DQ_A:].disabled 0x0
+rd list_sel_pipe.cfg_cq_dir_disable[:DQ_A:].disabled 0x0
+wr list_sel_pipe.cfg_cq_dir_disable[:DQ_B:].disabled 0x0 
+rd list_sel_pipe.cfg_cq_dir_disable[:DQ_B:].disabled 0x0
+wr list_sel_pipe.cfg_cq_ldb_disable[:LDB_PP_A:].disabled 0x0
+rd list_sel_pipe.cfg_cq_ldb_disable[:LDB_PP_A:].disabled 0x0
+wr list_sel_pipe.cfg_cq_ldb_disable[:LDB_PP_B:].disabled 0x0
+rd list_sel_pipe.cfg_cq_ldb_disable[:LDB_PP_B:].disabled 0x0
+
+poll_sch  dir:DQ_A          0x4   1000 20
+poll_sch  dir:DQ_B          0x4   1000 20
+poll_sch  ldb:LDB_PP_A      0x4   1000 20
+poll_sch  ldb:LDB_PP_B      0x4   1000 20
+
+rd credit_hist_pipe.cfg_counter_chp_error_drop_l 0x0 0xffffffff 
+rd credit_hist_pipe.cfg_counter_chp_error_drop_h 0x0 0xffffffff
+
+#rd hqm_system_csr.hqm_system_cnt_4 0x0 0xffffffff
+#rd hqm_system_csr.hqm_system_cnt_5 0x0 0xffffffff
+
+rd credit_hist_pipe.cfg_syndrome_00 0x00000000 0xffffffff
+
+#Interrupt.xls -- enqpipe_err_release_qtype_error_drop_f; credit hist pipe drop conditions HCW
+rd hqm_system_csr.alarm_pf_synd0    0x00000000 0xffffff00
+
+# -- Return 4 DIR DQ_A, 4 DQ_B tokens; return 4 LDB LQ_A, LQ_B tokens+completions
+HCW DIR:0     vf_num=VF_A  qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x3 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302
+HCW DIR:1     vf_num=VF_B  qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=1 lockid=0x3 msgtype=0 qpri=0 qtype=dir qid=1 dsi=0x302  
+
+HCW LDB:0     vf_num=VF_A  qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x0 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302
+HCW LDB:0     vf_num=VF_A  qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x0 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302
+HCW LDB:0     vf_num=VF_A  qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x0 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302
+HCW LDB:0     vf_num=VF_A  qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x0 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302
+
+HCW LDB:1     vf_num=VF_B  qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x0 msgtype=0 qpri=0 qtype=atm qid=1 dsi=0x302  
+HCW LDB:1     vf_num=VF_B  qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x0 msgtype=0 qpri=0 qtype=atm qid=1 dsi=0x302  
+HCW LDB:1     vf_num=VF_B  qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x0 msgtype=0 qpri=0 qtype=atm qid=1 dsi=0x302  
+HCW LDB:1     vf_num=VF_B  qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x0 msgtype=0 qpri=0 qtype=atm qid=1 dsi=0x302  

@@ -1,0 +1,38 @@
+#!/bin/tcsh
+#source /p/com/env/psetup/prod/bin/setupTool conformal 11.10.320
+#source /nfs/site/eda/group/cse/setups/cadence/cadence.lic
+
+set CDC = 0;
+set PGCB = 0;
+
+foreach i ($argv)
+   if ( $i == "cdc") then
+      set CDC = 1;
+   endif
+
+   if ( $i == "pgcb") then
+      set PGCB = 1;
+   endif
+   
+   if ( $i == "tooltb") then
+      set TOOLTB = 1;
+   endif
+end
+
+# PGCB
+if ( $PGCB ) then
+   mkdir -p $MODEL_ROOT/results/fv/pgcb/reports
+   lec_64 -xl -dofile $MODEL_ROOT/tools/lec/pgcbunit_lec.do -nogui
+endif
+
+# CDC
+if ( $CDC ) then
+   mkdir -p $MODEL_ROOT/results/fv/cdc/reports
+   lec_64 -xl -dofile $MODEL_ROOT/tools/lec/cdc_lec.do -nogui
+endif
+
+# TOOLTB
+if ( $TOOLTB ) then
+   mkdir -p $MODEL_ROOT/results/fv/tooltb/reports
+   lec_64 -xl -dofile $MODEL_ROOT/tools/lec/tooltb_lec.do -nogui
+endif

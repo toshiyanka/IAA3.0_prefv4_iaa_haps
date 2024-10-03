@@ -1,0 +1,122 @@
+//------------------------------------------------------------------------------
+//
+//  -- Intel Proprietary
+//  -- Copyright (C) 2015 Intel Corporation
+//  -- All Rights Reserved
+//
+//  INTEL CONFIDENTIAL
+//
+//  Copyright 2009-2021 Intel Corporation All Rights Reserved.
+//
+//  The source code contained or described herein and all documents related
+//  to the source code (Material) are owned by Intel Corporation or its
+//  suppliers or licensors. Title to the Material remains with Intel
+//  Corporation or its suppliers and licensors. The Material contains trade
+//  secrets and proprietary and confidential information of Intel or its
+//  suppliers and licensors. The Material is protected by worldwide copyright
+//  and trade secret laws and treaty provisions. No part of the Material may
+//  be used, copied, reproduced, modified, published, uploaded, posted,
+//  transmitted, distributed, or disclosed in any way without Intel's prior
+//  express written permission.
+//
+//  No license under any patent, copyright, trade secret or other intellectual
+//  property right is granted to or conferred upon you by disclosure or
+//  delivery of the Materials, either expressly, by implication, inducement,
+//  estoppel or otherwise. Any license under such intellectual property rights
+//  must be express and approved by Intel in writing.
+//
+//------------------------------------------------------------------------------
+//
+//  Collateral Description:
+//  IOSF - Sideband Channel IP
+//
+//  Source organization:
+//  SEG / SIP / IOSF IP Engineering
+//
+//  Support Information:
+//  WEB: http://moss.amr.ith.intel.com/sites/SoftIP/Shared%20Documents/Forms/AllItems.aspx
+//  HSD: https://vthsd.fm.intel.com/hsd/seg_softip/default.aspx
+//
+//  Revision:
+//  2021WW02_PICr35
+//
+//------------------------------------------------------------------------------
+
+//=============================================================
+// logb2 (log-base-2) function lifted from Verilog2001
+// LRM (10.3.5, p162) (resyntaxed for SV)
+// To be used as a constant function, valid at elaboration time
+//=============================================================
+function automatic integer sbc_logb2 (logic [31:0] value); // lintra s-60053, s-60073
+logic [31:0] my_shift;
+//integer mysbc_logb2;
+begin
+    if( value  == 32'b1)
+        sbc_logb2 = 0;
+    else if( value  == 32'b0)
+        sbc_logb2 = 0;
+    else begin
+        my_shift = value -1;
+        for ( integer mysbc_logb2 = 0; mysbc_logb2 < 32; mysbc_logb2 = mysbc_logb2 + 1) begin //lintra s-60118
+            // 32 bit logic can only have a maximum logb2 = 32
+            if (my_shift > 0) begin
+                my_shift = my_shift >> 1;
+                sbc_logb2 = mysbc_logb2 + 1;
+            end
+        end
+    end
+end
+endfunction
+
+function automatic integer sbc_indexed_value ( logic [31:0] value ); // lintra s-60053, s-60073
+logic [31:0] my_shift;
+//integer mysbc_indexed_value;
+begin
+    if( value  < 1)
+        sbc_indexed_value = 0;
+    else begin
+        my_shift = value;
+        for ( integer mysbc_indexed_value = 0; mysbc_indexed_value < 33; mysbc_indexed_value = mysbc_indexed_value + 1) begin // lintra s-60118
+            // 32 bit logic can only have a maximum logb2 = 32, (add 1 for indexing)
+            if (my_shift > 0) begin
+                my_shift = my_shift >> 1;
+                sbc_indexed_value = mysbc_indexed_value;
+            end
+        end
+    end
+end
+endfunction
+
+function automatic integer sbc_flit_ratio( logic [31:0] value1, logic [31:0] value2 ); // lintra s-60053
+   begin
+      sbc_flit_ratio = ( value2 / value1 );
+   end
+endfunction
+
+function automatic integer sbc_bound_value( logic [31:0] value, logic [31:0] lower, logic [31:0] upper ); // lintra s-60053
+   begin
+      if( value > upper )
+         sbc_bound_value = upper;
+      else if( value < lower )
+         sbc_bound_value = lower;
+      else
+         sbc_bound_value = value;
+   end
+endfunction
+
+function automatic integer sbc_max_value( logic [31:0] value1, logic [31:0] value2 ); // lintra s-60053
+   if( value1 > value2 ) begin
+      sbc_max_value = value1;
+   end else begin
+      sbc_max_value = value2;
+   end
+endfunction
+
+function automatic integer sbc_min_value( logic [31:0] value1, logic [31:0] value2 ); // lintra s-60053
+   if( value1 < value2 ) begin
+      sbc_min_value = value1;
+   end else begin
+      sbc_min_value = value2;
+   end
+endfunction
+

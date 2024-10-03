@@ -1,0 +1,67 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000000
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable memory and parity operations
+wr hqm_pf_cfg_i.device_command 0x46
+rd hqm_pf_cfg_i.device_command
+#####################################
+#set PCI Express AER Uncorrectable Error Mask Register
+#kept it default value 
+
+wr hqm_pf_cfg_i.aer_cap_uncorr_err_mask 0x00400000
+rd hqm_pf_cfg_i.aer_cap_uncorr_err_mask
+#########################################################
+#aer_cap_uncorr_err_sev posion severity set
+wr hqm_pf_cfg_i.aer_cap_uncorr_err_sev 0x00441000
+rd hqm_pf_cfg_i.aer_cap_uncorr_err_sev
+ 
+#PCIe cap control
+# Error Reporting Enable bit is set
+wr hqm_pf_cfg_i.pcie_cap_device_control 0x291F
+rd hqm_pf_cfg_i.pcie_cap_device_control
+###################################
+# set_iosf_parity 4th bit set to 0
+wr hqm_sif_csr.parity_ctl 0x00000000
+rd hqm_sif_csr.parity_ctl 0x00000000
+
+
+sai hostia_boot_sai     # Should be SAI index 4
+
+
+########################################
+#read all HQM CSR policy register 
+wr hqm_sif_csr.hqm_csr_cp_lo 0xFFFFFFFF
+wr hqm_sif_csr.hqm_csr_cp_hi 0xFFFFFFFF
+rd hqm_sif_csr.hqm_csr_cp_lo 0xFFFFFFFF
+rd hqm_sif_csr.hqm_csr_cp_hi 0xFFFFFFFF
+
+sai hostia_ucode_sai    # Should be SAI index 1
+
+############################################
+#HQM CSR Read Access Policy Low Register
+wr hqm_sif_csr.hqm_csr_rac_lo 0xFFFFFFFF
+wr hqm_sif_csr.hqm_csr_rac_hi 0xFFFFFFFF
+rd hqm_sif_csr.hqm_csr_rac_lo 0xFFFFFFFF
+rd hqm_sif_csr.hqm_csr_rac_hi 0xFFFFFFFF
+##################################################
+#HQM CSR Write Access Policy Low Register
+wr hqm_sif_csr.hqm_csr_wac_lo 0xFFFFFFFF
+wr hqm_sif_csr.hqm_csr_wac_hi 0xFFFFFFFF
+rd hqm_sif_csr.hqm_csr_wac_lo 0xFFFFFFFF
+rd hqm_sif_csr.hqm_csr_wac_hi 0xFFFFFFFF
+###############################################
+
+#read all

@@ -1,0 +1,65 @@
+## send hcw from illegal qid check qe and completion dropped any token accepted
+## send NEW from UNO qtype, and send illegal QE ord traffic, whose sn_cfg_v is not set
+## unordered qids: 0,1,8,9
+## SEND illegal qtype for following command
+## NEW (Dropped), NEW_T,BAT_T (Token accepted)
+## COMP,RENQ (completion accepted)
+## COMP_T, RENQ_T (token and completion accepted) 
+
+## PP0 and PP1 are UNO type qids, owned by PF and VF1 respectively
+
+#################################################
+## test1: NEW from uno PP0, PF owned 
+#################################################
+HCW LDB:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0xffff msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302 
+HCW LDB:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0xffff msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302 
+HCW LDB:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0xffff msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302 
+HCW LDB:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0xffff msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302 
+
+poll_sch ldb:0 0x4 1000 200
+
+HCW LDB:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0xffff msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302 
+HCW LDB:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0xffff msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302 
+HCW LDB:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0xffff msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302 
+HCW LDB:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0xffff msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302 
+
+##ill ordered QEs , comp and token accepted
+## NEW -> dropped
+HCW LDB:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0xffff msgtype=0 qpri=0 qtype=ord qid=0 dsi=0x302 
+## NEW_T -> dropped, token accepted
+HCW LDB:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0xffff msgtype=0 qpri=0 qtype=ord qid=0 dsi=0x302 
+## RENQ -> dropped, completion accepted
+HCW LDB:0 qe_valid=1 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0xffff msgtype=0 qpri=0 qtype=ord qid=0 dsi=0x302 
+## RENQ_T -> dropped, completion and token accepted
+HCW LDB:0 qe_valid=1 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0xffff msgtype=0 qpri=0 qtype=ord qid=0 dsi=0x302 
+## COMP -> completion accepted
+HCW LDB:0 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x0000 msgtype=0 qpri=0 qtype=ord qid=0 dsi=0x302 
+## COMP_T->completion and token accepted
+HCW LDB:0 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x0000 msgtype=0 qpri=0 qtype=ord qid=0 dsi=0x302 
+## BAT_T->token accepted
+HCW LDB:0 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x0000 msgtype=0 qpri=0 qtype=ord qid=0 dsi=0x302 
+idle 100
+poll_sch ldb:0 0x8 1000 200
+##ill ordered QEs , comp and token accepted
+## NEW -> dropped
+HCW LDB:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0xffff msgtype=0 qpri=0 qtype=ord qid=0 dsi=0x302 
+## NEW_T -> dropped, token accepted
+HCW LDB:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0xffff msgtype=0 qpri=0 qtype=ord qid=0 dsi=0x302 
+## RENQ -> dropped, completion accepted
+HCW LDB:0 qe_valid=1 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0xffff msgtype=0 qpri=0 qtype=ord qid=0 dsi=0x302 
+## RENQ_T -> dropped, completion and token accepted
+HCW LDB:0 qe_valid=1 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0xffff msgtype=0 qpri=0 qtype=ord qid=0 dsi=0x302 
+## COMP -> completion accepted
+HCW LDB:0 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x0000 msgtype=0 qpri=0 qtype=ord qid=0 dsi=0x302 
+## COMP_T->completion and token accepted
+HCW LDB:0 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x0000 msgtype=0 qpri=0 qtype=ord qid=0 dsi=0x302 
+## BAT_T->token accepted
+HCW LDB:0 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x0000 msgtype=0 qpri=0 qtype=ord qid=0 dsi=0x302 
+idle 100
+poll list_sel_pipe.cfg_qid_ldb_inflight_count[0] 0x0 0xffffffff 1000 200
+## read pf synd0 register
+rd hqm_system_csr.alarm_pf_synd0 0xC0052100 0xffffe3ff
+##clear scheduled count register
+wr list_sel_pipe.cfg_cq_ldb_tot_sch_cntl[0] 0xa  
+rd list_sel_pipe.cfg_cq_ldb_tot_sch_cntl[0] 0x0
+

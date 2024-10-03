@@ -1,0 +1,69 @@
+#!/bin/tcsh -f
+# name: runFV
+# date: <DATE>
+# auth: <AUTHOR>
+# desc: Run logic equiv check after synthesis
+# Status codes: 0=pass, 1-49=fail, 50=TBD, 60=N/A
+
+setenv SIP_QA_MODULE "Formal verification"
+
+#########################################
+# Define variables
+#########################################
+set SIP_TOOL_NAME=`echo $0 | sed -e 's/.*\///'`
+setenv SIP_PWD $cwd
+if (! $?SIP_IP_NAME) then
+  setenv SIP_IP_NAME psf
+endif
+if (! $?SIP_PROCESS_DIR) then
+  setenv SIP_PROCESS_DIR /p/kits/intel/p1271/p1271_1.1.0
+endif
+if (! $?SYNOPSYS) then
+  setenv SYNOPSYS /p/com/eda/synopsys/designcompiler/D-2010.03-SP5/
+endif
+if (! $?SIP_TOP_NAME) then
+  setenv SIP_TOP_NAME psf_top
+endif
+if (! $?SIP_LIBRARY_TYPE) then
+  setenv SIP_LIBRARY_TYPE b12.1
+endif
+if (! $?SIP_CONFIG_NAME) then
+  setenv SIP_CONFIG_NAME psf0
+endif
+
+set flag=0
+#####################################################
+# UNIX Environment setup
+#####################################################
+cd ..
+if (! $?SIP_NO_SETUP) then
+#  source setup -ft
+endif
+
+#####################################################
+# Run commands
+#####################################################
+set status=50   # Default status = TBD
+# <COMMANDS>
+set exitStatus=$status
+
+#####################################################
+# Report
+#####################################################
+if ($?SIP_CREATE_REPORT) then
+endif
+
+#####################################################
+# Verification
+#####################################################
+if ($exitStatus == 50) then
+  echo "Note: $SIP_QA_MODULE TBD.  ($SIP_TOOL_NAME)"
+else if ($exitStatus == 60) then
+  echo "Note: $SIP_QA_MODULE N/A.  ($SIP_TOOL_NAME)"
+else if ($exitStatus) then
+  echo "Error: $SIP_QA_MODULE failed.  ($SIP_TOOL_NAME)"
+else
+  echo "Note: $SIP_QA_MODULE passed.  ($SIP_TOOL_NAME)"
+endif
+
+exit $exitStatus

@@ -1,0 +1,52 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable memory and parity operations
+wr hqm_pf_cfg_i.device_command 0x46
+rd hqm_pf_cfg_i.device_command
+#####################################
+# Test hqm_system LUTs
+#rd hqm_system_csr.vf_dir_vpp_v[0]
+#wr hqm_system_csr.vf_dir_vpp_v[0] 0x1
+#rd hqm_system_csr.vf_dir_vpp_v[0] 0x1
+#wr hqm_system_csr.vf_dir_vpp_v[0] 0x0
+#rd hqm_system_csr.vf_dir_vpp_v[0] 0x0
+###################################
+# Test hqm_core registers
+#rd credit_hist_pipe.cfg_dir_pp_dir_credit_count[0]
+#wr credit_hist_pipe.cfg_dir_pp_dir_credit_count[0] 0x1234
+#rd credit_hist_pipe.cfg_dir_pp_dir_credit_count[0] 0x1234
+
+###################################
+# Wait for reset to be done (including hardware memory init)
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+
+#enable enable the idle logic the hqm_core and dm_core must also be configured 
+wr config_master.cfg_control_general.cfg_enable_unit_idle 1
+#wr dm_master.cfg_mstr_control_general.cfg_enable_unit_idle 1
+
+#enable idle based clock gating
+wr hqm_sif_csr.side_cdc_ctl 0x00004444
+rd hqm_sif_csr.side_cdc_ctl 0x00004444
+
+#####################################
+# Enable side clock gating
+wr hqm_sif_csr.iosfs_cgctl 0x00000110
+rd hqm_sif_csr.iosfs_cgctl 0x00000110
+###################################
+idle 5000
+
+

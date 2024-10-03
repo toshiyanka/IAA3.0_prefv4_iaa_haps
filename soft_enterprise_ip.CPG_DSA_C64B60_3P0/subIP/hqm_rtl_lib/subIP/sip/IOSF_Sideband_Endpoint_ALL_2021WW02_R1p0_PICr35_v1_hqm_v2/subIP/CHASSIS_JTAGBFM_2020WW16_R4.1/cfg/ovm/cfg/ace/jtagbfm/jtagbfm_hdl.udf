@@ -1,0 +1,151 @@
+#!/usr/intel/bin/perl
+%audf = (
+    HDLSpec => {
+        jtagbfm => {
+            libs =>  {
+                #<scope>_<purpose>_lib
+
+                #############################
+                # Customer-reusable Lib
+                #############################
+                jtag_bfm_pkg_lib => {
+		     -hdl_spec => [ "verif/tb/JtagBfm/JtagBfmPkg.hdl", ],
+		     -vlog_incdirs => [ "verif/tb/JtagBfm/", "$ENV{OVM_HOME}/src", "$ENV{GENERATED_FILES_FOR_JTAGBFM}/"],
+                     -dependent_libs => [ 
+			                'ovm_val_lib',
+				 ],
+		    -tag            => &ToolConfig::get_tool_var("vc_vars", "TYPICAL_SVTB_TAGS"),
+        	 }, 
+		jtagbfm_val_lib => {
+                    -hdl_spec       => ["cfg/ace/jtagbfm/jtagbfm.hdl" ,], 
+                    -dependent_libs =>  [
+                                        'ovm_val_lib',
+			                'jtag_bfm_pkg_lib',
+                                        ],
+                    #The below tag leverages the contour's data to uniformly tag all member val libs; 
+                    # the commented line below contains what this should resolve to.
+                    -tag            => &ToolConfig::get_tool_var("vc_vars", "TYPICAL_SVTB_TAGS"),
+		 },
+		converged_jtag_bfm_pkg_lib => {
+		    -hdl_spec => [ "verif/tb/Converged_JtagBfm/dfx_tap_env.hdl", ],
+		    -vlog_incdirs => [ "verif/tb/Converged_JtagBfm/sequences/", "verif/tb/Converged_JtagBfm/testbench/", "verif/tb/Converged_JtagBfm/Converged_SampleTests/tap_files/", "$ENV{GENERATED_FILES_FOR_CONVERGED_JTAGBFM}/", "$ENV{OVM_HOME}/src",],
+		    -dependent_libs => [ 
+			                'ovm_val_lib',
+			 ],
+		 },
+                #############################
+                # Local-Test-Only-Collateral
+                #############################
+                sip_shared_lib => {
+                    -tag            =>  &ToolConfig::get_tool_var("vc_vars", "TYPICAL_SVTB_TAGS"),
+                    -vlog_files     =>  #For testing/example purposes only:
+                                        # A compile-able sv that contains the imports of all of the sv packages
+                                        # this VC DIRECTLY depends on, plus an import of itself. Serves as an
+                                        # example to customers of how to use the package contained in the lib,
+                                        # as well as serving as a convenient test-aparatus that ensures the
+                                        # continued functionality of their use model.
+                                        [
+                                        "verif/tb/import_of_all_dependent_lib_sv_pkgs.sv",
+                                        ], 
+                    -dependent_libs =>  ## list self (since sip_shared_lib should be DEPENDENT on, 
+                                        ##  not contain as a sub_lib, this lib.) Also add any SIIP 
+                                        ##  compliant shared libs here, that you DIRECTLY depend on
+			                [
+					'ovm_val_lib',
+                                        'jtagbfm_val_lib',
+                                        ], 
+                    -vlog_opts      =>  [
+                                        '-sverilog',
+                                        ],
+                    -vlog_incdirs   =>  [ 
+                                        "$ENV{OVM_HOME}/src", 
+                                        ],
+		 },
+		jtag_bfm_ti_lib => {
+		    -hdl_spec => [ "verif/tb/JtagBfm/JtagBfmTi.hdl", ],
+                    -dependent_libs => [
+                                         'jtagbfm_val_lib',
+                                       ], #legacy lib depends on new lib
+
+		    -tag            => &ToolConfig::get_tool_var("vc_vars", "TYPICAL_SVTB_TAGS"),
+	        }, 
+                shared_tb_lib => {
+                    #The below tag leverages the contour's data to uniformly tag all member val libs; the commented line below contains what this should resolve to.                    #-tag            => &ToolConfig::get_tool_var("vc_vars", "TYPICAL_SVTB_TAGS"),
+                    -tag            => &ToolConfig::get_tool_var("vc_vars", "TYPICAL_SVTB_TAGS"),
+                    -vlog_files     =>  #For testing/example purposes only:
+                                        # A compile-able testbench containing a module, a `include of our 
+                                        # previously tested/compiled set of imports, along with a list of 
+                                        # every interface that the VC developer wishes to be exposed/used 
+                                        # by customers. 
+                                        [ 
+                                        "verif/tb/sip_shared_lib_tb.sv" 
+                                        ], 
+                    -dependent_libs => ['sip_shared_lib'], 
+                    -vlog_opts      => ['-sverilog', '-timescale=1ps/1ps'],
+                    -vlog_incdirs   =>  [
+                                        "verif/tb/", 
+					"$ENV{OVM_HOME}/src",
+                                        ], 
+                },
+
+            }, # end libs
+            models => {
+                jtagbfm => {
+                    top => 'shared_tb_lib.sip_shared_lib_tb',
+                    top_language => 'SystemVerilog',
+                    libs   =>   [ 
+			        'jtagbfm_val_lib',
+			        'jtag_bfm_pkg_lib',
+			        'jtag_bfm_ti_lib',
+	                        'sip_shared_lib', 
+                                'shared_tb_lib',
+                                ],
+                    use         =>  [
+			            'ovm:ovm',
+			],
+		    pli_libs => [qw(-debussy_pli_libs)],
+                    export      => {
+                        libs => ["jtagbfm_val_lib", "jtag_bfm_pkg_lib", "jtag_bfm_ti_lib", ],
+                        use  => [
+			        'ovm:ovm',
+                                ],
+                    },
+                }, # end jtagbfm model
+	       jtagbfm_model => { #This is a duplicate of model jtagbfm above because some IPs expect scope: jtagbfm, model: jtagbfm_model
+                    top => 'shared_tb_lib.sip_shared_lib_tb',
+                    top_language => 'SystemVerilog',
+                    libs   =>   [ 
+			        'jtagbfm_val_lib',
+			        'jtag_bfm_pkg_lib',
+			        'jtag_bfm_ti_lib',
+	                        'sip_shared_lib', 
+                                'shared_tb_lib',
+                                ],
+                    use         =>  [
+			            'ovm:ovm',
+			],
+		    pli_libs => [qw(-debussy_pli_libs)],
+                    export      => {
+                        libs => ["jtagbfm_val_lib", "jtag_bfm_pkg_lib", "jtag_bfm_ti_lib", ],
+                        use  => [
+			        'ovm:ovm',
+                                ],
+                    },
+                }, # end jtagbfm model
+	     converged_jtagbfm_model => {
+               top => 'tapnw_tb_lib_converged.top',
+               libs => [qw(
+                  converged_jtag_bfm_pkg_lib
+                  sip_shared_lib
+               )],
+               pli_libs => [qw(-debussy_pli_libs)],
+               export => {
+                  libs => [qw(
+                     converged_jtag_bfm_pkg_lib
+                  )],
+               },
+             }, # end converged_jtagbfm_model
+            }, # end models
+        },
+    },
+); # end %audf 

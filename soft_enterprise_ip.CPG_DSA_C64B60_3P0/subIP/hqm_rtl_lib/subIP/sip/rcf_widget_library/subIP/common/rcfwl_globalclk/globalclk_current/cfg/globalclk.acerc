@@ -1,0 +1,41 @@
+use Data::Dumper;
+use Cwd;
+
+# These paths are relative to the aceroot run directory, which has links to
+# the subdirs under the original MODEL_ROOT.
+
+# There is a %acerc declared in the program that uses this file.
+# We are supposed to assign to it.
+# But the main body of this assignment is in another file.
+# I tried a few ways of doing this.  Everything with "do" would assign to a new lower context
+# of %acerc (either down in the do, or at this level), but never to the %acerc at the higher-level
+# context.
+# But "eval $file" works fine, assigning to the higher-level context %acerc, as desired.
+
+# This assigns to %acerc from the context of the parent that uses this acerc file:
+#my $do_acerc_file = "target/$ENV{DUT}/aceroot/project.acerc";
+my $do_acerc_file = "target/globalclk/aceroot/project.acerc";
+if (open(PROJECT_ACERC, "< $do_acerc_file")) {
+  my @contents = <PROJECT_ACERC>;
+  my $lines = join("", @contents);
+  eval $lines;
+  close(PROJECT_ACERC);
+} else {
+  my $cwd = Cwd::getcwd();
+  print "ERROR: Loading file $do_acerc_file (CWD: $cwd): $!\n";
+}
+push @{$acerc{LIBS}}, "cfg/ace/lib";
+
+# This adds another entry to the same %acerc
+$acerc{TEST_PATTERNS} = [
+   "trex_test", # Note: trex_test should be the first path in TEST_PATTERNS to support running tests from VTTSTSRC.
+   "target/globalclk",
+   "verif/tests",
+   "verif/tests/static_checks",
+   "verif/tests/hello_world_tests",
+];
+
+print "Dump of the acerc file at the end of globalclk.acerc:\n";
+print Dumper(%acerc);
+
+1;

@@ -1,0 +1,11 @@
+#!/bin/csh -f
+cd $IP_ROOT
+rm -rf pwa/results .acetestinfo.log
+
+ace -cc -pwa pwa_all_tests
+ace -x DfxSecurePlugin_DefaultTest \
+       DfxSecurePlugin_DriveUserPolicySeqTest \
+       DfxSecurePlugin_PolicySweepSeqTest \
+       DfxSecurePlugin_DriveUserPolicyViaSBOVRSeqTest -pwa pwa_all_tests -nb -nbmon
+
+grep -ir status pwa/results/tests/*/postsim.log

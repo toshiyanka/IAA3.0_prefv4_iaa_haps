@@ -1,0 +1,68 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup FUNC_VF BAR to a base address of 0x00000003_xxxxxxxx
+###################################
+# Enable PF memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+###################################
+wr config_master.cfg_pm_pmcsr_disable.disable 0x0
+rd config_master.cfg_pm_pmcsr_disable.disable 0x0
+##
+###poll to Wait for reset to be done 
+poll config_master.cfg_diagnostic_reset_status 0x800003ff 0x800003ff 500
+###poll to Wait for unit_idle to be done 
+poll config_master.cfg_diagnostic_idle_status 0x0007ffff 0x0007ffff 500
+###################################
+# Setup LUTs used by HCWs
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+  dir qid DQ_A:0
+  vas 0 dir_qidv:DQ_A=1 credit_cnt=1024
+  dir pp DQ_A vas=0
+  dir cq DQ_A cq_depth=512 gpa=sm
+
+cfg_end
+
+# Setup smons 0-2 in compare mode to count any writes with lengths of 4, 8, and 12 (ie. not full cache lines)
+# Setup smon 3 to count number of HCWs
+# Compare[13:4] = byte length
+# Compare[3]    = 0
+# Compare[2]    = ldb (0)
+# Compare[1:0]  = sch (0)
+
+# Enable, compare, count events and not values for 0-2 and just count values for 3
+wr hqm_system_csr.aw_smon_configuration0[0] 0x00000991
+wr hqm_system_csr.aw_smon_configuration0[1] 0x00000091
+# Event #6 (phdr_fifo_push) for 0-2 and #9 (pdata_fifo_push & eop) for 3
+wr hqm_system_csr.aw_smon_configuration1[0] 0x00000606
+wr hqm_system_csr.aw_smon_configuration1[1] 0x00000606
+# bytes=16 and ldb=0 and src=0 (sch)
+wr hqm_system_csr.aw_smon_compare0[0]       0x00004001
+wr hqm_system_csr.aw_smon_comp_mask0[0]     0x0001f003
+# bytes=32 and ldb=0 and src=0 (sch)
+wr hqm_system_csr.aw_smon_compare1[0]       0x00008001
+wr hqm_system_csr.aw_smon_comp_mask1[0]     0x0001f003
+# bytes=48 and ldb=0 and src=0 (sch)
+wr hqm_system_csr.aw_smon_compare0[1]       0x0000c001
+wr hqm_system_csr.aw_smon_comp_mask0[1]     0x0001f003
+
+rd hqm_pf_cfg_i.vendor_id
+

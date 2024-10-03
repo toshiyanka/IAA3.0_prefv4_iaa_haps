@@ -1,0 +1,215 @@
+#!/bin/tcsh -f
+
+
+################################################################################
+# Source a script that is called at the start of each back-end 
+# scripts/qa/run* script
+################################################################################
+if ( $SB_ACE_FLOW ) then
+   source ./runPre -tool_name $0 $argv
+else
+   source $MODEL_ROOT/scripts/qa/runPre -tool_name $0 $argv  #GURI 
+endif
+
+
+if( $status != 0 ) exit $status
+
+
+#####################################################
+# UNIX Environment setup
+#####################################################
+cd ..
+
+unsetenv SB_STDCELLS_HDL
+
+# Setup for running Spyglass on the endpoint
+if ($SIP_CONF_NAME == "IOSF_Sideband_Endpoint") then
+
+
+   #####################################################
+   # Setup env variables for Spyglass accordingly to
+   # endpoint configuration
+   #####################################################
+   source ${IP_ROOT}/scripts/qa/ephelper.csh -rtlcfg ${SIP_COMP_NAME} \
+                                             -topdir ${IP_ROOT} 
+
+
+
+
+   #####################################################
+   # Identify the top RTL module
+   #####################################################
+   setenv RTLTOP endpoint_wrapper
+
+
+   #####################################################
+   # Identify the of the PG domain
+   #####################################################
+   setenv TOP_OF_PG_DOMAIN $rtltop
+
+
+   #####################################################
+   # Parse the UPF as power intent for synthesis (i.e.,
+   # disable the portions of the script intended 
+   # only for simulation.
+   #####################################################
+   setenv SIP_UPF_FOR_SYNTH
+
+
+   #####################################################
+   # Point to the UPF file.
+   #####################################################
+   setenv TOP_UPF_FILE ${IP_ROOT}/tools/upf/sbendpoint/sbe_top.upf
+
+
+   #####################################################
+   # Select the input file-list
+   #####################################################
+   setenv RTL_FILE_LIST ${IP_ROOT}/tools/spyglasslp/sbendpoint/rtl_list.f
+
+
+   #####################################################
+   # Clean and create the run directory
+   #####################################################
+   setenv SPYGLASS_RUN_DIR ../tools/spyglasslp/sbendpoint/run_${SIP_COMP_NAME}
+   if (-d ${SPYGLASS_RUN_DIR}) then
+       rm -rf ${SPYGLASS_RUN_DIR}
+   endif
+   mkdir -p ${SPYGLASS_RUN_DIR}
+
+
+
+   #####################################################
+   # Make a copy of the upf_wrapper and adjust the default
+   # RTL parameters according to the configuration.
+   #####################################################
+   ${IP_ROOT}/scripts/qa/setRTLparams.pl \
+          -config  ${IP_ROOT}/source/cfg/endpoint/csv/${SIP_COMP_NAME}.csv \
+          -src_rtl ${IP_ROOT}/tools/upf/sbendpoint/upf_wrapper.sv \
+          -dst_rtl ${SPYGLASS_RUN_DIR}/upf_wrapper.sv
+
+
+
+   #####################################################
+   # Create an empty liblist file, just to make
+   # the SPT runSpyglass script happy.
+   #####################################################
+   cd ${SPYGLASS_RUN_DIR}
+   touch ./empty_lib_list.txt
+   setenv LIB_LIST ./empty_lib_list.txt
+
+
+   #####################################################
+   # Create and point to the waiver file.
+   #####################################################
+   setenv WAIVER_FILE ${IP_ROOT}/tools/spyglasslp/sbendpoint/iosf_sbc_ep_waivers.swl 
+
+
+# Setup for running Spyglass on the router
+else 
+
+
+   #####################################################
+   # Identify the top RTL module
+   #####################################################
+   if ("$DYN_OPT" == "nonDyn") then
+      setenv RTLTOP        ${SIP_COMP_NAME}
+   else
+      setenv RTLTOP        ${SIP_COMP_NAME}_sbr_generic
+   endif
+
+
+
+   #####################################################
+   # Point to the UPF file.
+   #####################################################
+   setenv TOP_UPF_FILE ${IP_ROOT}/tools/upf/router/${SIP_CONF_NAME}_${SIP_COMP_NAME}_top.upf
+
+
+
+   #####################################################
+   # Select the input file-list
+   #####################################################
+   if ($DYN_OPT == "Dyn") then
+      setenv RTL_FILE_LIST ${IP_ROOT}/tools/spyglasslp/router/rtl_list_dyn.f
+   else
+      setenv RTL_FILE_LIST ${IP_ROOT}/tools/spyglasslp/router/rtl_list.f
+   endif
+
+
+
+   #####################################################
+   # Clean and create the run directory
+   #####################################################
+   setenv SPYGLASS_RUN_DIR ../tools/spyglasslp/router/run_${SIP_CONF_NAME}_${SIP_COMP_NAME}
+   if (-d ${SPYGLASS_RUN_DIR}) then
+       rm -rf ${SPYGLASS_RUN_DIR}
+   endif
+   mkdir -p ${SPYGLASS_RUN_DIR}
+   cd ${SPYGLASS_RUN_DIR}
+
+
+   #####################################################
+   # Create an empty liblist file, just to make
+   # the SPT runSpyglass script happy.
+   #####################################################
+   touch ./empty_lib_list.txt
+   setenv LIB_LIST ./empty_lib_list.txt
+
+
+
+   #####################################################
+   # Create and point to the waiver file.
+   #####################################################
+   cp ${IP_ROOT}/tools/spyglasslp/router/iosf_sbc_rtr_waivers.swl .
+   if ($DYN_OPT == "Dyn") then
+      perl -pi -e "s/<inst>/${SIP_COMP_NAME}_sbr_generic/" ./iosf_sbc_rtr_waivers.swl
+   else
+      perl -pi -e "s/<inst>/${SIP_COMP_NAME}/" ./iosf_sbc_rtr_waivers.swl
+   endif
+   setenv WAIVER_FILE ./iosf_sbc_rtr_waivers.swl
+
+endif
+
+
+
+#####################################################
+# Run Spyglass
+#####################################################
+if ( $SB_ACE_FLOW ) then
+   setenv SB_M_ROOT $IP_ROOT
+else
+   setenv SB_M_ROOT $MODEL_ROOT
+endif
+
+/p/com/eda/intel/siputils/prod/bin/runGenCmd \
+   ${SB_M_ROOT}/tools/spyglasslp/run.csh \
+   -setup none \
+   -pc 'SpyGlass\s+Exit\s+Code\s+0' \
+   -pc 'LP-ERROR\s+\|\|\s+0\s+\|\|' \
+   -pc 'UPF-ERROR\s+\|\|\s+0\s+\|\|' \
+   -pc 'LP-WARNING\s+\|\|\s+0\s+\|\|' \
+   -pc 'UPF-WARNING\s+\|\|\s+0\s+\|\|'
+set exitStatus=$status
+
+
+
+
+#####################################################
+# Report
+#####################################################
+if ($?SIP_CREATE_REPORT) then
+endif
+
+
+#####################################################
+# Verification
+#####################################################
+if ($exitStatus) then
+  echo "Error: Spyglass LP failed.  ($SIP_TOOL_NAME)"
+  exit $exitStatus
+else
+  echo "Note: Spyglass LP ran successfully.  ($SIP_TOOL_NAME)"
+endif
+
+exit 0

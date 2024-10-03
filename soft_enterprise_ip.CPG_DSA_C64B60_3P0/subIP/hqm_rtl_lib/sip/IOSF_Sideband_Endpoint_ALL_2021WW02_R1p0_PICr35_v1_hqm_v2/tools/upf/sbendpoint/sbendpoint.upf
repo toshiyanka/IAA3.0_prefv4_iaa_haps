@@ -1,0 +1,57 @@
+
+
+
+#-------------------------------------------------------------------------------
+# Identify whether the UPF is being used for synthesis or for simulation.
+#
+# Gy default, assume  the UPF is being used for simulation. The UPF is 
+# configured for synthesis by setting the SIP_UPF_FOR_SYNTH env variable.
+set upf_for_simulation 0
+
+
+#-------------------------------------------------------------------------------
+# Configure the UPF appropriately for the current configuration. The following
+# configurations are supported:
+#
+#  1) Simulation of sbendpoint
+#  2) Synthesis of sbendpoint
+#  3) Synthesis of sbebase.
+#
+
+#--------------------------------------------------------------------------------
+# Source the SOC UPF config file.
+source $::env(IP_ROOT)/tools/upf/soc_upf_$::env(SIP_LIBRARY_TYPE).cfg
+
+#--------------------------------------------------------------------------------
+# Setup AON domain.
+if {!${upf_for_simulation}} {
+
+set PD_SBE_AON_NAME pd_SBE_AON 
+create_power_domain ${PD_SBE_AON_NAME} -include_scope 
+
+create_supply_port $SOC_SUPPLY_PORT -direction in -domain ${PD_SBE_AON_NAME} 
+create_supply_net  $SOC_SUPPLY_PORT -domain               ${PD_SBE_AON_NAME} 
+connect_supply_net $SOC_SUPPLY_PORT -ports $SOC_SUPPLY_PORT 
+
+create_supply_port $SOC_GROUND_PORT -direction in -domain ${PD_SBE_AON_NAME} 
+create_supply_net  $SOC_GROUND_PORT -domain               ${PD_SBE_AON_NAME} 
+connect_supply_net $SOC_GROUND_PORT -ports $SOC_GROUND_PORT 
+
+set_domain_supply_net  ${PD_SBE_AON_NAME} \
+    -primary_power_net   $SOC_SUPPLY_PORT \
+    -primary_ground_net  $SOC_GROUND_PORT 
+
+add_port_state $SOC_SUPPLY_PORT -state "prim_on  $SOC_SUPPLY_NOM"
+add_port_state $SOC_SUPPLY_PORT -state "prim_off off"
+add_port_state $SOC_GROUND_PORT -state "grnd_on  $GND_SUPPLY_NOM"
+
+}
+
+#--------------------------------------------------------------------------------
+# Create the power state table.
+create_pst pst_SBE   -supplies  "$SOC_SUPPLY_PORT $SOC_GROUND_PORT"
+add_pst_state all_on  -state    { prim_on grnd_on  } -pst pst_SBE
+add_pst_state all_off -state    { prim_off grnd_on  } -pst pst_SBE
+
+
+

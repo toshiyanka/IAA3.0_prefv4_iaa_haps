@@ -1,0 +1,66 @@
+# vim syntax=tcl
+
+
+#-------------------------------------------------------------------------------
+# Identify the flops in the sideband endpoint to retain state during power
+# power gating.
+#-------------------------------------------------------------------------------
+set sbep_retention ""
+lappend sbep_retention "${path_to_ep_base}sbcport/sbcegress/pccredits\[*\]"
+lappend sbep_retention "${path_to_ep_base}sbcport/sbcegress/npcredits\[*\]"
+lappend sbep_retention "${path_to_ep_base}sbcport/sbcgcgu/sbcism0/credit_reinit"
+
+lappend sbep_retention "${path_to_ep_base}sbcport/sbcingress/gen_queue\[*\].sbcinqueue/cupsendcnt\[*\]"
+
+
+#-------------------------------------------------------------------------------
+# The Endpoint contains test logic (in support of assertions) that must 
+# remain in sync with state retained registers in the Endpoint RTL. Here, we
+# dentifity the sequential elements of the test logic, adding them to the list 
+# of elements requiring state retention. 
+#
+# The state is retained for the test logic only if the 
+#      ${upf_for_simulation} 
+# variable is set to 1. This variable should be set to 1 when reading this
+# file into VCS-NLP and 0 otherwise. 
+#
+# Proper selection of this variable should allow this UPF file to be 
+# used for both simulation and power intent linting (Spyglass LP) without
+# modification.
+#-------------------------------------------------------------------------------
+if { (${upf_for_simulation}) && ((![info exists SBEP_EMULATION_UPF]) || ([info exists SBEP_EMULATION_UPF] && !$SBEP_EMULATION_UPF)) }  {
+   lappend sbep_retention "${path_to_ep_base}sbcport/ipc\[*\]"
+   lappend sbep_retention "${path_to_ep_base}sbcport/inp\[*\]"
+   lappend sbep_retention "${path_to_ep_base}sbcport/epc\[*\]"
+   lappend sbep_retention "${path_to_ep_base}sbcport/enp\[*\]"
+}
+
+
+
+
+
+
+
+#-------------------------------------------------------------------------------
+# Set retention, identify control lines, and select the retention cell.
+#-------------------------------------------------------------------------------
+set_retention              retention_regs_sbep_top         \
+     -domain               $sbep_power_domain              \
+     -retention_power_net  ${SOC_SUPPLY_PORT}              \
+     -retention_ground_net ${SOC_GROUND_PORT}              \
+     -elements             $sbep_retention
+
+
+set_retention_control      retention_regs_sbep_top         \
+     -domain               $sbep_power_domain              \
+     -save_signal          "$sbep_save_signal low"         \
+     -restore_signal       "$sbep_save_signal high"
+
+
+map_retention_cell         retention_regs_sbep_top \
+     -domain               $sbep_power_domain      \
+     -lib_cells            $SOC_RETENTION_CELL_MAP
+
+
+
+

@@ -1,0 +1,234 @@
+################################################################################
+# Intel Confidential
+################################################################################
+# Copyright (C) 2014, Intel Corporation.  All rights reserved.
+#
+# This is the property of Intel Corporation and may only be utilized
+# pursuant to a written Restricted Use Nondisclosure Agreement
+# with Intel Corporation.  It may not be used, reproduced, or
+# disclosed to others except in accordance with the terms and
+# conditions of such agreement.
+################################################################################
+# Description:
+# Read in the RTL Design
+#
+# Read in the RTL source files or read in the elaborated design (DDC).
+# Use the -format option to specify: verilog, sverilog, or vhdl as needed.
+# The variables VERILOG_SOURCE_FILES & VHDL_SOURCE_FILES are set in rtl_list.tcl file.
+# Alternatively, block owners can modify the import_design.tcl file to explicitly analyze/elaborate rtl
+# Owners: Taimei DeZeeuw, Vrpradeep Bharadwaj
+###########################################################
+
+proc syn_import_design {args} {
+   global env 
+   global search_path
+   global target_library
+
+   if {[getvar -quiet G_TIC_TIC_WHITESPACE] == "1" } {
+      rdt_print_info "Setting hdlin_tic_tic_discards_whitespace to true because G_TIC_TIC_WHITESPACE is set to 1"
+      set_app_var hdlin_tic_tic_discards_whitespace true
+   } 
+
+   if {[getvar -quiet G_VECTOR_FLOP] == "1"} {
+      rdt_print_info "Setting hdlin_infer_multibit variable since  G_VECTOR_FLOP is set to 1"
+      set_app_var hdlin_infer_multibit default_all
+   }
+
+   #--- handle CTECH - start
+   global CTECH_VARIANT CTECH_TYPE
+   global VERILOG_CTECH_FILES_ADD VHDL_CTECH_FILES_ADD
+   global VERILOG_CTECH_FILES_REM VHDL_CTECH_FILES_REM
+   global env
+   if {[getvar -quiet G_VT_TYPE(default)] ne "" } {
+      set CTECH_VARIANT [lindex [split [getvar -quiet G_VT_TYPE(default)] _] 0]
+   }
+   if {[info exists env(LIB_VARIANT)]} {
+      set CTECH_VARIANT [lindex [split $env(LIB_VARIANT) ,] 0]
+   }
+   if {[info exists env(SD_TARGET_MAX_LIB)] || [info exists target_library]} {
+      if {[info exists env(SD_TARGET_MAX_LIB)] && $env(SD_TARGET_MAX_LIB) ne "" } {
+         set target_library_names [lindex [split $env(SD_TARGET_MAX_LIB) :] 0]
+         set target_library_items [split $target_library_names _]
+      } else {
+         set target_library_items [split $target_library _]
+      }
+      if {![info exists CTECH_VARIANT]} {
+         set CTECH_VARIANT [lindex $target_library_items 1]
+      }
+      set CTECH_TYPE    [lindex $target_library_items 0]
+      set CTECH_VARIANT ln
+      set CTECH_TYPE    e05
+      puts "=I= CTECH_VARIANT = $CTECH_VARIANT"
+      puts "=I= CTECH_TYPE = $CTECH_TYPE"
+   }
+   #--- handle CTECH - end
+
+   # Source the file that defines variables to read in verilog, system verilog and vhdl files
+   rdt_source_if_exists rtl_list.tcl
+
+   global VERILOG_SOURCE_FILES VHDL_SOURCE_FILES RTL_DEFINES VHDL_LIBRARIES
+   global VHDL_PACKAGE_FILES
+
+   #--- handle CTECH - start
+   if {[info exists VERILOG_CTECH_FILES_ADD]} {set VERILOG_SOURCE_FILES [concat $VERILOG_SOURCE_FILES $VERILOG_CTECH_FILES_ADD]}
+   if {[info exists VHDL_CTECH_FILES_ADD]} {set VHDL_SOURCE_FILES [concat $VHDL_SOURCE_FILES $VHDL_CTECH_FILES_ADD]}
+   #--- handle CTECH - end
+
+   foreach glbl [info globals file_list_vhdl_*] {global $glbl}
+
+   
+   if {[file exist ./WORK]} {
+       rdt_print_info "Removing ./WORK dir before analyze/elaborate of rtl"
+       file delete -force ./WORK
+   }
+   file mkdir WORK
+   
+   define_design_lib WORK -path ./WORK
+   
+   
+   
+   # Enable backward Verilog IEEE-2001 RTL coding standard
+   if { [getvar -quiet G_RTL_ENABLE_VERILOG_2001] == "1" } {
+   	
+      rdt_print_info "Enable Verilog IEEE 2001 Coding Standard to allow \"stand-alone generate statement\". "
+      set_app_var hdlin_vrlg_std 2005
+      set_app_var hdlin_enforce_strict_vrlg_2005 false
+   
+   }
+  
+   # Black box selected modules while reading the RTL
+   if { [getvar -quiet G_BLACKBOX_MODULE_LIST] ne "" } {
+      rdt_print_info "Black boxing following modules for RTL read: [getvar -quiet G_BLACKBOX_MODULE_LIST]"
+      set_app_var hdlin_sv_blackbox_modules  [getvar -quiet G_BLACKBOX_MODULE_LIST]
+   } else {
+      set_app_var hdlin_sv_blackbox_modules ""
+   }
+
+   syn_hack_rtl
+ 
+   if { [getvar -quiet G_RTL_SEARCH_PATH] ne "" } {
+       foreach dir [getvar G_RTL_SEARCH_PATH] {
+           if {[lsearch -exact $search_path $dir] == "-1"} {
+               rdt_print_info "Adding $dir to search_path"
+               lappend search_path $dir
+           }
+       }
+   }
+ 
+   if {[info exists env(WARD)] && $env(WARD) ne "" && [lsearch -exact $search_path $env(WARD)/collateral/rtl] == "-1"} {
+       rdt_print_info "Adding $env(WARD)/collateral/rtl to search_path"
+       lappend search_path $env(WARD)/collateral/rtl
+       lappend_var G_SCRIPTS_SEARCH_PATH  $env(WARD)/collateral/rtl
+   }
+
+   # Analyze/elaborate the rtl. Alternatively, users can put actual analyze command for rtl reading
+   if { [info exists VERILOG_SOURCE_FILES] && $VERILOG_SOURCE_FILES != "" } {
+       foreach f $VERILOG_SOURCE_FILES {
+           set dir [file dirname $f]
+           if {[lsearch -exact $search_path $dir] == "-1"} {
+               rdt_print_info "Adding $dir to search_path"
+               lappend search_path $dir
+           }
+       }
+   
+       if {[info exists RTL_DEFINES] && $RTL_DEFINES != ""} {
+           set base_cmd "analyze -define { $RTL_DEFINES } -format sverilog "
+       } else {
+           set base_cmd "analyze -format sverilog "
+       }
+   
+       if {[getvar -quiet G_ANALYZE_RTL_TOGETHER] == "1"} {
+           set cmd "$base_cmd \"${VERILOG_SOURCE_FILES}\""
+           rdt_print_info "Analyze command is: $cmd"
+           eval $cmd
+       } else {
+           foreach f $VERILOG_SOURCE_FILES {
+               set cmd "$base_cmd \"$f\""
+               rdt_print_info "Analyze command is: $cmd"
+               eval $cmd
+           }
+       }
+   } else {
+      rdt_print_info "No verilog/sverilog rtl will be read as VERILOG_SOURCE_FILES is not set or is empty"
+   }
+   
+   if { [getvar -quiet VHDL_PACKAGE_FILES] ne "" } {
+
+      rdt_print_info "Analyze VHDL packages specified by \$VHDL_PACKAGE_FILES variable"
+      rdt_print_info "Analyze command is: analyze -format vhdl \" ${VHDL_PACKAGE_FILES} \" "
+      analyze -format vhdl ${VHDL_PACKAGE_FILES}
+
+   }
+   
+   if { [getvar -quiet VHDL_LIBRARIES] ne "" } {
+       rdt_print_info "VHDL processing will be done"
+       set pkg_list_var ""
+       set src_list_var ""
+       set vhdl_lib_dir ""
+       set vhdl_lib ""
+   
+       # error checking
+       foreach vhdl_lib $VHDL_LIBRARIES {
+           set pkg_list_var "file_list_vhdl_${vhdl_lib}_p"
+           if { ! [info exists $pkg_list_var] } {
+               rdt_print_error "VHDL library $vhdl_lib is defined, but package list '$pkg_list_var' is not"
+           }
+           set src_list_var "file_list_vhdl_${vhdl_lib}"
+           if { ! [info exists $src_list_var] } {
+               rdt_print_error "VHDL library $vhdl_lib is defined, but source list '$src_list_var' is not"
+           }
+       }
+   
+       foreach vhdl_lib $VHDL_LIBRARIES {
+           set vhdl_lib_dir [string toupper $vhdl_lib]
+           rdt_print_info "Creating library directory $vhdl_lib_dir"
+           if {[file exist $vhdl_lib_dir] && $vhdl_lib_dir != "WORK" } {
+               rdt_print_info "Removing $vhdl_lib_dir dir before analyze/elaborate of rtl"
+               file delete -force $vhdl_lib_dir
+           }
+           if { $vhdl_lib_dir != "WORK" } {
+              file mkdir $vhdl_lib_dir
+           }
+           define_design_lib -path $vhdl_lib_dir $vhdl_lib
+       }
+   
+       foreach vhdl_lib $VHDL_LIBRARIES {
+           set pkg_list_var "file_list_vhdl_${vhdl_lib}_p"
+           if { [llength [expr $$pkg_list_var] ] > 0 } {
+               rdt_print_info "Reading packages for library $vhdl_lib"
+               analyze -format vhdl -lib $vhdl_lib [expr $$pkg_list_var]
+           } else {
+               rdt_print_info "-W- Empty package list for library $vhdl_lib"
+           }
+       }
+   
+       foreach vhdl_lib $VHDL_LIBRARIES {
+           set src_list_var "file_list_vhdl_${vhdl_lib}"
+           if { [llength [expr $$src_list_var] ] > 0 } {
+               rdt_print_info "Reading source files for library $vhdl_lib"
+               analyze -format vhdl -lib $vhdl_lib [expr $$src_list_var]
+           } else {
+               rdt_print_info "-W- Empty source list for library $vhdl_lib"
+           }
+       }
+   
+       unset pkg_list_var
+       unset src_list_var
+       unset vhdl_lib_dir
+       unset vhdl_lib
+       rdt_print_info "VHDL processing completed"
+   }
+   
+   if { [info exists VHDL_SOURCE_FILES] && $VHDL_SOURCE_FILES != "" } {
+       rdt_print_info "Analyze VHDL source file specified by VHDL_SOURCE_FILES variable"
+       rdt_print_info "analyze command is: analyze -format vhdl -autoread \" ${VHDL_SOURCE_FILES} \" "
+       analyze -format vhdl -autoread ${VHDL_SOURCE_FILES}
+   }
+   
+   
+   if { [getvar -quiet G_VCS_OPTS] ne "" } {
+       analyze -format sverilog -vcs [getvar G_VCS_OPTS]
+   }
+   
+}
+

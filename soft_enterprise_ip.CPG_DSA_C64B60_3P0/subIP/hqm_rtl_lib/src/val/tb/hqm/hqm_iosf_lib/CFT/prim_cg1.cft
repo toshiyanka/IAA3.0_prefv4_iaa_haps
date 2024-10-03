@@ -1,0 +1,38 @@
+#enable enable the idle logic the hqm_core and dm_core must also be configured 
+wr config_master.cfg_control_general.cfg_enable_unit_idle 1
+#wr dm_master.cfg_mstr_control_general.cfg_enable_unit_idle 1
+
+#disable idle based clock gating
+wr hqm_sif_csr.prim_cdc_ctl 0x00034444
+rd hqm_sif_csr.prim_cdc_ctl 0x00034444
+
+# Disable primary clock gating
+wr hqm_sif_csr.iosfp_cgctl 0x00000010
+rd hqm_sif_csr.iosfp_cgctl 0x00000010
+#####################################################
+idle 4000
+
+#give some transactin before idle
+#set PCI Express AER Uncorrectable Error Mask Register
+#kept it default value 
+
+wr hqm_pf_cfg_i.aer_cap_uncorr_err_mask 0x00400000
+rd hqm_pf_cfg_i.aer_cap_uncorr_err_mask
+#########################################################
+#aer_cap_uncorr_err_sev posion severity set
+wr hqm_pf_cfg_i.aer_cap_uncorr_err_sev 0x00441000
+rd hqm_pf_cfg_i.aer_cap_uncorr_err_sev
+ 
+#PCIe cap control
+# Error Reporting Enable bit is set
+wr hqm_pf_cfg_i.pcie_cap_device_control 0x291F
+rd hqm_pf_cfg_i.pcie_cap_device_control
+###################################
+# set_iosf_parity 4th bit set to 0
+wr hqm_sif_csr.parity_ctl 0x00000000
+rd hqm_sif_csr.parity_ctl 0x00000000
+
+idle 5000
+
+
+

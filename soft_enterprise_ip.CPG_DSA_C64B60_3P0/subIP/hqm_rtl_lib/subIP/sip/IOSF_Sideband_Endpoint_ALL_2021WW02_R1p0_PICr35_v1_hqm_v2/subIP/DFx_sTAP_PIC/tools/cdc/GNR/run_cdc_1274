@@ -1,0 +1,21 @@
+\cp $IP_ROOT/tools/cdc/ADL/stap_cdc.hdl_1274 $IP_ROOT/tools/cdc/stap_cdc.hdl
+\cp $IP_ROOT/tools/cdc/ADL/constraints/stap_ctrl.tcl $IP_ROOT/tools/cdc/constraints/stap_ctrl.tcl
+\cp $IP_ROOT/tools/cdc/ADL/waivers/stap_waiver_ctrl.tcl $IP_ROOT/tools/cdc/constraints/stap_waiver_ctrl.tcl
+\cd $IP_ROOT
+#change this appropriately
+setenv CTECH_LIB_NAME CTECH_p1274_e05_nn_rtl_lib
+#setenv CDC_VER V10.2b
+
+setenv KIT_PATH /p/hdk/cad/stdcells/e05/14ww49.3_e05_d.0.p1_cnlgt/
+setenv CDC_PROCESS p1274
+#setenv CDC_FLOW_RELEASE v20170612
+#setenv CDC_PREFERENCE_BIT_RECON TRUE
+#setenv CDC_PREFERENCE_RECON_DEPTH TRUE
+#setenv RECON_DEPTH 2
+
+ace -ccoz -ASSIGN -mc=cdc_stap_model  -vlog_opts '-sv +define+DC' | tee cdc_ace_compile.log
+ace -xz -t cdc_test_stap:cfmRUN -nocleanup -nocpmf
+ace -xz -t cdc_test_stap:hdmRUN -nocleanup -nocpmf
+
+git co $IP_ROOT/tools/cdc/stap_cdc.hdl
+setenv CTECH_LIB_NAME CTECH_v_rtl_lib 

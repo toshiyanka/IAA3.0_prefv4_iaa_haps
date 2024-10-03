@@ -1,0 +1,16 @@
+cd $IP_ROOT
+rm -rf pwa/results .acetestinfo.log
+
+\cp source/rtl/include/configs/stap_params_include_max_ber.inc     source/rtl/include/stap_params_include.inc
+\cp verif/tb/include/configs/tb_param_max_ber.inc                  verif/tb/include/tb_param.inc
+\cp verif/tb/include/configs/STapTop_max_ext_lb.sv                 verif/tb/STapTop.sv
+
+ace -cc -pwa pwa_max_ber
+ace -x TapTestSuppressUpdateCapture \
+       TapTestSuppressRemoteTDR -pwa pwa_max_ber -nb -nbmon
+
+grep -ir status pwa/results/tests/*/postsim.log
+
+\cp source/rtl/include/configs/stap_params_include_default.inc source/rtl/include/stap_params_include.inc
+\cp verif/tb/include/configs/tb_param_default.inc              verif/tb/include/tb_param.inc
+\cp verif/tb/include/configs/STapTop_def_ext_lb.sv             verif/tb/STapTop.sv

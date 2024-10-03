@@ -1,0 +1,22 @@
+## Running the iflow
+
+Scenario 1: Standalone usage
+cd $WORKAREA
+setenv CHEETAH_RTL_ROOT = /p/hdk/cad/Cheetah-RTL/2021.06.fe.Bento.1.77/bento
+
+$CHEEATH_RTL_ROOT/iflow/scripts/iflow_run.pl -ini <path to ini file> -gen_only
+make -f Makefile.iflow -j 4 run_all_stages
+
+An example of the input INI file is example/iflow.ini
+
+Scenario 2: Usage through GK
+
+An example of usage of iflow is example/Gkutils.cfg
+
+After the changes in the Gkutils is done,
+    * You can run MockTurnin
+    * You can run Turnin
+    * You can run it as a Flow Manager using the following command :
+        ^ /p/hdk/rtl/proj_tools/gatekeeper_utils/1.01.76/gk-utils.pl -cfgdir /path/to/cfgdir -proj cth -cfm_modelroot $WORKAREA -c <design name> -s <stage> -branch <branch>
+	^ Use option [-load_task_norun] to just load the task and manually run from nbflow GUI.
+	^ To run locally and not in netbatch, do "setenv CTH_FM_LOCAL"

@@ -1,0 +1,45 @@
+###################################
+# hqm_vf_enable.cft :
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable PF memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+###################################
+# Setup FUNC_VF BAR to a base address of 0x00000003_xxxxxxxx
+###################################
+# 16 VF
+###################################
+# Enable VF and VF memory operations
+###################################
+# Poll the config_master.cfg_diagnostic_reset_status register
+#  until it has a value indicating that all of the hardware
+#  reset initialization writes have completed. 
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+##############  hqm_vf_enable.cft EOF #################
+###################################
+# Read default values of CSR registers
+rd hqm_system_csr.HQM_CSR_CP_LO
+rd hqm_system_csr.HQM_CSR_CP_HI
+rd hqm_system_csr.HQM_CSR_RAC_LO
+rd hqm_system_csr.HQM_CSR_RAC_HI
+rd hqm_system_csr.HQM_CSR_WAC_LO
+rd hqm_system_csr.HQM_CSR_WAC_HI
+###################################
+# Check default values of CSR registers
+rd hqm_system_csr.HQM_CSR_CP_LO  0x0100_0218
+rd hqm_system_csr.HQM_CSR_CP_HI  0x0000_0400
+rd hqm_system_csr.HQM_CSR_RAC_LO 0xffff_ffff
+rd hqm_system_csr.HQM_CSR_RAC_HI 0xffff_ffff
+rd hqm_system_csr.HQM_CSR_WAC_LO 0x0300_021f
+rd hqm_system_csr.HQM_CSR_WAC_HI 0x2000_0400

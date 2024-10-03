@@ -1,0 +1,976 @@
+##Source File: /nfs/site/disks/ncsg_00170/users/jkerth/hqm-srvrgen4/integration/collage/csv/hqm_sip/hqm_sip_adhoc.txt
+
+#--------------------------------------------------------------------------------------------------------------------------------------------
+# Strap Tieoff (Needs to be a collage accessible tieoff for FPGAs)
+
+T  zero  i_hqm_sif/strap_hqm_is_reg_ep
+
+#--------------------------------------------------------------------------------------------------------------------------------------------
+# VISA TRIGGERS (internal connection from iosf -> master)
+
+C  i_hqm_sif/hqm_triggers      i_hqm_master/hqm_triggers_in    hqm_triggers_in
+
+#--------------------------------------------------------------------------------------------------------------------------------------------
+# UPF-related connections
+
+E  i_hqm_master/pgcb_isol_en_b                          pgcb_isol_en_b
+E  i_hqm_master/pgcb_isol_en                            pgcb_isol_en  
+
+E  i_hqm_AW_fet_en_sequencer/par_mem_pgcb_fet_en_b      par_mem_pgcb_fet_en_b
+E  i_hqm_AW_fet_en_sequencer/par_mem_pgcb_fet_en_ack_b  par_mem_pgcb_fet_en_ack_b
+
+C  i_hqm_master/pgcb_isol_en_b {i_hqm_AW_viewpin_mux/mux_in[3] i_hqm_visa/pgcb_isol_en_b } pgcb_isol_en_b 
+C  i_hqm_master/pgcb_isol_en   {i_hqm_visa/pgcb_isol_en }
+
+CP par_logic_pgcb_fet_en_ack_b in  "" hqm_sip_aon_wrap 
+
+C  i_hqm_master/pgcb_fet_en_b                           {i_hqm_AW_fet_en_sequencer/pgcb_fet_en_b i_hqm_visa/pgcb_fet_en_b}                    
+C  i_hqm_AW_fet_en_sequencer/par_logic_pgcb_fet_en_b    i_ft_buf_fet_en_ack/a                                           logic_pgcb_fet_en_b
+O  i_ft_buf_fet_en_ack/o
+Ci hqm_sip_aon_wrap/par_logic_pgcb_fet_en_ack_b         i_hqm_AW_fet_en_sequencer/par_logic_pgcb_fet_en_ack_b
+O  hqm_sip_aon_wrap/par_logic_pgcb_fet_en_ack_b
+C  i_hqm_AW_fet_en_sequencer/pgcb_fet_en_ack_b          {i_hqm_master/pgcb_fet_en_ack_b i_hqm_visa/pgcb_fet_en_ack_b}   pgcb_fet_en_ack_b
+
+T 0 i_hqm_visa/pgcb_fet_en_ack_b_sys
+T 0 i_hqm_visa/pgcb_fet_en_ack_b_qed
+
+#--------------------------------------------------------------------------------------------------------------------------------------------
+# SYSTEM <-> IOSF interfaces
+
+C   i_hqm_system/hcw_enq_in_ready            i_hqm_sif/hcw_enq_in_ready                                             hcw_enq_in_ready
+C   i_hqm_sif/hcw_enq_in_v                   i_hqm_system/hcw_enq_in_v                                              hcw_enq_in_v
+C   i_hqm_sif/hcw_enq_in_data                i_hqm_system/hcw_enq_in_data                                           hcw_enq_in_data
+                                                                                                                   
+C   i_hqm_sif/write_buffer_mstr_ready        i_hqm_system/write_buffer_mstr_ready                                   write_buffer_mstr_ready
+C   i_hqm_system/write_buffer_mstr_v         i_hqm_sif/write_buffer_mstr_v                                          write_buffer_mstr_v
+C   i_hqm_system/write_buffer_mstr           i_hqm_sif/write_buffer_mstr                                            write_buffer_mstr
+                                                                                                                   
+C   i_hqm_system/sif_alarm_ready             i_hqm_sif/sif_alarm_ready                                              sif_alarm_ready
+C   i_hqm_sif/sif_alarm_v                    i_hqm_system/sif_alarm_v                                               sif_alarm_v
+C   i_hqm_sif/sif_alarm_data                 i_hqm_system/sif_alarm_data                                            sif_alarm_data
+                                                                                                                   
+C   i_hqm_sif/pci_cfg_sciov_en               i_hqm_system/pci_cfg_sciov_en                                          pci_cfg_sciov_en
+C   i_hqm_sif/pci_cfg_pmsixctl_msie          i_hqm_system/pci_cfg_pmsixctl_msie                                     pci_cfg_pmsixctl_msie
+C   i_hqm_sif/pci_cfg_pmsixctl_fm            i_hqm_system/pci_cfg_pmsixctl_fm                                       pci_cfg_pmsixctl_fm
+
+C   i_hqm_sif/prim_gated_rst_b               {i_hqm_master/prim_gated_rst_b i_hqm_visa/prim_gated_rst_b}            prim_gated_rst_b
+#--------------------------------------------------------------------------------------------------------------------------------------------
+# MASTER <-> IOSF interfaces
+
+C   i_hqm_sif/flr_triggered                 i_hqm_master/flr_triggered                                             flr_triggered
+C   i_hqm_sif/fuse_force_on                 i_hqm_master/fuse_force_on                                             fuse_force_on
+C   i_hqm_sif/fuse_proc_disable             i_hqm_master/fuse_proc_disable                                         fuse_proc_disable
+C   i_hqm_sif/pm_state                      i_hqm_master/pm_state                                                  pm_state
+C   i_hqm_sif/master_ctl_load               i_hqm_master/master_ctl_load                                           master_ctl_load
+C   i_hqm_sif/master_ctl                    {i_hqm_master/master_ctl i_hqm_visa/master_ctl}                        master_ctl         
+
+C   i_hqm_master/hqm_proc_clkreq_b          i_hqm_sif/hqm_proc_idle                                                hqm_proc_clkreq_b
+C   i_hqm_master/hqm_proc_reset_done        i_hqm_sif/hqm_proc_reset_done                                          hqm_proc_reset_done
+C   i_hqm_master/pm_fsm_d0tod3_ok           i_hqm_sif/pm_fsm_d0tod3_ok                                             pm_fsm_d0tod3_ok
+C   i_hqm_master/pm_fsm_d3tod0_ok           i_hqm_sif/pm_fsm_d3tod0_ok                                             pm_fsm_d3tod0_ok
+C   i_hqm_master/pm_fsm_in_run              i_hqm_sif/pm_fsm_in_run                                                pm_fsm_in_run
+C   i_hqm_master/pm_allow_ing_drop          i_hqm_sif/pm_allow_ing_drop                                            pm_allow_ing_drop
+
+#--------------------------------------------------------------------------------------------------------------------------------------------
+# APB interface from IOSF
+
+C   i_hqm_sif/psel                          i_hqm_master/psel                                                      psel
+C   i_hqm_sif/penable                       i_hqm_master/penable                                                   penable
+C   i_hqm_sif/pwrite                        i_hqm_master/pwrite                                                    pwrite
+C   i_hqm_sif/paddr                         i_hqm_master/paddr                                                     paddr
+C   i_hqm_sif/pwdata                        i_hqm_master/pwdata                                                    pwdata
+C   i_hqm_sif/puser                         i_hqm_master/puser                                                     puser
+                                           
+C   i_hqm_master/pready                     i_hqm_sif/pready                                                       pready
+C   i_hqm_master/pslverr                    i_hqm_sif/pslverr                                                      pslverr
+C   i_hqm_master/prdata                     i_hqm_sif/prdata                                                       prdata
+C   i_hqm_master/prdata_par                 i_hqm_sif/prdata_par                                                   prdata_par
+                                           
+#--------------------------------------------------------------------------------------------------------------------------------------------
+# Wire up clock enable repeaters and clock gates
+
+# Local clock enable to repeater connections
+
+C   i_hqm_sif/prim_clk_enable_cdc              i_hqm_sif_nonflr_clk_enable_rptr/data      prim_clk_enable_cdc
+C   i_hqm_sif/prim_clk_enable_sys              i_hqm_sif_prim_clk_enable_rptr/data        prim_clk_enable_sys
+C   i_hqm_sif/prim_clk_enable                 {i_hqm_system_prim_clk_enable_rptr/data i_hqm_master_prim_clk_enable_rptr/data} prim_clk_enable
+
+C   i_hqm_sif/prim_clk_ungate                 {i_hqm_system_prim_clk_ungate_rptr/data i_hqm_master_prim_clk_ungate_rptr/data} prim_clk_ungate
+
+# Local reset sync to repeater module reset connections
+# moved to hqm_proc_adhoc_int for V25 (master/iosf share sync)
+
+# Global clock enable repeater output to hqm_inp_gated_clk RCB/LCB connections
+
+C   i_hqm_sif_prim_clk_enable_rptr/data_q      i_hqm_sif_prim_clkgate/enable              prim_clk_enable_rptr
+C   i_hqm_sif_nonflr_clk_enable_rptr/data_q    i_hqm_sif_prim_clknonflr/enable            nonflr_clk_enable_rptr
+
+# Ungate repeater output to RCB/LCB connections
+# moved to hqm_proc_adhoc_int for V25 (master/iosf share repeater)
+
+C   i_hqm_sif_prim_clkgate/gated_clk           i_hqm_sif/prim_gated_clk                    prim_gated_clk
+
+C   i_hqm_sif_prim_clknonflr/gated_clk         i_hqm_sif/prim_nonflr_clk                   prim_nonflr_clk
+
+#--------------------------------------------------------------------------------------------------------------------------------------------
+
+## hqm_clk_enable drives  hqm_inp_gated_clk_enable_rptr, AND2 for hqm_gated_clk_enable_rptr.
+C   i_hqm_master/hqm_clk_enable                {i_hqm_master_hqm_inp_gated_clk_enable_rptr/data i_hqm_system_hqm_inp_gated_clk_enable_rptr/data i_hqm_lsp_hqm_inp_gated_clk_enable_rptr/data i_hqm_qed_hqm_inp_gated_clk_enable_rptr/data i_hqm_system_hqm_gated_clk_enable_and2/clki1 i_hqm_chp_hqm_gated_clk_enable_and2/clki1 i_hqm_lsp_hqm_gated_clk_enable_and2/clki1 i_hqm_qed_hqm_gated_clk_enable_and2/clki1 i_hqm_dp_hqm_gated_clk_enable_and2/clki1 i_hqm_nalb_hqm_gated_clk_enable_and2/clki1 } hqm_clk_enable
+
+## hqm_clk_throttle drives AND2 for hqm_freerun_clk_enable_rptr.  Master-Only 
+C   i_hqm_master/hqm_clk_throttle               i_hqm_master_hqm_freerun_clk_enable_and2/clki0              hqm_clk_throttle 
+
+## hqm_gclock_enable drives AND2 for hqm_freeun_clk_enable_rptr. Master-Only
+C   i_hqm_master/hqm_gclock_enable              i_hqm_master_hqm_freerun_clk_enable_and2/clki1 hqm_gclock_enable
+
+C   i_hqm_master/hqm_clk_ungate                {i_hqm_master_hqm_clk_ungate_rptr/data i_hqm_system_clk_ungate_rptr/data i_hqm_lsp_clk_ungate_rptr/data i_hqm_qed_clk_ungate_rptr/data } hqm_clk_ungate
+
+# Also hooking up to hqm_gated_rst_b ports on pipe blocks until that input is removed and created in the reset_core blocks
+
+C   i_hqm_master/hqm_gated_rst_b        {i_hqm_sif/hqm_gated_rst_b i_hqm_visa/hqm_gated_rst_b i_hqm_system_reset_core/hqm_inp_gated_rst_b i_hqm_aqed_reset_core/hqm_inp_gated_rst_b i_hqm_lsp_reset_core/hqm_inp_gated_rst_b i_hqm_atm_reset_core/hqm_inp_gated_rst_b i_hqm_chp_reset_core/hqm_inp_gated_rst_b i_hqm_qed_reset_core/hqm_inp_gated_rst_b i_hqm_nalb_reset_core/hqm_inp_gated_rst_b i_hqm_dir_reset_core/hqm_inp_gated_rst_b i_hqm_rop_reset_core/hqm_inp_gated_rst_b i_hqm_system/hqm_inp_gated_rst_b i_hqm_system_reset_core/hqm_gated_rst_b i_hqm_aqed_reset_core/hqm_gated_rst_b i_hqm_lsp_reset_core/hqm_gated_rst_b i_hqm_atm_reset_core/hqm_gated_rst_b i_hqm_chp_reset_core/hqm_gated_rst_b i_hqm_qed_reset_core/hqm_gated_rst_b i_hqm_nalb_reset_core/hqm_gated_rst_b i_hqm_dir_reset_core/hqm_gated_rst_b i_hqm_rop_reset_core/hqm_gated_rst_b i_hqm_chp_hqm_gated_rst_pgcb_sync_n/rst_n} hqm_gated_rst_b
+C   i_hqm_master/hqm_clk_rptr_rst_b     {i_hqm_visa/hqm_clk_rptr_rst_b i_hqm_master_hqm_clk_rptr_rst_sync_n/rst_n i_hqm_system_hqm_clk_rptr_rst_sync_n/rst_n i_hqm_qed_hqm_clk_rptr_rst_sync_n/rst_n i_hqm_lsp_hqm_clk_rptr_rst_sync_n/rst_n} hqm_clk_rptr_rst_b
+
+C   i_hqm_master/hqm_shields_up          i_hqm_sif/hqm_flr_prep                     hqm_shields_up
+
+#--------------------------------------------------------------------------------------------------------------------------------------------
+# Point-to-point internal connections
+
+C   i_hqm_system/hqm_system_visa                   i_hqm_visa/hqm_system_visa_str               hqm_system_visa_str 
+
+# Status interfaces
+
+C   i_hqm_credit_hist_pipe/chp_reset_done          {i_hqm_master/mstr_hqm_reset_done[0]             i_hqm_visa/hqm_core_visa_str[64]}                                           chp_reset_done
+C   i_hqm_reorder_pipe/rop_reset_done              {i_hqm_master/mstr_hqm_reset_done[1]             i_hqm_visa/hqm_core_visa_str[65]}                                           rop_reset_done
+C   i_hqm_list_sel_pipe/lsp_reset_done             {i_hqm_master/mstr_hqm_reset_done[2]             i_hqm_visa/hqm_core_visa_str[66]}                                           lsp_reset_done
+C   i_hqm_qed_pipe/nalb_reset_done                 {i_hqm_master/mstr_hqm_reset_done[3]             i_hqm_visa/hqm_core_visa_str[67]}                                           nalb_reset_done
+C   i_hqm_list_sel_pipe/ap_reset_done              {i_hqm_master/mstr_hqm_reset_done[4]             i_hqm_visa/hqm_core_visa_str[68]}                                           ap_reset_done
+C   i_hqm_qed_pipe/dp_reset_done                   {i_hqm_master/mstr_hqm_reset_done[5]             i_hqm_visa/hqm_core_visa_str[69]}                                           dp_reset_done
+C   i_hqm_qed_pipe/qed_reset_done                  {i_hqm_master/mstr_hqm_reset_done[6]             i_hqm_visa/hqm_core_visa_str[70]   i_hqm_master/mstr_hqm_reset_done[7]}     qed_reset_done
+C   i_hqm_aqed_pipe/aqed_reset_done                {i_hqm_master/mstr_hqm_reset_done[8]             i_hqm_visa/hqm_core_visa_str[71]}                                           aqed_reset_done
+C   i_hqm_system/system_reset_done                 {i_hqm_master/mstr_hqm_reset_done[9]             i_hqm_visa/hqm_core_visa_str[72]}                                           system_reset_done
+
+C   i_hqm_credit_hist_pipe/chp_unit_idle           {i_hqm_master/mstr_unit_idle[0]                  i_hqm_visa/hqm_core_visa_str[82]}                                           chp_unit_idle
+C   i_hqm_reorder_pipe/rop_unit_idle               {i_hqm_master/mstr_unit_idle[1]                  i_hqm_visa/hqm_core_visa_str[83]   i_hqm_credit_hist_pipe/rop_unit_idle}    rop_unit_idle
+C   i_hqm_list_sel_pipe/lsp_unit_idle              {i_hqm_master/mstr_unit_idle[2]                  i_hqm_visa/hqm_core_visa_str[84]}                                           lsp_unit_idle
+C   i_hqm_qed_pipe/nalb_unit_idle                  {i_hqm_master/mstr_unit_idle[3]                  i_hqm_visa/hqm_core_visa_str[85]}                                           nalb_unit_idle
+C   i_hqm_list_sel_pipe/ap_unit_idle               {i_hqm_master/mstr_unit_idle[4]                  i_hqm_visa/hqm_core_visa_str[86]}                                           ap_unit_idle
+C   i_hqm_qed_pipe/dp_unit_idle                    {i_hqm_master/mstr_unit_idle[5]                  i_hqm_visa/hqm_core_visa_str[87]}                                           dp_unit_idle
+C   i_hqm_qed_pipe/qed_unit_idle                    i_hqm_qed_unit_idle_and2/clki0                                                                                                         qed_unit_idle_local
+C   i_hqm_qed_unit_idle_and2/clko                   i_hqm_qed_unit_idle_ft_rptr/data                                                                                                       qed_unit_idle_qual
+C   i_hqm_qed_unit_idle_ft_rptr/data_q             {i_hqm_master/mstr_unit_idle[6]                  i_hqm_visa/hqm_core_visa_str[88]    i_hqm_master/mstr_unit_idle[7]}         qed_unit_idle
+C   i_hqm_aqed_pipe/aqed_unit_idle                 {i_hqm_master/mstr_unit_idle[8]                  i_hqm_visa/hqm_core_visa_str[89]    i_hqm_list_sel_pipe/aqed_unit_idle}     aqed_unit_idle
+C   i_hqm_system/system_idle                       {i_hqm_master/mstr_unit_idle[9]                  i_hqm_visa/hqm_core_visa_str[90]}                                           system_idle
+
+C   i_hqm_credit_hist_pipe/chp_unit_pipeidle       {i_hqm_master/mstr_unit_pipeidle[0]              i_hqm_visa/hqm_core_visa_str[91]}                                           chp_unit_pipeidle
+C   i_hqm_reorder_pipe/rop_unit_pipeidle           {i_hqm_master/mstr_unit_pipeidle[1]              i_hqm_visa/hqm_core_visa_str[92]}                                           rop_unit_pipeidle
+C   i_hqm_list_sel_pipe/lsp_unit_pipeidle          {i_hqm_master/mstr_unit_pipeidle[2]              i_hqm_visa/hqm_core_visa_str[93]}                                           lsp_unit_pipeidle
+C   i_hqm_qed_pipe/nalb_unit_pipeidle              {i_hqm_master/mstr_unit_pipeidle[3]              i_hqm_visa/hqm_core_visa_str[94]}                                           nalb_unit_pipeidle
+C   i_hqm_list_sel_pipe/ap_unit_pipeidle           {i_hqm_master/mstr_unit_pipeidle[4]              i_hqm_visa/hqm_core_visa_str[95]}                                           ap_unit_pipeidle
+C   i_hqm_qed_pipe/dp_unit_pipeidle                {i_hqm_master/mstr_unit_pipeidle[5]              i_hqm_visa/hqm_core_visa_str[96]}                                           dp_unit_pipeidle
+C   i_hqm_qed_pipe/qed_unit_pipeidle               {i_hqm_master/mstr_unit_pipeidle[6]              i_hqm_visa/hqm_core_visa_str[97]    i_hqm_master/mstr_unit_pipeidle[7]}     qed_unit_pipeidle
+C   i_hqm_aqed_pipe/aqed_unit_pipeidle             {i_hqm_master/mstr_unit_pipeidle[8]              i_hqm_visa/hqm_core_visa_str[98]}                                           aqed_unit_pipeidle
+T   one                                             i_hqm_master/mstr_unit_pipeidle[9]
+
+# CFG ring
+
+C   i_hqm_master/mstr_cfg_req_down_read             i_hqm_system/system_cfg_req_up_read                                                                 mstr_cfg_req_down_read
+C   i_hqm_master/mstr_cfg_req_down_write            i_hqm_system/system_cfg_req_up_write                                                                mstr_cfg_req_down_write
+C   i_hqm_master/mstr_cfg_req_down                  i_hqm_system/system_cfg_req_up                                                                      mstr_cfg_req_down
+
+C   i_hqm_system/system_cfg_req_down_read          {i_hqm_credit_hist_pipe/chp_cfg_req_up_read      i_hqm_visa/hqm_core_visa_str[172]}       system_cfg_req_down_read
+C   i_hqm_system/system_cfg_req_down_write         {i_hqm_credit_hist_pipe/chp_cfg_req_up_write     i_hqm_visa/hqm_core_visa_str[173]}       system_cfg_req_down_write
+C   i_hqm_system/system_cfg_req_down                i_hqm_credit_hist_pipe/chp_cfg_req_up                                                               system_cfg_req_down
+C   i_hqm_system/system_cfg_req_down[1:0]                                                           i_hqm_visa/hqm_core_visa_str[175:174]
+C   i_hqm_system/system_cfg_rsp_down_ack           {i_hqm_credit_hist_pipe/chp_cfg_rsp_up_ack       i_hqm_visa/hqm_core_visa_str[176]}       system_cfg_rsp_down_ack
+C   i_hqm_system/system_cfg_rsp_down                i_hqm_credit_hist_pipe/chp_cfg_rsp_up                                                               system_cfg_rsp_down
+C   i_hqm_system/system_cfg_rsp_down[5:4]                                                           i_hqm_visa/hqm_core_visa_str[178:177]
+
+C   i_hqm_credit_hist_pipe/chp_cfg_req_down_read   {i_hqm_reorder_pipe/rop_cfg_req_up_read          i_hqm_visa/hqm_core_visa_str[179]}       chp_cfg_req_down_read
+C   i_hqm_credit_hist_pipe/chp_cfg_req_down_write  {i_hqm_reorder_pipe/rop_cfg_req_up_write         i_hqm_visa/hqm_core_visa_str[180]}       chp_cfg_req_down_write
+C   i_hqm_credit_hist_pipe/chp_cfg_req_down         i_hqm_reorder_pipe/rop_cfg_req_up                                                                   chp_cfg_req_down
+C   i_hqm_credit_hist_pipe/chp_cfg_req_down[1:0]                                                    i_hqm_visa/hqm_core_visa_str[182:181]
+C   i_hqm_credit_hist_pipe/chp_cfg_rsp_down_ack    {i_hqm_reorder_pipe/rop_cfg_rsp_up_ack           i_hqm_visa/hqm_core_visa_str[183]}       chp_cfg_rsp_down_ack
+C   i_hqm_credit_hist_pipe/chp_cfg_rsp_down         i_hqm_reorder_pipe/rop_cfg_rsp_up                                                                   chp_cfg_rsp_down
+C   i_hqm_credit_hist_pipe/chp_cfg_rsp_down[5:4]                                                    i_hqm_visa/hqm_core_visa_str[185:184]
+
+C   i_hqm_reorder_pipe/rop_cfg_req_down_read       {i_hqm_qed_pipe/qed_cfg_req_up_read              i_hqm_visa/hqm_core_visa_str[186]}       rop_cfg_req_down_read
+C   i_hqm_reorder_pipe/rop_cfg_req_down_write      {i_hqm_qed_pipe/qed_cfg_req_up_write             i_hqm_visa/hqm_core_visa_str[187]}       rop_cfg_req_down_write
+C   i_hqm_reorder_pipe/rop_cfg_req_down             i_hqm_qed_pipe/qed_cfg_req_up                                                                       rop_cfg_req_down
+C   i_hqm_reorder_pipe/rop_cfg_req_down[1:0]                                                        i_hqm_visa/hqm_core_visa_str[189:188]
+C   i_hqm_reorder_pipe/rop_cfg_rsp_down_ack        {i_hqm_qed_pipe/qed_cfg_rsp_up_ack               i_hqm_visa/hqm_core_visa_str[190]}       rop_cfg_rsp_down_ack
+C   i_hqm_reorder_pipe/rop_cfg_rsp_down             i_hqm_qed_pipe/qed_cfg_rsp_up                                                                       rop_cfg_rsp_down
+C   i_hqm_reorder_pipe/rop_cfg_rsp_down[5:4]                                                        i_hqm_visa/hqm_core_visa_str[192:191]
+
+C   i_hqm_qed_pipe/qed_cfg_req_down_read           {i_hqm_list_sel_pipe/lsp_cfg_req_up_read         i_hqm_visa/hqm_core_visa_str[221]}       qed_cfg_req_down_read
+C   i_hqm_qed_pipe/qed_cfg_req_down_write          {i_hqm_list_sel_pipe/lsp_cfg_req_up_write        i_hqm_visa/hqm_core_visa_str[222]}       qed_cfg_req_down_write
+C   i_hqm_qed_pipe/qed_cfg_req_down                 i_hqm_list_sel_pipe/lsp_cfg_req_up                                                                  qed_cfg_req_down
+C   i_hqm_qed_pipe/qed_cfg_req_down[1:0]                                                            i_hqm_visa/hqm_core_visa_str[224:223]
+C   i_hqm_qed_pipe/qed_cfg_rsp_down_ack            {i_hqm_list_sel_pipe/lsp_cfg_rsp_up_ack          i_hqm_visa/hqm_core_visa_str[225]}       qed_cfg_rsp_down_ack
+C   i_hqm_qed_pipe/qed_cfg_rsp_down                 i_hqm_list_sel_pipe/lsp_cfg_rsp_up                                                                  qed_cfg_rsp_down
+C   i_hqm_qed_pipe/qed_cfg_rsp_down[5:4]                                                            i_hqm_visa/hqm_core_visa_str[227:226]
+
+C   i_hqm_list_sel_pipe/lsp_cfg_req_down_read      {i_hqm_list_sel_pipe/ap_cfg_req_up_read          i_hqm_visa/hqm_core_visa_str[193]}       lsp_cfg_req_down_read
+C   i_hqm_list_sel_pipe/lsp_cfg_req_down_write     {i_hqm_list_sel_pipe/ap_cfg_req_up_write         i_hqm_visa/hqm_core_visa_str[194]}       lsp_cfg_req_down_write
+C   i_hqm_list_sel_pipe/lsp_cfg_req_down            i_hqm_list_sel_pipe/ap_cfg_req_up                                                                   lsp_cfg_req_down
+C   i_hqm_list_sel_pipe/lsp_cfg_req_down[1:0]                                                       i_hqm_visa/hqm_core_visa_str[196:195]
+C   i_hqm_list_sel_pipe/lsp_cfg_rsp_down_ack       {i_hqm_list_sel_pipe/ap_cfg_rsp_up_ack           i_hqm_visa/hqm_core_visa_str[197]}       lsp_cfg_rsp_down_ack
+C   i_hqm_list_sel_pipe/lsp_cfg_rsp_down            i_hqm_list_sel_pipe/ap_cfg_rsp_up                                                                   lsp_cfg_rsp_down
+C   i_hqm_list_sel_pipe/lsp_cfg_rsp_down[5:4]                                                       i_hqm_visa/hqm_core_visa_str[199:198]
+
+C   i_hqm_list_sel_pipe/ap_cfg_req_down_read       {i_hqm_aqed_pipe/aqed_cfg_req_up_read            i_hqm_visa/hqm_core_visa_str[207]}       ap_cfg_req_down_read
+C   i_hqm_list_sel_pipe/ap_cfg_req_down_write      {i_hqm_aqed_pipe/aqed_cfg_req_up_write           i_hqm_visa/hqm_core_visa_str[208]}       ap_cfg_req_down_write
+C   i_hqm_list_sel_pipe/ap_cfg_req_down             i_hqm_aqed_pipe/aqed_cfg_req_up                                                                     ap_cfg_req_down
+C   i_hqm_list_sel_pipe/ap_cfg_req_down[1:0]                                                        i_hqm_visa/hqm_core_visa_str[210:209]
+C   i_hqm_list_sel_pipe/ap_cfg_rsp_down_ack        {i_hqm_aqed_pipe/aqed_cfg_rsp_up_ack             i_hqm_visa/hqm_core_visa_str[211]}       ap_cfg_rsp_down_ack
+C   i_hqm_list_sel_pipe/ap_cfg_rsp_down             i_hqm_aqed_pipe/aqed_cfg_rsp_up                                                                     ap_cfg_rsp_down
+C   i_hqm_list_sel_pipe/ap_cfg_rsp_down[5:4]                                                        i_hqm_visa/hqm_core_visa_str[213:212]
+
+C   i_hqm_aqed_pipe/aqed_cfg_req_down_read         {i_hqm_master/mstr_cfg_req_up_read               i_hqm_visa/hqm_core_visa_str[235]}       aqed_cfg_req_down_read
+C   i_hqm_aqed_pipe/aqed_cfg_req_down_write        {i_hqm_master/mstr_cfg_req_up_write              i_hqm_visa/hqm_core_visa_str[236]}       aqed_cfg_req_down_write
+C   i_hqm_aqed_pipe/aqed_cfg_req_down               i_hqm_master/mstr_cfg_req_up                                                                        aqed_cfg_req_down
+C   i_hqm_aqed_pipe/aqed_cfg_req_down[1:0]                                                          i_hqm_visa/hqm_core_visa_str[238:237]
+C   i_hqm_aqed_pipe/aqed_cfg_rsp_down_ack          {i_hqm_master/mstr_cfg_rsp_up_ack                i_hqm_visa/hqm_core_visa_str[239]}       aqed_cfg_rsp_down_ack
+C   i_hqm_aqed_pipe/aqed_cfg_rsp_down               i_hqm_master/mstr_cfg_rsp_up                                                                        aqed_cfg_rsp_down
+C   i_hqm_aqed_pipe/aqed_cfg_rsp_down[5:4]                                                          i_hqm_visa/hqm_core_visa_str[241:240]
+
+# Alarm chain
+C   i_hqm_credit_hist_pipe/chp_alarm_down_v        {i_hqm_system/hqm_alarm_v                        i_hqm_visa/hqm_core_visa_str[48]}        hqm_alarm_v
+C   i_hqm_credit_hist_pipe/chp_alarm_down_data      i_hqm_system/hqm_alarm_data                                                                         hqm_alarm_data
+C   i_hqm_system/hqm_alarm_ready                   {i_hqm_credit_hist_pipe/chp_alarm_down_ready     i_hqm_visa/hqm_core_visa_str[47]}        hqm_alarm_ready
+
+C   i_hqm_reorder_pipe/rop_alarm_down_v            {i_hqm_credit_hist_pipe/chp_alarm_up_v           i_hqm_visa/hqm_core_visa_str[244]}       rop_alarm_down_v
+C   i_hqm_reorder_pipe/rop_alarm_down_data          i_hqm_credit_hist_pipe/chp_alarm_up_data                                                            rop_alarm_down_data
+C   i_hqm_credit_hist_pipe/chp_alarm_up_ready      {i_hqm_reorder_pipe/rop_alarm_down_ready         i_hqm_visa/hqm_core_visa_str[245]}       chp_alarm_up_ready
+
+C   i_hqm_qed_pipe/qed_alarm_down_v                {i_hqm_reorder_pipe/rop_alarm_up_v               i_hqm_visa/hqm_core_visa_str[248]}       qed_alarm_down_v
+C   i_hqm_qed_pipe/qed_alarm_down_data              i_hqm_reorder_pipe/rop_alarm_up_data                                                                qed_alarm_down_data
+C   i_hqm_reorder_pipe/rop_alarm_up_ready          {i_hqm_qed_pipe/qed_alarm_down_ready             i_hqm_visa/hqm_core_visa_str[249]}       rop_alarm_up_ready
+
+C   i_hqm_aqed_pipe/aqed_lsp_deq_v                                                                  i_hqm_visa/hqm_core_visa_str[252]
+C   i_hqm_qed_pipe/qed_lsp_deq_v                                                                    i_hqm_visa/hqm_core_visa_str[253]
+
+C   i_hqm_list_sel_pipe/lsp_alarm_down_v           {i_hqm_qed_pipe/qed_alarm_up_v                   i_hqm_visa/hqm_core_visa_str[246]}       lsp_alarm_down_v
+C   i_hqm_list_sel_pipe/lsp_alarm_down_data         i_hqm_qed_pipe/qed_alarm_up_data                                                                    lsp_alarm_down_data
+C   i_hqm_qed_pipe/qed_alarm_up_ready              {i_hqm_list_sel_pipe/lsp_alarm_down_ready        i_hqm_visa/hqm_core_visa_str[247]}       qed_alarm_up_ready
+
+C   i_hqm_list_sel_pipe/ap_alarm_down_v            {i_hqm_list_sel_pipe/lsp_alarm_up_v              i_hqm_visa/hqm_core_visa_str[250]}       ap_alarm_down_v
+C   i_hqm_list_sel_pipe/ap_alarm_down_data          i_hqm_list_sel_pipe/lsp_alarm_up_data                                                               ap_alarm_down_data
+C   i_hqm_list_sel_pipe/lsp_alarm_up_ready         {i_hqm_list_sel_pipe/ap_alarm_down_ready         i_hqm_visa/hqm_core_visa_str[251]}       lsp_alarm_up_ready
+
+C   i_hqm_aqed_pipe/aqed_alarm_down_v              {i_hqm_list_sel_pipe/ap_alarm_up_v               i_hqm_visa/hqm_core_visa_str[258]}       aqed_alarm_down_v
+C   i_hqm_aqed_pipe/aqed_alarm_down_data            i_hqm_list_sel_pipe/ap_alarm_up_data                                                                aqed_alarm_down_data
+C   i_hqm_list_sel_pipe/ap_alarm_up_ready          {i_hqm_aqed_pipe/aqed_alarm_down_ready           i_hqm_visa/hqm_core_visa_str[259]}       ap_alarm_up_ready
+
+T   zero                                            i_hqm_aqed_pipe/aqed_alarm_up_v
+T   zero                                            i_hqm_aqed_pipe/aqed_alarm_up_data
+O                                                   i_hqm_aqed_pipe/aqed_alarm_up_ready
+
+# AQED outputs
+
+C   i_hqm_aqed_pipe/aqed_chp_sch_v                 {i_hqm_credit_hist_pipe/aqed_chp_sch_v           i_hqm_visa/hqm_core_visa_str[166]}       aqed_chp_sch_v
+C   i_hqm_aqed_pipe/aqed_chp_sch_data               i_hqm_credit_hist_pipe/aqed_chp_sch_data                                                            aqed_chp_sch_data
+C   i_hqm_credit_hist_pipe/aqed_chp_sch_ready      {i_hqm_aqed_pipe/aqed_chp_sch_ready              i_hqm_visa/hqm_core_visa_str[167]}       aqed_chp_sch_ready
+
+C   i_hqm_aqed_pipe/aqed_lsp_dec_fid_cnt_v          i_hqm_list_sel_pipe/aqed_lsp_dec_fid_cnt_v                                                          aqed_lsp_dec_fid_cnt_v
+C   i_hqm_aqed_pipe/aqed_lsp_fid_cnt_upd_v          i_hqm_list_sel_pipe/aqed_lsp_fid_cnt_upd_v                                                          aqed_lsp_fid_cnt_upd_v
+C   i_hqm_aqed_pipe/aqed_lsp_fid_cnt_upd_val        i_hqm_list_sel_pipe/aqed_lsp_fid_cnt_upd_val                                                        aqed_lsp_fid_cnt_upd_val
+C   i_hqm_aqed_pipe/aqed_lsp_fid_cnt_upd_qid        i_hqm_list_sel_pipe/aqed_lsp_fid_cnt_upd_qid                                                        aqed_lsp_fid_cnt_upd_qid
+C   i_hqm_aqed_pipe/aqed_lsp_stop_atqatm            i_hqm_list_sel_pipe/aqed_lsp_stop_atqatm                                                            aqed_lsp_stop_atqatm
+C   i_hqm_aqed_pipe/aqed_lsp_sch_v                 {i_hqm_list_sel_pipe/aqed_lsp_sch_v              i_hqm_visa/hqm_core_visa_str[168]}       aqed_lsp_sch_v
+C   i_hqm_aqed_pipe/aqed_lsp_sch_data               i_hqm_list_sel_pipe/aqed_lsp_sch_data                                                               aqed_lsp_sch_data
+C   i_hqm_list_sel_pipe/aqed_lsp_sch_ready         {i_hqm_aqed_pipe/aqed_lsp_sch_ready              i_hqm_visa/hqm_core_visa_str[169]}       aqed_lsp_sch_ready
+C   i_hqm_aqed_pipe/aqed_lsp_deq_v                  i_hqm_list_sel_pipe/aqed_lsp_deq_v                                                                  aqed_lsp_deq_v
+C   i_hqm_aqed_pipe/aqed_lsp_deq_data               i_hqm_list_sel_pipe/aqed_lsp_deq_data                                                               aqed_lsp_deq_data
+C   i_hqm_aqed_pipe/aqed_ap_enq_v                  {i_hqm_list_sel_pipe/aqed_ap_enq_v               i_hqm_visa/hqm_core_visa_str[164]}       aqed_ap_enq_v
+C   i_hqm_aqed_pipe/aqed_ap_enq_data                i_hqm_list_sel_pipe/aqed_ap_enq_data                                                                aqed_ap_enq_data
+C   i_hqm_list_sel_pipe/aqed_ap_enq_ready          {i_hqm_aqed_pipe/aqed_ap_enq_ready               i_hqm_visa/hqm_core_visa_str[165]}       aqed_ap_enq_ready
+
+# CHP outputs
+
+C   i_hqm_credit_hist_pipe/chp_lsp_ldb_cq_off       i_hqm_list_sel_pipe/chp_lsp_ldb_cq_off                                                              chp_lsp_ldb_cq_off
+C   i_hqm_credit_hist_pipe/chp_lsp_cmp_v           {i_hqm_list_sel_pipe/chp_lsp_cmp_v               i_hqm_visa/hqm_core_visa_str[122]}       chp_lsp_cmp_v
+C   i_hqm_credit_hist_pipe/chp_lsp_cmp_data         i_hqm_list_sel_pipe/chp_lsp_cmp_data                                                                chp_lsp_cmp_data
+C   i_hqm_list_sel_pipe/chp_lsp_cmp_ready          {i_hqm_credit_hist_pipe/chp_lsp_cmp_ready        i_hqm_visa/hqm_core_visa_str[123]}       chp_lsp_cmp_ready
+C   i_hqm_credit_hist_pipe/chp_lsp_token_v         {i_hqm_list_sel_pipe/chp_lsp_token_v             i_hqm_visa/hqm_core_visa_str[125]}       chp_lsp_token_v
+C   i_hqm_credit_hist_pipe/chp_lsp_token_data       i_hqm_list_sel_pipe/chp_lsp_token_data                                                              chp_lsp_token_data
+C   i_hqm_list_sel_pipe/chp_lsp_token_ready        {i_hqm_credit_hist_pipe/chp_lsp_token_ready      i_hqm_visa/hqm_core_visa_str[126]}       chp_lsp_token_ready
+
+C   i_hqm_credit_hist_pipe/chp_rop_hcw_v           {i_hqm_reorder_pipe/chp_rop_hcw_v                i_hqm_visa/hqm_core_visa_str[120]}       chp_rop_hcw_v
+C   i_hqm_credit_hist_pipe/chp_rop_hcw_data         i_hqm_reorder_pipe/chp_rop_hcw_data                                                                 chp_rop_hcw_data
+C   i_hqm_reorder_pipe/chp_rop_hcw_ready           {i_hqm_credit_hist_pipe/chp_rop_hcw_ready        i_hqm_visa/hqm_core_visa_str[121]}       chp_rop_hcw_ready
+
+C   i_hqm_credit_hist_pipe/hcw_sched_w_req          i_hqm_system/hcw_sched_w_req                                                                        hcw_sched_w_req
+C   i_hqm_credit_hist_pipe/interrupt_w_req          i_hqm_system/interrupt_w_req                                                                        interrupt_w_req
+
+# LSP outputs
+
+C   i_hqm_list_sel_pipe/lsp_aqed_cmp_v              i_hqm_aqed_pipe/lsp_aqed_cmp_v                                                                      lsp_aqed_cmp_v
+C   i_hqm_list_sel_pipe/lsp_aqed_cmp_data           i_hqm_aqed_pipe/lsp_aqed_cmp_data                                                                   lsp_aqed_cmp_data
+C   i_hqm_aqed_pipe/lsp_aqed_cmp_ready              i_hqm_list_sel_pipe/lsp_aqed_cmp_ready                                                              lsp_aqed_cmp_ready
+C   i_hqm_list_sel_pipe/ap_aqed_v                  {i_hqm_aqed_pipe/ap_aqed_v                       i_hqm_visa/hqm_core_visa_str[156]}       ap_aqed_v
+C   i_hqm_list_sel_pipe/ap_aqed_data                i_hqm_aqed_pipe/ap_aqed_data                                                                        ap_aqed_data
+C   i_hqm_aqed_pipe/ap_aqed_ready                  {i_hqm_list_sel_pipe/ap_aqed_ready               i_hqm_visa/hqm_core_visa_str[157]}       ap_aqed_ready
+
+C   i_hqm_list_sel_pipe/lsp_dp_sch_dir_v           {i_hqm_qed_pipe/lsp_dp_sch_dir_v                 i_hqm_visa/hqm_core_visa_str[136]}       lsp_dp_sch_dir_v
+C   i_hqm_list_sel_pipe/lsp_dp_sch_dir_data         i_hqm_qed_pipe/lsp_dp_sch_dir_data                                                                  lsp_dp_sch_dir_data
+C   i_hqm_qed_pipe/lsp_dp_sch_dir_ready            {i_hqm_list_sel_pipe/lsp_dp_sch_dir_ready        i_hqm_visa/hqm_core_visa_str[137]}       lsp_dp_sch_dir_ready
+C   i_hqm_list_sel_pipe/lsp_dp_sch_rorply_v        {i_hqm_qed_pipe/lsp_dp_sch_rorply_v              i_hqm_visa/hqm_core_visa_str[140]}       lsp_dp_sch_rorply_v
+C   i_hqm_list_sel_pipe/lsp_dp_sch_rorply_data      i_hqm_qed_pipe/lsp_dp_sch_rorply_data                                                               lsp_dp_sch_rorply_data
+C   i_hqm_qed_pipe/lsp_dp_sch_rorply_ready         {i_hqm_list_sel_pipe/lsp_dp_sch_rorply_ready     i_hqm_visa/hqm_core_visa_str[141]}       lsp_dp_sch_rorply_ready
+
+C   i_hqm_list_sel_pipe/lsp_nalb_sch_atq_v         {i_hqm_qed_pipe/lsp_nalb_sch_atq_v               i_hqm_visa/hqm_core_visa_str[142]}       lsp_nalb_sch_atq_v
+C   i_hqm_list_sel_pipe/lsp_nalb_sch_atq_data       i_hqm_qed_pipe/lsp_nalb_sch_atq_data                                                                lsp_nalb_sch_atq_data
+C   i_hqm_qed_pipe/lsp_nalb_sch_atq_ready          {i_hqm_list_sel_pipe/lsp_nalb_sch_atq_ready      i_hqm_visa/hqm_core_visa_str[143]}       lsp_nalb_sch_atq_ready
+C   i_hqm_list_sel_pipe/lsp_nalb_sch_rorply_v      {i_hqm_qed_pipe/lsp_nalb_sch_rorply_v            i_hqm_visa/hqm_core_visa_str[138]}       lsp_nalb_sch_rorply_v
+C   i_hqm_list_sel_pipe/lsp_nalb_sch_rorply_data    i_hqm_qed_pipe/lsp_nalb_sch_rorply_data                                                             lsp_nalb_sch_rorply_data
+C   i_hqm_qed_pipe/lsp_nalb_sch_rorply_ready       {i_hqm_list_sel_pipe/lsp_nalb_sch_rorply_ready   i_hqm_visa/hqm_core_visa_str[139]}       lsp_nalb_sch_rorply_ready
+C   i_hqm_list_sel_pipe/lsp_nalb_sch_unoord_v      {i_hqm_qed_pipe/lsp_nalb_sch_unoord_v            i_hqm_visa/hqm_core_visa_str[134]}       lsp_nalb_sch_unoord_v
+C   i_hqm_list_sel_pipe/lsp_nalb_sch_unoord_data    i_hqm_qed_pipe/lsp_nalb_sch_unoord_data                                                             lsp_nalb_sch_unoord_data
+C   i_hqm_qed_pipe/lsp_nalb_sch_unoord_ready       {i_hqm_list_sel_pipe/lsp_nalb_sch_unoord_ready   i_hqm_visa/hqm_core_visa_str[135]}       lsp_nalb_sch_unoord_ready
+
+C   i_hqm_list_sel_pipe/aqed_clk_enable             i_hqm_aqed_pipe/aqed_clk_enable                                                                     aqed_clk_enable
+C   i_hqm_aqed_pipe/aqed_clk_idle                   i_hqm_list_sel_pipe/aqed_clk_idle                                                                   aqed_clk_idle   
+
+C   i_hqm_credit_hist_pipe/rop_clk_enable             i_hqm_reorder_pipe/rop_clk_enable                                                         rop_clk_enable
+C   i_hqm_reorder_pipe/rop_clk_idle                   i_hqm_credit_hist_pipe/rop_clk_idle                                                       rop_clk_idle
+
+
+# QED outputs
+C   i_hqm_qed_pipe/dp_lsp_enq_dir_v                {i_hqm_list_sel_pipe/dp_lsp_enq_dir_v            i_hqm_visa/hqm_core_visa_str[150]}       dp_lsp_enq_dir_v
+C   i_hqm_qed_pipe/dp_lsp_enq_dir_data              i_hqm_list_sel_pipe/dp_lsp_enq_dir_data                                                             dp_lsp_enq_dir_data
+C   i_hqm_list_sel_pipe/dp_lsp_enq_dir_ready       {i_hqm_qed_pipe/dp_lsp_enq_dir_ready             i_hqm_visa/hqm_core_visa_str[151]}       dp_lsp_enq_dir_ready
+C   i_hqm_qed_pipe/dp_lsp_enq_rorply_v             {i_hqm_list_sel_pipe/dp_lsp_enq_rorply_v         i_hqm_visa/hqm_core_visa_str[152]}       dp_lsp_enq_rorply_v
+C   i_hqm_qed_pipe/dp_lsp_enq_rorply_data           i_hqm_list_sel_pipe/dp_lsp_enq_rorply_data                                                          dp_lsp_enq_rorply_data
+C   i_hqm_list_sel_pipe/dp_lsp_enq_rorply_ready    {i_hqm_qed_pipe/dp_lsp_enq_rorply_ready          i_hqm_visa/hqm_core_visa_str[153]}       dp_lsp_enq_rorply_ready
+
+C   i_hqm_qed_pipe/nalb_lsp_enq_lb_v               {i_hqm_list_sel_pipe/nalb_lsp_enq_lb_v           i_hqm_visa/hqm_core_visa_str[144]}       nalb_lsp_enq_lb_v
+C   i_hqm_qed_pipe/nalb_lsp_enq_lb_data             i_hqm_list_sel_pipe/nalb_lsp_enq_lb_data                                                            nalb_lsp_enq_lb_data
+C   i_hqm_list_sel_pipe/nalb_lsp_enq_lb_ready      {i_hqm_qed_pipe/nalb_lsp_enq_lb_ready            i_hqm_visa/hqm_core_visa_str[145]}       nalb_lsp_enq_lb_ready
+C   i_hqm_qed_pipe/nalb_lsp_enq_rorply_v           {i_hqm_list_sel_pipe/nalb_lsp_enq_rorply_v       i_hqm_visa/hqm_core_visa_str[146]}       nalb_lsp_enq_rorply_v
+C   i_hqm_qed_pipe/nalb_lsp_enq_rorply_data         i_hqm_list_sel_pipe/nalb_lsp_enq_rorply_data                                                        nalb_lsp_enq_rorply_data
+C   i_hqm_list_sel_pipe/nalb_lsp_enq_rorply_ready  {i_hqm_qed_pipe/nalb_lsp_enq_rorply_ready        i_hqm_visa/hqm_core_visa_str[147]}       nalb_lsp_enq_rorply_ready
+
+C   i_hqm_qed_pipe/qed_aqed_enq_v                  {i_hqm_aqed_pipe/qed_aqed_enq_v                  i_hqm_visa/hqm_core_visa_str[160]}       qed_aqed_enq_v
+C   i_hqm_qed_pipe/qed_aqed_enq_data                i_hqm_aqed_pipe/qed_aqed_enq_data                                                                   qed_aqed_enq_data
+C   i_hqm_aqed_pipe/qed_aqed_enq_ready             {i_hqm_qed_pipe/qed_aqed_enq_ready               i_hqm_visa/hqm_core_visa_str[161]}       qed_aqed_enq_ready
+
+C   i_hqm_qed_pipe/qed_chp_sch_v                   {i_hqm_credit_hist_pipe/qed_chp_sch_v            i_hqm_visa/hqm_core_visa_str[158]}       qed_chp_sch_v
+C   i_hqm_qed_pipe/qed_chp_sch_data                 i_hqm_credit_hist_pipe/qed_chp_sch_data                                                             qed_chp_sch_data
+C   i_hqm_credit_hist_pipe/qed_chp_sch_ready       {i_hqm_qed_pipe/qed_chp_sch_ready                i_hqm_visa/hqm_core_visa_str[159]}       qed_chp_sch_ready
+
+C   i_hqm_qed_pipe/qed_lsp_deq_v                    i_hqm_list_sel_pipe/qed_lsp_deq_v                                                                   qed_lsp_deq_v
+C   i_hqm_qed_pipe/qed_lsp_deq_data                 i_hqm_list_sel_pipe/qed_lsp_deq_data                                                                qed_lsp_deq_data
+
+# ROP outputs
+C   i_hqm_reorder_pipe/rop_qed_force_clockon       {i_hqm_qed_pipe/rop_qed_force_clockon            i_hqm_visa/hqm_core_visa_str[43]}        rop_qed_force_clockon
+
+C   i_hqm_reorder_pipe/rop_dp_enq_v                {i_hqm_qed_pipe/rop_dp_enq_v                     i_hqm_visa/hqm_core_visa_str[127]}       rop_dp_enq_v
+C   i_hqm_reorder_pipe/rop_dp_enq_data              i_hqm_qed_pipe/rop_dp_enq_data                                                                      rop_dp_enq_data
+C   i_hqm_qed_pipe/rop_dp_enq_ready                {i_hqm_reorder_pipe/rop_dp_enq_ready             i_hqm_visa/hqm_core_visa_str[128]}       rop_dp_enq_ready
+
+C   i_hqm_reorder_pipe/rop_lsp_reordercmp_v        {i_hqm_list_sel_pipe/rop_lsp_reordercmp_v        i_hqm_visa/hqm_core_visa_str[170]}       rop_lsp_reordercmp_v
+C   i_hqm_reorder_pipe/rop_lsp_reordercmp_data      i_hqm_list_sel_pipe/rop_lsp_reordercmp_data                                                         rop_lsp_reordercmp_data
+C   i_hqm_list_sel_pipe/rop_lsp_reordercmp_ready   {i_hqm_reorder_pipe/rop_lsp_reordercmp_ready     i_hqm_visa/hqm_core_visa_str[171]}       rop_lsp_reordercmp_ready
+
+C   i_hqm_reorder_pipe/rop_nalb_enq_v              {i_hqm_qed_pipe/rop_nalb_enq_v                   i_hqm_visa/hqm_core_visa_str[129]}       rop_nalb_enq_v
+C   i_hqm_reorder_pipe/rop_nalb_enq_data            i_hqm_qed_pipe/rop_nalb_enq_data                                                                    rop_nalb_enq_data
+C   i_hqm_qed_pipe/rop_nalb_enq_ready              {i_hqm_reorder_pipe/rop_nalb_enq_ready           i_hqm_visa/hqm_core_visa_str[130]}       rop_nalb_enq_ready
+
+C   i_hqm_reorder_pipe/rop_qed_dqed_enq_v          {i_hqm_qed_pipe/rop_qed_dqed_enq_v    i_hqm_qed_pipe/rop_qed_dqed_enq_v i_hqm_visa/hqm_core_visa_str[131]}       rop_qed_dqed_enq_v
+C   i_hqm_reorder_pipe/rop_qed_dqed_enq_data       {i_hqm_qed_pipe/rop_qed_dqed_enq_data i_hqm_qed_pipe/rop_qed_dqed_enq_data}                          rop_qed_dqed_enq_data
+C   i_hqm_qed_pipe/rop_qed_enq_ready               {i_hqm_reorder_pipe/rop_qed_enq_ready            i_hqm_visa/hqm_core_visa_str[132]}       rop_qed_enq_ready
+C   i_hqm_qed_pipe/rop_dqed_enq_ready              {i_hqm_reorder_pipe/rop_dqed_enq_ready           i_hqm_visa/hqm_core_visa_str[133]}       rop_dqed_enq_ready
+
+# Master outputs
+C   i_hqm_master/hqm_cdc_clk_enable                {i_hqm_master_hqm_cdc_clk_enable_rptr/data i_hqm_AW_viewpin_mux/mux_in[0] }      hqm_cdc_clk_enable_mstr
+
+C   i_hqm_master/master_chp_timestamp               i_hqm_credit_hist_pipe/master_chp_timestamp  master_chp_timestamp
+
+C   i_hqm_master/hqm_proc_reset_done_sync_hqm      {i_hqm_credit_hist_pipe/hqm_proc_reset_done      i_hqm_visa/hqm_core_visa_str[42]}        hqm_proc_reset_done_sync_hqm
+
+C   i_hqm_master_hqm_inp_gated_clk_enable_rptr/data_q   i_hqm_master_hqm_inp_clkgate/enable         hqm_inp_gated_clk_enable_rptr
+
+# Master hqm_cdc_clkgate, hqm_inp_clkgate
+C   i_hqm_master_hqm_cdc_clkgate/gated_clk          i_hqm_master/hqm_cdc_clk                         hqm_cdc_clk
+C   i_hqm_master_hqm_cdc_clk_enable_rptr/data_q     i_hqm_master_hqm_cdc_enable_and2/clki0           hqm_cdc_clk_enable_rptr
+C   i_hqm_master_hqm_cdc_enable_and2/clko           i_hqm_master_hqm_cdc_clkgate/enable              hqm_master_hqm_cdc_enable
+
+C   i_hqm_master_hqm_inp_clkgate/gated_clk          i_hqm_master/hqm_inp_gated_clk                   hqm_inp_gated_clk
+C   i_hqm_master_hqm_inp_clkgate/gated_clk          i_hqm_sif/hqm_inp_gated_clk                      hqm_inp_gated_clk
+
+# System outputs
+
+C   i_hqm_system/hcw_enq_w_req                          i_hqm_credit_hist_pipe/hcw_enq_w_req         hcw_enq_w_req
+
+C   i_hqm_credit_hist_pipe/interrupt_w_req_valid       {i_hqm_system/interrupt_w_req_valid                             i_hqm_visa/hqm_core_visa_str[100]}        interrupt_w_req_valid
+C   i_hqm_system/interrupt_w_req_ready                 {i_hqm_credit_hist_pipe/interrupt_w_req_ready                   i_hqm_visa/hqm_core_visa_str[101]}        interrupt_w_req_ready
+C   i_hqm_credit_hist_pipe/cwdi_interrupt_w_req_valid  {i_hqm_system/cwdi_interrupt_w_req_valid                        i_hqm_visa/hqm_core_visa_str[102]}        cwdi_interrupt_w_req_valid
+C   i_hqm_system/cwdi_interrupt_w_req_ready            {i_hqm_credit_hist_pipe/cwdi_interrupt_w_req_ready              i_hqm_visa/hqm_core_visa_str[103]}        cwdi_interrupt_w_req_ready
+T   zero                                                                                                              {i_hqm_visa/hqm_core_visa_str[104]}
+T   zero                                                                                                              {i_hqm_visa/hqm_core_visa_str[105]}
+C   i_hqm_system/hcw_enq_w_req_valid                   {i_hqm_credit_hist_pipe/hcw_enq_w_req_valid                     i_hqm_visa/hqm_core_visa_str[106]}        hcw_enq_w_req_valid
+C   i_hqm_credit_hist_pipe/hcw_enq_w_req_ready         {i_hqm_system/hcw_enq_w_req_ready                               i_hqm_visa/hqm_core_visa_str[107]}        hcw_enq_w_req_ready
+T   zero                                                                                                              {i_hqm_visa/hqm_core_visa_str[108]}
+T   zero                                                                                                              {i_hqm_visa/hqm_core_visa_str[109]}
+T   zero                                                                                                              {i_hqm_visa/hqm_core_visa_str[110]}
+T   zero                                                                                                              {i_hqm_visa/hqm_core_visa_str[111]}
+C   i_hqm_credit_hist_pipe/hcw_sched_w_req_valid       {i_hqm_system/hcw_sched_w_req_valid                             i_hqm_visa/hqm_core_visa_str[112]}        hcw_sched_w_req_valid
+C   i_hqm_system/hcw_sched_w_req_ready                 {i_hqm_credit_hist_pipe/hcw_sched_w_req_ready                   i_hqm_visa/hqm_core_visa_str[113]}        hcw_sched_w_req_ready
+T   zero                                                                                                              {i_hqm_visa/hqm_core_visa_str[114]}
+T   zero                                                                                                              {i_hqm_visa/hqm_core_visa_str[115]}
+
+
+#
+
+C i_hqm_master/hqm_pmsm_visa                           i_hqm_visa/hqm_pmsm_visa        hqm_pmsm_visa
+C i_hqm_master/hqm_cdc_visa                            i_hqm_visa/hqm_cdc_visa         hqm_cdc_visa
+C i_hqm_master/hqm_pgcbunit_visa                       i_hqm_visa/hqm_pgcbunit_visa    hqm_pgcb_visa
+C i_hqm_sif/hqm_sif_visa                               i_hqm_visa/hqm_sif_visa         hqm_sif_visa
+
+#--------------------------------------------------------------------------------------------------------------------------------------------
+# RESET CORE (AW_reset_core signals)
+
+#QED - rf, sram
+C i_hqm_qed_reset_core/hqm_inp_gated_rst_n                               i_hqm_qed_pipe/hqm_inp_gated_rst_b_qed                hqm_inp_gated_rst_b_qed
+C i_hqm_qed_reset_core/hqm_gated_rst_n                                   i_hqm_qed_pipe/hqm_gated_rst_b_qed                    hqm_gated_rst_b_qed
+C i_hqm_qed_reset_core/hqm_gated_rst_n_start                             i_hqm_qed_pipe/hqm_gated_rst_b_start_qed              hqm_gated_rst_b_start_qed
+C i_hqm_qed_reset_core/hqm_gated_rst_n_active                            i_hqm_qed_pipe/hqm_gated_rst_b_active_qed             hqm_gated_rst_b_active_qed
+C i_hqm_qed_reset_core/rst_prep                                          i_hqm_qed_pipe/hqm_rst_prep_qed                       hqm_rst_prep_qed
+
+C i_hqm_qed_pipe/hqm_gated_rst_b_done_qed                                i_hqm_qed_reset_core/hqm_gated_rst_n_done             hqm_gated_rst_b_done_qed
+
+T zero i_hqm_qed_reset_core/hqm_pgcb_clk
+O i_hqm_qed_reset_core/hqm_pgcb_rst_n
+O i_hqm_qed_reset_core/hqm_pgcb_rst_n_start
+
+#NALB (QED SUB) - rf, sram
+C i_hqm_nalb_reset_core/hqm_inp_gated_rst_n                              i_hqm_qed_pipe/hqm_inp_gated_rst_b_nalb             hqm_inp_gated_rst_b_nalb
+C i_hqm_nalb_reset_core/hqm_gated_rst_n                                  i_hqm_qed_pipe/hqm_gated_rst_b_nalb                 hqm_gated_rst_b_nalb
+C i_hqm_nalb_reset_core/hqm_gated_rst_n_start                            i_hqm_qed_pipe/hqm_gated_rst_b_start_nalb           hqm_gated_rst_b_start_nalb
+C i_hqm_nalb_reset_core/hqm_gated_rst_n_active                           i_hqm_qed_pipe/hqm_gated_rst_b_active_nalb          hqm_gated_rst_b_active_nalb
+C i_hqm_nalb_reset_core/rst_prep                                         i_hqm_qed_pipe/hqm_rst_prep_nalb                    hqm_rst_prep_nalb
+
+C i_hqm_qed_pipe/hqm_gated_rst_b_done_nalb                               i_hqm_nalb_reset_core/hqm_gated_rst_n_done          hqm_gated_rst_b_done_nalb
+
+T zero i_hqm_nalb_reset_core/hqm_pgcb_clk
+O i_hqm_nalb_reset_core/hqm_pgcb_rst_n
+O i_hqm_nalb_reset_core/hqm_pgcb_rst_n_start
+
+#DIR (QED SUB) - rf, sram
+C i_hqm_dir_reset_core/hqm_inp_gated_rst_n                               i_hqm_qed_pipe/hqm_inp_gated_rst_b_dir              hqm_inp_gated_rst_b_dir
+C i_hqm_dir_reset_core/hqm_gated_rst_n                                   i_hqm_qed_pipe/hqm_gated_rst_b_dir                  hqm_gated_rst_b_dir
+C i_hqm_dir_reset_core/hqm_gated_rst_n_start                             i_hqm_qed_pipe/hqm_gated_rst_b_start_dir            hqm_gated_rst_b_start_dir
+C i_hqm_dir_reset_core/hqm_gated_rst_n_active                            i_hqm_qed_pipe/hqm_gated_rst_b_active_dir           hqm_gated_rst_b_active_dir
+C i_hqm_dir_reset_core/rst_prep                                          i_hqm_qed_pipe/hqm_rst_prep_dir                     hqm_rst_prep_dir
+
+C i_hqm_qed_pipe/hqm_gated_rst_b_done_dir                                i_hqm_dir_reset_core/hqm_gated_rst_n_done           hqm_gated_rst_b_done_dir
+
+T zero i_hqm_dir_reset_core/hqm_pgcb_clk
+O i_hqm_dir_reset_core/hqm_pgcb_rst_n
+O i_hqm_dir_reset_core/hqm_pgcb_rst_n_start
+
+#AQED - rf, bcam
+C i_hqm_aqed_reset_core/hqm_inp_gated_rst_n                              i_hqm_aqed_pipe/hqm_inp_gated_rst_b_aqed            hqm_inp_gated_rst_b_aqed
+C i_hqm_aqed_reset_core/hqm_gated_rst_n                                  i_hqm_aqed_pipe/hqm_gated_rst_b_aqed                hqm_gated_rst_b_aqed
+C i_hqm_aqed_reset_core/hqm_gated_rst_n_start                            i_hqm_aqed_pipe/hqm_gated_rst_b_start_aqed          hqm_gated_rst_b_start_aqed
+C i_hqm_aqed_reset_core/hqm_gated_rst_n_active                           i_hqm_aqed_pipe/hqm_gated_rst_b_active_aqed         hqm_gated_rst_b_active_aqed
+C i_hqm_aqed_reset_core/rst_prep                                         i_hqm_aqed_pipe/hqm_rst_prep_aqed                   hqm_rst_prep_aqed
+
+C i_hqm_aqed_pipe/hqm_gated_rst_b_done_aqed                              i_hqm_aqed_reset_core/hqm_gated_rst_n_done          hqm_gated_rst_b_done_aqed
+
+T zero i_hqm_aqed_reset_core/hqm_pgcb_clk
+O i_hqm_aqed_reset_core/hqm_pgcb_rst_n
+O i_hqm_aqed_reset_core/hqm_pgcb_rst_n_start
+
+#LSP - rf
+C i_hqm_lsp_reset_core/hqm_inp_gated_rst_n                               i_hqm_list_sel_pipe/hqm_inp_gated_rst_b_lsp          hqm_inp_gated_rst_b_lsp
+C i_hqm_lsp_reset_core/hqm_gated_rst_n                                   i_hqm_list_sel_pipe/hqm_gated_rst_b_lsp              hqm_gated_rst_b_lsp
+C i_hqm_lsp_reset_core/hqm_gated_rst_n_start                             i_hqm_list_sel_pipe/hqm_gated_rst_b_start_lsp        hqm_gated_rst_b_start_lsp
+C i_hqm_lsp_reset_core/hqm_gated_rst_n_active                            i_hqm_list_sel_pipe/hqm_gated_rst_b_active_lsp       hqm_gated_rst_b_active_lsp
+C i_hqm_lsp_reset_core/rst_prep                                          i_hqm_list_sel_pipe/hqm_rst_prep_lsp                 hqm_rst_prep_lsp
+
+C i_hqm_list_sel_pipe/hqm_gated_rst_b_done_lsp                           i_hqm_lsp_reset_core/hqm_gated_rst_n_done            hqm_gated_rst_b_done_lsp
+
+T zero i_hqm_lsp_reset_core/hqm_pgcb_clk
+O i_hqm_lsp_reset_core/hqm_pgcb_rst_n
+O i_hqm_lsp_reset_core/hqm_pgcb_rst_n_start
+
+#ATM (LSP SUB) - rf
+C i_hqm_atm_reset_core/hqm_inp_gated_rst_n                                     i_hqm_list_sel_pipe/hqm_inp_gated_rst_b_atm           hqm_inp_gated_rst_b_atm
+C i_hqm_atm_reset_core/hqm_gated_rst_n                                         i_hqm_list_sel_pipe/hqm_gated_rst_b_atm               hqm_gated_rst_b_atm
+C i_hqm_atm_reset_core/hqm_gated_rst_n_start                                   i_hqm_list_sel_pipe/hqm_gated_rst_b_start_atm         hqm_gated_rst_b_start_atm
+C i_hqm_atm_reset_core/hqm_gated_rst_n_active                                  i_hqm_list_sel_pipe/hqm_gated_rst_b_active_atm        hqm_gated_rst_b_active_atm
+C i_hqm_atm_reset_core/rst_prep                                                i_hqm_list_sel_pipe/hqm_rst_prep_atm                  hqm_rst_prep_atm
+
+C i_hqm_list_sel_pipe/hqm_gated_rst_b_done_atm                                 i_hqm_atm_reset_core/hqm_gated_rst_n_done             hqm_gated_rst_b_done_atm
+
+T zero i_hqm_atm_reset_core/hqm_pgcb_clk
+O i_hqm_atm_reset_core/hqm_pgcb_rst_n
+O i_hqm_atm_reset_core/hqm_pgcb_rst_n_start
+
+#CHP - rf, sram, pgcb_rf
+C i_hqm_chp_reset_core/hqm_inp_gated_rst_n                                     i_hqm_credit_hist_pipe/hqm_inp_gated_rst_b_chp        hqm_inp_gated_rst_b_chp
+C i_hqm_chp_reset_core/hqm_gated_rst_n                                         i_hqm_credit_hist_pipe/hqm_gated_rst_b_chp            hqm_gated_rst_b_chp
+C i_hqm_chp_reset_core/hqm_gated_rst_n_start                                   i_hqm_credit_hist_pipe/hqm_gated_rst_b_start_chp      hqm_gated_rst_b_start_chp
+C i_hqm_chp_reset_core/hqm_gated_rst_n_active                                  i_hqm_credit_hist_pipe/hqm_gated_rst_b_active_chp     hqm_gated_rst_b_active_chp
+C i_hqm_chp_reset_core/rst_prep                                                i_hqm_credit_hist_pipe/hqm_rst_prep_chp               hqm_rst_prep_chp
+
+C i_hqm_chp_reset_core/hqm_pgcb_rst_n                                          i_hqm_credit_hist_pipe/hqm_pgcb_rst_b_chp             hqm_pgcb_rst_b_chp
+C i_hqm_chp_reset_core/hqm_pgcb_rst_n_start                                    i_hqm_credit_hist_pipe/hqm_pgcb_rst_b_start_chp       hqm_pgcb_rst_b_start_chp
+
+C i_hqm_credit_hist_pipe/hqm_gated_rst_b_done_chp                              i_hqm_chp_reset_core/hqm_gated_rst_n_done             hqm_gated_rst_b_done_chp
+
+#ROP - rf
+C i_hqm_rop_reset_core/hqm_inp_gated_rst_n                                     i_hqm_reorder_pipe/hqm_inp_gated_rst_b_rop            hqm_inp_gated_rst_b_rop
+C i_hqm_rop_reset_core/hqm_gated_rst_n                                         i_hqm_reorder_pipe/hqm_gated_rst_b_rop                hqm_gated_rst_b_rop
+C i_hqm_rop_reset_core/hqm_gated_rst_n_start                                   i_hqm_reorder_pipe/hqm_gated_rst_b_start_rop          hqm_gated_rst_b_start_rop
+C i_hqm_rop_reset_core/hqm_gated_rst_n_active                                  i_hqm_reorder_pipe/hqm_gated_rst_b_active_rop         hqm_gated_rst_b_active_rop
+C i_hqm_rop_reset_core/rst_prep                                                i_hqm_reorder_pipe/hqm_rst_prep_rop                   hqm_rst_prep_rop
+
+C i_hqm_reorder_pipe/hqm_gated_rst_b_done_rop                                  i_hqm_rop_reset_core/hqm_gated_rst_n_done             hqm_gated_rst_b_done_rop
+
+T zero i_hqm_rop_reset_core/hqm_pgcb_clk
+O i_hqm_rop_reset_core/hqm_pgcb_rst_n
+O i_hqm_rop_reset_core/hqm_pgcb_rst_n_start
+
+#SYS - rf, sram, dc_rf
+C i_hqm_system_reset_core/hqm_inp_gated_rst_n                                  i_hqm_system/hqm_inp_gated_rst_b_sys                  hqm_inp_gated_rst_b_sys
+C i_hqm_system_reset_core/hqm_gated_rst_n                                      i_hqm_system/hqm_gated_rst_b_sys                      hqm_gated_rst_b_sys
+C i_hqm_system_reset_core/hqm_gated_rst_n_start                                i_hqm_system/hqm_gated_rst_b_start_sys                hqm_gated_rst_b_start_sys
+C i_hqm_system_reset_core/hqm_gated_rst_n_active                               i_hqm_system/hqm_gated_rst_b_active_sys               hqm_gated_rst_b_active_sys
+C i_hqm_system_reset_core/rst_prep                                             i_hqm_system/hqm_rst_prep_sys                         hqm_rst_prep_sys
+
+C i_hqm_system/hqm_gated_rst_b_done_sys                                        i_hqm_system_reset_core/hqm_gated_rst_n_done          hqm_gated_rst_b_done_sys
+
+T zero i_hqm_system_reset_core/hqm_pgcb_clk
+O i_hqm_system_reset_core/hqm_pgcb_rst_n
+O i_hqm_system_reset_core/hqm_pgcb_rst_n_start
+
+#--------------------------------------------------------------------------------------------------------------------------------------------
+# VISA signals
+
+# Signals commented out below are assigned elsewhere above because they wouldn't work doing it here
+
+C   i_hqm_master/hqm_gated_rst_b                        i_hqm_visa/hqm_core_visa_str[0]          hqm_gated_rst_b_mstr
+T   zero                                                i_hqm_visa/hqm_core_visa_str[7:1]
+C   i_hqm_master/visa_str_prim_clk_enable               i_hqm_visa/hqm_core_visa_str[8]          visa_str_prim_clk_enable
+C   i_hqm_master/visa_str_hqm_clk_enable                i_hqm_visa/hqm_core_visa_str[9]          visa_str_hqm_clk_enable 
+C   i_hqm_master/visa_str_hqm_clk_throttle              i_hqm_visa/hqm_core_visa_str[10]         visa_str_hqm_clk_throttle
+C   i_hqm_master/visa_str_hqm_gclock_enable             i_hqm_visa/hqm_core_visa_str[11]         visa_str_hqm_gclock_enable
+C   i_hqm_master/visa_str_hqm_cdc_clk_enable            i_hqm_visa/hqm_core_visa_str[12]         visa_str_hqm_cdc_clk_enable
+C   i_hqm_master/visa_str_hqm_gated_local_override      i_hqm_visa/hqm_core_visa_str[13]         visa_str_hqm_gated_local_override 
+C   i_hqm_master/visa_str_hqm_flr_prep                  i_hqm_visa/hqm_core_visa_str[14]         visa_str_hqm_flr_prep
+C   i_hqm_master/visa_str_pm_ip_clk_halt_b_2_rpt_0_iosf i_hqm_visa/hqm_core_visa_str[15]         visa_str_pm_ip_clk_halt_b_2_rpt_0_iosf
+T   zero                                                i_hqm_visa/hqm_core_visa_str[41:16]
+#C   i_hqm_master/hqm_reset_done                         i_hqm_visa/hqm_core_visa_str[42]         hqm_reset_done
+#C   rop_qed_force_clockon                               i_hqm_visa/hqm_core_visa_str[43]
+T   one                                                 i_hqm_visa/hqm_core_visa_str[44]
+C   i_hqm_master/visa_str_hqm_proc_idle                 i_hqm_visa/hqm_core_visa_str[45]         visa_str_hqm_proc_idle
+C   i_hqm_master/visa_str_hqm_proc_pipeidle             i_hqm_visa/hqm_core_visa_str[46]         visa_str_hqm_proc_pipeidle
+#C   hqm_alarm_ready                                     i_hqm_visa/hqm_core_visa_str[47]         hqm_alarm_ready
+#C   i_hqm_master/hqm_alarm_v                            i_hqm_visa/hqm_core_visa_str[48]         hqm_alarm_v
+T   zero                                                i_hqm_visa/hqm_core_visa_str[53:49]
+T   zero                                                i_hqm_visa/hqm_core_visa_str[54]
+T   zero                                                i_hqm_visa/hqm_core_visa_str[58:55]
+T   zero                                                i_hqm_visa/hqm_core_visa_str[59]
+T   zero                                                i_hqm_visa/hqm_core_visa_str[60]
+T   zero                                                i_hqm_visa/hqm_core_visa_str[61]
+#C   i_hqm_master/reset_ring_n                           i_hqm_visa/hqm_core_visa_str[62]         reset_ring_n
+#C   i_hqm_master/reset_unit_n                           i_hqm_visa/hqm_core_visa_str[63]         reset_unit_n
+T   zero                                                i_hqm_visa/hqm_core_visa_str[63:62]
+#C   i_hqm_credit_hist_pipe/chp_reset_done               i_hqm_visa/hqm_core_visa_str[64]         chp_reset_done
+#C   i_hqm_reorder_pipe/rop_reset_done                   i_hqm_visa/hqm_core_visa_str[65]         rop_reset_done
+#C   i_hqm_list_sel_pipe/lsp_reset_done                  i_hqm_visa/hqm_core_visa_str[66]         lsp_reset_done
+#C   i_hqm_qed_pipe/nalb_reset_done                      i_hqm_visa/hqm_core_visa_str[67]         nalb_reset_done
+#C   i_hqm_list_sel_pipe/ap_reset_done                   i_hqm_visa/hqm_core_visa_str[68]         ap_reset_done
+#C   i_hqm_qed_pipe/dp_reset_done                        i_hqm_visa/hqm_core_visa_str[69]         dp_reset_done
+#C   i_hqm_qed_pipe/qed_reset_done                       i_hqm_visa/hqm_core_visa_str[70]         qed_reset_done
+#    i_hqm_aqed_pipe/aqed_reset_done                     i_hqm_visa/hqm_core_visa_str[71]         aqed_reset_done
+#C   SPARE VISA                                          i_hqm_visa/hqm_core_visa_str[72]                          
+#T   zero                                                 i_hqm_visa/hqm_core_visa_str[73]
+#T   zero                                                 i_hqm_visa/hqm_core_visa_str[74]
+#T   zero                                                 i_hqm_visa/hqm_core_visa_str[75]
+#T   zero                                                 i_hqm_visa/hqm_core_visa_str[76] 
+#T   zero                                                 i_hqm_visa/hqm_core_visa_str[77]
+#T   zero                                                 i_hqm_visa/hqm_core_visa_str[78]
+T   zero                                                 i_hqm_visa/hqm_core_visa_str[79]
+T   zero                                                 i_hqm_visa/hqm_core_visa_str[80]
+T   zero                                                 i_hqm_visa/hqm_core_visa_str[81]    
+#C   i_hqm_credit_hist_pipe/chp_unit_idle                i_hqm_visa/hqm_core_visa_str[82]         chp_unit_idle
+#C   i_hqm_reorder_pipe/rop_unit_idle                    i_hqm_visa/hqm_core_visa_str[83]         rop_unit_idle
+#C   i_hqm_list_sel_pipe/lsp_unit_idle                   i_hqm_visa/hqm_core_visa_str[84]         lsp_unit_idle
+#C   i_hqm_qed_pipe/nalb_unit_idle                       i_hqm_visa/hqm_core_visa_str[85]         nalb_unit_idle
+#C   i_hqm_list_sel_pipe/ap_unit_idle                    i_hqm_visa/hqm_core_visa_str[86]         ap_unit_idle
+#C   i_hqm_qed_pipe/dp_unit_idle                         i_hqm_visa/hqm_core_visa_str[87]         dp_unit_idle
+#C   i_hqm_qed_pipe/qed_unit_idle                        i_hqm_visa/hqm_core_visa_str[88]         qed_unit_idle
+#C   i_hqm_aqed_pipe/aqed_unit_idle                      i_hqm_visa/hqm_core_visa_str[89]         aqed_unit_idle
+#C   SPARE VISA                                          i_hqm_visa/hqm_core_visa_str[90]                         
+#C   i_hqm_credit_hist_pipe/chp_unit_pipeidle            i_hqm_visa/hqm_core_visa_str[91]         chp_unit_pipeidle
+#C   i_hqm_reorder_pipe/rop_unit_pipeidle                i_hqm_visa/hqm_core_visa_str[92]         rop_unit_pipeidle
+#C   i_hqm_list_sel_pipe/lsp_unit_pipeidle               i_hqm_visa/hqm_core_visa_str[93]         lsp_unit_pipeidle
+#C   i_hqm_qed_pipe/nalb_unit_pipeidle                   i_hqm_visa/hqm_core_visa_str[94]         nalb_unit_pipeidle
+#C   i_hqm_list_sel_pipe/ap_unit_pipeidle                i_hqm_visa/hqm_core_visa_str[95]         ap_unit_pipeidle
+#C   i_hqm_qed_pipe/dp_unit_pipeidle                     i_hqm_visa/hqm_core_visa_str[96]         dp_unit_pipeidle
+#C   i_hqm_qed_pipe/qed_unit_pipeidle                    i_hqm_visa/hqm_core_visa_str[97]         qed_unit_pipeidle
+#C   i_hqm_aqed_pipe/aqed_unit_pipeidle                  i_hqm_visa/hqm_core_visa_str[98]         aqed_unit_pipeidle
+T    zero                                          i_hqm_visa/hqm_core_visa_str[99]                            
+#C   i_hqm_credit_hist_pipe/interrupt_w_req_valid        i_hqm_visa/hqm_core_visa_str[100]        interrupt_w_req_valid
+#C   interrupt_w_req_ready                               i_hqm_visa/hqm_core_visa_str[101]        interrupt_w_req_ready
+#C   i_hqm_credit_hist_pipe/cwdi_interrupt_w_req_valid   i_hqm_visa/hqm_core_visa_str[102]        cwdi_interrupt_w_req_valid
+#C   cwdi_interrupt_w_req_ready                          i_hqm_visa/hqm_core_visa_str[103]        cwdi_interrupt_w_req_ready
+#C   hcw_enq_aw_req_valid                                i_hqm_visa/hqm_core_visa_str[104]        hcw_enq_aw_req_valid
+#C   i_hqm_credit_hist_pipe/hcw_enq_aw_req_ready         i_hqm_visa/hqm_core_visa_str[105]        hcw_enq_aw_req_ready
+#C   hcw_enq_w_req_valid                                 i_hqm_visa/hqm_core_visa_str[106]        hcw_enq_w_req_valid
+#C   i_hqm_credit_hist_pipe/hcw_enq_w_req_ready          i_hqm_visa/hqm_core_visa_str[107]        hcw_enq_w_req_ready
+#C   i_hqm_credit_hist_pipe/hcw_enq_b_req_valid          i_hqm_visa/hqm_core_visa_str[108]        hcw_enq_b_req_valid
+#C   hcw_enq_b_req_ready                                 i_hqm_visa/hqm_core_visa_str[109]        hcw_enq_b_req_ready
+#C   i_hqm_credit_hist_pipe/hcw_sched_aw_req_valid       i_hqm_visa/hqm_core_visa_str[110]        hcw_sched_aw_req_valid
+#C   hcw_sched_aw_req_ready                              i_hqm_visa/hqm_core_visa_str[111]        hcw_sched_aw_req_ready
+#C   i_hqm_credit_hist_pipe/hcw_sched_w_req_valid        i_hqm_visa/hqm_core_visa_str[112]        hcw_sched_w_req_valid
+#C   hcw_sched_w_req_ready                               i_hqm_visa/hqm_core_visa_str[113]        hcw_sched_w_req_ready
+#C   hcw_sched_b_req_valid                               i_hqm_visa/hqm_core_visa_str[114]        hcw_sched_b_req_valid
+#C   i_hqm_credit_hist_pipe/hcw_sched_b_req_ready        i_hqm_visa/hqm_core_visa_str[115]        hcw_sched_b_req_ready
+#C   i_hqm_credit_hist_pipe/push_ptr_aw_req_valid        i_hqm_visa/hqm_core_visa_str[116]        push_ptr_aw_req_valid
+#C   push_ptr_aw_req_ready                               i_hqm_visa/hqm_core_visa_str[117]        push_ptr_aw_req_ready
+#C   i_hqm_credit_hist_pipe/push_ptr_w_req_valid         i_hqm_visa/hqm_core_visa_str[118]        push_ptr_w_req_valid
+#C   push_ptr_w_req_ready                                i_hqm_visa/hqm_core_visa_str[119]        push_ptr_w_req_ready
+T   zero                                                 i_hqm_visa/hqm_core_visa_str[119:116]
+#C   i_hqm_credit_hist_pipe/chp_rop_hcw_v                i_hqm_visa/hqm_core_visa_str[120]        chp_rop_hcw_v
+#C   i_hqm_reorder_pipe/chp_rop_hcw_ready                i_hqm_visa/hqm_core_visa_str[121]        chp_rop_hcw_ready
+#C   i_hqm_credit_hist_pipe/chp_lsp_cmp_v                i_hqm_visa/hqm_core_visa_str[122]        chp_lsp_cmp_v
+#C   i_hqm_list_sel_pipe/chp_lsp_cmp_ready               i_hqm_visa/hqm_core_visa_str[123]        chp_lsp_cmp_ready
+C   i_hqm_credit_hist_pipe/visa_str_chp_lsp_cmp_data    i_hqm_visa/hqm_core_visa_str[124]        visa_str_chp_lsp_cmp_data
+#C   i_hqm_credit_hist_pipe/chp_lsp_token_v              i_hqm_visa/hqm_core_visa_str[125]        chp_lsp_token_v
+#C   i_hqm_list_sel_pipe/chp_lsp_token_ready             i_hqm_visa/hqm_core_visa_str[126]        chp_lsp_token_ready
+#C   i_hqm_reorder_pipe/rop_dp_enq_v                     i_hqm_visa/hqm_core_visa_str[127]        rop_dp_enq_v
+#C   i_hqm_qed_pipe/rop_dp_enq_ready                     i_hqm_visa/hqm_core_visa_str[128]        rop_dp_enq_ready
+#C   i_hqm_reorder_pipe/rop_nalb_enq_v                   i_hqm_visa/hqm_core_visa_str[129]        rop_nalb_enq_v
+#C   i_hqm_qed_pipe/rop_nalb_enq_ready                   i_hqm_visa/hqm_core_visa_str[130]        rop_nalb_enq_ready
+#C   i_hqm_reorder_pipe/rop_qed_dqed_enq_v               i_hqm_visa/hqm_core_visa_str[131]        rop_qed_dqed_enq_v
+#C   i_hqm_qed_pipe/rop_qed_enq_ready                    i_hqm_visa/hqm_core_visa_str[132]        rop_qed_enq_ready
+#C   i_hqm_qed_pipe/rop_dqed_enq_ready                   i_hqm_visa/hqm_core_visa_str[133]        rop_dqed_enq_ready
+#C   i_hqm_list_sel_pipe/lsp_nalb_sch_unoord_v           i_hqm_visa/hqm_core_visa_str[134]        lsp_nalb_sch_unoord_v
+#C   i_hqm_qed_pipe/lsp_nalb_sch_unoord_ready            i_hqm_visa/hqm_core_visa_str[135]        lsp_nalb_sch_unoord_ready
+#C   i_hqm_list_sel_pipe/lsp_dp_sch_dir_v                i_hqm_visa/hqm_core_visa_str[136]        lsp_dp_sch_dir_v
+#C   i_hqm_qed_pipe/lsp_dp_sch_dir_ready                 i_hqm_visa/hqm_core_visa_str[137]        lsp_dp_sch_dir_ready
+#C   i_hqm_list_sel_pipe/lsp_nalb_sch_rorply_v           i_hqm_visa/hqm_core_visa_str[138]        lsp_nalb_sch_rorply_v
+#C   i_hqm_qed_pipe/lsp_nalb_sch_rorply_ready            i_hqm_visa/hqm_core_visa_str[139]        lsp_nalb_sch_rorply_ready
+#C   i_hqm_list_sel_pipe/lsp_dp_sch_rorply_v             i_hqm_visa/hqm_core_visa_str[140]        lsp_dp_sch_rorply_v
+#C   i_hqm_qed_pipe/lsp_dp_sch_rorply_ready              i_hqm_visa/hqm_core_visa_str[141]        lsp_dp_sch_rorply_ready
+#C   i_hqm_list_sel_pipe/lsp_nalb_sch_atq_v              i_hqm_visa/hqm_core_visa_str[142]        lsp_nalb_sch_atq_v
+#C   i_hqm_qed_pipe/lsp_nalb_sch_atq_ready               i_hqm_visa/hqm_core_visa_str[143]        lsp_nalb_sch_atq_ready
+#C   i_hqm_qed_pipe/nalb_lsp_enq_lb_v                    i_hqm_visa/hqm_core_visa_str[144]        nalb_lsp_enq_lb_v
+#C   i_hqm_list_sel_pipe/nalb_lsp_enq_lb_ready           i_hqm_visa/hqm_core_visa_str[145]        nalb_lsp_enq_lb_ready
+#C   i_hqm_qed_pipe/nalb_lsp_enq_rorply_v                i_hqm_visa/hqm_core_visa_str[146]        nalb_lsp_enq_rorply_v
+#C   i_hqm_list_sel_pipe/nalb_lsp_enq_rorply_ready       i_hqm_visa/hqm_core_visa_str[147]        nalb_lsp_enq_rorply_ready
+T  zero                                                  i_hqm_visa/hqm_core_visa_str[148]
+T  zero                                                  i_hqm_visa/hqm_core_visa_str[149]
+#C   i_hqm_qed_pipe/dp_lsp_enq_dir_v                     i_hqm_visa/hqm_core_visa_str[150]        dp_lsp_enq_dir_v
+#C   i_hqm_list_sel_pipe/dp_lsp_enq_dir_ready            i_hqm_visa/hqm_core_visa_str[151]        dp_lsp_enq_dir_ready
+#C   i_hqm_qed_pipe/dp_lsp_enq_rorply_v                  i_hqm_visa/hqm_core_visa_str[152]        dp_lsp_enq_rorply_v
+#C   i_hqm_list_sel_pipe/dp_lsp_enq_rorply_ready         i_hqm_visa/hqm_core_visa_str[153]        dp_lsp_enq_rorply_ready
+T  zero                                                  i_hqm_visa/hqm_core_visa_str[154]
+T  zero                                                  i_hqm_visa/hqm_core_visa_str[155]
+#C   i_hqm_list_sel_pipe/ap_aqed_v                       i_hqm_visa/hqm_core_visa_str[156]        ap_aqed_v
+#C   i_hqm_aqed_pipe/ap_aqed_ready                       i_hqm_visa/hqm_core_visa_str[157]        ap_aqed_ready
+#C   i_hqm_qed_pipe/qed_chp_sch_v                        i_hqm_visa/hqm_core_visa_str[158]        qed_chp_sch_v
+#C   i_hqm_credit_hist_pipe/qed_chp_sch_ready            i_hqm_visa/hqm_core_visa_str[159]        qed_chp_sch_ready
+#C   i_hqm_qed_pipe/qed_aqed_enq_v                       i_hqm_visa/hqm_core_visa_str[160]        qed_aqed_enq_v
+#C   i_hqm_aqed_pipe/qed_aqed_enq_ready                  i_hqm_visa/hqm_core_visa_str[161]        qed_aqed_enq_ready
+T  zero                                                  i_hqm_visa/hqm_core_visa_str[162]
+T  zero                                                  i_hqm_visa/hqm_core_visa_str[163]
+#C   i_hqm_aqed_pipe/aqed_ap_enq_v                       i_hqm_visa/hqm_core_visa_str[164]        aqed_ap_enq_v
+#C   i_hqm_list_sel_pipe/aqed_ap_enq_ready               i_hqm_visa/hqm_core_visa_str[165]        aqed_ap_enq_ready
+#C   i_hqm_aqed_pipe/aqed_chp_sch_v                      i_hqm_visa/hqm_core_visa_str[166]        aqed_chp_sch_v
+#C   i_hqm_credit_hist_pipe/aqed_chp_sch_ready           i_hqm_visa/hqm_core_visa_str[167]        aqed_chp_sch_ready
+#C   i_hqm_list_sel_pipe/aqed_lsp_sch_v                  i_hqm_visa/hqm_core_visa_str[168]        aqed_lsp_sch_v
+#C   i_hqm_list_sel_pipe/aqed_lsp_sch_ready              i_hqm_visa/hqm_core_visa_str[169]        aqed_lsp_sch_ready
+#C   i_hqm_reorder_pipe/rop_lsp_reordercmp_v             i_hqm_visa/hqm_core_visa_str[170]        rop_lsp_reordercmp_v
+#C   i_hqm_list_sel_pipe/rop_lsp_reordercmp_ready        i_hqm_visa/hqm_core_visa_str[171]        rop_lsp_reordercmp_ready
+#C   i_hqm_master/mstr_cfg_req_down_read                 i_hqm_visa/hqm_core_visa_str[172]        mstr_cfg_req_down_read
+#C   i_hqm_master/mstr_cfg_req_down_write                i_hqm_visa/hqm_core_visa_str[173]        mstr_cfg_req_down_write
+#C   i_hqm_master/mstr_cfg_req_down[1:0]                 i_hqm_visa/hqm_core_visa_str[175:174]    mstr_cfg_req_down
+#C   i_hqm_master/mstr_cfg_rsp_down_ack                  i_hqm_visa/hqm_core_visa_str[176]        mstr_cfg_rsp_down_ack
+#C   i_hqm_master/mstr_cfg_rsp_down[5:4]                 i_hqm_visa/hqm_core_visa_str[178:177]    mstr_cfg_rsp_down
+#C   i_hqm_credit_hist_pipe/chp_cfg_req_down_read        i_hqm_visa/hqm_core_visa_str[179]        chp_cfg_req_down_read
+#C   i_hqm_credit_hist_pipe/chp_cfg_req_down_write       i_hqm_visa/hqm_core_visa_str[180]        chp_cfg_req_down_write
+#C   i_hqm_credit_hist_pipe/chp_cfg_req_down[1:0]        i_hqm_visa/hqm_core_visa_str[182:181]    chp_cfg_req_down
+#C   i_hqm_credit_hist_pipe/chp_cfg_rsp_down_ack         i_hqm_visa/hqm_core_visa_str[183]        chp_cfg_rsp_down_ack
+#C   i_hqm_credit_hist_pipe/chp_cfg_rsp_down[5:4]        i_hqm_visa/hqm_core_visa_str[185:184]    chp_cfg_rsp_down
+#C   i_hqm_reorder_pipe/rop_cfg_req_down_read            i_hqm_visa/hqm_core_visa_str[186]        rop_cfg_req_down_read
+#C   i_hqm_reorder_pipe/rop_cfg_req_down_write           i_hqm_visa/hqm_core_visa_str[187]        rop_cfg_req_down_write
+#C   i_hqm_reorder_pipe/rop_cfg_req_down[1:0]            i_hqm_visa/hqm_core_visa_str[189:188]    rop_cfg_req_down
+#C   i_hqm_reorder_pipe/rop_cfg_rsp_down_ack             i_hqm_visa/hqm_core_visa_str[190]        rop_cfg_rsp_down_ack
+#C   i_hqm_reorder_pipe/rop_cfg_rsp_down[5:4]            i_hqm_visa/hqm_core_visa_str[192:191]    rop_cfg_rsp_down
+#C   i_hqm_list_sel_pipe/lsp_cfg_req_down_read           i_hqm_visa/hqm_core_visa_str[193]        lsp_cfg_req_down_read
+#C   i_hqm_list_sel_pipe/lsp_cfg_req_down_write          i_hqm_visa/hqm_core_visa_str[194]        lsp_cfg_req_down_write
+#C   i_hqm_list_sel_pipe/lsp_cfg_req_down[1:0]           i_hqm_visa/hqm_core_visa_str[196:195]    lsp_cfg_req_down
+#C   i_hqm_list_sel_pipe/lsp_cfg_rsp_down_ack            i_hqm_visa/hqm_core_visa_str[197]        lsp_cfg_rsp_down_ack
+#C   i_hqm_list_sel_pipe/lsp_cfg_rsp_down[5:4]           i_hqm_visa/hqm_core_visa_str[199:198]    lsp_cfg_rsp_down
+T zero                                                   i_hqm_visa/hqm_core_visa_str[200]
+T zero                                                   i_hqm_visa/hqm_core_visa_str[201]
+T zero                                                   i_hqm_visa/hqm_core_visa_str[203:202]
+T zero                                                   i_hqm_visa/hqm_core_visa_str[204]
+T zero                                                   i_hqm_visa/hqm_core_visa_str[206:205]
+#C   i_hqm_list_sel_pipe/ap_cfg_req_down_read            i_hqm_visa/hqm_core_visa_str[207]        ap_cfg_req_down_read
+#C   i_hqm_list_sel_pipe/ap_cfg_req_down_write           i_hqm_visa/hqm_core_visa_str[208]        ap_cfg_req_down_write
+#C   i_hqm_list_sel_pipe/ap_cfg_req_down[1:0]            i_hqm_visa/hqm_core_visa_str[210:209]    ap_cfg_req_down
+#C   i_hqm_list_sel_pipe/ap_cfg_rsp_down_ack             i_hqm_visa/hqm_core_visa_str[211]        ap_cfg_rsp_down_ack
+#C   i_hqm_list_sel_pipe/ap_cfg_rsp_down[5:4]            i_hqm_visa/hqm_core_visa_str[213:212]    ap_cfg_rsp_down
+T zero                                                   i_hqm_visa/hqm_core_visa_str[214]  
+T zero                                                   i_hqm_visa/hqm_core_visa_str[215]   
+T zero                                                   i_hqm_visa/hqm_core_visa_str[217:216]
+T zero                                                   i_hqm_visa/hqm_core_visa_str[218]   
+T zero                                                   i_hqm_visa/hqm_core_visa_str[220:219]
+#C   i_hqm_qed_pipe/qed_cfg_req_down_read                i_hqm_visa/hqm_core_visa_str[221]        qed_cfg_req_down_read
+#C   i_hqm_qed_pipe/qed_cfg_req_down_write               i_hqm_visa/hqm_core_visa_str[222]        qed_cfg_req_down_write
+#C   i_hqm_qed_pipe/qed_cfg_req_down[1:0]                i_hqm_visa/hqm_core_visa_str[224:223]    qed_cfg_req_down
+#C   i_hqm_qed_pipe/qed_cfg_rsp_down_ack                 i_hqm_visa/hqm_core_visa_str[225]        qed_cfg_rsp_down_ack
+#C   i_hqm_qed_pipe/qed_cfg_rsp_down[5:4]                i_hqm_visa/hqm_core_visa_str[227:226]    qed_cfg_rsp_down
+T zero                                                   i_hqm_visa/hqm_core_visa_str[228]        dqed_cfg_req_down_read
+T zero                                                   i_hqm_visa/hqm_core_visa_str[229]        dqed_cfg_req_down_write
+T zero                                                   i_hqm_visa/hqm_core_visa_str[231:230]    dqed_cfg_req_down
+T zero                                                   i_hqm_visa/hqm_core_visa_str[232]        dqed_cfg_rsp_down_ack
+T zero                                                   i_hqm_visa/hqm_core_visa_str[234:233]    dqed_cfg_rsp_down
+#C   i_aqed_pipe/aqed_cfg_req_down_read                  i_hqm_visa/hqm_core_visa_str[235]        aqed_cfg_req_down_read
+#C   i_aqed_pipe/aqed_cfg_req_down_write                 i_hqm_visa/hqm_core_visa_str[236]        aqed_cfg_req_down_write
+#C   i_aqed_pipe/aqed_cfg_req_down[1:0]                  i_hqm_visa/hqm_core_visa_str[238:237]    aqed_cfg_req_down
+#C   i_aqed_pipe/aqed_cfg_rsp_down_ack                   i_hqm_visa/hqm_core_visa_str[239]        aqed_cfg_rsp_down_ack
+#C   i_aqed_pipe/aqed_cfg_rsp_down[5:4]                  i_hqm_visa/hqm_core_visa_str[241:240]    aqed_cfg_rsp_down
+T  zero                                                  i_hqm_visa/hqm_core_visa_str[242]
+T  zero                                                  i_hqm_visa/hqm_core_visa_str[243]
+#C   i_hqm_reorder_pipe/rop_alarm_down_v                 i_hqm_visa/hqm_core_visa_str[244]        rop_alarm_down_v
+#C   i_hqm_credit_hist_pipe/chp_alarm_up_ready           i_hqm_visa/hqm_core_visa_str[245]        rop_alarm_down_ready
+#C   i_hqm_list_sel_pipe/lsp_alarm_down_v                i_hqm_visa/hqm_core_visa_str[246]        lsp_alarm_down_v
+#C   i_hqm_reorder_pipe/rop_alarm_up_ready               i_hqm_visa/hqm_core_visa_str[247]        lsp_alarm_down_ready
+#C   SPARE VISA                                          i_hqm_visa/hqm_core_visa_str[248]
+#C   i_hqm_list_sel_pipe/lsp_alarm_up_ready              i_hqm_visa/hqm_core_visa_str[249]        nalb_alarm_down_ready
+#C   i_hqm_list_sel_pipe/ap_alarm_down_v                 i_hqm_visa/hqm_core_visa_str[250]        ap_alarm_down_v
+#C   SPARE VISA                                          i_hqm_visa/hqm_core_visa_str[251]
+#C   SPARE VISA                                          i_hqm_visa/hqm_core_visa_str[252]        dp_alarm_down_v
+#C   i_hqm_list_sel_pipe/ap_alarm_up_ready               i_hqm_visa/hqm_core_visa_str[253]        dp_alarm_down_ready
+T  zero                                                  i_hqm_visa/hqm_core_visa_str[254]        qed_alarm_down_v
+T  zero                                                  i_hqm_visa/hqm_core_visa_str[255]        qed_alarm_down_ready
+T  zero                                                  i_hqm_visa/hqm_core_visa_str[256]        dqed_alarm_down_v
+T  zero                                                  i_hqm_visa/hqm_core_visa_str[257]        dqed_alarm_down_ready
+#C   i_hqm_aqed_pipe/aqed_alarm_down_v                   i_hqm_visa/hqm_core_visa_str[258]        aqed_alarm_down_v
+#C   SPARE VISA                                          i_hqm_visa/hqm_core_visa_str[259]        aqed_alarm_down_ready
+
+#--------------------------------------------------------------------------------------------------------------------------------------------
+# Wire up clock enable repeaters and clock gates
+
+# Local reset sync to repeater module reset connections
+
+C   i_hqm_system_side_rst_sync_prim_n/rst_n_sync i_hqm_system_prim_clk_enable_rptr/rst_n     side_rst_sync_prim_n
+C   i_hqm_system_side_rst_sync_prim_n/rst_n_sync i_hqm_system_prim_clk_ungate_rptr/rst_n     side_rst_sync_prim_n
+
+C   i_hqm_master_side_rst_sync_prim_n/rst_n_sync i_hqm_master_prim_clk_enable_rptr/rst_n     side_rst_sync_prim_n
+C   i_hqm_master_side_rst_sync_prim_n/rst_n_sync i_hqm_master_prim_clk_ungate_rptr/rst_n     side_rst_sync_prim_n
+C   i_hqm_master_side_rst_sync_prim_n/rst_n_sync i_hqm_sif_prim_clk_enable_rptr/rst_n        side_rst_sync_prim_n
+C   i_hqm_master_side_rst_sync_prim_n/rst_n_sync i_hqm_sif_nonflr_clk_enable_rptr/rst_n      side_rst_sync_prim_n
+
+C   i_hqm_master_hqm_clk_rptr_rst_sync_n/rst_n_sync      { i_hqm_master_hqm_clk_ungate_rptr/rst_n i_hqm_master_hqm_freerun_clk_enable_rptr/rst_n i_hqm_master_hqm_inp_gated_clk_enable_rptr/rst_n i_hqm_master_hqm_cdc_enable_and2/clki1 i_hqm_master_hqm_cdc_clk_enable_rptr/rst_n} hqm_clk_rptr_rst_sync_b
+
+C   i_hqm_system_hqm_clk_rptr_rst_sync_n/rst_n_sync      { i_hqm_system_clk_ungate_rptr/rst_n     i_hqm_system_flr_prep_rptr/rst_n     i_hqm_system_hqm_gated_clk_enable_rptr/rst_n i_hqm_system_hqm_inp_gated_clk_enable_rptr/rst_n i_hqm_chp_hqm_gated_clk_enable_rptr/rst_n}          hqm_clk_rptr_rst_sync_b
+C   i_hqm_lsp_hqm_clk_rptr_rst_sync_n/rst_n_sync         { i_hqm_lsp_clk_ungate_rptr/rst_n        i_hqm_lsp_flr_prep_rptr/rst_n        i_hqm_lsp_hqm_gated_clk_enable_rptr/rst_n    i_hqm_lsp_hqm_inp_gated_clk_enable_rptr/rst_n  i_hqm_aqed_pipe/hqm_clk_rptr_rst_sync_b}             hqm_clk_rptr_rst_sync_b
+C   i_hqm_qed_hqm_clk_rptr_rst_sync_n/rst_n_sync         { i_hqm_qed_clk_ungate_rptr/rst_n        i_hqm_qed_flr_prep_rptr/rst_n        i_hqm_qed_hqm_gated_clk_enable_rptr/rst_n    i_hqm_qed_hqm_inp_gated_clk_enable_rptr/rst_n   i_hqm_qed_clk_en_proc_ft_rptr/rst_n i_hqm_qed_unit_idle_ft_rptr/rst_n i_hqm_dp_hqm_gated_clk_enable_rptr/rst_n i_hqm_nalb_hqm_gated_clk_enable_rptr/rst_n }    hqm_clk_rptr_rst_sync_b
+
+T   zero                                        i_hqm_chp_pgcb_clk/cfg_clkungate
+C   i_hqm_chp_hqm_gated_rst_pgcb_sync_n/rst_n_sync       { i_hqm_chp_pgcb_clk/enable } hqm_gated_rst_b_pgcb_sync_chp
+
+# Local clock enable to repeater connections
+C   i_hqm_credit_hist_pipe/hqm_proc_clk_en_chp  {i_hqm_master/mstr_lcb_enable[0] i_hqm_chp_hqm_gated_clk_enable_or2/clki0   i_hqm_master/mstr_lcb_enable[1]  i_hqm_visa/hqm_core_visa_str[73]}                                      hqm_proc_clk_en_chp
+C   i_hqm_list_sel_pipe/hqm_proc_clk_en_lsp     {i_hqm_master/mstr_lcb_enable[2] i_hqm_lsp_hqm_gated_clk_enable_or2/clki0   i_hqm_master/mstr_lcb_enable[4] i_hqm_master/mstr_lcb_enable[8] i_hqm_visa/hqm_core_visa_str[74]}      hqm_proc_clk_en_lsp
+C   i_hqm_qed_pipe/hqm_proc_clk_en_qed          {i_hqm_qed_clk_en_proc_ft_rptr/data i_hqm_qed_hqm_gated_clk_enable_or2/clki0}                                                                     hqm_proc_clk_en_qed_local
+C   i_hqm_qed_clk_en_proc_ft_rptr/data_q        {i_hqm_master/mstr_lcb_enable[7] i_hqm_master/mstr_lcb_enable[6] i_hqm_visa/hqm_core_visa_str[75]}                                                                                 hqm_proc_clk_en_qed
+C   i_hqm_qed_pipe/hqm_proc_clk_en_dir          {i_hqm_master/mstr_lcb_enable[3] i_hqm_dp_hqm_gated_clk_enable_or2/clki0 i_hqm_visa/hqm_core_visa_str[76]}                                                                         hqm_proc_clk_en_dir 
+C   i_hqm_qed_pipe/hqm_proc_clk_en_nalb         {i_hqm_master/mstr_lcb_enable[5] i_hqm_nalb_hqm_gated_clk_enable_or2/clki0 i_hqm_visa/hqm_core_visa_str[77]}                                                                       hqm_proc_clk_en_nalb
+
+C   i_hqm_system/hqm_proc_clk_en_sys            {i_hqm_master/mstr_lcb_enable[9] i_hqm_system_hqm_gated_clk_enable_or2/clki0 i_hqm_visa/hqm_core_visa_str[78]}                                                                     hqm_proc_clk_en_sys
+
+C   i_hqm_master/hqm_gated_local_override       {i_hqm_chp_hqm_gated_clk_enable_or2/clki1 i_hqm_lsp_hqm_gated_clk_enable_or2/clki1 i_hqm_qed_hqm_gated_clk_enable_or2/clki1 i_hqm_dp_hqm_gated_clk_enable_or2/clki1 i_hqm_nalb_hqm_gated_clk_enable_or2/clki1 i_hqm_system_hqm_gated_clk_enable_or2/clki1} hqm_gated_local_override
+
+C   i_hqm_system_hqm_gated_clk_enable_or2/clko   i_hqm_system_hqm_gated_clk_enable_and2/clki0   hqm_gated_local_clk_en_sys
+C   i_hqm_chp_hqm_gated_clk_enable_or2/clko      i_hqm_chp_hqm_gated_clk_enable_and2/clki0      hqm_gated_local_clk_en_chp
+C   i_hqm_lsp_hqm_gated_clk_enable_or2/clko      i_hqm_lsp_hqm_gated_clk_enable_and2/clki0      hqm_gated_local_clk_en_lsp
+C   i_hqm_qed_hqm_gated_clk_enable_or2/clko      i_hqm_qed_hqm_gated_clk_enable_and2/clki0      hqm_gated_local_clk_en_qed
+C   i_hqm_dp_hqm_gated_clk_enable_or2/clko       i_hqm_dp_hqm_gated_clk_enable_and2/clki0       hqm_gated_local_clk_en_dir
+C   i_hqm_nalb_hqm_gated_clk_enable_or2/clko     i_hqm_nalb_hqm_gated_clk_enable_and2/clki0     hqm_gated_local_clk_en_nalb
+
+# Global clock enable repeater output to prim_clk RCB/LCB connections
+
+C   i_hqm_system_prim_clk_enable_rptr/data_q    i_hqm_system_prim_clkgate/enable            prim_clk_enable_rptr
+
+C   i_hqm_master_prim_clk_enable_rptr/data_q    {i_hqm_master_prim_clkgate/enable i_hqm_master/prim_clk_enable}   prim_clk_enable_rptr_mstr
+
+
+# hqm_gated_clk RCB/LCB connections
+C   i_hqm_system_hqm_gated_clk_enable_and2/clko     i_hqm_system_hqm_gated_clk_enable_rptr/data   hqm_gated_clk_enable_and_sys 
+C   i_hqm_chp_hqm_gated_clk_enable_and2/clko        i_hqm_chp_hqm_gated_clk_enable_rptr/data      hqm_gated_clk_enable_and_chp
+C   i_hqm_lsp_hqm_gated_clk_enable_and2/clko        { i_hqm_lsp_hqm_gated_clk_enable_rptr/data i_hqm_aqed_pipe/hqm_gatedclk_enable_and }     hqm_gated_clk_enable_and_lsp
+C   i_hqm_qed_hqm_gated_clk_enable_and2/clko        i_hqm_qed_hqm_gated_clk_enable_rptr/data      hqm_gated_clk_enable_and_qed
+C   i_hqm_dp_hqm_gated_clk_enable_and2/clko         i_hqm_dp_hqm_gated_clk_enable_rptr/data       hqm_gated_clk_enable_and_dir
+C   i_hqm_nalb_hqm_gated_clk_enable_and2/clko       i_hqm_nalb_hqm_gated_clk_enable_rptr/data     hqm_gated_clk_enable_and_nalb
+  
+C   i_hqm_system_hqm_gated_clk_enable_rptr/data_q   i_hqm_system_clkproc/enable                   hqm_gated_clk_enable_rptr_sys
+C   i_hqm_chp_hqm_gated_clk_enable_rptr/data_q      i_hqm_chp_clkproc/enable                      hqm_gated_clk_enable_rptr_chp
+C   i_hqm_lsp_hqm_gated_clk_enable_rptr/data_q      i_hqm_lsp_clkproc/enable                      hqm_gated_clk_enable_rptr_lsp
+C   i_hqm_qed_hqm_gated_clk_enable_rptr/data_q      i_hqm_qed_clkproc/enable                      hqm_gated_clk_enable_rptr_qed
+C   i_hqm_dp_hqm_gated_clk_enable_rptr/data_q       i_hqm_dp_clkproc/enable                       hqm_gated_clk_enable_rptr_dir
+C   i_hqm_nalb_hqm_gated_clk_enable_rptr/data_q     i_hqm_nalb_clkproc/enable                     hqm_gated_clk_enable_rptr_nalb
+
+# hqm_inp_gated_clk RCB/LCB connections
+C   i_hqm_system_hqm_inp_gated_clk_enable_rptr/data_q i_hqm_system_clkgate/enable                 hqm_inp_gated_clk_enable_rptr
+C   i_hqm_lsp_hqm_inp_gated_clk_enable_rptr/data_q    i_hqm_lsp_clkgate/enable                    hqm_inp_gated_clk_enable_rptr
+C   i_hqm_qed_hqm_inp_gated_clk_enable_rptr/data_q    i_hqm_qed_clkgate/enable                    hqm_inp_gated_clk_enable_rptr
+
+# gclock_final and throttle repeater output to hqm_freerun_clk (MASTER ONLY) RCB/LCB connections
+C   i_hqm_master_hqm_freerun_clk_enable_and2/clko    i_hqm_master_hqm_freerun_clk_enable_rptr/data  hqm_freerun_clk_enable_and_mstr
+C   i_hqm_master_hqm_freerun_clk_enable_rptr/data_q  i_hqm_master_clkfree/enable                    hqm_freerun_clk_enable_rptr_mstr
+
+# Ungate repeater output to RCB/LCB connections
+
+C   i_hqm_system_prim_clk_ungate_rptr/data_q    i_hqm_system_prim_clkgate/cfg_clkungate     prim_clk_ungate_rptr_sys
+C   i_hqm_master_prim_clk_ungate_rptr/data_q   {i_hqm_master_prim_clkgate/cfg_clkungate i_hqm_sif_prim_clkgate/cfg_clkungate i_hqm_sif_prim_clknonflr/cfg_clkungate}     prim_clk_ungate_rptr
+
+C   i_hqm_master_hqm_clk_ungate_rptr/data_q     i_hqm_master_hqm_cdc_clkgate/cfg_clkungate  hqm_clk_ungate_rptr
+C   i_hqm_master_hqm_clk_ungate_rptr/data_q     i_hqm_master_hqm_inp_clkgate/cfg_clkungate  hqm_clk_ungate_rptr
+C   i_hqm_master_hqm_clk_ungate_rptr/data_q     i_hqm_master_clkfree/cfg_clkungate          hqm_clk_ungate_rptr
+
+C   i_hqm_system_clk_ungate_rptr/data_q         {i_hqm_system_clkgate/cfg_clkungate}        hqm_clk_ungate_rptr
+C   i_hqm_lsp_clk_ungate_rptr/data_q            { i_hqm_lsp_clkgate/cfg_clkungate i_hqm_aqed_pipe/hqm_clk_ungate }                                    hqm_clk_ungate_rptr
+C   i_hqm_qed_clk_ungate_rptr/data_q            i_hqm_qed_clkgate/cfg_clkungate             hqm_clk_ungate_rptr
+
+C   i_hqm_system_clk_ungate_rptr/data_q         {i_hqm_system_clkproc/cfg_clkungate  i_hqm_chp_clkproc/cfg_clkungate}        hqm_clk_ungate_rptr
+C   i_hqm_lsp_clk_ungate_rptr/data_q            i_hqm_lsp_clkproc/cfg_clkungate             hqm_clk_ungate_rptr
+C   i_hqm_qed_clk_ungate_rptr/data_q            {i_hqm_qed_clkproc/cfg_clkungate i_hqm_dp_clkproc/cfg_clkungate i_hqm_nalb_clkproc/cfg_clkungate}     hqm_clk_ungate_rptr
+
+# Free running RCB/LCB clock output connections (local repeaters, reset sync, and visa modules)
+
+C   i_hqm_chp_pgcb_clk/gated_clk                {i_hqm_credit_hist_pipe/hqm_pgcb_clk i_hqm_chp_reset_core/hqm_pgcb_clk}     pgcb_clk
+
+C   i_hqm_master_clkfree/gated_clk              i_hqm_master/hqm_freerun_clk                hqm_freerun_clk_mstr
+
+# Globally gated RCB/LCB clock output connections
+
+C   i_hqm_system_prim_clkgate/gated_clk         i_hqm_system/prim_gated_clk                 prim_gated_clk
+
+C   i_hqm_master_prim_clkgate/gated_clk         i_hqm_master/prim_gated_clk                 prim_gated_clk_mstr
+
+C   i_hqm_system_clkgate/gated_clk              i_hqm_system/hqm_inp_gated_clk              hqm_inp_gated_clk
+C   i_hqm_system_clkgate/gated_clk              {i_hqm_system_reset_core/hqm_inp_gated_clk i_hqm_chp_reset_core/hqm_inp_gated_clk i_hqm_rop_reset_core/hqm_inp_gated_clk}      hqm_inp_gated_clk
+C   i_hqm_system_clkgate/gated_clk              i_hqm_credit_hist_pipe/hqm_inp_gated_clk    hqm_inp_gated_clk
+C   i_hqm_system_clkgate/gated_clk              i_hqm_reorder_pipe/hqm_inp_gated_clk        hqm_inp_gated_clk
+
+C   i_hqm_lsp_clkgate/gated_clk                 i_hqm_list_sel_pipe/hqm_inp_gated_clk       hqm_inp_gated_clk
+C   i_hqm_lsp_clkgate/gated_clk                 {i_hqm_lsp_reset_core/hqm_inp_gated_clk i_hqm_atm_reset_core/hqm_inp_gated_clk}   hqm_inp_gated_clk
+C   i_hqm_lsp_clkgate/gated_clk                 {i_hqm_aqed_pipe/hqm_inp_gated_clk     i_hqm_aqed_reset_core/hqm_inp_gated_clk}   hqm_inp_gated_clk
+
+C   i_hqm_qed_clkgate/gated_clk                 i_hqm_qed_pipe/hqm_inp_gated_clk            hqm_inp_gated_clk
+C   i_hqm_qed_clkgate/gated_clk                 {i_hqm_qed_reset_core/hqm_inp_gated_clk i_hqm_dir_reset_core/hqm_inp_gated_clk i_hqm_nalb_reset_core/hqm_inp_gated_clk}        hqm_inp_gated_clk
+
+# Locally gated RCB/LCB clock output connections (core modules)
+
+C   i_hqm_system_clkproc/gated_clk              {i_hqm_system/hqm_gated_clk        i_hqm_system_reset_core/hqm_gated_clk}        hqm_gated_clk_sys
+
+C   i_hqm_chp_clkproc/gated_clk                 {i_hqm_credit_hist_pipe/hqm_gated_clk i_hqm_chp_reset_core/hqm_gated_clk}        hqm_gated_clk_chp
+C   i_hqm_chp_clkproc/gated_clk                 {i_hqm_reorder_pipe/hqm_gated_clk     i_hqm_rop_reset_core/hqm_gated_clk}        hqm_gated_clk_chp
+
+C   i_hqm_lsp_clkproc/gated_clk                 {i_hqm_list_sel_pipe/hqm_gated_clk i_hqm_lsp_reset_core/hqm_gated_clk i_hqm_atm_reset_core/hqm_gated_clk}    hqm_gated_clk_lsp
+C   i_hqm_lsp_clkproc/gated_clk                 {i_hqm_aqed_pipe/hqm_gated_clk    i_hqm_aqed_reset_core/hqm_gated_clk}                                       hqm_gated_clk_lsp
+
+C   i_hqm_qed_clkproc/gated_clk                 {i_hqm_qed_pipe/hqm_gated_clk_qed  i_hqm_qed_reset_core/hqm_gated_clk }           hqm_gated_clk_qed
+C   i_hqm_dp_clkproc/gated_clk                  {i_hqm_qed_pipe/hqm_gated_clk_dir  i_hqm_dir_reset_core/hqm_gated_clk }           hqm_gated_clk_dir
+C   i_hqm_nalb_clkproc/gated_clk                {i_hqm_qed_pipe/hqm_gated_clk_nalb i_hqm_nalb_reset_core/hqm_gated_clk }          hqm_gated_clk_nalb
+
+# Connect up the spare port modules
+
+C   i_hqm_list_sel_pipe/spare_lsp_qed           i_hqm_qed_pipe/spare_lsp_qed                spare_lsp_qed
+C   i_hqm_list_sel_pipe/spare_lsp_sys           i_hqm_system/spare_lsp_sys                  spare_lsp_sys
+C   i_hqm_qed_pipe/spare_qed_lsp                i_hqm_list_sel_pipe/spare_qed_lsp           spare_qed_lsp
+C   i_hqm_qed_pipe/spare_qed_sys                i_hqm_system/spare_qed_sys                  spare_qed_sys
+C   i_hqm_system/spare_sys_lsp                  i_hqm_list_sel_pipe/spare_sys_lsp           spare_sys_lsp
+C   i_hqm_system/spare_sys_qed                  i_hqm_qed_pipe/spare_sys_qed                spare_sys_qed
+
+## WD clk req signal CHP to Master
+C  i_hqm_credit_hist_pipe/wd_clkreq             {i_hqm_master/wd_clkreq i_hqm_visa/wd_clkreq}                     wd_clkreq
+
+###################################################################################################################
+## FLR_PREP
+## repeater in each PAR
+C   i_hqm_master/hqm_flr_prep                 { i_hqm_system_flr_prep_rptr/data  i_hqm_lsp_flr_prep_rptr/data i_hqm_qed_flr_prep_rptr/data } hqm_flr_prep
+
+C   i_hqm_system_flr_prep_rptr/data_q           {i_hqm_system_reset_core/hqm_flr_prep i_hqm_chp_reset_core/hqm_flr_prep  i_hqm_rop_reset_core/hqm_flr_prep}  hqm_flr_prep_rptr
+C   i_hqm_lsp_flr_prep_rptr/data_q              {i_hqm_lsp_reset_core/hqm_flr_prep i_hqm_atm_reset_core/hqm_flr_prep     i_hqm_aqed_reset_core/hqm_flr_prep}      hqm_flr_prep_rptr
+C   i_hqm_qed_flr_prep_rptr/data_q              {i_hqm_qed_flr_prep_inv/a             i_hqm_qed_reset_core/hqm_flr_prep i_hqm_dir_reset_core/hqm_flr_prep i_hqm_nalb_reset_core/hqm_flr_prep}   hqm_flr_prep_rptr
+
+## Special handling of QED's unit idle due to ordering
+C i_hqm_qed_flr_prep_inv/o  i_hqm_qed_unit_idle_and2/clki1  hqm_flr_prep_b
+
+#--------------------------------------------------------------------------------------------------------------------------------------------
+# Connect RTDR ports
+C  i_hqm_rtdr_iosfsb_ism/func_po[0]     i_hqm_sif/cdc_side_jta_clkgate_ovrd
+
+C  i_hqm_rtdr_iosfsb_ism/func_po[1]     i_hqm_sif/cdc_prim_jta_clkgate_ovrd
+C  i_hqm_rtdr_iosfsb_ism/func_po[1]     {i_hqm_master/cdc_hqm_jta_clkgate_ovrd i_hqm_visa/cdc_hqm_jta_clkgate_ovrd}
+
+C  i_hqm_rtdr_iosfsb_ism/func_po[2]     i_hqm_sif/cdc_prim_jta_force_clkreq
+C  i_hqm_rtdr_iosfsb_ism/func_po[2]     i_hqm_sif/prim_jta_force_clkreq
+C  i_hqm_rtdr_iosfsb_ism/func_po[2]     {i_hqm_master/cdc_hqm_jta_force_clkreq i_hqm_visa/cdc_hqm_jta_force_clkreq}
+
+C  i_hqm_rtdr_iosfsb_ism/func_po[3]     i_hqm_sif/prim_jta_force_creditreq
+C  i_hqm_rtdr_iosfsb_ism/func_po[4]     i_hqm_sif/prim_jta_force_notidle
+C  i_hqm_rtdr_iosfsb_ism/func_po[5]     i_hqm_sif/prim_jta_force_idle
+# 10:6 unused
+C  i_hqm_rtdr_iosfsb_ism/func_po[11]    i_hqm_sif/gpsb_jta_clkgate_ovrd
+
+C  i_hqm_rtdr_iosfsb_ism/func_po[12]    i_hqm_sif/cdc_side_jta_force_clkreq
+C  i_hqm_rtdr_iosfsb_ism/func_po[12]    i_hqm_sif/gpsb_jta_force_clkreq
+
+C  i_hqm_rtdr_iosfsb_ism/func_po[13]    i_hqm_sif/gpsb_jta_force_creditreq
+C  i_hqm_rtdr_iosfsb_ism/func_po[14]    i_hqm_sif/gpsb_jta_force_notidle
+C  i_hqm_rtdr_iosfsb_ism/func_po[15]    i_hqm_sif/gpsb_jta_force_idle
+# 31:16 unused
+C  i_hqm_rtdr_iosfsb_ism/func_po        i_hqm_rtdr_iosfsb_ism/func_pi           rtdr_func_po_iosfsb_ism         {Collage will use this name for the whole bus}
+
+# 0 unused, formerly fsta_afd_en
+C  i_hqm_rtdr_tapconfig/func_po[1]      i_hqm_master/fdfx_pgcb_bypass
+C  i_hqm_rtdr_tapconfig/func_po[2]      i_hqm_master/fdfx_pgcb_ovr
+C  i_hqm_rtdr_tapconfig/func_po[3]      i_hqm_master/fscan_fet_on
+C  i_hqm_rtdr_tapconfig/func_po[4]      i_hqm_master/fscan_fet_en_sel
+C  i_hqm_rtdr_tapconfig/func_po[10:5]   i_hqm_AW_viewpin_mux/mux_sel
+C  i_hqm_rtdr_tapconfig/func_po[11]     i_hqm_master/hw_reset_force_pwr_on
+# 31:11 unused
+C  i_hqm_rtdr_tapconfig/func_po         i_hqm_rtdr_tapconfig/func_pi            rtdr_func_po_tapconfig          {Collage will use this name for the whole bus}
+
+C  i_hqm_rtdr_taptrigger/func_po[29:0]  i_hqm_master/fscan_trigger_mask
+C  i_hqm_rtdr_taptrigger/func_po[30]    i_hqm_master/fscan_trigger_mask_v
+# 31 unused
+C  i_hqm_rtdr_taptrigger/func_po        i_hqm_rtdr_taptrigger/func_pi           rtdr_func_po_taptrigger         {Collage wll use this name for the whole bus}
+
+#--------------------------------------------------------------------------------------------------------------------------------------------
+# Connect viewpin ports
+#C  i_hqm_master/hqm_cdc_clk_enable      i_hqm_AW_viewpin_mux/mux_in[0]          hqm_cdc_clk_enable             See above
+C  i_hqm_master/pm_fsm_active           i_hqm_AW_viewpin_mux/mux_in[1]          pm_fsm_active
+C  i_hqm_master/pgcb_force_rst_b        i_hqm_AW_viewpin_mux/mux_in[2]          pgcb_force_rst_b
+#C  i_hqm_master/pgcb_isol_en_b          i_hqm_AW_viewpin_mux/mux_in[3]          pgcb_isol_en_b                 See above
+C  i_hqm_master/pgcb_hqm_pwrgate_active i_hqm_AW_viewpin_mux/mux_in[4]          pgcb_hqm_pwrgate_active
+C  i_hqm_master/final_pgcb_fet_en_ack_b i_hqm_AW_viewpin_mux/mux_in[5]          final_pgcb_fet_en_ack_b
+C  i_hqm_master/pgcb_fet_en_b_out       i_hqm_AW_viewpin_mux/mux_in[6]          pgcb_fet_en_b_out
+
+#--------------------------------------------------------------------------------------------------------------------------------------------
+# hqm_master's power gated version of the powergood reset buffered
+
+C   i_hqm_master/hqm_pwrgood_rst_b          {i_hqm_pwrgood_rst_b_buf/a i_hqm_visa/hqm_pwrgood_rst_b}  hqm_pwrgood_rst_b_internal
+
+E   i_hqm_pwrgood_rst_b_buf/o                hqm_pwrgood_rst_b
+
+# side reset connections
+
+Ci  hqm_sip_aon_wrap/side_rst_b             {i_hqm_master/side_rst_b i_hqm_visa/side_rst_b i_hqm_master_side_rst_sync_prim_n/rst_n}
+C   side_rst_b                               i_hqm_system_side_rst_sync_prim_n/rst_n
+
+C   i_hqm_master/hqm_cfg_master_clkreq_b     i_hqm_visa/hqm_cfg_master_clkreq_b
+Ci  hqm_sip_aon_wrap/powergood_rst_b         i_hqm_visa/powergood_rst_b
+
+Ci  hqm_sip_aon_wrap/prochot                 i_hqm_visa/prochot

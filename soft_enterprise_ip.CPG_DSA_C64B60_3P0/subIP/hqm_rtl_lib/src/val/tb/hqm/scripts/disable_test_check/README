@@ -1,0 +1,48 @@
+Script checks for unintended disabling of various modes while running a regression.
+
+ Script execution command
+ % <scriptpath>.py
+ e.g. ./disable_test_check.py
+
+Input: -
+	Following are input files
+		1. bg_ex: tests and testlists reviewed to be excluded from BG CFG regressions
+		2. ag_ex: tests and testlists reviewed to be excluded from AG CFG regressions
+		3. ph_ex: tests and testlists reviewed to be excluded from PH CFG regressions
+		4. ism_ex: tests and testlists reviewedto be excluded from ISM CFG regressions
+		5. com_ex: tests and testlists reviewed to be excluded from ALL regressions
+
+Output: -
+	1. <directory of script>/outlog/out_file_DD_Mon_YYYY, a list of testcases yet to be approved.
+	2. Output also mailed to a list of users
+
+
+Current file configuration: 
+1. Five files needed for input
+ i. Four individual lists ( bg_ex, ag_ex, pc_ex, and ism_ex, one list for each mode) listed in lst.
+ ii. One common list (com_ex)
+ iii. List contents can be testcases or paths to lists containing more cases 
+2. Output mail recipients:
+ i.  If script executes: nityajos, vijayaga and the script executing user (MailList)
+ ii. If script gets errors: nityajos and script executing user (ListOwners)
+ iii. If all testcases are reviewed: script executing user only
+3. Information for new mode:
+ i. Name of the mode
+ ii. Keyword to be searched
+ iii. List of approved testcases
+ iv. Abbreviaton to be used for the mode
+ v. add the list of this information as an element in lst 
+
+
+For each mode, the script executes the following steps:
+1. creates a working copy of the approved list.
+2. scans each line
+3. if a testcase is present, add it to a main list of testcases.
+4. if a file is included, open it and repeat the same procedure on that file.
+5. execute the same function on the common approved list
+6. After compiling a list of approved cases, script opens the simregress output file.
+7. for each testcase of the specific mode (found using the keyword), if it does not match with any entry in the main approved list, it is added to output list. 
+8. testcase count yet to be approved is appended at the beginning of the document
+9. output file is mailed to recipients.
+10. if any step fails, output file saves a traceback and it is mailed to the debuggers.
+11. Files created by the script are deleted; output file is shifted to outlog directory.

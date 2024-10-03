@@ -1,0 +1,69 @@
+#!/usr/intel/bin/tcsh -f
+
+printf "\n\nRemoving existing environment variables....."
+unsetenv SIP_PROJECT
+unsetenv PROJECT_BASE
+
+unsetenv ACE_PROJECT
+unsetenv ACE_ENG
+unsetenv ACE_RC
+unsetenv ACE_PWA_DIR
+
+unsetenv LIB_AREA
+
+unsetenv NBPOOL
+unsetenv NBQSLOT
+
+unsetenv DW_LICENSE_OVERRIDE
+unsetenv LM_LICENSE_FILE
+#unsetenv SNPSLMD_LICENSE_FILE
+unsetenv LD_LIBRARY_PATH
+
+unsetenv CTECH_LIB_NAME
+unsetenv CTECH_LIB_NAME_CDC
+
+unsetenv COLLAGE_WORK
+
+unsetenv LIRA_VER
+unsetenv LINTRA_VER
+
+printf "Done\n\n\n"
+
+if ( ! $?IP_ROOT ) then
+  echo "ERROR: Must set IP_ROOT env variable first"
+  exit 1
+endif
+
+printf "Setting up environment variables....."
+
+echo "setting IP_ROOT as $IP_ROOT"
+setenv SIP_PROJECT dfx
+setenv PROJECT_BASE ${IP_ROOT}
+
+#For Ace
+setenv ACE_PROJECT  stap
+setenv ACE_ENG      ${PROJECT_BASE}
+setenv ACE_RC       ${PROJECT_BASE}/ace/$ACE_PROJECT.acerc
+setenv ACE_PWA_DIR pwa
+
+#For compilation
+setenv LIB_AREA     ${PROJECT_BASE}/verif/lib
+setenv GCC_LIB_VER gcc-4.2.2_64
+
+#For subIP
+setenv DFXSECURE_PLUGIN_VER ${IP_ROOT}/subIP/DfxSecurePlugin
+setenv JTAG_BFM_VER   /nfs/iind/disks/mg_disk0599/common/tap/ip-jtag-bfm
+setenv GENERATED_FILES_FOR_JTAGBFM ${IP_ROOT}/verif/ctt_files/rev0612/sTAP_IP_Standalone
+
+#For Ctech Methodology
+setenv GLOBAL_CTECH_VER /p/com/eda/intel/ctech/v14ww24e 
+setenv CTECH_LIB_NAME CTECH_v_rtl_lib 
+#echo "which CUSTOMER: $CUSTOMER\n"
+#if ($CUSTOMER == CNPLP) then
+#    tsetup vcsmx H-2013.06-SP1-9-B-4
+#endif
+setenv GENERATED_FILES_FOR_CONVERGED_JTAGBFM ${JTAG_BFM_VER}/verif/tb/Converged_JtagBfm/Converged_SampleTests/tap_files
+
+setenv SIP_ROOT $IP_ROOT/../../../../
+printf "Done!\n\n"
+echo "Setting up tools....\n\n"

@@ -1,0 +1,25 @@
+create_supply_net "vccx"
+create_supply_net "vss"
+create_supply_port -direction "in" "vccx"
+create_supply_port -direction "in" "vss"
+connect_supply_net "vccx" -ports {
+  vccx
+}
+connect_supply_net "vss" -ports {
+  vss
+}
+
+create_power_domain "pd_clkreqaggr_vccagent"
+
+set_domain_supply_net "pd_clkreqaggr_vccagent" \
+  -primary_power_net "vccx" \
+  -primary_ground_net "vss"
+
+add_port_state "vccx" -state "clkreqaggr_SOC_VX_NOM 0.85"
+add_port_state "vccx" -state "clkreqaggr_SOC_VX_OFF off"
+add_port_state "vss" -state "clkreqaggr_GROUND 0.0"
+
+create_pst "pst_clkreqaggr" -supplies "vccx vss"
+
+add_pst_state -pst "pst_clkreqaggr" "clkreqaggr_ALL_OFF" -state " clkreqaggr_SOC_VX_OFF    clkreqaggr_GROUND"
+add_pst_state -pst "pst_clkreqaggr" "clkreqaggr_ALL_ON" -state " clkreqaggr_SOC_VX_NOM    clkreqaggr_GROUND"

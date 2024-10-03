@@ -1,0 +1,38 @@
+-assert enable_diag
+-assert enable_hier
+-assert disable_rep_opt
+-lca
+-ntb_opts sv_fmt
+-debug_access+all
+-debug_region=lib+cell
+-j4
+-licqueue
+-fastpartcomp=j4
+-partcomp=autopartdbg
+-xprop=$WORKAREA/verif/vcssim/xprop.cfg
++vpi
++error+100
+-error=REO
+-error=UNIQUE
+-error=TEIF
+-error=PRIORITY
+-error=ENUMASSIGN
+-error=MTOCMUCS
+-error=SV-SVPIA
+-error=ICTA-SI
+-error=SV-SELS
+-error=IPC
+-error=DPIMI
+-error=INAV
+-error=FLVU
+-error=FVNU
+-error=ZONMCM
+-error=IPDASP
+-error=AOUP
+-error=FRCREF
+-error=ISALS
+-error=SV-ANDNMD
+-error=OSVF-NPVIUFPI
+-error=CIWC
+-error=CWUC
+-error=MATN

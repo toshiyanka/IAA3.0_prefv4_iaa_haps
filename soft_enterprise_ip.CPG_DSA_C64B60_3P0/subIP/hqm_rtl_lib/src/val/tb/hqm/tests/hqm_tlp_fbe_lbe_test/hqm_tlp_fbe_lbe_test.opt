@@ -1,0 +1,30 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => ["+AW_CONTINUE_ON_ERROR", "+iosf_tracker_filename=iosf_trk", "-assert nopostproc", "+hqm_ral_rand_bus_id=1", 
+                     "+vcs+lic+wait",
+                     "+SLA_FLUSH_PHASE_TIMEOUT=400000",
+                     "+SLA_MAX_RUN_CLOCK=400000",
+                    ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+      cfgrd => { -simv_args => ["+hqm_tlp_fbe_lbe_stim_config::mode=cfgrd",],  },
+      cfgwr => { -simv_args => ["+hqm_tlp_fbe_lbe_stim_config::mode=cfgwr",],  },
+      mrd   => { -simv_args => ["+hqm_tlp_fbe_lbe_stim_config::mode=mrd", "+pcie_urd +pcie_ced +pcie_anfes +eot_pf",],  },
+      mwr   => { -simv_args => ["+hqm_tlp_fbe_lbe_stim_config::mode=mwr", "+pcie_urd +pcie_ned +pcie_ur_unc +eot_pf",
+                                "+EXP_UNWANTED_TXN_TO_HQM", 
+                                "+HQM_PF_EXP_NFATAL_MSG_CNT=1",
+                               ],  
+               },
+      sec_2_2_5               => { -simv_args => ["",],  },
+
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

@@ -1,0 +1,29 @@
+#################################
+## Mode | DIR-PP | LDB-PP #######
+## PF   | 1,3    | 9,11   #######   
+## VF   | 0,2    | 0,1    #######   
+## HCW FROM DIR-PP:0-3    #######
+## HCW FROM LDB-PP:0,1,9,11######
+#################################
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+  ##PFMode 1,3 & 9,11
+  dir cq DQID1  gpa=sm cq_depth=16 cq_timer_intr_thresh=100  cq_timer_intr_ena=1 cq_depth_intr_thresh=15 cq_depth_intr_ena=1 cq_isr_en_code=2 cq_isr_vector=2
+  dir cq DQID3  gpa=sm cq_depth=8  cq_timer_intr_thresh=110  cq_timer_intr_ena=1 cq_depth_intr_thresh=7  cq_depth_intr_ena=1 cq_isr_en_code=2 cq_isr_vector=4
+
+  ldb cq LPP9   gpa=sm cq_depth=8  qidv0=1 qidix0=LQID9  pri0=0 cq_timer_intr_thresh=120  cq_timer_intr_ena=1 cq_depth_intr_thresh=7  cq_depth_intr_ena=1 cq_isr_en_code=2 cq_isr_vector=2
+  ldb cq LPP11  gpa=sm cq_depth=16 qidv0=1 qidix0=LQID11 pri0=0 cq_timer_intr_thresh=130  cq_timer_intr_ena=1 cq_depth_intr_thresh=15 cq_depth_intr_ena=1 cq_isr_en_code=2 cq_isr_vector=3
+
+  ##VFMode 0,2 & 0,1
+  dir cq DQID0  gpa=sm cq_depth=8  cq_timer_intr_thresh=123  cq_timer_intr_ena=1 cq_depth_intr_thresh=7  cq_depth_intr_ena=1 cq_isr_en_code=1 
+  dir cq DQID2  gpa=sm cq_depth=16 cq_timer_intr_thresh=143  cq_timer_intr_ena=1 cq_depth_intr_thresh=15 cq_depth_intr_ena=1  cq_isr_en_code=1
+  ldb cq LPP0   gpa=sm cq_depth=16 qidv0=1 qidix0=LQID0  pri0=0 cq_timer_intr_thresh=113  cq_timer_intr_ena=1 cq_depth_intr_thresh=15 cq_depth_intr_ena=1  cq_isr_en_code=1
+  ldb cq LPP1   gpa=sm cq_depth=8  qidv0=1 qidix0=LQID1  pri0=0 cq_timer_intr_thresh=103  cq_timer_intr_ena=1 cq_depth_intr_thresh=7  cq_depth_intr_ena=1  cq_isr_en_code=1
+
+  msix_cq 2  addr=0x2222cafebebc010 data=0xbb331001 is_ldb=0 cq=DQID1
+  msix_cq 4  addr=0x2222cafebebc020 data=0xbb331002 is_ldb=0 cq=DQID3
+  msix_cq 16 addr=0x2222cafebebc160 data=0xbb331016 is_ldb=1 cq=LPP9 
+  msix_cq 17 addr=0x2222cafebebc170 data=0xbb331017 is_ldb=1 cq=LPP11
+
+rd hqm_pf_cfg_i.vendor_id

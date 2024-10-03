@@ -1,0 +1,116 @@
+rd config_master.cfg_pm_pmcsr_disable
+wr config_master.cfg_pm_pmcsr_disable.disable 0
+rd config_master.cfg_pm_pmcsr_disable
+rd config_master.cfg_pm_override
+rd config_master.cfg_diagnostic_reset_status
+#poll to Wait for reset to be done 
+poll config_master.cfg_diagnostic_reset_status 0x80000bff 0x80000bff 500
+#poll to Wait for unit_idle to be done 
+poll config_master.cfg_diagnostic_idle_status 0x0007ffff 0x0007ffff 500
+
+###################################
+# Wait for reset to be done (including hardware memory init)
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+
+###################################
+# Setup LUTs used by HCWs
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+  dir qid DQ0:0
+  dir qid DQ1:1
+  dir qid DQ2:2
+  dir qid DQ3:3
+  dir qid DQ4:4
+  dir qid DQ5:5
+  dir qid DQ6:6
+  dir qid DQ7:7
+  dir qid DQ8:8
+  dir qid DQ9:9
+  dir qid DQ10:10
+  dir qid DQ11:11
+  dir qid DQ12:12
+  dir qid DQ13:13
+  dir qid DQ14:14
+  dir qid DQ15:15
+
+  ldb qid LQ0:* qid_ldb_inflight_limit=256 fid_cfg_v=1
+  ldb qid LQ1:* qid_ldb_inflight_limit=256 fid_cfg_v=1
+  ldb qid LQ2:* qid_ldb_inflight_limit=256 fid_cfg_v=1
+  ldb qid LQ3:* qid_ldb_inflight_limit=256 fid_cfg_v=1
+  ldb qid LQ4:* qid_ldb_inflight_limit=256 fid_cfg_v=1
+  ldb qid LQ5:* qid_ldb_inflight_limit=256 fid_cfg_v=1
+  ldb qid LQ6:* qid_ldb_inflight_limit=256 fid_cfg_v=1
+  ldb qid LQ7:* qid_ldb_inflight_limit=256 fid_cfg_v=1
+
+  vas 0 credit_cnt=8192 dir_qidv:DQ0=1 dir_qidv:DQ1=1 dir_qidv:DQ2=1 dir_qidv:DQ3=1 dir_qidv:DQ4=1 dir_qidv:DQ5=1 dir_qidv:DQ6=1 dir_qidv:DQ7=1 dir_qidv:DQ8=1 dir_qidv:DQ9=1 dir_qidv:DQ10=1 dir_qidv:DQ11=1 dir_qidv:DQ12=1 dir_qidv:DQ13=1 dir_qidv:DQ14=1 dir_qidv:DQ15=1
+  vas 0 ldb_qidv:LQ0=1 ldb_qidv:LQ1=1 ldb_qidv:LQ2=1 ldb_qidv:LQ3=1 ldb_qidv:LQ4=1 ldb_qidv:LQ5=1 ldb_qidv:LQ6=1 ldb_qidv:LQ7=1
+
+  dir pp 0  vas=0
+  dir pp 1  vas=0
+  dir pp 2  vas=0
+  dir pp 3  vas=0
+  dir pp 4  vas=0
+  dir pp 5  vas=0
+  dir pp 6  vas=0
+  dir pp 7  vas=0
+  dir pp 8  vas=0
+  dir pp 9  vas=0
+  dir pp 10 vas=0
+  dir pp 11 vas=0
+  dir pp 12 vas=0
+  dir pp 13 vas=0
+  dir pp 14 vas=0
+  dir pp 15 vas=0
+
+  dir cq 0  cq_depth=1024 gpa=sm cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 pasid=[0x000000:0x0fffff]
+  dir cq 1  cq_depth=1024 gpa=sm cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 pasid=[0x400000:0x4fffff]
+  dir cq 2  cq_depth=1024 gpa=sm cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 pasid=[0x400000:0x4fffff]
+  dir cq 3  cq_depth=1024 gpa=sm cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 pasid=[0x400000:0x4fffff]
+  dir cq 4  cq_depth=1024 gpa=sm cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 pasid=[0x400000:0x4fffff]
+  dir cq 5  cq_depth=1024 gpa=sm cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 pasid=[0x400000:0x4fffff]
+  dir cq 6  cq_depth=1024 gpa=sm cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 pasid=[0x400000:0x4fffff]
+  dir cq 7  cq_depth=1024 gpa=sm cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 pasid=[0x400000:0x4fffff]
+  dir cq 8  cq_depth=1024 gpa=sm cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 pasid=[0x400000:0x4fffff]
+  dir cq 9  cq_depth=1024 gpa=sm cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 pasid=[0x400000:0x4fffff]
+  dir cq 10 cq_depth=1024 gpa=sm cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 pasid=[0x400000:0x4fffff]
+  dir cq 11 cq_depth=1024 gpa=sm cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 pasid=[0x400000:0x4fffff]
+  dir cq 12 cq_depth=1024 gpa=sm cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 pasid=[0x400000:0x4fffff]
+  dir cq 13 cq_depth=1024 gpa=sm cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 pasid=[0x400000:0x4fffff]
+  dir cq 14 cq_depth=1024 gpa=sm cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 pasid=[0x400000:0x4fffff]
+  dir cq 15 cq_depth=1024 gpa=sm cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1 pasid=[0x400000:0x4fffff]
+
+  ldb pp 0  vas=0
+  ldb pp 1  vas=0
+  ldb pp 2  vas=0
+  ldb pp 3  vas=0
+  ldb pp 4  vas=0
+  ldb pp 5  vas=0
+  ldb pp 6  vas=0
+  ldb pp 7  vas=0
+
+  ldb cq 0  cq_depth=1024 gpa=sm hist_list_base=0x000 hist_list_limit=0x0ff qidv0=1 qidix0=LQ0 pri0=0 qidv1=1 qidix1=LQ1 pri1=0 qidv2=1 qidix2=LQ2 pri2=0 qidv3=1 qidix3=LQ3 pri3=0 qidv4=1 qidix4=LQ4 pri4=0 qidv5=1 qidix5=LQ5 pri5=0 qidv6=1 qidix6=LQ6 pri6=0 qidv7=1 qidix7=LQ7 pri7=0 cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1
+  ldb cq 1  cq_depth=1024 gpa=sm hist_list_base=0x100 hist_list_limit=0x1ff qidv0=1 qidix0=LQ0 pri0=0 qidv1=1 qidix1=LQ1 pri1=0 qidv2=1 qidix2=LQ2 pri2=0 qidv3=1 qidix3=LQ3 pri3=0 qidv4=1 qidix4=LQ4 pri4=0 qidv5=1 qidix5=LQ5 pri5=0 qidv6=1 qidix6=LQ6 pri6=0 qidv7=1 qidix7=LQ7 pri7=0 cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1
+  ldb cq 2  cq_depth=1024 gpa=sm hist_list_base=0x200 hist_list_limit=0x2ff qidv0=1 qidix0=LQ0 pri0=0 qidv1=1 qidix1=LQ1 pri1=0 qidv2=1 qidix2=LQ2 pri2=0 qidv3=1 qidix3=LQ3 pri3=0 qidv4=1 qidix4=LQ4 pri4=0 qidv5=1 qidix5=LQ5 pri5=0 qidv6=1 qidix6=LQ6 pri6=0 qidv7=1 qidix7=LQ7 pri7=0 cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1
+  ldb cq 3  cq_depth=1024 gpa=sm hist_list_base=0x300 hist_list_limit=0x3ff qidv0=1 qidix0=LQ0 pri0=0 qidv1=1 qidix1=LQ1 pri1=0 qidv2=1 qidix2=LQ2 pri2=0 qidv3=1 qidix3=LQ3 pri3=0 qidv4=1 qidix4=LQ4 pri4=0 qidv5=1 qidix5=LQ5 pri5=0 qidv6=1 qidix6=LQ6 pri6=0 qidv7=1 qidix7=LQ7 pri7=0 cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1
+  ldb cq 4  cq_depth=1024 gpa=sm hist_list_base=0x400 hist_list_limit=0x4ff qidv0=0 qidix0=LQ0 pri0=0 qidv1=0 qidix1=LQ1 pri1=0 qidv2=0 qidix2=LQ2 pri2=0 qidv3=0 qidix3=LQ3 pri3=0 qidv4=1 qidix4=LQ4 pri4=0 qidv5=1 qidix5=LQ5 pri5=0 qidv6=1 qidix6=LQ6 pri6=0 qidv7=1 qidix7=LQ7 pri7=0 cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1
+  ldb cq 5  cq_depth=1024 gpa=sm hist_list_base=0x500 hist_list_limit=0x5ff qidv0=0 qidix0=LQ0 pri0=0 qidv1=0 qidix1=LQ1 pri1=0 qidv2=0 qidix2=LQ2 pri2=0 qidv3=0 qidix3=LQ3 pri3=0 qidv4=1 qidix4=LQ4 pri4=0 qidv5=1 qidix5=LQ5 pri5=0 qidv6=1 qidix6=LQ6 pri6=0 qidv7=1 qidix7=LQ7 pri7=0 cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1
+  ldb cq 6  cq_depth=1024 gpa=sm hist_list_base=0x600 hist_list_limit=0x6ff qidv0=0 qidix0=LQ0 pri0=0 qidv1=0 qidix1=LQ1 pri1=0 qidv2=0 qidix2=LQ2 pri2=0 qidv3=0 qidix3=LQ3 pri3=0 qidv4=1 qidix4=LQ4 pri4=0 qidv5=1 qidix5=LQ5 pri5=0 qidv6=1 qidix6=LQ6 pri6=0 qidv7=1 qidix7=LQ7 pri7=0 cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1
+  ldb cq 7  cq_depth=1024 gpa=sm hist_list_base=0x700 hist_list_limit=0x7ff qidv0=0 qidix0=LQ0 pri0=0 qidv1=0 qidix1=LQ1 pri1=0 qidv2=0 qidix2=LQ2 pri2=0 qidv3=0 qidix3=LQ3 pri3=0 qidv4=1 qidix4=LQ4 pri4=0 qidv5=1 qidix5=LQ5 pri5=0 qidv6=1 qidix6=LQ6 pri6=0 qidv7=1 qidix7=LQ7 pri7=0 cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1
+
+  vdev 2 dir_pp0_v=1 dir_pp1_v=1 dir_pp2_v=1 dir_pp3_v=1 dir_pp4_v=1 dir_pp5_v=1 dir_pp6_v=1 dir_pp7_v=1
+  vdev 2 dir_vqid0_qid=DQ0 dir_vqid1_qid=DQ1 dir_vqid2_qid=DQ2 dir_vqid3_qid=DQ3 dir_vqid4_qid=DQ4 dir_vqid5_qid=DQ5 dir_vqid6_qid=DQ6 dir_vqid7_qid=DQ7
+  vdev 2 ldb_pp0_v=1 ldb_pp1_v=1 ldb_pp2_v=1 ldb_pp3_v=1 ldb_pp4_v=1 ldb_pp5_v=1 ldb_pp6_v=1 ldb_pp7_v=1
+  vdev 2 ldb_vqid0_qid=LQ0 ldb_vqid1_qid=LQ1 ldb_vqid2_qid=LQ2 ldb_vqid3_qid=LQ3 ldb_vqid4_qid=LQ4 ldb_vqid5_qid=LQ5 ldb_vqid6_qid=LQ6 ldb_vqid7_qid=LQ7
+
+cfg_end
+
+idle 100
+
+###################################
+# Verify expected value of PCIe configuration registers for SCIOV
+brd hqm_pf_cfg_i.pcie_cap_device_cap_2.e2etlpps 1
+brd hqm_pf_cfg_i.pcie_cap_device_cap_2.effs 1
+brd hqm_pf_cfg_i.pasid_control.pasid_enable 1

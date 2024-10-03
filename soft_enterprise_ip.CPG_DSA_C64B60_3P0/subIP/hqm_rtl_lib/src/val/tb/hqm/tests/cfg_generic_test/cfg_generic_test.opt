@@ -1,0 +1,204 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+our $attr_force_val;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => ["+AW_CONTINUE_ON_ERROR",
+           "iosf_tracker_filename=iosf_trk",
+           "+SLA_USER_DATA_PHASE_TIMEOUT=1300000",
+           "+SLA_CONFIG_PHASE_TIMEOUT=12000000",
+           "+SLA_FLUSH_PHASE_TIMEOUT=400000",
+           "-assert nopostproc", "+HQMS_DEBUG", "+HQMI_DEBUG",
+           "+vcs+lic+wait",
+      ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+    if ($main::ACE_RUN_MODE =~ /^attr_force_val_/) {
+	$attr_force_val = $main::ACE_RUN_MODE;
+	$attr_force_val =~ s/attr_force_val_//;     # Extracts the actual attr_force_val  value from the runmode
+    }
+
+    %runModes = (
+      test0 => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up.cft",
+          "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+          "+IOSF_PRIM_FILE=back2back_cfgrd_seq",],
+      },
+      testr => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk +HQM_PVC_AUTO_TAG_GEN_DIS",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up.cft",
+          "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+          "+IOSF_PRIM_FILE=back2back_cfgrdwr_seq1",],
+      },
+	"attr_force_val_".$attr_force_val	=> {
+	    -simv_args => [ 
+           "+ATTR_FORCE_VAL=$attr_force_val  +hqm_attr_force +tag_opt=406 +unsupport_pkt_cnt=2",],
+	},
+  unsupport_IDO	=> {
+	    -simv_args => [ 
+           "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/unsupported_IDO.waiver",],
+	},
+
+  unsupport_TH	=> {
+	    -simv_args => [ 
+           "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/unsupported_TH.waiver",],
+	},
+  unsupport_NS	=> {
+	    -simv_args => [ 
+           "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/unsupported_NS.waiver",],
+	},
+
+  unsupport_AT	=> {
+	    -simv_args => [ 
+           "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/unsupported_AT.waiver",],
+	},
+  unsupport_RS	=> {
+	    -simv_args => [ 
+           "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/unsupported_RS.waiver",],
+	},
+  unsupport_TC	=> {
+	    -simv_args => [ 
+           "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/unsupported_TC.waiver",],
+	},
+
+      test0a => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ","+RQID_TXN","+BLOCKING_IOSF_TXN",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up.cft",
+          "+IOSF_PRIM_FILE=back2back_cfgrd_seq",],
+      },
+
+
+
+
+      
+     test1 => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up.cft",
+          "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+          "+IOSF_PRIM_FILE=back2back_cfgwr_seq",],
+      },
+
+       test1a => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ","+BLOCKING_IOSF_TXN",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up.cft","+RQID_TXN",
+          "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/rqid_check.cft",
+          "+IOSF_PRIM_FILE=back2back_cfgwr_seq",],
+      },
+
+
+
+
+       test2 => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ","+RD_CPL_TXN",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up.cft",
+          "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+          "+IOSF_PRIM_FILE=cfg_genric_seq","+CFG_MODE=WRWR_rand",],
+      },
+
+      test2a => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ","+RD_CPL_TXN",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up.cft",
+          "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+          "+IOSF_PRIM_FILE=cfg_genric_seq","+CFG_MODE=RRWWRR",],
+      },
+
+       test3 => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ","+RD_CPL_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up.cft",
+           "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+           "+IOSF_PRIM_FILE=cfg_genric_seq","+CFG_MODE=WWRR_addr",],
+      },
+
+       test4 => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ","+RD_CPL_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up.cft",
+            "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+          "+IOSF_PRIM_FILE=cfg_genric_seq","+CFG_MODE=WWWR_addr",],
+      },
+      
+      test5 => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ","+RD_CPL_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up.cft",
+            "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+          "+IOSF_PRIM_FILE=cfg_genric_seq","+CFG_MODE=WRRR_addr",],
+      },
+
+     
+          test11 => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up.cft",
+          "+IOSF_PRIM_FILE=cfg_genric_seq11","+CFG_MODE=WRWR_rand",],
+      },
+
+
+    test6 => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ",
+          "+IOSF_PRIM_FILE=cfg_genric_parallel_seq",
+           "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up.cft",
+          "+CFG_MODE=WRWR_rand",],
+      },
+
+       test7 => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up.cft",
+            "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+          "+IOSF_PRIM_FILE=cfg_genric_parallel_seq",
+          "+CFG_MODE=WWRR_addr",],
+      },
+
+       test8 => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up.cft",
+           "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+          "+IOSF_PRIM_FILE=cfg_genric_parallel_seq","+CFG_MODE=WWWR_addr",],
+      },
+      
+      test9 => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up.cft",
+           "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+          "+IOSF_PRIM_FILE=cfg_genric_parallel_seq","+CFG_MODE=WRRR_addr",],
+      },
+  
+  
+      WRWR  => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/SAI_generic.cft",
+          "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+          "+IOSF_PRIM_FILE=cfg_rand_generic_seq","+CFG_MODE=WRWR_rand",],
+      },
+
+       WWRR => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/SAI_generic.cft",
+           "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+           "+IOSF_PRIM_FILE=cfg_rand_generic_seq","+CFG_MODE=WWRR_addr",],
+      },
+
+       WWWR => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/SAI_generic.cft",
+            "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+          "+IOSF_PRIM_FILE=cfg_rand_generic_seq","+CFG_MODE=WWWR_addr",],
+      },
+      
+      WRRR => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/SAI_generic.cft",
+            "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+          "+IOSF_PRIM_FILE=cfg_rand_generic_seq","+CFG_MODE=WRRR_addr",],
+      },
+
+       
+         );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+
+  }
+
+

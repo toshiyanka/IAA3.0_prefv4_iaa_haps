@@ -1,0 +1,733 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+    %opts = (
+        -simv_args => [
+                     #"+OVM_TESTNAME=$ENV{TESTNAME}",
+
+                     "+AW_CONTINUE_ON_ERROR",
+                     "+iosf_tracker_filename=iosf_trk",
+                     "-assert nopostproc",
+                     "+vcs+lic+wait",
+
+                     "+SLA_MAX_RUN_CLOCK=800000",
+                     "+SLA_USER_DATA_PHASE_TIMEOUT=800000",
+                     "+SLA_CONFIG_PHASE_TIMEOUT=100000",
+
+                     "+LSP_CONTINUE_ON_ERROR",
+                     "+HQM_LSP_CQ_QID_CFG_CHECK_DIS",		     
+                     "+HQM_EOT_RD_SEQ_ENABLE_CREDIT_CHECK",  ##First Try
+ 
+                     "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+
+                      ],
+        -enabled_post_process_modes => 'hqm_test',
+        -test_in_model => 1,
+    );
+
+
+
+   %runModes = (
+      ############################################################
+      ############################################################
+      #HQMV30: Support Cheetah2 flow 
+      ############################################################
+
+      #
+      fdfx_secure_pol_ctrl_2 => {
+          -simv_args => [
+                     "+HQM_FDFX_SECURE_POLICY_CTRL=2",
+                        ],
+      },
+      fdfx_secure_pol_ctrl_1 => {
+          -simv_args => [
+                     "+HQM_FDFX_SECURE_POLICY_CTRL=1",
+                        ],
+      },
+      fdfx_secure_pol_ctrl_3 => {
+          -simv_args => [
+                     "+HQM_FDFX_SECURE_POLICY_CTRL=3",
+                        ],
+      },
+      fdfx_secure_pol_ctrl_5 => {
+          -simv_args => [
+                     "+HQM_FDFX_SECURE_POLICY_CTRL=5",
+                        ],
+      },
+      fdfx_secure_pol_ctrl_6 => {
+          -simv_args => [
+                     "+HQM_FDFX_SECURE_POLICY_CTRL=6",
+                        ],
+      },
+      fdfx_secure_pol_ctrl_8 => {
+          -simv_args => [
+                     "+HQM_FDFX_SECURE_POLICY_CTRL=8",
+                        ],
+      },
+      fdfx_secure_pol_ctrl_9 => {
+          -simv_args => [
+                     "+HQM_FDFX_SECURE_POLICY_CTRL=9",
+                        ],
+      },
+
+
+      fdfx_secure_pol_ctrl2_4 => {
+          -simv_args => [
+                     "+HQM_FDFX_SECURE_POLICY_CTRL_2=4",
+                        ],
+      },
+      fdfx_secure_pol_ctrl2_7 => {
+          -simv_args => [
+                     "+HQM_FDFX_SECURE_POLICY_CTRL_2=7",
+                        ],
+      },
+      fdfx_secure_pol_ctrl2_10 => {
+          -simv_args => [
+                     "+HQM_FDFX_SECURE_POLICY_CTRL_2=10",
+                        ],
+      },
+      fdfx_secure_pol_ctrl2_11 => {
+          -simv_args => [
+                     "+HQM_FDFX_SECURE_POLICY_CTRL_2=11",
+                        ],
+      },
+      fdfx_secure_pol_ctrl2_12 => {
+          -simv_args => [
+                     "+HQM_FDFX_SECURE_POLICY_CTRL_2=12",
+                        ],
+      },
+      fdfx_secure_pol_ctrl2_13 => {
+          -simv_args => [
+                     "+HQM_FDFX_SECURE_POLICY_CTRL_2=13",
+                        ],
+      },
+      fdfx_secure_pol_ctrl2_14 => {
+          -simv_args => [
+                     "+HQM_FDFX_SECURE_POLICY_CTRL_2=14",
+                        ],
+      },
+      fdfx_secure_pol_ctrl2_15 => {
+          -simv_args => [
+                     "+HQM_FDFX_SECURE_POLICY_CTRL_2=15",
+                        ],
+      },
+
+
+      has_rtdr_reg1_cfg_task1 => {
+          -simv_args => [
+                     "+has_rtdr_reg1_cfg_task1",
+                        ],
+      },
+
+      has_tap_tdo_exp_seq => {
+          -simv_args => [
+                     "+has_tap_tdo_exp_seq",
+                        ],
+      },
+      has_tapconfig_rand_task => {
+          -simv_args => [
+                     "+has_tapconfig_rand_task",
+                        ],
+      },
+
+      warm_reset_phase => {
+          -simv_args => [
+                     "+PWR_OVR_TEST_PHASE=WARM_RESET_PHASE",
+                        ],
+      },
+      eot_disable => {
+          -simv_args => [
+                     "+HQM_TB_EOT_CHECK_DISABLE",
+                        ],
+      },
+      ##------------------------------------------------------------##
+      ##  Basic   MultipleTapRegisterAccess
+      ##------------------------------------------------------------##
+      rtdr_reset_phase => {
+          -simv_args => [
+                     #"+ITPP_RESET_TEST", #
+                     #"+TAP_INIT_SEQ",    #
+                     "+HAS_ITPP_RESET_TEST_PHASE", #
+                        ],
+      },
+
+      rtdr_pwr_test_phase => {
+          -simv_args => [
+                     "+HAS_PWR_RESET_TEST_PHASE", #
+                        ],
+      },
+
+
+      rtdr_init_phase => {
+          -simv_args => [
+                     #"+ITPP_RESET_TEST", #
+                     #"+TAP_INIT_SEQ",    #
+                     "+HAS_DFT_VAL_INIT_PHASE", #
+                     #"+DFT_VAL_TEST_PHASE=<>", #default is CONFIG_PHASE, DFT_VAL sequence issued before CONFIG_PHASE
+                        ],
+      },
+
+      pwr_ovr_phase => {
+          -simv_args => [
+                     "+HAS_DFT_PWR_OVR_TEST_PHASE", #
+                     #"+PWR_OVR_TEST_PHASE=WARM_RESET_PHASE", #default is WARM_RESET_PHASE, rtdr sequence issued before WARM_RESET_PHASE
+                        ],
+      },
+
+      has_skip_pmcsr_disable => {
+          -simv_args => [
+                      "+hqm_pcie_init_stim_config::skip_pmcsr_disable=1",
+                        ],
+      },
+
+      ##------------------------------------------------------------##
+      ##  Basic   MultipleTapRegisterAccess
+      ##------------------------------------------------------------##
+      rtdr_smoke_test_0 => {
+          -simv_args => [
+                     ######
+                     #BUS
+                     ######
+                     "+EN_PLUS_ARG",     #
+                     "+TAP_CLK_EN",      #
+                     "+USE_HQM_TAP_RTDR_BUS=1", #
+
+                     ######
+                     #TapDataLoadSeq_T0
+                     ######
+                     "+has_tap_dataload_seq",           #sequence TapDataLoadSeq_T0 
+
+                     "+HQM_RTDR_DATA0_0=0xabcd0000",
+                     "+HQM_RTDR_DATA0_1=0xbcda0000",
+                     "+HQM_RTDR_DATA0_2=0xcdab0000",
+                     "+HQM_RTDR_DATA0_3=0xdabc0000",
+                    
+                     "+HQM_RTDR_DATA1_0=0xbabe89a4",
+                     "+HQM_RTDR_DATA1_1=0xabeb76a0",
+                     "+HQM_RTDR_DATA1_2=0xbeba54b4",
+                     "+HQM_RTDR_DATA1_3=0xebab32a0",
+
+                     "+HQM_RTDR_DATA2_0=0xa5a5c3c3",
+                     "+HQM_RTDR_DATA2_1=0x5a5a3c3c",
+                     "+HQM_RTDR_DATA2_2=0xb4b4d2d2",
+                     "+HQM_RTDR_DATA2_3=0x4b4b2d2d",
+                     #"+HQM_RTDR_DATA2_0=0xbeefface",
+                     #"+HQM_RTDR_DATA2_1=0xeeffaceb",
+                     #"+HQM_RTDR_DATA2_2=0xeffacebe",
+                     #"+HQM_RTDR_DATA2_3=0xffacebee",
+
+                     ######
+                     #TapDataLoadSeq_T0: select reg0/1/2
+                     ######
+                     "+has_rtdr_reg0_write_task_0",
+                     "+has_rtdr_reg0_write_task_1",
+                     "+has_rtdr_reg1_write_task_0",
+                     "+has_rtdr_reg1_write_task_1",
+                     "+has_rtdr_reg2_write_task_0",
+                     "+has_rtdr_reg2_write_task_1",
+
+                     "+has_rtdr_reg_access_rnd2", #2nd round
+
+                     ######
+                     #
+                     ######
+                        ],
+      },
+
+
+      rtdr_smoke_test_1 => {
+          -simv_args => [
+                     ######
+                     #BUS
+                     ######
+                     "+EN_PLUS_ARG",     #
+                     "+TAP_CLK_EN",      #
+                     "+USE_HQM_TAP_RTDR_BUS=1", #
+
+                     ######
+                     #TapDataLoadSeq_T0
+                     ######
+                     "+has_tap_dataload_seq",           #sequence TapDataLoadSeq_T0 
+
+                     "+HQM_RTDR_DATA0_0=0xabcd0000",
+                     "+HQM_RTDR_DATA0_1=0xbcda0000",
+                     "+HQM_RTDR_DATA0_2=0xcdab0000",
+                     "+HQM_RTDR_DATA0_3=0xdabc0000",
+                    
+                     "+HQM_RTDR_DATA1_0=0xbabe89a0",
+                     "+HQM_RTDR_DATA1_1=0xabeb76a4",
+                     "+HQM_RTDR_DATA1_2=0xbeba54b2",
+                     "+HQM_RTDR_DATA1_3=0xebab32a6",
+
+                     "+HQM_RTDR_DATA2_0=0xa5a5c3c3",
+                     "+HQM_RTDR_DATA2_1=0x5a5a3c3c",
+                     "+HQM_RTDR_DATA2_2=0xb4b4d2d2",
+                     "+HQM_RTDR_DATA2_3=0x4b4b2d2d",
+
+                     ######
+                     #TapDataLoadSeq_T0: select reg0/1/2
+                     ######
+                     "+has_rtdr_reg0_write_task_0",
+                     #"+has_rtdr_reg0_write_task_1",
+                     "+has_rtdr_reg1_write_task_0",
+                     "+has_rtdr_reg1_write_task_1",
+                     "+has_rtdr_reg2_write_task_0",
+                     "+has_rtdr_reg2_write_task_1",
+
+                     #"+has_rtdr_reg_access_rnd2", #2nd round
+
+                     ######
+                     #
+                     ######
+                        ],
+      },
+
+
+
+      rtdr_smoke_test_2 => {
+          -simv_args => [
+
+                     "-assert quiet+hier=aceroot/verif/tb/hqm/tests/hqm_tap_rtdr_test/hqm_rtdr_assert.waiver",
+
+                     ######
+                     #BUS
+                     ######
+                     "+EN_PLUS_ARG",     #
+                     "+TAP_CLK_EN",      #
+                     "+USE_HQM_TAP_RTDR_BUS=1", #
+
+                     ######
+                     #TapDataLoadSeq_T0
+                     ######
+                     "+has_tap_dataload_seq",           #sequence TapDataLoadSeq_T0 
+
+                     "+HQM_RTDR_DATA0_0=0xabcd0000",
+                     "+HQM_RTDR_DATA0_1=0xbcda0000",
+                     "+HQM_RTDR_DATA0_2=0xcdab0000",
+                     "+HQM_RTDR_DATA0_3=0xdabc0000",
+                    
+                     "+HQM_RTDR_DATA1_0=0x55aa55a4", #10 4
+                     "+HQM_RTDR_DATA1_1=0xaa55aa5e", #01 6
+                     "+HQM_RTDR_DATA1_2=0xbb4455a2", #11 2
+                     "+HQM_RTDR_DATA1_3=0xcc33aa56", #01
+                     "+HQM_RTDR_DATA1_4=0xdd2255a6", #11
+                     "+HQM_RTDR_DATA1_5=0xff11aa56", #11
+
+                     "+HQM_RTDR_DATA1_CFG_wait_0=100",
+                     "+HQM_RTDR_DATA1_CFG_wait_1=10",
+                     "+HQM_RTDR_DATA1_CFG_wait_2=500", #8000
+                     "+HQM_RTDR_DATA1_CFG_wait_3=500", 
+                     "+HQM_RTDR_DATA1_CFG_wait_4=100",
+
+                     "+HQM_RTDR_DATA2_0=0xa5a5c3c3",
+                     "+HQM_RTDR_DATA2_1=0x5a5a3c3c",
+                     "+HQM_RTDR_DATA2_2=0xb4b4d2d2",
+                     "+HQM_RTDR_DATA2_3=0x4b4b2d2d",
+
+                     ######
+                     #TapDataLoadSeq_T0: only program reg1 
+                     ######
+                     "+has_rtdr_reg1_cfg_task0",
+                     "+has_rtdr_reg1_cfg_task1",
+
+
+                     ######
+                     #
+                     ######
+                     ###### +HQM_TB_EOT_CHECK_DISABLE +HQM_PCIE_SKIP_EOT_SEQ +HQM_RTDR_SKIP_EOT_SEQ
+                     "+HQM_TB_EOT_CHECK_DISABLE",
+                     "+HQM_PCIE_SKIP_EOT_SEQ",
+                     "+HQM_RTDR_SKIP_EOT_SEQ",
+                        ],
+      },
+
+
+
+      ################################
+      #reg0 write-read
+      ################################
+      rtdr_smoke_reg0_wr_t0 => {
+          -simv_args => [
+                     ######
+                     #BUS
+                     ######
+                     "+EN_PLUS_ARG",     #
+                     "+TAP_CLK_EN",      #
+                     "+USE_HQM_TAP_RTDR_BUS=1", #
+
+                     ######
+                     #TapDataLoadSeq_T0
+                     ######
+                     "+has_tap_dataload_seq",           #sequence TapDataLoadSeq_T0 
+
+                     "+HQM_RTDR_DATA0_0=0xabcd0000",
+                     "+HQM_RTDR_DATA0_1=0xbcda0000",
+                     "+HQM_RTDR_DATA0_2=0xcdab0000",
+                     "+HQM_RTDR_DATA0_3=0xdabc0000",
+                    
+                     "+HQM_RTDR_DATA1_0=0xbabe89a4",
+                     "+HQM_RTDR_DATA1_1=0xabeb76a0",
+                     "+HQM_RTDR_DATA1_2=0xbeba54b4",
+                     "+HQM_RTDR_DATA1_3=0xebab32a0",
+
+                     "+HQM_RTDR_DATA2_0=0xa5a5c3c3",
+                     "+HQM_RTDR_DATA2_1=0x5a5a3c3c",
+                     "+HQM_RTDR_DATA2_2=0xb4b4d2d2",
+                     "+HQM_RTDR_DATA2_3=0x4b4b2d2d",
+
+                     ######
+                     #TapDataLoadSeq_T0: select reg0/1/2
+                     ######
+                     "+has_rtdr_reg0_write_task_0",
+                     "+has_rtdr_reg0_read_task_0",
+                     "+has_rtdr_reg0_write_task_1",
+                     "+has_rtdr_reg0_read_task_1",
+
+                     #"+has_rtdr_reg_access_rnd2", #2nd round
+
+                     ######
+                     #
+                     ######
+                        ],
+      },
+
+      ################################
+      #reg1 write-read
+      ################################
+      rtdr_smoke_reg1_wr_t0 => {
+          -simv_args => [
+                     ######
+                     #BUS
+                     ######
+                     "+EN_PLUS_ARG",     #
+                     "+TAP_CLK_EN",      #
+                     "+USE_HQM_TAP_RTDR_BUS=1", #
+
+                     ######
+                     #TapDataLoadSeq_T0
+                     ######
+                     "+has_tap_dataload_seq",           #sequence TapDataLoadSeq_T0 
+
+                     "+HQM_RTDR_DATA0_0=0xabcd0000",
+                     "+HQM_RTDR_DATA0_1=0xbcda0000",
+                     "+HQM_RTDR_DATA0_2=0xcdab0000",
+                     "+HQM_RTDR_DATA0_3=0xdabc0000",
+                    
+                     "+HQM_RTDR_DATA1_0=0xbabe89a4",
+                     "+HQM_RTDR_DATA1_1=0xabeb76a0",
+                     "+HQM_RTDR_DATA1_2=0xbeba54b4",
+                     "+HQM_RTDR_DATA1_3=0xebab32a0",
+
+                     "+HQM_RTDR_DATA2_0=0xa5a5c3c3",
+                     "+HQM_RTDR_DATA2_1=0x5a5a3c3c",
+                     "+HQM_RTDR_DATA2_2=0xb4b4d2d2",
+                     "+HQM_RTDR_DATA2_3=0x4b4b2d2d",
+
+                     ######
+                     #TapDataLoadSeq_T0: select reg0/1/2
+                     ######
+                     "+has_rtdr_reg1_write_task_0",
+                     "+has_rtdr_reg1_read_task_0",
+                     "+has_rtdr_reg1_write_task_1",
+                     "+has_rtdr_reg1_read_task_1",
+
+                     #"+has_rtdr_reg_access_rnd2", #2nd round
+
+                     ######
+                     #
+                     ######
+                        ],
+      },
+
+
+      ################################
+      #reg2 write-read
+      ################################
+      rtdr_smoke_reg2_wr_t0 => {
+          -simv_args => [
+                     ######
+                     #BUS
+                     ######
+                     "+EN_PLUS_ARG",     #
+                     "+TAP_CLK_EN",      #
+                     "+USE_HQM_TAP_RTDR_BUS=1", #
+
+                     ######
+                     #TapDataLoadSeq_T0
+                     ######
+                     "+has_tap_dataload_seq",           #sequence TapDataLoadSeq_T0 
+
+                     "+HQM_RTDR_DATA0_0=0xabcd0000",
+                     "+HQM_RTDR_DATA0_1=0xbcda0000",
+                     "+HQM_RTDR_DATA0_2=0xcdab0000",
+                     "+HQM_RTDR_DATA0_3=0xdabc0000",
+                    
+                     "+HQM_RTDR_DATA1_0=0xbabe89a4",
+                     "+HQM_RTDR_DATA1_1=0xabeb76a0",
+                     "+HQM_RTDR_DATA1_2=0xbeba54b4",
+                     "+HQM_RTDR_DATA1_3=0xebab32a0",
+
+                     "+HQM_RTDR_DATA2_0=0xa5a5c3c3",
+                     "+HQM_RTDR_DATA2_1=0x5a5a3c3c",
+                     "+HQM_RTDR_DATA2_2=0xb4b4d2d2",
+                     "+HQM_RTDR_DATA2_3=0x4b4b2d2d",
+
+                     #"+HQM_RTDR_DATA2_0=0x01234567",
+                     #"+HQM_RTDR_DATA2_1=0x89abcdef",
+                     #"+HQM_RTDR_DATA2_2=0x01234567",
+                     #"+HQM_RTDR_DATA2_3=0x89abcdef",
+
+                     ######
+                     #TapDataLoadSeq_T0: select reg0/1/2
+                     ######
+                     "+has_rtdr_reg2_write_task_0",
+                     "+has_rtdr_reg2_read_task_0",
+                     "+has_rtdr_reg2_write_task_1",
+                     "+has_rtdr_reg2_read_task_1",
+
+                     #"+has_rtdr_reg_access_rnd2", #2nd round
+
+                     ######
+                     #
+                     ######
+                        ],
+      },
+
+
+      ################################
+      #reg012 write-read
+      ################################
+      rtdr_smoke_reg012_wr_t0 => {
+          -simv_args => [
+                     ######
+                     #BUS
+                     ######
+                     "+EN_PLUS_ARG",     #
+                     "+TAP_CLK_EN",      #
+                     "+USE_HQM_TAP_RTDR_BUS=1", #
+
+                     ######
+                     #TapDataLoadSeq_T0
+                     ######
+                     "+has_tap_dataload_seq",           #sequence TapDataLoadSeq_T0 
+
+                     "+HQM_RTDR_DATA0_0=0xabcd0000",
+                     "+HQM_RTDR_DATA0_1=0xbcda0000",
+                     "+HQM_RTDR_DATA0_2=0xcdab0000",
+                     "+HQM_RTDR_DATA0_3=0xdabc0000",
+                    
+                     #"+HQM_RTDR_DATA1_0=0xbabe89a4",
+                     #"+HQM_RTDR_DATA1_1=0xabeb76a0",
+                     #"+HQM_RTDR_DATA1_2=0xbeba54b4",
+                     #"+HQM_RTDR_DATA1_3=0xebab32a0",
+                     "+HQM_RTDR_DATA1_0=0xbabe8124",
+                     "+HQM_RTDR_DATA1_1=0xabeb7240",
+                     "+HQM_RTDR_DATA1_2=0xbeba6364",
+                     "+HQM_RTDR_DATA1_3=0xebab5480",
+                     "+HQM_RTDR_DATA1_4=0xbabe45a4",
+                     "+HQM_RTDR_DATA1_5=0xabeb36c0",
+                     "+HQM_RTDR_DATA1_6=0xbeba27e4",
+                     "+HQM_RTDR_DATA1_7=0xebab1000",
+
+
+                     "+HQM_RTDR_DATA2_0=0xa5a5c3c3",
+                     "+HQM_RTDR_DATA2_1=0x5a5a3c3c",
+                     "+HQM_RTDR_DATA2_2=0xb4b4d2d2",
+                     "+HQM_RTDR_DATA2_3=0x4b4b2d2d",
+
+                     #"+HQM_RTDR_DATA2_0=0x01234567",
+                     #"+HQM_RTDR_DATA2_1=0x89abcdef",
+                     #"+HQM_RTDR_DATA2_2=0x01234567",
+                     #"+HQM_RTDR_DATA2_3=0x89abcdef",
+
+                     ######
+                     #TapDataLoadSeq_T0: select reg0/1/2
+                     ######
+                     "+has_rtdr_reg0_write_task_0",
+                     "+has_rtdr_reg0_read_task_0",
+                     "+has_rtdr_reg0_write_task_1",
+                     "+has_rtdr_reg0_read_task_1",
+
+                     "+has_rtdr_reg1_write_task_0",
+                     "+has_rtdr_reg1_read_task_0",
+                     "+has_rtdr_reg1_write_task_1",
+                     "+has_rtdr_reg1_read_task_1",
+
+                     "+has_rtdr_reg2_write_task_0",
+                     "+has_rtdr_reg2_read_task_0",
+                     "+has_rtdr_reg2_write_task_1",
+                     "+has_rtdr_reg2_read_task_1",
+
+
+                     ######
+                     #2nd round , change policy to  +HQM_FDFX_SECURE_POLICY_CTRL_2=
+                     ######
+                     "+has_rtdr_reg_access_rnd2", #2nd round
+                     "+HQM_FDFX_SECURE_POLICY_CTRL_2_wait=300",
+
+                     ######
+                     #3rd round, change policy back to  +HQM_FDFX_SECURE_POLICY_CTRL=
+                     ######
+                     "+has_rtdr_reg_access_rnd3", #3rd round
+
+                     #4th round
+                     "+has_rtdr_reg_access_rnd4", #4th round
+                        ],
+      },
+
+      rtdr_smoke_reg1_wr_t0 => {
+          -simv_args => [
+                     ######
+                     #BUS
+                     ######
+                     "+EN_PLUS_ARG",     #
+                     "+TAP_CLK_EN",      #
+                     "+USE_HQM_TAP_RTDR_BUS=1", #
+
+                     ######
+                     #TapDataLoadSeq_T0
+                     ######
+                     "+has_tap_dataload_seq",           #sequence TapDataLoadSeq_T0 
+
+                     "+has_rtdr_reg1_cfg_task1", 
+
+
+                     "+HQM_RTDR_DATA0_0=0xabcd0000",
+                     "+HQM_RTDR_DATA0_1=0xbcda0000",
+                     "+HQM_RTDR_DATA0_2=0xcdab0000",
+                     "+HQM_RTDR_DATA0_3=0xdabc0000",
+                    
+                     #"+HQM_RTDR_DATA1_0=0xbabe89a4",
+                     #"+HQM_RTDR_DATA1_1=0xabeb76a0",
+                     #"+HQM_RTDR_DATA1_2=0xbeba54b4",
+                     #"+HQM_RTDR_DATA1_3=0xebab32a0",
+                     "+HQM_RTDR_DATA1_0=0xbabe8124",
+                     "+HQM_RTDR_DATA1_1=0xabeb7240",
+                     "+HQM_RTDR_DATA1_2=0xbeba6364",
+                     "+HQM_RTDR_DATA1_3=0xebab5480",
+                     "+HQM_RTDR_DATA1_4=0xbabe45a4",
+                     "+HQM_RTDR_DATA1_5=0xabeb36c0",
+                     "+HQM_RTDR_DATA1_6=0xbeba27e4",
+                     "+HQM_RTDR_DATA1_7=0xebab1000",
+
+
+                     "+HQM_RTDR_DATA2_0=0xa5a5c3c3",
+                     "+HQM_RTDR_DATA2_1=0x5a5a3c3c",
+                     "+HQM_RTDR_DATA2_2=0xb4b4d2d2",
+                     "+HQM_RTDR_DATA2_3=0x4b4b2d2d",
+
+                     #"+HQM_RTDR_DATA2_0=0x01234567",
+                     #"+HQM_RTDR_DATA2_1=0x89abcdef",
+                     #"+HQM_RTDR_DATA2_2=0x01234567",
+                     #"+HQM_RTDR_DATA2_3=0x89abcdef",
+
+                     ######
+                     #TapDataLoadSeq_T0: select reg0/1/2
+                     ######
+                     #"+has_rtdr_reg0_write_task_0",
+                     #"+has_rtdr_reg0_read_task_0",
+                     #"+has_rtdr_reg0_write_task_1",
+                     #"+has_rtdr_reg0_read_task_1",
+
+                     "+has_rtdr_reg1_write_task_0",
+                     "+has_rtdr_reg1_read_task_0",
+                     "+has_rtdr_reg1_write_task_1",
+                     "+has_rtdr_reg1_read_task_1",
+
+                     #"+has_rtdr_reg2_write_task_0",
+                     #"+has_rtdr_reg2_read_task_0",
+                     #"+has_rtdr_reg2_write_task_1",
+                     #"+has_rtdr_reg2_read_task_1",
+
+
+                     ######
+                     #2nd round , change policy to  +HQM_FDFX_SECURE_POLICY_CTRL_2=
+                     ######
+                     #"+has_rtdr_reg_access_rnd2", #2nd round
+                     #"+HQM_FDFX_SECURE_POLICY_CTRL_2_wait=300",
+
+                     ######
+                     #3rd round, change policy back to  +HQM_FDFX_SECURE_POLICY_CTRL=
+                     ######
+                     #"+has_rtdr_reg_access_rnd3", #3rd round
+
+                     #4th round
+                     #"+has_rtdr_reg_access_rnd4", #4th round
+                        ],
+      },
+
+
+      ################################
+      #reg0 write-read
+      ################################
+      rtdr_smoke_reg0_wr_t1 => {
+          -simv_args => [
+
+                     "-assert quiet+hier=aceroot/verif/tb/hqm/tests/hqm_tap_rtdr_test/hqm_rtdr_assert.waiver",
+
+                     ######
+                     #BUS
+                     ######
+                     "+EN_PLUS_ARG",     #
+                     "+TAP_CLK_EN",      #
+                     "+USE_HQM_TAP_RTDR_BUS=1", #
+
+                    
+                     ######
+                     #TapDataLoadSeq_T0
+                     ######
+                     "+has_tap_dataload_seq",           #sequence TapDataLoadSeq_T0 
+                     #program reg0 only for iosfsb_ism 
+                     "+has_rtdr_reg0_cfg_task1", 
+
+                     ######
+                     "+HQM_RTDR_DATA0_0=0xabcda5a5",
+                     "+HQM_RTDR_DATA0_1=0xbcda5a5a",
+                     
+                     ###### +HQM_TB_EOT_CHECK_DISABLE +HQM_PCIE_SKIP_EOT_SEQ +HQM_RTDR_SKIP_EOT_SEQ
+                     "+HQM_TB_EOT_CHECK_DISABLE",
+                     "+HQM_PCIE_SKIP_EOT_SEQ",
+                     "+HQM_RTDR_SKIP_EOT_SEQ",
+                        ],
+      },
+
+
+
+      ###################
+      ##Test: general 4ldb+4dir set options in cmd lime  
+      ################### 
+      ldb4ppdir4pp_smoke => {
+          -simv_args => [
+                     "+hqmproc_sel=1",
+                     "+hqmproc_return_flow=0",
+
+                     "+LDB_PP0_Q0_NUM_HCW=32",
+                     #"+LDB_PP1_Q0_NUM_HCW=0",
+                     #"+LDB_PP2_Q0_NUM_HCW=0", 
+                     #"+LDB_PP3_Q0_NUM_HCW=0", 
+		     		     
+                     #"+DIR_PP0_Q0_NUM_HCW=0",
+                     #"+DIR_PP1_Q0_NUM_HCW=0",
+                     #"+DIR_PP2_Q0_NUM_HCW=0",
+                     #"+DIR_PP3_Q0_NUM_HCW=0",
+		     		     	  
+                     "+LDB_PP0_TRF_ENA=1",
+                     #"+LDB_PP1_TRF_ENA=0",
+                     #"+LDB_PP2_TRF_ENA=0",  
+                     #"+LDB_PP3_TRF_ENA=0",  		     
+		     		     
+                     #"+DIR_PP0_TRF_ENA=0",
+                     #"+DIR_PP1_TRF_ENA=0",	
+                     #"+DIR_PP2_TRF_ENA=0",
+                     #"+DIR_PP3_TRF_ENA=0",
+		     
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_hqmproc_functional/hcw_enqtrf_hqmproc_4cqqid_1map_cfg.cft",		     
+                        ],
+      },    
+
+      )
+
+
+
+}

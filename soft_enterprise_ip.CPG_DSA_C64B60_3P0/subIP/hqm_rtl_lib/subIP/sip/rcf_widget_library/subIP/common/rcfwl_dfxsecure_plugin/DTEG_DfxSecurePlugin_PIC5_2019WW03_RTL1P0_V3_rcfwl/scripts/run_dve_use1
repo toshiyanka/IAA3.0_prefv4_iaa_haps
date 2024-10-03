@@ -1,0 +1,12 @@
+#!/bin/csh -f
+
+
+setenv ip_file_list dfxsecure_plugin_list
+
+cd $IP_ROOT/pwa/results/tests
+
+ls -d DfxSecure* | sed -e 's/\///' | awk '{printf ("%s/%s/%s.simv.vdb\n", var,$1, $1)}' var=$cwd > $ip_file_list
+
+dve -cov -dir $IP_ROOT/pwa/results/vcs_lib/models/dfxsecure_plugin_model/dfxsecure_plugin_model.simv.vdb/ -f $IP_ROOT/pwa/results/tests/$ip_file_list -elfile $IP_ROOT/verif/tb/include/dsp_cov_exclusions_use1.el &
+
+cd $IP_ROOT

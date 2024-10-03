@@ -1,0 +1,113 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Setup FUNC_VF BAR to a base address of 0x00000003_xxxxxxxx
+wr hqm_pf_cfg_i.sriov_cap_func_bar_l 0x00000000
+wr hqm_pf_cfg_i.sriov_cap_func_bar_u 0x00000003
+###################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+###################################
+# 16 VF
+wr hqm_pf_cfg_i.sriov_cap_num_vf 0x10
+###################################
+# Enable VF and VF memory operations
+wr hqm_pf_cfg_i.sriov_cap_control_status 0x9
+wr hqm_vf_cfg_i[0].device_command 0x4
+wr hqm_vf_cfg_i[1].device_command 0x4
+wr hqm_vf_cfg_i[2].device_command 0x4
+wr hqm_vf_cfg_i[4].device_command 0x4
+wr hqm_vf_cfg_i[6].device_command 0x4
+rd hqm_pf_cfg_i.sriov_cap_control_status
+###################################
+# Setup MSI-X Table entries
+wr hqm_msix_mem.msg_addr_l[3]  0xdeadf00c
+wr hqm_msix_mem.msg_addr_u[3]  0xfeeddeaf
+wr hqm_msix_mem.msg_data[3]    0xa11c0ded
+wr hqm_msix_mem.vector_ctrl[3] 0x00000000
+
+wr hqm_msix_mem.msg_addr_l[0]  0xeeadf11c
+wr hqm_msix_mem.msg_addr_u[0]  0xfeeddeaf
+wr hqm_msix_mem.msg_data[0]    0x1ce1cebb
+wr hqm_msix_mem.vector_ctrl[0] 0x00000000
+
+rd hqm_msix_mem.msg_addr_l[3]  0xdeadf00c
+rd hqm_msix_mem.msg_addr_u[3]  0xfeeddeaf
+rd hqm_msix_mem.msg_data[3]    0xa11c0ded
+rd hqm_msix_mem.vector_ctrl[3] 0x00000000
+
+rd hqm_msix_mem.msg_addr_l[0]  0xeeadf11c
+rd hqm_msix_mem.msg_addr_u[0]  0xfeeddeaf
+rd hqm_msix_mem.msg_data[0]    0x1ce1cebb
+rd hqm_msix_mem.vector_ctrl[0] 0x00000000
+###################################
+# Enable MSI-X
+wr hqm_pf_cfg_i.msix_cap_control 0x8000
+rd hqm_pf_cfg_i.msix_cap_control 0x8047
+
+###################################
+# Wait for reset to be done (including hardware memory init)
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+  dir qid 0
+  dir qid 1
+  dir qid 2
+  dir qid 4
+  dir qid 6
+
+  vas 0 dir_qidv0=1 dir_qidv1=1 dir_qidv2=1 dir_qidv4=1 dir_qidv6=1
+
+  dir pool 0 credit_cnt=0xfb0 credit_limit=0x1000 freelist_base=0 freelist_limit=0xfff
+  ldb pool 0 credit_cnt=0x4000 credit_limit=0x4000 freelist_base=0 freelist_limit=0x3fff
+
+  dir pp  0 gpa=0x80000000 vas=0 dir_pool=0 ldb_pool=0 dir_credit_count=0x10 dir_min_credit_quanta=0x100 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x200 dir_credit_lwm=0x1
+  dir pp  1 gpa=0x80000100 vas=0 dir_pool=0 ldb_pool=0 dir_credit_count=0x10 dir_min_credit_quanta=0x100 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x200 dir_credit_lwm=0x1
+  dir pp  2 gpa=0x80000200 vas=0 dir_pool=0 ldb_pool=0 dir_credit_count=0x10 dir_min_credit_quanta=0x100 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x200 dir_credit_lwm=0x1
+  dir pp  4 gpa=0x80000400 vas=0 dir_pool=0 ldb_pool=0 dir_credit_count=0x10 dir_min_credit_quanta=0x100 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x200 dir_credit_lwm=0x1
+  dir pp  6 gpa=0x80000600 vas=0 dir_pool=0 ldb_pool=0 dir_credit_count=0x10 dir_min_credit_quanta=0x100 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x200 dir_credit_lwm=0x1
+
+  dir cq 0 gpa=0xf0dcba98c0de0000 cq_depth=8
+  dir cq 1 gpa=0xf1dcba98c0de1000 cq_depth=8
+  dir cq 2 gpa=0xf2dcba98c0de2000 cq_depth=8
+  dir cq 4 gpa=0xf4dcba98c0de4000 cq_depth=8
+  dir cq 6 gpa=0xf6dcba98c0de6000 cq_depth=8
+
+  vf 0 dir_vpp0_pp=0 dir_vqid0_qid=0
+  vf 1 dir_vpp0_pp=1 dir_vqid0_qid=1
+  vf 2 dir_vpp0_pp=2 dir_vqid0_qid=2
+  vf 2 dir_vpp0_v=0
+  vf 4 dir_vpp0_pp=4 dir_vqid0_qid=4
+  vf 4 dir_vqid0_v=0
+  vf 6 dir_vpp0_pp=6 dir_vqid0_qid=6
+cfg_end
+
+###################################
+# VF 1, VPP   0 -> PP   1: valid (parity error)
+# VF 1, VQID  0 -> QID  2: valid
+# VF 1, VCQID 0 -> CQID 3: valid
+#wr hqm_system_csr.parity_ctl 0x00000001
+#wr hqm_system_csr.vf_dir_vpp2pp[128]       0x1
+#wr hqm_system_csr.parity_ctl 0x00000000
+
+# Enable ingress alarms
+rd hqm_system_csr.ingress_alarm_enable 0x00000000
+wr hqm_system_csr.ingress_alarm_enable 0x0000ffff
+rd hqm_system_csr.ingress_alarm_enable 0x0000007f

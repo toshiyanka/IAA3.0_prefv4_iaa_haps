@@ -1,0 +1,222 @@
+#--*-perl-*------------------
+
+# Current Scope
+my $SCOPE = 'CPG_VIP_env_top';
+
+
+#
+# Determine Saola/Debussy target architecture
+#
+%audf = (
+    InterfaceVars => {
+        # The following three options control how Ace manages the +incdir arguments to vlogan: whether or not to use a standalone file to contain them, and whether to list all or reduce to the unique subset (which may remove some required ones in the process if there are commonly-named areas across different libraries like 'source' or 'common'.)
+        #-create_incdirlist_trigger => { default => 1000000, },  # ylai4 - HSD807898 - workaround to avoid ACE generates incorrect vlogan command line, to be fixed in ACE 1.749
+        -create_incdirlist_trigger => { default => 1, },
+        -use_incdir_fulldepth_searchpath => { default => 1, },
+        -elab_models => { default => 1 },   # In this contrived environment, do not elaborate.
+#-models_to_elab => {clear_default => 1,  default => [ "ip_env_top" ] },
+	-models_to_elab => {default => [ "CPG_VIP_tim" ] },
+      	-models_to_compile   => { default => ['CPG_VIP_tim'] },
+        -test_in_model => { default => 1 },
+        #GURI-enable_testcopy_with_test_in_model => { default => 1 },
+        -enable_testcopy_with_test_in_model => { default => 0 },
+        -enable_sub_libraries        => { default => 1 },
+        -cleanup_pattern_file        => { default => "ace/common/ace_cleanup.pp" },
+        -cleanup_mode                => { validation => '/batch|local|keeptrk|nokeep/' },
+        -pre_clean_test              => { default => 1 },
+        -enable_liblist_elab_order   => { default => 1 },
+        -simv_args => {
+             default => [
+                '+vpdupdate',
+                '+OVM_VERBOSITY=OVM_MEDIUM',
+                #'+OVM_VERBOSITY=OVM_FULL',  # Use this level to turn on all debugging messages.
+            ],
+        },
+
+        # Specify home directory
+        -home_site => { default => 'fm', },
+
+        -vlog_opts    => {
+            default => [
+ '-sverilog',
+               '\<vcs\>-debug',               ## to enable SV macro debug capability in DVE, need ACE translator to support
+               '\<vcs\>-debug_all',               ## to enable SV macro debug capability in DVE, need ACE translator to support
+               '\<vcs\>-cm_exclude_macro',    ## to exclude SV macro from code coverage metrics right from analysis phase, as URG has bug with SV macro
+               '+warn=noCLAWOL',
+               '+warn=noDLLIL-NS',     ## to supress warning for 'Duplicated library in liblist'
+                #'+warn=noSV-LCM-PPWI',  ## to supress warning for 'Package previously wildcard imported'
+'+define+OVM',
+                '+define+VCS',
+               '+define+ASSERT_ON',
+                '+define+VCSSIM',
+				'-assert svaext',      ## nhassa2 - comment out for now as VCSMX 2011.03-1 has a bug with usage of it
+				'+define+SVA_LIB_SVA2005',
+                '-timescale=1ps/1ps',
+				'+define+CHASSIS_PG_P2',
+#				'+define+PRINT_PWR_IN_CHASSIS_TRK'
+#				'+define+DISABLE_CHASSIS_POWER_GATING_COVERAGE',
+#				'+define+DISABLE_CHASSIS_RESET_COVERAGE',         
+                   "+vcs+error=BMII",                 #Bad message id
+                   "+vcs+error=CFLL-NS",              #Cannot find logical library
+                    "+vcs+error=DFLT_OPT",             #Default option found
+                    "+vcs+error=DLLIL-NS",             #Duplicate logical library in liblist
+                    "+vcs+error=IPDASP",               #Identifier in ANSI port declaration
+                    "+vcs+error=IPDW",                 #Identifier previously declared
+                    "+vcs+error=LFCOR",                #Library file or dir cannot be opened
+                    "+vcs+error=OBSL_OPT",             #Obsolete option used
+                    "+vcs+error=UNKWN_IGOPTS",         #Unknown option(s) ignored
+				
+            ],
+        },
+
+        -elab_opts => {
+            default => [	
+                '-licqueue',
+                '-ntb_opts ext+sv_fmt',
+                '-V',
+                #'<-vcs_debug_mode>',
+                '-xlrm',
+                #'<-vcs_hdl_xmr>',
+                '+error+300',
+                '-sverilog',
+                '-lca $SAOLA_HOME/libs/Linux/libsla.so',
+                '-picarchive',      ## this switch will replace -marchive starting 2011.03x
+
+                '+lint=TFIPC',   # Enable the display of additional unconnected ports information.
+                '+lint=PCWM',   # Enable the display of additional port-width-mismatch information.
+
+                # Elaboration options which specify which warnings to flag, which warnings to elevate to errors, and so on.
+                # Here is a sample of all those warnings seen in an ME cluster regression on LPT-H:
+                #      1        1 Warning-[IPC] Illegal high conn for port connect
+                #      2        1 Warning-[LCA_FEATURES_ENABLED] Usage warning
+                #      3        1 Warning-[NO-GENERIC-MATCH-FILE] Generic or parameter not found
+                #      4        1 Warning-[TMR] Text macro redefined
+                #      5        2 Warning-[DLLIL-NS] Duplicate logical library in liblist
+                #      6        2 Warning-[GENERICFILE-EMPTY] Generic file empty or invalid
+                #      7        4 Warning-[CPBRM] Precision or Sign Mismatch
+                #      8        4 Warning-[FILE_OPENED_WARN] File already opened
+                #      9        4 Warning-[PSBU] Invalid values in bin
+                #     10        7 Warning-[IDTS] Ignoring dynamic type sensitivity
+                #     11        7 Warning-[SVA-LCDNAWPSC] Lead and property/sequence clocks differ
+                #     12       11 Warning-[CFLL-NS] Cannot find logical library
+                #     13       20 Warning-[FCPSBU] Invalid values in bin
+                #     14       20 Warning-[FCPSM] Mismatch in bin range values
+                #     15       29 Warning-[ENUMASSIGN] Illegal assignment to enum variable
+                #     16       32 Warning-[OSVF-NPVIUFPI] Obsolete System Verilog feature
+                #     17       62 Warning-[PCWM-W] Port connection width mismatch
+                #     18      100 Warning-[SVA-OPTCOV-PABNE] Pass Action Blocks not executed
+                #     19      324 Warning-[SVA-LDRF] Large delay or repetition found.
+
+                # Elevate the following warnings to errors:  those that involve connectivity-related issues primarily.  Later on, we'll consider coverage- and assertion-related warnings for such elevation.
+                # NOTE: the following warning-promotions have been "pushed down" to each IP's _local_ivars.udf file, since some IPs such as CSE have errors (requiring work.)
+                '+vcs+error=CFLL-NS',  # Cannot find logical library
+                '+vcs+error=CPBRM',  # Precision or Sign Mismatch
+                '+vcs+error=ENUMASSIGN',  # Illegal assignment to enum variable
+                '+vcs+error=GENERICFILE-EMPTY',  # Generic file empty or invalid
+                '+vcs+error=INAV',  # What is this one?
+                '+vcs+error=IPC',  # Illegal high conn for port connect
+                '+vcs+error=NO-GENERIC-MATCH-FILE',  # Generic or parameter not found
+                '+vcs+error=PCWM-W',   # Port connection width mismatch
+                '+vcs+error=SVA-LCDNAWPSC',  # Lead and property/sequence clocks differ
+                '+vcs+error=TFIPC-L',  # Elevate this "Warning-[TFIPC-L] Too few instance port connections" coding-error to an actual error.  Combats the growth of this issue.
+
+                #'-fastcomp=all',   ## ylai4 - HSD795574 - =all is causing Null Object Access error, comment out for now
+                '-fastcomp',
+                '-ilcg_vdbg',
+                '-ilcg_coverage',
+                '-assert delayopt+cov1stMatch+first_match_all+enable_rep_opt=200',
+                '-j8',
+#'-L/usr/intel/pkgs/gcc/4.7.0/lib',
+                '-lstdc++',
+                '-assert enable_hier',
+                '-assert enable_diag',  ## ylai4 - HSD809251 - Enables further control of SystemVerilog assertions result reporting with runtime options.
+                '-cm assert',
+                '-assert svaext+delayopt+make_infinite',
+                '-fsdb',
+                #'-config_verbose', #show which library loaded or `setenv VCS_DISPLAY_DB_NAME 1`
+				#BXT overrides
+                          "+vcs+error=AOUP",                 #Attempt to override undefined parameter
+                          "+vcs+error=BPCBD",                #Boundary port connection error
+                          "+vcs+error=CPBRM",                #Precision or Sign Mismatch
+                          "+vcs+error=DPIMI",                #Duplicate port in module instantiation
+                          "+vcs+error=ENEIBSC",              #Expression not evaluated in $bits
+                          "+vcs+error=IPC",                  #Illegal high conn for port connect
+                          "+vcs+error=ISALS",                #Incompatible structure/array literal
+                          "+vcs+error=IWNF",                 #Implicit wire has no fanin
+                          "+vcs+error=MATN",                 #More arguments than needed
+                          "+vcs+error=OBSL_OPT",             #Obsolete option used
+                          "+vcs+error=OPTC_ILGL",            #Incompatible flags used
+                          "+vcs+error=OSVF-NPVIUFPI",        #Obsolete System Verilog feature
+                          "+vcs+error=PCSRMIO",              #Class scope used outside of class
+                          "+vcs+error=PCWM-W",               #Port connection width mismatch
+                          "+vcs+error=PSBU",                 #Invalid values in bin
+                          "+vcs+error=REO",                  #Return expression omitted
+                          "+vcs+error=SIOB",                 #Select index out of bounds
+                          "+vcs+error=TIME-RESOLUTION-WRN",  #Time resolution warning
+                          "+vcs+error=TMPO",                 #Too many parameter overrides
+                          "+vcs+error=UNK_COMP_ARG",         #Unknown compile time plus argument used
+                          "+vcs+error=WDNTPC",               #Dissimilar net types in port connection
+                          "+vcs+error=PRIORITY",             #enable priority casex violations at run time
+                          "+vcs+error=UNIQUE",               #enable unique casex violations at run time
+				
+            ],
+        },
+
+#-elab_fsdb_opts => { default => [ '+vpi', '+vcsd', '+memcbk', ], },
+
+        -simv_args => {
+            default => [
+#'+FC_BOOT_RTL_DISABLE_CHASSIS_CHECK',
+#'+CHASSIS_RESET_EN_DEBUG_DISABLE_ALL_CHECKS',
+                '+nowarn=TMDHN',
+                '+nowarn=TFIPC',  # CSE_REQUIREMENT:  TODO: remove when no longer needed.
+                '-licqueue',
+                '-assert nopostproc',
+                '-assert optcov+warnLargeMem=20',
+                '-assert maxfail=1500',      ## Changing it more than 100 WAIP for  https://vthsd.fm.intel.com/hsd/da_all/da_help/default.aspx?da_help_id=810050 - Assertions failed to print else statements..
+                '-covg_cont_on_error',
+                '+ntb_report_cnst_xzsve_as_warning=1',
+                '+ntb_solver_no_error_missing_index=1',
+                '+ntb_stop_on_constraint_solver_error=1',
+                (exists $ENV{PCH_USE_PRECOMP_LIBS}) ? '' : '+vcs+flush+all',
+                #'-hdlxmr_error',
+                #'-ucli',  # Remove this if using TIM, as no do file is created (-ucli and no do file equals hang-at-ucli-prompt.)
+                '-cm assert',
+                '+vcs+learn+pli',   ## dump out pli_learn.tab for potential reuse
+            ],
+        },
+
+        $SCOPE => {
+            __PROTOTYPES => { import => [ 'TEST', ] },
+            -enable_runsim_postsim_checks  => { default => 1, },
+            -implicit_runmode_libs => {
+                default => []
+            },
+            -run_regression => {
+                switch  => {
+                    doa =>  '-unbuffer -x -nb -tl doa.list -seed 0  ',
+                    focus =>  '-unbuffer -x -nb -tl focus.list -seed 0 ',
+                },
+            },
+            -test_run_copy_files => { default => [], },
+            -test_run_touch_files => { default => [], },
+            # TODO: figure out how to specify a matrix of packages to tests to model, and so on.
+            -test_pkg => {
+                default => 'PowerGatingSaolaPkg',
+            },
+            -test => {
+                default => 'SIPBasicTest',
+            },
+            # Override the model by specifying '-model' in the ace command.
+            -model => {
+                default => 'CPG_VIP_tim',
+            },
+            # This is the make target for the /p/com/eda/intel/ace/2.00.00.beta.00/bin/ace_test_base.mak (for version 2.0) Makefile.  'force' specifies the targets 'cleanall all'.
+            -test_build_target => {
+                default => 'force',
+            },
+            -no_replayvcd_dump,
+        }, ##end of InterfaceVars->ip_env_top
+ 
+    }, # end of InterfaceVars
+);

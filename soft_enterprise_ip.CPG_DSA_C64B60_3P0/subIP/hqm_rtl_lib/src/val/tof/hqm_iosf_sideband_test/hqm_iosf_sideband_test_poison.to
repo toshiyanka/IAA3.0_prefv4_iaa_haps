@@ -1,0 +1,14 @@
+-include $WORKAREA/src/val/tof/hqm_iosf_sideband_test/hqm_iosf_sideband_test.to
+-dirtag poison
+-simv_args
+  +IOSF_SIDE_FILE=hqm_iosf_sb_poison_cfgwr_seq 
+  +BLOCKING_IOSF_TXN 
+  +DISABLE_FAB_PARITY_CHK
+  -assert quiet+hier=$WORKAREA/src/val/tb/hqm/hqm_iosf_lib/CFT/sb_error.waiver 
+  +IGNORE_DUE_TO_SIDEBAND_RESET
+  +HQM_SEQ_CFG=$WORKAREA/src/val/tb/hqm/hqm_iosf_lib/CFT/cfg_error.cft
+  +SLA_MAX_RUN_CLOCK=0
+  +hqm_warm_reset_sequence_stim_config::skip_for_sideband_reset=1 
+  +CFG_MODE=WRWR_rand 
+  +HQM_SEQ_CFG_EOT=$WORKAREA/src/val/tb/hqm/hqm_iosf_lib/CFT/poison_mem_generic.cft
+-simv_args-

@@ -1,0 +1,61 @@
+#!/bin/bash 
+# name: runGLS
+# agrguments -n -networkname -t testname
+#
+
+network=lv2_sbn_cfg_spt
+test=rtr_directed_test
+period="2m"
+while getopts hn:t: flag; do
+   case $flag in
+   h) 
+      echo ""
+      echo "  runGLS [-n <network_name>] [-t <testname>] "
+      echo ""
+      echo "   -h        print this help message"
+      echo "             before running GLS remember to do "
+      echo "             source setup -x n/w"
+      echo "   -n <networkname> network name  "
+      echo "   -t <testname>    testname "
+      echo "    "
+      echo ""
+      exit 0
+      ;;
+   n) 
+      network=$OPTARG
+      ;;
+   t) 
+      test=$OPTARG
+      ;;
+   esac
+done
+
+./runFullConfig -conf $network
+cd ../../tools
+mkdir logs
+find . -maxdepth 1 -iname "*runSynth" -exec sh -c "nbjob run --log-file {}.log --log-file-dir ./logs {}" \;
+
+cnt=`nbqstat | grep $USER | wc -l`
+	
+while [ $cnt != 0 ]
+do 
+   sleep $period;
+   cnt=`nbqstat | grep $USER | wc -l`
+   echo "[SBR REGRESS] jobs in queue ${cnt}"
+done
+
+echo "[SBR REGRESS] nb_wait: `date`: done"
+
+echo "Netlist generated"
+./run.csh
+rm -rf logs
+cd ../verif/sim
+
+make cleanall
+make rtl NETWORK=$network GLS=1
+cd ../tb/top_tb/$network
+rm -rf sbr*
+cd ../../../sim
+make vcs INT=0 NETWORK=$network TEST=$test GLS=1
+
+

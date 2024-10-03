@@ -1,0 +1,168 @@
+.include hqm_iosf_l2_test.list
+.include hqm_iosf_func_cov_test.list
+#.include hqm_iosf_cfg_test.list
+#.include hqm_iosf_mem_test.list
+#.include sideband_crdinit.list
+#.include unsupported_sideband.list
+#.include hqm_iosf_sideband_supported.list
+#.include hqm_iosf_fid_check.list 
+#.include hqm_iosf_data_parity_test.list
+#.include hqm_iosf_cmd_parity_test.list
+#.include hqm_iosf_sb_parity_err_injection_test.list
+#.include hqm_iosf_sb_err.list
+#.include hqm_iosf_BE_tests.list
+#.include hqm_iosf_cg_tests.list
+.include hqm_pcie_cfg_err_test.list
+.include hqm_sai_03_test.list
+#Below tests are at low priority. Adding here for future reference
+#.include hqm_iosf_cfg_error_test.list 
+#.include hqm_iosf_mem_error_test.list 
+#.include hqm_iosf_cfg_badtxn.list 
+#.include hqm_iosf_tb_file_test.list 
+#.include hqm_iosf_resetprep.list 
+#.include mix_test.list 
+#.include hqm_iosf_broadcast_test.list 
+
+
+## PVIM: https://hsdes.intel.com/appstore/article/#/1604740033
+## PVIM: https://hsdes.intel.com/appstore/article/#/1604740024
+## Don't include in default grant delay variation this already have that
+$WORKAREA/src/val/tof/hqm_iosf_test -tv crd_chk_in_pf_flr -dirtag crd_chk_in_pf_flr
+
+## PVIM: https://hsdes.intel.com/appstore/article/#/1407633188
+$WORKAREA/src/val/tof/hqm_iosf_test -tv reg_access_sb_in_side_rst  -dirtag reg_access_sb_in_side_rst
+
+## PVIM: https://hsdes.intel.com/appstore/article/#/1604740025
+## PVIM: https://hsdes.intel.com/appstore/article/#/1604740024
+$WORKAREA/src/val/tof/hcw_perf_dir_ldb_test1 -tv q1_short -tv chk_excl_p_np_crd -dirtag q1_short_chk_excl_p_np_crd 
+
+## PVIM: https://hsdes.intel.com/appstore/article/#/1604740024
+$WORKAREA/src/val/tof/hcw_perf_dir_ldb_test1 -tv q1_short -tv asyncGnt -dirtag q1_short_asyncGnt
+
+## PVIM: https://hsdes.intel.com/appstore/article/#/1604740023
+$WORKAREA/src/val/tof/hqm_iosf_test -tv sb_interleaving -dirtag sb_interleaving 
+
+$WORKAREA/src/val/tof/hqm_iosf_test -tv random_ecrc -dirtag random_ecrc
+
+## PVIM: https://hsdes.intel.com/appstore/article/#/1604739968
+$WORKAREA/src/val/tof/hcw_perf_dir_ldb_test1 -tv q1_short -tv prim_crdt_req_rollover_100 -dirtag q1_short_prim_crdt_req_rollover_100
+$WORKAREA/src/val/tof/hqm_iosf_test -tv prim_crdt_req_rollover_100 -dirtag prim_crdt_req_rollover_100
+$WORKAREA/src/val/tof/hcw_perf_dir_ldb_test1 -tv q1_short -tv prim_crdt_req_rollover_32 -dirtag q1_short_prim_crdt_req_rollover_32
+$WORKAREA/src/val/tof/hqm_iosf_test -tv prim_crdt_req_rollover_32 -dirtag prim_crdt_req_rollover_32
+
+##Bug https://hsdes.intel.com/appstore/article/#/1405565286
+$WORKAREA/src/val/tof/hqm_iosf_test -tv sb_mem_access_wo_bar_cfg -dirtag sb_mem_access_wo_bar_cfg
+
+##Bug https://hsdes.intel.com/appstore/article/#/1408994546
+.repeat 10 
+$WORKAREA/src/val/tof/hqm_iosf_test -tv sb_intermediate_reset_prep_between_np_seq -dirtag sb_intermediate_reset_prep_between_np_seq
+$WORKAREA/src/val/tof/hqm_iosf_test -tv sb_intermediate_reset_prep_between_np_b2b_seq -dirtag sb_intermediate_reset_prep_between_np_b2b_seq
+.repeat
+
+##Bug https://hsdes.intel.com/appstore/article/#/1207552954
+$WORKAREA/src/val/tof/hqm_iosf_test -tv sb_b2b_cfg_wr_with_bd_read -dirtag sb_b2b_cfg_wr_with_bd_read
+
+## PVIM: https://hsdes.intel.com/appstore/article/#/1604740034
+$WORKAREA/src/val/tof/hqm_iosf_test -tv prim_req_crdt_exhaustion_2 -dirtag prim_req_crdt_exhaustion_2
+$WORKAREA/src/val/tof/hcw_perf_dir_ldb_test1 -tv q1_short -tv prim_req_crdt_exhaustion_2 -dirtag q1_short_prim_req_crdt_exhaustion_2
+$WORKAREA/src/val/tof/hqm_iosf_test -tv prim_req_crdt_exhaustion_5 -dirtag prim_req_crdt_exhaustion_5
+$WORKAREA/src/val/tof/hcw_perf_dir_ldb_test1 -tv q1_short -tv prim_req_crdt_exhaustion_5 -dirtag q1_short_prim_req_crdt_exhaustion_5
+
+## Test case to cover the cross SVC sideband functional coverage 
+#hqm_iosf_test:sb_func_cov_test_fid -dirtag sb_func_cov_test_fid 
+#hqm_iosf_test:sb_func_cov_test_sbe -dirtag sb_func_cov_test_sbe 
+#hqm_iosf_test:sb_func_cov_test_fbe -dirtag sb_func_cov_test_fbe 
+#hqm_iosf_test:sb_func_cov_test_rd_opcodes -dirtag sb_func_cov_test_rd_opcodes 
+#hqm_iosf_test:sb_func_cov_test_src_fe -dirtag sb_func_cov_test_src_fe 
+#hqm_iosf_test:sb_func_cov_test_dw3 -dirtag sb_func_cov_test_dw3 
+#hqm_iosf_test:sb_func_cov_test_fbe_zero_sbe_non_zero -dirtag sb_func_cov_test_fbe_zero_sbe_non_zero
+#hqm_iosf_test:sb_func_cov_test_src_fe_dst_notff -dirtag sb_func_cov_test_src_fe_dst_notff
+
+## PVIM: https://hsdes.intel.com/appstore/article/#/1605662096
+$WORKAREA/src/val/tof/hqm_sb_test -tv sb_regio_all_regions -dirtag sb_regio_all_regions
+
+## PVIM: https://hsdes.intel.com/appstore/article/#/1604710923
+$WORKAREA/src/val/tof/hqm_sb_test -tv sb_msg_ext_hdr_chk   -dirtag sb_msg_ext_hdr_chk
+$WORKAREA/src/val/tof/hqm_sb_test -tv sb_msg_ext_hdr_chk2   -dirtag sb_msg_ext_hdr_chk2
+
+## PVIM: https://hsdes.intel.com/appstore/article/#/1605662095
+$WORKAREA/src/val/tof/hqm_sb_test -tv sb_msg_ordering_chk  -dirtag sb_msg_ordering_chk
+
+## PVIM: https://hsdes.intel.com/appstore/article/#/1604740018
+$WORKAREA/src/val/tof/hqm_prim_n_sb_error_test -tv primary_only          -dirtag  primary_only         
+
+## PVIM: https://hsdes.intel.com/appstore/article/#/1604740021
+$WORKAREA/src/val/tof/hqm_prim_n_sb_error_test -tv sideband_only         -dirtag  sideband_only         
+$WORKAREA/src/val/tof/hqm_prim_n_sb_error_test -tv primary_with_sideband -dirtag  primary_with_sideband
+
+## PVIM: https://hsdes.intel.com/appstore/article/#/1606651700
+$WORKAREA/src/val/tof/hqm_sb_test -tv sb_regio_ill_bar    -dirtag sb_regio_ill_bar
+
+## PVIM: https://hsdes.intel.com/appstore/article/#/1606651699
+$WORKAREA/src/val/tof/hqm_sb_test -tv sb_regio_ill_fid    -dirtag sb_regio_ill_fid
+
+## PVIM: https://hsdes.intel.com/appstore/article/#/1606664743
+$WORKAREA/src/val/tof/hqm_prim_n_sb_error_test -tv prim_busnum_change_with_sb -dirtag prim_busnum_change_with_sb
+
+## PVIM: https://hsdes.intel.com/appstore/article/#/1607028789
+$WORKAREA/src/val/tof/hcw_sciov_test -tv np_txns_within_intermediate_reset                      -dirtag np_txns_within_intermediate_reset
+$WORKAREA/src/val/tof/hcw_sciov_test -tv np_txns_within_intermediate_reset -tv wait_Resetprep_Ack   -dirtag np_txns_within_intermediate_reset_wait_Rprepack
+
+## Bug: https://hsdes.intel.com/appstore/article/#/1507097494
+$WORKAREA/src/val/tof/hcw_sciov_test -tv np_txns_within_intermediate_reset -tv wait_ForcePwrGatePok -tv wait_18_1_1 -dirtag np_txns_within_intermediate_reset_wait_ForcePwrGatePok_18_1_1
+$WORKAREA/src/val/tof/hcw_sciov_test -tv np_txns_within_intermediate_reset -tv wait_ForcePwrGatePok -tv wait_18_1_2 -dirtag np_txns_within_intermediate_reset_wait_ForcePwrGatePok_18_1_2
+
+$WORKAREA/src/val/tof/hcw_sciov_test -tv ur_txn -tv np_txns_within_intermediate_reset -tv pf_anfes           -dirtag ur_np_txns_within_intermediate_reset
+$WORKAREA/src/val/tof/hcw_sciov_test -tv ur_txn -tv np_txns_within_intermediate_reset -tv wait_Resetprep_Ack   -dirtag ur_np_txns_within_intermediate_reset_wait_Rprepack
+
+$WORKAREA/src/val/tof/hcw_sciov_test -tv ur_txn -tv np_txns_within_intermediate_reset -tv wait_ForcePwrGatePok -tv wait_18_1_1 -dirtag ur_np_txns_within_intermediate_reset_wait_ForcePwrGatePok_18_1_1
+$WORKAREA/src/val/tof/hcw_sciov_test -tv ur_txn -tv np_txns_within_intermediate_reset -tv wait_ForcePwrGatePok -tv wait_18_1_2 -dirtag ur_np_txns_within_intermediate_reset_wait_ForcePwrGatePok_18_1_2
+
+## Added test as per review of IOSF test plan 
+## PVIM : https://hsdes.intel.com/appstore/article/#/1607132373
+$WORKAREA/src/val/tof/hcw_perf_dir_ldb_test1 -tv q1_short -tv vary_gntgap_posted -dirtag q1_short_vary_gntgap_posted
+$WORKAREA/src/val/tof/hcw_perf_dir_ldb_test1 -tv q1_short -tv vary_gntgap_cmpl -dirtag q1_short_vary_gntgap_cmpl
+## PVIM: https://hsdes.intel.com/appstore/article/#/1607132375
+$WORKAREA/src/val/tof/hqm_iosf_test -tv sb_credit_exhaust -dirtag sb_credit_exhaust
+
+## PVIM: https://hsdes.intel.com/appstore/phoenix/#/test/grid/test_plan?p=1405379203&f=1604580488
+$WORKAREA/src/val/tof/hqm_iosf_test -tv crd_return_p_ur -tv pf_func_bar_less_4g -tv non_posted_expect_ur -tv MRdLk32  -dirtag MRdLk32
+$WORKAREA/src/val/tof/hqm_iosf_test -tv crd_return_p_ur -tv pf_func_bar_less_4g -tv non_posted_expect_ur -tv LTMRd32  -dirtag LTMRd32
+$WORKAREA/src/val/tof/hqm_iosf_test -tv crd_return_p_ur -tv pf_func_bar_less_4g -tv non_posted_expect_ur -tv NPMWr32  -dirtag NPMWr32
+$WORKAREA/src/val/tof/hqm_iosf_test -tv crd_return_p_ur -tv pf_func_bar_greater_4g -tv non_posted_expect_ur -tv MRdLk64  -dirtag MRdLk64
+$WORKAREA/src/val/tof/hqm_iosf_test -tv crd_return_p_ur -tv pf_func_bar_greater_4g -tv non_posted_expect_ur -tv LTMRd64  -dirtag LTMRd64
+$WORKAREA/src/val/tof/hqm_iosf_test -tv crd_return_p_ur -tv pf_func_bar_greater_4g -tv non_posted_expect_ur -tv NPMWr64  -dirtag NPMWr64
+$WORKAREA/src/val/tof/hqm_iosf_test -tv crd_return_p_ur -tv pf_func_bar_less_4g -tv posted_expect_ur -tv LTMWr32  -dirtag LTMWr32
+$WORKAREA/src/val/tof/hqm_iosf_test -tv crd_return_p_ur -tv pf_func_bar_greater_4g -tv posted_expect_ur -tv LTMWr64  -dirtag LTMWr64 
+$WORKAREA/src/val/tof/hqm_iosf_test -tv crd_return_p_ur -tv pf_func_bar_greater_4g -tv posted_expect_ur -tv Msg0     -dirtag Msg0  
+$WORKAREA/src/val/tof/hqm_iosf_test -tv crd_return_p_ur -tv pf_func_bar_greater_4g -tv posted_expect_ur -tv Msg1     -dirtag Msg1  
+$WORKAREA/src/val/tof/hqm_iosf_test -tv crd_return_p_ur -tv pf_func_bar_greater_4g -tv posted_expect_ur -tv Msg2     -dirtag Msg2  
+$WORKAREA/src/val/tof/hqm_iosf_test -tv crd_return_p_ur -tv pf_func_bar_greater_4g -tv posted_expect_ur -tv Msg3     -dirtag Msg3  
+$WORKAREA/src/val/tof/hqm_iosf_test -tv crd_return_p_ur -tv pf_func_bar_greater_4g -tv posted_expect_ur -tv Msg4     -dirtag Msg4  
+$WORKAREA/src/val/tof/hqm_iosf_test -tv crd_return_p_ur -tv pf_func_bar_greater_4g -tv posted_expect_ur -tv Msg5     -dirtag Msg5  
+$WORKAREA/src/val/tof/hqm_iosf_test -tv crd_return_p_ur -tv pf_func_bar_greater_4g -tv posted_expect_ur -tv Msg6     -dirtag Msg6  
+$WORKAREA/src/val/tof/hqm_iosf_test -tv crd_return_p_ur -tv pf_func_bar_greater_4g -tv posted_expect_ur -tv Msg7     -dirtag Msg7  
+$WORKAREA/src/val/tof/hqm_iosf_test -tv crd_return_p_ur -tv pf_func_bar_greater_4g -tv posted_expect_ur -tv MsgD0    -dirtag MsgD0 
+$WORKAREA/src/val/tof/hqm_iosf_test -tv crd_return_p_ur -tv pf_func_bar_greater_4g -tv posted_expect_ur -tv MsgD1    -dirtag MsgD1 
+$WORKAREA/src/val/tof/hqm_iosf_test -tv crd_return_p_ur -tv pf_func_bar_greater_4g -tv posted_expect_ur -tv MsgD2    -dirtag MsgD2 
+$WORKAREA/src/val/tof/hqm_iosf_test -tv crd_return_p_ur -tv pf_func_bar_greater_4g -tv posted_expect_ur -tv MsgD3    -dirtag MsgD3 
+$WORKAREA/src/val/tof/hqm_iosf_test -tv crd_return_p_ur -tv pf_func_bar_greater_4g -tv posted_expect_ur -tv MsgD4    -dirtag MsgD4 
+$WORKAREA/src/val/tof/hqm_iosf_test -tv crd_return_p_ur -tv pf_func_bar_greater_4g -tv posted_expect_ur -tv MsgD5    -dirtag MsgD5 
+$WORKAREA/src/val/tof/hqm_iosf_test -tv crd_return_p_ur -tv pf_func_bar_greater_4g -tv posted_expect_ur -tv MsgD6    -dirtag MsgD6 
+$WORKAREA/src/val/tof/hqm_iosf_test -tv crd_return_p_ur -tv pf_func_bar_greater_4g -tv posted_expect_ur -tv MsgD7    -dirtag MsgD7
+
+## PVIMS https://hsdes.intel.com/appstore/article/#/1607124472
+.repeat 20
+$WORKAREA/src/val/tof/hqm_cfg_test -tv hcw -tv fab_active_maxismdly                                          -dirtag fab_active_maxismdly
+.repeat  
+
+## Bug: https://hsdes.intel.com/appstore/article/#/1409927851
+.repeat 5
+$WORKAREA/src/val/tof/hqm_pcie_flr_with_txns -tv sec_6_6_2 -tv pf -tv txn_type_cfg_wr -tv num_txns_in_flr_0      -dirtag pf_txn_type_cfg_wr_multi 
+$WORKAREA/src/val/tof/hqm_pcie_flr_with_txns -tv sec_6_6_2 -tv pf -tv txn_type_cfg_rd -tv num_txns_in_flr_0      -dirtag pf_txn_type_cfg_rd_multi
+$WORKAREA/src/val/tof/hqm_pcie_flr_with_txns -tv sec_6_6_2 -tv pf -tv cpl_pf -tv txn_type_cpl -tv num_txns_in_flr_1  -dirtag pf_txn_type_cpl_multi 
+$WORKAREA/src/val/tof/hqm_pcie_flr_with_txns -tv sec_6_6_2 -tv pf -tv txn_type_mem_rd -tv num_txns_in_flr_0      -dirtag pf_txn_type_mem_rd_multi 
+$WORKAREA/src/val/tof/hqm_pcie_flr_with_txns -tv sec_6_6_2 -tv pf -tv txn_type_mem_wr -tv num_txns_in_flr_0      -dirtag pf_txn_type_mem_wr_multi 
+.repeat
+
+$WORKAREA/src/val/tof/hqm_iosf_test -tv crd_chk_in_pf_flr -tv flr_with_txns -dirtag crd_chk_in_pf_flr_with_txns

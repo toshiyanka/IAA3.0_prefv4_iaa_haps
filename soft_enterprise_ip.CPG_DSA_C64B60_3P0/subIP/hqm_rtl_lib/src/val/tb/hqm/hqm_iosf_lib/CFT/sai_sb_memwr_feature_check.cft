@@ -1,0 +1,51 @@
+idle 3000
+
+
+#check device status and 
+rd hqm_pf_cfg_i.device_status 0x0010
+
+#check aer_cap_uncorr_err_status  and expect unsupporte request 
+#rd hqm_pf_cfg_i.aer_cap_uncorr_err_status 0x00100000
+rd hqm_pf_cfg_i.aer_cap_uncorr_err_status 0x00000000
+
+
+
+#check ERror status
+rd hqm_pf_cfg_i.pcie_cap_device_status 0x0000
+
+#read all HQM CSR policy register 
+sai hostia_sunpass_sai    
+wr hqm_system_csr.hqm_csr_cp_lo 0xFFFFFFFF
+wr hqm_system_csr.hqm_csr_cp_hi 0xFFFFFFFF
+
+sai hostia_ucode_sai
+wr hqm_system_csr.hqm_csr_rac_lo 0xFFFFFFFF
+wr hqm_system_csr.hqm_csr_rac_hi 0xFFFFFFFF
+wr hqm_system_csr.hqm_csr_wac_lo 0xFFFFFFFF
+wr hqm_system_csr.hqm_csr_wac_hi 0xFFFFFFFF
+
+
+
+#Check register  update happened or not
+rd hqm_system_csr.cmpl_data_fifo_ctl 0x0000000C
+rd hqm_system_csr.ti_sb_thresh 0x000000FE
+rd hqm_system_csr.cmpl_hdr_fifo_ctl 0x00000006
+rd hqm_system_csr.pptr_data_fifo_ctl 0x0000001F
+rd hqm_system_csr.dmv_wdata_fifo_ctl 0x0000000F
+rd hqm_system_csr.dmv_hcw_fifo_ctl 0x0000001F
+rd hqm_system_csr.write_buffer_ctl 0x00000000
+rd hqm_system_csr.alarm_ctl 0x00000000
+rd hqm_system_csr.ecc_ctl 0x0000001F
+rd hqm_system_csr.parity_ctl 0x00000000
+rd hqm_system_csr.ri_ioq_fifo_ctl 0x000000FF
+rd hqm_system_csr.ri_tcq_fifo_ctl 0x000000FF
+
+
+#wait for reset done
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+
+
+
+
+
+

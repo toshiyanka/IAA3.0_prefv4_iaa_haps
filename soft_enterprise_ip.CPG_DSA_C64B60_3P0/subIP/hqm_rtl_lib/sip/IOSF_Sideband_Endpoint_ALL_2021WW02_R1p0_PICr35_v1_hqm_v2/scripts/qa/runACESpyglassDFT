@@ -1,0 +1,172 @@
+#!/bin/tcsh -f
+
+################################################################################
+# Source a script that is called at the start of each back-end 
+# scripts/qa/run* script
+################################################################################
+
+source ./runPre -tool_name $0 ${argv}
+if ( ${status} != 0 ) exit ${status}
+
+if ( "${config}" =~ "IOSF_Sideband_Endpoint" ) then
+   source ${sbrdir}/scripts/qa/ephelper.csh -rtlcfg ${component} \
+                                            -topdir ${sbrdir}
+
+   set spyglassdftdir="${sbrdir}/tools/spyglassdft/${component}"
+   set acelib="iosf_sbc_ep_rtl_lib"
+   set acemdl="Ep_pa"
+   set aceopts=""
+else
+   set spyglassdftdir="${sbrdir}/tools/spyglassdft/${component}"
+
+   if ( "${dynopt}" =~ "nonDyn" ) then
+      set rtltop=${component}
+      set acelib="iosf_sbc_rtr_${config}_rtl_lib"
+   else
+      set rtltop=${component}_sbr_generic
+      set acelib="iosf_sbc_rtr_rtl_lib"
+   endif
+
+   set acemdl="cdc_${rtltop}"
+   set aceopts="-opts -m ${config} --"
+endif
+
+###########################
+# Clean Up Tool Directory #
+###########################
+
+if ( ${clean} ) then
+   rm ${spyglassdftdir}/inputs  -rf
+   rm ${spyglassdftdir}/logs    -rf
+   rm ${spyglassdftdir}/outputs -rf
+   rm ${spyglassdftdir}/reports -rf
+   rm ${spyglassdftdir}/scripts -rf
+endif
+
+if ( ${remove} ) then
+   rm ${spyglassdftdir} -rf
+endif
+
+#######################
+# Generate Collateral #
+#######################
+
+if ( ${generate_collateral} ) then
+   echo "${thisToolName} -I- Generating Spyglass DFT Collateral for Router ${component} with ${config} configuration."
+   set tempdir="${sbrdir}/unsupported/export/${config}_${rtltop}_${thisToolName}"
+   mkdir ${tempdir} -p
+   pushd ${tempdir}
+   # Create the directory from scratch
+   rm    ${spyglassdftdir} -rf
+   mkdir ${spyglassdftdir} -p
+
+   set puni_prefix=`echo $puniprefix | sed -e 's/_$//'`
+   set basecmd="${sbrdir}/unsupported/export/parseXml --ipxact_file ${sbrdir}/verif/tests/networks/${config}.xml -q"
+   if ( "${dynopt}" != "nonDyn" ) then
+      set basecmd="${basecmd} -dynamo -prefix ${puni_prefix}"
+   endif
+
+   set collateral_list=( \
+      scan_ready.ip_info \
+      scan_ready_spyglass.opt \
+   )
+
+   foreach collateral_file ( ${collateral_list} )
+      ${basecmd} -t ${sbrdir}/unsupported/export/data/xml/${collateral_file}
+      if ( $debug ) echo "${thisToolName} -D- Generated ${tempdir}/${component}_${collateral_file}"
+   end
+
+   mv ${tempdir}/${component}_scan_ready.ip_info      ${spyglassdftdir}/${rtltop}.ip_info
+   mv ${tempdir}/${component}_scan_ready_spyglass.opt ${spyglassdftdir}/${rtltop}_spyglass.opt
+
+   rm ${tempdir} -rf
+   echo "${thisToolName} -I- Generated SpyglassDFT Collateral for Router ${component} with ${config} configuration."
+ 
+   popd
+
+endif
+
+###############
+# Prevent Run #
+###############
+
+if ( ${no_run} ) then
+   exit 0
+endif
+
+#########################################
+# Fix conflict between DC shell and VCS #
+#########################################
+
+if ( ! ${no_source} ) then
+   pushd ${sbrdir}/scripts
+   
+   if (! $?SIP_TOOL_VARIATION) then
+      echo "${thisToolName} -I- Sourcing setup with default toolset"
+      source setup -ft -only dc
+   else
+      echo "${thisToolName} -I- Sourcing setup with ${SIP_TOOL_VARIATION} toolset"
+      source setup -ft -x ${SIP_TOOL_VARIATION} -only dc
+   endif
+   
+   popd
+endif
+
+
+####################
+# ACE Spyglass Run #
+####################
+
+setenv CTECH_LIB_NAME ${CTECH_SIM_LIB_NAME}
+
+set gui=""
+if ( ${guimode} ) then
+   set gui="-gui"
+endif
+set project="-project CNL"
+
+pushd ${spyglassdftdir}
+sgdft_setup -top ${rtltop} -ip_info ${rtltop}.ip_info -ace_lib ${acelib} ${project}
+set exitStatus=${status}
+if ( $exitStatus ) then
+   echo "$toolFileName -E- Spyglass DFT failed due to sgdft_setup failed."
+   popd
+   exit $exitStatus
+endif
+
+sgdft_compile -model cdc_${rtltop} ${aceopts}
+set exitStatus=${status}
+if ( $exitStatus ) then
+   echo "$toolFileName -E- Spyglass DFT failed due to sgdft_compile failed."
+   popd
+   exit $exitStatus
+endif
+
+sgdft_drc -model cdc_${rtltop} -top ${rtltop} -rtl_milestone 1.0 -ip_type sip ${project} ${gui}
+set exitStatus=${status}
+if ( $exitStatus ) then
+   echo "$toolFileName -E- Spyglass DFT failed due to sgdft_drc failed."
+   popd
+   exit $exitStatus
+endif
+
+sgdft_package -top ${rtltop} -rtl_milestone 1.0 -ip_type sip ${project} 
+set exitStatus=${status}
+if ( $exitStatus ) then
+   echo "$toolFileName -E- Spyglass DFT failed due to sgdft_package failed."
+   popd
+   exit $exitStatus
+endif
+popd
+
+#####################################################
+# Verification
+#####################################################
+if ($exitStatus) then
+  echo "${thisToolName} -E- Spyglass DFT failed."
+  exit $exitStatus
+else
+  echo "${thisToolName} -I- Spyglass DFT ran successfully."
+endif
+
+exit 0

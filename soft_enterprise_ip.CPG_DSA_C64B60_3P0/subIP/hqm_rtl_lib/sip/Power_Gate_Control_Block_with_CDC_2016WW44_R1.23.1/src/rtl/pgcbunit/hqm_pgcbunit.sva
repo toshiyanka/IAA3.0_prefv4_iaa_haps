@@ -1,0 +1,139 @@
+`ifndef DC
+
+generate if (USE_DFX_SEQ==1) begin : SEQ_OVR_ASSERT
+//------------------------ Begin DFx Override Assertions ------------------------//
+   // If pgcb_bypass, dfx override for force_rst_b should be used 
+   aDFxForceRst: assert property ( @(posedge pgcb_tck)
+      (fdfx_pgcb_bypass==1'b1) |-> (pgcb_force_rst_b==i_pgcbdfxovr1.SEQ_OVR.dfxval_force_rst_b)
+   );
+   
+   // If pgcb_bypass, dfx override for isol_en_b should be used 
+   aDFx: assert property ( @(posedge pgcb_tck)
+      ( (fdfx_pgcb_bypass==1'b1) && (fscan_mode==1'b0) ) |-> (pgcb_isol_en_b==i_pgcbdfxovr1.SEQ_OVR.dfxval_isol_en_b)
+   );
+   
+   // If pgcb_bypass, dfx override for isol_latchen should be used 
+   aDFxIsolLatchen: assert property ( @(posedge pgcb_tck)
+      ( (fdfx_pgcb_bypass==1'b1) && (fscan_mode==1'b0) ) |-> (pgcb_isol_latchen==i_pgcbdfxovr1.SEQ_OVR.dfxval_isol_latchen)
+   );
+   
+   // If pgcb_bypass, dfx override for fet_en_b should be used 
+   aDFxFetEn: assert property ( @(posedge pgcb_tck)
+      (fdfx_pgcb_bypass==1'b1) |-> (pgcb_ip_fet_en_b==i_pgcbdfxovr1.SEQ_OVR.dfxval_fet_en_b)
+   );
+   
+   // If pgcb_bypass and not scanmode, dfx override for sleep should be used 
+   aDFxSleep: assert property ( @(posedge pgcb_tck)
+      ( (fdfx_pgcb_bypass==1'b1) && (fscan_mode==1'b0) ) |-> (pgcb_sleep==i_pgcbdfxovr1.SEQ_OVR.dfxval_sleep)
+   );
+   
+//------------------------ End DFx Override Assertions ------------------------//
+
+//------------------------ Begin Scan Override Assertions ------------------------//
+   // If pgcb_bypass and is scanmode, fscan dfx override for sleep should be used 
+   aDFxScanIsolCtrl: assert property ( @(posedge pgcb_tck)
+      (fscan_mode==1'b1) |-> (pgcb_isol_en_b == fscan_isol_ctrl)
+   );
+
+   // If pgcb_bypass and is scanmode, fscan dfx override for sleep should be used 
+   aDFxScanIsolLatCtrl: assert property ( @(posedge pgcb_tck)
+      (fscan_mode==1'b1) |-> (pgcb_isol_latchen == fscan_isol_lat_ctrl)
+   );
+
+   // If pgcb_bypass and is scanmode, fscan dfx override for sleep should be used 
+   aDFxScanSleep: assert property ( @(posedge pgcb_tck)
+      (fscan_mode==1'b1) |-> (pgcb_sleep == fscan_ret_ctrl)
+   );
+
+   // If pgcb_bypass and is scanmode, fscan dfx override for sleep should be used 
+   aDFxScanSleep2: assert property ( @(posedge pgcb_tck)
+      (fscan_mode==1'b1) |-> (pgcb_sleep2 == fscan_ret_ctrl)
+   );
+
+//------------------------ End Scan Override Assertions ------------------------//
+
+//------------------------ Begin DFx Value Assertions ------------------------//
+
+   localparam UGCOUNT = (UNGATE_TIMER==2'b00) ? 8  :
+                        (UNGATE_TIMER==2'b01) ? 16 :
+                        (UNGATE_TIMER==2'b10) ? 32 :
+                                                256;
+
+   // DFx Sequencer Ungate Sequence From SQ_OFF
+   aDFxSeqUngateOFF: assert property ( @(posedge pgcb_tck) disable iff ((i_pgcbdfxovr1.SEQ_OVR.sync_fdfx_powergood_rst_b!==1) || (fscan_mode==1'b1))
+      ( (i_pgcbdfxovr1.dfxseq_ps==3'h3) && (fdfx_pgcb_bypass==1'b1) && (fdfx_pgcb_ovr==1'b0) ) |-> ##1
+         $fell(pgcb_ip_fet_en_b)
+         ##UGCOUNT
+         ( (pgcb_sleep==1'b0) ) ##1
+           ( $rose(pgcb_isol_en_b) && $rose(pgcb_isol_latchen) && $rose(pgcb_force_rst_b) ) 
+   );
+   
+   // DFx Sequencer Gate Sequence From SQ_ON
+   aDFxSeqGateON: assert property ( @(posedge pgcb_tck) disable iff ( (i_pgcbdfxovr1.SEQ_OVR.sync_fdfx_powergood_rst_b!==1) || (fscan_mode==1'b1) )
+      ( (i_pgcbdfxovr1.dfxseq_ps==3'h0) && (fdfx_pgcb_bypass==1'b1) && (fdfx_pgcb_ovr==1'b1) ) |-> ##1
+         ( ( $fell(pgcb_isol_en_b) && $fell(pgcb_isol_latchen) && $fell(pgcb_force_rst_b) ) ) ##1
+         ( $rose(pgcb_sleep) ) ##1 
+         $rose(pgcb_ip_fet_en_b)
+   );
+
+   // Cover Gate Sequence
+   cDFxSeqGateON: cover property ( @(posedge pgcb_tck) disable iff (i_pgcbdfxovr1.SEQ_OVR.sync_fdfx_powergood_rst_b!==1)
+      ( (i_pgcbdfxovr1.dfxseq_ps==3'h0) && (fdfx_pgcb_bypass==1'b1) && (fdfx_pgcb_ovr==1'b1) ) |-> ##1
+         (i_pgcbdfxovr1.dfxseq_ps!=3'h0) ##[1:$]
+         (i_pgcbdfxovr1.dfxseq_ps==3'h3)
+   );
+   
+   // Cover UnGate Sequence
+   cDFxSeqUnGateOFF: cover property ( @(posedge pgcb_tck) disable iff (i_pgcbdfxovr1.SEQ_OVR.sync_fdfx_powergood_rst_b!==1)
+      ( (i_pgcbdfxovr1.dfxseq_ps==3'h3) && (fdfx_pgcb_bypass==1'b1) && (fdfx_pgcb_ovr==1'b0) ) |-> ##1
+         (i_pgcbdfxovr1.dfxseq_ps!=3'h3) ##[1:$]
+         (i_pgcbdfxovr1.dfxseq_ps==3'h0)
+   );
+   
+`ifdef SVA_FORMAL
+   // pgcb_bypass should only change once 
+   aDFxBypass: assume property ( @(posedge pgcb_tck) disable iff (i_pgcbdfxovr1.fdfx_powergood_rst_b!==1)
+      (fdfx_pgcb_bypass==1'b1) |=> (fdfx_pgcb_bypass==1'b1)
+   );
+   
+   // pgcb_ovr should only change in SQ_ON,SQ_OFF
+   aDFxOvrIDLE: assume property ( @(posedge pgcb_tck) disable iff (i_pgcbdfxovr1.fdfx_powergood_rst_b!==1)
+      !$stable(fdfx_pgcb_ovr) |-> (i_pgcbdfxovr1.dfxseq_ps==3'h0) || (i_pgcbdfxovr1.dfxseq_ps==3'h3)
+   );
+`endif
+
+end else begin : LAT_OVR_ASSERT
+   
+   // If pgcb_bypass and is scanmode, fscan dfx override for sleep should be used 
+   aDFxScanSleep: assert property ( @(posedge pgcb_tck) disable iff (fdfx_powergood_rst_b!==1)
+      ( (fscan_mode==1'b1) ) |-> (pgcb_sleep==fscan_ret_ctrl)
+   );
+   
+
+end endgenerate
+//------------------------ End DFx Value Assertions ------------------------//
+
+
+
+`ifdef PGCBWAVES
+   cNoDFx: assume property (@(posedge clk) disable iff (pgcb_rst_b!==1)
+      (fscan_mode==0) && (fdfx_pgcb_bypass==0)
+   );
+`endif
+
+ //PGCB Assertions
+ // Power-gating is requested and then an ungate is requested before the initial request has been
+ // acknowledged
+ // Note: only relevant if this is not a full handshake (ie. using the CDC)
+ cIpAccNotFullHandshake: cover property (@(posedge clk) disable iff (pgcb_rst_b!==1)
+   (pgcb_ip_pg_rdy_ack_b == 1) throughout ($fell(ip_pgcb_pg_rdy_req_b) ##[1:$] $rose(ip_pgcb_pg_rdy_req_b))
+ );
+
+ // JWH - Coding Error - Intent was to see pg_rdy_req_b deassert before pg_req_b assertion to PMC
+ // As coded, this scenario is having no pg request followed by a pg request sometime in the future
+ cIpAccPgrdyreqOnPgwake: cover property (@(posedge clk) disable iff (pgcb_rst_b!==1)
+   ((ip_pgcb_pg_rdy_req_b ==1) && (pgcb_ip_pg_rdy_ack_b == 1)) ##[1:$] $fell(pgcb_pmc_pg_req_b)
+ );
+
+    
+`endif

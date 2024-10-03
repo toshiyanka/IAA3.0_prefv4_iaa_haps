@@ -1,0 +1,40 @@
+#!/usr/intel/bin/tcsh -f
+set machineOS=`uname`
+set machineCPU=`uname -p`
+if ($machineOS == "Linux") then
+    if ($machineCPU == "x86_64") then
+        setenv LD_LIBRARY_PATH ${VCS_HOME}/suse64/lib:$LD_LIBRARY_PATH
+    else
+        setenv LD_LIBRARY_PATH ${VCS_HOME}/suse32/lib:$LD_LIBRARY_PATH
+    endif    
+else
+    echo ""
+    echo "$machineOS is not officially supported for sims. Please login to an HP or Linux machine."
+    echo ""
+    echo ""
+    exit(1)
+endif
+ 
+alias tsetup  'source /p/com/env/psetup/prod/bin/setupTool'
+cd $PROJECT_BASE
+echo "---------------------------------------------"
+echo "Environment variables for $ACE_PROJECT"
+echo "---------------------------------------------"
+echo "PROJECT_BASE        :$PROJECT_BASE"
+echo "ACE_ENG             :$ACE_ENG"
+echo "ACE_ENG_BASE        :$ACE_ENG_BASE"
+echo "ACE_PROJECT         :$ACE_PROJECT" 
+echo "ACE_RC              :$ACE_RC"
+echo "ACE_RTL_SIM         :$ACE_RTL_SIM "
+echo "NBPOOL              :$NBPOOL "
+echo "NBQSLOT             :$NBQSLOT "
+echo "BFM_BASE_DIR        :$BFM_BASE_DIR "
+echo "GCC_LIB_VER         :$GCC_LIB_VER "
+echo "DESIGNWARE_HOME     :$DESIGNWARE_HOME"
+echo "---------------------------------------------"
+echo "---------------------------------------------"
+
+setenv LIRA_VER 13.3_64
+setenv LINTRA_VER `basename $LINTRA`
+source /nfs/site/eda/group/cse/setups/synopsys/synopsysDC_VCS.lic
+#source /nfs/site/eda/group/cse/setups/synopsys/synopsysvcs.lic

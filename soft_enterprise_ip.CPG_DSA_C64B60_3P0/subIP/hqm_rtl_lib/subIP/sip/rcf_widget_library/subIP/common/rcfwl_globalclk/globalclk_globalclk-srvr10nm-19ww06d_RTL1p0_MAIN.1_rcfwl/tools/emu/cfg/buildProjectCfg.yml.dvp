@@ -1,0 +1,167 @@
+
+################################################################################################
+### emubuild cfg file using YAML format
+################################################################################################
+
+################################################################################################
+## SPARK stuff
+##
+## TB_MODE: SPARK  [DEFAULT] => build SPARK TB (needs cfg/repositories.yml file)
+## TB_MODE: MANUAL           => build classic C/C++ TB (you have to define C/C++ files manually)
+##
+## RTL_INPUT_MODE: ACE    [DEFAULT] => get RTL files from ACE metad data file
+## RTL_INPUT_MODE: MANUAL           => get RTL files from specified .f files
+##
+################################################################################################
+SPARK:
+   TB_MODE: MANUAL
+   RTL_INPUT_MODE: ACE
+   ACE_PROJECT:
+   ACE_DUT:
+   ACE_MODEL: $ENV{MODEL}
+#   ACE_COMMANDS:
+#      - source /p/hdk/rtl/proj_bin/rtl.rc;cd integ-rdh-head0;simbuild -dut bia  -ace "ace -rtl M:bia -add_model_dump -add_flag_dump -ASSIGN -flags_to_dump=-vlog_opts,-vcom_opts" | tee ../ace_presi.log
+   ACE_METAFILE: target/emu/$ENV{MODEL}/$ENV{EMU_SCOPE}.M$ENV{MODEL}.filelist.Emulation.pl   
+#   REPOS: cfg/repositories.yml
+   RTLCHANGES_DIR: tools/emu/inputs/common/rtlchanges  
+   ROM_IMAGES:
+
+##############################
+# Global Defaults
+##############################
+GLOBAL:
+   TOP: 
+   SETUP:
+   NB_SETUP_ANA:
+      sc:
+         NBPOOL: sc_critical
+         NBQSLOT: /SDG/sdg74/fe/build/tfm_tool
+         NBCLASS: '"SLES11SP2&&4G"'
+
+      pdx:
+         NBPOOL: pdx_critical
+         NBQSLOT: /SDG/sdg74/fe/build/tfm_tool
+         NBCLASS: "SLES11SP2&&4G"
+   NB_SETUP_FE:
+      sc:
+         NBPOOL: sc_critical
+         NBQSLOT: /SDG/sdg74/fe/build/tfm_tool
+         NBCLASS: '"SLES11SP2&&4G"'
+   NB_SETUP_BE:
+      sc:
+         NBPOOL: sc_critical
+         NBQSLOT: /SDG/sdg74/fe/build/tfm_tool
+         NBCLASS: '"SLES11SP2&&4G"'
+
+      pdx:
+         NBPOOL: pdx_critical
+         NBQSLOT: /SDG/sdg74/fe/build/tfm_tool
+         NBCLASS: "SLES11SP2&&4G"
+#   CFG_FILES:
+#   OTHER_FILES:
+#   VLOG_LIBS:
+   VLOG_FILES:
+      - $ENV{EMU_DATA}/emulation_defines.f
+#   VLOG_LIB_FILES:
+#   VHDL_LIBS:
+#   VHDL_FILES:
+#   VHDL_LIB_FILES
+#   C_FILES:
+#   CFLAGS:
+#   LDFLAGS:
+   RMTAG:
+      - .?define.?VCSSIM$
+      - .?define.?HIERREF$
+
+   RMLIBS:
+      - yam_lib
+      - ml_lib
+      - sytb_ovm_lib
+      - ovm_lib
+      - sla_lib
+      - sip_shared_lib
+
+
+
+#   BB_MODULES:
+
+##############################
+# Configurations
+##############################
+CONFIGURATIONS:
+
+   ZSE:
+      WORKDIR: target/emu/$ENV{MODEL}
+      PLATFORM: ZSE
+      BOARDS: 1
+      CFG_FILES:
+         - $ENV{EMU_DATA}/zebu/zse_build.tcl
+      OTHER_FILES:
+         - $ENV{EMU_DATA}/zebu/zFast.config
+         - $ENV{EMU_DATA}/zebu/zTopBuild_edit.tcl
+      UNIFIED_COMPILE: 0 
+      SETUP:
+         ZSE_PATH: $ENV{ZSE_PATH}
+         NOVAS_HOME: /p/vt/tools/sim/vendor/zse/verdi3/2013.09_p9
+         NOVAS_ETC_DIR: ${ZEBU_ROOT}/etc/novas/etc
+         LD_LIBRARY_PATH: ${LD_LIBRARY_PATH}:${NOVAS_HOME}/share/FsdbWriter/LINUX64
+         MY_NBQ_HOME: /p/vt/tools/sim/vendor/zse/
+      NB_SETUP_FE:
+         pdx:
+            NBPOOL: pdx_critical
+            NBQSLOT: /SDG/sdg74/fe/build/tfm_tool
+            NBCLASS: "SLES11SP2&&4G"
+         sc:
+            NBPOOL: sc_critical
+            NBQSLOT: /SDG/sdg74/fe/build/tfm_tool
+            NBCLASS: "SLES11SP2&&4G"
+      COMPILE_OPTIONS:
+         INTERNAL_DISTRIBUTION: NO
+         INTERNAL_DISTRIBUTION_CFG_FILE: $ENV{EMU_DATA}/zebu/nb_config.tcl
+         FE:
+            MODE: LOCAL
+            STOP_AFTER_ELAB: YES
+#            WAIVE_ERRORS: 
+#                  - "113.46"
+#                  - "114.6"
+#                  - "ZFE0099F"
+
+         BE:
+            MODE: LOCAL
+            STOP_AFTER_LOOP_GEN: YES
+
+   FPGA:
+      WORKDIR: target/emu/$ENV{MODEL}
+      PLATFORM: FPGA_PREMIER
+      BOARDS: 1
+      SYNPLICITY_SRC_FILES:
+         - $ENV{EMU_DATA}/fpga/user_src_files.tcl
+      SYNPLICITY_OPT_FILES:
+         - $ENV{EMU_DATA}/fpga/default_impl_opts.tcl
+#     BB_MODULES:
+      CFG_FILES:
+      OTHER_FILES:
+      SETUP:
+         NOVAS_HOME:  /p/vt/tools/sim/vendor/zse/verdi3/2013.09_p9
+#         SYNPLIFY_PATH: /p/com/eda/synopsys/synplifypro/J-2014.09-T0909-Beta/bin/
+         SYNPLIFY_PATH: $ENV{SYNPLIFY_PATH}/bin
+#        AUTO_GENERATE_VLOG_CFG: YES
+      NB_SETUP_FE:
+          pdx:
+            NBPOOL: pdx_critical
+            NBQSLOT: /SDG/sdg74/fe/build/tfm_tool
+            NBCLASS: "SLES11SP2&&4G"
+         sc:
+            NBPOOL: sc_critical
+            NBQSLOT: /SDG/sdg74/fe/build/tfm_tool
+            NBCLASS: "SLES11SP2&&4G"
+      COMPILE_OPTIONS:
+         INTERNAL_DISTRIBUTION: NO
+         INTERNAL_DISTRIBUTION_CFG_FILE: zebu/nb_commands.tcl
+         FE:
+            MODE: LOCAL
+            PROJECT_GEN_ONLY: NO
+            COMPILE_ONLY: YES
+         BE:
+            MODE: LOCAL
+            PROJECT_GEN_ONLY: NO

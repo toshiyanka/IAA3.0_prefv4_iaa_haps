@@ -1,0 +1,29 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => ["+AW_CONTINUE_ON_ERROR", "+iosf_tracker_filename=iosf_trk", "-assert nopostproc", "+HQMS_DEBUG",
+                     # "+HQM_EXTRA_DATA_PHASE_CFG=aceroot/verif/tb/hqm/tests/hcw_dir_cfg_hcw.cft", 
+                     "+HQM_PCIE_MSI_EOT_CHK",
+                     "+HQM_PCIE_RC_VIP_PRESENT +HQM_PCIE_EP_VIP_ABSENT=0", 
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/hqm_ss_warm_reset.cft", 
+                     "+SLA_MAX_RUN_CLOCK=5000000 +SLA_WARM_RESET_PHASE_TIMEOUT=1000000", 
+                     "+SLA_FLUSH_PHASE_TIMEOUT=400000",
+                     "+vcs+lic+wait",
+                    ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+      sec_7  => {   -simv_args => ["", ],   },
+      smoke => { -simv_args => [],  },
+      pf   => { -simv_args => ["+HQM_FUNC_CFG_VIEW=0 "], }, 
+      ep_pf   => { -simv_args => ["+HQM_FUNC_CFG_VIEW=0  +hqm_is_reg_ep=1"], }, 
+
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

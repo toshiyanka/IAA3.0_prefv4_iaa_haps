@@ -1,0 +1,20 @@
+cd $IP_ROOT
+rm -rf pwa/results .acetestinfo.log
+
+\cp source/rtl/include/configs/stap_params_include_progrst.inc source/rtl/include/stap_params_include.inc
+\cp verif/tb/include/configs/tb_param_progrst.inc              verif/tb/include/tb_param.inc
+\cp verif/tb/include/configs/STapTop_progrst_ext_lb.sv         verif/tb/STapTop.sv
+\cp verif/tb/include/configs/emulate_stap_tdo_progrst.sv       verif/tb/emulate_stap_tdo.sv
+
+ace -cc -pwa pwa_progrst
+ace -x TapTestOnlyBypass \
+       TapTestOnlySLVIDCODE \
+       TapTestProgRstITDR \
+       TapTestProgRstRTDR -pwa pwa_progrst -nb -nbmon
+
+grep -ir status pwa/results/tests/*/postsim.log
+
+\cp source/rtl/include/configs/stap_params_include_default.inc source/rtl/include/stap_params_include.inc
+\cp verif/tb/include/configs/tb_param_default.inc              verif/tb/include/tb_param.inc
+\cp verif/tb/include/configs/STapTop_def_ext_lb.sv             verif/tb/STapTop.sv
+\cp verif/tb/include/configs/emulate_stap_tdo_default.sv       verif/tb/emulate_stap_tdo.sv

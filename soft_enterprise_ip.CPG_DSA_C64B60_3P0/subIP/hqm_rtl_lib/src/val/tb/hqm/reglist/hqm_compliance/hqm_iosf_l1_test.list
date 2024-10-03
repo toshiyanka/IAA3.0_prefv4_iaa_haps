@@ -1,0 +1,168 @@
+.include hqm_iosf_l2_test.list
+.include hqm_iosf_func_cov_test.list
+#.include hqm_iosf_cfg_test.list
+#.include hqm_iosf_mem_test.list
+#.include sideband_crdinit.list
+#.include unsupported_sideband.list
+#.include hqm_iosf_sideband_supported.list
+#.include hqm_iosf_fid_check.list 
+#.include hqm_iosf_data_parity_test.list
+#.include hqm_iosf_cmd_parity_test.list
+#.include hqm_iosf_sb_parity_err_injection_test.list
+#.include hqm_iosf_sb_err.list
+#.include hqm_iosf_BE_tests.list
+#.include hqm_iosf_cg_tests.list
+.include hqm_pcie_cfg_err_test.list
+.include hqm_sai_03_test.list
+#Below tests are at low priority. Adding here for future reference
+#.include hqm_iosf_cfg_error_test.list 
+#.include hqm_iosf_mem_error_test.list 
+#.include hqm_iosf_cfg_badtxn.list 
+#.include hqm_iosf_tb_file_test.list 
+#.include hqm_iosf_resetprep.list 
+#.include mix_test.list 
+#.include hqm_iosf_broadcast_test.list 
+
+
+## PVIM: https://hsdes.intel.com/appstore/article/#/1604740033
+## PVIM: https://hsdes.intel.com/appstore/article/#/1604740024
+## Don't include in default grant delay variation this already have that
+hqm_iosf_test:crd_chk_in_pf_flr -dirtag crd_chk_in_pf_flr
+
+## PVIM: https://hsdes.intel.com/appstore/article/#/1407633188
+hqm_iosf_test:reg_access_sb_in_side_rst  -dirtag reg_access_sb_in_side_rst
+
+## PVIM: https://hsdes.intel.com/appstore/article/#/1604740025
+## PVIM: https://hsdes.intel.com/appstore/article/#/1604740024
+hcw_perf_dir_ldb_test1:q1_short+chk_excl_p_np_crd -dirtag q1_short_chk_excl_p_np_crd 
+
+## PVIM: https://hsdes.intel.com/appstore/article/#/1604740024
+hcw_perf_dir_ldb_test1:q1_short+asyncGnt -dirtag q1_short_asyncGnt
+
+## PVIM: https://hsdes.intel.com/appstore/article/#/1604740023
+hqm_iosf_test:sb_interleaving -dirtag sb_interleaving 
+
+hqm_iosf_test:random_ecrc -dirtag random_ecrc
+
+## PVIM: https://hsdes.intel.com/appstore/article/#/1604739968
+hcw_perf_dir_ldb_test1:q1_short+prim_crdt_req_rollover_100 -dirtag q1_short_prim_crdt_req_rollover_100
+hqm_iosf_test:prim_crdt_req_rollover_100 -dirtag prim_crdt_req_rollover_100
+hcw_perf_dir_ldb_test1:q1_short+prim_crdt_req_rollover_32 -dirtag q1_short_prim_crdt_req_rollover_32
+hqm_iosf_test:prim_crdt_req_rollover_32 -dirtag prim_crdt_req_rollover_32
+
+##Bug https://hsdes.intel.com/appstore/article/#/1405565286
+hqm_iosf_test:sb_mem_access_wo_bar_cfg -dirtag sb_mem_access_wo_bar_cfg
+
+##Bug https://hsdes.intel.com/appstore/article/#/1408994546
+.repeat 10 
+hqm_iosf_test:sb_intermediate_reset_prep_between_np_seq -dirtag sb_intermediate_reset_prep_between_np_seq
+hqm_iosf_test:sb_intermediate_reset_prep_between_np_b2b_seq -dirtag sb_intermediate_reset_prep_between_np_b2b_seq
+.repeat
+
+##Bug https://hsdes.intel.com/appstore/article/#/1207552954
+hqm_iosf_test:sb_b2b_cfg_wr_with_bd_read -dirtag sb_b2b_cfg_wr_with_bd_read
+
+## PVIM: https://hsdes.intel.com/appstore/article/#/1604740034
+hqm_iosf_test:prim_req_crdt_exhaustion_2 -dirtag prim_req_crdt_exhaustion_2
+hcw_perf_dir_ldb_test1:q1_short+prim_req_crdt_exhaustion_2 -dirtag q1_short_prim_req_crdt_exhaustion_2
+hqm_iosf_test:prim_req_crdt_exhaustion_5 -dirtag prim_req_crdt_exhaustion_5
+hcw_perf_dir_ldb_test1:q1_short+prim_req_crdt_exhaustion_5 -dirtag q1_short_prim_req_crdt_exhaustion_5
+
+## Test case to cover the cross SVC sideband functional coverage 
+#hqm_iosf_test:sb_func_cov_test_fid -dirtag sb_func_cov_test_fid 
+#hqm_iosf_test:sb_func_cov_test_sbe -dirtag sb_func_cov_test_sbe 
+#hqm_iosf_test:sb_func_cov_test_fbe -dirtag sb_func_cov_test_fbe 
+#hqm_iosf_test:sb_func_cov_test_rd_opcodes -dirtag sb_func_cov_test_rd_opcodes 
+#hqm_iosf_test:sb_func_cov_test_src_fe -dirtag sb_func_cov_test_src_fe 
+#hqm_iosf_test:sb_func_cov_test_dw3 -dirtag sb_func_cov_test_dw3 
+#hqm_iosf_test:sb_func_cov_test_fbe_zero_sbe_non_zero -dirtag sb_func_cov_test_fbe_zero_sbe_non_zero
+#hqm_iosf_test:sb_func_cov_test_src_fe_dst_notff -dirtag sb_func_cov_test_src_fe_dst_notff
+
+## PVIM: https://hsdes.intel.com/appstore/article/#/1605662096
+hqm_sb_test:sb_regio_all_regions -dirtag sb_regio_all_regions
+
+## PVIM: https://hsdes.intel.com/appstore/article/#/1604710923
+hqm_sb_test:sb_msg_ext_hdr_chk   -dirtag sb_msg_ext_hdr_chk
+hqm_sb_test:sb_msg_ext_hdr_chk2   -dirtag sb_msg_ext_hdr_chk2
+
+## PVIM: https://hsdes.intel.com/appstore/article/#/1605662095
+hqm_sb_test:sb_msg_ordering_chk  -dirtag sb_msg_ordering_chk
+
+## PVIM: https://hsdes.intel.com/appstore/article/#/1604740018
+hqm_prim_n_sb_error_test:primary_only          -dirtag  primary_only         
+
+## PVIM: https://hsdes.intel.com/appstore/article/#/1604740021
+hqm_prim_n_sb_error_test:sideband_only         -dirtag  sideband_only         
+hqm_prim_n_sb_error_test:primary_with_sideband -dirtag  primary_with_sideband
+
+## PVIM: https://hsdes.intel.com/appstore/article/#/1606651700
+hqm_sb_test:sb_regio_ill_bar    -dirtag sb_regio_ill_bar
+
+## PVIM: https://hsdes.intel.com/appstore/article/#/1606651699
+hqm_sb_test:sb_regio_ill_fid    -dirtag sb_regio_ill_fid
+
+## PVIM: https://hsdes.intel.com/appstore/article/#/1606664743
+hqm_prim_n_sb_error_test:prim_busnum_change_with_sb -dirtag prim_busnum_change_with_sb
+
+## PVIM: https://hsdes.intel.com/appstore/article/#/1607028789
+hcw_sciov_test:np_txns_within_intermediate_reset                      -dirtag np_txns_within_intermediate_reset
+hcw_sciov_test:np_txns_within_intermediate_reset+wait_Resetprep_Ack   -dirtag np_txns_within_intermediate_reset_wait_Rprepack
+
+## Bug: https://hsdes.intel.com/appstore/article/#/1507097494
+hcw_sciov_test:np_txns_within_intermediate_reset+wait_ForcePwrGatePok+wait_18_1_1 -dirtag np_txns_within_intermediate_reset_wait_ForcePwrGatePok_18_1_1
+hcw_sciov_test:np_txns_within_intermediate_reset+wait_ForcePwrGatePok+wait_18_1_2 -dirtag np_txns_within_intermediate_reset_wait_ForcePwrGatePok_18_1_2
+
+hcw_sciov_test:ur_txn+np_txns_within_intermediate_reset+pf_anfes           -dirtag ur_np_txns_within_intermediate_reset
+hcw_sciov_test:ur_txn+np_txns_within_intermediate_reset+wait_Resetprep_Ack   -dirtag ur_np_txns_within_intermediate_reset_wait_Rprepack
+
+hcw_sciov_test:ur_txn+np_txns_within_intermediate_reset+wait_ForcePwrGatePok+wait_18_1_1 -dirtag ur_np_txns_within_intermediate_reset_wait_ForcePwrGatePok_18_1_1
+hcw_sciov_test:ur_txn+np_txns_within_intermediate_reset+wait_ForcePwrGatePok+wait_18_1_2 -dirtag ur_np_txns_within_intermediate_reset_wait_ForcePwrGatePok_18_1_2
+
+## Added test as per review of IOSF test plan 
+## PVIM : https://hsdes.intel.com/appstore/article/#/1607132373
+hcw_perf_dir_ldb_test1:q1_short+vary_gntgap_posted -dirtag q1_short_vary_gntgap_posted
+hcw_perf_dir_ldb_test1:q1_short+vary_gntgap_cmpl -dirtag q1_short_vary_gntgap_cmpl
+## PVIM: https://hsdes.intel.com/appstore/article/#/1607132375
+hqm_iosf_test:sb_credit_exhaust -dirtag sb_credit_exhaust
+
+## PVIM: https://hsdes.intel.com/appstore/phoenix/#/test/grid/test_plan?p=1405379203&f=1604580488
+hqm_iosf_test:crd_return_p_ur+pf_func_bar_less_4g+non_posted_expect_ur+MRdLk32  -dirtag MRdLk32
+hqm_iosf_test:crd_return_p_ur+pf_func_bar_less_4g+non_posted_expect_ur+LTMRd32  -dirtag LTMRd32
+hqm_iosf_test:crd_return_p_ur+pf_func_bar_less_4g+non_posted_expect_ur+NPMWr32  -dirtag NPMWr32
+hqm_iosf_test:crd_return_p_ur+pf_func_bar_greater_4g+non_posted_expect_ur+MRdLk64  -dirtag MRdLk64
+hqm_iosf_test:crd_return_p_ur+pf_func_bar_greater_4g+non_posted_expect_ur+LTMRd64  -dirtag LTMRd64
+hqm_iosf_test:crd_return_p_ur+pf_func_bar_greater_4g+non_posted_expect_ur+NPMWr64  -dirtag NPMWr64
+hqm_iosf_test:crd_return_p_ur+pf_func_bar_less_4g+posted_expect_ur+LTMWr32  -dirtag LTMWr32
+hqm_iosf_test:crd_return_p_ur+pf_func_bar_greater_4g+posted_expect_ur+LTMWr64  -dirtag LTMWr64 
+hqm_iosf_test:crd_return_p_ur+pf_func_bar_greater_4g+posted_expect_ur+Msg0     -dirtag Msg0  
+hqm_iosf_test:crd_return_p_ur+pf_func_bar_greater_4g+posted_expect_ur+Msg1     -dirtag Msg1  
+hqm_iosf_test:crd_return_p_ur+pf_func_bar_greater_4g+posted_expect_ur+Msg2     -dirtag Msg2  
+hqm_iosf_test:crd_return_p_ur+pf_func_bar_greater_4g+posted_expect_ur+Msg3     -dirtag Msg3  
+hqm_iosf_test:crd_return_p_ur+pf_func_bar_greater_4g+posted_expect_ur+Msg4     -dirtag Msg4  
+hqm_iosf_test:crd_return_p_ur+pf_func_bar_greater_4g+posted_expect_ur+Msg5     -dirtag Msg5  
+hqm_iosf_test:crd_return_p_ur+pf_func_bar_greater_4g+posted_expect_ur+Msg6     -dirtag Msg6  
+hqm_iosf_test:crd_return_p_ur+pf_func_bar_greater_4g+posted_expect_ur+Msg7     -dirtag Msg7  
+hqm_iosf_test:crd_return_p_ur+pf_func_bar_greater_4g+posted_expect_ur+MsgD0    -dirtag MsgD0 
+hqm_iosf_test:crd_return_p_ur+pf_func_bar_greater_4g+posted_expect_ur+MsgD1    -dirtag MsgD1 
+hqm_iosf_test:crd_return_p_ur+pf_func_bar_greater_4g+posted_expect_ur+MsgD2    -dirtag MsgD2 
+hqm_iosf_test:crd_return_p_ur+pf_func_bar_greater_4g+posted_expect_ur+MsgD3    -dirtag MsgD3 
+hqm_iosf_test:crd_return_p_ur+pf_func_bar_greater_4g+posted_expect_ur+MsgD4    -dirtag MsgD4 
+hqm_iosf_test:crd_return_p_ur+pf_func_bar_greater_4g+posted_expect_ur+MsgD5    -dirtag MsgD5 
+hqm_iosf_test:crd_return_p_ur+pf_func_bar_greater_4g+posted_expect_ur+MsgD6    -dirtag MsgD6 
+hqm_iosf_test:crd_return_p_ur+pf_func_bar_greater_4g+posted_expect_ur+MsgD7    -dirtag MsgD7
+
+## PVIMS https://hsdes.intel.com/appstore/article/#/1607124472
+.repeat 20
+hqm_cfg_test:hcw+fab_active_maxismdly                                          -dirtag fab_active_maxismdly
+.repeat  
+
+## Bug: https://hsdes.intel.com/appstore/article/#/1409927851
+.repeat 5
+hqm_pcie_flr_with_txns:sec_6_6_2+pf+txn_type_cfg_wr+num_txns_in_flr_0      -dirtag pf_txn_type_cfg_wr_multi 
+hqm_pcie_flr_with_txns:sec_6_6_2+pf+txn_type_cfg_rd+num_txns_in_flr_0      -dirtag pf_txn_type_cfg_rd_multi
+hqm_pcie_flr_with_txns:sec_6_6_2+pf+cpl_pf+txn_type_cpl+num_txns_in_flr_1  -dirtag pf_txn_type_cpl_multi 
+hqm_pcie_flr_with_txns:sec_6_6_2+pf+txn_type_mem_rd+num_txns_in_flr_0      -dirtag pf_txn_type_mem_rd_multi 
+hqm_pcie_flr_with_txns:sec_6_6_2+pf+txn_type_mem_wr+num_txns_in_flr_0      -dirtag pf_txn_type_mem_wr_multi 
+.repeat
+
+hqm_iosf_test:crd_chk_in_pf_flr+flr_with_txns -dirtag crd_chk_in_pf_flr_with_txns

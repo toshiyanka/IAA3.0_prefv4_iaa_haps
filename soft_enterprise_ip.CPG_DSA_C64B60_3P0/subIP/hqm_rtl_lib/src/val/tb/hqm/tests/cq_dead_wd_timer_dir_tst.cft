@@ -1,0 +1,15 @@
+# Configure WD timer for CQ[4]
+
+wr credit_hist_pipe.cfg_dir_wd_threshold        0x0
+wr credit_hist_pipe.cfg_dir_wd_disable0         0xffffffff
+wr credit_hist_pipe.cfg_dir_cq_wd_enb[2]        0x1
+wr credit_hist_pipe.cfg_dir_cq_wd_enb[3]        0x1
+wr credit_hist_pipe.cfg_dir_cq_wd_enb[4]        0x1
+
+# check that no INTR when no hcw enqued (CQ empty & no activity at PP)
+IDLE 15000
+
+poll credit_hist_pipe.cfg_dir_wd_irq0  0x00  0xffffffff 100 
+poll credit_hist_pipe.cfg_dir_wd_irq1  0x00  0xffffffff 100 
+
+rd hqm_pf_cfg_i.vendor_id

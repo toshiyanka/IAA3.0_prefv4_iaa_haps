@@ -1,0 +1,14 @@
+#!/bin/csh -f
+## USAGE : cd pwa/results/tests
+## USAGE : $IP_ROOT/scripts/scr_genlist <directory path till pwa>
+## gives output as vdblist.txt for all passing tests.
+
+\rm vdblist.txt
+touch vdblist.txt
+set my_dirname = $1
+
+foreach i (`grep "test =>" pass.list | awk '{print $3}' | sed -e 's/\"//g' -e 's/,//' -e 's/\:/_/'`)
+    echo "$my_dirname/pwa/tests/$i/$i.simv.vdb" >> vdblist.txt
+end
+
+echo "$my_dirname/pwa/vcs_lib/$VCS_VER/models/dfxsecure_plugin_model/dfxsecure_plugin_model.simv.vdb" >> vdblist.txt

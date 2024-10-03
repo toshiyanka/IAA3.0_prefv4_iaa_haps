@@ -1,0 +1,18 @@
+#mem_update
+
+cfg_begin
+
+   msix_alarm 0 enable=0x1 addr=0xaaaa5555aaaa5555 data=0xaaaa5555
+
+   ldb qid QID_0:* qid_ldb_inflight_limit=1024
+   ldb qid QID_1:*
+   
+   vas VAS:* ldb_qidv:QID_0=1 ldb_qidv:QID_1=1 credit_cnt=8192
+
+   ldb pp PP_0:* vas=VAS
+   ldb cq PP_0   gpa=sm qidv0=1 qidix0=QID_1 
+   ldb pp PP_1:* vas=VAS enable=0 
+   ldb cq PP_1   qidv7=1 qidix7=QID_0 cq_ldb_inflight_limit=1024 hist_list_base=0 hist_list_limit=1024 cq_depth=1024 gpa=sm 
+
+
+cfg_end

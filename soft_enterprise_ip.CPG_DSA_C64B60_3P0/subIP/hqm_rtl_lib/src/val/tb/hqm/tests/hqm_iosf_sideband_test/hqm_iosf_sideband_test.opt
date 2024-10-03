@@ -1,0 +1,892 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => ["+AW_CONTINUE_ON_ERROR", "+iosf_tracker_filename=iosf_trk",
+       "+SLA_USER_DATA_PHASE_TIMEOUT=3000000",
+       "+SLA_CONFIG_PHASE_TIMEOUT=3000000",
+       "+SLA_FLUSH_PHASE_TIMEOUT=4000000",
+       "+SLA_MAX_RUN_CLOCK=100000000",
+       "-assert nopostproc", "+HQMS_DEBUG", "+HQMI_DEBUG",
+       "+vcs+lic+wait",
+      ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+      test0 => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_cfgrd_seq",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/SAI_generic.cft",
+          ],
+      },
+
+
+     cfgwr => {
+          -simv_args => ["+IOSF_SIDE_FILE=back2back_sb_cfgwr_seq","+BLOCKING_IOSF_CFGRD_TXN",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/SAI_generic.cft",
+          "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_sb_check1.cft",
+
+          ],
+      },
+
+      epspec_opcode => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_epspec_opcode_seq",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/SAI_generic.cft",
+
+          ],
+      },
+
+    unsupport_memwr => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_unsupport_memwr_seq","+MODE0",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/SAI_generic.cft",
+          "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_generic.cft",
+
+          ],
+      },
+
+
+       unsupport_memwr1 => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_unsupport_memwr_seq","+MODE1",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/SAI_generic.cft",
+          "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_generic.cft",
+
+          ],
+      },
+
+
+      poison_cfgrd => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_poison_cfgrd_seq", "+BLOCKING_IOSF_TXN", "+DISABLE_FAB_PARITY_CHK",
+          "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/sb_error.waiver", "+IGNORE_DUE_TO_SIDEBAND_RESET",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_error.cft","+SLA_MAX_RUN_CLOCK=0",
+          "+hqm_warm_reset_sequence_stim_config::skip_for_sideband_reset=1", "+CFG_MODE=WRWR_rand", 
+          "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/poison_mem_generic.cft",
+          ],
+      },
+
+    poison => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_poison_cfgwr_seq", "+BLOCKING_IOSF_TXN", "+DISABLE_FAB_PARITY_CHK",
+          "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/sb_error.waiver", "+IGNORE_DUE_TO_SIDEBAND_RESET",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_error.cft","+SLA_MAX_RUN_CLOCK=0",
+          "+hqm_warm_reset_sequence_stim_config::skip_for_sideband_reset=1", "+CFG_MODE=WRWR_rand", 
+          "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/poison_mem_generic.cft",
+          ],
+      },
+
+     poison_cfg => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_poison_cfgwr_seq1", "+BLOCKING_IOSF_TXN",  "+DISABLE_FAB_PARITY_CHK",
+          "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/sb_error.waiver",  "+IGNORE_DUE_TO_SIDEBAND_RESET",
+          "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_error.cft","+SLA_MAX_RUN_CLOCK=0",
+          "+hqm_warm_reset_sequence_stim_config::skip_for_sideband_reset=1", "+CFG_MODE=WRWR_rand", 
+          "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/poison_mem_generic.cft",
+          ],
+      }, 
+  
+      poison_memrd => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_poison_memrd_seq",
+          "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/sb_error.waiver",  "+IGNORE_DUE_TO_SIDEBAND_RESET",  "+DISABLE_FAB_PARITY_CHK",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",  "+BLOCKING_IOSF_TXN",
+          "+hqm_warm_reset_sequence_stim_config::skip_for_sideband_reset=1", "+CFG_MODE=WRWR_rand", 
+          "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/poison_mem_generic.cft",
+          ],
+      },
+
+
+     poison_memwr => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_poison_memwr_seq",
+          "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/sb_error.waiver",  "+IGNORE_DUE_TO_SIDEBAND_RESET",  "+DISABLE_FAB_PARITY_CHK",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",  "+BLOCKING_IOSF_TXN",
+          "+hqm_warm_reset_sequence_stim_config::skip_for_sideband_reset=1", "+CFG_MODE=WRWR_rand", 
+          "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/poison_mem_generic.cft",
+          ],
+      },
+
+
+     poison_npmemwr => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_memwr_np_poison_seq",
+          "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/sb_error.waiver",   "+IGNORE_DUE_TO_SIDEBAND_RESET",  "+DISABLE_FAB_PARITY_CHK",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",  "+BLOCKING_IOSF_TXN",
+          "+hqm_warm_reset_sequence_stim_config::skip_for_sideband_reset=1", "+CFG_MODE=WRWR_rand", 
+          "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/poison_mem_generic.cft",
+          ],
+      },
+
+
+   unsupport1 => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_unsupport_cfgwr_seq",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/SAI_generic.cft",
+           "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_UR_check.cft",
+
+          ],
+      },
+
+
+      unsupport2 => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_unsupport_cfgrd_seq",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/SAI_generic.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_UR_check.cft",
+
+          ],
+      },
+
+      
+     
+      test7a => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_fbe_memwr_seq","+MODE1",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/BE_mem_sb_check.cft",
+
+          ],
+      },
+
+
+
+     test8 => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_memwr_seq",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_generic.cft",
+
+          ],
+      },
+
+
+     memrd => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_memrd_seq",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_generic.cft", "+BLOCKING_IOSF_MEMRD_TXN",
+
+          ],
+      },
+
+   cfgrd => {
+          -simv_args => ["+IOSF_SIDE_FILE=back2back_sb_cfgrd_seq", "+BLOCKING_IOSF_CFGRD_TXN",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_sb_error.cft",
+       "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_sb_check.cft",
+  
+          ],
+      },
+
+      cfgrd_loopback => {
+          -simv_args => ["+IOSF_SIDE_FILE=back2back_sb_cfgrd_seq","+LOOPBACK_TXN",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_sb_error.cft","+BLOCKING_IOSF_CFGRD_TXN",
+       "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_sb_check.cft",
+  
+          ],
+      },
+
+    cfgrda => {
+          -simv_args => ["+IOSF_SIDE_FILE=back2back_sb_cfgrd_seq","+BLOCKING_IOSF_CFGRD_TXN",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_error.cft",
+       "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_sb_check.cft",
+
+        
+          ],
+      },
+
+  
+
+     
+    fbe_memrd1 => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_fbe_memrd_seq","+MODE1",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/BE_mem_check.cft",
+
+          ],
+      },
+
+      fbe_memrd2 => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_fbe_memrd_seq","+MODE2",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/BE_mem_check.cft",
+
+          ],
+      },
+   
+     
+
+  cplD => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_cplD_seq","+CHK_DISABLE",
+         "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cpl_sb_error.waiver",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_cpl.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_cpl_sb_check.cft",
+
+          ],
+      },
+  
+ 
+
+ cpl => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_cpl_seq","+CHK_DISABLE",
+           "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cpl_sb_error.waiver",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_cpl.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_cpl_sb_check.cft",
+
+          ],
+      },
+  
+
+ test_15 => {
+          -simv_args => ["+IOSF_SIDE_FILE=back2back_sb_fw_seq","+BLOCKING_IOSF_CFGRD_TXN",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_cpl.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_forcewakeup_check.cft",
+
+          ],
+      },
+
+test_16 => {
+          -simv_args => ["+IOSF_SIDE_FILE=back2back_sb_fw_seq",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_cpl.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_forcewakeup_check.cft",
+
+          ],
+      },
+
+test_17 => {
+          -simv_args => ["+IOSF_SIDE_FILE=back2back_sb_fw_seq",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_cpl.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_forcewakeup_check1.cft",
+
+          ],
+      },
+
+memrd => {
+          -simv_args => ["+IOSF_SIDE_FILE=back2back_sb_memrd_seq", "+MEM64_TXN",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_generic.cft",
+
+          ],
+      },
+
+memrd32 => {
+          -simv_args => ["+IOSF_SIDE_FILE=back2back_sb_memrd_seq", "+MEM32_TXN", "+BLOCKING_IOSF_MEMRD_TXN",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem32.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_generic.cft",
+
+          ],
+      },
+
+memwr32 => {
+          -simv_args => [ "+EXP_EP_MSI0_CNT=1", "+IOSF_SIDE_FILE=back2back_sb_memwr32_seq", "+MEM32_TXN","+FUNC_CHECK", "+HQM_MSI_INT_MON_DISABLE",
+                         "+hqm_msi_isr_seq_stim_config::do_exp_msi_trigger=0",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/hqm_pf_to_vf_mailbox_memwr32.cft","+BLOCKING_IOSF_MEMRD_TXN",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+
+          ],
+      },
+      
+      
+
+memwr => {
+          -simv_args => ["+IOSF_SIDE_FILE=back2back_sb_memwr_seq",
+                 "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_update_check.cft",
+
+          ],
+      },
+
+
+np_memwr32 => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_memwr_np_seq","+NP_MEMWR_TXN",
+                 "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/memwr32_np.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_np_update.cft",
+
+          ],
+      },
+
+np_memwr64 => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_memwr_np_seq","+NP_MEMWR_TXN",
+                 "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/memwr_np.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_np_update.cft",
+
+          ],
+      },
+      
+      
+     
+
+resetPrep => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_resetPrep_seq",
+          "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/resetPrep_error.waiver",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft","+RESETPREP_ACK_TXN",
+        "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/resetPrep_generic.cft",
+
+          ],
+      },
+ 
+
+resetPrep1 => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_resetPrep_seq1","+UR_TXN",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft","+RESETPREP_ACK_TXN",
+        "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_generic.cft",
+
+          ],
+      },
+
+resetPrep2 => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_resetPrep_seq","+UR_TXN",
+          "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/resetPrep_error.waiver",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft","+RESETPREP_ACK_TXN",
+        "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_resetPrep_check.cft",
+
+          ],
+      },
+
+resetPrep3 => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_resetPrep_seq3","+UR_TXN",
+       "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/resetPrep_error.waiver",
+      "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft","+RESETPREP_ACK_TXN",
+        "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_resetPrep_check.cft",
+
+          ],
+      },
+
+
+resetPrep4 => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_resetPrep_seq4","+UR_TXN",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft","+RESETPREP_ACK_TXN",
+       "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_resetPrep_check.cft",
+
+          ],
+      },
+      
+resetPrep5 => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_resetPrep_seq5","+UR_TXN",
+          "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/resetPrep_error.waiver",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft","+RESETPREP_ACK_TXN",
+        "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_resetPrep_check.cft",
+
+          ],
+      },
+
+
+      
+ 
+resetPrep_hcw => {
+          -simv_args => [ "+IOSF_SIDE_FILE=hqm_iosf_sb_resetPrep_seq6","+RESETPREP_ACK_TXN",
+           "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/resetPrep_error.waiver",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/resetPrep_test_hcw.cft",
+                         "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/hcw_dir_hcw.cft",
+                        
+                        ],
+      },
+
+resetPrep7 => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_resetPrep_seq7","+UR_TXN",
+          "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/resetPrep_error.waiver",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft","+RESETPREP_ACK_TXN",
+        "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_resetPrep_check.cft",
+
+          ],
+      },
+
+resetPrep8 => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_resetPrep_seq8","+UR_TXN", "+MEM64_TXN",
+          "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/resetPrep_error.waiver",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft","+RESETPREP_ACK_TXN",
+        "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_resetPrep_check.cft",
+
+          ],
+      },
+
+resetPrep8a => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_resetPrep_seq8","+UR_TXN", "+MEM32_TXN",
+          "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/resetPrep_error.waiver",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft","+RESETPREP_ACK_TXN",
+        "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_resetPrep_check.cft",
+
+          ],
+      },
+      
+
+resetPrep9 => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_resetPrep_seq9","+UR_TXN",
+          "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/resetPrep_error.waiver",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft","+RESETPREP_ACK_TXN",
+        "+HQM_SEQ_CFG1=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_resetPrep_check.cft",
+
+          ],
+      },
+      
+      
+      
+      
+
+
+      test21a => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_sbe_memwr_seq","+MODE1",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_lbe_check.cft",
+
+          ],
+      },
+
+
+sb_bar => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_memrd_bar_seq",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_generic.cft",
+
+          ],
+      },
+
+fbe_memrd => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_fbe_memrd_seq","+MODE0",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/BE_mem_sb_check.cft",
+
+          ],
+      },
+
+     
+fbe_memwr => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_fbe_memwr_seq","+MODE0",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/BE_mem_sb_check.cft",
+
+          ],
+      },
+
+
+fbe_npmemwr => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_fbe_memwr_np_seq","+MODE0",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/BE_mem_sb_check.cft",
+
+          ],
+      },
+
+fbe_npmemwr32 => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_fbe_memwr_np_seq","+MODE0",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/memwr32_np.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/BE_mem_sb_check.cft",
+
+          ],
+      },
+      
+fbe_cfgwr => {
+          -simv_args => ["+IOSF_SIDE_FILE=back2back_sb_fbe_cfgwr_seq",
+          "+BLOCKING_IOSF_CFGRD_TXN","+CFGWR_ALL",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_error.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/BE_cfg_check.cft",
+
+          ],
+      },
+
+fbe_cfgrd => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_fbe_cfgrd_seq",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_sb.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/BE_cfg_check.cft",
+
+          ],
+      },   
+ 
+cfgrd_sbe => {
+  
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_sbe_cfgrd_seq",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_error.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/BE_cfg_check.cft",
+
+          ],
+      },          
+      
+cfgwr_sbe => {
+  
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_sbe_cfgwr_seq",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_error.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/BE_cfg_check.cft",
+
+          ],
+      },    
+
+memrd_sbe => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_sbe_memrd_seq","+MODE0",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_sb_lbe_check.cft",
+
+          ],
+      },
+
+memwr_sbe => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_sbe_memwr_seq","+MODE0",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_sb_lbe_check.cft",
+
+          ],
+      },
+
+zero_sbe => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_zero_sbe_seq", 
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/zero_sbe.cft",
+
+          ],
+      },
+
+
+npmemwr_sbe => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_sbe_memwr_np_seq","+MODE0",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_sb_lbe_check.cft",
+
+          ],
+      },
+
+npmemwr32_sbe => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_sbe_memwr_np_seq","+MODE0",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/memwr32_np.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_sb_lbe_check.cft",
+
+          ],
+      },
+      
+      
+
+
+np_np => {
+          -simv_args => ["+IOSF_SIDE_FILE=np_np_sb_seq",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+      
+          ],
+      },
+
+np_p => {
+          -simv_args => ["+IOSF_SIDE_FILE=np_p_sb_seq",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+      
+          ],
+      },
+
+p_np => {
+          -simv_args => ["+IOSF_SIDE_FILE=p_np_sb_seq",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+      
+          ],
+      },
+
+p_p => {
+          -simv_args => ["+IOSF_SIDE_FILE=p_p_sb_seq",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+      
+          ],
+      },
+
+p_cmp => {
+          -simv_args => ["+IOSF_SIDE_FILE=cmp_cmp_sb_seq","+POSTED_CPL_TXN","+CHK_DISABLE",
+           "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/order.waiver",
+         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+      
+          ],
+      },
+      
+
+cmp_p => {
+          -simv_args => ["+IOSF_SIDE_FILE=cmp_cmp_sb_seq","+CPL_POSTED_TXN","+CHK_DISABLE",
+           "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/order.waiver",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+      
+          ],
+      },
+
+cmp_cmp => {
+          -simv_args => ["+IOSF_SIDE_FILE=cmp_cmp_sb_seq","+CPL_CPL_TXN","+CHK_DISABLE",
+           "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/order.waiver",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+      
+          ],
+      },
+
+
+
+np_cmp => {
+          -simv_args => ["+IOSF_SIDE_FILE=np_comp_sb_seq","+NP_CPL_TXN","+CHK_DISABLE",
+          "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/order.waiver",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+      
+          ],
+      },
+
+cmp_np => {
+          -simv_args => ["+IOSF_SIDE_FILE=np_comp_sb_seq","+CPL_NP_TXN","+CHK_DISABLE",
+           "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/order.waiver",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+      
+          ],
+      },
+      
+      
+  idle_nak => {
+          -simv_args => ["+IOSF_SIDE_FILE=back2back_sb_memrd_seq", "+MEM64_TXN","+SIDE_NAK",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_generic.cft",
+
+          ],
+      },
+    
+      
+    brd_cfgrd => {
+          -simv_args => ["+IOSF_SIDE_FILE=back2back_sb_cfgrd_brdcast_seq","+BLOCKING_IOSF_CFGRD_TXN","+BRDCAST0",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/SAI_generic.cft","+BRDCAST_CFGRD_TXN",
+          "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_sb_check.cft",
+
+          ],
+      },
+
+    
+    brdcfg_rd1 => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_cfgrd_brdcast1_seq","+BLOCKING_IOSF_CFGRD_TXN","+BRDCAST_1",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/SAI_generic.cft","+BRDCAST_CFGRD_TXN",
+          "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_sb_check.cft",
+
+          ],
+      },
+
+       brdcfg_rd2 => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_cfgrd_brdcast2_seq","+BLOCKING_IOSF_CFGRD_TXN","+BRDCAST_1",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/SAI_generic.cft","+BRDCAST_CFGRD_TXN",
+          "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_sb_check.cft",
+
+          ],
+      },
+  
+  
+
+      
+
+     brd_cfgwr => {
+          -simv_args => ["+IOSF_SIDE_FILE=back2back_sb_cfgrd_brdcast_seq","+BLOCKING_IOSF_CFGRD_TXN",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/SAI_generic.cft","+BRDCAST_CFGWR_TXN",
+          "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_sb_brdcast.cft",
+
+          ],
+      },
+
+     brdcfg_wr1 => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_cfgwr_brdcast1_seq","+BLOCKING_IOSF_CFGRD_TXN",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/SAI_generic.cft","+BRDCAST_CFGWR_TXN",
+          "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_sb_brdcast1.cft",
+
+          ],
+      },
+
+      brdcfg_wr2 => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_cfgwr_brdcast2_seq","+BLOCKING_IOSF_CFGRD_TXN",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/SAI_generic.cft","+BRDCAST_CFGWR_TXN",
+          "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_sb_brdcast1.cft",
+
+          ],
+      },
+
+       brdcfg_wr3 => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_cfgwr_brdcast3_seq","+BLOCKING_IOSF_CFGRD_TXN",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/SAI_generic.cft","+BRDCAST_CFGWR_TXN",
+          "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_sb_brdcast1.cft",
+
+          ],
+      },
+
+ 
+  
+
+
+    brd_memrd => {
+          -simv_args => ["+IOSF_SIDE_FILE=back2back_sb_mem_brdcast_seq", "+MEMRD_BRDCAST_TXN",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_generic.cft",
+
+          ],
+      },
+
+       brd_memwr => {
+          -simv_args => ["+IOSF_SIDE_FILE=back2back_sb_mem_brdcast_seq", "+MEMWR_BRDCAST_TXN",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_brdcast_check.cft",
+
+          ],
+      },
+
+      mcast_memwr => {
+          -simv_args => ["+IOSF_SIDE_FILE=back2back_sb_mem_brdcast_seq", "+MEMWR_MCAST_TXN",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_brdcast_check.cft",
+
+          ],
+      },
+
+       brdmem_rd1 => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_memrd_brdcast1_seq", 
+                 "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_generic.cft",
+
+          ],
+      },
+
+       brdmem_rd2 => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_memrd_brdcast2_seq", 
+                 "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_generic.cft",
+
+          ],
+      },
+
+       memwr_bar => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_memwr_bar_seq", 
+                 "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_generic.cft",
+
+          ],
+      },
+
+
+      ########################
+      #HQMV30 support Cheetah2 prep
+      ########################
+      gp_strap_do_serr_sairs_valid_0 => {
+          -simv_args => [ 
+                 "+HQM_STRAP_DO_SERR_SAIRS_VALID=0x0",
+          ],
+      },
+      gp_strap_do_serr_sairs_valid_1 => {
+          -simv_args => [ 
+                 "+HQM_STRAP_DO_SERR_SAIRS_VALID=0x1",
+          ],
+      },
+
+##strap_hqm_do_serr_sai[7:0] 
+       gp_strap_do_serr_sai_0a    => {
+           -simv_args => [  "+HQM_STRAP_DO_SERR_SAI=0x0a ",
+                    ],
+       }, 
+       gp_strap_do_serr_sai_19     => {
+           -simv_args => [  "+HQM_STRAP_DO_SERR_SAI=0x19 ",
+                    ],
+       }, 
+       gp_strap_do_serr_sai_25   => {
+           -simv_args => [  "+HQM_STRAP_DO_SERR_SAI=0x25 ",
+                    ],
+       }, 
+       gp_strap_do_serr_sai_48    => {
+           -simv_args => [  "+HQM_STRAP_DO_SERR_SAI=0x48 ",
+                    ],
+       }, 
+       gp_strap_do_serr_sai_50    => {
+           -simv_args => [  "+HQM_STRAP_DO_SERR_SAI=0x50 ",
+                    ],
+       }, 
+       gp_strap_do_serr_sai_68    => {
+           -simv_args => [  "+HQM_STRAP_DO_SERR_SAI=0x68 ",
+                    ],
+       }, 
+       gp_strap_do_serr_sai_a5    => {
+           -simv_args => [  "+HQM_STRAP_DO_SERR_SAI=0xa5 ",
+                    ],
+       }, 
+       gp_strap_do_serr_sai_5a    => {
+           -simv_args => [  "+HQM_STRAP_DO_SERR_SAI=0x5a ",
+                    ],
+       }, 
+       gp_strap_do_serr_sai_3e    => {
+           -simv_args => [  "+HQM_STRAP_DO_SERR_SAI=0x3e ",
+                    ],
+       }, 
+       gp_strap_do_serr_sai_f5    => {
+           -simv_args => [  "+HQM_STRAP_DO_SERR_SAI=0xf5 ",
+                    ],
+       }, 
+       gp_strap_do_serr_sai_ef    => {
+           -simv_args => [  "+HQM_STRAP_DO_SERR_SAI=0xef ",
+                    ],
+       }, 
+
+## strap_hqm_do_serr_tag[2:0]
+       gp_strap_do_serr_tag_0    => {
+           -simv_args => [  "+HQM_STRAP_DO_SERR_TAG=0x0 ",
+                    ],
+       }, 
+       gp_strap_do_serr_tag_1    => {
+           -simv_args => [  "+HQM_STRAP_DO_SERR_TAG=0x1 ",
+                    ],
+       }, 
+       gp_strap_do_serr_tag_2   => {
+           -simv_args => [  "+HQM_STRAP_DO_SERR_TAG=0x2 ",
+                    ],
+       }, 
+       gp_strap_do_serr_tag_3    => {
+           -simv_args => [  "+HQM_STRAP_DO_SERR_TAG=0x3 ",
+                    ],
+       }, 
+       gp_strap_do_serr_tag_4    => {
+           -simv_args => [  "+HQM_STRAP_DO_SERR_TAG=0x4 ",
+                    ],
+       }, 
+       gp_strap_do_serr_tag_5    => {
+           -simv_args => [  "+HQM_STRAP_DO_SERR_TAG=0x5 ",
+                    ],
+       }, 
+       gp_strap_do_serr_tag_6    => {
+           -simv_args => [  "+HQM_STRAP_DO_SERR_TAG=0x6 ",
+                    ],
+       }, 
+       gp_strap_do_serr_tag_7    => {
+           -simv_args => [  "+HQM_STRAP_DO_SERR_TAG=0x7 ",
+                    ],
+       }, 
+
+## strap_hqm_do_serr_dstid[15:0]
+       gp_strap_do_serr_dstid_000a    => {
+           -simv_args => [  "+HQM_STRAP_DO_SERR_DSTID=0x000a ",
+                    ],
+       }, 
+       gp_strap_do_serr_dstid_0019    => {
+           -simv_args => [  "+HQM_STRAP_DO_SERR_DSTID=0x0019 ",
+                    ],
+       }, 
+       gp_strap_do_serr_dstid_0025    => {
+           -simv_args => [  "+HQM_STRAP_DO_SERR_DSTID=0x0035 ",
+                    ],
+       }, 
+       gp_strap_do_serr_dstid_0048   => {
+           -simv_args => [  "+HQM_STRAP_DO_SERR_DSTID=0x0048 ",
+                    ],
+       }, 
+       gp_strap_do_serr_dstid_0050    => {
+           -simv_args => [  "+HQM_STRAP_DO_SERR_DSTID=0x0050 ",
+                    ],
+       }, 
+       gp_strap_do_serr_dstid_0068   => {
+           -simv_args => [  "+HQM_STRAP_DO_SERR_DSTID=0x0068 ",
+                    ],
+       }, 
+       gp_strap_do_serr_dstid_00a5    => {
+           -simv_args => [  "+HQM_STRAP_DO_SERR_DSTID=0x00a5 ",
+                    ],
+       }, 
+       gp_strap_do_serr_dstid_005a    => {
+           -simv_args => [  "+HQM_STRAP_DO_SERR_DSTID=0x005a ",
+                    ],
+       }, 
+       gp_strap_do_serr_dstid_003e    => {
+           -simv_args => [  "+HQM_STRAP_DO_SERR_DSTID=0x003e ",
+                    ],
+       }, 
+       gp_strap_do_serr_dstid_00f5    => {
+           -simv_args => [  "+HQM_STRAP_DO_SERR_DSTID=0x00f5 ",
+                    ],
+       }, 
+       gp_strap_do_serr_dstid_00ef   => {
+           -simv_args => [  "+HQM_STRAP_DO_SERR_DSTID=0x00ef ",
+                    ],
+       }, 
+
+
+  
+
+  
+        
+
+
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

@@ -1,0 +1,34 @@
+#This is a manually-created file which the generate script includes in the final pdl
+iProc clear_all_triggers {} {
+    iWrite taptrigger.TRIG_PM_1 0
+    iWrite taptrigger.TRIG_PM_0 0
+    iWrite taptrigger.TRIG_IOSF 0
+    iApply
+}
+
+# TRIG_VALID must be pulsed in order for the trigger arm bits to actually be seen
+iProc load_triggers {} {
+    iCall set_taptrigger_TRIG_VALID 0
+    iCall set_taptrigger_TRIG_VALID 1
+}
+
+# Arm the specified trigger bit in TRIG_PM_1, and clear all other trigger bits
+iProc arm_TRIG_PM_1 {bit} {
+    iCall clear_all_triggers
+    iCall set_taptrigger_TRIG_PM_1_bit $bit 1
+    iCall load_triggers
+}
+
+# Arm the specified trigger bit in TRIG_PM_0, and clear all other trigger bits
+iProc arm_TRIG_PM_0 {bit} {
+    iCall clear_all_triggers
+    iCall set_taptrigger_TRIG_PM_0_bit $bit 1
+    iCall load_triggers
+}
+
+# Arm the specified trigger bit in TRIG_IOSF, and clear all other trigger bits
+iProc arm_TRIG_IOSF {bit} {
+    iCall clear_all_triggers
+    iCall set_taptrigger_TRIG_IOSF_bit $bit 1
+    iCall load_triggers
+}

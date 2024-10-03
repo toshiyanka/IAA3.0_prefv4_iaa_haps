@@ -1,0 +1,187 @@
+#!/usr/intel/bin/perl
+%audf = (
+    HDLSpec => {        
+
+        #FIXME: This can't be in here as it's global. (should be in ovm.udf or ovm_local_ivars.udf).
+        # Add extensions that you  use for include files; ACE only looks at 
+        # .v (for Verilog) and .sv,.svh,.vh,.sv (for SystemVerilog) by default
+        # Suggested by Russ Jackson (Ace developer) in 
+        # https://vthsd.fm.intel.com/hsd/da_all/da_help/default.aspx?da_help_id=577466, 
+        # to support Ace detecting changes in source files, and recompiling as necessary.
+        #-src_type => {
+        #    SystemVerilog => {
+        #        -extension => '/\.(svh|sva|vs|vm|vf)$/',
+        #    },
+        #},
+        
+        #Per ACE Reuse Guidelines, libs should be in the form "<scope>_<purpose>_lib", 
+        # but only two purposes were named, originally. (3, but one was retcon'd)
+        #    "<purpose> = ti for the reusable test island part of the testbench"
+        #    "<purpose> = rtl for the single lib that contains all RTL"
+        # ti is far too specific, and many VCs don't have Test Islands.
+        # So "val" is the general purpose, hence the val libs must end as _val_lib  
+
+        ChassisPowerGatingVC => { #The Scope
+#            import => {
+#                #We must import the semi-auto-reuse libs so that the library definitions are available for consumption.
+#                 IOSF_SVC                     => { libs => [ "iosf_svc" ] },
+#                },
+            libs => {
+                #<scope>_<purpose>_lib
+                ChassisPowerGatingVC_val_lib => { #The Lib
+                
+                    #The below tag leverages the contour's data to uniformly tag all member val libs; 
+                    # the commented line below contains what this should resolve to.
+                    -tag            => &ToolConfig::get_tool_var("vc_vars", "TYPICAL_SVTB_TAGS"),
+
+                    #Note regarding .hdl vs native -vlog_files/vlog_incdirs/vlog_opts
+                    #----------------------------------------------------------------
+                    # The compiler needs to know what files to include (-vlog_files) 
+                    #  what directories to include, (-vlog_incdirs)
+                    #  and what options to compile with, including defines. (-vlog_opts)
+                    # You may choose to provide this via a separate .hdl file, OR
+                    #  natively here in the _hdl.udf, under the lib scope. Your choice.
+                    # A few notes on usage:
+                    # 1) -vlog files (where the relative path starts at the location specified by the SEARCH_PATHS)
+                    # 2) -vlog_incdirs
+                    # 3) -vlog_opts : only use those that are COMMON-TO-ALL-CUSTOMERS. Not most. ALL.
+                    #                  Anything else should be included in COMMENTS with explanations of purpose
+                    #                  and with directions to users on how to use them (e.g. include them in local ivars)
+                    
+                    #Ex: .hdl style
+                    -hdl_spec       => ["cfg/ace/ChassisPowerGatingVC/ChassisPowerGatingVC.hdl"], #optional
+#                    -vlog_files     =>  [ 
+#                                        "src/ovm_pkg.sv", #Don't need full path; search path should provide to the base
+#                                        "src/compatibility/avm_pkg.sv", 
+#                                        ],
+                    -vlog_incdirs   =>  [ "source", ],
+                    -vlog_opts      =>  [ 
+                                        '-sverilog', 
+                                        #'+define+XVM',
+                                        #If there are additional defines that customers MAY use, but are
+                                        # NOT COMMON-TO-ALL-CUSTOMERS, they should be commented as the 
+                                        # below example is, including explanation.                                        
+                                        #"+define+OVM_DPI", #performance increase enabler; requires additional lib to function.
+                                        ],
+                    -dependent_libs =>  [
+                                        'uvm_val_lib',
+                                        'ovm_val_lib',
+                                        'saola_val_lib',
+                                        ],
+                    #BMAN: Bman specific behavior that enhances build performance.
+                    #-tools => [qw(-FLG_create -lintra_create -sglp_createlib -qcdc_createlib -vlogan -vericom -lt_ol_createlib)],
+                    #-tools => &ToolConfig::get_remove_tools(...)     <--future plan to have tool config supply this.
+                },
+
+                #Why we add sip_shared_lib (per Elizabeth Woolley, 2/5/18)
+                #1) to serve as documentation, and 
+                #2) to help ensure that backward-compatible use of sip_shared_lib does not get broken, 
+                #   by making sure that libs which should be part of sip_shared_lib are delivered that 
+                #   way (with recursive library dependencies enabled during testing so that we can avoid 
+                #   any recursive loops of library depending on sip_shared_lib which in turn depends on 
+                #   that same library).
+                sip_shared_lib => {
+                    -tag            => &ToolConfig::get_tool_var("vc_vars", "TYPICAL_SVTB_TAGS"),
+                    -vlog_files     =>  ["verif/tb/sip_shared_lib_pkg.sv",], #stub file that will import all of the pieces that it defines. Also needs to have a module, so we can target it in the ace model
+                    -dependent_libs =>  ## list self (since sip_shared_lib should be DEPENDENT on, 
+                                        ##  not contain as a sub_lib, this lib.) Also add any SIIP 
+                                        ##  compliant shared libs here, that you DIRECTLY depend on
+                                        [
+                                        'ChassisPowerGatingVC_val_lib',
+                                        ], 
+                    -sub_libs =>        #List the libs you DIRECTLY depend on, that are NOT SIIP compliant
+                                        # The libs that do not export themselves and do not export their uses
+                                        [
+                                        ], 
+                    -vlog_opts      =>  [
+                                        '-sverilog',
+                                        #'+define+XVM', 
+                                        ],
+                    -vlog_incdirs   =>  [ 
+                                        "$ENV{OVM_HOME}/src", 
+                                        ((defined $ENV{SAOLA_HOME}) ? ("$ENV{SAOLA_HOME}/verilog") : ()),
+                                        ], ## code as needed when used in other scopes
+                },
+
+		        
+                #The two below items are for the testbench included with the ChassisPG VC
+                PowerGatingSaolaPkg => {
+                    -tag            => &ToolConfig::get_tool_var("vc_vars", "TYPICAL_SVTB_TAGS"),
+                    -hdl_spec => [ 'ace/PowerGatingSaolaPkg.hdl', ],   # Note that this file resides in $SAOLA_HOME.
+					-dependent_libs => [ 'uvm_val_lib', 'ovm_val_lib', 'saola_val_lib', 'ChassisPowerGatingVC_val_lib', ],
+					-vlog_opts => ["-sverilog +define+PG_HIP_SUPPORT", "-timescale=1ps/1ps",],
+                },
+		        CPG_VIP_env => {
+                    -hdl_spec => [ 'ace/CPG_VIP_env.hdl',],
+					-dependent_libs => [ 'uvm_val_lib', 'ovm_val_lib', 'saola_val_lib', 'PowerGatingSaolaPkg', 'ChassisPowerGatingVC_val_lib', ],
+					-vlog_opts => ["-sverilog", "-timescale=1ps/1ps",],
+                    -tag            => &ToolConfig::get_tool_var("vc_vars", "TYPICAL_SVTB_TAGS"),
+                },
+
+
+
+                shared_tb_lib => {
+                    #The below tag leverages the contour's data to uniformly tag all member val libs; the commented line below contains what this should resolve to.                    #-tag            => &ToolConfig::get_tool_var("vc_vars", "TYPICAL_SVTB_TAGS"),
+                    -tag            => &ToolConfig::get_tool_var("vc_vars", "TYPICAL_SVTB_TAGS"),
+                    -vlog_files     =>  [ "verif/tb/sip_shared_lib_tb.sv" ], #stub file that will import all of the pieces that it defines. Also needs to have a module, so we can target it in the ace model
+                    -dependent_libs =>  ['sip_shared_lib'], 
+                    -vlog_incdirs   =>  [ ## code as needed when used in other scopes
+                                        "verif/tb/", 
+                                        "$ENV{OVM_HOME}/src", 
+                                        ((defined $ENV{SAOLA_HOME}) ? ("$ENV{SAOLA_HOME}/verilog") : ()),
+                                        ], 
+                    -vlog_opts      =>  [
+                                        '-sverilog',
+                                        '-timescale=1ps/1ps', 
+                                        ],
+                },
+                
+            }, # end libs
+            models => {
+                ChassisPowerGatingVC => {
+                    #top => 'shared_tb_lib.sip_shared_lib_tb',
+                    top => "CPG_VIP_env.PowerGatingTestbenchTop",
+
+                    # VHDL, Verilog,or SystemVerilog
+                    top_language => 'SystemVerilog',
+
+                    # List of libraries to use, including self (and sip_shared_lib for testing purposes) 
+                    libs   =>   [ 
+                                'ChassisPowerGatingVC_val_lib',
+                                'sip_shared_lib', 
+                                'PowerGatingSaolaPkg',
+                                'CPG_VIP_env', 
+                                ],
+
+                    use =>  #SIIP Compliant VCs should specify the use of each
+                            # scope:model of every lib their exported lib is dependent on
+                            [
+                            #'<scope>:<model>',
+                            'uvm:uvm',
+                            'ovm:ovm',
+                            'saola:saola',
+                            ],
+                    #Shared Libs must export themselves and ONLY themselves. 
+                    # This allows them to be used via "use => '<scope>:<model>'" 
+                    # which grants access to the lib in that scope that was exported
+                    export => {
+                        libs => [ 'ChassisPowerGatingVC_val_lib' ],
+                        use =>  #SIIP Compliant VCs should specify the use of each
+                                # scope:model of every lib their exported lib is dependent on
+                                [
+                                #'<scope>:<model>'
+                                'uvm:uvm',
+                                'ovm:ovm',
+                                'saola:saola',
+                                ], 
+                    },
+		    
+                    # A note regarding Synopsys VCS "DVE/MX" or whatever they call themselves.  An error will result,
+                    # "undefined reference to `sla_vpi_update_ral'", if the Saola PLI is supplied without any actual RAL
+                    # collateral using it.  So, modulate the use of the PLI upon the use of RAL.
+                    pli_libs => ['-saola_pli'],
+                }, # end ChassisPowerGatingVC
+            }, # end models
+        }, # end scope
+    }, # end HDLspec
+); # end %audf 

@@ -1,0 +1,39 @@
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+###################################
+# Configure SRIOV for 1 VF
+wr hqm_pf_cfg_i.sriov_cap_num_vf 0x1            # 1 VF
+wr hqm_pf_cfg_i.sriov_cap_control_status 0x1    # VF enable
+###################################
+# Configure FUNC_VF to a base address of 0x00000010_xxxxxxxx
+wr hqm_pf_cfg_i.sriov_cap_func_bar_l 0x00000000
+wr hqm_pf_cfg_i.sriov_cap_func_bar_u 0x00000010
+###################################
+# Read VF 0 cfg registers
+rd hqm_vf_cfg_i[0].vendor_id
+rd hqm_vf_cfg_i[0].device_id
+rd hqm_vf_cfg_i[0].device_status
+rd hqm_vf_cfg_i[0].cache_line_size
+###################################
+# Enable VF 0 memory operations
+wr hqm_vf_cfg_i[0].device_command 0x4
+rd hqm_vf_cfg_i[0].device_command
+###################################
+# Try to read VF 1 cfg registers
+rd hqm_vf_cfg_i[1].vendor_id

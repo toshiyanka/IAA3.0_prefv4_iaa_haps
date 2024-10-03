@@ -1,0 +1,13 @@
+simregress -notify -model hqm_tb -dut hqm_ss -save -trex -ace_args -simv_args '"' +hqm_is_reg_ep=1 '"' -ace_args- -code_cov -trex- -l pcie_tests_ep.list  
+simregress -notify -model hqm_tb -dut hqm_ss -save -trex -ace_args -simv_args '"' +hqm_is_reg_ep=1 '"' -ace_args- -code_cov -trex- -l ep_iosf_test.list  
+simregress -notify -model hqm_tb -dut hqm_ss -save -trex -ace_args -simv_args '"' +hqm_is_reg_ep=1 '"' -ace_args- -code_cov -trex- -l hqm_sys_regr.list  
+simregress -notify -model hqm_tb -dut hqm_ss -save -trex -ace_args -simv_args '"' +hqm_is_reg_ep=1 '"' -ace_args- -code_cov -trex- -l full_regression.list  
+simregress -notify -model hqm_tb -dut hqm_ss -save -trex -ace_args -simv_args '"' +hqm_is_reg_ep=1 '"' -ace_args- -code_cov -trex- -l full_smoke.list  
+simregress -notify -model hqm_tb -dut hqm_ss -save -trex -ace_args -simv_args '"' +hqm_is_reg_ep=1 '"' -ace_args- -code_cov -trex- -l full_smoke_bg_access.list -trex -ace_args -simv_args '"' +HQM_BACKGROUND_CFG_GEN_SEQ '"' -ace_args- -trex-  
+simregress -notify -model hqm_tb -dut hqm_ss -save -trex -ace_args -simv_args '"' +hqm_is_reg_ep=1 '"' -ace_args- -code_cov -trex- -l full_smoke_agitate_with_bg.list -trex -ace_args -simv_args '"' +HQM_BACKGROUND_CFG_GEN_SEQ '"' -ace_args- -hqm_agitate_rand_en -hqm_agitate_wdata 0x04000803 -trex-  
+simregress -notify -model hqm_tb -dut hqm_ss -save -trex -ace_args -simv_args '"' +hqm_is_reg_ep=1 '"' -ace_args- -code_cov -trex- -l full_smoke_agitate.list -trex -hqm_agitate_rand_en -hqm_agitate_wdata 0x04000802 -trex-  
+simregress -notify -model hqm_tb -dut hqm_ss -save -trex -ace_args -simv_args '"' +hqm_is_reg_ep=1 '"' -ace_args- -code_cov -trex- -l reg_tests.list  
+simregress -notify -model hqm_tb -dut hqm_ss -save -trex -ace_args -simv_args '"' +hqm_is_reg_ep=1 '"' -ace_args- -code_cov -trex- -l reg_tests_atr.list  
+simregress -notify -model hqm_tb -dut hqm_ss -save -trex -ace_args -simv_args '"' +hqm_is_reg_ep=1 '"' -ace_args- -code_cov -trex- -l reg_tests_sai.list  
+simregress -notify -model hqm_tb -dut hqm_ss -save -trex -ace_args -simv_args '"' +hqm_is_reg_ep=1 '"' -ace_args- -code_cov -trex- -l reg_tests_sb.list  
+simregress -notify -model hqm_tb -dut hqm_ss -save -trex -ace_args -simv_args '"' +hqm_is_reg_ep=1 '"' -ace_args- -code_cov -trex- -l coverage_list.lst  

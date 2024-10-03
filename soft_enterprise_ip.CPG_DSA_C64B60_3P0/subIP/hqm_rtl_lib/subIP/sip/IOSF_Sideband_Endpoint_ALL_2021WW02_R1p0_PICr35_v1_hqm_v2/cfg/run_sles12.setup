@@ -1,0 +1,151 @@
+#!/bin/csh -f
+#
+# modify files from sles11 to sles12 support
+#
+
+set progdir=`/usr/bin/dirname $0`
+set ip_root=`/usr/intel/bin/realpath $progdir/..`
+echo -I- REPO = $ip_root
+
+set OSTYPE='SLES12'
+echo "-I- Setting NB to $OSTYPE"
+
+set GREP=/bin/grep
+set PERL=/usr/intel/pkgs/perl/5.26.1/bin/perl
+set SED=/bin/sed
+set SYSNAME=/usr/intel/bin/sysname
+set OS=`$SYSNAME -ct`
+
+# SLES12 needs updated mat version
+# this will take care of visaFlow pyexpat errors
+#   "ImportError: ImportErrorPyCapsule_Import could not import module "pyexpat":"
+set file=cfg/ToolData.pm
+if (-e $ip_root/$file) then
+    echo $file
+    $PERL -pi -e 's/^(\s*our\s+\$TSA_VER_DEFAULT\s*=\s*)"19.46.01"(;.*)/\1"19.46.05"\2/' $ip_root/$file
+    $PERL -pi -e 's|^(\s*my\s+\$NEW_MAT\s*=\s*\S)mat1.6.1.p1(\S\s*;.*)|\1mat1.6.1.p5\2|' $ip_root/$file
+endif
+
+# replace hardcoded perl to recommended version
+set filelist=(\
+scripts/iosf_sb_replay/run_te_replay\
+scripts/iosf_sb_replay/sim_emu_logfile_compare.pl\
+scripts/qa/get_filelist.pl\
+subIP/DFx_sTAP_PIC/tools/uniquification/inputs/puni_lintra/lintra_rules/LintraRegister.udr\
+subIP/DFx_sTAP_PIC/tools/uniquification/scripts/uniquify.pl\
+subIP/DFx_sTAP_PIC/tools/uniquification/uniquifyme\
+subIP/dfx_secure_plugin/tools/uniquification/scripts/uniquify.pl\
+subIP/dfx_secure_plugin/tools/uniquification/inputs/puni_lintra/lintra_rules/LintraRegister.udr\
+subIP/dfx_secure_plugin/tools/uniquification/uniquifyme\
+unsupported/export/data/const/uniquification/inputs/puni_lintra/lintra_rules/LintraRegister.udr\
+unsupported/export/data/const/uniquification/scripts/uniquify.pl\
+unsupported/export/data/const/uniquification/uniquifyme\
+)
+
+foreach file ($filelist)
+    if (-e $ip_root/$file) then
+        echo $file
+        $SED -i \
+            -e 's,\#\! *\(/usr/intel/pkgs/perl\)/5.\(8\|14\).\(1\|5\|7\)\(/bin\),\#\!\1/5.26.1\4,g'\
+            $ip_root/$file
+    endif
+end
+
+# switch NB class to SLES12
+set filelist=(\
+cfg/sbr.cfg\
+cfg/LocalToolData.pm\
+cfg/GkUtils.cfg\
+cfg/GkUtils.hdk.common.cfg\
+cfg/sbr.cfg\
+scripts/custom_post.ep.setup\
+scripts/custom_post.rtr.setup\
+scripts/custom_post.setup\
+)
+foreach file ($filelist)
+    if (-e $ip_root/$file) then
+        echo $file
+        $SED -i \
+            -e 's|SLES11_EM64T_\([1-9]*G\)|SLES12\&\&\1|g'\
+            -e 's|SLES11|SLES12|g'\
+            $ip_root/$file
+    endif
+end
+
+# coretools fails with 'libtiff.so.3: cannot open shared object...' error
+set file=cfg/ace/templates/custom_post.env.template
+if (-e $ip_root/$file) then
+    echo $file
+    if ({ $GREP -q "modpath -v LD_LIBRARY_PATH" $ip_root/$file }) then
+    else
+        $SED -i -e '$a#fix for SLES12 libtiff.so error when running coretools\nmodpath -v LD_LIBRARY_PATH -n 100 /p/hdk/cad/syslibs/for_sles12/lib'\
+            $ip_root/$file
+    endif
+endif
+
+set filelist=(\
+    subIP/ip-dynamo/scripts/Builder.pl\
+    subIP/ip-dynamo/scripts/Dynamo.pl\
+    subIP/ip-dynamo/sbr10/builder/gplugins/Makefile\
+)
+foreach file ($filelist)
+    if (-e $ip_root/$file) then
+        echo $ip_root/$file
+        # update all coreBuilder and coreAssembler to include full path to executable
+        $SED -i \
+            -e 's|\("[ ]*\)\(coreBuilder\)|\1\$ENV{CORE_TOOLS_DIR}/\$ENV{CORE_TOOLS_VER}/bin/\2|g'\
+            -e 's|\("[ ]*\)\(coreAssembler\)|\1\$ENV{CORE_TOOLS_DIR}/\$ENV{CORE_TOOLS_VER}/bin/\2|g'\
+            -e 's|\(^[\t ]*\)\(coreAssembler\)|\1\$(CORE_TOOLS_DIR)/\$(CORE_TOOLS_VER)/bin/\2|g'\
+            $ip_root/$file
+    #else
+        #echo "-W- Warning, file not found $file"
+    endif
+end
+
+#set file=cfg/ace/templates/custom_post.env.template
+#if (-e $ip_root/$file) then
+#    echo $ip_root/$file
+#    if ({ grep -q "need puni" $ip_root/$file }) then
+#    else
+#        $SED -i -e '$s;^;# need puni for dynamo...\n;' $ip_root/$file
+#        $SED -i -e '$s;^;setenv PSETUP_SITE_DEF $IP_ROOT/unsupported/scripts/hdk/siteDef\n;' $ip_root/$file
+#        $SED -i -e '$s;^;source /p/com/env/psetup/prod/bin/setupTool puni 2.6\n;' $ip_root/$file
+#        $SED -i -e '$s;^;unsetenv PSETUP_SITE_DEF\n;' $ip_root/$file
+#    endif
+#endif
+
+set file=scripts/qa/runACECDC
+if (-e $ip_root/$file) then
+    echo $file
+    $SED -i -e 's/set sbrdir=\${ACE_UTILS_ROOT}/set sbrdir=\${sbrdir}/g' $ip_root/$file
+endif
+
+# need to unsetenv LD_LIBRARY path foro pyexpat issue on sles12
+set file=tools/visa/run/run_sbr
+if (-e $ip_root/$file) then
+    echo $file
+    if ({ $GREP -q "unsetenv LD_LIBRARY_PATH" $ip_root/$file }) then
+    else
+        $SED -i \
+            -e 's|\(set visa_sbtop.*\)|\1\n\nunsetenv LD_LIBRARY_PATH|g'\
+            $ip_root/$file
+    endif
+endif
+
+set file=scripts/setup.hdk
+if (-e $ip_root/$file) then
+    echo $file
+    if ({ $GREP -q "RTL_PROJ_BIN_OVERRIDE" $ip_root/$file }) then
+    else
+        $SED -i -e 's|^\(source\)|setenv RTL_PROJ_BIN_OVERRIDE /p/hdk/rtl/proj_tools/proj_binx/cds/latest\n\1|g' $ip_root/$file
+    endif
+endif
+
+## PUNI needs to be added to HDK toolsetup
+#set file=unsupported/scripts/hdk/siteDef
+#echo $ip_root/$file
+#if (-e $ip_root/$file) then
+#else
+#    $CP -f /nfs/fm/disks/fm_ccg_00025/mhchin/siteDef $ip_root/$file
+#endif
+echo "-I- $0 Done processing. Run git status to check for changes..."

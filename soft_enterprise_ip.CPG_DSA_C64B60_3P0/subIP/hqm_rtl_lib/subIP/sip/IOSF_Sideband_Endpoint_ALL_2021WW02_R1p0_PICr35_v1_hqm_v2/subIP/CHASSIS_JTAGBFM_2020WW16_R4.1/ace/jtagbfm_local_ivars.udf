@@ -1,0 +1,159 @@
+##--------------------------------------------------------------------------------
+## INTEL CONFIDENTIAL
+##
+## Copyright (June 2005)2 (May 2008)3 Intel Corporation All Rights Reserved.
+## The source code contained or described herein and all documents related to the
+## source code ("Material") are owned by Intel Corporation or its suppliers or
+## licensors. Title to the Material remains with Intel Corporation or its
+## suppliers and licensors. The Material contains trade secrets and proprietary
+## and confidential information of Intel or its suppliers and licensors. The
+## Material is protected by worldwide copyright and trade secret laws and treaty
+## provisions. No part of the Material may be used, copied, reproduced, modified,
+## published, uploaded, posted, transmitted, distributed, or disclosed in any way
+## without Intels prior express written permission.
+##
+## No license under any patent, copyright, trade secret or other intellectual
+## property right is granted to or conferred upon you by disclosure or delivery
+## of the Materials, either expressly, by implication, inducement, estoppel or
+## otherwise. Any license under such intellectual property rights must be express
+## and approved by Intel in writing.
+##
+##--------------------------------------------------------------------------------
+
+my $PROJECT = "jtagbfm";
+my $saola_machine;
+
+my $debussy_pli_target;
+   if ($ENV{VCS_TARGET_ARCH} eq 'suse64') {
+      $debussy_pli_target = "LINUX64";
+      $saola_machine = "x86_64";
+   }
+   elsif ($ENV{VCS_TARGET_ARCH} eq 'suse32') {
+      $debussy_pli_target = "LINUX";
+      $saola_machine = "i686";
+   }
+
+%audf = (
+   OSData => {
+      -debussy_pli_libs => {
+         -enable_flag => "-enable_debussy", # or -fsdb
+         -error_if_not_found  => 1,
+        # vcs => {
+        #    'Linux-SuSE' => {
+        #       'i686' => [
+        #          "$ENV{VERDI_HOME}/share/PLI/snps_unified/$debussy_pli_target/novas.tab",
+        #          "$ENV{VERDI_HOME}/share/PLI/snps_unified/$debussy_pli_target/pli.a",
+        #       ],
+        #       'x86-64' => [
+        #          "$ENV{VERDI_HOME}/share/PLI/snps_unified/$debussy_pli_target/novas.tab",
+        #          "$ENV{VERDI_HOME}/share/PLI/snps_unified/$debussy_pli_target/pli.a",
+        #       ],
+        #    }, ## End of Linux-SuSE
+        # }, ## End of vcs
+      }, ## End of debussy_pli_libs
+   }, ## End of OSData
+   InterfaceVars => {
+      # Override the definition of the following flags to set
+      # custom default values
+
+      #-dynamic_list_creator => {
+      #default => "bin/create_dynamic_random_list.pl",
+      #},
+      -post_process_pattern_file => {
+         default => "ace/jtagbfm_postsim.pp",
+      },
+      -ignored_faulty_hdl_compilers => {
+         default => ["debussy",],
+      },
+      -vlog_opts => {
+         default => [
+            #"+define+CHASSIS_JTAGBFM_USE_PARAMETERIZED_CLASS",
+	    "+define+UVM_OBJECT_DO_NOT_NEED_CONSTRUCTOR+UVM_REGEX_NO_DPI",
+         ],
+      },
+      -simv_args => {
+         default => [
+            "+vcs+flush+all",
+            "+vcs+flush+log",
+            "-licqueue",
+         ],
+      },
+      -simulator => {
+         default => "vcs",
+      },
+      -elab_opts => {
+         default => [
+            "-sverilog",
+            "-debug_all",
+            "-lca",
+            "+vcsd",
+            "+memcbk",
+            "+vpi",
+            "-timescale=1ps/1ps",
+            "-licqueue",
+            "+lint=DUEMPTY", "+lint=SV-PIU", "-error=DUEMPTY", "-error=SV-PIU",
+	    #"-CFLAGS \"-D VCS\" -CFLAGS \"-I$ENV{VCS_HOME}/include\" $ENV{UVM_HOME}/src/dpi/uvm_dpi.cc",
+         ],
+      },
+      -clean_lib_before_recompile => { default => 1, },
+      -elab_models => { default => 1 },
+      -models_to_compile => { default => ["jtagbfm_model"], },
+      -models_to_elab => { default => ["jtagbfm_model"], },
+      -test_in_model => { default => 1 },
+      -enable_debussy => {default => 1 },
+      -use_model_JtagBfm_UVM                      => {
+                                              default => 0,
+                                              type  => "BOOLEAN",
+                                              alias => "-ASSIGN -mc=jtagbfm_UVM_model -ASSIGN -models_to_elab=jtagbfm_UVM_model -m jtagbfm_UVM_model",
+                                              help  => {
+                                                    desc  => "Compiling JatgBFM with UVM" ,
+                                              },
+      },
+      $PROJECT => {
+         __PROTOTYPES => { import => ["TEST"] },
+         -test => {
+            default => "TapTestAllPrimary",
+         },
+         -model => { default => "jtagbfm_model", },
+         -implicit_runmode_libs => { default => ["jtagbfm_model::RunModes"],},
+         -test_build_target => { default => "all", },
+         -fsdb_file => { default => "Dump.fsdb", },
+         -test_make_file => {
+            default => "ace/ace_test.mak",
+         },
+         -create_random_regression => {
+            type => "SCALAR",
+            shortcut => "crr",
+            alias => "-x -tl TapTestAllPrimary:<VAL>:random_seed -rtt -nb -nbmon",
+         },
+      },
+   },
+);
+#if($ENV{VERDI_VERSION} =~/2014|2015/){
+#$audf{OSData}{'-debussy_pli_libs'}{vcs}{'Linux-SuSE'} = {
+#               'i686' => [
+#                  "$ENV{VERDI_HOME}/share/PLI/VCS/SUSE64/novas.tab",
+#                  "$ENV{VERDI_HOME}/share/PLI/VCS/SUSE64/pli.a",
+#               ],
+#               'x86-64' => [
+#                  "$ENV{VERDI_HOME}/share/PLI/VCS/SUSE64/novas.tab",
+#                  "$ENV{VERDI_HOME}/share/PLI/VCS/SUSE64/pli.a",
+#               ],
+#            }, ## End of Linux-SuSE 
+#
+#}
+#
+#if($ENV{VERDI_VERSION} =~/2013/){
+#$audf{OSData}{'-debussy_pli_libs'}{vcs}{'Linux-SuSE'} = {
+#               'i686' => [
+#                   "$ENV{VERDI_HOME}/share/PLI/snps_unified/$debussy_pli_target/novas.tab",
+#                   "$ENV{VERDI_HOME}/share/PLI/snps_unified/$debussy_pli_target/pli.a",
+#               ],
+#               'x86-64' => [
+#                   "$ENV{VERDI_HOME}/share/PLI/snps_unified/$debussy_pli_target/novas.tab",
+#                   "$ENV{VERDI_HOME}/share/PLI/snps_unified/$debussy_pli_target/pli.a",
+#               ],
+#            }, ## End of Linux-SuSE 
+#
+#}
+

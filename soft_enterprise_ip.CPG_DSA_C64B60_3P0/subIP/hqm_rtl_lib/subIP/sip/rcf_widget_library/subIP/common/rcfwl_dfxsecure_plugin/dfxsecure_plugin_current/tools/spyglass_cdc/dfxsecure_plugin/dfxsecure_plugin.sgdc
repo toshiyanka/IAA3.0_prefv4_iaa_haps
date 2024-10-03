@@ -1,0 +1,19 @@
+#SGCDC constraints
+
+current_design rcfwl_dfxsecure_plugin 
+clock -name "fdfx_policy_update"           -period 2.5 -edge { 0 1.25 }   -domain DFXSECUREPLUGIN_GROUP          -tag DFXSECUREPLUGIN_GROUP 
+
+set_case_analysis -name "sb_policy_ovr_value"  -value 0 
+
+reset -name "fdfx_powergood"  -value 0 
+
+quasi_static -name "oem_secure_policy"
+quasi_static -name "dfxsecure_feature_lch"
+quasi_static -name "fdfx_earlyboot_exit"
+quasi_static -name "fdfx_secure_policy*"
+
+abstract_port  -ports "fdfx_powergood"       -direction input -clock VCLK_fdfx_powergood 
+
+reset_filter_path -from_rst  fdfx_powergood -clock fdfx_policy_update -type reset_sync02
+
+

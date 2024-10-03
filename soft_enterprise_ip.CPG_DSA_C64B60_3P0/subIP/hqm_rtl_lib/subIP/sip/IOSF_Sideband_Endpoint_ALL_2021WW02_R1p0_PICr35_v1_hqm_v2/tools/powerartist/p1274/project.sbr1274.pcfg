@@ -1,0 +1,246 @@
+#xparams_set_legacy_elab_mode         1
+#######################
+# HIERARCHIES         #
+#######################
+xparams_set_pace_file                                   $PACIFIC_TECH_PATH/cdk.par_mc.ww46.tech
+#template                                  physical_parent    instance                                  strip_path
+xparams_set_hierarchies_map [list \
+                                [list      sbr0_sbr_generic  sbr0_sbr_generic sbr0_sbr_generic tb_top.sbr0]  \
+                                [list      sbr1_sbr_generic  sbr1_sbr_generic sbr1_sbr_generic tb_top.sbr1]  \
+                                [list      sbr2_sbr_generic  sbr2_sbr_generic sbr2_sbr_generic tb_top.sbr2]  \
+                                [list      sbr3_sbr_generic  sbr3_sbr_generic sbr3_sbr_generic tb_top.sbr3]  \
+                                [list      sbr4_sbr_generic  sbr4_sbr_generic sbr4_sbr_generic tb_top.sbr4]  \
+                                [list      sbr5_sbr_generic  sbr5_sbr_generic sbr5_sbr_generic tb_top.sbr5]  \
+                                [list      sbr6_sbr_generic  sbr6_sbr_generic sbr6_sbr_generic tb_top.sbr6]  \
+                                [list      sbr7_sbr_generic  sbr7_sbr_generic sbr7_sbr_generic tb_top.sbr7]  \
+                            ]
+
+
+#Default locations from which to take inputs for elaboration  (options are soc/soc_sg/custom) -  for SOC uses DC outputs
+#xparams_set_elab_inputs_mode "soc"
+#RTL search files extentions - all patterns should be present (patterns with ? can be present alone)
+if {[xparams_get_vc_create_mode] == "" } {
+	xparams_set_vc_create_mode "dc"
+} else {
+    log_err "VC MODE [xparams_get_vc_create_mode] is not supported. Only 'dc' is supported"
+    exit 1
+}
+
+#xparams_set_rtl_search_files_exts ""
+xparams_set_rtl_search_files_exts      [list rtl_list.tcl]
+#RTL search path
+#xparams_set_rtl_search_path [list <MODEL_ROOT>/target/soc/aceroot/results/DC/<CELL>/syn/inputs/ <MODEL_ROOT>/target/soc/aceroot/results/DC/<CELL>/syn/logs/ <MODEL_ROOT>/target/soc/aceroot/results/DC/<CELL>/collateral/rtl/ <MODEL_ROOT>/target/fec_rtl_syn_lib/gen/ <MODEL_ROOT>/target/*/aceroot/results/DC/<CELL>/collateral/rtl/ ]
+
+#Jignasa
+xparams_set_rtl_search_path [list <MODEL_ROOT>/target/sbr/p1274/aceroot/results/DC/<CELL>/collateral/rtl ]
+#Jignasa
+#we need to add directories of RTL files to search path - since it seems that search path is not complete....
+xparams_set_strict_include_dirs          0
+
+#clock search files extentions - both these patterns should be present 
+#xparams_set_clock_search_files_exts [list .tcl <CELL>.clk ] 
+xparams_set_clock_search_files_exts [list <CELL>_clocks.tcl ] 
+#Exparams_set_clock_search_files_exts [list opt1_ClockNetCommands.tcl ] 
+#clock search path for soc
+#xparams_set_clock_search_path [list /nfs/site/disks/slx_1329/work/gcfranci/FXR ]
+xparams_set_clock_search_path [list <MODEL_ROOT>/tools/syn/inputs/p1274/<CELL>/scripts ]
+
+#jignasa
+#xparams_set_clock_search_path [list <MODEL_ROOT>/target/*/aceroot/results/DC/<CELL>/collateral/{timing_nominal/global_clock_params,timing_common/<CELL>_clocks} ]
+#jignasa
+
+#enable/disable clock heuristics - #mode = 
+#0 disabled 
+#1 enable only if no clocks found
+#2 enable always (will append guessed clocks to user found clocks)
+#3 disable normal clocks extraction and use heuristics only 
+xparams_set_clock_heuristics_mode 2
+
+#prioritized clock patterns
+#xparams_set_clock_primary_match  {_primclk\$ \\.[dqm]clk\$ _[dqm]clk\$ _clk\$ .clk\$ clk\$}
+#xparams_set_clock_primary_match  {_primclk\$ \\.[dqm]clk\$ _[dqm]clk\$ _clk\$ .clk\$ clk\$ ckgrid clock\$ tck\$ x12clk clk_in_0 CkLcpXPNB adop_postclk clk_free_in}
+
+xparams_set_clock_heuristics_include_pattern "ckgrid|clk$|clock$|tck$|x12clk|clk_in_0|CkLcpXPNB|^clk_in$|^adop_postclk|clk_free_in"
+
+
+#xparams_set_force_clock_items "\
+#                                ccf_iscan_clkgen CkgridAclkSUMnnnH pin \
+#                                ccf_iscan_clkgen CkgridBclkSUMnnnH pin \
+#                              "
+
+xparams_set_activity_analysis "disable"
+xparams_set_generate_rollup   1
+
+if {[string is digit $pa_major_ver] && ($pa_major_ver > 14)} {
+    #clock flags
+    xparams_set_clock_flags                "-mode infer -exclude_pad_power true -trace_domain false -gate_clock true -enhanced_cg true"
+} else {
+    #clock flags
+    xparams_set_clock_flags                "-mode infer -exclude_pad_power true -trace_domain true -gate_clock true -enhanced_cg true"
+}
+
+#######################
+# PROCESS AND DESIGN  #
+#######################
+#frequency in Hz 
+#xparams_set_freq                       2.33e+9
+
+#Define how the VC file is going to be created
+#xparams_set_vc_create_mode "manual"
+#xparams_set_manual_vc_proc "createVCFileSDG"
+#xparams_set_invoke_strip_path_find 1 <- didn't really work (gcfranci)
+
+#libraries names: "{ec0,ec5}" overrides TCL variable CTECH_TYPE  in rtl_list.tcl in -vc_mode dc
+xparams_set_lib_ctech_names    "ec0"
+#library variants: i.e. "{nn,ln}"  - overrides TCL variable CTECH_VARIANT in rtl_list.tcl in -vc_mode dc
+xparams_set_lib_ctech_variants "nn"
+
+
+uplevel #0 {
+    proc set_libs {} {
+        pacific::pacific_set verilog_2001 true
+        pacific::pacific_set system_verilog true
+
+        #####################################################
+        # Process libraries
+        #####################################################
+
+        #pacific::pacific_exec ReadLibrary -name /p/hdk/cad/stdcells/ec0/14ww22.5_ec0_c.0.cnl_sdg74_14ww24.5/lib/nn/ec0_nn_1274d0_tttt_v065_t100_max.lib
+        #pacific::pacific_exec ReadLibrary -name /p/hdk/cad/stdcells/ec0/14ww22.5_ec0_c.0.cnl_sdg74_14ww24.5/lib/ln/ec0_ln_1274d0_tttt_v065_t100_max.lib
+        #pacific::pacific_exec ReadLibrary -name /p/hdk/cad/stdcells/ec0/16ww18.5_ec0_g.0.all/lib/nldm/p1274d2/ln/ec0_ln_p1274d2_tttt_v065_t100_max.lib
+        #pacific::pacific_exec ReadLibrary -name /p/hdk/cad/stdcells/ec0/16ww18.5_ec0_g.0.all/lib/nldm/p1274d2/nn/ec0_nn_p1274d2_tttt_v065_t100_max.lib
+        #pacific::pacific_exec ReadLibrary -name /p/hdk/cad/stdcells/ec0glbclk/15ww49.3_ec0glbclk_f.0.cnl.sdg.mig_sdg74_16ww19.2/lib/nldm/p1274d2/nn/ec0glbclk_nn_p1274d2_tttt_v065_t100_max.lib
+        #pacific::pacific_exec ReadLibrary -name /p/hdk/cad/stdcells/ec0migalpha/16ww18.5_ec0migalpha_g.0.mig/lib/nldm/p1274d2/nn/ec0migalpha_nn_p1274d2_tttt_v065_t100_max.lib
+        #pacific::pacific_exec ReadLibrary -name /p/hdk/cad/stdcells/ec0migalpha/16ww18.5_ec0migalpha_g.0.mig/lib/nldm/p1274d2/ln/ec0migalpha_ln_p1274d2_tttt_v065_t100_max.lib
+        #pacific::pacific_exec ReadLibrary -name /p/hdk/cad/stdcells/ec0hs/16ww18.5_ec0hs_g.0.all/lib/nldm/p1274d2/ln/ec0hs_ln_p1274d2_tttt_v065_t100_max.lib
+        #pacific::pacific_exec ReadLibrary -name /p/hdk/cad/stdcells/ec0hs/16ww18.5_ec0hs_g.0.all/lib/nldm/p1274d2/nn/ec0hs_nn_p1274d2_tttt_v065_t100_max.lib
+        #pacific::pacific_exec ReadLibrary -name /p/hdk/cad/stdcells/ec0hs/16ww18.5_ec0hs_g.0.all/lib/nldm/p1274d2/nn/ec0hs_nn_p1274d2_tttt_v065_t100_max.lib
+        #pacific::pacific_exec ReadLibrary -name /p/hdk/cad/stdcells/ec0sdgalpha/16ww18.5_ec0sdgalpha_g.0.sdg/lib/nldm/p1274d2/ln/ec0sdgalpha_ln_p1274d2_tttt_v065_t100_max.lib
+        #pacific::pacific_exec ReadLibrary -name /p/hdk/cad/stdcells/ec0sdgalpha/16ww18.5_ec0sdgalpha_g.0.sdg/lib/nldm/p1274d2/nn/ec0sdgalpha_nn_p1274d2_tttt_v065_t100_max.lib
+        #pacific::pacific_exec ReadLibrary -name /p/hdk/cad/stdcells/ec0ser/16ww18.5_ec0ser_g.0.all/lib/nldm/p1274d2/ln/ec0ser_ln_p1274d2_tttt_v065_t100_max.lib
+        #pacific::pacific_exec ReadLibrary -name /p/hdk/cad/stdcells/ec0ser/16ww18.5_ec0ser_g.0.all/lib/nldm/p1274d2/nn/ec0ser_nn_p1274d2_tttt_v065_t100_max.lib
+        pacific::pacific_exec ReadLibrary -name /p/hdk/cad/stdcells/ec0/16ww18.5_ec0_g.0.all/lib/nldm/p1274d2/ln/ec0_ln_p1274d2_tttt_v065_t100_max.lib
+        pacific::pacific_exec ReadLibrary -name /p/hdk/cad/stdcells/ec0/16ww18.5_ec0_g.0.all/lib/nldm/p1274d2/nn/ec0_nn_p1274d2_tttt_v065_t100_max.lib
+        pacific::pacific_exec ReadLibrary -name /p/hdk/cad/stdcells/ec0glbclk/15ww49.3_ec0glbclk_f.0.cnl.sdg.mig_sdg74_16ww19.2/lib/nldm/p1274d2/nn/ec0glbclk_nn_p1274d2_tttt_v065_t100_max.lib
+        pacific::pacific_exec ReadLibrary -name /p/hdk/cad/stdcells/ec0migalpha/16ww18.5_ec0migalpha_g.0.mig/lib/nldm/p1274d2/nn/ec0migalpha_nn_p1274d2_tttt_v065_t100_max.lib
+        pacific::pacific_exec ReadLibrary -name /p/hdk/cad/stdcells/ec0migalpha/16ww18.5_ec0migalpha_g.0.mig/lib/nldm/p1274d2/ln/ec0migalpha_ln_p1274d2_tttt_v065_t100_max.lib
+        pacific::pacific_exec ReadLibrary -name /p/hdk/cad/stdcells/ec0hs/16ww18.5_ec0hs_g.0.all/lib/nldm/p1274d2/ln/ec0hs_ln_p1274d2_tttt_v065_t100_max.lib
+        pacific::pacific_exec ReadLibrary -name /p/hdk/cad/stdcells/ec0hs/16ww18.5_ec0hs_g.0.all/lib/nldm/p1274d2/nn/ec0hs_nn_p1274d2_tttt_v065_t100_max.lib
+        pacific::pacific_exec ReadLibrary -name /p/hdk/cad/stdcells/ec0hs/16ww18.5_ec0hs_g.0.all/lib/nldm/p1274d2/nn/ec0hs_nn_p1274d2_tttt_v065_t100_max.lib
+        pacific::pacific_exec ReadLibrary -name /p/hdk/cad/stdcells/ec0sdgalpha/16ww18.5_ec0sdgalpha_g.0.sdg/lib/nldm/p1274d2/ln/ec0sdgalpha_ln_p1274d2_tttt_v065_t100_max.lib
+        pacific::pacific_exec ReadLibrary -name /p/hdk/cad/stdcells/ec0sdgalpha/16ww18.5_ec0sdgalpha_g.0.sdg/lib/nldm/p1274d2/nn/ec0sdgalpha_nn_p1274d2_tttt_v065_t100_max.lib
+        pacific::pacific_exec ReadLibrary -name /p/hdk/cad/stdcells/ec0ser/16ww18.5_ec0ser_g.0.all/lib/nldm/p1274d2/ln/ec0ser_ln_p1274d2_tttt_v065_t100_max.lib
+        pacific::pacific_exec ReadLibrary -name /p/hdk/cad/stdcells/ec0ser/16ww18.5_ec0ser_g.0.all/lib/nldm/p1274d2/nn/ec0ser_nn_p1274d2_tttt_v065_t100_max.lib
+
+        pacific::pacific_exec SetClockGatingStyle -clock_cell_attribute latch_posedge_precontrol -min_bit_width 4 -min_bit_width_ecg 4
+        # This project_setup.tcl came from: /nfs/pdx/disks/srvr10nm_0361/gcfranci/sandbox/powerartist_da-powerartist_da/cfg/default_project_setup.tcl
+    
+        # * * * Blackbox Modules
+        #pacific::pacific_set  black_box_modules { module1 module2 }
+    
+        # * * * Auto-Blackbox feature
+        #pacific::pacific_set elaborate_auto_black_box true
+    
+        # * * * Print out every possible reports
+        #pacific::pacific_set average_report_options 0acCdegimNpPrtuvVz
+    
+        # * * * Legacy RTL Parser
+        #pacific::pacific_set use_legacy_elab 0
+    
+        # * * * Redundant Flop
+        pacific::pacific_set report_redundant_sequential_elements true
+    
+        # * * * Block Activity Report
+        #SetBAR -output_file reports/block_activity_report
+        #pacific::pacific_exec SetBAR -output_file pacific/report/block_activity_report -cols { total_power total_power_prcnt total_static_power total_dynamic_power clock_power clock_activity data_activity }
+    
+        # * * * Uncomment this if reduction stage takes too long
+        #pacific::pacific_set skip_reduction_list {odc}
+    
+        # * * * Supress Messages
+        #pacific::pacific_set suppress_messages {UTL-72}
+    
+        #pacific::pacific_exec SetWireLoadModel -name p1274_wire_load_default -library ec0_ln_1274d0_tttt_v065_t100_max -instance *
+        #pacific::pacific_exec SetWireLoadModel -name 10x10 -library ec0_ln_p1274d2_tttt_v065_t100_max -instance *
+        #pacific::pacific_exec SetWireLoadModel -name 10x10 -wireload_library ec0_ln_p1274d2_tttt_v065_t100_max -instance *
+        #pacific::pacific_exec SetWireLoadModel -name 10x10 -wireload_library -library ec0_ln_p1274d2_tttt_v065_t100_max -instance *
+        pacific::pacific_set wireload_library ec0_ln_p1274d2_tttt_v065_t100_max
+        pacific::pacific_exec SetWireLoadModel -name 10x10 -library ec0_ln_p1274d2_tttt_v065_t100_max -instance *
+
+
+        # * * * PACE model path
+        #pacific::pacific_set power_tech_file pace_file.tech
+    
+        # * * * Clock cells inside flops will be counted as clock power
+        #pacific::pacific_set report_redundant_sequential_elements true
+    
+        # * * * For SCGE calculation
+        pacific::pacific_exec DefineCell -type flop  -name {ec0f*}
+        pacific::pacific_exec DefineCell -type latch -name {ec0l*}
+        pacific::pacific_exec DefineCell -type icgc  -name {ec0clb*} -pin {{clock clk}{clock clkout}{enable en}}
+        pacific::pacific_exec DefineCell -type icgc  -name {ec0crb0a2*} -pin {{clock clk}{clock clkout}{enable en}}
+        pacific::pacific_exec DefineCell -type icgc  -name {ec0crb0o2*} -pin {{clock clk}{clock clkout}{enable enb}}
+        pacific::pacific_exec DefineCell -type icgc  -name {ec0crb0b*} -pin {{clock clk}{clock clkout}{enable rd}{enable fd}}
+        pacific::pacific_exec DefineCell -type icgc  -name {ec0clb0a2*} -pin {{clock clk}{clock clkout}{enable en}}
+        pacific::pacific_exec DefineCell -type icgc  -name {ec0clb0o2*} -pin {{clock clk}{clock clkout}{enable enb}}
+        pacific::pacific_exec DefineCell -type icgc  -name {ec0cnan02*} -pin {{clock clk}{clock clkout}{enable en}}
+        pacific::pacific_exec DefineCell -type icgc  -name {ec0cnor02*} -pin {{clock clk}{clock clkout}{enable enb}}
+        pacific::pacific_exec DefineCell -type icgc  -name {ec0caoi12al*} -pin {{clock clk}{clock clkout}{enable en1}{enable en2}}
+        pacific::pacific_exec DefineCell -type icgc  -name {ec0chpef1al*} -pin {{clock clk}{clock clkout}{enable en}}
+        pacific::pacific_exec DefineCell -type icgc  -name {ec0chper1al*} -pin {{clock clk}{clock clkout}{enable enb}}
+        pacific::pacific_exec DefineCell -type icgc  -name {ec0cilb05a*} -pin {{clock clk}{clock clkout}{enable en}}
+        pacific::pacific_exec DefineCell -type icgc  -name {ec0coai12al*} -pin {{clock clk}{clock clkout}{enable en1}{enable en2}}
+        pacific::pacific_exec DefineCell -type icgc  -name {ec0cnan03a*} -pin {{clock clk}{clock clkout}{enable en1}{enable en2}}
+        pacific::pacific_exec DefineCell -type icgc  -name {ec0cnor03a*} -pin {{clock clk}{clock clkout}{enable en1}{enable en2}}
+        pacific::pacific_exec DefineCell -type icgc  -name {ec0crb0a*} -pin {{clock clk}{clock clkout}{enable en}{enable rd}{enable fd}}
+        pacific::pacific_exec DefineCell -type icgc  -name {ec0crb0o2al*} -pin {{clock clk}{clock clkout}{enable enb}{enable rd}{enable fd}}
+        pacific::pacific_exec DefineCell -type icgc  -name {ec0crb2a2al*} -pin {{clock clk}{clock clkout}{enable en}{enable rd}{enable fd}{enable rd2}{enable fd2}}
+        pacific::pacific_exec DefineCell -type icgc  -name {ec0crb2o2al*} -pin {{clock clk}{clock clkout}{enable enb}{enable rd}{enable fd}{enable rd2}{enable fd2}}
+        pacific::pacific_exec DefineCell -type icgc -name {ec0crbao1a1*} -pin {{clock clk}{clock clkout}{enable en1}{enable en2b}{enable fd}{enable rd}}
+        pacific::pacific_exec DefineCell -type icgc -name {ec0cilb00a*} -pin { {clock clkout} {enable en} {clock clk} }
+        pacific::pacific_exec DefineCell -type icgc -name {ec0cilb01a*} -pin { {clock clkout} {enable en} {clock clk} {enable te} }
+        pacific::pacific_exec DefineCell -type icgc -name {ec0cilb02a*} -pin { {clock clkout} {enable en} {clock clkb} }
+        pacific::pacific_exec DefineCell -type icgc -name {ec0cilb03a*} -pin { {clock clkout} {enable en} {clock clkb} {enable te} }
+        pacific::pacific_exec DefineCell -type icgc -name {ec0cilb06a*} -pin { {clock clkout} {enable en} {clock clk} {enable te} }
+        pacific::pacific_exec DefineCell -type icgc -name {ec0clb0a2a*} -pin { {clock clkout} {enable en} {clock clk} }
+        pacific::pacific_exec DefineCell -type icgc -name {ec0clb0a2l*} -pin { {clock clkout} {enable en} {clock clk} }
+        pacific::pacific_exec DefineCell -type icgc -name {ec0clb0o2a*} -pin { {enable enb} {clock clkout} {clock clk} }
+        pacific::pacific_exec DefineCell -type icgc -name {ec0clb0o2l*} -pin { {enable enb} {clock clkout} {clock clk} }
+        pacific::pacific_exec DefineCell -type icgc -name {ec0cnan02a*} -pin { {clock clkout} {enable en} {clock clk} }
+        pacific::pacific_exec DefineCell -type icgc -name {ec0cnan02l*} -pin { {clock clkout} {enable en} {clock clk} }
+        pacific::pacific_exec DefineCell -type icgc -name {ec0cnan03a*} -pin { {enable en2} {clock clkout} {clock clk} {enable en1} }
+        pacific::pacific_exec DefineCell -type icgc -name {ec0cnanc2a*} -pin { {clock clk2} {clock clkout} {clock clk1} }
+        pacific::pacific_exec DefineCell -type icgc -name {ec0cnor02a*} -pin { {enable enb} {clock clkout} {clock clk} }
+        pacific::pacific_exec DefineCell -type icgc -name {ec0cnor02l*} -pin { {enable enb} {clock clkout} {clock clk} }
+        pacific::pacific_exec DefineCell -type icgc -name {ec0cnor03a*} -pin { {clock clkout} {enable enb2} {enable enb1} {clock clk} }
+        pacific::pacific_exec DefineCell -type icgc -name {ec0cnorc2a*} -pin { {clock clk2} {clock clkout} {clock clk1} }
+        pacific::pacific_exec DefineCell -type icgc -name {ec0crb0a2a*} -pin { {clock clkout} {enable en} {clock clk} }
+        pacific::pacific_exec DefineCell -type icgc -name {ec0crb0a2l*} -pin { {clock clkout} {enable en} {clock clk} }
+        pacific::pacific_exec DefineCell -type icgc -name {ec0crb0bfa*} -pin { {clock clkout} {clock clk} }
+        pacific::pacific_exec DefineCell -type icgc -name {ec0crb0bfl*} -pin { {clock clkout} {clock clk} }
+        pacific::pacific_exec DefineCell -type icgc -name {ec0crb0o2a*} -pin { {enable enb} {clock clkout} {clock clk} }
+        pacific::pacific_exec DefineCell -type icgc -name {ec0crb0o2l*} -pin { {enable enb} {clock clkout} {clock clk} }
+        pacific::pacific_exec DefineCell -type icgc -name {ec0crb1a2a*} -pin { {clock clkout} {enable en} {clock clk} }
+        pacific::pacific_exec DefineCell -type icgc -name {ec0crbaoia*} -pin { {clock clkout} {clock clk} {enable en2b} {enable en1} }
+
+        # * * * Clock Buffer Default is nominal
+        pacific::pacific_exec SetClockBuffer -type root   -name ec0cbf000al1n02x5 -library ec0_ln_p1274d2_tttt_v065_t100_max
+        pacific::pacific_exec SetClockBuffer -type branch -name ec0cbf000al1n02x5 -library ec0_ln_p1274d2_tttt_v065_t100_max
+        pacific::pacific_exec SetClockBuffer -type leaf   -name ec0cbf000al1n02x5 -library ec0_ln_p1274d2_tttt_v065_t100_max
+
+        # * * * Buffer Default is low-leakage
+        pacific::pacific_exec SetBuffer -type root   -name ec0bfn000al1d32x5 -library ec0_ln_p1274d2_tttt_v065_t100_max
+        pacific::pacific_exec SetBuffer -type branch -name ec0bfn000al1d32x5 -library ec0_ln_p1274d2_tttt_v065_t100_max
+        pacific::pacific_exec SetBuffer -type leaf   -name ec0bfn000al1d32x5 -library ec0_ln_p1274d2_tttt_v065_t100_max
+
+
+        # * * * VT Distributions (ln=80% nn=20% default)
+        pacific::pacific_exec SetVoltageThreshold -group ln -pattern {ec????????l*}
+        pacific::pacific_exec SetVoltageThreshold -group nn -pattern {ec????????n*}
+        #pacific::pacific_exec SetVT -mode percentage -instance "$PA_block" -vt_group {ln:80 nn:20}
+
+        # * * * Frequency Scaling
+        # pacific::pacific_exec SetFrequencyScalingFactor -net "CkGridU1N00" -frequency 2.4e+09
+    }
+
+}; #uplevel

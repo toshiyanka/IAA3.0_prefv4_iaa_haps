@@ -1,0 +1,24 @@
+lappend search_path $env(IP_ROOT)/source/rtl/include
+lappend search_path $env(IP_ROOT)/source/rtl/include/assertions
+lappend search_path $env(IP_ROOT)/subIP/DfxSecurePlugin/source/rtl/include/assertions
+lappend search_path $env(IP_ROOT)/subIP/DfxSecurePlugin/source/rtl/include
+
+set VERILOG_SOURCE_FILES ""
+lappend VERILOG_SOURCE_FILES $env(IP_ROOT)/source/rtl/stap/stap.sv
+lappend VERILOG_SOURCE_FILES $env(IP_ROOT)/source/rtl/stap/stap_fsm.sv
+lappend VERILOG_SOURCE_FILES $env(IP_ROOT)/source/rtl/stap/stap_irreg.sv
+lappend VERILOG_SOURCE_FILES $env(IP_ROOT)/source/rtl/stap/stap_irdecoder.sv
+lappend VERILOG_SOURCE_FILES $env(IP_ROOT)/source/rtl/stap/stap_decoder.sv
+lappend VERILOG_SOURCE_FILES $env(IP_ROOT)/source/rtl/stap/stap_drreg.sv
+lappend VERILOG_SOURCE_FILES $env(IP_ROOT)/source/rtl/stap/stap_data_reg.sv
+lappend VERILOG_SOURCE_FILES $env(IP_ROOT)/source/rtl/stap/stap_remote_data_reg.sv
+lappend VERILOG_SOURCE_FILES $env(IP_ROOT)/source/rtl/stap/stap_tdomux.sv
+lappend VERILOG_SOURCE_FILES $env(IP_ROOT)/source/rtl/stap/stap_glue.sv
+lappend VERILOG_SOURCE_FILES $env(IP_ROOT)/subIP/DfxSecurePlugin/source/rtl/dfxsecure_plugin/stap_dfxsecure_plugin.sv
+lappend VERILOG_SOURCE_FILES $env(IP_ROOT)/source/rtl/stap/stap_tapnw.sv
+lappend VERILOG_SOURCE_FILES $env(IP_ROOT)/source/rtl/stap/stap_wtapnw.sv
+lappend VERILOG_SOURCE_FILES $env(IP_ROOT)/source/rtl/stap/stap_bscan.sv
+lappend VERILOG_SOURCE_FILES /p/com/eda/intel/ctech/v14ww24e/source/p1274/e05/nn/ctech_lib_clk_buf.v
+lappend VERILOG_SOURCE_FILES /p/com/eda/intel/ctech/v14ww24e/source/p1274/e05/nn/ctech_lib_mux_2to1.v
+lappend VERILOG_SOURCE_FILES /p/com/eda/intel/ctech/v14ww24e/source/p1274/e05/nn/ctech_lib_clk_gate_te.v
+lappend VERILOG_SOURCE_FILES /p/com/eda/intel/ctech/v14ww24e/source/p1274/e05/nn/ctech_lib_clk_mux_2to1.v

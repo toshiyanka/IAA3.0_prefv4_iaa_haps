@@ -1,0 +1,56 @@
+idle 400
+###################################
+# Setup FUNC_PF BAR
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Setup FUNC_VF BAR
+###################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+
+###################################
+wr config_master.cfg_pm_pmcsr_disable.disable 0x0
+rd config_master.cfg_pm_pmcsr_disable.disable 0x0
+##
+###poll to Wait for reset to be done 
+poll config_master.cfg_diagnostic_reset_status 0x800003ff 0x800003ff 500
+###poll to Wait for unit_idle to be done 
+poll config_master.cfg_diagnostic_idle_status 0x0007ffff 0x0007ffff 500
+
+###################################
+# Setup LUTs used by HCWs
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+  dir qid DQID0:*
+
+  vas VAS0:* dir_qidv:DQID0=1 credit_cnt=8192
+
+  dir pp DQID0  vas=VAS0
+
+  dir cq DQID0  cq_depth=16 gpa=sm cq_timer_intr_thresh=2 cq_timer_intr_ena=1 cq_depth_intr_thresh=1 cq_depth_intr_ena=1
+
+  msix_cq  1 addr=0x123456789abc080 data=0xc0de0008 is_ldb=0 cq=DQID0
+cfg_end
+
+wr credit_hist_pipe.cfg_dir_cq_intr_armed0 0xffffffff
+wr credit_hist_pipe.cfg_dir_cq_intr_armed1 0xffffffff
+wr credit_hist_pipe.cfg_dir_cq_timer_ctl.enb 1
+wr credit_hist_pipe.cfg_dir_cq_timer_ctl.sample_interval 1
+
+wr credit_hist_pipe.cfg_ldb_cq_intr_armed0 0xffffffff
+wr credit_hist_pipe.cfg_ldb_cq_intr_armed1 0xffffffff
+wr credit_hist_pipe.cfg_ldb_cq_timer_ctl.enb 1
+wr credit_hist_pipe.cfg_ldb_cq_timer_ctl.sample_interval 1
+
+wr hqm_pf_cfg_i.msix_cap_control.fm 1
+
+rd hqm_pf_cfg_i.vendor_id

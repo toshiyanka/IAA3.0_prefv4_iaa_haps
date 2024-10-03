@@ -1,0 +1,13 @@
+osetup nebulon
+setenv PATH ${NEBULON_DIR}/bin:${PATH}
+
+nebulon -input hqm_pf_cfg_fpga.rdl      -sv_package_name v12 -no_headers -sverilog -I "$NEBULON_DATA/include . ../../subIP/sip/AW/src/rdl" -out_dir .
+
+if ($status != 0) then
+  echo "$0 Error: hqm_pf_cfg_fpga.rdl nebulon command failed"
+  exit
+endif
+
+cp output/sverilog/hqm_pf_cfg.sv                ../../target/hqm_pf_cfg_nebulon_lib/nebulon/output/sverilog
+cp output/sverilog/hqm_pf_cfg_pkg.vh            ../../target/hqm_pf_cfg_nebulon_lib/nebulon/output/sverilog
+

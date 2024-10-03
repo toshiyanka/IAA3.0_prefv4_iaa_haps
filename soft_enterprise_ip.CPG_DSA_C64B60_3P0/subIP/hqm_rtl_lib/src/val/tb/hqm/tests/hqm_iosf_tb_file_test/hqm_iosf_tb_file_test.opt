@@ -1,0 +1,262 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => ["+AW_CONTINUE_ON_ERROR", 
+                     "+iosf_tracker_filename=iosf_trk", 
+                     "-assert nopostproc", 
+                     "+HQMS_DEBUG", 
+                     "+HQMI_DEBUG", 
+                     "+vcs+lic+wait",
+
+                     "+OVM_GLOBAL_TIMEOUT=2ms",
+                     #"+SLA_MAX_RUN_CLOCK=80000000",
+                     "+SLA_USER_DATA_PHASE_TIMEOUT=30000000",
+                     "+SLA_CONFIG_PHASE_TIMEOUT=50000000",
+                     #"-assert finish_maxfail=1000000",
+                     #"-assert global_finish_maxfail=1000000",
+
+                    ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+      memtest0 => {
+          -simv_args => ["+BLOCKING_IOSF_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/hqm_alarm_perr.cft",
+          "+IOSF_PRIM_FILE=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_acc_0.cft",],
+
+      },
+
+      test0 => {
+          -simv_args => ["+BLOCKING_IOSF_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up_reset.cft",
+          "+IOSF_PRIM_FILE=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/reset_check.cft",],
+
+      },
+
+
+      test0a => {
+          -simv_args => ["+BLOCKING_IOSF_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up_reset.cft",
+          "+IOSF_PRIM_FILE=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/reset_check_ep.cft",],
+
+      },
+
+
+       pf_rst => {
+          -simv_args => ["+BLOCKING_IOSF_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/pf_reset.cft",
+          "+IOSF_PRIM_FILE=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/reset_check.cft",],
+
+      }, 
+      
+      
+      pf_ep_rst => {
+          -simv_args => ["+BLOCKING_IOSF_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/pf_reset.cft",
+          "+IOSF_PRIM_FILE=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/reset_check_ep.cft",],
+
+      },
+
+      powergood_rst => {
+          -simv_args => ["+BLOCKING_IOSF_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/powergood_rst.cft",
+          "+IOSF_PRIM_FILE=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/reset_check.cft",],
+
+      },
+
+
+
+      side_rst => {
+          -simv_args => ["+BLOCKING_IOSF_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up_sideband.cft",
+          "+IOSF_PRIM_FILE=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/reset_check.cft",],
+
+      },
+
+
+       side_ep_rst => {
+          -simv_args => ["+BLOCKING_IOSF_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up_sideband.cft",
+          "+IOSF_PRIM_FILE=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/reset_check_ep.cft",],
+
+      },
+
+
+
+      strap_check => {
+          -simv_args => ["+BLOCKING_IOSF_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/strap_check.cft",
+          "+IOSF_PRIM_FILE=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/vf_check.cft",],
+
+      },
+
+
+
+      test1 => {
+          -simv_args => ["+BLOCKING_IOSF_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/vf_reset.cft",
+          "+IOSF_PRIM_FILE=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/vf_check.cft",],
+
+      },
+
+     
+       test2 => {
+          -simv_args => ["+BLOCKING_IOSF_TXN",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_lut_cfg_errors.cft",
+          "+HQM_SYSTEM_CONTINUE_ON_PERR",
+          "+HQM_SYSTEM_CONTINUE_ON_ECCERR",
+          "+IOSF_PRIM_FILE=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/vf_check.cft",],
+
+      },
+ 
+  test3 => {
+          -simv_args => ["+BLOCKING_IOSF_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/hqm_vf_to_pf_mailbox_isr.cft",
+          "+IOSF_PRIM_FILE=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/vf_check.cft",],
+
+      },
+
+   test4 => {
+          -simv_args => ["+BLOCKING_IOSF_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+          "+IOSF_PRIM_FILE=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/unsupport_addr.cft",],
+
+      },   
+
+
+  test5 => {
+          -simv_args => ["+BLOCKING_IOSF_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/hqm_pf_to_vf_mailbox_isr.cft",
+          "+IOSF_PRIM_FILE=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/vf_check.cft",],
+
+      },
+
+test6 => {
+          -simv_args => ["+BLOCKING_IOSF_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/hqm_pf_to_vf_mailbox_isr1.cft",
+          "+IOSF_PRIM_FILE=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/vf_check.cft",],
+
+      },
+
+
+test7 => {
+          -simv_args => ["+BLOCKING_IOSF_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/hqm_pf_to_vf_mailbox_isr2.cft",
+          "+IOSF_PRIM_FILE=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/vf_check.cft",],
+
+      },
+
+ 
+test8 => {
+          -simv_args => ["+BLOCKING_IOSF_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/hqm_pf_to_vf_mailbox_isr4.cft",
+          "+IOSF_PRIM_FILE=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/vf_check.cft",],
+
+      },
+
+test9 => {
+          -simv_args => ["+BLOCKING_IOSF_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/rdl.cft",
+          "+IOSF_PRIM_FILE=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/vf_check.cft",],
+
+      },
+      
+      
+   test_mem_acc_0 => {
+          -simv_args => [
+                         "+BLOCKING_IOSF_TXN",
+                         "+HQM_PCIE_SKIP_EOT_SEQ",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/hqm_alarm_config.cft",
+                         "+IOSF_PRIM_FILE=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_addr_acc0.cft",
+                        ],
+        },   
+
+   test_mem_acc_0_sriov => {
+          -simv_args => [
+                         "+BLOCKING_IOSF_TXN",
+                         "+HQM_PCIE_SKIP_EOT_SEQ",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/hqm_alarm_config_sriov.cft",
+                         "+IOSF_PRIM_FILE=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_addr_acc0.cft",
+                        ],
+
+      },   
+
+   test_mem_acc_all => {
+          -simv_args => ["+BLOCKING_IOSF_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/hqm_alarm_config.cft",
+          "+IOSF_PRIM_FILE=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_addr_acc.cft",],
+
+      },  
+
+   ###PF/VF space tests
+   hqm_pf_program_vf_read_test0 => {
+          -simv_args => ["+BLOCKING_IOSF_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/hqm_pf_program_vf_read_test0.cft",
+          "+IOSF_PRIM_FILE=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_addr_acc0.cft",],
+
+      },  
+   hqm_pf_program_vf_read_test1 => {
+          -simv_args => ["+BLOCKING_IOSF_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/hqm_pf_program_vf_read_test1.cft",
+          "+IOSF_PRIM_FILE=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_addr_acc0.cft",],
+
+      }, 
+   hqm_pf_program_pf_read_test1 => {
+          -simv_args => ["+BLOCKING_IOSF_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/hqm_pf_program_pf_read_test1.cft",
+          "+IOSF_PRIM_FILE=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_addr_acc0.cft",],
+
+      }, 
+   hqm_vf_program_pf_read_test1 => {
+          -simv_args => ["+BLOCKING_IOSF_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/hqm_vf_program_pf_read_test1.cft",
+          "+IOSF_PRIM_FILE=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_addr_acc0.cft",],
+
+      }, 
+   hqm_vf_program_vf_read_test1 => {
+          -simv_args => ["+BLOCKING_IOSF_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/hqm_vf_program_vf_read_test1.cft",
+          "+IOSF_PRIM_FILE=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_addr_acc0.cft",],
+
+      }, 
+
+
+   ##
+   hqm_pf_program_vf_read_test2 => {
+          -simv_args => ["+BLOCKING_IOSF_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/hqm_pf_program_vf_read_test2.cft",
+          "+IOSF_PRIM_FILE=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_addr_acc0.cft",],
+
+      }, 
+
+   #########################
+   #PF/VF test
+   #########################
+   hqm_pf_vf_test0 => {
+          -simv_args => ["+BLOCKING_IOSF_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/hqm_pf_program_func_msix_test1.cft",
+           "+IOSF_PRIM_FILE=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/pf_vf_mem_acc_0.cft",],
+
+      }, 
+   #PF W by hqm_cfg cft; 
+   #pf_vf_mem_acc_1.cft  (2/ VF read; 3/ VF unimp read; 4/ VF reprogram; 5/ PF read, func_pf_per_vf and hqm_msix_mem read; 6/ PF unimp read
+   hqm_pf_vf_test1 => {
+          -simv_args => ["+BLOCKING_IOSF_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/hqm_pf_program_func_msix_test1.cft",
+           "+IOSF_PRIM_FILE=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/pf_vf_mem_acc_1.cft",],
+
+      }, 
+
+
+   );
+
+
+
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

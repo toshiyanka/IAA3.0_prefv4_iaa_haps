@@ -1,0 +1,2091 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => [
+                     "+hqm_pcie_init_stim_config::skip_msix_cfg=0",
+                     "+hqm_pcie_init_stim_config::skip_msi_cfg=0",
+                     "+AW_CONTINUE_ON_ERROR",
+                     "+iosf_tracker_filename=iosf_trk",
+                     "-assert nopostproc",
+                     "+vcs+lic+wait",
+                     "+SLA_MAX_RUN_CLOCK=400000",
+                     "+SLA_USER_DATA_PHASE_TIMEOUT=400000",
+                     "+SLA_CONFIG_PHASE_TIMEOUT=300000",
+                     "+LSP_CONTINUE_ON_ERROR",
+                     ##"+HQM_EOT_RD_SEQ_ENABLE_CREDIT_CHECK",
+
+                     "+LDB_PP0_Q0_NUM_HCW=100",
+                     "+LDB_PP1_Q0_NUM_HCW=100",
+                     "+LDB_PP2_Q0_NUM_HCW=100",
+                     "+LDB_PP3_Q0_NUM_HCW=100",
+                     "+LDB_PP4_Q0_NUM_HCW=100",
+                     "+LDB_PP4_Q1_NUM_HCW=0",
+                     "+LDB_PP5_Q0_NUM_HCW=100",
+                     "+LDB_PP5_Q1_NUM_HCW=0",
+                     "+DIR_PP6_Q0_NUM_HCW=100",
+                     "+DIR_PP7_Q0_NUM_HCW=100",
+                     "+LDB_PP8_Q0_NUM_HCW=100",
+                     "+LDB_PP9_Q0_NUM_HCW=100",
+
+                     "+LDB_PP0_HCW_DELAY=96",
+                     "+LDB_PP0_CQ_POLL=1",
+
+                     "+LDB_PP1_HCW_DELAY=96",
+                     "+LDB_PP1_CQ_POLL=1",
+
+                     "+LDB_PP2_HCW_DELAY=96",
+                     "+LDB_PP2_CQ_POLL=1",
+
+                     "+LDB_PP3_HCW_DELAY=96",
+                     "+LDB_PP3_CQ_POLL=1",
+
+                     "+LDB_PP4_HCW_DELAY=96",
+                     "+LDB_PP4_CQ_POLL=1",
+
+                     "+LDB_PP5_HCW_DELAY=96",
+                     "+LDB_PP5_CQ_POLL=1",
+
+                     "+DIR_PP6_HCW_DELAY=96",
+                     "+DIR_PP6_CQ_POLL=1",
+
+                     "+DIR_PP7_HCW_DELAY=96",
+                     "+DIR_PP7_CQ_POLL=1",
+
+                     "+LDB_PP8_HCW_DELAY=96",
+                     "+LDB_PP8_CQ_POLL=1",
+
+                     "+LDB_PP9_HCW_DELAY=96",
+                     "+LDB_PP9_CQ_POLL=1",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/hcw_ingress_check_test1_cfg.cft",
+                     "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                    ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+      exp_msix0_cnt => {
+          -simv_args => [
+                     "+EXP_EP_MSIX0_CNT=1",
+                        ],
+      },
+      pp0_ill_hcw_cmd => {
+          -simv_args => [
+                     "+LDB_PP0_ILLEGAL_PROB=50",
+                     "+LDB_PP0_ILLEGAL_HCW_TYPE=ILLEGAL_HCW_CMD",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0002100/0xffffffff",
+                        ],
+      },
+      ##ill qid configuration case
+      pp0_ill_hcw_all0 => {
+          -simv_args => [
+                     "+LDB_PP0_ILLEGAL_PROB=50",
+                     "+LDB_PP0_ILLEGAL_HCW_TYPE=ALL_0",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0052100/0xffffffff",
+                        ],
+      },
+      pp0_ill_hcw_all1 => {
+          -simv_args => [
+                     "+LDB_PP0_ILLEGAL_PROB=50",
+                     "+LDB_PP0_ILLEGAL_HCW_TYPE=ALL_1",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0032100/0xffffffff",
+                        ],
+      },
+      pp0_ill_pp_num => {
+          -simv_args => [
+                     "+LDB_PP0_ILLEGAL_PROB=50",
+                     "+LDB_PP0_ILLEGAL_HCW_TYPE=ILLEGAL_PP_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc001213f/0xffffffff",
+                        ],
+      },
+      pp0_ill_pp_type => {
+          -simv_args => [
+                     "+LDB_PP0_ILLEGAL_PROB=50",
+                     "+LDB_PP0_ILLEGAL_HCW_TYPE=ILLEGAL_PP_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0010100/0xffffffff",
+                        ],
+      },
+      pp0_ill_qid_num => {
+          -simv_args => [
+                     "+LDB_PP0_ILLEGAL_PROB=50",
+                     "+LDB_PP0_ILLEGAL_HCW_TYPE=ILLEGAL_QID_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0042100/0xffffffff",
+                        ],
+      },
+      pp0_ill_ord_qe => {
+          -simv_args => [
+                     "+LDB_PP0_ILLEGAL_PROB=50",
+                     "+LDB_PP0_ILLEGAL_HCW_TYPE=ILLEGAL_QID_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0052100/0xffffffff",
+                        ],
+      },
+      pp0_ill7 => {
+          -simv_args => [
+                     "+LDB_PP0_ILLEGAL_PROB=50",
+                     "+LDB_PP0_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_NUM",
+                        ],
+      },
+      pp0_ill8 => {
+          -simv_args => [
+                     "+LDB_PP0_ILLEGAL_PROB=50",
+                     "+LDB_PP0_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_TYPE",
+                        ],
+      },
+      pp0_ill_dve_vf_num => {
+          -simv_args => [
+                     "+LDB_PP0_ILLEGAL_PROB=50",
+                     "+LDB_PP0_ILLEGAL_HCW_TYPE=ILLEGAL_DEV_VF_NUM",
+                     "+EXP_EP_MSIX0_CNT=0",
+                        ],
+      },
+      pp0_ill_qid_gt_range => {
+          -simv_args => [
+                     "+LDB_PP0_ILLEGAL_PROB=50",
+                     "+LDB_PP0_ILLEGAL_HCW_TYPE=QID_GRT_127",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0032100/0xffffffff",
+                        ],
+      },
+      pp0_ill_vas_wr_permission => {
+          -simv_args => [
+                     "+LDB_PP0_ILLEGAL_PROB=50",
+                     "+LDB_PP0_ILLEGAL_HCW_TYPE=VAS_WRITE_PERMISSION",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0032100/0xffffffff",
+                        ],
+      },
+      pp0_ill12 => {
+          -simv_args => [
+                     "+LDB_PP0_ILLEGAL_PROB=50",
+                     "+LDB_PP0_ILLEGAL_HCW_TYPE=CVAS_WRITE_PERMISSION",
+                        ],
+      },
+      pp0_ill13 => {
+          -simv_args => [
+                     "+LDB_PP0_ILLEGAL_PROB=50",
+                     "+LDB_PP0_ILLEGAL_HCW_TYPE=POOL_DISABLED",
+                        ],
+      },
+      pp1_ill_hcw_cmd => {
+          -simv_args => [
+                     "+LDB_PP1_ILLEGAL_PROB=50",
+                     "+LDB_PP1_ILLEGAL_HCW_TYPE=ILLEGAL_HCW_CMD",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[1]=0xC0002101/0xffffe3ff",
+                        ],
+      },
+      ##ill qid 
+      pp1_ill_hcw_all0 => {
+          -simv_args => [
+                     "+LDB_PP1_ILLEGAL_PROB=50",
+                     "+LDB_PP1_ILLEGAL_HCW_TYPE=ALL_0",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[1]=0xC0033501/0xffffe3ff",
+                        ],
+      },
+      pp1_ill_hcw_all1 => {
+          -simv_args => [
+                     "+LDB_PP1_ILLEGAL_PROB=50",
+                     "+LDB_PP1_ILLEGAL_HCW_TYPE=ALL_1",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[1]=0xC0033501/0xffffe3ff",
+                        ],
+      },
+      pp1_ill_pp_num => {
+          -simv_args => [
+                     "+LDB_PP1_ILLEGAL_PROB=50",
+                     "+LDB_PP1_ILLEGAL_HCW_TYPE=ILLEGAL_PP_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[1]=0xC001213f/0xffffe3ff",
+                        ],
+      },
+      pp1_ill_pp_type => {
+          -simv_args => [
+                     "+LDB_PP1_ILLEGAL_PROB=50",
+                     "+LDB_PP1_ILLEGAL_HCW_TYPE=ILLEGAL_PP_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[1]=0xc0010101/0xffffe3ff",
+                        ],
+      },
+      pp1_ill_qid_num => {
+          -simv_args => [
+                     "+LDB_PP1_ILLEGAL_PROB=50",
+                     "+LDB_PP1_ILLEGAL_HCW_TYPE=ILLEGAL_QID_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[1]=0xc0032501/0xffffe3ff",
+                        ],
+      },
+      pp1_ill_ord_qe => {
+          -simv_args => [
+                     "+LDB_PP1_ILLEGAL_PROB=50",
+                     "+LDB_PP1_ILLEGAL_HCW_TYPE=ILLEGAL_QID_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[1]=0xC0052101/0xffffe3ff",
+                        ],
+      },
+      pp1_ill7 => {
+          -simv_args => [
+                     "+LDB_PP1_ILLEGAL_PROB=50",
+                     "+LDB_PP1_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_NUM",
+                        ],
+      },
+      pp1_ill8 => {
+          -simv_args => [
+                     "+LDB_PP1_ILLEGAL_PROB=50",
+                     "+LDB_PP1_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_TYPE",
+                        ],
+      },
+      pp1_ill_dve_vf_num => {
+          -simv_args => [
+                     "+LDB_PP1_ILLEGAL_PROB=50",
+                     "+LDB_PP1_ILLEGAL_HCW_TYPE=ILLEGAL_DEV_VF_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[2]=0xC0012901/0xffffe3ff",
+                        ],
+      },
+      pp1_ill_qid_gt_range => {
+          -simv_args => [
+                     "+LDB_PP1_ILLEGAL_PROB=50",
+                     "+LDB_PP1_ILLEGAL_HCW_TYPE=QID_GRT_127",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[1]=0xc0032101/0xffffe3ff",
+                        ],
+      },
+      pp1_ill_vas_wr_permission => {
+          -simv_args => [
+                     "+LDB_PP1_ILLEGAL_PROB=50",
+                     "+LDB_PP1_ILLEGAL_HCW_TYPE=VAS_WRITE_PERMISSION",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[1]=0xc0032501/0xffffe3ff",
+                        ],
+      },
+      pp1_ill12 => {
+          -simv_args => [
+                     "+LDB_PP1_ILLEGAL_PROB=50",
+                     "+LDB_PP1_ILLEGAL_HCW_TYPE=CVAS_WRITE_PERMISSION",
+                        ],
+      },
+      pp1_ill13 => {
+          -simv_args => [
+                     "+LDB_PP1_ILLEGAL_PROB=50",
+                     "+LDB_PP1_ILLEGAL_HCW_TYPE=POOL_DISABLED",
+                        ],
+      },
+      pp2_ill_hcw_cmd => {
+          -simv_args => [
+                     "+LDB_PP2_ILLEGAL_PROB=50",
+                     "+LDB_PP2_ILLEGAL_HCW_TYPE=ILLEGAL_HCW_CMD",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0002102/0xffffffff",
+                        ],
+      },
+      ## ill ldb qid config pp3 not own qid0
+      pp2_ill_hcw_all0 => {
+          -simv_args => [
+                     "+LDB_PP2_ILLEGAL_PROB=50",
+                     "+LDB_PP2_ILLEGAL_HCW_TYPE=ALL_0",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0052102/0xffffffff",
+                        ],
+      },
+      pp2_ill_hcw_all1 => {
+          -simv_args => [
+                     "+LDB_PP2_ILLEGAL_PROB=50",
+                     "+LDB_PP2_ILLEGAL_HCW_TYPE=ALL_1",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0032102/0xffffffff",
+                        ],
+      },
+      pp2_ill_pp_num => {
+          -simv_args => [
+                     "+LDB_PP2_ILLEGAL_PROB=50",
+                     "+LDB_PP2_ILLEGAL_HCW_TYPE=ILLEGAL_PP_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc001213f/0xffffffff",
+                        ],
+      },
+      pp2_ill_pp_type => {
+          -simv_args => [
+                     "+LDB_PP2_ILLEGAL_PROB=50",
+                     "+LDB_PP2_ILLEGAL_HCW_TYPE=ILLEGAL_PP_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0010102/0xffffffff",
+                        ],
+      },
+      pp2_ill_qid_num => {
+          -simv_args => [
+                     "+LDB_PP2_ILLEGAL_PROB=50",
+                     "+LDB_PP2_ILLEGAL_HCW_TYPE=ILLEGAL_QID_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0052102/0xffffffff",
+                        ],
+      },
+      pp2_ill_disabled_qid => {
+          -simv_args => [
+                     "+LDB_PP2_ILLEGAL_PROB=50",
+                     "+LDB_PP2_ILLEGAL_HCW_TYPE=ILLEGAL_QID_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0042102/0xffffffff",
+                        ],
+      },
+      pp2_ill7 => {
+          -simv_args => [
+                     "+LDB_PP2_ILLEGAL_PROB=50",
+                     "+LDB_PP2_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_NUM",
+                        ],
+      },
+      pp2_ill8 => {
+          -simv_args => [
+                     "+LDB_PP2_ILLEGAL_PROB=50",
+                     "+LDB_PP2_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_TYPE",
+                        ],
+      },
+      pp2_ill_dve_vf_num => {
+          -simv_args => [
+                     "+LDB_PP2_ILLEGAL_PROB=50",
+                     "+LDB_PP2_ILLEGAL_HCW_TYPE=ILLEGAL_DEV_VF_NUM",
+                     "+EXP_EP_MSIX0_CNT=0",
+                        ],
+      },
+      pp2_ill_qid_gt_range => {
+          -simv_args => [
+                     "+LDB_PP2_ILLEGAL_PROB=50",
+                     "+LDB_PP2_ILLEGAL_HCW_TYPE=QID_GRT_127",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0032102/0xffffffff",
+                        ],
+      },
+      pp2_ill_vas_wr_permission => {
+          -simv_args => [
+                     "+LDB_PP2_ILLEGAL_PROB=50",
+                     "+LDB_PP2_ILLEGAL_HCW_TYPE=VAS_WRITE_PERMISSION",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0032102/0xffffffff",
+                        ],
+      },
+      pp2_ill12 => {
+          -simv_args => [
+                     "+LDB_PP2_ILLEGAL_PROB=50",
+                     "+LDB_PP2_ILLEGAL_HCW_TYPE=CVAS_WRITE_PERMISSION",
+                        ],
+      },
+      pp2_ill13 => {
+          -simv_args => [
+                     "+LDB_PP2_ILLEGAL_PROB=50",
+                     "+LDB_PP2_ILLEGAL_HCW_TYPE=POOL_DISABLED",
+                        ],
+      },
+      pp3_ill_hcw_cmd => {
+          -simv_args => [
+                     "+LDB_PP3_ILLEGAL_PROB=50",
+                     "+LDB_PP3_ILLEGAL_HCW_TYPE=ILLEGAL_HCW_CMD",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[3]=0xC0002103/0xffffe3ff",
+                        ],
+      },
+      pp3_ill_hcw_all0 => {
+          -simv_args => [
+                     "+LDB_PP3_ILLEGAL_PROB=50",
+                     "+LDB_PP3_ILLEGAL_HCW_TYPE=ALL_0",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[3]=0xC0033103/0xffffe3ff",
+                        ],
+      },
+      pp3_ill_hcw_all1 => {
+          -simv_args => [
+                     "+LDB_PP3_ILLEGAL_PROB=50",
+                     "+LDB_PP3_ILLEGAL_HCW_TYPE=ALL_1",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[3]=0xC0033103/0xffffe3ff",
+                        ],
+      },
+      pp3_ill_pp_num => {
+          -simv_args => [
+                     "+LDB_PP3_ILLEGAL_PROB=50",
+                     "+LDB_PP3_ILLEGAL_HCW_TYPE=ILLEGAL_PP_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[3]=0xC001213f/0xffffe3ff",
+                        ],
+      },
+      pp3_ill_pp_type => {
+          -simv_args => [
+                     "+LDB_PP3_ILLEGAL_PROB=50",
+                     "+LDB_PP3_ILLEGAL_HCW_TYPE=ILLEGAL_PP_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[3]=0xc0010103/0xffffe3ff",
+                        ],
+      },
+      pp3_ill_qid_num => {
+          -simv_args => [
+                     "+LDB_PP3_ILLEGAL_PROB=50",
+                     "+LDB_PP3_ILLEGAL_HCW_TYPE=ILLEGAL_QID_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[3]=0xc0033103/0xffffe3ff",
+                        ],
+      },
+      pp3_ill_qid => {
+          -simv_args => [
+                     "+LDB_PP3_ILLEGAL_PROB=50",
+                     "+LDB_PP3_ILLEGAL_HCW_TYPE=ILLEGAL_QID_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[3]=0xC0032103/0xffffe3ff",
+                        ],
+      },
+      pp3_ill7 => {
+          -simv_args => [
+                     "+LDB_PP3_ILLEGAL_PROB=50",
+                     "+LDB_PP3_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_NUM",
+                        ],
+      },
+      pp3_ill8 => {
+          -simv_args => [
+                     "+LDB_PP3_ILLEGAL_PROB=50",
+                     "+LDB_PP3_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_TYPE",
+                        ],
+      },
+      pp3_ill_dve_vf_num => {
+          -simv_args => [
+                     "+LDB_PP3_ILLEGAL_PROB=50",
+                     "+LDB_PP3_ILLEGAL_HCW_TYPE=ILLEGAL_DEV_VF_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[4]=0xC0013d03/0xffffe3ff",
+                        ],
+      },
+      pp3_ill_qid_gt_range => {
+          -simv_args => [
+                     "+LDB_PP3_ILLEGAL_PROB=50",
+                     "+LDB_PP3_ILLEGAL_HCW_TYPE=QID_GRT_127",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[3]=0xc0032103/0xffffe3ff",
+                        ],
+      },
+      pp3_ill_vas_wr_permission => {
+          -simv_args => [
+                     "+LDB_PP3_ILLEGAL_PROB=50",
+                     "+LDB_PP3_ILLEGAL_HCW_TYPE=VAS_WRITE_PERMISSION",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[3]=0xc0033903/0xffffe3ff",
+                        ],
+      },
+      pp3_ill12 => {
+          -simv_args => [
+                     "+LDB_PP3_ILLEGAL_PROB=50",
+                     "+LDB_PP3_ILLEGAL_HCW_TYPE=CVAS_WRITE_PERMISSION",
+                        ],
+      },
+      pp3_ill13 => {
+          -simv_args => [
+                     "+LDB_PP3_ILLEGAL_PROB=50",
+                     "+LDB_PP3_ILLEGAL_HCW_TYPE=POOL_DISABLED",
+                        ],
+      },
+      pp4_ill_hcw_cmd => {
+          -simv_args => [
+                     "+LDB_PP4_ILLEGAL_PROB=50",
+                     "+LDB_PP4_ILLEGAL_HCW_TYPE=ILLEGAL_HCW_CMD",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0002104/0xffffffff",
+                        ],
+      },
+      pp4_ill_hcw_all0 => {
+          -simv_args => [
+                     "+LDB_PP4_ILLEGAL_PROB=50",
+                     "+LDB_PP4_ILLEGAL_HCW_TYPE=ALL_0",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0052104/0xffffffff",
+                        ],
+      },
+      pp4_ill_hcw_all1 => {
+          -simv_args => [
+                     "+LDB_PP4_ILLEGAL_PROB=50",
+                     "+LDB_PP4_ILLEGAL_HCW_TYPE=ALL_1",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0032104/0xffffffff",
+                        ],
+      },
+      pp4_ill_pp_num => {
+          -simv_args => [
+                     "+LDB_PP4_ILLEGAL_PROB=50",
+                     "+LDB_PP4_ILLEGAL_HCW_TYPE=ILLEGAL_PP_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc001213f/0xffffffff",
+                        ],
+      },
+      pp4_ill_pp_type => {
+          -simv_args => [
+                     "+LDB_PP4_ILLEGAL_PROB=50",
+                     "+LDB_PP4_ILLEGAL_HCW_TYPE=ILLEGAL_PP_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0010104/0xffffffff",
+                        ],
+      },
+      pp4_ill_qid_num => {
+          -simv_args => [
+                     "+LDB_PP4_ILLEGAL_PROB=50",
+                     "+LDB_PP4_ILLEGAL_HCW_TYPE=ILLEGAL_QID_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0032104/0xffffffff",
+                        ],
+      },
+      pp4_ill_unord_qe => {
+          -simv_args => [
+                     "+LDB_PP4_ILLEGAL_PROB=50",
+                     "+LDB_PP4_ILLEGAL_HCW_TYPE=ILLEGAL_QID_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0052104/0xffffffff",
+                        ],
+      },
+      pp4_ill7 => {
+          -simv_args => [
+                     "+LDB_PP4_ILLEGAL_PROB=50",
+                     "+LDB_PP4_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_NUM",
+                        ],
+      },
+      pp4_ill8 => {
+          -simv_args => [
+                     "+LDB_PP4_ILLEGAL_PROB=50",
+                     "+LDB_PP4_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_TYPE",
+                        ],
+      },
+      pp4_ill_dve_vf_num => {
+          -simv_args => [
+                     "+LDB_PP4_ILLEGAL_PROB=50",
+                     "+LDB_PP4_ILLEGAL_HCW_TYPE=ILLEGAL_DEV_VF_NUM",
+                     "+EXP_EP_MSIX0_CNT=0",
+                        ],
+      },
+      pp4_ill_qid_gt_range => {
+          -simv_args => [
+                     "+LDB_PP4_ILLEGAL_PROB=50",
+                     "+LDB_PP4_ILLEGAL_HCW_TYPE=QID_GRT_127",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0032104/0xffffffff",
+                        ],
+      },
+      pp4_ill_vas_wr_permission => {
+          -simv_args => [
+                     "+LDB_PP4_ILLEGAL_PROB=50",
+                     "+LDB_PP4_ILLEGAL_HCW_TYPE=VAS_WRITE_PERMISSION",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0032104/0xffffffff",
+                        ],
+      },
+      pp4_ill12 => {
+          -simv_args => [
+                     "+LDB_PP4_ILLEGAL_PROB=50",
+                     "+LDB_PP4_ILLEGAL_HCW_TYPE=CVAS_WRITE_PERMISSION",
+                        ],
+      },
+      pp4_ill13 => {
+          -simv_args => [
+                     "+LDB_PP4_ILLEGAL_PROB=50",
+                     "+LDB_PP4_ILLEGAL_HCW_TYPE=POOL_DISABLED",
+                        ],
+      },
+      pp5_ill_hcw_cmd => {
+          -simv_args => [
+                     "+LDB_PP5_ILLEGAL_PROB=50",
+                     "+LDB_PP5_ILLEGAL_HCW_TYPE=ILLEGAL_HCW_CMD",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[5]=0xC0002105/0xffffe3ff",
+                        ],
+      },
+      pp5_ill_hcw_all0 => {
+          -simv_args => [
+                     "+LDB_PP5_ILLEGAL_PROB=50",
+                     "+LDB_PP5_ILLEGAL_HCW_TYPE=ALL_0",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[5]=0xC0033105/0xffffe3ff",
+                        ],
+      },
+      pp5_ill_hcw_all1 => {
+          -simv_args => [
+                     "+LDB_PP5_ILLEGAL_PROB=50",
+                     "+LDB_PP5_ILLEGAL_HCW_TYPE=ALL_1",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[5]=0xC0033105/0xffffe3ff",
+                        ],
+      },
+      pp5_ill_pp_num => {
+          -simv_args => [
+                     "+LDB_PP5_ILLEGAL_PROB=50",
+                     "+LDB_PP5_ILLEGAL_HCW_TYPE=ILLEGAL_PP_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[5]=0xC001213f/0xffffe3ff",
+                        ],
+      },
+      pp5_ill_pp_type => {
+          -simv_args => [
+                     "+LDB_PP5_ILLEGAL_PROB=50",
+                     "+LDB_PP5_ILLEGAL_HCW_TYPE=ILLEGAL_PP_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[5]=0xc0010105/0xffffe3ff",
+                        ],
+      },
+      pp5_ill_qid_num => {
+          -simv_args => [
+                     "+LDB_PP5_ILLEGAL_PROB=50",
+                     "+LDB_PP5_ILLEGAL_HCW_TYPE=ILLEGAL_QID_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[5]=0xc0033105/0xffffe3ff",
+                        ],
+      },
+      pp5_ill_unord_qe => {
+          -simv_args => [
+                     "+LDB_PP5_ILLEGAL_PROB=50",
+                     "+LDB_PP5_ILLEGAL_HCW_TYPE=ILLEGAL_QID_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[5]=0xC0052105/0xffffe3ff",
+                        ],
+      },
+      pp5_ill7 => {
+          -simv_args => [
+                     "+LDB_PP5_ILLEGAL_PROB=50",
+                     "+LDB_PP5_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_NUM",
+                        ],
+      },
+      pp5_ill8 => {
+          -simv_args => [
+                     "+LDB_PP5_ILLEGAL_PROB=50",
+                     "+LDB_PP5_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_TYPE",
+                        ],
+      },
+      pp5_ill_dve_vf_num => {
+          -simv_args => [
+                     "+LDB_PP5_ILLEGAL_PROB=50",
+                     "+LDB_PP5_ILLEGAL_HCW_TYPE=ILLEGAL_DEV_VF_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[6]=0xC0012d05/0xffffe3ff",
+                        ],
+      },
+      pp5_ill_qid_gt_range => {
+          -simv_args => [
+                     "+LDB_PP5_ILLEGAL_PROB=50",
+                     "+LDB_PP5_ILLEGAL_HCW_TYPE=QID_GRT_127",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[5]=0xc0032105/0xffffe3ff",
+                        ],
+      },
+      pp5_ill_vas_wr_permission => {
+          -simv_args => [
+                     "+LDB_PP5_ILLEGAL_PROB=50",
+                     "+LDB_PP5_ILLEGAL_HCW_TYPE=VAS_WRITE_PERMISSION",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[5]=0xc0032505/0xffffe3ff",
+                        ],
+      },
+      pp5_ill12 => {
+          -simv_args => [
+                     "+LDB_PP5_ILLEGAL_PROB=50",
+                     "+LDB_PP5_ILLEGAL_HCW_TYPE=CVAS_WRITE_PERMISSION",
+                        ],
+      },
+      pp5_ill13 => {
+          -simv_args => [
+                     "+LDB_PP5_ILLEGAL_PROB=50",
+                     "+LDB_PP5_ILLEGAL_HCW_TYPE=POOL_DISABLED",
+                        ],
+      },
+      pp6_ill_hcw_cmd => {
+          -simv_args => [
+                     "+DIR_PP6_ILLEGAL_PROB=50",
+                     "+DIR_PP6_ILLEGAL_HCW_TYPE=ILLEGAL_HCW_CMD",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0000106/0xffffffff",
+                        ],
+      },
+      ## Illegal LDB QID configuration aid=0x5
+      pp6_ill_hcw_all0 => {
+          -simv_args => [
+                     "+DIR_PP6_ILLEGAL_PROB=50",
+                     "+DIR_PP6_ILLEGAL_HCW_TYPE=ALL_0",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xC0050106/0xffffffff",
+                        ],
+      },
+      pp6_ill_hcw_all1 => {
+          -simv_args => [
+                     "+DIR_PP6_ILLEGAL_PROB=50",
+                     "+DIR_PP6_ILLEGAL_HCW_TYPE=ALL_1",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xC0030106/0xffffffff",
+                        ],
+      },
+      pp6_ill_pp_num => {
+          -simv_args => [
+                     "+DIR_PP6_ILLEGAL_PROB=50",
+                     "+DIR_PP6_ILLEGAL_HCW_TYPE=ILLEGAL_PP_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc001013f/0xffffffff",
+                        ],
+      },
+      pp6_ill_pp_type => {
+          -simv_args => [
+                     "+DIR_PP6_ILLEGAL_PROB=50",
+                     "+DIR_PP6_ILLEGAL_HCW_TYPE=ILLEGAL_PP_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0012106/0xffffffff",
+                        ],
+      },
+      pp6_ill_qid_num => {
+          -simv_args => [
+                     "+DIR_PP6_ILLEGAL_PROB=50",
+                     "+DIR_PP6_ILLEGAL_HCW_TYPE=ILLEGAL_QID_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0040106/0xffffffff",
+                        ],
+      },
+      pp6_ill_qid => {
+          -simv_args => [
+                     "+DIR_PP6_ILLEGAL_PROB=50",
+                     "+DIR_PP6_ILLEGAL_HCW_TYPE=ILLEGAL_QID_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0030106/0xffffffff",
+                        ],
+      },
+      pp6_ill7 => {
+          -simv_args => [
+                     "+DIR_PP6_ILLEGAL_PROB=50",
+                     "+DIR_PP6_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_NUM",
+                        ],
+      },
+      pp6_ill8 => {
+          -simv_args => [
+                     "+DIR_PP6_ILLEGAL_PROB=50",
+                     "+DIR_PP6_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_TYPE",
+                        ],
+      },
+      pp6_ill_dve_vf_num => {
+          -simv_args => [
+                     "+DIR_PP6_ILLEGAL_PROB=50",
+                     "+DIR_PP6_ILLEGAL_HCW_TYPE=ILLEGAL_DEV_VF_NUM",
+                     "+EXP_EP_MSIX0_CNT=0",
+                        ],
+      },
+      pp6_ill_qid_gt_range => {
+          -simv_args => [
+                     "+DIR_PP6_ILLEGAL_PROB=50",
+                     "+DIR_PP6_ILLEGAL_HCW_TYPE=QID_GRT_127",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0030106/0xffffffff",
+                        ],
+      },
+      pp6_ill_vas_wr_permission => {
+          -simv_args => [
+                     "+DIR_PP6_ILLEGAL_PROB=50",
+                     "+DIR_PP6_ILLEGAL_HCW_TYPE=VAS_WRITE_PERMISSION",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0030106/0xffffffff",
+                        ],
+      },
+      pp6_ill12 => {
+          -simv_args => [
+                     "+DIR_PP6_ILLEGAL_PROB=50",
+                     "+DIR_PP6_ILLEGAL_HCW_TYPE=CVAS_WRITE_PERMISSION",
+                        ],
+      },
+      pp6_ill13 => {
+          -simv_args => [
+                     "+DIR_PP6_ILLEGAL_PROB=50",
+                     "+DIR_PP6_ILLEGAL_HCW_TYPE=POOL_DISABLED",
+                        ],
+      },
+      pp7_ill_hcw_cmd => {
+          -simv_args => [
+                     "+DIR_PP7_ILLEGAL_PROB=50",
+                     "+DIR_PP7_ILLEGAL_HCW_TYPE=ILLEGAL_HCW_CMD",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[9]=0xC0000107/0xffffe3ff",
+                        ],
+      },
+      pp7_ill_hcw_all0 => {
+          -simv_args => [
+                     "+DIR_PP7_ILLEGAL_PROB=50",
+                     "+DIR_PP7_ILLEGAL_HCW_TYPE=ALL_0",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[9]=0xC0031107/0xffffe3ff",
+                        ],
+      },
+      pp7_ill_hcw_all1 => {
+          -simv_args => [
+                     "+DIR_PP7_ILLEGAL_PROB=50",
+                     "+DIR_PP7_ILLEGAL_HCW_TYPE=ALL_1",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[9]=0xC0031107/0xffffe3ff",
+                        ],
+      },
+      pp7_ill_pp_num => {
+          -simv_args => [
+                     "+DIR_PP7_ILLEGAL_PROB=50",
+                     "+DIR_PP7_ILLEGAL_HCW_TYPE=ILLEGAL_PP_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[9]=0xC001013f/0xffffe3ff",
+                        ],
+      },
+      pp7_ill_pp_type => {
+          -simv_args => [
+                     "+DIR_PP7_ILLEGAL_PROB=50",
+                     "+DIR_PP7_ILLEGAL_HCW_TYPE=ILLEGAL_PP_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[9]=0xc0012107/0xffffe3ff",
+                        ],
+      },
+      pp7_ill_qid_num => {
+          -simv_args => [
+                     "+DIR_PP7_ILLEGAL_PROB=50",
+                     "+DIR_PP7_ILLEGAL_HCW_TYPE=ILLEGAL_QID_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[9]=0xc0031107/0xffffe3ff",
+                        ],
+      },
+      pp7_ill_qid => {
+          -simv_args => [
+                     "+DIR_PP7_ILLEGAL_PROB=50",
+                     "+DIR_PP7_ILLEGAL_HCW_TYPE=ILLEGAL_QID_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[9]=0xC0030107/0xffffe3ff",
+                        ],
+      },
+      pp7_ill7 => {
+          -simv_args => [
+                     "+DIR_PP7_ILLEGAL_PROB=50",
+                     "+DIR_PP7_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_NUM",
+                        ],
+      },
+      pp7_ill8 => {
+          -simv_args => [
+                     "+DIR_PP7_ILLEGAL_PROB=50",
+                     "+DIR_PP7_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_TYPE",
+                        ],
+      },
+      pp7_ill_dve_vf_num => {
+          -simv_args => [
+                     "+DIR_PP7_ILLEGAL_PROB=50",
+                     "+DIR_PP7_ILLEGAL_HCW_TYPE=ILLEGAL_DEV_VF_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[10]=0xC0010507/0xffffe3ff",
+                        ],
+      },
+      pp7_ill_qid_gt_range => {
+          -simv_args => [
+                     "+DIR_PP7_ILLEGAL_PROB=50",
+                     "+DIR_PP7_ILLEGAL_HCW_TYPE=QID_GRT_127",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[9]=0xc0030107/0xffffe3ff",
+                        ],
+      },
+      pp7_ill_vas_wr_permission => {
+          -simv_args => [
+                     "+DIR_PP7_ILLEGAL_PROB=50",
+                     "+DIR_PP7_ILLEGAL_HCW_TYPE=VAS_WRITE_PERMISSION",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[9]=0xc0031107/0xffffe3ff",
+                        ],
+      },
+      pp7_ill12 => {
+          -simv_args => [
+                     "+DIR_PP7_ILLEGAL_PROB=50",
+                     "+DIR_PP7_ILLEGAL_HCW_TYPE=CVAS_WRITE_PERMISSION",
+                        ],
+      },
+      pp7_ill13 => {
+          -simv_args => [
+                     "+DIR_PP7_ILLEGAL_PROB=50",
+                     "+DIR_PP7_ILLEGAL_HCW_TYPE=POOL_DISABLED",
+                        ],
+      },
+      pp8_ill_hcw_cmd => {
+          -simv_args => [
+                     "+LDB_PP8_ILLEGAL_PROB=50",
+                     "+LDB_PP8_ILLEGAL_HCW_TYPE=ILLEGAL_HCW_CMD",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0002108/0xffffffff",
+                        ],
+      },
+      pp8_ill_hcw_all0 => {
+          -simv_args => [
+                     "+LDB_PP8_ILLEGAL_PROB=50",
+                     "+LDB_PP8_ILLEGAL_HCW_TYPE=ALL_0",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xC0052108/0xffffffff",
+                        ],
+      },
+      pp8_ill_hcw_all1 => {
+          -simv_args => [
+                     "+LDB_PP8_ILLEGAL_PROB=50",
+                     "+LDB_PP8_ILLEGAL_HCW_TYPE=ALL_1",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xC0032108/0xffffffff",
+                        ],
+      },
+      pp8_ill_pp_num => {
+          -simv_args => [
+                     "+LDB_PP8_ILLEGAL_PROB=50",
+                     "+LDB_PP8_ILLEGAL_HCW_TYPE=ILLEGAL_PP_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc001213f/0xffffffff",
+                        ],
+      },
+      pp8_ill_pp_type => {
+          -simv_args => [
+                     "+LDB_PP8_ILLEGAL_PROB=50",
+                     "+LDB_PP8_ILLEGAL_HCW_TYPE=ILLEGAL_PP_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0010108/0xffffffff",
+                        ],
+      },
+      pp8_ill_qid_num => {
+          -simv_args => [
+                     "+LDB_PP8_ILLEGAL_PROB=50",
+                     "+LDB_PP8_ILLEGAL_HCW_TYPE=ILLEGAL_QID_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0032108/0xffffffff",
+                        ],
+      },
+      pp8_ill_ord_qe => {
+          -simv_args => [
+                     "+LDB_PP8_ILLEGAL_PROB=50",
+                     "+LDB_PP8_ILLEGAL_HCW_TYPE=ILLEGAL_QID_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0052108/0xffffffff",
+                        ],
+      },
+      pp8_ill7 => {
+          -simv_args => [
+                     "+LDB_PP8_ILLEGAL_PROB=50",
+                     "+LDB_PP8_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_NUM",
+                        ],
+      },
+      pp8_ill8 => {
+          -simv_args => [
+                     "+LDB_PP8_ILLEGAL_PROB=50",
+                     "+LDB_PP8_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_TYPE",
+                        ],
+      },
+      pp8_ill_dve_vf_num => {
+          -simv_args => [
+                     "+LDB_PP8_ILLEGAL_PROB=50",
+                     "+LDB_PP8_ILLEGAL_HCW_TYPE=ILLEGAL_DEV_VF_NUM",
+                     "+EXP_EP_MSIX0_CNT=0",
+                        ],
+      },
+      pp8_ill_qid_gt_range => {
+          -simv_args => [
+                     "+LDB_PP8_ILLEGAL_PROB=50",
+                     "+LDB_PP8_ILLEGAL_HCW_TYPE=QID_GRT_127",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0032108/0xffffffff",
+                        ],
+      },
+      pp8_ill_vas_wr_permission => {
+          -simv_args => [
+                     "+LDB_PP8_ILLEGAL_PROB=50",
+                     "+LDB_PP8_ILLEGAL_HCW_TYPE=VAS_WRITE_PERMISSION",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0032108/0xffffffff",
+                        ],
+      },
+      pp8_ill12 => {
+          -simv_args => [
+                     "+LDB_PP8_ILLEGAL_PROB=50",
+                     "+LDB_PP8_ILLEGAL_HCW_TYPE=CVAS_WRITE_PERMISSION",
+                        ],
+      },
+      pp8_ill13 => {
+          -simv_args => [
+                     "+LDB_PP8_ILLEGAL_PROB=50",
+                     "+LDB_PP8_ILLEGAL_HCW_TYPE=POOL_DISABLED",
+                        ],
+      },
+      pp9_ill_hcw_cmd => {
+          -simv_args => [
+                     "+LDB_PP9_ILLEGAL_PROB=50",
+                     "+LDB_PP9_ILLEGAL_HCW_TYPE=ILLEGAL_HCW_CMD",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[7]=0xC0002109/0xffffe3ff",
+                        ],
+      },
+      pp9_ill_hcw_all0 => {
+          -simv_args => [
+                     "+LDB_PP9_ILLEGAL_PROB=50",
+                     "+LDB_PP9_ILLEGAL_HCW_TYPE=ALL_0",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[7]=0xC0033109/0xffffe3ff",
+                        ],
+      },
+      pp9_ill_hcw_all1 => {
+          -simv_args => [
+                     "+LDB_PP9_ILLEGAL_PROB=50",
+                     "+LDB_PP9_ILLEGAL_HCW_TYPE=ALL_1",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[7]=0xC0033109/0xffffe3ff",
+                        ],
+      },
+      pp9_ill_pp_num => {
+          -simv_args => [
+                     "+LDB_PP9_ILLEGAL_PROB=50",
+                     "+LDB_PP9_ILLEGAL_HCW_TYPE=ILLEGAL_PP_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[7]=0xC001213f/0xffffe3ff",
+                        ],
+      },
+      pp9_ill_pp_type => {
+          -simv_args => [
+                     "+LDB_PP9_ILLEGAL_PROB=50",
+                     "+LDB_PP9_ILLEGAL_HCW_TYPE=ILLEGAL_PP_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[7]=0xc0010109/0xffffe3ff",
+                        ],
+      },
+      pp9_ill_qid_num => {
+          -simv_args => [
+                     "+LDB_PP9_ILLEGAL_PROB=50",
+                     "+LDB_PP9_ILLEGAL_HCW_TYPE=ILLEGAL_QID_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[7]=0xc0032909/0xffffe3ff",
+                        ],
+      },
+      pp9_ill_ord_qe => {
+          -simv_args => [
+                     "+LDB_PP9_ILLEGAL_PROB=50",
+                     "+LDB_PP9_ILLEGAL_HCW_TYPE=ILLEGAL_QID_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[7]=0xC0052109/0xffffe3ff",
+                        ],
+      },
+      pp9_ill7 => {
+          -simv_args => [
+                     "+LDB_PP9_ILLEGAL_PROB=50",
+                     "+LDB_PP9_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_NUM",
+                        ],
+      },
+      pp9_ill8 => {
+          -simv_args => [
+                     "+LDB_PP9_ILLEGAL_PROB=50",
+                     "+LDB_PP9_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_TYPE",
+                        ],
+      },
+      pp9_ill_dve_vf_num => {
+          -simv_args => [
+                     "+LDB_PP9_ILLEGAL_PROB=50",
+                     "+LDB_PP9_ILLEGAL_HCW_TYPE=ILLEGAL_DEV_VF_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[8]=0xC0012509/0xffffe3ff",
+                        ],
+      },
+      pp9_ill_qid_gt_range => {
+          -simv_args => [
+                     "+LDB_PP9_ILLEGAL_PROB=50",
+                     "+LDB_PP9_ILLEGAL_HCW_TYPE=QID_GRT_127",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[7]=0xc0032109/0xffffe3ff",
+                        ],
+      },
+      pp9_ill_vas_wr_permission => {
+          -simv_args => [
+                     "+LDB_PP9_ILLEGAL_PROB=50",
+                     "+LDB_PP9_ILLEGAL_HCW_TYPE=VAS_WRITE_PERMISSION",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[7]=0xc0032109/0xffffe3ff",
+                        ],
+      },
+      pp9_ill12 => {
+          -simv_args => [
+                     "+LDB_PP9_ILLEGAL_PROB=50",
+                     "+LDB_PP9_ILLEGAL_HCW_TYPE=CVAS_WRITE_PERMISSION",
+                        ],
+      },
+      pp9_ill13 => {
+          -simv_args => [
+                     "+LDB_PP9_ILLEGAL_PROB=50",
+                     "+LDB_PP9_ILLEGAL_HCW_TYPE=POOL_DISABLED",
+                        ],
+      },
+      q8_short => {
+          -simv_args => [
+                     "+LSP_CONTINUE_ON_ERROR",
+                     ## "+LDB_PP0_DIR_CREDIT=16",
+                     ## "+LDB_PP0_LDB_CREDIT=0",
+                     "+LDB_PP0_DSI=256",
+                     "+LDB_PP0_ILLEGAL_PROB=50",
+
+                     "+LDB_PP1_HCW_DELAY=96",
+                     "+LDB_PP1_CQ_POLL=0",
+                     ## "+LDB_PP1_DIR_CREDIT=16",
+                     ## "+LDB_PP1_LDB_CREDIT=0",
+                     "+LDB_PP1_DSI=257",
+
+                     "+LDB_PP2_HCW_DELAY=96",
+                     "+LDB_PP2_CQ_POLL=0",
+                     ## "+LDB_PP2_DIR_CREDIT=16",
+                     ## "+LDB_PP2_LDB_CREDIT=0",
+                     "+LDB_PP2_DSI=258",
+
+                     "+LDB_PP3_HCW_DELAY=96",
+                     "+LDB_PP3_CQ_POLL=0",
+                     ## "+LDB_PP3_DIR_CREDIT=16",
+                     ## "+LDB_PP3_LDB_CREDIT=0",
+                     "+LDB_PP3_DSI=259",
+
+                     "+LDB_PP4_HCW_DELAY=96",
+                     "+LDB_PP4_CQ_POLL=0",
+                     ## "+LDB_PP4_DIR_CREDIT=16",
+                     ## "+LDB_PP4_LDB_CREDIT=0",
+                     "+LDB_PP4_DSI=260",
+
+                     "+LDB_PP5_HCW_DELAY=96",
+                     "+LDB_PP5_CQ_POLL=0",
+                     ## "+LDB_PP5_DIR_CREDIT=16",
+                     ## "+LDB_PP5_LDB_CREDIT=0",
+                     "+LDB_PP5_DSI=261",
+
+                     "+LDB_PP6_HCW_DELAY=96",
+                     "+LDB_PP6_CQ_POLL=0",
+                     ## "+LDB_PP6_DIR_CREDIT=16",
+                     ## "+LDB_PP6_LDB_CREDIT=0",
+                     "+LDB_PP6_DSI=262",
+
+                     "+LDB_PP7_HCW_DELAY=96",
+                     "+LDB_PP7_CQ_POLL=0",
+                     ## "+LDB_PP7_DIR_CREDIT=16",
+                     ## "+LDB_PP7_LDB_CREDIT=0",
+                     "+LDB_PP7_DSI=263",
+
+                     ##"+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_ingress_check_test1_cfg.cft",
+                     ##"+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      pp0_ill_hcw_cmd_burst => {
+          -simv_args => [
+                     "+LDB_PP0_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP0_ILLEGAL_HCW_TYPE=ILLEGAL_HCW_CMD",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0002100/0xffffffff",
+                        ],
+      },
+      pp0_ill_hcw_all0_burst => {
+          -simv_args => [
+                     "+LDB_PP0_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP0_ILLEGAL_HCW_TYPE=ALL_0",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0052100/0xffffffff",
+                        ],
+      },
+      pp0_ill_hcw_all1_burst => {
+          -simv_args => [
+                     "+LDB_PP0_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP0_ILLEGAL_HCW_TYPE=ALL_1",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0032100/0xffffffff",
+                        ],
+      },
+      pp0_ill_pp_num_burst => {
+          -simv_args => [
+                     "+LDB_PP0_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP0_ILLEGAL_HCW_TYPE=ILLEGAL_PP_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc001213f/0xffffffff",
+                        ],
+      },
+      pp0_ill_pp_type_burst => {
+          -simv_args => [
+                     "+LDB_PP0_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP0_ILLEGAL_HCW_TYPE=ILLEGAL_PP_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0010100/0xffffffff",
+                        ],
+      },
+      pp0_ill_qid_num_burst => {
+          -simv_args => [
+                     "+LDB_PP0_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP0_ILLEGAL_HCW_TYPE=ILLEGAL_QID_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0042100/0xffffffff",
+                        ],
+      },
+      pp0_ill_ord_qe_burst => {
+          -simv_args => [
+                     "+LDB_PP0_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP0_ILLEGAL_HCW_TYPE=ILLEGAL_QID_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0052100/0xffffffff",
+                        ],
+      },
+      pp0_ill7_burst => {
+          -simv_args => [
+                     "+LDB_PP0_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP0_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_NUM",
+                        ],
+      },
+      pp0_ill8_burst => {
+          -simv_args => [
+                     "+LDB_PP0_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP0_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_TYPE",
+                        ],
+      },
+      pp0_ill_dve_vf_num_burst => {
+          -simv_args => [
+                     "+LDB_PP0_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP0_ILLEGAL_HCW_TYPE=ILLEGAL_DEV_VF_NUM",
+                     "+EXP_EP_MSIX0_CNT=0",
+                        ],
+      },
+      pp0_ill_qid_gt_range_burst => {
+          -simv_args => [
+                     "+LDB_PP0_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP0_ILLEGAL_HCW_TYPE=QID_GRT_127",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0032100/0xffffffff",
+                        ],
+      },
+      pp0_ill_vas_wr_permission_burst => {
+          -simv_args => [
+                     "+LDB_PP0_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP0_ILLEGAL_HCW_TYPE=VAS_WRITE_PERMISSION",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0032100/0xffffffff",
+                        ],
+      },
+      pp0_ill12_burst => {
+          -simv_args => [
+                     "+LDB_PP0_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP0_ILLEGAL_HCW_TYPE=CVAS_WRITE_PERMISSION",
+                        ],
+      },
+      pp0_ill13_burst => {
+          -simv_args => [
+                     "+LDB_PP0_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP0_ILLEGAL_HCW_TYPE=POOL_DISABLED",
+                        ],
+      },
+      pp1_ill_hcw_cmd_burst => {
+          -simv_args => [
+                     "+LDB_PP1_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP1_ILLEGAL_HCW_TYPE=ILLEGAL_HCW_CMD",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[1]=0xC0002101/0xffffe3ff",
+                        ],
+      },
+      pp1_ill_hcw_all0_burst => {
+          -simv_args => [
+                     "+LDB_PP1_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP1_ILLEGAL_HCW_TYPE=ALL_0",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[1]=0xC0033501/0xffffe3ff",
+                        ],
+      },
+      pp1_ill_hcw_all1_burst => {
+          -simv_args => [
+                     "+LDB_PP1_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP1_ILLEGAL_HCW_TYPE=ALL_1",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[1]=0xC0033501/0xffffe3ff",
+                        ],
+      },
+      pp1_ill_pp_num_burst => {
+          -simv_args => [
+                     "+LDB_PP1_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP1_ILLEGAL_HCW_TYPE=ILLEGAL_PP_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[1]=0xC001213f/0xffffe3ff",
+                        ],
+      },
+      pp1_ill_pp_type_burst => {
+          -simv_args => [
+                     "+LDB_PP1_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP1_ILLEGAL_HCW_TYPE=ILLEGAL_PP_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[1]=0xc0010101/0xffffe3ff",
+                        ],
+      },
+      pp1_ill_qid_num_burst => {
+          -simv_args => [
+                     "+LDB_PP1_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP1_ILLEGAL_HCW_TYPE=ILLEGAL_QID_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[1]=0xc0032501/0xffffe3ff",
+                        ],
+      },
+      pp1_ill_ord_qe_burst => {
+          -simv_args => [
+                     "+LDB_PP1_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP1_ILLEGAL_HCW_TYPE=ILLEGAL_QID_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[1]=0xC0052101/0xffffe3ff",
+                        ],
+      },
+      pp1_ill7_burst => {
+          -simv_args => [
+                     "+LDB_PP1_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP1_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_NUM",
+                        ],
+      },
+      pp1_ill8_burst => {
+          -simv_args => [
+                     "+LDB_PP1_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP1_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_TYPE",
+                        ],
+      },
+      pp1_ill_dve_vf_num_burst => {
+          -simv_args => [
+                     "+LDB_PP1_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP1_ILLEGAL_HCW_TYPE=ILLEGAL_DEV_VF_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[2]=0xC0012901/0xffffe3ff",
+                        ],
+      },
+      pp1_ill_qid_gt_range_burst => {
+          -simv_args => [
+                     "+LDB_PP1_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP1_ILLEGAL_HCW_TYPE=QID_GRT_127",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[1]=0xc0032101/0xffffe3ff",
+                        ],
+      },
+      pp1_ill_vas_wr_permission_burst => {
+          -simv_args => [
+                     "+LDB_PP1_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP1_ILLEGAL_HCW_TYPE=VAS_WRITE_PERMISSION",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[1]=0xc0032501/0xffffe3ff",
+                        ],
+      },
+      pp1_ill12_burst => {
+          -simv_args => [
+                     "+LDB_PP1_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP1_ILLEGAL_HCW_TYPE=CVAS_WRITE_PERMISSION",
+                        ],
+      },
+      pp1_ill13_burst => {
+          -simv_args => [
+                     "+LDB_PP1_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP1_ILLEGAL_HCW_TYPE=POOL_DISABLED",
+                        ],
+      },
+      pp2_ill_hcw_cmd_burst => {
+          -simv_args => [
+                     "+LDB_PP2_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP2_ILLEGAL_HCW_TYPE=ILLEGAL_HCW_CMD",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0002102/0xffffffff",
+                        ],
+      },
+      pp2_ill_hcw_all0_burst => {
+          -simv_args => [
+                     "+LDB_PP2_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP2_ILLEGAL_HCW_TYPE=ALL_0",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0052102/0xffffffff",
+                        ],
+      },
+      pp2_ill_hcw_all1_burst => {
+          -simv_args => [
+                     "+LDB_PP2_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP2_ILLEGAL_HCW_TYPE=ALL_1",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0032102/0xffffffff",
+                        ],
+      },
+      pp2_ill_pp_num_burst => {
+          -simv_args => [
+                     "+LDB_PP2_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP2_ILLEGAL_HCW_TYPE=ILLEGAL_PP_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc001213f/0xffffffff",
+                        ],
+      },
+      pp2_ill_pp_type_burst => {
+          -simv_args => [
+                     "+LDB_PP2_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP2_ILLEGAL_HCW_TYPE=ILLEGAL_PP_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0010102/0xffffffff",
+                        ],
+      },
+      pp2_ill_qid_num_burst => {
+          -simv_args => [
+                     "+LDB_PP2_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP2_ILLEGAL_HCW_TYPE=ILLEGAL_QID_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0052102/0xffffffff",
+                        ],
+      },
+      pp2_ill_disabled_qid_burst => {
+          -simv_args => [
+                     "+LDB_PP2_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP2_ILLEGAL_HCW_TYPE=ILLEGAL_QID_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0042102/0xffffffff",
+                        ],
+      },
+      pp2_ill7_burst => {
+          -simv_args => [
+                     "+LDB_PP2_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP2_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_NUM",
+                        ],
+      },
+      pp2_ill8_burst => {
+          -simv_args => [
+                     "+LDB_PP2_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP2_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_TYPE",
+                        ],
+      },
+      pp2_ill_dve_vf_num_burst => {
+          -simv_args => [
+                     "+LDB_PP2_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP2_ILLEGAL_HCW_TYPE=ILLEGAL_DEV_VF_NUM",
+                     "+EXP_EP_MSIX0_CNT=0",
+                        ],
+      },
+      pp2_ill_qid_gt_range_burst => {
+          -simv_args => [
+                     "+LDB_PP2_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP2_ILLEGAL_HCW_TYPE=QID_GRT_127",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0032102/0xffffffff",
+                        ],
+      },
+      pp2_ill_vas_wr_permission_burst => {
+          -simv_args => [
+                     "+LDB_PP2_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP2_ILLEGAL_HCW_TYPE=VAS_WRITE_PERMISSION",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0032102/0xffffffff",
+                        ],
+      },
+      pp2_ill12_burst => {
+          -simv_args => [
+                     "+LDB_PP2_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP2_ILLEGAL_HCW_TYPE=CVAS_WRITE_PERMISSION",
+                        ],
+      },
+      pp2_ill13_burst => {
+          -simv_args => [
+                     "+LDB_PP2_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP2_ILLEGAL_HCW_TYPE=POOL_DISABLED",
+                        ],
+      },
+      pp3_ill_hcw_cmd_burst => {
+          -simv_args => [
+                     "+LDB_PP3_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP3_ILLEGAL_HCW_TYPE=ILLEGAL_HCW_CMD",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[3]=0xC0002103/0xffffe3ff",
+                        ],
+      },
+      pp3_ill_hcw_all0_burst => {
+          -simv_args => [
+                     "+LDB_PP3_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP3_ILLEGAL_HCW_TYPE=ALL_0",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[3]=0xC0033103/0xffffe3ff",
+                        ],
+      },
+      pp3_ill_hcw_all1_burst => {
+          -simv_args => [
+                     "+LDB_PP3_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP3_ILLEGAL_HCW_TYPE=ALL_1",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[3]=0xC0033103/0xffffe3ff",
+                        ],
+      },
+      pp3_ill_pp_num_burst => {
+          -simv_args => [
+                     "+LDB_PP3_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP3_ILLEGAL_HCW_TYPE=ILLEGAL_PP_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[3]=0xC001213f/0xffffe3ff",
+                        ],
+      },
+      pp3_ill_pp_type_burst => {
+          -simv_args => [
+                     "+LDB_PP3_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP3_ILLEGAL_HCW_TYPE=ILLEGAL_PP_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[3]=0xc0010103/0xffffe3ff",
+                        ],
+      },
+      pp3_ill_qid_num_burst => {
+          -simv_args => [
+                     "+LDB_PP3_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP3_ILLEGAL_HCW_TYPE=ILLEGAL_QID_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[3]=0xc0033103/0xffffe3ff",
+                        ],
+      },
+      pp3_ill_qid_burst => {
+          -simv_args => [
+                     "+LDB_PP3_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP3_ILLEGAL_HCW_TYPE=ILLEGAL_QID_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[3]=0xC0032103/0xffffe3ff",
+                        ],
+      },
+      pp3_ill7_burst => {
+          -simv_args => [
+                     "+LDB_PP3_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP3_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_NUM",
+                        ],
+      },
+      pp3_ill8_burst => {
+          -simv_args => [
+                     "+LDB_PP3_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP3_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_TYPE",
+                        ],
+      },
+      pp3_ill_dve_vf_num_burst => {
+          -simv_args => [
+                     "+LDB_PP3_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP3_ILLEGAL_HCW_TYPE=ILLEGAL_DEV_VF_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[4]=0xC0013d03/0xffffe3ff",
+                        ],
+      },
+      pp3_ill_qid_gt_range_burst => {
+          -simv_args => [
+                     "+LDB_PP3_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP3_ILLEGAL_HCW_TYPE=QID_GRT_127",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[3]=0xc0032103/0xffffe3ff",
+                        ],
+      },
+      pp3_ill_vas_wr_permission_burst => {
+          -simv_args => [
+                     "+LDB_PP3_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP3_ILLEGAL_HCW_TYPE=VAS_WRITE_PERMISSION",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[3]=0xc0033903/0xffffe3ff",
+                        ],
+      },
+      pp3_ill12_burst => {
+          -simv_args => [
+                     "+LDB_PP3_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP3_ILLEGAL_HCW_TYPE=CVAS_WRITE_PERMISSION",
+                        ],
+      },
+      pp3_ill13_burst => {
+          -simv_args => [
+                     "+LDB_PP3_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP3_ILLEGAL_HCW_TYPE=POOL_DISABLED",
+                        ],
+      },
+      pp4_ill_hcw_cmd_burst => {
+          -simv_args => [
+                     "+LDB_PP4_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP4_ILLEGAL_HCW_TYPE=ILLEGAL_HCW_CMD",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0002104/0xffffffff",
+                        ],
+      },
+      pp4_ill_hcw_all0_burst => {
+          -simv_args => [
+                     "+LDB_PP4_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP4_ILLEGAL_HCW_TYPE=ALL_0",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0052104/0xffffffff",
+                        ],
+      },
+      pp4_ill_hcw_all1_burst => {
+          -simv_args => [
+                     "+LDB_PP4_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP4_ILLEGAL_HCW_TYPE=ALL_1",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0032104/0xffffffff",
+                        ],
+      },
+      pp4_ill_pp_num_burst => {
+          -simv_args => [
+                     "+LDB_PP4_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP4_ILLEGAL_HCW_TYPE=ILLEGAL_PP_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc001213f/0xffffffff",
+                        ],
+      },
+      pp4_ill_pp_type_burst => {
+          -simv_args => [
+                     "+LDB_PP4_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP4_ILLEGAL_HCW_TYPE=ILLEGAL_PP_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0010104/0xffffffff",
+                        ],
+      },
+      pp4_ill_qid_num_burst => {
+          -simv_args => [
+                     "+LDB_PP4_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP4_ILLEGAL_HCW_TYPE=ILLEGAL_QID_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0032104/0xffffffff",
+                        ],
+      },
+      pp4_ill_unord_qe_burst => {
+          -simv_args => [
+                     "+LDB_PP4_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP4_ILLEGAL_HCW_TYPE=ILLEGAL_QID_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0052104/0xffffffff",
+                        ],
+      },
+      pp4_ill7_burst => {
+          -simv_args => [
+                     "+LDB_PP4_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP4_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_NUM",
+                        ],
+      },
+      pp4_ill8_burst => {
+          -simv_args => [
+                     "+LDB_PP4_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP4_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_TYPE",
+                        ],
+      },
+      pp4_ill_dve_vf_num_burst => {
+          -simv_args => [
+                     "+LDB_PP4_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP4_ILLEGAL_HCW_TYPE=ILLEGAL_DEV_VF_NUM",
+                     "+EXP_EP_MSIX0_CNT=0",
+                        ],
+      },
+      pp4_ill_qid_gt_range_burst => {
+          -simv_args => [
+                     "+LDB_PP4_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP4_ILLEGAL_HCW_TYPE=QID_GRT_127",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0032104/0xffffffff",
+                        ],
+      },
+      pp4_ill_vas_wr_permission_burst => {
+          -simv_args => [
+                     "+LDB_PP4_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP4_ILLEGAL_HCW_TYPE=VAS_WRITE_PERMISSION",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0032104/0xffffffff",
+                        ],
+      },
+      pp4_ill12_burst => {
+          -simv_args => [
+                     "+LDB_PP4_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP4_ILLEGAL_HCW_TYPE=CVAS_WRITE_PERMISSION",
+                        ],
+      },
+      pp4_ill13_burst => {
+          -simv_args => [
+                     "+LDB_PP4_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP4_ILLEGAL_HCW_TYPE=POOL_DISABLED",
+                        ],
+      },
+      pp5_ill_hcw_cmd_burst => {
+          -simv_args => [
+                     "+LDB_PP5_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP5_ILLEGAL_HCW_TYPE=ILLEGAL_HCW_CMD",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[5]=0xC0002105/0xffffe3ff",
+                        ],
+      },
+      pp5_ill_hcw_all0_burst => {
+          -simv_args => [
+                     "+LDB_PP5_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP5_ILLEGAL_HCW_TYPE=ALL_0",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[5]=0xC0033105/0xffffe3ff",
+                        ],
+      },
+      pp5_ill_hcw_all1_burst => {
+          -simv_args => [
+                     "+LDB_PP5_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP5_ILLEGAL_HCW_TYPE=ALL_1",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[5]=0xC0033105/0xffffe3ff",
+                        ],
+      },
+      pp5_ill_pp_num_burst => {
+          -simv_args => [
+                     "+LDB_PP5_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP5_ILLEGAL_HCW_TYPE=ILLEGAL_PP_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[5]=0xC001213f/0xffffe3ff",
+                        ],
+      },
+      pp5_ill_pp_type_burst => {
+          -simv_args => [
+                     "+LDB_PP5_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP5_ILLEGAL_HCW_TYPE=ILLEGAL_PP_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[5]=0xc0010105/0xffffe3ff",
+                        ],
+      },
+      pp5_ill_qid_num_burst => {
+          -simv_args => [
+                     "+LDB_PP5_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP5_ILLEGAL_HCW_TYPE=ILLEGAL_QID_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[5]=0xc0033105/0xffffe3ff",
+                        ],
+      },
+      pp5_ill_unord_qe_burst => {
+          -simv_args => [
+                     "+LDB_PP5_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP5_ILLEGAL_HCW_TYPE=ILLEGAL_QID_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[5]=0xC0052105/0xffffe3ff",
+                        ],
+      },
+      pp5_ill7_burst => {
+          -simv_args => [
+                     "+LDB_PP5_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP5_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_NUM",
+                        ],
+      },
+      pp5_ill8_burst => {
+          -simv_args => [
+                     "+LDB_PP5_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP5_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_TYPE",
+                        ],
+      },
+      pp5_ill_dve_vf_num_burst => {
+          -simv_args => [
+                     "+LDB_PP5_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP5_ILLEGAL_HCW_TYPE=ILLEGAL_DEV_VF_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[6]=0xC0012d05/0xffffe3ff",
+                        ],
+      },
+      pp5_ill_qid_gt_range_burst => {
+          -simv_args => [
+                     "+LDB_PP5_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP5_ILLEGAL_HCW_TYPE=QID_GRT_127",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[5]=0xc0032105/0xffffe3ff",
+                        ],
+      },
+      pp5_ill_vas_wr_permission_burst => {
+          -simv_args => [
+                     "+LDB_PP5_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP5_ILLEGAL_HCW_TYPE=VAS_WRITE_PERMISSION",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[5]=0xc0032505/0xffffe3ff",
+                        ],
+      },
+      pp5_ill12_burst => {
+          -simv_args => [
+                     "+LDB_PP5_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP5_ILLEGAL_HCW_TYPE=CVAS_WRITE_PERMISSION",
+                        ],
+      },
+      pp5_ill13_burst => {
+          -simv_args => [
+                     "+LDB_PP5_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP5_ILLEGAL_HCW_TYPE=POOL_DISABLED",
+                        ],
+      },
+      pp6_ill_hcw_cmd_burst => {
+          -simv_args => [
+                     "+DIR_PP6_ILLEGAL_BURST_LEN=10",
+                     "+DIR_PP6_ILLEGAL_HCW_TYPE=ILLEGAL_HCW_CMD",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0000106/0xffffffff",
+                        ],
+      },
+      pp6_ill_hcw_all0_burst => {
+          -simv_args => [
+                     "+DIR_PP6_ILLEGAL_BURST_LEN=10",
+                     "+DIR_PP6_ILLEGAL_HCW_TYPE=ALL_0",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xC0050106/0xffffffff",
+                        ],
+      },
+      pp6_ill_hcw_all1_burst => {
+          -simv_args => [
+                     "+DIR_PP6_ILLEGAL_BURST_LEN=10",
+                     "+DIR_PP6_ILLEGAL_HCW_TYPE=ALL_1",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xC0030106/0xffffffff",
+                        ],
+      },
+      pp6_ill_pp_num_burst => {
+          -simv_args => [
+                     "+DIR_PP6_ILLEGAL_BURST_LEN=10",
+                     "+DIR_PP6_ILLEGAL_HCW_TYPE=ILLEGAL_PP_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc001013f/0xffffffff",
+                        ],
+      },
+      pp6_ill_pp_type_burst => {
+          -simv_args => [
+                     "+DIR_PP6_ILLEGAL_BURST_LEN=10",
+                     "+DIR_PP6_ILLEGAL_HCW_TYPE=ILLEGAL_PP_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0012106/0xffffffff",
+                        ],
+      },
+      pp6_ill_qid_num_burst => {
+          -simv_args => [
+                     "+DIR_PP6_ILLEGAL_BURST_LEN=10",
+                     "+DIR_PP6_ILLEGAL_HCW_TYPE=ILLEGAL_QID_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0040106/0xffffffff",
+                        ],
+      },
+      pp6_ill_qid_burst => {
+          -simv_args => [
+                     "+DIR_PP6_ILLEGAL_BURST_LEN=10",
+                     "+DIR_PP6_ILLEGAL_HCW_TYPE=ILLEGAL_QID_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0030106/0xffffffff",
+                        ],
+      },
+      pp6_ill7_burst => {
+          -simv_args => [
+                     "+DIR_PP6_ILLEGAL_BURST_LEN=10",
+                     "+DIR_PP6_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_NUM",
+                        ],
+      },
+      pp6_ill8_burst => {
+          -simv_args => [
+                     "+DIR_PP6_ILLEGAL_BURST_LEN=10",
+                     "+DIR_PP6_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_TYPE",
+                        ],
+      },
+      pp6_ill_dve_vf_num_burst => {
+          -simv_args => [
+                     "+DIR_PP6_ILLEGAL_BURST_LEN=10",
+                     "+DIR_PP6_ILLEGAL_HCW_TYPE=ILLEGAL_DEV_VF_NUM",
+                     "+EXP_EP_MSIX0_CNT=0",
+                        ],
+      },
+      pp6_ill_qid_gt_range_burst => {
+          -simv_args => [
+                     "+DIR_PP6_ILLEGAL_BURST_LEN=10",
+                     "+DIR_PP6_ILLEGAL_HCW_TYPE=QID_GRT_127",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0030106/0xffffffff",
+                        ],
+      },
+      pp6_ill_vas_wr_permission_burst => {
+          -simv_args => [
+                     "+DIR_PP6_ILLEGAL_BURST_LEN=10",
+                     "+DIR_PP6_ILLEGAL_HCW_TYPE=VAS_WRITE_PERMISSION",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0030106/0xffffffff",
+                        ],
+      },
+      pp6_ill12_burst => {
+          -simv_args => [
+                     "+DIR_PP6_ILLEGAL_BURST_LEN=10",
+                     "+DIR_PP6_ILLEGAL_HCW_TYPE=CVAS_WRITE_PERMISSION",
+                        ],
+      },
+      pp6_ill13_burst => {
+          -simv_args => [
+                     "+DIR_PP6_ILLEGAL_BURST_LEN=10",
+                     "+DIR_PP6_ILLEGAL_HCW_TYPE=POOL_DISABLED",
+                        ],
+      },
+      pp7_ill_hcw_cmd_burst => {
+          -simv_args => [
+                     "+DIR_PP7_ILLEGAL_BURST_LEN=10",
+                     "+DIR_PP7_ILLEGAL_HCW_TYPE=ILLEGAL_HCW_CMD",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[9]=0xC0000107/0xffffe3ff",
+                        ],
+      },
+      pp7_ill_hcw_all0_burst => {
+          -simv_args => [
+                     "+DIR_PP7_ILLEGAL_BURST_LEN=10",
+                     "+DIR_PP7_ILLEGAL_HCW_TYPE=ALL_0",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[9]=0xC0031107/0xffffe3ff",
+                        ],
+      },
+      pp7_ill_hcw_all1_burst => {
+          -simv_args => [
+                     "+DIR_PP7_ILLEGAL_BURST_LEN=10",
+                     "+DIR_PP7_ILLEGAL_HCW_TYPE=ALL_1",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[9]=0xC0031107/0xffffe3ff",
+                        ],
+      },
+      pp7_ill_pp_num_burst => {
+          -simv_args => [
+                     "+DIR_PP7_ILLEGAL_BURST_LEN=10",
+                     "+DIR_PP7_ILLEGAL_HCW_TYPE=ILLEGAL_PP_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[9]=0xC001013f/0xffffe3ff",
+                        ],
+      },
+      pp7_ill_pp_type_burst => {
+          -simv_args => [
+                     "+DIR_PP7_ILLEGAL_BURST_LEN=10",
+                     "+DIR_PP7_ILLEGAL_HCW_TYPE=ILLEGAL_PP_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[9]=0xc0012107/0xffffe3ff",
+                        ],
+      },
+      pp7_ill_qid_num_burst => {
+          -simv_args => [
+                     "+DIR_PP7_ILLEGAL_BURST_LEN=10",
+                     "+DIR_PP7_ILLEGAL_HCW_TYPE=ILLEGAL_QID_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[9]=0xc0031107/0xffffe3ff",
+                        ],
+      },
+      pp7_ill_qid_burst => {
+          -simv_args => [
+                     "+DIR_PP7_ILLEGAL_BURST_LEN=10",
+                     "+DIR_PP7_ILLEGAL_HCW_TYPE=ILLEGAL_QID_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[9]=0xC0030107/0xffffe3ff",
+                        ],
+      },
+      pp7_ill7_burst => {
+          -simv_args => [
+                     "+DIR_PP7_ILLEGAL_BURST_LEN=10",
+                     "+DIR_PP7_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_NUM",
+                        ],
+      },
+      pp7_ill8_burst => {
+          -simv_args => [
+                     "+DIR_PP7_ILLEGAL_BURST_LEN=10",
+                     "+DIR_PP7_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_TYPE",
+                        ],
+      },
+      pp7_ill_dve_vf_num_burst => {
+          -simv_args => [
+                     "+DIR_PP7_ILLEGAL_BURST_LEN=10",
+                     "+DIR_PP7_ILLEGAL_HCW_TYPE=ILLEGAL_DEV_VF_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[10]=0xC0010507/0xffffe3ff",
+                        ],
+      },
+      pp7_ill_qid_gt_range_burst => {
+          -simv_args => [
+                     "+DIR_PP7_ILLEGAL_BURST_LEN=10",
+                     "+DIR_PP7_ILLEGAL_HCW_TYPE=QID_GRT_127",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[9]=0xc0030107/0xffffe3ff",
+                        ],
+      },
+      pp7_ill_vas_wr_permission_burst => {
+          -simv_args => [
+                     "+DIR_PP7_ILLEGAL_BURST_LEN=10",
+                     "+DIR_PP7_ILLEGAL_HCW_TYPE=VAS_WRITE_PERMISSION",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[9]=0xc0031107/0xffffe3ff",
+                        ],
+      },
+      pp7_ill12_burst => {
+          -simv_args => [
+                     "+DIR_PP7_ILLEGAL_BURST_LEN=10",
+                     "+DIR_PP7_ILLEGAL_HCW_TYPE=CVAS_WRITE_PERMISSION",
+                        ],
+      },
+      pp7_ill13_burst => {
+          -simv_args => [
+                     "+DIR_PP7_ILLEGAL_BURST_LEN=10",
+                     "+DIR_PP7_ILLEGAL_HCW_TYPE=POOL_DISABLED",
+                        ],
+      },
+      pp8_ill_hcw_cmd_burst => {
+          -simv_args => [
+                     "+LDB_PP8_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP8_ILLEGAL_HCW_TYPE=ILLEGAL_HCW_CMD",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0002108/0xffffffff",
+                        ],
+      },
+      pp8_ill_hcw_all0_burst => {
+          -simv_args => [
+                     "+LDB_PP8_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP8_ILLEGAL_HCW_TYPE=ALL_0",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xC0052108/0xffffffff",
+                        ],
+      },
+      pp8_ill_hcw_all1_burst => {
+          -simv_args => [
+                     "+LDB_PP8_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP8_ILLEGAL_HCW_TYPE=ALL_1",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xC0032108/0xffffffff",
+                        ],
+      },
+      pp8_ill_pp_num_burst => {
+          -simv_args => [
+                     "+LDB_PP8_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP8_ILLEGAL_HCW_TYPE=ILLEGAL_PP_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc001213f/0xffffffff",
+                        ],
+      },
+      pp8_ill_pp_type_burst => {
+          -simv_args => [
+                     "+LDB_PP8_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP8_ILLEGAL_HCW_TYPE=ILLEGAL_PP_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0010108/0xffffffff",
+                        ],
+      },
+      pp8_ill_qid_num_burst => {
+          -simv_args => [
+                     "+LDB_PP8_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP8_ILLEGAL_HCW_TYPE=ILLEGAL_QID_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0032108/0xffffffff",
+                        ],
+      },
+      pp8_ill_ord_qe_burst => {
+          -simv_args => [
+                     "+LDB_PP8_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP8_ILLEGAL_HCW_TYPE=ILLEGAL_QID_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0052108/0xffffffff",
+                        ],
+      },
+      pp8_ill7_burst => {
+          -simv_args => [
+                     "+LDB_PP8_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP8_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_NUM",
+                        ],
+      },
+      pp8_ill8_burst => {
+          -simv_args => [
+                     "+LDB_PP8_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP8_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_TYPE",
+                        ],
+      },
+      pp8_ill_dve_vf_num_burst => {
+          -simv_args => [
+                     "+LDB_PP8_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP8_ILLEGAL_HCW_TYPE=ILLEGAL_DEV_VF_NUM",
+                     "+EXP_EP_MSIX0_CNT=0",
+                        ],
+      },
+      pp8_ill_qid_gt_range_burst => {
+          -simv_args => [
+                     "+LDB_PP8_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP8_ILLEGAL_HCW_TYPE=QID_GRT_127",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0032108/0xffffffff",
+                        ],
+      },
+      pp8_ill_vas_wr_permission_burst => {
+          -simv_args => [
+                     "+LDB_PP8_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP8_ILLEGAL_HCW_TYPE=VAS_WRITE_PERMISSION",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0032108/0xffffffff",
+                        ],
+      },
+      pp8_ill12_burst => {
+          -simv_args => [
+                     "+LDB_PP8_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP8_ILLEGAL_HCW_TYPE=CVAS_WRITE_PERMISSION",
+                        ],
+      },
+      pp8_ill13_burst => {
+          -simv_args => [
+                     "+LDB_PP8_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP8_ILLEGAL_HCW_TYPE=POOL_DISABLED",
+                        ],
+      },
+      pp9_ill_hcw_cmd_burst => {
+          -simv_args => [
+                     "+LDB_PP9_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP9_ILLEGAL_HCW_TYPE=ILLEGAL_HCW_CMD",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[7]=0xC0002109/0xffffe3ff",
+                        ],
+      },
+      pp9_ill_hcw_all0_burst => {
+          -simv_args => [
+                     "+LDB_PP9_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP9_ILLEGAL_HCW_TYPE=ALL_0",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[7]=0xC0033109/0xffffe3ff",
+                        ],
+      },
+      pp9_ill_hcw_all1_burst => {
+          -simv_args => [
+                     "+LDB_PP9_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP9_ILLEGAL_HCW_TYPE=ALL_1",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[7]=0xC0033109/0xffffe3ff",
+                        ],
+      },
+      pp9_ill_pp_num_burst => {
+          -simv_args => [
+                     "+LDB_PP9_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP9_ILLEGAL_HCW_TYPE=ILLEGAL_PP_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[7]=0xC001213f/0xffffe3ff",
+                        ],
+      },
+      pp9_ill_pp_type_burst => {
+          -simv_args => [
+                     "+LDB_PP9_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP9_ILLEGAL_HCW_TYPE=ILLEGAL_PP_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[7]=0xc0010109/0xffffe3ff",
+                        ],
+      },
+      pp9_ill_qid_num_burst => {
+          -simv_args => [
+                     "+LDB_PP9_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP9_ILLEGAL_HCW_TYPE=ILLEGAL_QID_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[7]=0xc0032909/0xffffe3ff",
+                        ],
+      },
+      pp9_ill_ord_qe_burst => {
+          -simv_args => [
+                     "+LDB_PP9_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP9_ILLEGAL_HCW_TYPE=ILLEGAL_QID_TYPE",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[7]=0xC0052109/0xffffe3ff",
+                        ],
+      },
+      pp9_ill7_burst => {
+          -simv_args => [
+                     "+LDB_PP9_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP9_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_NUM",
+                        ],
+      },
+      pp9_ill8_burst => {
+          -simv_args => [
+                     "+LDB_PP9_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP9_ILLEGAL_HCW_TYPE=ILLEGAL_CQID_TYPE",
+                        ],
+      },
+      pp9_ill_dve_vf_num_burst => {
+          -simv_args => [
+                     "+LDB_PP9_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP9_ILLEGAL_HCW_TYPE=ILLEGAL_DEV_VF_NUM",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[8]=0xC0012509/0xffffe3ff",
+                        ],
+      },
+      pp9_ill_qid_gt_range_burst => {
+          -simv_args => [
+                     "+LDB_PP9_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP9_ILLEGAL_HCW_TYPE=QID_GRT_127",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[7]=0xc0032109/0xffffe3ff",
+                        ],
+      },
+      pp9_ill_vas_wr_permission_burst => {
+          -simv_args => [
+                     "+LDB_PP9_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP9_ILLEGAL_HCW_TYPE=VAS_WRITE_PERMISSION",
+                     "+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_vf_synd0[7]=0xc0032109/0xffffe3ff",
+                        ],
+      },
+      pp9_ill12_burst => {
+          -simv_args => [
+                     "+LDB_PP9_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP9_ILLEGAL_HCW_TYPE=CVAS_WRITE_PERMISSION",
+                        ],
+      },
+      pp9_ill13_burst => {
+          -simv_args => [
+                     "+LDB_PP9_ILLEGAL_BURST_LEN=10",
+                     "+LDB_PP9_ILLEGAL_HCW_TYPE=POOL_DISABLED",
+                        ],
+      },
+      q8_short => {
+          -simv_args => [
+                     "+LSP_CONTINUE_ON_ERROR",
+                     ## "+LDB_PP0_DIR_CREDIT=16",
+                     ## "+LDB_PP0_LDB_CREDIT=0",
+                     "+LDB_PP0_DSI=256",
+                     "+LDB_PP0_ILLEGAL_PROB=50",
+
+                     "+LDB_PP1_HCW_DELAY=96",
+                     "+LDB_PP1_CQ_POLL=0",
+                     ## "+LDB_PP1_DIR_CREDIT=16",
+                     ## "+LDB_PP1_LDB_CREDIT=0",
+                     "+LDB_PP1_DSI=257",
+
+                     "+LDB_PP2_HCW_DELAY=96",
+                     "+LDB_PP2_CQ_POLL=0",
+                     ## "+LDB_PP2_DIR_CREDIT=16",
+                     ## "+LDB_PP2_LDB_CREDIT=0",
+                     "+LDB_PP2_DSI=258",
+
+                     "+LDB_PP3_HCW_DELAY=96",
+                     "+LDB_PP3_CQ_POLL=0",
+                     ## "+LDB_PP3_DIR_CREDIT=16",
+                     ## "+LDB_PP3_LDB_CREDIT=0",
+                     "+LDB_PP3_DSI=259",
+
+                     "+LDB_PP4_HCW_DELAY=96",
+                     "+LDB_PP4_CQ_POLL=0",
+                     ## "+LDB_PP4_DIR_CREDIT=16",
+                     ## "+LDB_PP4_LDB_CREDIT=0",
+                     "+LDB_PP4_DSI=260",
+
+                     "+LDB_PP5_HCW_DELAY=96",
+                     "+LDB_PP5_CQ_POLL=0",
+                     ## "+LDB_PP5_DIR_CREDIT=16",
+                     ## "+LDB_PP5_LDB_CREDIT=0",
+                     "+LDB_PP5_DSI=261",
+
+                     "+LDB_PP6_HCW_DELAY=96",
+                     "+LDB_PP6_CQ_POLL=0",
+                     ## "+LDB_PP6_DIR_CREDIT=16",
+                     ## "+LDB_PP6_LDB_CREDIT=0",
+                     "+LDB_PP6_DSI=262",
+
+                     "+LDB_PP7_HCW_DELAY=96",
+                     "+LDB_PP7_CQ_POLL=0",
+                     ## "+LDB_PP7_DIR_CREDIT=16",
+                     ## "+LDB_PP7_LDB_CREDIT=0",
+                     "+LDB_PP7_DSI=263",
+
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_ingress_check_test1_cfg.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      
+      ##------------------------------------------------------------##
+      ##  Agitations 
+      ##------------------------------------------------------------##
+      agitate_fri => {
+          -simv_args => [
+                     "-debug_all -ucli +vcs+dumparrays +HQM_DISABLE_AGITIATE_ASSERT -i aceroot/verif/tb/hqm_proc/tests/agitate/agitate_fri.tcl", 
+                        ],
+      },      
+      agitate_cfg => {
+          -simv_args => [
+                     "-debug_all -ucli +vcs+dumparrays +HQM_DISABLE_AGITIATE_ASSERT -i aceroot/verif/tb/hqm_proc/tests/agitate/agitate_cfg.tcl", 
+                        ],
+      },                   
+      agitate_sys => {
+          -simv_args => [
+                     "-debug_all -ucli +vcs+dumparrays +HQM_DISABLE_AGITIATE_ASSERT -i aceroot/verif/tb/hqm_proc/tests/agitate/agitate_sys.tcl", 
+                        ],
+      },
+
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

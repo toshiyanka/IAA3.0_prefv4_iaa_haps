@@ -1,0 +1,12 @@
+cd $IP_ROOT
+rm -rf pwa/results .acetestinfo.log
+
+\cp verif/tb/include/configs/STapTop_min.sv                    verif/tb/STapTop.sv
+
+ace -cc -pwa pwa_min2
+ace -x TapTestOnlyBypass \
+       TapTestOnlySLVIDCODE -pwa pwa_min2 -nb -nbmon
+
+grep -ir status pwa/results/tests/*/postsim.log
+
+\cp verif/tb/include/configs/STapTop_def_ext_lb.sv             verif/tb/STapTop.sv

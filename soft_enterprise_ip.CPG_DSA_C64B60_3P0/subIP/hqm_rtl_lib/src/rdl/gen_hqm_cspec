@@ -1,0 +1,105 @@
+osetup nebulon
+setenv PATH ${NEBULON_DIR}/bin:${PATH}
+
+
+
+
+
+
+
+# Generate internal versions
+
+nebulon -input hqm_pf_cfg_top.rdl -cspec -cspec_udps_reg "diag_reg;HqmIsFeatureReg;HqmClassification;" -cspec_internal -I "$NEBULON_DATA/include . ../../subIP/sip/AW/src/rdl" -out_dir .
+
+if ($status != 0) then
+  echo "$0 Error: internal hqm_pf_cfg_top.rdl nebulon command failed"
+  exit
+endif
+
+sed -e "s/Register Summary/PF CFG Register Summary/" -e "s/Register Detailed/PF CFG Register Detailed/" -e "s/<w:t>\[0\]:\([a-fA-F0-9h]*\).*<\/w:t>/<w:t>[0]:\1<\/w:t>/" -e "s/<w:t>\[0\]\[0\]:\([a-fA-F0-9h]*\).*<\/w:t>/<w:t>[0][0]:\1<\/w:t>/" output/cspec/hqm_pf_cfg_map.doc.xml >hqm_pf_cfg_map_int.xml
+gzip hqm_pf_cfg_map_int.xml
+
+nebulon -input hqm_csr_bar.rdl -cspec -cspec_udps_reg "diag_reg;HqmIsFeatureReg;HqmClassification;" -cspec_internal -I "$NEBULON_DATA/include . ../../subIP/sip/AW/src/rdl" -out_dir .
+
+if ($status != 0) then
+  echo "$0 Error: internal hqm_csr_bar.rdl nebulon command failed"
+  exit
+endif
+
+sed -e "s/Register Summary/CSR_PF BAR Register Summary/" -e "s/Register Detailed/CSR_PF BAR Register Detailed/" -e "s/<w:t>\[0\]:\([a-fA-F0-9h]*\).*<\/w:t>/<w:t>[0]:\1<\/w:t>/" -e "s/<w:t>\[0\]\[0\]:\([a-fA-F0-9h]*\).*<\/w:t>/<w:t>[0][0]:\1<\/w:t>/" output/cspec/hqm_csr_bar_map.doc.xml >hqm_csr_bar_map_int.xml
+## compress XML
+#../../scripts/HQM_INFO_V2/clean_xlm.pl hqm_csr_bar_map_int.xml
+#mv hqm_csr_bar_map_int.xml.mod hqm_csr_bar_map_int.xml
+gzip hqm_csr_bar_map_int.xml
+
+nebulon -input hqm_func_pf_bar.rdl -cspec -cspec_udps_reg "diag_reg;HqmIsFeatureReg;HqmClassification;" -cspec_internal -I "$NEBULON_DATA/include . ../../subIP/sip/AW/src/rdl" -out_dir .
+
+if ($status != 0) then
+  echo "$0 Error: internal hqm_func_pf_bar.rdl nebulon command failed"
+  exit
+endif
+
+sed -e "s/Register Summary/FUNC_PF BAR Register Summary/" -e "s/Register Detailed/FUNC_PF BAR Register Detailed/" -e "s/<w:t>\[0\]:\([a-fA-F0-9h]*\).*<\/w:t>/<w:t>[0]:\1<\/w:t>/" -e "s/<w:t>\[0\]\[0\]:\([a-fA-F0-9h]*\).*<\/w:t>/<w:t>[0][0]:\1<\/w:t>/" output/cspec/hqm_func_pf_bar_map.doc.xml >hqm_func_pf_bar_map_int.xml
+gzip hqm_func_pf_bar_map_int.xml
+
+# Generate external versions
+## MUST enable the hiding of IntelRsvd text via "-hide_internal_desc" option
+nebulon -input hqm_pf_cfg_top.rdl -cspec -hide_internal_desc -cspec_udps_reg "diag_reg;HqmIsFeatureReg;HqmClassification;" -I "$NEBULON_DATA/include . ../../subIP/sip/AW/src/rdl" -out_dir .
+
+if ($status != 0) then
+  echo "$0 Error: hqm_pf_cfg_top.rdl nebulon command failed"
+  exit
+endif
+
+sed -e "s/Register Summary/PF CFG Register Summary/" -e "s/Register Detailed/PF CFG Register Detailed/" -e "s/<w:t>\[0\]:\([a-fA-F0-9h]*\).*<\/w:t>/<w:t>[0]:\1<\/w:t>/" -e "s/<w:t>\[0\]\[0\]:\([a-fA-F0-9h]*\).*<\/w:t>/<w:t>[0][0]:\1<\/w:t>/" output/cspec/hqm_pf_cfg_map.doc.xml >hqm_pf_cfg_map.xml
+gzip hqm_pf_cfg_map.xml
+
+nebulon -input hqm_csr_bar.rdl -cspec -hide_internal_desc -cspec_udps_reg "diag_reg;HqmIsFeatureReg;HqmClassification;" -I "$NEBULON_DATA/include . ../../subIP/sip/AW/src/rdl" -out_dir .
+
+if ($status != 0) then
+  echo "$0 Error: hqm_csr_bar.rdl nebulon command failed"
+  exit
+endif
+
+sed -e "s/Register Summary/CSR_PF BAR Register Summary/" -e "s/Register Detailed/CSR_PF BAR Register Detailed/" -e "s/<w:t>\[0\]:\([a-fA-F0-9h]*\).*<\/w:t>/<w:t>[0]:\1<\/w:t>/" -e "s/<w:t>\[0\]\[0\]:\([a-fA-F0-9h]*\).*<\/w:t>/<w:t>[0][0]:\1<\/w:t>/" output/cspec/hqm_csr_bar_map.doc.xml >hqm_csr_bar_map.xml
+## compress XML
+#../../scripts/HQM_INFO_V2/clean_xlm.pl hqm_csr_bar_map.xml
+#mv hqm_csr_bar_map.xml.mod hqm_csr_bar_map.xml
+gzip hqm_csr_bar_map.xml
+
+nebulon -input hqm_func_pf_bar.rdl -cspec -hide_internal_desc -cspec_udps_reg "diag_reg;HqmIsFeatureReg;HqmClassification;" -I "$NEBULON_DATA/include . ../../subIP/sip/AW/src/rdl" -out_dir .
+
+if ($status != 0) then
+  echo "$0 Error: hqm_func_pf_bar.rdl nebulon command failed"
+  exit
+endif
+
+sed -e "s/Register Summary/FUNC_PF BAR Register Summary/" -e "s/Register Detailed/FUNC_PF BAR Register Detailed/" -e "s/<w:t>\[0\]:\([a-fA-F0-9h]*\).*<\/w:t>/<w:t>[0]:\1<\/w:t>/" -e "s/<w:t>\[0\]\[0\]:\([a-fA-F0-9h]*\).*<\/w:t>/<w:t>[0][0]:\1<\/w:t>/" output/cspec/hqm_func_pf_bar_map.doc.xml >hqm_func_pf_bar_map.xml
+gzip hqm_func_pf_bar_map.xml
+
+# Generate internal versions
+
+nebulon -input hqm_map.rdl -cspec -cspec_udps_reg "diag_reg;HqmIsFeatureReg;HqmClassification;" -cspec_internal -I "$NEBULON_DATA/include . ../../subIP/sip/AW/src/rdl" -out_dir .
+
+if ($status != 0) then
+  echo "$0 Error: internal hqm_map.rdl nebulon command failed"
+  exit
+endif
+
+sed -e "s/Register Summary/PF CFG Register Summary/" -e "s/Register Detailed/PF CFG Register Detailed/" -e "s/<w:t>\[0\]:\([a-fA-F0-9h]*\).*<\/w:t>/<w:t>[0]:\1<\/w:t>/" -e "s/<w:t>\[0\]\[0\]:\([a-fA-F0-9h]*\).*<\/w:t>/<w:t>[0][0]:\1<\/w:t>/" output/cspec/hqm_map.doc.xml >hqm_map_int.xml
+gzip hqm_map_int.xml
+
+
+
+# Generate external versions
+## MUST enable the hiding of IntelRsvd text via "-hide_internal_desc" option
+nebulon -input hqm_map.rdl -cspec  -hide_internal_desc -cspec_udps_reg "diag_reg;HqmIsFeatureReg;HqmClassification;" -cspec_internal -I "$NEBULON_DATA/include . ../../subIP/sip/AW/src/rdl" -out_dir .
+
+if ($status != 0) then
+  echo "$0 Error: internal hqm_map.rdl nebulon command failed"
+  exit
+endif
+
+sed -e "s/Register Summary/PF CFG Register Summary/" -e "s/Register Detailed/PF CFG Register Detailed/" -e "s/<w:t>\[0\]:\([a-fA-F0-9h]*\).*<\/w:t>/<w:t>[0]:\1<\/w:t>/" -e "s/<w:t>\[0\]\[0\]:\([a-fA-F0-9h]*\).*<\/w:t>/<w:t>[0][0]:\1<\/w:t>/" output/cspec/hqm_map.doc.xml >hqm_map.xml
+gzip hqm_map.xml
+

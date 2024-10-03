@@ -1,0 +1,133 @@
+
+FishTail scripts created for design stap on Fri Nov 10 19:38:01 2017 from /p/hdk/cad/fishtail/2016.06b
+
+===================================================================
+
+This flow verifies clocks, generated clocks, false paths, multicycle paths, and optionally, clock domain crossings. It also allows the generation of clock groups, false paths, and multicycle paths.
+
+For verification, a set of HTML results is written for each run type. The HTML results can be used with the FishTail UI, view_fishtail_results. One summary HTML report is also written which contains a high-level description of all verification results.
+
+Start the overall verification run as follows in the current directory:
+
+  % ./verify_all
+
+This will begin by mapping constraints in the "setup" directory. It will then write a design database file in the "setup" directory, named design.fdb. It will then verify clocks in the "setup" directory. Next, it will verify false paths in the "fp_verification" directory. Next, it will verify multicycle paths in the "mcp_verification" directory. Next, it will verify generated clocks in the "gc_verification" directory. If CDC verification is enabled, it will verify clock domain crossings in the directory "cdc_verification" directory.
+
+The verification steps can be done in parallel by using the -start_string option. This saves overall runtime, but consumes more memory and licenses. If you are using LSF, the following type of command should be executed:
+
+  % bsub -q fast_queue -R rusage=8000 './verify_all -start_string "bsub -q fast_queue -R rusage=8000 -I"'
+
+Note that the -q and -R options may be different on your system. An option must be provided in the start string that causes the run to wait (block) until it is complete. For LSF, -I may be used with bsub for this. 
+
+If the RTL has changed since the last time that the run has been performed, you will need to remove the design database. Do this by running the remove_databases script:
+
+  % ./remove_databases
+
+Other options for verify_all are:
+
+  -skip_map: Do not map constraints before verifying them. This can be useful after running the flow once and making a change in the waiver files, which only affect verification and not mapping.
+  -skip_setup: Do not verify clock constrants.
+  -skip_gc: Do not verify generated clocks.
+  -skip_fp: Do not verify false paths.
+  -skip_mcp: Do not verify multicycle paths.
+  -skip_cdc: Do not verify clock domain crossings.
+
+As an alternative to verify_all, each step of the verification process may be done individually:
+
+  To map constraints, generate the design database, and verify clocks:
+
+    % cd setup
+    % ./map_sdc_and_check_setup
+
+  To verify false paths:
+
+    % cd fp_verification
+    % ./verify_fp
+
+  To verify multicycle paths:
+
+    % cd mcp_verification
+    % ./verify_mcp
+
+  To verify generated clocks:
+
+    % cd gc_verification
+    % ./verify_gc
+
+  To verify clock domain crossings (if enabled):
+
+    % cd cdc_verification
+    % ./verify_cdc
+
+Once verification is complete, go to each run directory and view results:
+
+   % cd <run_type>
+   % view_fishtail_results -verdi
+
+where run_type is one of: setup, fp_verification, mcp_verification, gc_verification, cdc_verification.
+
+You can also view the summary HTML report as follows, in the current directory:
+
+  % firefox ft_stats.html &
+
+If desired, start the overall generation run as follows in the current directory:
+
+  % ./generate_all
+
+As with the verification runs, the generation runs may be done in parallel by using the -start_string option:
+
+  % bsub -q fast_queue -R rusage=8000 './generate_all -start_string "bsub -q fast_queue -R rusage=8000 -I"'
+
+Other options for generate_all are:
+
+  -skip_map: Do not map constraints before generation.
+
+As with verify_all, each step of the generation process may be done individually:
+
+  To generate clock group constraints:
+
+    % cd clock_group_generation
+    % ./generate_clock_groups
+
+    The output clock group sdc file may be found in clock_group_generation/clock_groups.sdc.
+
+  To generate false paths:
+
+    % cd fp_generation
+    % ./generate_fp
+
+    The output false path sdc file may be found in fp_generation/fp.sdc. To view HTML results for the generation run:
+
+    % view_fishtail_results -verdi
+
+    The generated false paths in fp.sdc can then be mapped from RTL names to gate-level names. First, edit the file run_refocus.tcl, replacing "netlist.v" with the name of the gate-level netlist:
+
+      set netlist netlist.v
+
+    Next, run the script map_fp:
+
+      % ./map_fp
+
+    The gate-level false paths will be in the file fp.gate_level.sdc.
+
+  To generate multicycle paths:
+
+    % cd mcp_generation
+    % ./generate_mcp
+
+    The output multicycle path sdc file may be found in mcp_generation/mcp.sdc. To view HTML results for the generation run:
+
+    % view_fishtail_results -verdi
+
+    The generated multicycle paths in mcp.sdc can then be mapped from RTL names to gate-level names. First, edit the file run_refocus.tcl, replacing "netlist.v" with the name of the gate-level netlist:
+
+      set netlist netlist.v
+
+    Next, run the script map_mcp:
+
+      % ./map_mcp
+
+    The gate-level multicycle paths will be in the file mcp.gate_level.sdc.
+
+
+

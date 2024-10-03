@@ -1,0 +1,1557 @@
+###########################################
+#reproduce bug URL: https://hsdes.intel.com/resource/22011114370
+#HQMV1: SNR B0: Reads to HCW address space can alias to CSR space 
+###########################################
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+
+###################################
+# Wait for reset to be done (including hardware memory init)
+wr config_master.cfg_pm_pmcsr_disable.disable 0x0 
+rd config_master.cfg_pm_pmcsr_disable.disable 0x0
+poll config_master.cfg_diagnostic_reset_status 0x80000bff 0xffffffff 1000
+
+###################################
+# Setup LUTs used by HCWs
+
+##mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+###################################
+#Steve:
+#Note that the same aliasing issue exists for both the FUNC_PF and FUNC_VF bars.
+#For example, the following pseudo FUNC_VF PP 0 DIR HCW reads from VF[0] will also alias to the vf_to_pf_mailbox:
+#ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x02000000
+#ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x02000004
+#ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x02000008
+#ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x0200000c
+
+###################################
+#SRIOV
+#if SRIOV is being used, current hardware allows a PF or VF producer access to CSR reg values including mailbox data and ISR status to which it may not be expected to have access. 
+# Configure FUNC_VF to a base address of 0x00000010_xxxxxxxx
+wr hqm_pf_cfg_i.sriov_cap_func_bar_l 0x00000000
+wr hqm_pf_cfg_i.sriov_cap_func_bar_u 0x00000010
+###################################
+# Enable VFs and VF memory operations
+wr hqm_pf_cfg_i.sriov_cap_num_vf 0x10
+wr hqm_pf_cfg_i.sriov_cap_control_status 0x9
+
+###################################
+#Note that the vf_to_pf_error can also be generated when a VF is the initiator and the aliased target is a PF-only reg (updated the description text to also show the PF-only regs).  So the following alarm enable bit would also have to be set to 0 to avoid unexpected alarm generation
+wr hqm_system_csr.sys_alarm_int_enable.vf_to_pf_isr_pend_error 1
+wr hqm_system_csr.sys_alarm_int_enable.pf_to_vf_isr_pend_error 1
+
+
+###############################################
+#write address 1_0000_1000, write data 0xaa55000
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[0]  0xaa550000
+#write address 1_0000_1004, write data 0xaa55001
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[1]  0xaa550001
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[2]  0xaa550002
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[3]  0xaa550003
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[4]  0xaa550004
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[5]  0xaa550005
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[6]  0xaa550006
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[7]  0xaa550007
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[8]  0xaa550008
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[9]  0xaa550009
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[10] 0xaa550010
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[11] 0xaa550011
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[12] 0xaa550012
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[13] 0xaa550013
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[14] 0xaa550014
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[15] 0xaa550015
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[16] 0xaa550016
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[17] 0xaa550017
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[18] 0xaa550018
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[19] 0xaa550019
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[20] 0xaa550020
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[21] 0xaa550021
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[22] 0xaa550022
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[23] 0xaa550023
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[24] 0xaa550024
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[25] 0xaa550025
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[26] 0xaa550026
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[27] 0xaa550027
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[28] 0xaa550028
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[29] 0xaa550029
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[30] 0xaa550030
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[31] 0xaa550031
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[32] 0xaa550032
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[33] 0xaa550033
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[34] 0xaa550034
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[35] 0xaa550035
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[36] 0xaa550036
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[37] 0xaa550037
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[38] 0xaa550038
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[39] 0xaa550039
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[40] 0xaa550040
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[41] 0xaa550041
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[42] 0xaa550042
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[43] 0xaa550043
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[44] 0xaa550044
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[45] 0xaa550045
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[46] 0xaa550046
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[47] 0xaa550047
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[48] 0xaa550048
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[49] 0xaa550049
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[50] 0xaa550050
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[51] 0xaa550051
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[52] 0xaa550052
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[53] 0xaa550053
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[54] 0xaa550054
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[55] 0xaa550055
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[56] 0xaa550056
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[57] 0xaa550057
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[58] 0xaa550058
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[59] 0xaa550059
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[60] 0xaa550060
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[61] 0xaa550061
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[62] 0xaa550062
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[63] 0xaa550063
+
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[0]  0xaa550100
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[1]  0xaa550101
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[2]  0xaa550102
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[3]  0xaa550103
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[4]  0xaa550104
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[5]  0xaa550105
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[6]  0xaa550106
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[7]  0xaa550107
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[8]  0xaa550108
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[9]  0xaa550109
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[10] 0xaa550110
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[11] 0xaa550111
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[12] 0xaa550112
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[13] 0xaa550113
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[14] 0xaa550114
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[15] 0xaa550115
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[16] 0xaa550116
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[17] 0xaa550117
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[18] 0xaa550118
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[19] 0xaa550119
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[20] 0xaa550120
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[21] 0xaa550121
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[22] 0xaa550122
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[23] 0xaa550123
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[24] 0xaa550124
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[25] 0xaa550125
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[26] 0xaa550126
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[27] 0xaa550127
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[28] 0xaa550128
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[29] 0xaa550129
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[30] 0xaa550130
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[31] 0xaa550131
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[32] 0xaa550132
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[33] 0xaa550133
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[34] 0xaa550134
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[35] 0xaa550135
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[36] 0xaa550136
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[37] 0xaa550137
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[38] 0xaa550138
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[39] 0xaa550139
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[40] 0xaa550140
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[41] 0xaa550141
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[42] 0xaa550142
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[43] 0xaa550143
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[44] 0xaa550144
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[45] 0xaa550145
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[46] 0xaa550146
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[47] 0xaa550147
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[48] 0xaa550148
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[49] 0xaa550149
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[50] 0xaa550150
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[51] 0xaa550151
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[52] 0xaa550152
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[53] 0xaa550153
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[54] 0xaa550154
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[55] 0xaa550155
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[56] 0xaa550156
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[57] 0xaa550157
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[58] 0xaa550158
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[59] 0xaa550159
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[60] 0xaa550160
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[61] 0xaa550161
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[62] 0xaa550162
+wr hqm_func_pf_per_vf[1].vf_to_pf_mailbox[63] 0xaa550163
+
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[0]  0xaa550200
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[1]  0xaa550201
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[2]  0xaa550202
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[3]  0xaa550203
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[4]  0xaa550204
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[5]  0xaa550205
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[6]  0xaa550206
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[7]  0xaa550207
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[8]  0xaa550208
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[9]  0xaa550209
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[10] 0xaa550210
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[11] 0xaa550211
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[12] 0xaa550212
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[13] 0xaa550213
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[14] 0xaa550214
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[15] 0xaa550215
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[16] 0xaa550216
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[17] 0xaa550217
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[18] 0xaa550218
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[19] 0xaa550219
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[20] 0xaa550220
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[21] 0xaa550221
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[22] 0xaa550222
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[23] 0xaa550223
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[24] 0xaa550224
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[25] 0xaa550225
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[26] 0xaa550226
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[27] 0xaa550227
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[28] 0xaa550228
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[29] 0xaa550229
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[30] 0xaa550230
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[31] 0xaa550231
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[32] 0xaa550232
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[33] 0xaa550233
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[34] 0xaa550234
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[35] 0xaa550235
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[36] 0xaa550236
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[37] 0xaa550237
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[38] 0xaa550238
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[39] 0xaa550239
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[40] 0xaa550240
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[41] 0xaa550241
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[42] 0xaa550242
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[43] 0xaa550243
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[44] 0xaa550244
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[45] 0xaa550245
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[46] 0xaa550246
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[47] 0xaa550247
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[48] 0xaa550248
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[49] 0xaa550249
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[50] 0xaa550250
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[51] 0xaa550251
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[52] 0xaa550252
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[53] 0xaa550253
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[54] 0xaa550254
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[55] 0xaa550255
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[56] 0xaa550256
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[57] 0xaa550257
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[58] 0xaa550258
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[59] 0xaa550259
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[60] 0xaa550260
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[61] 0xaa550261
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[62] 0xaa550262
+wr hqm_func_pf_per_vf[2].vf_to_pf_mailbox[63] 0xaa550263
+
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[0]  0xaa550300
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[1]  0xaa550301
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[2]  0xaa550302
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[3]  0xaa550303
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[4]  0xaa550304
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[5]  0xaa550305
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[6]  0xaa550306
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[7]  0xaa550307
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[8]  0xaa550308
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[9]  0xaa550309
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[10] 0xaa550310
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[11] 0xaa550311
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[12] 0xaa550312
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[13] 0xaa550313
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[14] 0xaa550314
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[15] 0xaa550315
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[16] 0xaa550316
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[17] 0xaa550317
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[18] 0xaa550318
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[19] 0xaa550319
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[20] 0xaa550320
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[21] 0xaa550321
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[22] 0xaa550322
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[23] 0xaa550323
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[24] 0xaa550324
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[25] 0xaa550325
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[26] 0xaa550326
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[27] 0xaa550327
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[28] 0xaa550328
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[29] 0xaa550329
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[30] 0xaa550330
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[31] 0xaa550331
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[32] 0xaa550332
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[33] 0xaa550333
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[34] 0xaa550334
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[35] 0xaa550335
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[36] 0xaa550336
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[37] 0xaa550337
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[38] 0xaa550338
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[39] 0xaa550339
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[40] 0xaa550340
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[41] 0xaa550341
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[42] 0xaa550342
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[43] 0xaa550343
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[44] 0xaa550344
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[45] 0xaa550345
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[46] 0xaa550346
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[47] 0xaa550347
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[48] 0xaa550348
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[49] 0xaa550349
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[50] 0xaa550350
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[51] 0xaa550351
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[52] 0xaa550352
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[53] 0xaa550353
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[54] 0xaa550354
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[55] 0xaa550355
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[56] 0xaa550356
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[57] 0xaa550357
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[58] 0xaa550358
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[59] 0xaa550359
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[60] 0xaa550360
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[61] 0xaa550361
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[62] 0xaa550362
+wr hqm_func_pf_per_vf[3].vf_to_pf_mailbox[63] 0xaa550363
+
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[0]  0xaa550400
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[1]  0xaa550401
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[2]  0xaa550402
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[3]  0xaa550403
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[4]  0xaa550404
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[5]  0xaa550405
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[6]  0xaa550406
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[7]  0xaa550407
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[8]  0xaa550408
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[9]  0xaa550409
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[10] 0xaa550410
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[11] 0xaa550411
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[12] 0xaa550412
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[13] 0xaa550413
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[14] 0xaa550414
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[15] 0xaa550415
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[16] 0xaa550416
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[17] 0xaa550417
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[18] 0xaa550418
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[19] 0xaa550419
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[20] 0xaa550420
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[21] 0xaa550421
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[22] 0xaa550422
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[23] 0xaa550423
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[24] 0xaa550424
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[25] 0xaa550425
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[26] 0xaa550426
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[27] 0xaa550427
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[28] 0xaa550428
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[29] 0xaa550429
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[30] 0xaa550430
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[31] 0xaa550431
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[32] 0xaa550432
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[33] 0xaa550433
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[34] 0xaa550434
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[35] 0xaa550435
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[36] 0xaa550436
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[37] 0xaa550437
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[38] 0xaa550438
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[39] 0xaa550439
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[40] 0xaa550440
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[41] 0xaa550441
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[42] 0xaa550442
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[43] 0xaa550443
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[44] 0xaa550444
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[45] 0xaa550445
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[46] 0xaa550446
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[47] 0xaa550447
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[48] 0xaa550448
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[49] 0xaa550449
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[50] 0xaa550450
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[51] 0xaa550451
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[52] 0xaa550452
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[53] 0xaa550453
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[54] 0xaa550454
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[55] 0xaa550455
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[56] 0xaa550456
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[57] 0xaa550457
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[58] 0xaa550458
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[59] 0xaa550459
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[60] 0xaa550460
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[61] 0xaa550461
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[62] 0xaa550462
+wr hqm_func_pf_per_vf[4].vf_to_pf_mailbox[63] 0xaa550463
+
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[0]  0xaa550500
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[1]  0xaa550501
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[2]  0xaa550502
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[3]  0xaa550503
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[4]  0xaa550504
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[5]  0xaa550505
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[6]  0xaa550506
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[7]  0xaa550507
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[8]  0xaa550508
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[9]  0xaa550509
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[10] 0xaa550510
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[11] 0xaa550511
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[12] 0xaa550512
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[13] 0xaa550513
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[14] 0xaa550514
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[15] 0xaa550515
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[16] 0xaa550516
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[17] 0xaa550517
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[18] 0xaa550518
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[19] 0xaa550519
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[20] 0xaa550520
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[21] 0xaa550521
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[22] 0xaa550522
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[23] 0xaa550523
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[24] 0xaa550524
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[25] 0xaa550525
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[26] 0xaa550526
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[27] 0xaa550527
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[28] 0xaa550528
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[29] 0xaa550529
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[30] 0xaa550530
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[31] 0xaa550531
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[32] 0xaa550532
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[33] 0xaa550533
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[34] 0xaa550534
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[35] 0xaa550535
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[36] 0xaa550536
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[37] 0xaa550537
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[38] 0xaa550538
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[39] 0xaa550539
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[40] 0xaa550540
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[41] 0xaa550541
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[42] 0xaa550542
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[43] 0xaa550543
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[44] 0xaa550544
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[45] 0xaa550545
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[46] 0xaa550546
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[47] 0xaa550547
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[48] 0xaa550548
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[49] 0xaa550549
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[50] 0xaa550550
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[51] 0xaa550551
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[52] 0xaa550552
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[53] 0xaa550553
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[54] 0xaa550554
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[55] 0xaa550555
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[56] 0xaa550556
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[57] 0xaa550557
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[58] 0xaa550558
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[59] 0xaa550559
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[60] 0xaa550560
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[61] 0xaa550561
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[62] 0xaa550562
+wr hqm_func_pf_per_vf[5].vf_to_pf_mailbox[63] 0xaa550563
+
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[0]  0xaa550600
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[1]  0xaa550601
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[2]  0xaa550602
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[3]  0xaa550603
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[4]  0xaa550604
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[5]  0xaa550605
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[6]  0xaa550606
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[7]  0xaa550607
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[8]  0xaa550608
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[9]  0xaa550609
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[10] 0xaa550610
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[11] 0xaa550611
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[12] 0xaa550612
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[13] 0xaa550613
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[14] 0xaa550614
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[15] 0xaa550615
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[16] 0xaa550616
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[17] 0xaa550617
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[18] 0xaa550618
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[19] 0xaa550619
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[20] 0xaa550620
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[21] 0xaa550621
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[22] 0xaa550622
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[23] 0xaa550623
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[24] 0xaa550624
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[25] 0xaa550625
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[26] 0xaa550626
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[27] 0xaa550627
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[28] 0xaa550628
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[29] 0xaa550629
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[30] 0xaa550630
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[31] 0xaa550631
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[32] 0xaa550632
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[33] 0xaa550633
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[34] 0xaa550634
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[35] 0xaa550635
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[36] 0xaa550636
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[37] 0xaa550637
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[38] 0xaa550638
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[39] 0xaa550639
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[40] 0xaa550640
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[41] 0xaa550641
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[42] 0xaa550642
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[43] 0xaa550643
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[44] 0xaa550644
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[45] 0xaa550645
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[46] 0xaa550646
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[47] 0xaa550647
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[48] 0xaa550648
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[49] 0xaa550649
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[50] 0xaa550650
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[51] 0xaa550651
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[52] 0xaa550652
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[53] 0xaa550653
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[54] 0xaa550654
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[55] 0xaa550655
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[56] 0xaa550656
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[57] 0xaa550657
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[58] 0xaa550658
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[59] 0xaa550659
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[60] 0xaa550660
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[61] 0xaa550661
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[62] 0xaa550662
+wr hqm_func_pf_per_vf[6].vf_to_pf_mailbox[63] 0xaa550663
+
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[0]  0xaa550700
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[1]  0xaa550701
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[2]  0xaa550702
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[3]  0xaa550703
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[4]  0xaa550704
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[5]  0xaa550705
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[6]  0xaa550706
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[7]  0xaa550707
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[8]  0xaa550708
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[9]  0xaa550709
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[10] 0xaa550710
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[11] 0xaa550711
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[12] 0xaa550712
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[13] 0xaa550713
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[14] 0xaa550714
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[15] 0xaa550715
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[16] 0xaa550716
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[17] 0xaa550717
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[18] 0xaa550718
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[19] 0xaa550719
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[20] 0xaa550720
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[21] 0xaa550721
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[22] 0xaa550722
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[23] 0xaa550723
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[24] 0xaa550724
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[25] 0xaa550725
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[26] 0xaa550726
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[27] 0xaa550727
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[28] 0xaa550728
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[29] 0xaa550729
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[30] 0xaa550730
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[31] 0xaa550731
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[32] 0xaa550732
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[33] 0xaa550733
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[34] 0xaa550734
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[35] 0xaa550735
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[36] 0xaa550736
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[37] 0xaa550737
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[38] 0xaa550738
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[39] 0xaa550739
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[40] 0xaa550740
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[41] 0xaa550741
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[42] 0xaa550742
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[43] 0xaa550743
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[44] 0xaa550744
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[45] 0xaa550745
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[46] 0xaa550746
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[47] 0xaa550747
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[48] 0xaa550748
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[49] 0xaa550749
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[50] 0xaa550750
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[51] 0xaa550751
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[52] 0xaa550752
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[53] 0xaa550753
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[54] 0xaa550754
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[55] 0xaa550755
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[56] 0xaa550756
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[57] 0xaa550757
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[58] 0xaa550758
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[59] 0xaa550759
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[60] 0xaa550760
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[61] 0xaa550761
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[62] 0xaa550762
+wr hqm_func_pf_per_vf[7].vf_to_pf_mailbox[63] 0xaa550763
+
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[0]  0xaa550800
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[1]  0xaa550801
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[2]  0xaa550802
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[3]  0xaa550803
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[4]  0xaa550804
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[5]  0xaa550805
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[6]  0xaa550806
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[7]  0xaa550807
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[8]  0xaa550808
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[9]  0xaa550809
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[10] 0xaa550810
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[11] 0xaa550811
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[12] 0xaa550812
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[13] 0xaa550813
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[14] 0xaa550814
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[15] 0xaa550815
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[16] 0xaa550816
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[17] 0xaa550817
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[18] 0xaa550818
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[19] 0xaa550819
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[20] 0xaa550820
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[21] 0xaa550821
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[22] 0xaa550822
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[23] 0xaa550823
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[24] 0xaa550824
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[25] 0xaa550825
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[26] 0xaa550826
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[27] 0xaa550827
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[28] 0xaa550828
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[29] 0xaa550829
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[30] 0xaa550830
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[31] 0xaa550831
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[32] 0xaa550832
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[33] 0xaa550833
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[34] 0xaa550834
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[35] 0xaa550835
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[36] 0xaa550836
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[37] 0xaa550837
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[38] 0xaa550838
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[39] 0xaa550839
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[40] 0xaa550840
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[41] 0xaa550841
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[42] 0xaa550842
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[43] 0xaa550843
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[44] 0xaa550844
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[45] 0xaa550845
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[46] 0xaa550846
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[47] 0xaa550847
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[48] 0xaa550848
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[49] 0xaa550849
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[50] 0xaa550850
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[51] 0xaa550851
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[52] 0xaa550852
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[53] 0xaa550853
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[54] 0xaa550854
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[55] 0xaa550855
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[56] 0xaa550856
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[57] 0xaa550857
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[58] 0xaa550858
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[59] 0xaa550859
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[60] 0xaa550860
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[61] 0xaa550861
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[62] 0xaa550862
+wr hqm_func_pf_per_vf[8].vf_to_pf_mailbox[63] 0xaa550863
+
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[0]  0xaa550900
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[1]  0xaa550901
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[2]  0xaa550902
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[3]  0xaa550903
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[4]  0xaa550904
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[5]  0xaa550905
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[6]  0xaa550906
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[7]  0xaa550907
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[8]  0xaa550908
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[9]  0xaa550909
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[10] 0xaa550910
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[11] 0xaa550911
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[12] 0xaa550912
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[13] 0xaa550913
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[14] 0xaa550914
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[15] 0xaa550915
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[16] 0xaa550916
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[17] 0xaa550917
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[18] 0xaa550918
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[19] 0xaa550919
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[20] 0xaa550920
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[21] 0xaa550921
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[22] 0xaa550922
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[23] 0xaa550923
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[24] 0xaa550924
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[25] 0xaa550925
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[26] 0xaa550926
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[27] 0xaa550927
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[28] 0xaa550928
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[29] 0xaa550929
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[30] 0xaa550930
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[31] 0xaa550931
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[32] 0xaa550932
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[33] 0xaa550933
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[34] 0xaa550934
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[35] 0xaa550935
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[36] 0xaa550936
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[37] 0xaa550937
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[38] 0xaa550938
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[39] 0xaa550939
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[40] 0xaa550940
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[41] 0xaa550941
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[42] 0xaa550942
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[43] 0xaa550943
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[44] 0xaa550944
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[45] 0xaa550945
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[46] 0xaa550946
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[47] 0xaa550947
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[48] 0xaa550948
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[49] 0xaa550949
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[50] 0xaa550950
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[51] 0xaa550951
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[52] 0xaa550952
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[53] 0xaa550953
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[54] 0xaa550954
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[55] 0xaa550955
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[56] 0xaa550956
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[57] 0xaa550957
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[58] 0xaa550958
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[59] 0xaa550959
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[60] 0xaa550960
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[61] 0xaa550961
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[62] 0xaa550962
+wr hqm_func_pf_per_vf[9].vf_to_pf_mailbox[63] 0xaa550963
+
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[0]  0xaa550a00
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[1]  0xaa550a01
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[2]  0xaa550a02
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[3]  0xaa550a03
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[4]  0xaa550a04
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[5]  0xaa550a05
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[6]  0xaa550a06
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[7]  0xaa550a07
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[8]  0xaa550a08
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[9]  0xaa550a09
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[10] 0xaa550a10
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[11] 0xaa550a11
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[12] 0xaa550a12
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[13] 0xaa550a13
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[14] 0xaa550a14
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[15] 0xaa550a15
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[16] 0xaa550a16
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[17] 0xaa550a17
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[18] 0xaa550a18
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[19] 0xaa550a19
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[20] 0xaa550a20
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[21] 0xaa550a21
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[22] 0xaa550a22
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[23] 0xaa550a23
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[24] 0xaa550a24
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[25] 0xaa550a25
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[26] 0xaa550a26
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[27] 0xaa550a27
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[28] 0xaa550a28
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[29] 0xaa550a29
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[30] 0xaa550a30
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[31] 0xaa550a31
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[32] 0xaa550a32
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[33] 0xaa550a33
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[34] 0xaa550a34
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[35] 0xaa550a35
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[36] 0xaa550a36
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[37] 0xaa550a37
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[38] 0xaa550a38
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[39] 0xaa550a39
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[40] 0xaa550a40
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[41] 0xaa550a41
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[42] 0xaa550a42
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[43] 0xaa550a43
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[44] 0xaa550a44
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[45] 0xaa550a45
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[46] 0xaa550a46
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[47] 0xaa550a47
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[48] 0xaa550a48
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[49] 0xaa550a49
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[50] 0xaa550a50
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[51] 0xaa550a51
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[52] 0xaa550a52
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[53] 0xaa550a53
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[54] 0xaa550a54
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[55] 0xaa550a55
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[56] 0xaa550a56
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[57] 0xaa550a57
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[58] 0xaa550a58
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[59] 0xaa550a59
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[60] 0xaa550a60
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[61] 0xaa550a61
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[62] 0xaa550a62
+wr hqm_func_pf_per_vf[10].vf_to_pf_mailbox[63] 0xaa550a63
+
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[0]  0xaa550b00
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[1]  0xaa550b01
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[2]  0xaa550b02
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[3]  0xaa550b03
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[4]  0xaa550b04
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[5]  0xaa550b05
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[6]  0xaa550b06
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[7]  0xaa550b07
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[8]  0xaa550b08
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[9]  0xaa550b09
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[10] 0xaa550b10
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[11] 0xaa550b11
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[12] 0xaa550b12
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[13] 0xaa550b13
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[14] 0xaa550b14
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[15] 0xaa550b15
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[16] 0xaa550b16
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[17] 0xaa550b17
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[18] 0xaa550b18
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[19] 0xaa550b19
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[20] 0xaa550b20
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[21] 0xaa550b21
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[22] 0xaa550b22
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[23] 0xaa550b23
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[24] 0xaa550b24
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[25] 0xaa550b25
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[26] 0xaa550b26
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[27] 0xaa550b27
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[28] 0xaa550b28
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[29] 0xaa550b29
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[30] 0xaa550b30
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[31] 0xaa550b31
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[32] 0xaa550b32
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[33] 0xaa550b33
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[34] 0xaa550b34
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[35] 0xaa550b35
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[36] 0xaa550b36
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[37] 0xaa550b37
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[38] 0xaa550b38
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[39] 0xaa550b39
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[40] 0xaa550b40
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[41] 0xaa550b41
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[42] 0xaa550b42
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[43] 0xaa550b43
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[44] 0xaa550b44
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[45] 0xaa550b45
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[46] 0xaa550b46
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[47] 0xaa550b47
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[48] 0xaa550b48
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[49] 0xaa550b49
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[50] 0xaa550b50
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[51] 0xaa550b51
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[52] 0xaa550b52
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[53] 0xaa550b53
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[54] 0xaa550b54
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[55] 0xaa550b55
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[56] 0xaa550b56
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[57] 0xaa550b57
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[58] 0xaa550b58
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[59] 0xaa550b59
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[60] 0xaa550b60
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[61] 0xaa550b61
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[62] 0xaa550b62
+wr hqm_func_pf_per_vf[11].vf_to_pf_mailbox[63] 0xaa550b63
+
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[0]  0xaa550c00
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[1]  0xaa550c01
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[2]  0xaa550c02
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[3]  0xaa550c03
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[4]  0xaa550c04
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[5]  0xaa550c05
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[6]  0xaa550c06
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[7]  0xaa550c07
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[8]  0xaa550c08
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[9]  0xaa550c09
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[10] 0xaa550c10
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[11] 0xaa550c11
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[12] 0xaa550c12
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[13] 0xaa550c13
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[14] 0xaa550c14
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[15] 0xaa550c15
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[16] 0xaa550c16
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[17] 0xaa550c17
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[18] 0xaa550c18
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[19] 0xaa550c19
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[20] 0xaa550c20
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[21] 0xaa550c21
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[22] 0xaa550c22
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[23] 0xaa550c23
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[24] 0xaa550c24
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[25] 0xaa550c25
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[26] 0xaa550c26
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[27] 0xaa550c27
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[28] 0xaa550c28
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[29] 0xaa550c29
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[30] 0xaa550c30
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[31] 0xaa550c31
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[32] 0xaa550c32
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[33] 0xaa550c33
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[34] 0xaa550c34
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[35] 0xaa550c35
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[36] 0xaa550c36
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[37] 0xaa550c37
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[38] 0xaa550c38
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[39] 0xaa550c39
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[40] 0xaa550c40
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[41] 0xaa550c41
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[42] 0xaa550c42
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[43] 0xaa550c43
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[44] 0xaa550c44
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[45] 0xaa550c45
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[46] 0xaa550c46
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[47] 0xaa550c47
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[48] 0xaa550c48
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[49] 0xaa550c49
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[50] 0xaa550c50
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[51] 0xaa550c51
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[52] 0xaa550c52
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[53] 0xaa550c53
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[54] 0xaa550c54
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[55] 0xaa550c55
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[56] 0xaa550c56
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[57] 0xaa550c57
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[58] 0xaa550c58
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[59] 0xaa550c59
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[60] 0xaa550c60
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[61] 0xaa550c61
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[62] 0xaa550c62
+wr hqm_func_pf_per_vf[12].vf_to_pf_mailbox[63] 0xaa550c63
+
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[0]  0xaa550d00
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[1]  0xaa550d01
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[2]  0xaa550d02
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[3]  0xaa550d03
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[4]  0xaa550d04
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[5]  0xaa550d05
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[6]  0xaa550d06
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[7]  0xaa550d07
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[8]  0xaa550d08
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[9]  0xaa550d09
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[10] 0xaa550d10
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[11] 0xaa550d11
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[12] 0xaa550d12
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[13] 0xaa550d13
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[14] 0xaa550d14
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[15] 0xaa550d15
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[16] 0xaa550d16
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[17] 0xaa550d17
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[18] 0xaa550d18
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[19] 0xaa550d19
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[20] 0xaa550d20
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[21] 0xaa550d21
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[22] 0xaa550d22
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[23] 0xaa550d23
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[24] 0xaa550d24
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[25] 0xaa550d25
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[26] 0xaa550d26
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[27] 0xaa550d27
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[28] 0xaa550d28
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[29] 0xaa550d29
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[30] 0xaa550d30
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[31] 0xaa550d31
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[32] 0xaa550d32
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[33] 0xaa550d33
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[34] 0xaa550d34
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[35] 0xaa550d35
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[36] 0xaa550d36
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[37] 0xaa550d37
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[38] 0xaa550d38
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[39] 0xaa550d39
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[40] 0xaa550d40
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[41] 0xaa550d41
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[42] 0xaa550d42
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[43] 0xaa550d43
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[44] 0xaa550d44
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[45] 0xaa550d45
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[46] 0xaa550d46
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[47] 0xaa550d47
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[48] 0xaa550d48
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[49] 0xaa550d49
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[50] 0xaa550d50
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[51] 0xaa550d51
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[52] 0xaa550d52
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[53] 0xaa550d53
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[54] 0xaa550d54
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[55] 0xaa550d55
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[56] 0xaa550d56
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[57] 0xaa550d57
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[58] 0xaa550d58
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[59] 0xaa550d59
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[60] 0xaa550d60
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[61] 0xaa550d61
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[62] 0xaa550d62
+wr hqm_func_pf_per_vf[13].vf_to_pf_mailbox[63] 0xaa550d63
+
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[0]  0xaa550e00
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[1]  0xaa550e01
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[2]  0xaa550e02
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[3]  0xaa550e03
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[4]  0xaa550e04
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[5]  0xaa550e05
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[6]  0xaa550e06
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[7]  0xaa550e07
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[8]  0xaa550e08
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[9]  0xaa550e09
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[10] 0xaa550e10
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[11] 0xaa550e11
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[12] 0xaa550e12
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[13] 0xaa550e13
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[14] 0xaa550e14
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[15] 0xaa550e15
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[16] 0xaa550e16
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[17] 0xaa550e17
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[18] 0xaa550e18
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[19] 0xaa550e19
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[20] 0xaa550e20
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[21] 0xaa550e21
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[22] 0xaa550e22
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[23] 0xaa550e23
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[24] 0xaa550e24
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[25] 0xaa550e25
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[26] 0xaa550e26
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[27] 0xaa550e27
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[28] 0xaa550e28
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[29] 0xaa550e29
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[30] 0xaa550e30
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[31] 0xaa550e31
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[32] 0xaa550e32
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[33] 0xaa550e33
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[34] 0xaa550e34
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[35] 0xaa550e35
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[36] 0xaa550e36
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[37] 0xaa550e37
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[38] 0xaa550e38
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[39] 0xaa550e39
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[40] 0xaa550e40
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[41] 0xaa550e41
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[42] 0xaa550e42
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[43] 0xaa550e43
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[44] 0xaa550e44
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[45] 0xaa550e45
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[46] 0xaa550e46
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[47] 0xaa550e47
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[48] 0xaa550e48
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[49] 0xaa550e49
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[50] 0xaa550e50
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[51] 0xaa550e51
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[52] 0xaa550e52
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[53] 0xaa550e53
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[54] 0xaa550e54
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[55] 0xaa550e55
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[56] 0xaa550e56
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[57] 0xaa550e57
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[58] 0xaa550e58
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[59] 0xaa550e59
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[60] 0xaa550e60
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[61] 0xaa550e61
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[62] 0xaa550e62
+wr hqm_func_pf_per_vf[14].vf_to_pf_mailbox[63] 0xaa550e63
+
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[0]  0xaa550f00
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[1]  0xaa550f01
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[2]  0xaa550f02
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[3]  0xaa550f03
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[4]  0xaa550f04
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[5]  0xaa550f05
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[6]  0xaa550f06
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[7]  0xaa550f07
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[8]  0xaa550f08
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[9]  0xaa550f09
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[10] 0xaa550f10
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[11] 0xaa550f11
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[12] 0xaa550f12
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[13] 0xaa550f13
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[14] 0xaa550f14
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[15] 0xaa550f15
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[16] 0xaa550f16
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[17] 0xaa550f17
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[18] 0xaa550f18
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[19] 0xaa550f19
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[20] 0xaa550f20
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[21] 0xaa550f21
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[22] 0xaa550f22
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[23] 0xaa550f23
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[24] 0xaa550f24
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[25] 0xaa550f25
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[26] 0xaa550f26
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[27] 0xaa550f27
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[28] 0xaa550f28
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[29] 0xaa550f29
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[30] 0xaa550f30
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[31] 0xaa550f31
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[32] 0xaa550f32
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[33] 0xaa550f33
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[34] 0xaa550f34
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[35] 0xaa550f35
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[36] 0xaa550f36
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[37] 0xaa550f37
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[38] 0xaa550f38
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[39] 0xaa550f39
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[40] 0xaa550f40
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[41] 0xaa550f41
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[42] 0xaa550f42
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[43] 0xaa550f43
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[44] 0xaa550f44
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[45] 0xaa550f45
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[46] 0xaa550f46
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[47] 0xaa550f47
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[48] 0xaa550f48
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[49] 0xaa550f49
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[50] 0xaa550f50
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[51] 0xaa550f51
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[52] 0xaa550f52
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[53] 0xaa550f53
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[54] 0xaa550f54
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[55] 0xaa550f55
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[56] 0xaa550f56
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[57] 0xaa550f57
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[58] 0xaa550f58
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[59] 0xaa550f59
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[60] 0xaa550f60
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[61] 0xaa550f61
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[62] 0xaa550f62
+wr hqm_func_pf_per_vf[15].vf_to_pf_mailbox[63] 0xaa550f63
+
+wr hqm_func_pf_per_vf[0].pf_to_vf_mailbox[0]  0x33cc0000
+wr hqm_func_pf_per_vf[0].pf_to_vf_mailbox[1]  0x33cc0001
+wr hqm_func_pf_per_vf[0].pf_to_vf_mailbox[2]  0x33cc0002
+wr hqm_func_pf_per_vf[0].pf_to_vf_mailbox[3]  0x33cc0003
+wr hqm_func_pf_per_vf[0].pf_to_vf_mailbox[4]  0x33cc0004
+wr hqm_func_pf_per_vf[0].pf_to_vf_mailbox[5]  0x33cc0005
+wr hqm_func_pf_per_vf[0].pf_to_vf_mailbox[6]  0x33cc0006
+wr hqm_func_pf_per_vf[0].pf_to_vf_mailbox[7]  0x33cc0007
+wr hqm_func_pf_per_vf[0].pf_to_vf_mailbox[8]  0x33cc0008
+wr hqm_func_pf_per_vf[0].pf_to_vf_mailbox[9]  0x33cc0009
+wr hqm_func_pf_per_vf[0].pf_to_vf_mailbox[10] 0x33cc0010
+wr hqm_func_pf_per_vf[0].pf_to_vf_mailbox[11] 0x33cc0011
+wr hqm_func_pf_per_vf[0].pf_to_vf_mailbox[12] 0x33cc0012
+wr hqm_func_pf_per_vf[0].pf_to_vf_mailbox[13] 0x33cc0013
+wr hqm_func_pf_per_vf[0].pf_to_vf_mailbox[14] 0x33cc0014
+wr hqm_func_pf_per_vf[0].pf_to_vf_mailbox[15] 0x33cc0015
+
+wr hqm_func_pf_per_vf[1].pf_to_vf_mailbox[0]  0x33cc0100
+wr hqm_func_pf_per_vf[1].pf_to_vf_mailbox[1]  0x33cc0101
+wr hqm_func_pf_per_vf[1].pf_to_vf_mailbox[2]  0x33cc0102
+wr hqm_func_pf_per_vf[1].pf_to_vf_mailbox[3]  0x33cc0103
+wr hqm_func_pf_per_vf[1].pf_to_vf_mailbox[4]  0x33cc0104
+wr hqm_func_pf_per_vf[1].pf_to_vf_mailbox[5]  0x33cc0105
+wr hqm_func_pf_per_vf[1].pf_to_vf_mailbox[6]  0x33cc0106
+wr hqm_func_pf_per_vf[1].pf_to_vf_mailbox[7]  0x33cc0107
+wr hqm_func_pf_per_vf[1].pf_to_vf_mailbox[8]  0x33cc0108
+wr hqm_func_pf_per_vf[1].pf_to_vf_mailbox[9]  0x33cc0109
+wr hqm_func_pf_per_vf[1].pf_to_vf_mailbox[10] 0x33cc0110
+wr hqm_func_pf_per_vf[1].pf_to_vf_mailbox[11] 0x33cc0111
+wr hqm_func_pf_per_vf[1].pf_to_vf_mailbox[12] 0x33cc0112
+wr hqm_func_pf_per_vf[1].pf_to_vf_mailbox[13] 0x33cc0113
+wr hqm_func_pf_per_vf[1].pf_to_vf_mailbox[14] 0x33cc0114
+wr hqm_func_pf_per_vf[1].pf_to_vf_mailbox[15] 0x33cc0115
+
+wr hqm_func_pf_per_vf[2].pf_to_vf_mailbox[0]  0x33cc0200
+wr hqm_func_pf_per_vf[2].pf_to_vf_mailbox[1]  0x33cc0201
+wr hqm_func_pf_per_vf[2].pf_to_vf_mailbox[2]  0x33cc0202
+wr hqm_func_pf_per_vf[2].pf_to_vf_mailbox[3]  0x33cc0203
+wr hqm_func_pf_per_vf[2].pf_to_vf_mailbox[4]  0x33cc0204
+wr hqm_func_pf_per_vf[2].pf_to_vf_mailbox[5]  0x33cc0205
+wr hqm_func_pf_per_vf[2].pf_to_vf_mailbox[6]  0x33cc0206
+wr hqm_func_pf_per_vf[2].pf_to_vf_mailbox[7]  0x33cc0207
+wr hqm_func_pf_per_vf[2].pf_to_vf_mailbox[8]  0x33cc0208
+wr hqm_func_pf_per_vf[2].pf_to_vf_mailbox[9]  0x33cc0209
+wr hqm_func_pf_per_vf[2].pf_to_vf_mailbox[10] 0x33cc0210
+wr hqm_func_pf_per_vf[2].pf_to_vf_mailbox[11] 0x33cc0211
+wr hqm_func_pf_per_vf[2].pf_to_vf_mailbox[12] 0x33cc0212
+wr hqm_func_pf_per_vf[2].pf_to_vf_mailbox[13] 0x33cc0213
+wr hqm_func_pf_per_vf[2].pf_to_vf_mailbox[14] 0x33cc0214
+wr hqm_func_pf_per_vf[2].pf_to_vf_mailbox[15] 0x33cc0215
+
+wr hqm_func_pf_per_vf[3].pf_to_vf_mailbox[0]  0x33cc0300
+wr hqm_func_pf_per_vf[3].pf_to_vf_mailbox[1]  0x33cc0301
+wr hqm_func_pf_per_vf[3].pf_to_vf_mailbox[2]  0x33cc0302
+wr hqm_func_pf_per_vf[3].pf_to_vf_mailbox[3]  0x33cc0303
+wr hqm_func_pf_per_vf[3].pf_to_vf_mailbox[4]  0x33cc0304
+wr hqm_func_pf_per_vf[3].pf_to_vf_mailbox[5]  0x33cc0305
+wr hqm_func_pf_per_vf[3].pf_to_vf_mailbox[6]  0x33cc0306
+wr hqm_func_pf_per_vf[3].pf_to_vf_mailbox[7]  0x33cc0307
+wr hqm_func_pf_per_vf[3].pf_to_vf_mailbox[8]  0x33cc0308
+wr hqm_func_pf_per_vf[3].pf_to_vf_mailbox[9]  0x33cc0309
+wr hqm_func_pf_per_vf[3].pf_to_vf_mailbox[10] 0x33cc0310
+wr hqm_func_pf_per_vf[3].pf_to_vf_mailbox[11] 0x33cc0311
+wr hqm_func_pf_per_vf[3].pf_to_vf_mailbox[12] 0x33cc0312
+wr hqm_func_pf_per_vf[3].pf_to_vf_mailbox[13] 0x33cc0313
+wr hqm_func_pf_per_vf[3].pf_to_vf_mailbox[14] 0x33cc0314
+wr hqm_func_pf_per_vf[3].pf_to_vf_mailbox[15] 0x33cc0315
+
+wr hqm_func_pf_per_vf[4].pf_to_vf_mailbox[0]  0x33cc0400
+wr hqm_func_pf_per_vf[4].pf_to_vf_mailbox[1]  0x33cc0401
+wr hqm_func_pf_per_vf[4].pf_to_vf_mailbox[2]  0x33cc0402
+wr hqm_func_pf_per_vf[4].pf_to_vf_mailbox[3]  0x33cc0403
+wr hqm_func_pf_per_vf[4].pf_to_vf_mailbox[4]  0x33cc0404
+wr hqm_func_pf_per_vf[4].pf_to_vf_mailbox[5]  0x33cc0405
+wr hqm_func_pf_per_vf[4].pf_to_vf_mailbox[6]  0x33cc0406
+wr hqm_func_pf_per_vf[4].pf_to_vf_mailbox[7]  0x33cc0407
+wr hqm_func_pf_per_vf[4].pf_to_vf_mailbox[8]  0x33cc0408
+wr hqm_func_pf_per_vf[4].pf_to_vf_mailbox[9]  0x33cc0409
+wr hqm_func_pf_per_vf[4].pf_to_vf_mailbox[10] 0x33cc0410
+wr hqm_func_pf_per_vf[4].pf_to_vf_mailbox[11] 0x33cc0411
+wr hqm_func_pf_per_vf[4].pf_to_vf_mailbox[12] 0x33cc0412
+wr hqm_func_pf_per_vf[4].pf_to_vf_mailbox[13] 0x33cc0413
+wr hqm_func_pf_per_vf[4].pf_to_vf_mailbox[14] 0x33cc0414
+wr hqm_func_pf_per_vf[4].pf_to_vf_mailbox[15] 0x33cc0415
+
+wr hqm_func_pf_per_vf[5].pf_to_vf_mailbox[0]  0x33cc0500
+wr hqm_func_pf_per_vf[5].pf_to_vf_mailbox[1]  0x33cc0501
+wr hqm_func_pf_per_vf[5].pf_to_vf_mailbox[2]  0x33cc0502
+wr hqm_func_pf_per_vf[5].pf_to_vf_mailbox[3]  0x33cc0503
+wr hqm_func_pf_per_vf[5].pf_to_vf_mailbox[4]  0x33cc0504
+wr hqm_func_pf_per_vf[5].pf_to_vf_mailbox[5]  0x33cc0505
+wr hqm_func_pf_per_vf[5].pf_to_vf_mailbox[6]  0x33cc0506
+wr hqm_func_pf_per_vf[5].pf_to_vf_mailbox[7]  0x33cc0507
+wr hqm_func_pf_per_vf[5].pf_to_vf_mailbox[8]  0x33cc0508
+wr hqm_func_pf_per_vf[5].pf_to_vf_mailbox[9]  0x33cc0509
+wr hqm_func_pf_per_vf[5].pf_to_vf_mailbox[10] 0x33cc0510
+wr hqm_func_pf_per_vf[5].pf_to_vf_mailbox[11] 0x33cc0511
+wr hqm_func_pf_per_vf[5].pf_to_vf_mailbox[12] 0x33cc0512
+wr hqm_func_pf_per_vf[5].pf_to_vf_mailbox[13] 0x33cc0513
+wr hqm_func_pf_per_vf[5].pf_to_vf_mailbox[14] 0x33cc0514
+wr hqm_func_pf_per_vf[5].pf_to_vf_mailbox[15] 0x33cc0515
+
+wr hqm_func_pf_per_vf[6].pf_to_vf_mailbox[0]  0x33cc0600
+wr hqm_func_pf_per_vf[6].pf_to_vf_mailbox[1]  0x33cc0601
+wr hqm_func_pf_per_vf[6].pf_to_vf_mailbox[2]  0x33cc0602
+wr hqm_func_pf_per_vf[6].pf_to_vf_mailbox[3]  0x33cc0603
+wr hqm_func_pf_per_vf[6].pf_to_vf_mailbox[4]  0x33cc0604
+wr hqm_func_pf_per_vf[6].pf_to_vf_mailbox[5]  0x33cc0605
+wr hqm_func_pf_per_vf[6].pf_to_vf_mailbox[6]  0x33cc0606
+wr hqm_func_pf_per_vf[6].pf_to_vf_mailbox[7]  0x33cc0607
+wr hqm_func_pf_per_vf[6].pf_to_vf_mailbox[8]  0x33cc0608
+wr hqm_func_pf_per_vf[6].pf_to_vf_mailbox[9]  0x33cc0609
+wr hqm_func_pf_per_vf[6].pf_to_vf_mailbox[10] 0x33cc0610
+wr hqm_func_pf_per_vf[6].pf_to_vf_mailbox[11] 0x33cc0611
+wr hqm_func_pf_per_vf[6].pf_to_vf_mailbox[12] 0x33cc0612
+wr hqm_func_pf_per_vf[6].pf_to_vf_mailbox[13] 0x33cc0613
+wr hqm_func_pf_per_vf[6].pf_to_vf_mailbox[14] 0x33cc0614
+wr hqm_func_pf_per_vf[6].pf_to_vf_mailbox[15] 0x33cc0615
+
+wr hqm_func_pf_per_vf[7].pf_to_vf_mailbox[0]  0x33cc0700
+wr hqm_func_pf_per_vf[7].pf_to_vf_mailbox[1]  0x33cc0701
+wr hqm_func_pf_per_vf[7].pf_to_vf_mailbox[2]  0x33cc0702
+wr hqm_func_pf_per_vf[7].pf_to_vf_mailbox[3]  0x33cc0703
+wr hqm_func_pf_per_vf[7].pf_to_vf_mailbox[4]  0x33cc0704
+wr hqm_func_pf_per_vf[7].pf_to_vf_mailbox[5]  0x33cc0705
+wr hqm_func_pf_per_vf[7].pf_to_vf_mailbox[6]  0x33cc0706
+wr hqm_func_pf_per_vf[7].pf_to_vf_mailbox[7]  0x33cc0707
+wr hqm_func_pf_per_vf[7].pf_to_vf_mailbox[8]  0x33cc0708
+wr hqm_func_pf_per_vf[7].pf_to_vf_mailbox[9]  0x33cc0709
+wr hqm_func_pf_per_vf[7].pf_to_vf_mailbox[10] 0x33cc0710
+wr hqm_func_pf_per_vf[7].pf_to_vf_mailbox[11] 0x33cc0711
+wr hqm_func_pf_per_vf[7].pf_to_vf_mailbox[12] 0x33cc0712
+wr hqm_func_pf_per_vf[7].pf_to_vf_mailbox[13] 0x33cc0713
+wr hqm_func_pf_per_vf[7].pf_to_vf_mailbox[14] 0x33cc0714
+wr hqm_func_pf_per_vf[7].pf_to_vf_mailbox[15] 0x33cc0715
+
+wr hqm_func_pf_per_vf[8].pf_to_vf_mailbox[0]  0x33cc0800
+wr hqm_func_pf_per_vf[8].pf_to_vf_mailbox[1]  0x33cc0801
+wr hqm_func_pf_per_vf[8].pf_to_vf_mailbox[2]  0x33cc0802
+wr hqm_func_pf_per_vf[8].pf_to_vf_mailbox[3]  0x33cc0803
+wr hqm_func_pf_per_vf[8].pf_to_vf_mailbox[4]  0x33cc0804
+wr hqm_func_pf_per_vf[8].pf_to_vf_mailbox[5]  0x33cc0805
+wr hqm_func_pf_per_vf[8].pf_to_vf_mailbox[6]  0x33cc0806
+wr hqm_func_pf_per_vf[8].pf_to_vf_mailbox[7]  0x33cc0807
+wr hqm_func_pf_per_vf[8].pf_to_vf_mailbox[8]  0x33cc0808
+wr hqm_func_pf_per_vf[8].pf_to_vf_mailbox[9]  0x33cc0809
+wr hqm_func_pf_per_vf[8].pf_to_vf_mailbox[10] 0x33cc0810
+wr hqm_func_pf_per_vf[8].pf_to_vf_mailbox[11] 0x33cc0811
+wr hqm_func_pf_per_vf[8].pf_to_vf_mailbox[12] 0x33cc0812
+wr hqm_func_pf_per_vf[8].pf_to_vf_mailbox[13] 0x33cc0813
+wr hqm_func_pf_per_vf[8].pf_to_vf_mailbox[14] 0x33cc0814
+wr hqm_func_pf_per_vf[8].pf_to_vf_mailbox[15] 0x33cc0815
+
+wr hqm_func_pf_per_vf[9].pf_to_vf_mailbox[0]  0x33cc0900
+wr hqm_func_pf_per_vf[9].pf_to_vf_mailbox[1]  0x33cc0901
+wr hqm_func_pf_per_vf[9].pf_to_vf_mailbox[2]  0x33cc0902
+wr hqm_func_pf_per_vf[9].pf_to_vf_mailbox[3]  0x33cc0903
+wr hqm_func_pf_per_vf[9].pf_to_vf_mailbox[4]  0x33cc0904
+wr hqm_func_pf_per_vf[9].pf_to_vf_mailbox[5]  0x33cc0905
+wr hqm_func_pf_per_vf[9].pf_to_vf_mailbox[6]  0x33cc0906
+wr hqm_func_pf_per_vf[9].pf_to_vf_mailbox[7]  0x33cc0907
+wr hqm_func_pf_per_vf[9].pf_to_vf_mailbox[8]  0x33cc0908
+wr hqm_func_pf_per_vf[9].pf_to_vf_mailbox[9]  0x33cc0909
+wr hqm_func_pf_per_vf[9].pf_to_vf_mailbox[10] 0x33cc0910
+wr hqm_func_pf_per_vf[9].pf_to_vf_mailbox[11] 0x33cc0911
+wr hqm_func_pf_per_vf[9].pf_to_vf_mailbox[12] 0x33cc0912
+wr hqm_func_pf_per_vf[9].pf_to_vf_mailbox[13] 0x33cc0913
+wr hqm_func_pf_per_vf[9].pf_to_vf_mailbox[14] 0x33cc0914
+wr hqm_func_pf_per_vf[9].pf_to_vf_mailbox[15] 0x33cc0915
+
+wr hqm_func_pf_per_vf[10].pf_to_vf_mailbox[0]  0x33cc0a00
+wr hqm_func_pf_per_vf[10].pf_to_vf_mailbox[1]  0x33cc0a01
+wr hqm_func_pf_per_vf[10].pf_to_vf_mailbox[2]  0x33cc0a02
+wr hqm_func_pf_per_vf[10].pf_to_vf_mailbox[3]  0x33cc0a03
+wr hqm_func_pf_per_vf[10].pf_to_vf_mailbox[4]  0x33cc0a04
+wr hqm_func_pf_per_vf[10].pf_to_vf_mailbox[5]  0x33cc0a05
+wr hqm_func_pf_per_vf[10].pf_to_vf_mailbox[6]  0x33cc0a06
+wr hqm_func_pf_per_vf[10].pf_to_vf_mailbox[7]  0x33cc0a07
+wr hqm_func_pf_per_vf[10].pf_to_vf_mailbox[8]  0x33cc0a08
+wr hqm_func_pf_per_vf[10].pf_to_vf_mailbox[9]  0x33cc0a09
+wr hqm_func_pf_per_vf[10].pf_to_vf_mailbox[10] 0x33cc0a10
+wr hqm_func_pf_per_vf[10].pf_to_vf_mailbox[11] 0x33cc0a11
+wr hqm_func_pf_per_vf[10].pf_to_vf_mailbox[12] 0x33cc0a12
+wr hqm_func_pf_per_vf[10].pf_to_vf_mailbox[13] 0x33cc0a13
+wr hqm_func_pf_per_vf[10].pf_to_vf_mailbox[14] 0x33cc0a14
+wr hqm_func_pf_per_vf[10].pf_to_vf_mailbox[15] 0x33cc0a15
+
+wr hqm_func_pf_per_vf[11].pf_to_vf_mailbox[0]  0x33cc0b00
+wr hqm_func_pf_per_vf[11].pf_to_vf_mailbox[1]  0x33cc0b01
+wr hqm_func_pf_per_vf[11].pf_to_vf_mailbox[2]  0x33cc0b02
+wr hqm_func_pf_per_vf[11].pf_to_vf_mailbox[3]  0x33cc0b03
+wr hqm_func_pf_per_vf[11].pf_to_vf_mailbox[4]  0x33cc0b04
+wr hqm_func_pf_per_vf[11].pf_to_vf_mailbox[5]  0x33cc0b05
+wr hqm_func_pf_per_vf[11].pf_to_vf_mailbox[6]  0x33cc0b06
+wr hqm_func_pf_per_vf[11].pf_to_vf_mailbox[7]  0x33cc0b07
+wr hqm_func_pf_per_vf[11].pf_to_vf_mailbox[8]  0x33cc0b08
+wr hqm_func_pf_per_vf[11].pf_to_vf_mailbox[9]  0x33cc0b09
+wr hqm_func_pf_per_vf[11].pf_to_vf_mailbox[10] 0x33cc0b10
+wr hqm_func_pf_per_vf[11].pf_to_vf_mailbox[11] 0x33cc0b11
+wr hqm_func_pf_per_vf[11].pf_to_vf_mailbox[12] 0x33cc0b12
+wr hqm_func_pf_per_vf[11].pf_to_vf_mailbox[13] 0x33cc0b13
+wr hqm_func_pf_per_vf[11].pf_to_vf_mailbox[14] 0x33cc0b14
+wr hqm_func_pf_per_vf[11].pf_to_vf_mailbox[15] 0x33cc0b15
+
+wr hqm_func_pf_per_vf[12].pf_to_vf_mailbox[0]  0x33cc0c00
+wr hqm_func_pf_per_vf[12].pf_to_vf_mailbox[1]  0x33cc0c01
+wr hqm_func_pf_per_vf[12].pf_to_vf_mailbox[2]  0x33cc0c02
+wr hqm_func_pf_per_vf[12].pf_to_vf_mailbox[3]  0x33cc0c03
+wr hqm_func_pf_per_vf[12].pf_to_vf_mailbox[4]  0x33cc0c04
+wr hqm_func_pf_per_vf[12].pf_to_vf_mailbox[5]  0x33cc0c05
+wr hqm_func_pf_per_vf[12].pf_to_vf_mailbox[6]  0x33cc0c06
+wr hqm_func_pf_per_vf[12].pf_to_vf_mailbox[7]  0x33cc0c07
+wr hqm_func_pf_per_vf[12].pf_to_vf_mailbox[8]  0x33cc0c08
+wr hqm_func_pf_per_vf[12].pf_to_vf_mailbox[9]  0x33cc0c09
+wr hqm_func_pf_per_vf[12].pf_to_vf_mailbox[10] 0x33cc0c10
+wr hqm_func_pf_per_vf[12].pf_to_vf_mailbox[11] 0x33cc0c11
+wr hqm_func_pf_per_vf[12].pf_to_vf_mailbox[12] 0x33cc0c12
+wr hqm_func_pf_per_vf[12].pf_to_vf_mailbox[13] 0x33cc0c13
+wr hqm_func_pf_per_vf[12].pf_to_vf_mailbox[14] 0x33cc0c14
+wr hqm_func_pf_per_vf[12].pf_to_vf_mailbox[15] 0x33cc0c15
+
+wr hqm_func_pf_per_vf[13].pf_to_vf_mailbox[0]  0x33cc0d00
+wr hqm_func_pf_per_vf[13].pf_to_vf_mailbox[1]  0x33cc0d01
+wr hqm_func_pf_per_vf[13].pf_to_vf_mailbox[2]  0x33cc0d02
+wr hqm_func_pf_per_vf[13].pf_to_vf_mailbox[3]  0x33cc0d03
+wr hqm_func_pf_per_vf[13].pf_to_vf_mailbox[4]  0x33cc0d04
+wr hqm_func_pf_per_vf[13].pf_to_vf_mailbox[5]  0x33cc0d05
+wr hqm_func_pf_per_vf[13].pf_to_vf_mailbox[6]  0x33cc0d06
+wr hqm_func_pf_per_vf[13].pf_to_vf_mailbox[7]  0x33cc0d07
+wr hqm_func_pf_per_vf[13].pf_to_vf_mailbox[8]  0x33cc0d08
+wr hqm_func_pf_per_vf[13].pf_to_vf_mailbox[9]  0x33cc0d09
+wr hqm_func_pf_per_vf[13].pf_to_vf_mailbox[10] 0x33cc0d10
+wr hqm_func_pf_per_vf[13].pf_to_vf_mailbox[11] 0x33cc0d11
+wr hqm_func_pf_per_vf[13].pf_to_vf_mailbox[12] 0x33cc0d12
+wr hqm_func_pf_per_vf[13].pf_to_vf_mailbox[13] 0x33cc0d13
+wr hqm_func_pf_per_vf[13].pf_to_vf_mailbox[14] 0x33cc0d14
+wr hqm_func_pf_per_vf[13].pf_to_vf_mailbox[15] 0x33cc0d15
+
+wr hqm_func_pf_per_vf[14].pf_to_vf_mailbox[0]  0x33cc0e00
+wr hqm_func_pf_per_vf[14].pf_to_vf_mailbox[1]  0x33cc0e01
+wr hqm_func_pf_per_vf[14].pf_to_vf_mailbox[2]  0x33cc0e02
+wr hqm_func_pf_per_vf[14].pf_to_vf_mailbox[3]  0x33cc0e03
+wr hqm_func_pf_per_vf[14].pf_to_vf_mailbox[4]  0x33cc0e04
+wr hqm_func_pf_per_vf[14].pf_to_vf_mailbox[5]  0x33cc0e05
+wr hqm_func_pf_per_vf[14].pf_to_vf_mailbox[6]  0x33cc0e06
+wr hqm_func_pf_per_vf[14].pf_to_vf_mailbox[7]  0x33cc0e07
+wr hqm_func_pf_per_vf[14].pf_to_vf_mailbox[8]  0x33cc0e08
+wr hqm_func_pf_per_vf[14].pf_to_vf_mailbox[9]  0x33cc0e09
+wr hqm_func_pf_per_vf[14].pf_to_vf_mailbox[10] 0x33cc0e10
+wr hqm_func_pf_per_vf[14].pf_to_vf_mailbox[11] 0x33cc0e11
+wr hqm_func_pf_per_vf[14].pf_to_vf_mailbox[12] 0x33cc0e12
+wr hqm_func_pf_per_vf[14].pf_to_vf_mailbox[13] 0x33cc0e13
+wr hqm_func_pf_per_vf[14].pf_to_vf_mailbox[14] 0x33cc0e14
+wr hqm_func_pf_per_vf[14].pf_to_vf_mailbox[15] 0x33cc0e15
+
+wr hqm_func_pf_per_vf[15].pf_to_vf_mailbox[0]  0x33cc0f00
+wr hqm_func_pf_per_vf[15].pf_to_vf_mailbox[1]  0x33cc0f01
+wr hqm_func_pf_per_vf[15].pf_to_vf_mailbox[2]  0x33cc0f02
+wr hqm_func_pf_per_vf[15].pf_to_vf_mailbox[3]  0x33cc0f03
+wr hqm_func_pf_per_vf[15].pf_to_vf_mailbox[4]  0x33cc0f04
+wr hqm_func_pf_per_vf[15].pf_to_vf_mailbox[5]  0x33cc0f05
+wr hqm_func_pf_per_vf[15].pf_to_vf_mailbox[6]  0x33cc0f06
+wr hqm_func_pf_per_vf[15].pf_to_vf_mailbox[7]  0x33cc0f07
+wr hqm_func_pf_per_vf[15].pf_to_vf_mailbox[8]  0x33cc0f08
+wr hqm_func_pf_per_vf[15].pf_to_vf_mailbox[9]  0x33cc0f09
+wr hqm_func_pf_per_vf[15].pf_to_vf_mailbox[10] 0x33cc0f10
+wr hqm_func_pf_per_vf[15].pf_to_vf_mailbox[11] 0x33cc0f11
+wr hqm_func_pf_per_vf[15].pf_to_vf_mailbox[12] 0x33cc0f12
+wr hqm_func_pf_per_vf[15].pf_to_vf_mailbox[13] 0x33cc0f13
+wr hqm_func_pf_per_vf[15].pf_to_vf_mailbox[14] 0x33cc0f14
+wr hqm_func_pf_per_vf[15].pf_to_vf_mailbox[15] 0x33cc0f15
+
+###############################################################
+###############################################################
+#Steve:
+#Note that the same aliasing issue exists for both the FUNC_PF and FUNC_VF bars.
+#For example, the following pseudo FUNC_VF PP 0 DIR HCW reads from VF[0] will also alias to the vf_to_pf_mailbox:
+#ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x02000000
+#ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x02000004
+#ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x02000008
+#ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x0200000c
+#read address 10_0200_1000, read out aa55000 : reproduce RTL bug 
+#ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x02001000
+#read address 10_0200_1004, read out aa55001
+#ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x02001004
+#ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x02001008
+#ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x0200100c
+#ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x02002000
+#ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x02002004
+#ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x02002008
+#ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x0200200c
+
+#ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x02100000
+#ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x02100004
+#ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x02100008
+#ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x0210000c
+#ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x02101000
+#ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x02101004
+#ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x02101008
+#ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x0210100c
+#ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x02102000
+#ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x02102004
+#ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x02102008
+#ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x0210200c
+
+###############################################################
+###############################################################
+#rd hqm_func_pf_per_vf[0].vf_to_pf_mailbox_isr_pend
+#The regs that would generate this error when accessed by the VF would be:
+#
+#    hqm_vf_to_pf_flr_dst_isr_r                      VF_TO_PF_FLR_ISR                                @0x00001f04;
+#    hqm_vf_to_pf_isr_pend_r                         VF_TO_PF_ISR_PEND                               @0x00001f10;
+rd hqm_func_pf_per_vf[0].vf_to_pf_flr_isr  0
+rd hqm_func_pf_per_vf[0].vf_to_pf_isr_pend 0
+
+##VF hqm_func_vf_bar[0] DIRPP[0] 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x1fff000  0x0
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x1fff004  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x1fff008  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x1fff00c  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x1fff010  0x0 
+
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x1ffff00  0x0
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x1ffff04  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x1ffff08  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x1ffff0c  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x1ffff10  0x0 
+
+
+##VF hqm_func_vf_bar[0] DIRPP[1] 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2000000  0x0
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2000004  0x0
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2000008  0x0
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x200000c  0x0
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2000010  0x0
+
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2000f00  0x0
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2000f04  0x0
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2000f08  0x0
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2000f0c  0x0
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2000f10  0x0
+
+
+##VF hqm_func_vf_bar[0] DIRPP[2] 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2001000  0x0
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2001004  0x0
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2001008  0x0
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x200100c  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2001010  0x0 
+
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2001f00  0x0
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2001f04  0x0
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2001f08  0x0
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2001f0c  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2001f10  0x0
+
+
+##VF hqm_func_vf_bar[0] DIRPP[3] 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2002000  0x0
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2002004  0x0
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2002008  0x0
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x200200c  0x0
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2002010  0x0
+
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2002f00  0x0
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2002f04  0x0
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2002f08  0x0
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2002f0c  0x0
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2002f10  0x0
+
+##VF hqm_func_vf_bar[0] DIRPP[4] 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2003000  0x0
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2003004  0x0
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2003008  0x0
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x200300c  0x0
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2003010  0x0
+
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2003f00  0x0
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2003f04  0x0
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2003f08  0x0
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2003f0c  0x0
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2003f10  0x0
+
+##VF hqm_func_vf_bar[0] DIRPP[16] 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x200f000  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x200f004  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x200f008  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x200f00c  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x200f010  0x0 
+
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x200ff00  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x200ff04  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x200ff08  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x200ff0c  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x200ff10  0x0 
+
+##VF hqm_func_vf_bar[0] DIRPP[17] 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2010000  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2010004  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2010008  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x201000c  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2010010  0x0 
+
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2010f00  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2010f04  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2010f08  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2010f0c  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2010f10  0x0 
+
+
+##VF hqm_func_vf_bar[0] DIRPP[18] 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2011000  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2011004  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2011008  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x201100c  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2011010  0x0 
+
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2011f00  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2011f04  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2011f08  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2011f0c  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2011f10  0x0 
+
+
+##VF hqm_func_vf_bar[0] DIRPP[19] 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2011000  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2011004  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2011008  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x201100c  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2011010  0x0 
+
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2011f00  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2011f04  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2011f08  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2011f0c  0x0 
+ord hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x2011f10  0x0 
+
+#
+rd hqm_func_pf_per_vf[0].vf_to_pf_flr_isr  0
+rd hqm_func_pf_per_vf[0].vf_to_pf_isr_pend  0
+###############################################################
+###############################################################
+  
+cfg_begin
+
+  dir qid DQ_A:*
+  vas 0 dir_qidv:DQ_A=1 credit_cnt=100
+  dir pp DQ_A  vas=0
+  dir cq DQ_A gpa=sm cq_depth=512
+
+cfg_end
+
+rd hqm_pf_cfg_i.vendor_id

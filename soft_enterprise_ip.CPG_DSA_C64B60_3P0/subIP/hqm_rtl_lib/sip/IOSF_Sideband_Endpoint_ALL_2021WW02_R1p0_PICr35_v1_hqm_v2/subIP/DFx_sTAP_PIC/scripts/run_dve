@@ -1,0 +1,11 @@
+#!/bin/csh -f
+
+setenv ip_file_list stap_list
+
+cd $IP_ROOT/pwa/results/tests
+
+ls -d T* | sed -e 's/\///' | awk '{printf ("%s/%s/%s.simv.vdb\n", var,$1, $1)}' var=$cwd > $ip_file_list
+
+dve -cov -dir $IP_ROOT/pwa/results/vcs_lib/$VCS_VER/models/stap_model/stap_model.simv.vdb -dir $IP_ROOT/Merge.vdb -hier scripts/coverage_inclusion.txt -elfile $IP_ROOT/verif/tb/include/stap_cov_exclusions.el -elfile $IP_ROOT/verif/tb/include/stap_drreg_line_exclusions.el -excl_bypass_checks &
+
+cd $IP_ROOT

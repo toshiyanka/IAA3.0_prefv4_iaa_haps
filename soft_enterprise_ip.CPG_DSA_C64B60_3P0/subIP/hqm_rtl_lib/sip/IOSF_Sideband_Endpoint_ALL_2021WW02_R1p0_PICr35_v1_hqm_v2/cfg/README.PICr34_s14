@@ -1,0 +1,87 @@
+wash -n intelall soc socenv socrtl dk10nm hdk10nm hdk10nmproc siphdk fabric n7 n7fe s14nm n6 n6fe
+
+FOR SLES12 (not needed for SLES11):
+        % cfg/run_sles12.setup
+
+USER should:
+% source scripts/setup.hdk <-- HDK setup
+#        setenv RTL_PROJ_BIN_OVERRIDE /p/hdk/rtl/proj_tools/proj_binx/cds/latest
+#        source /p/hdk/rtl/hdk.rc -cfg sip -reentrant
+
+setenv MODEL_ROOT $cwd
+
+simbuild -dut sbr -1c -CUST s14nm -toolset mat1.6.4.p1 -1c- -ace xterm &
+
+to open hdk xterm 
+simbuild -dut sbr -1c -CUST s14nm -toolset mat1.6.4.p1 -1c- -ver $cwd -ace xterm &
+
+1. Compile the model
+simbuild -dut sbr -1c -CUST s14nm -toolset mat1.6.4.p1 -1c- -ace_args -command "ace -cc -enable_hier_dump" -ace_args- -nf
+
+2. 2-Stage FLG generation
+febe -dut sbr -1c -CUST s14nm -toolset mat1.6.4.p1 -1c- -s all +s .tophiergen
+febe -dut sbr -1c -CUST s14nm -toolset mat1.6.4.p1 -1c- -s all +s .v2k_prep
+febe -dut sbr -1c -CUST s14nm -toolset mat1.6.4.p1 -1c- -s all +s .flg_v2k
+
+3. Run ISAF (SpyglassDFT)
+febe -dut sbr -1c -CUST s14nm -toolset mat1.6.4.p1 -1c- -s all +s spyglass_build
+febe -dut sbr -1c -CUST s14nm -toolset mat1.6.4.p1 -1c- -s all +s sbr0_sbr_generic.sgdft
+   Commands to run sgdft step by step
+       febe -dut sbr -1c -CUST s14nm -toolset mat1.6.4.p1 -1c- -s all +s sbr0_sbr_generic.sgdft.setup
+       febe -dut sbr -1c -CUST s14nm -toolset mat1.6.4.p1 -1c- -s all +s sbr0_sbr_generic.sgdft.drc
+       febe -dut sbr -1c -CUST s14nm -toolset mat1.6.4.p1 -1c- -s all +s sbr0_sbr_generic.sgdft.sgpackage
+   Command to run sgdft for all routers
+       febe -dut sbr -1c -CUST s14nm -toolset mat1.6.4.p1 -1c- -s all +s .sgdft
+
+
+*************************************************
+wash -n intelall users soc socenv s14nm dk1273 soc73 soc73proc hdk10nm hdk10nmproc siphdk fabric hdk22nm hdk22nmproc
+febe -dut sbr -1c -CUST s14nm -toolset mat1.6.4.p1 -1c- -s all +s lintra_build
+febe -dut sbr -1c -CUST s14nm -toolset mat1.6.4.p1 -1c- -s all +s sbr0_sbr_generic.lintra_elab
+febe -dut sbr -1c -CUST s14nm -toolset mat1.6.4.p1 -1c- -s all +s gen_collateral +s build_blocksinfo +s sbr0_sbr_generic.dc
+FEV
+   febe -dut sbr -1c -CUST s14nm -toolset mat1.6.4.p1 -1c- -s all +s sbr0_sbr_generic.fv
+   NOTE 1: at the time of this release, FEV gives Power Consistency NonEq errors, due to an FEV tool issue documented here
+         https://wiki.ith.intel.com/display/cheetah/FEV+Cheat+Sheet+and+FAQs?preview=/1308368344/1584647847/SIP%20FEV%20HelpDesk.docx
+         search the above doc for "Power Consistency non-eq on supply set mismatch for pwell and nwell"
+   NOTE 2: to ensure that the above errors are the only issue, check the "AUDIT SUMMARY REPORT" table in the log file, e.g.,
+         $MODEL_ROOT/target/sbr/s14nm/mat1.6.4.p1_s14nm.0/log/sbr.s14nm.mat1.6.4.p1_s14nm.0.ip_release.unit.sbr0_sbr_generic.fv.log
+         In this table, all rules should be PASSED except for CheckPowerConsistencyNonEq which is FAILED
+SGLP
+   cp $MODEL_ROOT/tools/spyglasslp/sbr0_sbr_generic/sbr0_sbr_generic.opt $MODEL_ROOT/tools/spyglasslp/sbr0_sbr_generic/sbr0_sbr_generic.opt.p1274
+   cp $MODEL_ROOT/tools/spyglasslp/sbr0_sbr_generic/sbr0_sbr_generic.opt.s14nm $MODEL_ROOT/tools/spyglasslp/sbr0_sbr_generic/sbr0_sbr_generic.opt
+   febe -dut sbr -1c -CUST s14nm -toolset mat1.6.4.p1 -1c- -s all +s spyglass_build
+   febe -dut sbr -1c -CUST s14nm -toolset mat1.6.4.p1 -1c- -s all +s spyglass_build_lp
+   febe -dut sbr -1c -CUST s14nm -toolset mat1.6.4.p1 -1c- -s all +s sbr0_sbr_generic.spyglass_lp
+SGDFT
+   febe -dut sbr -1c -CUST s14nm -toolset mat1.6.4.p1 -1c- -s all +s sbr0_sbr_generic.sgdft
+SAGE
+   febe -dut sbr -1c -CUST s14nm -toolset mat1.6.4.p1 -1c- -s all +s sbr0_sbr_generic.sage
+VCLP
+   febe -dut sbr -1c -CUST s14nm -toolset mat1.6.4.p1 -1c- -s all +s vclp_build
+   febe -dut sbr -1c -CUST s14nm -toolset mat1.6.4.p1 -1c- -s all +s sbr0_sbr_generic.vclp_test
+SGLINT
+   simbuild -dut sbr -1c -CUST s14nm -toolset mat1.6.4.p1 -1c- -s all +s sglint_build -sglint_build "-ASSIGN -mc=sglint_sbr0_sbr_generic"
+   simbuild -dut sbr -1c -CUST s14nm -toolset mat1.6.4.p1 -1c- -s all +s sglint_test -sglint_test "-t spyglasslint/sbr0_sbr_generic -noepi"
+SGCDC  - IMPORTANT NOTE - HAVE TO USE the +define+INTEL_QUESTACDC_BUG -vlog_opts option
+   simbuild -dut sbr -1c -CUST s14nm -toolset mat1.6.4.p1 -1c- -s all +s sgcdc_build \
+       -sgcdc_build "-ASSIGN -mc=sbr_config_ipxact_workspace -vlog_opts +define+functional+IOSF_SB_PH2 -vlog_opts +define+INTEL_QUESTACDC_BUG"
+   simbuild -dut sbr -1c -CUST s14nm -toolset mat1.6.4.p1 -1c- -s all +s sgcdc_test \
+       -sgcdc_test "-t spyglass_cdc/sbr0_sbr_generic:SetupChk -vlog_opts +define+INTEL_QUESTACDC_BUG"
+   simbuild -dut sbr -1c -CUST s14nm -toolset mat1.6.4.p1 -1c- -s all +s sgcdc_test \
+       -sgcdc_test "-t spyglass_cdc/sbr0_sbr_generic -vlog_opts +define+INTEL_QUESTACDC_BUG"
+QUESTA CDC - NO LONGER SUPPORTED
+  - run Questa CDC under ACE in HDK environment
+      % simbuild -dut sbr -1c -CUST s14nm -toolset mat1.6.4.p1 -1c- -ace xterm &
+    In the newly created xterm:
+      % cd $MODEL_ROOT/tools
+      % sbr0_runACECDC_HDKs14nm
+CALIBER
+   CALIBER IS NOT A REQUIREMENT FOR THE ADP-S PROJECT (s14nm)
+FISHTAIL
+   FISHTAIL IS NOT A REQUIREMENT FOR THE ADP-S PROJECT (s14nm)
+INSERT_DFT
+   INSERT_DFT IS NOT YET QUALIFIED FOR ADP-S, AT THE TIME OF THE SBR PICr28 RELEASE
+
+
+

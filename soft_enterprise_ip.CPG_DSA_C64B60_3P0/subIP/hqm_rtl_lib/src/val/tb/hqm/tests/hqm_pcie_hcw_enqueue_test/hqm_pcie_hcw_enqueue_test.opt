@@ -1,0 +1,247 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => ["+AW_CONTINUE_ON_ERROR", "+iosf_tracker_filename=iosf_trk", "-assert nopostproc", "+HQMS_DEBUG", "+HQMI_DEBUG", 
+                     "+SLA_USER_DATA_PHASE_TIMEOUT=200000",
+                     "+SLA_CONFIG_PHASE_TIMEOUT=200000",
+                     "+SLA_FLUSH_PHASE_TIMEOUT=400000",
+                     "+vcs+lic+wait",
+					],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+      sec_5_3_1_4     => { -simv_args => ["",],},
+      sec_7_5_1_2     => { -simv_args => ["",],},
+      pf_with_flr => { 
+      -simv_args => [
+										  "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hcw_dmv_pf_copy_cfg_with_flr.cft +eot_pf +HQM_PCIE_ERROR_MSG_FUNC_NUM=0", 
+                                                "+ovm_set_config_int=*\\,txn_type_in_flr\\,4",
+                                          "+HQM_SEQ_CFG2=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/cpl_to_f_unmask.cft", 
+										  "+pcie_ct +pcie_anfes +pcie_en_H_FP_check +HQM_PCIE_TXN +ERROR_CODE=51", 
+										 ],
+						 },
+
+      dmv_w => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_dmv_w.cft",
+                         "+HQM_SYSTEM_TEST_DMV_W",
+                        ],
+      },
+      ingress_errors => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_ingress_errors.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hcw_ingress_errors.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_ingress_errors_eot.cft",
+                        ],
+      },
+      lut_cfg_errors => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_lut_cfg_errors.cft",
+                         "+HQM_SYSTEM_CONTINUE_ON_PERR",
+                         "+HQM_SYSTEM_CONTINUE_ON_ECCERR",
+                        ],
+      },
+      func_pf_bar => {
+          -simv_args => ["+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_func_bar_test0.cft",],
+      },
+      msix_tbl => {
+          -simv_args => ["+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/hqm_msix_tbl.cft",],
+      },
+      cq_occ_int => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_cq_occ_interrupt.cft",
+                         "+HQM_SYSTEM_TEST_INTERRUPT",
+                        ],
+      },
+      luts => {
+          -simv_args => ["+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/iosf_prim_basic_test0.cft",],
+      },
+      hcw => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_test0_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hcw_test0_hcw.cft",
+                        ],
+      },
+      hcw2 => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_test2_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hcw_test2.cft",
+                        ],
+      },
+      hcw_illegal_pp => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_test2_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/hcw_illegal_pp_test2.cft",
+                        ],
+      },
+      hcw_ldb => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_ldb_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hcw_ldb_hcw.cft",
+                         "+HQM_LSP_CQ_QID_CFG_CHECK_DIS",
+                        ],
+      },
+      hcw_ord => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_ord_test0_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hcw_test1.cft",
+                        ],
+      },
+      pcie_tb_cfg_test => {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_test0_cfg.cft",
+##                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/hcw_dir_test_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/test0.cft",
+                        ],
+      },
+      pcie_tb_cfg_test1=> {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_ws_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/test1.cft",
+                        ],
+      },
+      pcie_tb_cfg_test3=> {
+          -simv_args => [
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_test0_cfg.cft",
+                         "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/test3.cft",
+                        ],
+      },
+
+      pend_flr_mem_wr => {-simv_args => ["+INTA_TXN +HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/hqm_pf_flr_with_mem_wr_pending.cft",],},
+      warm_reset => {
+          -simv_args => [
+						  "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/hqm_warm_reset.cft",
+						  "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/hqm_msix_tbl.cft",
+                        ],
+      },
+      unallocated_bars => {
+          -simv_args => [
+						  "+pcie_urd +pcie_ced +pcie_anfes +eot_pf +pcie_ur_unc +pcie_ned ",
+                          "+hqm_pcie_unalloc_bar_access_stim_config::bar_access_type=Unalloc_func_pf_bar", 
+                        ],
+      },
+      unallocated_csr_bar => {
+          -simv_args => [
+						  "+pcie_urd +pcie_ced +pcie_anfes +eot_pf +pcie_ur_unc +pcie_ned ",
+                          "+hqm_pcie_unalloc_bar_access_stim_config::bar_access_type=Unalloc_csr_bar", 
+                        ],
+      },
+
+      unsupp_regs => { -simv_args => ["+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_pcie_unsupp_regs_chk.cft +INTA_TXN",],},
+      pm_state_change => { -simv_args => ["+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/hqm_pm_state_changes.cft +eot_pf +pcie_anfes +pcie_urd +pcie_ced",],},
+      pm_state_changes_D0_uninit => { -simv_args => ["+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/hqm_pm_state_changes_D0_uninit.cft",],},
+      credit_uflow	  => { -simv_args => [
+										  "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_test0_cfg.cft", " +HQM_INGRESS_ERROR_TEST +INTA_TXN +HQM_TB_HQMCORE_LSP_EOT_CHECK_DISABLE +HQM_TB_HQMCORE_CHP_EOT_CHECK_DISABLE ",
+										  "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/hqm_dir_test_credit_uflow.cft",
+										 ],
+						  },
+      excess_token_return => { -simv_args => [
+										  "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hcw_test0_cfg.cft", " +HQM_INGRESS_ERROR_TEST +INTA_TXN +HQM_TB_HQMCORE_LSP_EOT_CHECK_DISABLE +HQM_TB_HQMCORE_CHP_EOT_CHECK_DISABLE ",
+										  "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/hqm_dir_test_excess_token_return.cft",
+										 ],
+						  },
+
+      cpl_timeout	  => { -simv_args => [
+										  "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/hqm_range_B0_timeout_cfg.cft +DM_VPA_ERROR_TEST", 
+										  "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hcw_dmv_copy_cfg.cft", 
+										  "+SLA_MAX_CONFIG_PHASE_TIMEOUT=3000000000 ", "+SLA_MAX_USER_DATA_PHASE_TIMEOUT=3000000000", " +expect_completion_timeout +msix_vector=0",
+										  "+HQM_LSP_CQ_QID_CFG_CHECK_DIS +UNWANTED_TXN",
+										  "+HQM_SYSTEM_CONTINUE_ON_CTO +eot_pf +pcie_ct +pcie_anfes +pcie_ned +pcie_ced", 
+										 ],
+						 },
+
+      cpl_timeout_severity_1 => { -simv_args => [
+										  "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/hqm_range_B0_timeout_cfg_aer_severity_set.cft +DM_VPA_ERROR_TEST", 
+										  "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hcw_dmv_copy_cfg.cft", 
+										  "+SLA_MAX_CONFIG_PHASE_TIMEOUT=3000000000 ", "+SLA_MAX_USER_DATA_PHASE_TIMEOUT=3000000000", " +expect_completion_timeout +msix_vector=0",
+										  "+HQM_LSP_CQ_QID_CFG_CHECK_DIS +UNWANTED_TXN",
+										  "+HQM_SYSTEM_CONTINUE_ON_CTO +eot_pf +pcie_ct +pcie_anfes +pcie_fed +pcie_ced", 
+										 ],
+						 },
+
+      cpl_timeout_1	  => { -simv_args => [
+										  "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/hqm_range_B1_timeout_cfg.cft +DM_VPA_ERROR_TEST", 
+										  "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hcw_dmv_copy_cfg.cft", 
+										  "+SLA_MAX_CONFIG_PHASE_TIMEOUT=3000000000 ", "+SLA_MAX_FLUSH_PHASE_TIMEOUT=3000000000 ", "+SLA_MAX_USER_DATA_PHASE_TIMEOUT=3000000000", " +expect_completion_timeout +msix_vector=0",
+										  "+HQM_LSP_CQ_QID_CFG_CHECK_DIS +UNWANTED_TXN",
+										  "+HQM_SYSTEM_CONTINUE_ON_CTO +eot_pf +pcie_ct +pcie_anfes +pcie_ned +pcie_ced", 
+										 ],
+						 },
+
+      cpl_timeout_1_severity_1	  => { -simv_args => [
+										  "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/hqm_range_B1_timeout_cfg_aer_severity_set.cft +DM_VPA_ERROR_TEST", 
+										  "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hcw_dmv_copy_cfg.cft", 
+										  "+SLA_MAX_CONFIG_PHASE_TIMEOUT=3000000000 ", "+SLA_MAX_FLUSH_PHASE_TIMEOUT=3000000000 ", "+SLA_MAX_USER_DATA_PHASE_TIMEOUT=3000000000", " +expect_completion_timeout +msix_vector=0",
+										  "+HQM_LSP_CQ_QID_CFG_CHECK_DIS +UNWANTED_TXN",
+										  "+HQM_SYSTEM_CONTINUE_ON_CTO +eot_pf +pcie_ct +pcie_anfes +pcie_fed +pcie_ced", 
+										 ],
+						 },
+
+		cpl_timeout_default => {
+			-simv_args => [ "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/hqm_range_B0_timeout_cfg.cft +DM_VPA_ERROR_TEST",
+				"+SLA_MAX_CONFIG_PHASE_TIMEOUT=3000000000 +SLA_MAX_USER_DATA_PHASE_TIMEOUT=3000000000",
+				" +expect_completion_timeout +msix_vector=0 +HQM_LSP_CQ_QID_CFG_CHECK_DIS +UNWANTED_TXN +HQM_SYSTEM_CONTINUE_ON_CTO +pcie_exp_header_log_1=2097152 +pcie_exp_header_log_0=16777728",
+			],
+		},
+
+# Header format for Compeltion timeout
+##{
+##   logic                             ctot;                 // 53 completion timeout
+##    logic                             poison;               // 52 poison bit
+##    cmplhdr_cid_t                     cid;                  // 51:36 Completor ID
+##    cmplhdr_addr_t                    addr;                 // 35:34 completion address
+##    cmplhdr_bc_t                      bc;                   // 33:22 Number of bytes outstanding
+##    cmplhdr_stat_t                    status;               // 21:19 completion status
+##    cmplhdr_len_t                     length;               // 18:9 completion length
+##    logic                             wdata;                // 8 completion with data
+##    hdr_tag_t                         tag;                  // 7:0 Tag
+##} 0x20_0000_0100_0200;  header_log_1 = 2097152, header_log_0 = 16777728
+
+    f_unmask	  => { -simv_args => [
+                      "+HQM_SEQ_CFG2=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/cpl_to_f_unmask.cft", 
+										  "+pcie_ct +pcie_fed +pcie_en_H_FP_check +HQM_PCIE_TXN +ERROR_CODE=51", 
+										 ],
+						 },
+
+    nf_unmask	  => { -simv_args => [
+                      "+HQM_SEQ_CFG2=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/cpl_to_nf_unmask.cft", 
+										  "+pcie_ct +pcie_ned +pcie_en_H_FP_check +HQM_PCIE_TXN +ERROR_CODE=49", 
+										 ],
+						 },
+
+    f_mask	  => { -simv_args => [
+                      "+HQM_SEQ_CFG2=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/cpl_to_f_mask.cft", 
+										  "+pcie_ct +pcie_fed", 
+										 ],
+						 },
+
+    nf_mask	  => { -simv_args => [
+                      "+HQM_SEQ_CFG2=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/cpl_to_nf_mask.cft", 
+										  "+pcie_ct +pcie_ned", 
+										 ],
+						 },
+
+    nf_unmask_anfesUnmask	  => { -simv_args => [
+                      "+HQM_SEQ_CFG2=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/cpl_to_nf_unmask_anfesUnmask.cft", 
+										  "+pcie_ct +pcie_ned +pcie_en_H_FP_check +HQM_PCIE_TXN +ERROR_CODE=49", 
+										 ],
+						 },
+
+    pf => { 
+      -simv_args => [
+										  "+HQM_SEQ_CFG_USER_DATA=aceroot/verif/tb/hqm/tests/hcw_dmv_pf_copy_cfg.cft +eot_pf +HQM_PCIE_ERROR_MSG_FUNC_NUM=0", 
+										 ],
+						 },
+
+      smoke => {
+          -simv_args => ["+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_cfg_smoke.cft",],
+      },
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

@@ -1,0 +1,340 @@
+#!/bin/bash -f
+
+echo $@
+
+seed=$1
+seed_from_ace=0
+
+for var in "$@"
+do
+   if [[ $ignore =~ "seed" ]]; then
+      ignore="NO"
+      seed=$var
+      seed_from_ace=1
+   else
+      ignore="NO"
+
+      if [[ $var =~ ^-seed$ ]]; then
+         ignore="seed"
+      fi
+   fi
+done
+
+if [[ $seed_from_ace -eq 1 ]]; then
+   seed=$(echo "$((0x$seed))")
+   echo "iptest_gen_params -D- ACE set the seed assumed hexidecimal to $seed"
+else 
+   if [[ $seed =~ ^[0-9]+$ ]]; then
+      seed=$seed
+      echo "iptest_gen_params -D- Commandline assumed decimal seed $seed"
+   else
+      #seed=`date +"%d%k%M" | sed 's/ //g'`
+      seed=$RANDOM
+      echo "iptest_gen_params -D- Random seed generation yields $seed"
+   fi
+fi
+
+echo "Generating Endpoint Parameters file"
+valonlymodel=0
+
+temp_latchqueue=$[ ( $seed % 3 )]
+if [ $temp_latchqueue -le "1" ]; then 
+  latchqueue="0";
+else 
+  latchqueue="1";
+fi
+
+disable_comp_fencing=$[ ( $seed % 2 )]
+#disable_comp_fencing=0;
+
+temp_tx_ext_header_support=$[ ( $seed % 4)]
+if [ $temp_tx_ext_header_support -le "2" ]; then 
+  tx_ext_header_support="1";
+elif [ $temp_tx_ext_header_support -gt "2" ];then
+  tx_ext_header_support="0";
+else 
+  tx_ext_header_support="1";
+fi
+
+temp_rx_ext_header_support=$[ ( $seed % 5)]
+if [ $temp_rx_ext_header_support -le "2" ]; then 
+  rx_ext_header_support="1";
+elif [ $temp_rx_ext_header_support -gt "2" ];then
+  rx_ext_header_support="0";
+else 
+  rx_ext_header_support="1";
+fi
+
+temp_fbrc_ext_header_support=$[ ( $seed % 7)]
+if [ $temp_fbrc_ext_header_support -le "3" ]; then 
+  fbrc_ext_header_support="1";
+elif [ $temp_fbrc_ext_header_support -gt "3" ];then
+  fbrc_ext_header_support="0";
+else 
+  fbrc_ext_header_support="1";
+fi
+
+agt_ext_header_support=$tx_ext_header_support;
+
+temp_asynceqdepth=$[ ( $seed % 6 )]
+if [ $temp_asynceqdepth -gt "0" -a $temp_asynceqdepth -le "3" ]; then 
+  asynceqdepth="2";
+elif [ $temp_asynceqdepth -gt "3" -a $temp_asynceqdepth -le "6" ];then
+  asynceqdepth="4";
+else 
+  asynceqdepth="32";
+fi
+
+temp_asynciqdepth=$[ ( $seed % 8 )]
+if [ $temp_asynciqdepth -gt "0" -a $temp_asynciqdepth -le "4" ]; then 
+  asynciqdepth="2";
+elif [ $temp_asynciqdepth -gt "4" -a $temp_asynciqdepth -le "8" ];then
+  asynciqdepth="4";
+else 
+  asynciqdepth="32";
+fi
+
+temp_mxpldbit=$[ ( $seed % 9  )]
+if [ $temp_mxpldbit -le "3" ]; then 
+  maxpldbit="7";
+elif [ $temp_mxpldbit -gt "3" -a $temp_mxpldbit -le "6" ]; then
+  maxpldbit="15";
+else 
+  maxpldbit="31";
+fi
+
+temp_matched_internal_width=$[ ( $seed % 4)]
+if [ $temp_matched_internal_width -le "2" ]; then 
+  matched_internal_width="1";
+elif [ $temp_matched_internal_width -gt "2" ];then
+  matched_internal_width="0";
+else 
+  matched_internal_width="1";
+fi
+
+temp_mxtrgtaddr=$[ ( $seed % 10  )]
+if [ $temp_mxtrgtaddr -gt "0" -a $temp_mxtrgtaddr -le "3" ]; then 
+  maxtrgtaddr="15";
+elif [ $temp_mxtrgtaddr -gt "3" -a $temp_mxtrgtaddr -le "7" ]; then
+  maxtrgtaddr="31";
+else 
+  maxtrgtaddr="47";
+fi
+
+temp_mxmstraddr=$[ ( $seed % 11  )]
+if [ $temp_mxmstraddr -gt "0" -a $temp_mxmstraddr -le "4" ]; then 
+  maxmstraddr="15";
+elif [ $temp_mxmstraddr -gt "4" -a $temp_mxmstraddr -le "8" ]; then
+  maxmstraddr="31";
+else 
+  maxmstraddr="47";
+fi
+
+temp_mxtrgtdata=$[ ( $seed % 12  )]
+if [ $temp_mxtrgtdata -le "6" ]; then 
+  maxtrgtdata="31";
+else 
+  maxtrgtdata="63";
+fi
+
+temp_mxmstrdata=$[ ( $seed % 13  )]
+if [ $temp_mxmstrdata -le "6" ]; then 
+  maxmstrdata="31";
+else 
+  maxmstrdata="63";
+fi
+
+temp_rx_ext_header_ids=$[ ( $seed % 14 )]
+
+if [ $rx_ext_header_support == "1" ]; then
+if [ $temp_rx_ext_header_ids -le "7" ]; then
+   rx_ext_header_ids="7'h00";
+else
+   rx_ext_header_ids="7'h01";
+fi
+else
+  rx_ext_header_ids="7'h00";
+fi
+
+npqdepth=$[ ( ($seed+1) % 7  ) + 1 ]
+pcqdepth=$[ ( ($seed+2) % 7  ) + 1 ]
+
+temp_maxpctrgt=$[ ( $seed % 20  )]
+if [ $temp_maxpctrgt -gt "6" ]; then 
+  maxpctrgt=$[ ( $seed % 5  )];
+else
+  maxpctrgt=$temp_maxpctrgt;
+fi
+
+temp_maxnptrgt=$[ ( $seed % 22  )]
+if [ $temp_maxnptrgt -gt "6" ]; then 
+  maxnptrgt=$[ ( $seed % 5  )];
+else
+  maxnptrgt=$temp_maxnptrgt;
+fi
+
+temp_maxnpmstr=$[ ( $seed % 24  )]
+if [ $temp_maxnpmstr -gt "6" ]; then 
+  maxnpmstr=$[ ( $seed % 5  )];
+else
+  maxnpmstr=$temp_maxnpmstr;
+fi
+
+temp_maxpcmstr=$[ ( $seed % 26  )]
+if [ $temp_maxpcmstr -gt "6" ]; then 
+  maxpcmstr=$[ ( $seed % 5  )];
+else
+  maxpcmstr=$temp_maxpcmstr;
+fi
+
+temp_targetreg=$[ ( $seed % 17 )]
+if [ $temp_targetreg -le "8" ]; then 
+  targetreg="1";
+else 
+  targetreg="0";
+fi
+
+temp_masterreg=$[ ( $seed % 16 )]
+if [ $temp_masterreg -le "8" ]; then 
+  masterreg="1";
+else 
+  masterreg="0";
+fi
+
+temp_asyncendpt=$[ ( $seed % 15 )]
+if [ $temp_asyncendpt -le "7" ]; then 
+  asyncendpt="0";
+else 
+  asyncendpt="1";
+fi
+
+ep_spec_rev="11";
+
+if [ $ep_spec_rev == "1" ]; then
+temp_skip_activereq=$[ ( $seed % 18 )]
+if [ $temp_skip_activereq -le "9" ]; then 
+  skip_activereq="0";
+else 
+  skip_activereq="1";
+fi
+else
+  skip_activereq="0";
+fi
+
+if [ $asyncendpt == "1" ]; then 
+  agt_clk_period=$[ ( ($seed+1) % 10  ) + 1 ]ns;
+  fab_clk_period=$[ ( ($seed+1) % 11  ) + 1 ]ns;
+else
+  agt_clk_period="1ns";
+  fab_clk_period="1ns";
+fi
+
+
+temp_pipeisms=$[ ( $seed % 21 )]
+if [ $temp_pipeisms -le "10" ]; then 
+  pipeisms="0";
+else 
+  pipeisms="1";
+fi
+
+temp_pipeinps=$[ ( $seed % 19 )]
+if [ $pipeisms == "1" ]; then
+  if [ $temp_pipeinps -le "9" ]; then 
+    pipeinps="0";
+  else 
+    pipeinps="1";
+  fi
+else
+  pipeinps="0";
+fi
+
+
+if [ $tx_ext_header_support == "1" ]; then
+   unique_sairs_inputs="1";
+else
+   unique_sairs_inputs="0";
+fi
+
+max_sai=$[($seed % 16) ]; 
+if [ $unique_sairs_inputs == "1" ]; then
+   sai_width=$max_sai;
+
+else
+  sai_width="0";
+fi
+
+max_rs=$[($seed % 3)]
+if [ $unique_sairs_inputs == "1" ]; then
+   rs_width=$max_rs;
+else
+  rs_width="0";
+fi  
+
+temp_usyncenable=$[($seed % 27)];
+if [ $temp_usyncenable -le 14 ]; then
+   usyncenable=1;
+else
+   usyncenable=0;
+fi
+agent_usync_delay=1;
+side_usync_delay=1;
+
+temp_expected_completions_counter=$[($seed % 28)];
+if [ $temp_expected_completions_counter -le 15 ]; then
+   expected_completions_counter=1;
+else
+   expected_completions_counter=0;
+fi
+
+temp_ism_completion_fence=$[($seed % 29)];
+if [ $temp_ism_completion_fence -le 15 ]; then
+   ism_completion_fence=1;
+else
+   ism_completion_fence=0;
+fi
+
+
+echo "parameter NPQUEUEDEPTH=$npqdepth; 
+parameter PCQUEUEDEPTH=$pcqdepth;
+parameter VALONLYMODEL=$valonlymodel; 
+parameter MAXNPMSTR=$maxnpmstr; 
+parameter MAXPCMSTR=$maxpcmstr; 
+parameter MAXPCTRGT=$maxpctrgt; 
+parameter MAXNPTRGT=$maxnptrgt;
+parameter TARGETREG=$targetreg;
+parameter MASTERREG=$masterreg;
+parameter ASYNCEQDEPTH=$asynceqdepth;
+parameter ASYNCIQDEPTH=$asynciqdepth;
+parameter ASYNCENDPT=$asyncendpt;
+parameter MAXTRGTADDR=$maxtrgtaddr;
+parameter MAXMSTRADDR=$maxmstraddr;
+parameter MAXMSTRDATA=$maxmstrdata;
+parameter MAXTRGTDATA=$maxtrgtdata;
+parameter MAXPLDBIT=$maxpldbit;
+parameter MATCHED_INTERNAL_WIDTH=$matched_internal_width;
+parameter EXPECTED_COMPLETIONS_COUNTER=$expected_completions_counter;
+parameter ISM_COMPLETION_FENCING=$ism_completion_fence;
+parameter CUP2PUT1CYC="0";
+parameter IOSFSB_EP_SPEC_REV=$ep_spec_rev;
+parameter IOSFSB_FBRC_SPEC_REV="11";
+parameter DUMMY_CLKBUF="0";
+parameter TX_EXT_HEADER_SUPPORT=$tx_ext_header_support;
+parameter RX_EXT_HEADER_SUPPORT=$rx_ext_header_support;
+parameter NUM_RX_EXT_HEADERS=1;
+parameter NUM_TX_EXT_HEADERS=1;
+parameter AGT_EXT_HEADER_SUPPORT=$agt_ext_header_support;
+parameter FBRC_EXT_HEADER_SUPPORT=$fbrc_ext_header_support;
+parameter RX_EXT_HEADER_IDS=$rx_ext_header_ids;
+parameter DISABLE_COMPLETION_FENCING=$disable_comp_fencing;
+parameter LATCHQUEUES=$latchqueue;
+parameter SKIP_ACTIVEREQ=$skip_activereq;
+parameter AGT_CLK_PERIOD=$agt_clk_period;
+parameter FAB_CLK_PERIOD=$fab_clk_period;
+parameter PIPEISMS=$pipeisms;
+parameter PIPEINPS=$pipeinps;
+parameter USYNC_ENABLE=$usyncenable;
+parameter UNIQUE_EXT_HEADERS=$unique_sairs_inputs;
+parameter SAIWIDTH=$sai_width;
+parameter RSWIDTH=$rs_width;
+parameter AGENT_USYNC_DELAY=$agent_usync_delay;
+parameter SIDE_USYNC_DELAY=$side_usync_delay;" > $IP_ROOT/verif/tests/ep_tests/ep_params.svh

@@ -1,0 +1,36 @@
+source /nfs/site/eda/group/cse/setups/mentor/mentor.lic
+source /nfs/site/eda/group/cse/setups/mentor/mentor.dft
+\cp $IP_ROOT/tools/cdc/ADP/stap_cdc.hdl_1273 $IP_ROOT/tools/cdc/stap_cdc.hdl
+\cp $IP_ROOT/tools/cdc/ADP/constraints/stap_ctrl.tcl $IP_ROOT/tools/cdc/constraints/stap_ctrl.tcl
+\cp $IP_ROOT/tools/cdc/ADP/waivers/stap_waiver_ctrl.tcl $IP_ROOT/tools/cdc/constraints/stap_waiver_ctrl.tcl
+cd $IP_ROOT
+#change this appropriately
+setenv CTECH_LIB_NAME CTECH_p1273_d04_wn_rtl_lib
+#setenv CDC_VER V10.2b
+#set $KIT_PATH appropriately
+setenv KIT_PATH /p/kits/intel/p1273/p1273_1.5.0
+setenv CDC_PROCESS p1273
+setenv CDC_FLOW_RELEASE v20170612
+### Setting the following variable to true to turn on reconvergence #####
+
+#setenv CDC_PREFERENCE_BIT_RECON TRUE
+#setenv CDC_PREFERENCE_RECON_DEPTH TRUE
+#setenv RECON_DEPTH 2
+
+ace -ccoz -ASSIGN -mc=cdc_stap_model  -vlog_opts '-sv +define+DC' | tee cdc_ace_compile.log
+ace -xz -t cdc_test_stap:cfmRUN  -nocleanup -nocpmf | tee cdc_ace_run.log
+ace -xz -t cdc_test_stap:hdmRUN  -nocleanup -nocpmf | tee cdc_ace_run.log
+#ace -xz -t cdc_test_stap  -nocleanup -nocpmf -qcdc_exe_scrag_recipe $SIP_ROOT/tools/cdc/qcdc_exe_scrag.recipe | tee cdc_ace_run.log
+#\cp $IP_ROOT/results/tests/cdc_test_stap/cdc.rpt $IP_ROOT/tools/cdc/ADP/reports/.
+#\cp $IP_ROOT/results/tests/cdc_test_stap/cdc.db $IP_ROOT/tools/cdc/ADP/reports/.
+#\cp $IP_ROOT/results/tests/cdc_test_stap/cdc_design.rpt $IP_ROOT/tools/cdc/ADP/reports/.
+#\cp $IP_ROOT/results/tests/cdc_test_stap/cdc_run.log $IP_ROOT/tools/cdc/ADP/reports/.
+#\cp $IP_ROOT/results/tests/cdc_test_stap/cdc_hier_ctrl_stap.v $IP_ROOT/tools/cdc/ADP/reports/.
+#\cp $IP_ROOT/results/tests/cdc_test_stap/cdc_setting.rpt $IP_ROOT/tools/cdc/ADP/reports/.
+#\cp $IP_ROOT/results/tests/cdc_test_stap/Clock_Details.rpt $IP_ROOT/tools/cdc/ADP/reports/.
+#\cp $IP_ROOT/results/tests/cdc_test_stap/Violation_Details.rpt $IP_ROOT/tools/cdc/ADP/reports/.
+#\cp $IP_ROOT/results/tests/cdc_test_stap/Reset_Details.rpt $IP_ROOT/tools/cdc/ADP/reports/.
+#\cp $IP_ROOT/tools/report/cdc_zqa.log $IP_ROOT/tools/cdc/ADP/reports/.
+git co $IP_ROOT/tools/cdc/stap_cdc.hdl
+setenv CTECH_LIB_NAME CTECH_v_rtl_lib 
+

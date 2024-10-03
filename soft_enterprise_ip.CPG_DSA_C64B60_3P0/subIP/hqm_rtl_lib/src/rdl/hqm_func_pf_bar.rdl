@@ -1,0 +1,18 @@
+`include "lib_udp.rdl"
+`include "hqm_udp.rdl"
+
+<% use hqm_params; %>
+<% use security; %>
+<% my %Security_Props = security::GetSecurityInfo(); %>
+
+`include "hqm_msix_mem_bridge.rdl"
+
+addrmap hqm_func_pf_bar_map {
+    name        = "hqm_func_pf_bar";
+    desc        = "HQM FUNC PF BAR Address Map";
+    Space       = "MEM";
+
+    hqm_msix_mem_bridge                         hqm_msix_mem            @0x01000000;
+    hqm_msix_mem->AliasAddress = "0x01000000";
+
+};

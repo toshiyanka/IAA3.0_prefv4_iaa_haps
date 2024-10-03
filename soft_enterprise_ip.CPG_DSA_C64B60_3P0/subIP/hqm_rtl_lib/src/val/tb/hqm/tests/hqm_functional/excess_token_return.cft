@@ -1,0 +1,94 @@
+################################################################################
+################################################################################
+
+## -- DIR traffic
+
+## -- Send 10 HCWs to DQ_A from DIR Port
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302 
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+
+## -- Wait for all the 10 HCWs to be scheduled
+poll_sch  dir:DQ_A  0xa   1000 20
+
+
+## -- Return 10 tokens using BAT_T
+HCW DIR:DQ_A qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x9 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+
+## -- Return an excess token using NEW_T (QE not expected to drop)
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+
+poll_sch  dir:DQ_A  0xb   1000 20
+
+
+rd credit_hist_pipe.cfg_syndrome_00 0xf0000080 0xffffffff
+wr credit_hist_pipe.cfg_syndrome_00.syndvalid 1
+rd credit_hist_pipe.cfg_syndrome_00.syndvalid 0
+
+## -- Check for excess token alarm
+poll hqm_system_csr.alarm_pf_synd0 0x85020100 0xffffff80 1000 20
+
+HCW DIR:DQ_A qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x0 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+
+## -- Check the CQ depth for CQ <DQ_A> is zero
+poll list_sel_pipe.cfg_cq_dir_token_count[:DQ_A:] 0x0 0xffffffff 1000 20
+
+## -- LDB Traffic
+HCW LDB:PP qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+
+## -- Wait for all the 10 HCWs to be scheduled
+poll_sch  ldb:PP  0xa   1000 20
+
+
+## -- Return 10 tokens using BAT_T
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x9 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+
+## -- Return 8 COMP using COMP
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x9 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x9 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x9 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x9 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x9 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x9 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x9 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x9 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+
+## -- Return 1 COMP and token using COMP_T (completion shouldn't be dropped)
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x9 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+
+## -- Return 1 COMP, 1 NEW QE and token using RENQ_T (completion and QE shouldn't be dropped)
+HCW LDB:PP qe_valid=1 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x0 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+
+poll_sch  ldb:PP  0xb   1000 20
+
+
+rd credit_hist_pipe.cfg_syndrome_00 0xf0000020 0xffffffff
+wr credit_hist_pipe.cfg_syndrome_00.syndvalid 1
+rd credit_hist_pipe.cfg_syndrome_00.syndvalid 0
+
+## -- Check for excess token alarm
+poll hqm_system_csr.alarm_pf_synd0 0xc5020100 0xffffff80 1000 20
+wr hqm_system_csr.alarm_pf_synd0   0xc5020100
+rd hqm_system_csr.alarm_pf_synd0   0x05020100 0xc0000000
+
+HCW LDB:PP qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x0 msgtype=0 qpri=0 qtype=uno qid=LQ dsi=0x302
+
+## -- Check the CQ depth for CQ <PP> is zero
+poll list_sel_pipe.cfg_cq_ldb_token_count[:PP:] 0x0 0xffffffff 1000 20
+poll list_sel_pipe.cfg_qid_ldb_inflight_count[:LQ:] 0x0 0xffffffff 1000 20

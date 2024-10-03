@@ -1,0 +1,341 @@
+`include "lib_udp.rdl"
+`include "hqm_udp.rdl"
+
+<% use hqm_params; %>
+
+addrmap hqm_sif_csr_map {
+	name = "Hqm Sif Csr";
+	Space = "MEM";
+    ResetSignal = "hqm_csr_mmio_rst_n powergood_rst_b";
+    USER_SPECIFIED_UDP = "HqmIsFeatureReg = reg";
+
+    `include "hqm_sif_csr_reg_def.rdl"
+
+	// Instantiate Registers
+
+    //---------------------------------------------------------------------------------------------------------------------------------
+    // OS_W
+    //---------------------------------------------------------------------------------------------------------------------------------
+
+    hqm_csr_cp_lo_r                         HQM_CSR_CP_LO                                       @0x0000000;
+    hqm_csr_cp_hi_r                         HQM_CSR_CP_HI                                       @0x0000004;
+    hqm_csr_rac_lo_r                        HQM_CSR_RAC_LO                                      @0x0000008;
+    hqm_csr_rac_hi_r                        HQM_CSR_RAC_HI                                      @0x000000c;
+    hqm_csr_wac_lo_r                        HQM_CSR_WAC_LO                                      @0x0000010;
+    hqm_csr_wac_hi_r                        HQM_CSR_WAC_HI                                      @0x0000014;
+
+    HQM_CSR_CP_LO->ResetSignal  = "prim_gated_rst_b powergood_rst_b";
+    HQM_CSR_CP_HI->ResetSignal  = "prim_gated_rst_b powergood_rst_b";
+    HQM_CSR_RAC_LO->ResetSignal = "prim_gated_rst_b powergood_rst_b";
+    HQM_CSR_RAC_HI->ResetSignal = "prim_gated_rst_b powergood_rst_b";
+    HQM_CSR_WAC_LO->ResetSignal = "prim_gated_rst_b powergood_rst_b";
+    HQM_CSR_WAC_HI->ResetSignal = "prim_gated_rst_b powergood_rst_b";
+
+    sif_ctl_r                               SIF_CTL                                             @0x00000d0;
+    sif_vc_rxmap_r                          SIF_VC_RXMAP                                        @0x00000d4;
+    sif_vc_txmap_r                          SIF_VC_TXMAP                                        @0x00000d8;
+
+    devtlb_ats_err_r                        DEVTLB_ATS_ERR                                      @0x00000e0;
+    sif_alarm_err_r                         SIF_ALARM_ERR                                       @0x00000e4;
+    ri_parity_err_r                         RI_PARITY_ERR                                       @0x00000e8;
+    sif_parity_err_r                        SIF_PARITY_ERR                                      @0x00000ec;
+
+    hqm_sif_cnt_ctl_r                       HQM_SIF_CNT_CTL                                     @0x00000f0;
+    dir_cq2tc_map_r                         DIR_CQ2TC_MAP                                       @0x00000f4;
+    ldb_cq2tc_map_r                         LDB_CQ2TC_MAP                                       @0x00000f8;
+    int2tc_map_r                            INT2TC_MAP                                          @0x00000fc;
+
+    hqm_sif_unit_version_r                  CFG_UNIT_VERSION                                    @0x0000200;
+    CFG_UNIT_VERSION.UNIT_VERSION-> reset = 8'h03;
+
+    // System counters in separate 4K page
+
+    <% for ($i=0; $i<=11; $i++) { %>
+    hqm_sif_cnt_<%=$i%>_r                   HQM_SIF_CNT_<%=$i%>                                 @<%=(0x0001000+($i*4))%>;
+    <% } %>
+    HQM_SIF_CNT_0->desc = "RI TLQ Posted Header Counter LS";
+    HQM_SIF_CNT_0.CNT->desc = "Number of RI TLQ posted headers received [31:0]";
+    HQM_SIF_CNT_1->desc = "RI TLQ Posted Header Counter MS";
+    HQM_SIF_CNT_1.CNT->desc = "Number of RI TLQ posted header received [63:32]";
+    HQM_SIF_CNT_2->desc = "RI TLQ Posted Data Counter LS";
+    HQM_SIF_CNT_2.CNT->desc = "Number of RI TLQ posted data words received [31:0]";
+    HQM_SIF_CNT_3->desc = "RI TLQ Posted Data Counter MS";
+    HQM_SIF_CNT_3.CNT->desc = "Number of RI TLQ posted data words received [63:32]";
+    HQM_SIF_CNT_4->desc = "RI TLQ Non-Posted Header Counter LS";
+    HQM_SIF_CNT_4.CNT->desc = "Number of RI TLQ non-posted headers received [31:0]";
+    HQM_SIF_CNT_5->desc = "RI TLQ Non-Posted Header Counter MS";
+    HQM_SIF_CNT_5.CNT->desc = "Number of RI TLQ non-posted header received [63:32]";
+    HQM_SIF_CNT_6->desc = "RI TLQ Non-Posted Data Counter LS";
+    HQM_SIF_CNT_6.CNT->desc = "Number of RI TLQ non-posted data words received [31:0]";
+    HQM_SIF_CNT_7->desc = "RI TLQ Non-Posted Data Counter MS";
+    HQM_SIF_CNT_7.CNT->desc = "Number of RI TLQ non-posted data words received [63:32]";
+    HQM_SIF_CNT_8->desc = "RI TLQ Unexpected Completion Counter LS";
+    HQM_SIF_CNT_8.CNT->desc = "Number of RI TLQ unexpected completions received [31:0]";
+    HQM_SIF_CNT_9->desc = "RI TLQ Unexpected Completion Counter MS";
+    HQM_SIF_CNT_9.CNT->desc = "Number of RI TLQ unexpected completions received [63:32]";
+    HQM_SIF_CNT_10->desc = "TI Posted Drop Counter LS";
+    HQM_SIF_CNT_10.CNT->desc = "Number of TI posted requests dropped [31:0]";
+    HQM_SIF_CNT_11->desc = "TI Posted Drop Counter MS";
+    HQM_SIF_CNT_11.CNT->desc = "Number of TI posted requests dropped [63:32]";
+
+    //---------------------------------------------------------------------------------------------------------------------------------
+    // FEATURE
+    //---------------------------------------------------------------------------------------------------------------------------------
+
+    hqm_hw_agitate_control_r                OBCPL_AFULL_AGITATE_CONTROL                         @0x8000014;             // FEATURE
+                                            OBCPL_AFULL_AGITATE_CONTROL.CTRL->ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.OBCPL_AFULL_AGITATE_CONTROL.CTRL";
+                                            OBCPL_AFULL_AGITATE_CONTROL.MODE->ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.OBCPL_AFULL_AGITATE_CONTROL.MODE";
+
+    prim_cdc_ctl_r                          PRIM_CDC_CTL                                        @0x8001000;             // FEATURE
+    PRIM_CDC_CTL.CLKGATE_DISABLED->ValRTLSignal         = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.PRIM_CDC_CTL.CLKGATE_DISABLED";
+    PRIM_CDC_CTL.CLKREQ_CTL_DISABLED->ValRTLSignal      = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.PRIM_CDC_CTL.CLKREQ_CTL_DISABLED";
+    PRIM_CDC_CTL.CLKGATE_HOLDOFF->ValRTLSignal          = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.PRIM_CDC_CTL.CLKGATE_HOLDOFF";
+    PRIM_CDC_CTL.PWRGATE_HOLDOFF->ValRTLSignal          = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.PRIM_CDC_CTL.PWRGATE_HOLDOFF";
+    PRIM_CDC_CTL.CLKREQ_OFF_HOLDOFF->ValRTLSignal       = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.PRIM_CDC_CTL.CLKREQ_OFF_HOLDOFF";
+    PRIM_CDC_CTL.CLKREQ_SYNCOFF_HOLDOFF->ValRTLSignal   = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.PRIM_CDC_CTL.CLKREQ_SYNCOFF_HOLDOFF";
+
+    side_cdc_ctl_r                          SIDE_CDC_CTL                                        @0x8001004;             // FEATURE
+    SIDE_CDC_CTL.CLKGATE_DISABLED->ValRTLSignal         = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIDE_CDC_CTL.CLKGATE_DISABLED";
+    SIDE_CDC_CTL.CLKREQ_CTL_DISABLED->ValRTLSignal      = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIDE_CDC_CTL.CLKREQ_CTL_DISABLED";
+    SIDE_CDC_CTL.CLKGATE_HOLDOFF->ValRTLSignal          = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIDE_CDC_CTL.CLKGATE_HOLDOFF";
+    SIDE_CDC_CTL.PWRGATE_HOLDOFF->ValRTLSignal          = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIDE_CDC_CTL.PWRGATE_HOLDOFF";
+    SIDE_CDC_CTL.CLKREQ_OFF_HOLDOFF->ValRTLSignal       = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIDE_CDC_CTL.CLKREQ_OFF_HOLDOFF";
+    SIDE_CDC_CTL.CLKREQ_SYNCOFF_HOLDOFF->ValRTLSignal   = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.SIDE_CDC_CTL.CLKREQ_SYNCOFF_HOLDOFF";
+
+    iosfp_cgctl_r                           IOSFP_CGCTL                                         @0x8001008;             // FEATURE
+    IOSFP_CGCTL.CLKGATE_ENABLE->ValRTLSignal            = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.IOSFP_CGCTL.CLKGATE_ENABLE";
+    IOSFP_CGCTL.IDLE_COUNT->ValRTLSignal                = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.IOSFP_CGCTL.IDLE_COUNT";
+
+    iosfs_cgctl_r                           IOSFS_CGCTL                                         @0x800100c;             // FEATURE
+    IOSFS_CGCTL.CLKGATE_ENABLE->ValRTLSignal            = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.IOSFS_CGCTL.CLKGATE_ENABLE";
+    IOSFS_CGCTL.IDLE_COUNT->ValRTLSignal                = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.IOSFS_CGCTL.IDLE_COUNT";
+
+    parity_ctl_r                            PARITY_CTL                                          @0x8001010;             // FEATURE
+    PARITY_CTL.RI_PAR_OFF->ValRTLSignal                 = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.PARITY_CTL.RI_PAR_OFF";
+    PARITY_CTL.MSTR_PAR_OFF->ValRTLSignal               = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.PARITY_CTL.MSTR_PAR_OFF";
+    PARITY_CTL.SIFP_PAR_OFF->ValRTLSignal               = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.PARITY_CTL.SIFP_PAR_OFF";
+
+    timeout_r                               CFG_MASTER_TIMEOUT                                  @0x8001020;             // FEATURE
+    CFG_MASTER_TIMEOUT.TIMEOUT_ENABLE->ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.CFG_MASTER_TIMEOUT.TIMEOUT_ENABLE";
+    CFG_MASTER_TIMEOUT.TIMEOUT_PWR2->ValRTLSignal       = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.CFG_MASTER_TIMEOUT.TIMEOUT_PWR2";
+
+    timeout_r                               MMIO_TIMEOUT                                        @0x8001024;             // FEATURE
+    MMIO_TIMEOUT.TIMEOUT_ENABLE->ValRTLSignal           = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.MMIO_TIMEOUT.TIMEOUT_ENABLE";
+    MMIO_TIMEOUT.TIMEOUT_PWR2->ValRTLSignal             = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.MMIO_TIMEOUT.TIMEOUT_PWR2";
+
+    timeout_r                               HCW_TIMEOUT                                         @0x8001028;             // FEATURE
+    HCW_TIMEOUT.TIMEOUT_ENABLE->ValRTLSignal            = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.HCW_TIMEOUT.TIMEOUT_ENABLE";
+    HCW_TIMEOUT.TIMEOUT_PWR2->ValRTLSignal              = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.HCW_TIMEOUT.TIMEOUT_PWR2";
+
+    visa_sw_control_r                       VISA_SW_CONTROL                                     @0x8001030;             // FEATURE
+
+    cfg_ph_trigger_addr_l_r                 CFG_PH_TRIGGER_ADDR_L                               @0x8001040;             // FEATURE
+    cfg_ph_trigger_addr_u_r                 CFG_PH_TRIGGER_ADDR_U                               @0x8001044;             // FEATURE
+    cfg_ph_trigger_mask_l_r                 CFG_PH_TRIGGER_MASK_L                               @0x8001048;             // FEATURE
+    cfg_ph_trigger_mask_u_r                 CFG_PH_TRIGGER_MASK_U                               @0x800104c;             // FEATURE
+
+    sif_idle_status_r                       SIF_IDLE_STATUS                                     @0x8001050;             // FEATURE
+    sif_db_status_r                         SIF_DB_STATUS                                       @0x8001054;             // FEATURE
+    ri_db_status_r                          RI_DB_STATUS                                        @0x8001058;             // FEATURE
+
+    ri_phdr_fifo_ctl_r                      RI_PHDR_FIFO_CTL                                    @0x8001070;             // FEATURE
+    ri_pdata_fifo_ctl_r                     RI_PDATA_FIFO_CTL                                   @0x8001074;             // FEATURE
+    ri_nphdr_fifo_ctl_r                     RI_NPHDR_FIFO_CTL                                   @0x8001078;             // FEATURE
+    ri_npdata_fifo_ctl_r                    RI_NPDATA_FIFO_CTL                                  @0x800107c;             // FEATURE
+    ri_ioq_fifo_ctl_r                       RI_IOQ_FIFO_CTL                                     @0x8001080;             // FEATURE
+    ibcpl_hdr_fifo_ctl_r                    IBCPL_HDR_FIFO_CTL                                  @0x8001084;             // FEATURE
+    ibcpl_data_fifo_ctl_r                   IBCPL_DATA_FIFO_CTL                                 @0x8001088;             // FEATURE
+
+    RI_PHDR_FIFO_CTL.HIGH_WM->ValRTLSignal        = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_PHDR_FIFO_CTL.HIGH_WM";
+    RI_PDATA_FIFO_CTL.HIGH_WM->ValRTLSignal       = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_PDATA_FIFO_CTL.HIGH_WM";
+    RI_NPHDR_FIFO_CTL.HIGH_WM->ValRTLSignal       = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_NPHDR_FIFO_CTL.HIGH_WM";
+    RI_NPDATA_FIFO_CTL.HIGH_WM->ValRTLSignal      = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_NPDATA_FIFO_CTL.HIGH_WM";
+    RI_IOQ_FIFO_CTL.HIGH_WM->ValRTLSignal         = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_IOQ_FIFO_CTL.HIGH_WM";
+    IBCPL_HDR_FIFO_CTL.HIGH_WM->ValRTLSignal      = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.IBCPL_HDR_FIFO_CTL.HIGH_WM";
+    IBCPL_DATA_FIFO_CTL.HIGH_WM->ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.IBCPL_DATA_FIFO_CTL.HIGH_WM";
+
+    scrbd_ctl_r                             SCRBD_CTL                                           @0x8001090;             // FEATURE
+    scrbd_status_r                          SCRBD_STATUS                                        @0x8001094;             // FEATURE
+    devtlb_ctl_r                            DEVTLB_CTL                                          @0x8001098;             // FEATURE
+    devtlb_spare_r                          DEVTLB_SPARE                                        @0x800109c;             // FEATURE
+    devtlb_defeature0_r                     DEVTLB_DEFEATURE0                                   @0x80010a0;             // FEATURE
+    devtlb_defeature1_r                     DEVTLB_DEFEATURE1                                   @0x80010a4;             // FEATURE
+    devtlb_defeature2_r                     DEVTLB_DEFEATURE2                                   @0x80010a8;             // FEATURE
+    devtlb_status_r                         DEVTLB_STATUS                                       @0x80010ac;             // FEATURE
+
+    cfgm_status_r                           CFGM_STATUS                                         @0x80010b0;             // FEATURE
+    cfgm_status2_r                          CFGM_STATUS2                                        @0x80010b4;             // FEATURE
+
+    local_bme_status_r                      LOCAL_BME_STATUS                                    @0x80010b8;             // FEATURE
+    local_msixe_status_r                    LOCAL_MSIXE_STATUS                                  @0x80010bc;             // FEATURE
+
+    mstr_crd_status_r                       MSTR_CRD_STATUS                                     @0x80010c0;             // FEATURE
+    mstr_fl_status_r                        MSTR_FL_STATUS                                      @0x80010c4;             // FEATURE
+    mstr_ll_status_r                        MSTR_LL_STATUS                                      @0x80010c8;             // FEATURE
+    mstr_ll_ctl_r                           MSTR_LL_CTL                                         @0x80010cc;             // FEATURE
+
+    sif_mstr_debug_r                        SIF_MSTR_DEBUG                                      @0x80010d0;             // FEATURE
+
+    ibcpl_err_r                             IBCPL_ERR                                           @0x80010f0;             // FEATURE
+    ibcpl_err_hdr_r                         IBCPL_ERR_HDR_0                                     @0x80010f4;             // FEATURE
+                                            IBCPL_ERR_HDR_0.HDR->ValRTLSignal         = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.IBCPL_ERR_HDR_0.HDR";
+    ibcpl_err_hdr_r                         IBCPL_ERR_HDR_1                                     @0x80010f8;             // FEATURE
+                                            IBCPL_ERR_HDR_1.HDR->ValRTLSignal         = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.IBCPL_ERR_HDR_1.HDR";
+    ibcpl_err_hdr_r                         IBCPL_ERR_HDR_2                                     @0x80010fc;             // FEATURE
+                                            IBCPL_ERR_HDR_2.HDR->ValRTLSignal         = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.IBCPL_ERR_HDR_2.HDR";
+
+    fifo_status_r                           RI_PHDR_FIFO_STATUS                                 @0x8001214;             // FEATURE
+    RI_PHDR_FIFO_STATUS.DEPTH->ValRTLSignal       = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_PHDR_FIFO_STATUS.DEPTH";
+    RI_PHDR_FIFO_STATUS.FULL->ValRTLSignal        = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_PHDR_FIFO_STATUS.FULL";
+    RI_PHDR_FIFO_STATUS.AFULL->ValRTLSignal       = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_PHDR_FIFO_STATUS.AFULL";
+    RI_PHDR_FIFO_STATUS.RSVD5->ValRTLSignal       = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_PHDR_FIFO_STATUS.RSVD5";
+    RI_PHDR_FIFO_STATUS.EMPTY->ValRTLSignal       = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_PHDR_FIFO_STATUS.EMPTY";
+    RI_PHDR_FIFO_STATUS.RSVD32->ValRTLSignal      = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_PHDR_FIFO_STATUS.RSVD32";
+    RI_PHDR_FIFO_STATUS.OVRFLOW->ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_PHDR_FIFO_STATUS.OVRFLOW";
+    RI_PHDR_FIFO_STATUS.UNDFLOW->ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_PHDR_FIFO_STATUS.UNDFLOW";
+
+    fifo_status_r                           RI_PDATA_FIFO_STATUS                                @0x8001218;             // FEATURE
+    RI_PDATA_FIFO_STATUS.DEPTH->ValRTLSignal      = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_PDATA_FIFO_STATUS.DEPTH";
+    RI_PDATA_FIFO_STATUS.FULL->ValRTLSignal       = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_PDATA_FIFO_STATUS.FULL";
+    RI_PDATA_FIFO_STATUS.AFULL->ValRTLSignal      = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_PDATA_FIFO_STATUS.AFULL";
+    RI_PDATA_FIFO_STATUS.RSVD5->ValRTLSignal      = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_PDATA_FIFO_STATUS.RSVD5";
+    RI_PDATA_FIFO_STATUS.EMPTY->ValRTLSignal      = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_PDATA_FIFO_STATUS.EMPTY";
+    RI_PDATA_FIFO_STATUS.RSVD32->ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_PDATA_FIFO_STATUS.RSVD32";
+    RI_PDATA_FIFO_STATUS.OVRFLOW->ValRTLSignal    = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_PDATA_FIFO_STATUS.OVRFLOW";
+    RI_PDATA_FIFO_STATUS.UNDFLOW->ValRTLSignal    = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_PDATA_FIFO_STATUS.UNDFLOW";
+
+    fifo_status_r                           RI_NPHDR_FIFO_STATUS                                @0x800121c;             // FEATURE
+    RI_NPHDR_FIFO_STATUS.DEPTH->ValRTLSignal      = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_NPHDR_FIFO_STATUS.DEPTH";
+    RI_NPHDR_FIFO_STATUS.FULL->ValRTLSignal       = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_NPHDR_FIFO_STATUS.FULL";
+    RI_NPHDR_FIFO_STATUS.AFULL->ValRTLSignal      = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_NPHDR_FIFO_STATUS.AFULL";
+    RI_NPHDR_FIFO_STATUS.RSVD5->ValRTLSignal      = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_NPHDR_FIFO_STATUS.RSVD5";
+    RI_NPHDR_FIFO_STATUS.EMPTY->ValRTLSignal      = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_NPHDR_FIFO_STATUS.EMPTY";
+    RI_NPHDR_FIFO_STATUS.RSVD32->ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_NPHDR_FIFO_STATUS.RSVD32";
+    RI_NPHDR_FIFO_STATUS.OVRFLOW->ValRTLSignal    = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_NPHDR_FIFO_STATUS.OVRFLOW";
+    RI_NPHDR_FIFO_STATUS.UNDFLOW->ValRTLSignal    = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_NPHDR_FIFO_STATUS.UNDFLOW";
+
+    fifo_status_r                           RI_NPDATA_FIFO_STATUS                               @0x8001220;             // FEATURE
+    RI_NPDATA_FIFO_STATUS.DEPTH->ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_NPDATA_FIFO_STATUS.DEPTH";
+    RI_NPDATA_FIFO_STATUS.FULL->ValRTLSignal      = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_NPDATA_FIFO_STATUS.FULL";
+    RI_NPDATA_FIFO_STATUS.AFULL->ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_NPDATA_FIFO_STATUS.AFULL";
+    RI_NPDATA_FIFO_STATUS.RSVD5->ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_NPDATA_FIFO_STATUS.RSVD5";
+    RI_NPDATA_FIFO_STATUS.EMPTY->ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_NPDATA_FIFO_STATUS.EMPTY";
+    RI_NPDATA_FIFO_STATUS.RSVD32->ValRTLSignal    = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_NPDATA_FIFO_STATUS.RSVD32";
+    RI_NPDATA_FIFO_STATUS.OVRFLOW->ValRTLSignal   = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_NPDATA_FIFO_STATUS.OVRFLOW";
+    RI_NPDATA_FIFO_STATUS.UNDFLOW->ValRTLSignal   = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_NPDATA_FIFO_STATUS.UNDFLOW";
+
+    fifo_status_r                           RI_IOQ_FIFO_STATUS                                  @0x8001224;             // FEATURE
+    RI_IOQ_FIFO_STATUS.DEPTH->ValRTLSignal        = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_IOQ_FIFO_STATUS.DEPTH";
+    RI_IOQ_FIFO_STATUS.FULL->ValRTLSignal         = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_IOQ_FIFO_STATUS.FULL";
+    RI_IOQ_FIFO_STATUS.AFULL->ValRTLSignal        = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_IOQ_FIFO_STATUS.AFULL";
+    RI_IOQ_FIFO_STATUS.RSVD5->ValRTLSignal        = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_IOQ_FIFO_STATUS.RSVD5";
+    RI_IOQ_FIFO_STATUS.EMPTY->ValRTLSignal        = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_IOQ_FIFO_STATUS.EMPTY";
+    RI_IOQ_FIFO_STATUS.RSVD32->ValRTLSignal       = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_IOQ_FIFO_STATUS.RSVD32";
+    RI_IOQ_FIFO_STATUS.OVRFLOW->ValRTLSignal      = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_IOQ_FIFO_STATUS.OVRFLOW";
+    RI_IOQ_FIFO_STATUS.UNDFLOW->ValRTLSignal      = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.RI_IOQ_FIFO_STATUS.UNDFLOW";
+
+    fifo_status_r                           IBCPL_DATA_FIFO_STATUS                              @0x800122c;             // FEATURE
+    IBCPL_DATA_FIFO_STATUS.DEPTH->ValRTLSignal    = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.IBCPL_DATA_FIFO_STATUS.DEPTH";
+    IBCPL_DATA_FIFO_STATUS.FULL->ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.IBCPL_DATA_FIFO_STATUS.FULL";
+    IBCPL_DATA_FIFO_STATUS.AFULL->ValRTLSignal    = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.IBCPL_DATA_FIFO_STATUS.AFULL";
+    IBCPL_DATA_FIFO_STATUS.RSVD5->ValRTLSignal    = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.IBCPL_DATA_FIFO_STATUS.RSVD5";
+    IBCPL_DATA_FIFO_STATUS.EMPTY->ValRTLSignal    = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.IBCPL_DATA_FIFO_STATUS.EMPTY";
+    IBCPL_DATA_FIFO_STATUS.RSVD32->ValRTLSignal   = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.IBCPL_DATA_FIFO_STATUS.RSVD32";
+    IBCPL_DATA_FIFO_STATUS.OVRFLOW->ValRTLSignal  = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.IBCPL_DATA_FIFO_STATUS.OVRFLOW";
+    IBCPL_DATA_FIFO_STATUS.UNDFLOW->ValRTLSignal  = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.IBCPL_DATA_FIFO_STATUS.UNDFLOW";
+
+    fifo_status_r                           OBCPL_FIFO_STATUS                                   @0x800123c;             // FEATURE
+    OBCPL_FIFO_STATUS.DEPTH->ValRTLSignal      = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.OBCPL_FIFO_STATUS.DEPTH";
+    OBCPL_FIFO_STATUS.FULL->ValRTLSignal       = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.OBCPL_FIFO_STATUS.FULL";
+    OBCPL_FIFO_STATUS.AFULL->ValRTLSignal      = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.OBCPL_FIFO_STATUS.AFULL";
+    OBCPL_FIFO_STATUS.RSVD5->ValRTLSignal      = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.OBCPL_FIFO_STATUS.RSVD5";
+    OBCPL_FIFO_STATUS.EMPTY->ValRTLSignal      = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.OBCPL_FIFO_STATUS.EMPTY";
+    OBCPL_FIFO_STATUS.RSVD32->ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.OBCPL_FIFO_STATUS.RSVD32";
+    OBCPL_FIFO_STATUS.OVRFLOW->ValRTLSignal    = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.OBCPL_FIFO_STATUS.OVRFLOW";
+    OBCPL_FIFO_STATUS.UNDFLOW->ValRTLSignal    = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.OBCPL_FIFO_STATUS.UNDFLOW";
+
+    fifo_status_r                           IBCPL_HDR_FIFO_STATUS                               @0x8001240;             // FEATURE
+    IBCPL_HDR_FIFO_STATUS.DEPTH->ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.IBCPL_HDR_FIFO_STATUS.DEPTH";
+    IBCPL_HDR_FIFO_STATUS.FULL->ValRTLSignal      = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.IBCPL_HDR_FIFO_STATUS.FULL";
+    IBCPL_HDR_FIFO_STATUS.AFULL->ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.IBCPL_HDR_FIFO_STATUS.AFULL";
+    IBCPL_HDR_FIFO_STATUS.RSVD5->ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.IBCPL_HDR_FIFO_STATUS.RSVD5";
+    IBCPL_HDR_FIFO_STATUS.EMPTY->ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.IBCPL_HDR_FIFO_STATUS.EMPTY";
+    IBCPL_HDR_FIFO_STATUS.RSVD32->ValRTLSignal    = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.IBCPL_HDR_FIFO_STATUS.RSVD32";
+    IBCPL_HDR_FIFO_STATUS.OVRFLOW->ValRTLSignal   = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.IBCPL_HDR_FIFO_STATUS.OVRFLOW";
+    IBCPL_HDR_FIFO_STATUS.UNDFLOW->ValRTLSignal   = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.IBCPL_HDR_FIFO_STATUS.UNDFLOW";
+
+    fifo_status_r                           P_RL_CQ_FIFO_STATUS                                 @0x8001244;             // FEATURE
+    P_RL_CQ_FIFO_STATUS.DEPTH->ValRTLSignal       = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.P_RL_CQ_FIFO_STATUS.DEPTH";
+    P_RL_CQ_FIFO_STATUS.FULL->ValRTLSignal        = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.P_RL_CQ_FIFO_STATUS.FULL";
+    P_RL_CQ_FIFO_STATUS.AFULL->ValRTLSignal       = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.P_RL_CQ_FIFO_STATUS.AFULL";
+    P_RL_CQ_FIFO_STATUS.RSVD5->ValRTLSignal       = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.P_RL_CQ_FIFO_STATUS.RSVD5";
+    P_RL_CQ_FIFO_STATUS.EMPTY->ValRTLSignal       = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.P_RL_CQ_FIFO_STATUS.EMPTY";
+    P_RL_CQ_FIFO_STATUS.RSVD32->ValRTLSignal      = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.P_RL_CQ_FIFO_STATUS.RSVD32";
+    P_RL_CQ_FIFO_STATUS.OVRFLOW->ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.P_RL_CQ_FIFO_STATUS.OVRFLOW";
+    P_RL_CQ_FIFO_STATUS.UNDFLOW->ValRTLSignal     = "%HQMID%.i_hqm_sif_core.i_hqm_ri.i_sif_csr_wrap.i_hqm_sif_csr.P_RL_CQ_FIFO_STATUS.UNDFLOW";
+
+    tgt_init_hcredits_r                     TGT_INIT_HCREDITS                                   @0x8001280;             // FEATURE
+    tgt_init_dcredits_r                     TGT_INIT_DCREDITS                                   @0x8001284;             // FEATURE
+    tgt_rem_hcredits_r                      TGT_REM_HCREDITS                                    @0x8001288;             // FEATURE
+    tgt_rem_dcredits_r                      TGT_REM_DCREDITS                                    @0x800128c;             // FEATURE
+    tgt_ret_hcredits_r                      TGT_RET_HCREDITS                                    @0x8001290;             // FEATURE
+    tgt_ret_dcredits_r                      TGT_RET_DCREDITS                                    @0x8001294;             // FEATURE
+
+    sif_aw_smon_rf                          SMON[2]                                             @0x8002000 +=0x40;      // FEATURE
+
+    SMON[0].AW_SMON_CONFIGURATION0.TIMER_PRESCALE->ValRTLSignal         = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon0.reg_smon_cfg0_q[28:24]";
+    SMON[0].AW_SMON_CONFIGURATION0.STATTIMEROVFL->ValRTLSignal          = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon0.reg_smon_cfg0_q[22:22]";
+    SMON[0].AW_SMON_CONFIGURATION0.INTTIMEROVFL->ValRTLSignal           = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon0.reg_smon_cfg0_q[21:21]";
+    SMON[0].AW_SMON_CONFIGURATION0.STOPTIMEROVFL->ValRTLSignal          = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon0.reg_smon_cfg0_q[20:20]";
+    SMON[0].AW_SMON_CONFIGURATION0.STATCOUNTER1OVFL->ValRTLSignal       = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon0.reg_smon_cfg0_q[19:19]";
+    SMON[0].AW_SMON_CONFIGURATION0.STATCOUNTER0OVFL->ValRTLSignal       = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon0.reg_smon_cfg0_q[18:18]";
+    SMON[0].AW_SMON_CONFIGURATION0.INTCOUNTEROVFL->ValRTLSignal         = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon0.reg_smon_cfg0_q[17:17]";
+    SMON[0].AW_SMON_CONFIGURATION0.STOPCOUNTEROVFL->ValRTLSignal        = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon0.reg_smon_cfg0_q[16:16]";
+    SMON[0].AW_SMON_CONFIGURATION0.SMON_MODE->ValRTLSignal              = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon0.reg_smon_cfg0_q[15:12]";
+    SMON[0].AW_SMON_CONFIGURATION0.SMON1_FUNCTION_COMPARE->ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon0.reg_smon_cfg0_q[11:11]";
+    SMON[0].AW_SMON_CONFIGURATION0.SMON1_FUNCTION->ValRTLSignal         = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon0.reg_smon_cfg0_q[10:8]";
+    SMON[0].AW_SMON_CONFIGURATION0.SMON0_FUNCTION_COMPARE->ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon0.reg_smon_cfg0_q[7:7]";
+    SMON[0].AW_SMON_CONFIGURATION0.SMON0_FUNCTION->ValRTLSignal         = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon0.reg_smon_cfg0_q[6:4]";
+    SMON[0].AW_SMON_CONFIGURATION0.SMON_ENABLE->ValRTLSignal            = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon0.reg_smon_cfg0_q[0:0]";
+    SMON[0].AW_SMON_CONFIGURATION1.RSVD->ValRTLSignal                   = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon0.reg_smon_cfg1_q[31:16]";
+    SMON[0].AW_SMON_CONFIGURATION1.MODE1->ValRTLSignal                  = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon0.reg_smon_cfg1_q[15:8]";
+    SMON[0].AW_SMON_CONFIGURATION1.MODE0->ValRTLSignal                  = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon0.reg_smon_cfg1_q[7:0]";
+    SMON[0].AW_SMON_COMPARE0.COMPARE0->ValRTLSignal                     = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon0.reg_smon_comp0_q[31:0]";
+    SMON[0].AW_SMON_COMPARE1.COMPARE1->ValRTLSignal                     = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon0.reg_smon_comp1_q[31:0]";
+    SMON[0].AW_SMON_ACTIVITYCOUNTER0.COUNTER0->ValRTLSignal             = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon0.reg_smon_cnt0_q[31:0]";
+    SMON[0].AW_SMON_ACTIVITYCOUNTER1.COUNTER1->ValRTLSignal             = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon0.reg_smon_cnt1_q[31:0]";
+    SMON[0].AW_SMON_TIMER.TIMER_VAL->ValRTLSignal                       = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon0.reg_smon_timer_q[31:0]";
+    SMON[0].AW_SMON_MAXIMUM_TIMER.MAXVALUE->ValRTLSignal                = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon0.reg_smon_maxval_q[31:0]";
+    SMON[0].AW_SMON_COMP_MASK0.COMP_MASK0->ValRTLSignal                 = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon0.reg_smon_mask0_q[31:0]";
+    SMON[0].AW_SMON_COMP_MASK1.COMP_MASK1->ValRTLSignal                 = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon0.reg_smon_mask1_q[31:0]";
+
+    SMON[1].AW_SMON_CONFIGURATION0.TIMER_PRESCALE->ValRTLSignal         = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon1.reg_smon_cfg0_q[28:24]";
+    SMON[1].AW_SMON_CONFIGURATION0.STATTIMEROVFL->ValRTLSignal          = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon1.reg_smon_cfg0_q[22:22]";
+    SMON[1].AW_SMON_CONFIGURATION0.INTTIMEROVFL->ValRTLSignal           = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon1.reg_smon_cfg0_q[21:21]";
+    SMON[1].AW_SMON_CONFIGURATION0.STOPTIMEROVFL->ValRTLSignal          = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon1.reg_smon_cfg0_q[20:20]";
+    SMON[1].AW_SMON_CONFIGURATION0.STATCOUNTER1OVFL->ValRTLSignal       = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon1.reg_smon_cfg0_q[19:19]";
+    SMON[1].AW_SMON_CONFIGURATION0.STATCOUNTER0OVFL->ValRTLSignal       = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon1.reg_smon_cfg0_q[18:18]";
+    SMON[1].AW_SMON_CONFIGURATION0.INTCOUNTEROVFL->ValRTLSignal         = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon1.reg_smon_cfg0_q[17:17]";
+    SMON[1].AW_SMON_CONFIGURATION0.STOPCOUNTEROVFL->ValRTLSignal        = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon1.reg_smon_cfg0_q[16:16]";
+    SMON[1].AW_SMON_CONFIGURATION0.SMON_MODE->ValRTLSignal              = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon1.reg_smon_cfg0_q[15:12]";
+    SMON[1].AW_SMON_CONFIGURATION0.SMON1_FUNCTION_COMPARE->ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon1.reg_smon_cfg0_q[11:11]";
+    SMON[1].AW_SMON_CONFIGURATION0.SMON1_FUNCTION->ValRTLSignal         = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon1.reg_smon_cfg0_q[10:8]";
+    SMON[1].AW_SMON_CONFIGURATION0.SMON0_FUNCTION_COMPARE->ValRTLSignal = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon1.reg_smon_cfg0_q[7:7]";
+    SMON[1].AW_SMON_CONFIGURATION0.SMON0_FUNCTION->ValRTLSignal         = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon1.reg_smon_cfg0_q[6:4]";
+    SMON[1].AW_SMON_CONFIGURATION0.SMON_ENABLE->ValRTLSignal            = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon1.reg_smon_cfg0_q[0:0]";
+    SMON[1].AW_SMON_CONFIGURATION1.RSVD->ValRTLSignal                   = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon1.reg_smon_cfg1_q[31:16]";
+    SMON[1].AW_SMON_CONFIGURATION1.MODE1->ValRTLSignal                  = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon1.reg_smon_cfg1_q[15:8]";
+    SMON[1].AW_SMON_CONFIGURATION1.MODE0->ValRTLSignal                  = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon1.reg_smon_cfg1_q[7:0]";
+    SMON[1].AW_SMON_COMPARE0.COMPARE0->ValRTLSignal                     = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon1.reg_smon_comp0_q[31:0]";
+    SMON[1].AW_SMON_COMPARE1.COMPARE1->ValRTLSignal                     = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon1.reg_smon_comp1_q[31:0]";
+    SMON[1].AW_SMON_ACTIVITYCOUNTER0.COUNTER0->ValRTLSignal             = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon1.reg_smon_cnt0_q[31:0]";
+    SMON[1].AW_SMON_ACTIVITYCOUNTER1.COUNTER1->ValRTLSignal             = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon1.reg_smon_cnt1_q[31:0]";
+    SMON[1].AW_SMON_TIMER.TIMER_VAL->ValRTLSignal                       = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon1.reg_smon_timer_q[31:0]";
+    SMON[1].AW_SMON_MAXIMUM_TIMER.MAXVALUE->ValRTLSignal                = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon1.reg_smon_maxval_q[31:0]";
+    SMON[1].AW_SMON_COMP_MASK0.COMP_MASK0->ValRTLSignal                 = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon1.reg_smon_mask0_q[31:0]";
+    SMON[1].AW_SMON_COMP_MASK1.COMP_MASK1->ValRTLSignal                 = "%HQMID%.i_hqm_sif_core.i_hqm_sif_infra_core.i_smon1.reg_smon_mask1_q[31:0]";
+
+    pulled_fuses_0_r                        HQM_PULLED_FUSES_0                                  @0x8003000;             // FEATURE
+
+};
+

@@ -1,0 +1,185 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+our $attr_force_val;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => [
+            "+AW_CONTINUE_ON_ERROR", "+iosf_tracker_filename=iosf_trk", "-assert nopostproc", "+HQMS_DEBUG", "+HQMI_DEBUG", "+vcs+lic+wait", "+SLA_FLUSH_PHASE_TIMEOUT=400000", 
+            ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+
+    if ($main::ACE_RUN_MODE =~ /^attr_force_val_/) {
+	$attr_force_val = $main::ACE_RUN_MODE;
+	$attr_force_val =~ s/attr_force_val_//;     # Extracts the actual attr_force_val  value from the runmode
+    }
+
+    %runModes = (
+      test0 => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up_mem.cft",
+           "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+           "+IOSF_PRI_FILE=back2back_memrd_seq1",],
+      },
+
+      testr => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk +HQM_PVC_AUTO_TAG_GEN_DIS",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up_mem.cft",
+           "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+           "+IOSF_PRI_FILE=back2back_memrdwr_seq2",],
+      },
+	"attr_force_val_".$attr_force_val	=> {
+	    -simv_args => [ 
+           "+ATTR_FORCE_VAL=$attr_force_val  +hqm_attr_force +tag_opt=406 +unsupport_pkt_cnt=2",],
+	},
+
+  unsupport_AT	=> {
+	    -simv_args => [ 
+           "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/unsupported_AT.waiver",],
+	},
+  unsupport_RS	=> {
+	    -simv_args => [ 
+           "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/unsupported_RS.waiver",],
+	},
+  unsupport_TC	=> {
+	    -simv_args => [ 
+           "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/unsupported_TC.waiver",],
+	},
+      test0a => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ","+RQID_TXN","+BLOCKING_IOSF_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up_mem.cft",
+           "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+           "+IOSF_PRI_FILE=back2back_memrd_seq1",],
+      },
+
+
+     test1 => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up_mem.cft",
+          "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+          "+IOSF_PRI_FILE=np_np_seq",],
+      },
+    
+    test2 => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up_mem32.cft",
+          "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+          "+IOSF_PRI_FILE=back2back_memrd_seq",],
+      },
+
+
+      test2a => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ","+RQID_TXN","+BLOCKING_IOSF_TXN",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up_mem.cft",
+          "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+          "+IOSF_PRI_FILE=back2back_memrd_seq",],
+      },
+
+
+   test3 => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up_mem.cft",
+          "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem32_check1.cft",
+          "+IOSF_PRI_FILE=back2back_posted_seq",],
+      },
+ 
+    test4a => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ","+BLOCKING_IOSF_TXN",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up_mem1.cft",
+          "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem32_check.cft",
+          "+IOSF_PRI_FILE=back2back_posted_seq2",],
+      },
+  
+
+   
+   test5 => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up_mem.cft",
+          "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/p_np.cft",
+          "+IOSF_PRI_FILE=p_np_seq1",],
+      },
+
+   test5a => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/p_np32.cft",
+          "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/p_np1.cft",
+          "+IOSF_PRI_FILE=p_np_seq",],
+      },
+
+   
+
+    test6 => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up_mem.cft",
+                        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_wrrd.cft",
+                            "+IOSF_PRI_FIL=back2back_posted_wrd_seq",],
+      },
+
+
+      test6a => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up_mem.cft",
+                        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_wrrd.cft",
+                            "+IOSF_PRI_FILE=back2back_posted_wrd_rqid_seq",],
+      },
+
+
+      pf_rst => {
+          -simv_args => ["+BLOCKING_IOSF_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/pf_reset.cft",
+           "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/pfrst_check.cft",
+           "+IOSF_PRI_FILE=pfrst_seq",
+          "+IOSF_PRIM_FILE=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/reset_check.cft",],
+
+      },
+
+
+      pf_ep_rst => {
+          -simv_args => ["+BLOCKING_IOSF_TXN",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/pf_reset.cft",
+           "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/pfrst_check.cft",
+           "+IOSF_PRI_FILE=pfrst_seq",
+          "+IOSF_PRIM_FILE=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/reset_check_ep.cft",],
+
+      },
+
+
+    WRWR => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/SAI_generic.cft",
+          "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+          "+IOSF_PRI_FILE=mem_generic_seq1","+CFG_MODE=WRWR_rand",],
+      },
+
+       WWRR => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/SAI_generic.cft",
+           "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+           "+IOSF_PRI_FILE=mem_generic_seq1","+CFG_MODE=WWRR_addr",],
+      },
+
+       WWWR => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/SAI_generic.cft",
+            "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+          "+IOSF_PRI_FILE=mem_generic_seq1","+CFG_MODE=WWWR_addr",],
+      },
+      
+      WRRR => {
+          -simv_args => ["+iosf_tracker_filename=iosf_trk ",
+           "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/SAI_generic.cft",
+            "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_check.cft",
+          "+IOSF_PRI_FILE=mem_generic_seq1","+CFG_MODE=WRRR_addr",],
+      },
+
+ 
+         );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+
+  }
+
+

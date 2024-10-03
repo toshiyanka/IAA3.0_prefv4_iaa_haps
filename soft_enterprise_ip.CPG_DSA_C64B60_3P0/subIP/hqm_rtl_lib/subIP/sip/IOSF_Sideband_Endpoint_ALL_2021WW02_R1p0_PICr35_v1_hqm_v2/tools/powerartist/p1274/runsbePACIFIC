@@ -1,0 +1,23 @@
+#! /usr/intel/bin/tcsh
+
+  #run following commented commands manually and then run this script
+  
+  #source /p/hdk/rtl/hdk.rc -cfg sip -reentrant
+  #setenv MODEL_ROOT $cwd
+  #simbuild -dut sbe -1c -CUST p1274 -1c- -ace xterm &
+  #febe -dut sbe -1c -CUST p1274 -1c- -s all +s lintra_build
+  #febe -dut sbe -1c -CUST p1274 -1c- -s all +s lintra_elab
+  #source scripts/setup -x ep_default
+  #ace -c -x -t test02 -fsdb_dump
+ 
+  setenv PACIFIC /p/hdk/rtl/proj_tools/pacific/master/latest/bin/pacific
+  setenv PACIFIC /nfs/sc/disks/sdg74_0632/gcfranci/PA10nmSDG/sandbox/dts_cds_fedv-pacific
+  setenv POWERARTIST_ROOT /p/hdk/rtl/cad/x86-64_linux26/apache/PowerArtist/2018.0.3
+  alias pacific '$PACIFIC/bin/pacific'
+  setenv PACIFIC /p/hdk/rtl/proj_tools/pacific/master/latest
+
+  pacific -cell sbendpoint -cnt soc -project sbe1274 -model_root $MODEL_ROOT -end elaborate
+  cp -r $MODEL_ROOT/tools/powerartist/p1274/project.sbe1274.pcfg $MODEL_ROOT/pacific/cfg/.
+  pacific -cell sbendpoint -cnt soc -project sbe1274 -model_root $MODEL_ROOT -activities results/tests/test02/test02.fsdb
+
+

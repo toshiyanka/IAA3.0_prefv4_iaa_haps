@@ -1,0 +1,16 @@
+//       	TAP	SlvIDcode	IDcode	     IR_Width	LBA	GBA Hybrid_en	Dfx_Security Hierarchy_Level PositionOfTap	IsVendorTap	IsIdcode_eq0C
+Create_TAP_LUT  (cltap,    32'ha265013,    32'ha265013,   14,  0,  0, 0, GREEN, 0,  0, 0, 'h02);
+Create_TAP_LUT  (dfx_aggregator,    32'h055_dead,    32'h055_dead,   8,  14'h540,  14'h1A0, 0, GREEN, 1,  0, 0, 'h0C);
+Create_TAP_LUT  (stap0,    32'h001_dead,    32'h001_dead,   8,  14'h140,  14'h1A0, 0, GREEN, 1,  1, 0, 'h0C);
+Create_TAP_LUT  (stap1,    32'h003_dead,    32'h003_dead,   8,  14'h144,  14'h1A0, 0, GREEN, 1,  2, 0, 'h0C);
+Create_TAP_LUT  (stap3,    32'h005_dead,    32'h005_dead,   8,  14'h148,  14'h1A0, 0, GREEN, 2,  0, 0, 'h0C);
+Create_TAP_LUT  (stap4,    32'h007_dead,    32'h007_dead,   8,  14'h164,  14'h1A0, 0, GREEN, 3,  0, 0, 'h0C);
+Create_TAP_LUT  (stap5,    32'h00A_dead,    32'h00A_dead,   8,  14'h150,  14'h1A0, 0, GREEN, 3,  2, 0, 'h0C);
+Create_TAP_LUT  (stap6,    32'h009_dead,    32'h009_dead,   8,  14'h154,  14'h1A0, 0, GREEN, 3,  3, 0, 'h0C);
+Create_TAP_LUT  (stap7,    32'h00B_dead,    32'h00B_dead,   8,  14'h158,  14'h1A0, 0, GREEN, 4,  0, 0, 'h0C);
+Create_TAP_LUT  (stap8,    32'h00E_dead,    32'h00E_dead,   8,  14'h15C,  14'h1A0, 0, GREEN, 5,  0, 0, 'h0C);
+Create_TAP_LUT  (stap_extr,    32'h001_dC0d,    32'h001_dC0d,   8,  14'h18C,  14'h1A0, 0, RED, 5,  1, 0, 'h0C);
+Create_TAP_LUT  (stap_extr3,    32'h021_dead,    32'h021_dead,   8,  14'h35C,  14'h1A0, 0, GREEN, 6,  0, 0, 'h0C);
+Create_TAP_LUT  (stap_extr4,    32'h031_dead,    32'h031_dead,   8,  14'h38C,  14'h1A0, 0, GREEN, 6,  1, 0, 'h0C);
+Create_TAP_LUT  (stap_extr1,    32'h001_dC01,    32'h001_dC01,   8,  14'h25C,  14'h1A0, 0, RED, 7,  0, 0, 'h0C);
+Create_TAP_LUT  (stap_extr2,    32'h011_dead,    32'h011_dead,   8,  14'h28C,  14'h1A0, 0, GREEN, 7,  1, 0, 'h0C);

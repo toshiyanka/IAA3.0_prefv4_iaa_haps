@@ -1,0 +1,38 @@
+# Options passed to the CDC static verification
+{
+  %opts = ( 
+    -model                 => 'sgcdc_stap_model',
+    -static_check_top      => 'stap_rtl_lib.stap', #Refer to the top level module in the test
+    -static_check_tools    => [ "spyglass", ],
+    -enable_spyglass_group_run => 0,
+    -enable_cdc_lint       => 1,
+    -spyglass_goals        => [
+                               "cdc/cdc_verify_struct",
+                              ],
+    -spyglass_ctrl_files => [
+                             "$ENV{MODEL_ROOT}/tools/spyglass_cdc/stap/stap.sgdc",
+    ],
+    -post_process_pattern_file   => "$ENV{ACE_HOME}/udf/ace_base_postsim.pp",
+    -spyglass_post_process_modes => "AceSpyglassCDC_default,AceCDCLint_default",
+    -spyglass_exe_opts           => [ 
+                                    # 'set_option dw yes',
+                                    # 'set_option disable_amg no',
+                                    # 'set_option lib SPY_DW_WORK ./dw_work',
+                                     'set_option dnc_param stap.STAP_SIZE_OF_EACH_INSTRUCTION', 
+                                     'set_option dnc_param stap.STAP_SUPPRESS_UPDATE_CAPTURE', 
+                                     'set_option dnc_param stap.STAP_WTAPCTRL_RESET_VALUE',
+                                     'set_option dnc_param stap.STAP_NUMBER_OF_MANDATORY_REGISTERS',
+                                     'set_option dnc_param stap.STAP_SECURE_GREEN', 
+                                     'set_option dnc_param stap.STAP_SECURE_ORANGE', 
+                                     'set_option dnc_param stap.STAP_SECURE_RED', 
+                                     'set_option dnc_param stap.STAP_DFX_SECURE_POLICY_SELECTREG', 
+                                     'set_option dnc_param stap.STAP_INSTRUCTION_FOR_DATA_REGISTERS', 
+                                     'set_option dnc_param stap.STAP_RESET_VALUES_OF_TEST_DATA_REGISTERS', 
+                                     'set_option dnc_param stap.STAP_DFX_EARLYBOOT_FEATURE_ENABLE', 
+                                     'set_option dnc_param stap.STAP_DFX_SECURE_POLICY_MATRIX',
+
+                                     ],
+    -spyglass_exe_scrag_recipe   => [],
+  );
+}
+

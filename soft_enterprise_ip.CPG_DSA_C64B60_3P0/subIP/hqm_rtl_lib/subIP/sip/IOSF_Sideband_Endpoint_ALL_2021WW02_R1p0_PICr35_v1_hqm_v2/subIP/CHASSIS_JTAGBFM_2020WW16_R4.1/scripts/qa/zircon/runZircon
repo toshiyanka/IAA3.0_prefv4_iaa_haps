@@ -1,0 +1,74 @@
+#!/bin/tcsh -f
+# name: runZircon
+# date: <DATE>
+# auth: <AUTHOR>
+# desc: Run Zircon QA test
+# Status codes: 0=pass, 1-49=fail, 50=TBD, 60=N/A
+
+setenv SIP_QA_MODULE "Zircon QA"
+
+#########################################
+# Define variables
+#########################################
+set SIP_TOOL_NAME=`echo $0 | sed -e 's/.*\///'`
+setenv SIP_PWD $cwd
+if (! $?SIP_VARIATION) then
+  # Can re-define this with a legal variation
+  setenv SIP_VARIATION unknown
+endif
+if (! $?SIP_IPNAME) then
+  # Can re-define this for this IP
+  setenv SIP_IPNAME ip-jtag-bfm
+endif
+if (! $?SIP_MODULE_ARG) then
+  setenv SIP_MODULE_ARG ""
+endif
+
+set flag=0
+#####################################################
+# UNIX Environment setup
+#####################################################
+cd ..
+if (! $?SIP_NO_SETUP) then
+# Setup not needed for this module
+#  source setup -ft
+endif
+
+#####################################################
+# Run commands
+#####################################################
+set rpt=""
+if ($?SIP_CREATE_REPORT) then
+  set rpt="-o $SIP_CREATE_REPORT"
+endif
+set status=50   # Default status = TBD
+cd ..
+# Replace white space with an underscore for project name
+set thisIp="`echo $SIP_IPNAME | /usr/bin/perl -pi -e 'chomp; s/\s+/_/g'`"
+# Note: Add -alias <name> if there is an alternate IP name used for documentation
+# Note: Add -top <filename> to define top level RTL file name
+# Note: Add -proj <name> to define this SOC project
+# Note: Add -rv <name> to define this version
+/p/sip/utils/bin/zirconQA -per -ip $thisIp -vari "$SIP_VARIATION" $rpt $SIP_MODULE_ARG 
+set exitStatus=$status
+
+#####################################################
+# Report
+#####################################################
+#if ($?SIP_CREATE_REPORT) then
+#endif
+
+#####################################################
+# Verification
+#####################################################
+if ($exitStatus == 50) then
+  echo "Note: $SIP_QA_MODULE TBD.  ($SIP_TOOL_NAME)"
+else if ($exitStatus == 60) then
+  echo "Note: $SIP_QA_MODULE N/A.  ($SIP_TOOL_NAME)"
+else if ($exitStatus) then
+  echo "Error: $SIP_QA_MODULE failed.  ($SIP_TOOL_NAME)"
+else
+  echo "Note: $SIP_QA_MODULE passed.  ($SIP_TOOL_NAME)"
+endif
+
+exit $exitStatus

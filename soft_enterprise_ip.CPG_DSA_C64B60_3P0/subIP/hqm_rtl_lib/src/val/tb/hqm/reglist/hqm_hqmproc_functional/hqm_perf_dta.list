@@ -1,0 +1,159 @@
+##########################
+#scen7_smk01 (Test2)
+#-	Test mimics a pipelined processing of multiple stages.  Stages = 6.
+#-	Multiple worker cluster (6 LDB CQs).
+#-	Small number of QIDs (6) and very small number of ATM flows per QID (1 Lockid per QID ¿ optionally can increase this N flows per QID).
+#-	Inject traffic at a rate close to what the aggregate CQs can process.
+#-	CQLen=64 for all CQs.
+#-	TDT threshold = CQLen-1.
+#
+#-	Traffic Flow:
+#o	Producer sends LDB QID=0 ATM QEs. (N QEs at Rate ¿r¿)
+#o	When a CQ receives the QE, it RENQ with incoming QID + 1, until the incoming QID=5.  The next LockId = incoming LockID.
+#o	When incoming QID=5, consumer terminates the flow and sends a COMP only.
+#o	Each Consumer maintains a counter of number of COMPs it sends back.
+#o	When this counter reaches the TDT value, a BAT_T (TDT#tokens) is generated and sent back to HQM. The counter is reset.
+#-	Check to make sure that all CQs have roughly equal amount (with some tolerance) of work done, and no CQ is idle.
+##########################
+#Test2: 
+#CQLen = 64, CQ inflight-64
+#Keep the TDT=CQLen-1 (63). ).  Let the CQ process the QE for x cycles (ie., send completion only after some cycles expire (say 50 clks).  So BAT_T is send after processing 63 QEs.
+#
+#Observation: You should see all CQs with roughly equal QEs processed.  Overall throughput will be slightly lower than one would expect.
+#
+#In perfect world the set of 6 CQs process QEs every 60 clks (HQM 1 every 60/6 = 10 clocks).  Expected throughput = 10 clks/QE.
+#
+#With the TDT it might be slightly lower due to allowing CQs to drain to a very shallow value before refilling.
+##########################
+############################
+##mset  (QID => multiple CQs)
+############################
+#ldbpp0 src
+ hcw_enqtrf_hqmproc_test:scen7_smk01_short+scen7_mset_0               -dut hqm -model hqm -dirtag HQM_hqmproc_scen7_smk01_ldbpp0src_short.mmap -ace_args -simv_args +HQM_PRIM_CLK_800_MHZ  -simv_args +HQM_LDB_WORKER_CHECK -ace_args- -ovm_medium  
+
+#dirpp0 src
+ hcw_enqtrf_hqmproc_test:scen7_smk01_dirpp0src_short+scen7_mset_0     -dut hqm -model hqm -dirtag HQM_hqmproc_scen7_smk01_dirpp0src_short.mmap -ace_args -simv_args +HQM_PRIM_CLK_800_MHZ  -simv_args +HQM_LDB_WORKER_CHECK -ace_args- -ovm_medium  
+
+#ldbpp0 src long
+ hcw_enqtrf_hqmproc_test:scen7_smk01_mmap_lowrate_long+scen7_mset_0   -dut hqm -model hqm -dirtag HQM_hqmproc_scen7_smk01_ldbpp0src_long.mmap -ace_args -simv_args +HQM_PRIM_CLK_800_MHZ  -simv_args +HQM_LDB_WORKER_CHECK -ace_args- -ovm_medium  
+
+
+##########################
+#scen7_smk02 (Test1)
+#Test1: 
+#CQLen = 64, CQ inflight-64
+#Baseline Keep the TDT=1 (typical case where we send a token right after CQpop occurs).  Let the CQ process the QE for x cycles (ie., send completion only after some cycles expire (say 60 clks).
+#
+#Observation: You should see some CQs idle.  (very high imbalance among CQ QE counts).
+##########################
+#expect fail in +HQM_LDB_WORKER_CHECK LAT_AVE checking
+#hcw_enqtrf_hqmproc_test:scen7_smk02_short+scen7_mset_1           -dut hqm -model hqm -dirtag HQM_hqmproc_scen7_smk02_mmap_short.mmap -ace_args -simv_args +HQM_PRIM_CLK_800_MHZ  -simv_args +HQM_LDB_WORKER_CHECK -ace_args- -ovm_medium
+
+
+####################################################
+####################################################
+#Scenario8 (cq.cq_ldb_inflight_thresh=1; CFG_CONTROL_GENERAL_0.ENAB_IF_THRESH=1) 0512/2020 LSP new feature
+#using RENQ_T instead of RENQ+BAT_T
+################################################# scen8 DTA
+####################################################
+####################################################
+################Try the following tests: T1A, T1B, T2A, T2B ; T2B is Murali's DTA solution, 
+#===================================================================
+#Test1: each worker PP takes a unique lockid
+#
+#T1A) workers have unique lockid, same prio setting   
+#T1B) workers have unique lockid, RQP prio setting
+#
+#Both T1A) and T1B) have the same results: 
+#all QID[0]=>CQ[1]; 
+#all QID[1]=>CQ[2]; 
+#all QID[2]=>CQ[3]; 
+#all QID[3]=>CQ[4]; 
+#all QID[4]=>CQ[5]; 
+#all QID[5]=>CQ[6];
+# 
+#===================================================================
+#Test2: each worker PP uses rnd lockid (0:63)
+#T2A) workers have rnd lockid, same prio setting   
+#T2B) workers have rnd lockid, RQP prio setting
+# 
+#results:
+#T2A) each CQ schedules multiple QIDs;  the number of SCHED HCWs sending out from each CQ are the same.
+#T2B) each CQ schedules multiple QIDs; the number of SCHED HCWs sending out from each CQ are not the same.
+# 
+#Comparing T2A) and T2B),   each CQ has multiple QIDs scheduled in both cases; T2B) shows one CQ has one preferred QID, the other QIDs get to this CQ occasionally.
+#################################################
+#Test1
+#one lockid/pp;  one prio
+# hcw_enqtrf_hqmproc_test:scen8_srcdirpp0_trf_smk01+scen8_worker_trf_smk01+scen8_short+scen8_100pct+scen8_mset_allprio4_0     -dut hqm -model hqm -dirtag DTA_scen8_srcdirpp0_workersmk01_short_100pct_mset0_sameprio.slockid.T1A -ace_args -simv_args +HQM_LDB_WORKER_CHECK -simv_args +HQM_PRIM_CLK_800_MHZ   -ace_args-
+
+#one lockid/pp;  RQP prio
+ hcw_enqtrf_hqmproc_test:scen8_srcdirpp0_trf_smk01+scen8_worker_trf_smk01+scen8_short+scen8_100pct+scen8_mset_0     -dut hqm -model hqm -dirtag DTA_scen8_srcdirpp0_workersmk01_short_100pct_mset0_rqpprio.slockid.T1B -ace_args -simv_args +HQM_LDB_WORKER_CHECK   -simv_args +HQM_PRIM_CLK_800_MHZ   -ace_args-
+
+#Test2
+#+has_lockid_sel_mode=7; one prio
+ hcw_enqtrf_hqmproc_test:scen8_srcdirpp0_trf_smk01+scen8_worker_trf_smk01+scen8_short+scen8_100pct+scen8_mset_allprio4_0     -dut hqm -model hqm -dirtag DTA_scen8_srcdirpp0_workersmk01_short_100pct_mset0_sameprio.rndlockid.T2A -ace_args -simv_args +HQM_LDB_WORKER_CHECK -simv_args +HQM_DTA_RQPRNDLOCK_LDB_WORKER_CHECK -simv_args +HQM_DTA_LDB_WORKER_QIDNUM=4  -simv_args +HQM_DTA_LDB_WORKER_CQ_MIN=1 -simv_args +HQM_DTA_LDB_WORKER_CQ_MAX=6  -simv_args +has_lockid_sel_mode=7 -simv_args +HQM_PRIM_CLK_800_MHZ   -ace_args-
+
+ hcw_enqtrf_hqmproc_test:scen8_srcdirpp0_trf_smk01+scen8_worker_trf_smk01+scen8_long+scen8_100pct+scen8_mset_allprio4_0     -dut hqm -model hqm -dirtag DTA_scen8_srcdirpp0_workersmk01_long_100pct_mset0_sameprio.rndlockid.T2A -ace_args -simv_args +HQM_LDB_WORKER_CHECK -simv_args +HQM_DTA_RQPRNDLOCK_LDB_WORKER_CHECK -simv_args +HQM_DTA_LDB_WORKER_QIDNUM=4  -simv_args +HQM_DTA_LDB_WORKER_CQ_MIN=1 -simv_args +HQM_DTA_LDB_WORKER_CQ_MAX=6  -simv_args +has_lockid_sel_mode=7 -simv_args +HQM_PRIM_CLK_800_MHZ   -ace_args-
+
+#+has_lockid_sel_mode=7; RQP
+ hcw_enqtrf_hqmproc_test:scen8_srcdirpp0_trf_smk01+scen8_worker_trf_smk01+scen8_short+scen8_100pct+scen8_mset_0     -dut hqm -model hqm -dirtag DTA_scen8_srcdirpp0_workersmk01_short_100pct_mset0_rqpprio.rndlockid.T2B -ace_args -simv_args +HQM_LDB_WORKER_CHECK -simv_args +HQM_DTA_RQPRNDLOCK_LDB_WORKER_CHECK -simv_args +HQM_DTA_LDB_WORKER_QIDNUM=4  -simv_args +HQM_DTA_LDB_WORKER_CQ_MIN=1 -simv_args +HQM_DTA_LDB_WORKER_CQ_MAX=6   -simv_args +has_lockid_sel_mode=7 -simv_args +HQM_PRIM_CLK_800_MHZ   -ace_args-
+
+#long
+ hcw_enqtrf_hqmproc_test:scen8_srcdirpp0_trf_smk01+scen8_worker_trf_smk01+scen8_long+scen8_100pct+scen8_mset_0     -dut hqm -model hqm -dirtag DTA_scen8_srcdirpp0_workersmk01_long_100pct_mset0_rqpprio.rndlockid.T2B -ace_args -simv_args +HQM_LDB_WORKER_CHECK -simv_args +HQM_DTA_RQPRNDLOCK_LDB_WORKER_CHECK -simv_args +HQM_DTA_LDB_WORKER_QIDNUM=4  -simv_args +HQM_DTA_LDB_WORKER_CQ_MIN=1 -simv_args +HQM_DTA_LDB_WORKER_CQ_MAX=6   -simv_args +has_lockid_sel_mode=7 -simv_args +HQM_PRIM_CLK_800_MHZ   -ace_args-
+
+
+###############################################
+#T2A and T2B with upper CQs CQ[58] - CQ[63]
+###############################################
+####################################################
+####################################################
+#scen8 using cq[58]-cq[63]
+####################################################
+####################################################
+#Test2
+#+has_lockid_sel_mode=7; one prio
+ hcw_enqtrf_hqmproc_test:scen8_srcdirpp0_trf_smk01+scen8_worker_trf_smkupcq+scen8_short+scen8_100pct+scen8_upcq_mset_allprio4_0     -dut hqm -model hqm -dirtag DTA_scen8_srcdirpp0_workersmkupcq_short_100pct_mset0_sameprio.rndlockid.T2A -ace_args -simv_args +HQM_LDB_WORKER_CHECK -simv_args +HQM_DTA_RQPRNDLOCK_LDB_WORKER_CHECK -simv_args +HQM_DTA_LDB_WORKER_QIDNUM=4 -simv_args +HQM_DTA_LDB_WORKER_CQ_MIN=58 -simv_args +HQM_DTA_LDB_WORKER_CQ_MAX=63 -simv_args +has_lockid_sel_mode=7 -simv_args +HQM_PRIM_CLK_800_MHZ   -ace_args-  
+
+#+has_lockid_sel_mode=7; RQP
+ hcw_enqtrf_hqmproc_test:scen8_srcdirpp0_trf_smk01+scen8_worker_trf_smkupcq+scen8_short+scen8_100pct+scen8_upcq_mset_0     -dut hqm -model hqm -dirtag DTA_scen8_srcdirpp0_workersmkupcq_short_100pct_mset0_rqpprio.rndlockid.T2B -ace_args -simv_args +HQM_LDB_WORKER_CHECK -simv_args +HQM_DTA_RQPRNDLOCK_LDB_WORKER_CHECK -simv_args +HQM_DTA_LDB_WORKER_QIDNUM=4 -simv_args +HQM_DTA_LDB_WORKER_CQ_MIN=58 -simv_args +HQM_DTA_LDB_WORKER_CQ_MAX=63 -simv_args +has_lockid_sel_mode=7 -simv_args +HQM_PRIM_CLK_800_MHZ   -ace_args- 
+
+
+
+
+
+
+#################################################################################################################################################################
+########################################################### starvation avoidance 8-pri turn on +starvation_avoidance_check
+#The hqm_AW_wrand_arb.sv file has some comments explaining it.
+#
+#// Ex.) configuration to select among 4 requestors:
+#//
+#//  cfg_weight[7:0]     = 127; //          reqs[0] wins arb 128/256 times
+#//
+#//  cfg_weight[15:8]    = 254; //          reqs[1] wins arb 127/256 times
+#//
+#//  cfg_weight[23:16]   = 255; //          reqs[2] wins arb 1/256 times
+#//
+#//  cfg_weight[31:24]   = 0;   //          reqs[3] never wins through weight arbitration. Can be selected only when
+#//                                         requestor 2, 0, or 1 are not valid
+#//
+#// NOTE: to make 8 req uniform random distribution: ,.cfg_weight( { 8'hff,8'hdf,8'hbf,8'h9f,8'h7f,8'h5f,8'h3f,8'h1f } )
+#Basically the difference between adjacent weights is the fraction out of 256 that that requestor will be picked; e.g. if weight0=0 and weight1=10, then req0 has a 10/256 chance of being selected.
+#################################################################################################################################################################
+#starvation_avoidance running with 8 pri
+#8slots, 8pri(0/1/2/3/4/5/6/7)
+  #starvation avoidance arb, turn on check in scoreboard, the expects pri7 HCWs come out in the middle of other prio HCWs
+  hqm_cfg_test:starvation_avoidance_pri8+ldb_arb_pri8_setting_1+fixed_qpri_en+trf_fast+starvation_avoidance_check      -dirtag starvation_avoidance_fixedqeprio_trffast_ldb_arb_pri8_setting_1 -seed 1
+  hqm_cfg_test:starvation_avoidance_pri8+ldb_arb_pri8_setting_2+fixed_qpri_en+trf_fast+starvation_avoidance_check      -dirtag starvation_avoidance_fixedqeprio_trffast_ldb_arb_pri8_setting_2 
+  hqm_cfg_test:starvation_avoidance_pri8+ldb_arb_pri8_setting_3+fixed_qpri_en+trf_fast+starvation_avoidance_check      -dirtag starvation_avoidance_fixedqeprio_trffast_ldb_arb_pri8_setting_3 
+
+  #strict arb, turn on arb_strict_check in scoreboard, this expects strict arb, SCHED HCWs come out in the order of  pri0/pri1/pri2/pri3/pri4/pri5/pri6/pri7 HCWs
+  hqm_cfg_test:starvation_avoidance_pri8+ldb_arb_pri8_setting_strict+fixed_qpri_en+trf_fast+arb_strict_check           -dirtag starvation_avoidance_fixedqeprio_trffast_ldb_arb_pri8_setting_strict 
+
+#8slots, 8pri(0/1/2/3/4/5/6/7) +ldb_cq0_depth_8
+  ##setting_1+cqdep=8, turn off the checking (cqdep=8, setting_1 is 1/256 case is hard to guarantee the pri7 comes out amoung others)
+  hqm_cfg_test:starvation_avoidance_pri8+ldb_arb_pri8_setting_1+fixed_qpri_en+trf_fast+ldb_cq0_depth_8      -dirtag starvation_avoidance_fixedqeprio_trffast_cqdep8_ldb_arb_pri8_setting_1
+  hqm_cfg_test:starvation_avoidance_pri8+ldb_arb_pri8_setting_2+fixed_qpri_en+trf_fast+ldb_cq0_depth_8+starvation_avoidance_check      -dirtag starvation_avoidance_fixedqeprio_trffast_cqdep8_ldb_arb_pri8_setting_2
+  hqm_cfg_test:starvation_avoidance_pri8+ldb_arb_pri8_setting_3+fixed_qpri_en+trf_fast+ldb_cq0_depth_8+starvation_avoidance_check      -dirtag starvation_avoidance_fixedqeprio_trffast_cqdep8_ldb_arb_pri8_setting_3
+

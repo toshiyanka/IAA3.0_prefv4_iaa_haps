@@ -1,0 +1,5 @@
+hqm_ip7413srhsshp2048x47m4c1_MSWT_WRP
+hqm_ip7413srhsshp2048x16m8c1_MSWT_WRP
+hqm_ip7413srhsshp2048x66m4c1_MSWT_WRP
+hqm_ip7413srhsshp4096x21m8c1_MSWT_WRP
+hqm_ip7413srhsshp2048x39m4c1_MSWT_WRP

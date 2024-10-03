@@ -1,0 +1,426 @@
+#!/usr/intel/bin/perl
+
+my $SCOPE = "hqm_IOSF_SBC_EP";
+my $ACE_PROJECT_LC = lc($ENV{ACE_PROJECT});
+use ToolConfig();
+my $onda = &ToolConfig::get_tool_path('onda').'/bin/onda';
+
+%audf = (
+   OSData => {
+      -debussy_pli_libs => {
+           -enable_flag => "-enable_debussy", # or -fsdb
+           -error_if_not_found  => 1,
+           vcs => {
+             'Linux-SuSE' => {
+                i686 => [
+                         "$ENV{VERDI_HOME}/share/PLI/vcsd_latest/LINUX/vcsd.tab",
+                         "$ENV{VERDI_HOME}/share/PLI/vcsd_latest/LINUX/pli.a",
+                         ],
+                'x86-64' => [
+                         #"$ENV{VERDI_HOME}/share/PLI/snps_unified/LINUX64/novas.tab",
+                         "$ENV{VERDI_HOME}/share/PLI/VCS/SUSE64/novas.tab",
+                         "$ENV{VERDI_HOME}/share/PLI/VCS/SUSE64/pli.a",
+                         #"$ENV{VERDI_HOME}/share/PLI/snps_unified/LINUX64/pli.a",
+                         ],
+              }, ## End of Linux-SuSE
+           }, ## End of vcs
+        }, ## End of debussy_pli_libs  
+   }, ## End of OSData
+
+   CheckerData => {
+      ${SCOPE} => {
+         post_simulation => {
+            -enable_flag => '-enable_post_checker',
+            scripts => [
+            "$onda: cdc -ver $ENV{CDC_VER} -ip $ACE_PROJECT_LC -ovf temp_cdc",
+
+
+            ],
+         },
+      },
+   },
+
+   CommandMapper => {
+      ${SCOPE} => {
+         -test_manager => {
+            remove_mod => {
+               static_check => [
+                  "Ace::WorkModules::StaticChecks::DefaultQestaCDCtcl",
+                  "Ace::WorkModules::StaticChecks::QuestaCDC",    				     
+                  "Ace::WorkModules::StaticChecks::DCshell",
+                  "Ace::WorkModules::StaticChecks::DefaultLira",
+                  "Ace::WorkModules::StaticChecks::DefaultLintra",
+                  "Ace::WorkModules::StaticChecks::Spyglass",
+                  "Ace::WorkModules::StaticChecks::DefaultPostCheck",
+                  "Ace::WorkModules::PostSimResults",
+                  "Ace::WorkModules::Cleanup",
+               ],
+            },
+
+            add_mod => {
+               static_check => [
+                  "common::QuestaCDC_TCL",
+                  "Ace::WorkModules::StaticChecks::DefaultLira",
+                  "Ace::WorkModules::StaticChecks::DefaultLintra",
+                  "Ace::WorkModules::StaticChecks::DCshell",
+                  "Ace::WorkModules::StaticChecks::Spyglass",
+                  "Ace::WorkModules::StaticChecks::DefaultPostCheck",
+                  "Ace::WorkModules::PostSimResults",
+                  "Ace::WorkModules::Cleanup",
+               ],
+            },
+         },
+      },
+   },
+
+   InterfaceVars => {
+      -spyglass_compile_opts => {
+            default => (($ENV{ONECFG_spyglass_mode} eq 'lint') ? ([
+             'set_option define {"INTEL_SVA_OFF"}',
+             'set_option define {"INTC_MEM_SVA_OFF"}',
+            # 'read_file -type verilog {"$ENV{MODEL_ROOT}/subIP/dfx_secure_plugin/tools/syn/ICPLP/dfxsecure_plugin/outputs/rtl_files_used/ctech_lib_doublesync_rst.v"}',
+             
+             ]) :[]),
+         },
+       -vclp_enable_legacy_flow => {
+         default => 1, 
+      },  
+      -enable_hier_dump           => { default => 1, }, 
+      -enable_spyglass_group_run  => {default=> "0"},
+      -enable_liblist_elab_order  => {default => 1},
+      -enable_debussy             => {default => 1},
+      -enable_sub_libraries       => {default => 1},
+      -test_in_model              => {default => 1},
+      -elab_models                => {default => 1},
+      -enabled_post_process_modes => {default => "IosfSvcB2bTestbench" ,},
+      -models_to_compile => {
+         default =>   [
+            'IosfSbEpTestbench',
+         ],
+      },
+      -post_process_pattern_file  => {default => "ace/iosf_sbc_ep.pp" ,},
+      -debug_debug => { alias => "-simv_args +OVM_VERBOSITY=OVM_DEBUG", },
+      -debug_full => { alias => "-simv_args +OVM_VERBOSITY=OVM_FULL", },
+      -waves => { alias => "-simv_args +SB_EN_VPD", },
+      -gui_dve => { alias => "-simv_args -gui=dve", },
+      -gui_verdi => { alias => "-simv_args -gui=verdi -vlog_opts -kdb", },
+      -ral => { alias => "-simv_args +ENABLE_RAL_MONITOR=1 -simv_args +IOSFSB_TRK_EN=1", },
+      -debug_sb => { alias => "-ral -waves -debug_debug -nocleanup", },
+      -debug_hang => { alias => "-vlog_opts +define+DBG_HANG", },
+      -config => { type => "SCALAR", action => "run_presetup" },
+      -cust_cfg => { alias => "-vlog_opts +define+REGR -vlog_opts +define+EP_<-config>", },
+      -rand_cfg => { alias => "-vlog_opts +define+RANDREGR -vlog_opts +define+RAND_EP_<-config>", },
+      -results => {
+         default => "$ENV{IP_ROOT}/results",
+      },
+      -elab_opts => {
+         default => [
+            "-sverilog",
+            "-debug",
+            "-licqueue",
+            "-power=dccompat_gen_separator",
+#            "+vpi+cli+1 $ENV{SAOLA_HOME}/libs/$sla_platform/libsla.so",
+            "-xprop=$ENV{IP_ROOT}/ace/xprop_ep.cfg",
+            " -error=SIOB",
+            #" -error=MATN-L",
+            " -error=CHCPR",
+            " -error=ECMDSMPD2",
+            " -error=FLVU",
+            " -error=IPDASP",
+            " -error=IPDW",
+            " -error=IRIID-W",
+            " -error=NMIN",
+            " -error=OSPA-O",
+            " -error=PII",
+            " -error=RIV",
+            " -error=MTOCMUCS",
+            " -error=CFLL-NS",          # Cannot find logical library
+            " -error=CNST-COD",         # Constraint Option Deprecated
+            " -error=DFLT_OPT",         # Default option found
+            " -error=DLLIL-NS",         # Duplicate logical library in liblist
+            " -error=DPI-SFESN",        # Duplicate name in DPI
+            " -error=EPIMD",            # Empty Port in Module Declaration
+            " -error=NZIR",             # Incorrect size number
+            " -error=RNME_OPT",         # Renamed option found
+            " -error=SV-CBMIE",         # Curly brackets missing in 'inside' expr
+            " -error=SV-IIS",           # Illegal import statement.
+            " -error=SV-NYI-SSC",       # Unsupported System Verilog feature
+            " -error=TMBIN",            # Too many bits in Based Number
+         #   " -error=ENUMASSIGN",       # Illegal assignment to enum variable
+            " -error=ICTA-SI",          # Incompatible complex type
+            " -error=IPC",              # Illegal high conn for port connect
+         #  " -error=AOUP",             # Attempt to override undefined parameter
+            " -error=FRCREF",           # Force on ref port not supporte
+            " -error=ISALS",            # Incompatible structure/array literal
+            " -error=SV-ANDNMD",        # Argument names do not match
+            " -error=SV-SVPIA",         # String value passed to integral arg
+            " -error=OSVF-NPVIUFPI",    # Non-parameterized virtual interface is being used for parameterized interface
+            " -error=PCSRMIO",
+            " -error=ETLIIC",
+            " -error=DUP_PARM_ASSGN",   # Duplicate parameter assignments
+            " -error=UNKWN_IGOPTS",     # Unknown option(s) ignored
+            " -error=STASKW_NDTAZ1",    # Specifying negative delays is invalid
+            " -error=FCIBR",            # Invalid bin range
+            " -error=AICE",             # Assignment in conditional expression
+            " -error=FCPSBU",           # Invalid values in bin
+            " -error=PSBU",             # Invalid values in bin
+            " -error=APP_LRN_VDC",      # Invalid usage of +applylearn
+            " -error=CNST-LOOP-UNUSE",  # Loop variable is not used in foreach
+            " -error=CFLLOC-W",         # Cannot find logical library of cell
+            " -error=CFCILL-W",         # Cannot find cell in logical library
+            " -error=CFCIL-W",          # Cannot find cell in liblist
+            " -error=STASKW_INFDPFE",   # Invalid argument to $feof
+            " -error=STASKW_INFDPTFS",  # Invalid argument to $fseek/$fscanf
+            " -error=STASKW_FGSPIFD",   # Invalid file descriptor
+            " -error=NARW",             # Read and write on the same variable
+            " -error=UPF_SP_LST",       # White space ignored in TCL list   FIXME when alex HF
+            " -error=SV-SELS",          # Smaller enum label size
+            " -error=UNKWN_OPTVSIM",    # Unknown option passed
+            " -error=RUNT-OPT-UNKNOWN", # Unknown runtime option
+            " -error=DCTL",             # Decimal constant too large
+            " -error=BCNACMBP",         # Missing constraint definition
+            " -error=INAV",             # Index into non-array variable
+            " -error=RA-UAA",
+            " -error=UTSFM",
+            " -error=UNK_COMP_ARG",
+            " -error=DLLIL",
+            " -error=REO",              # Return statement in non-void function must specify an expression.
+            " -error=IPO",
+            " -error=FVNU",             # Field value not used in struct expression
+            " -error=BMII",             # Bad message id
+            " -error=ZONMCM",           # Zero or negative multiconcat multiplier
+            " -error=DPIMI",            # Duplicate port in module instantiation FORUM1
+            " -error=UNIQUE",           # Make Unique RT checks errors
+            " -error=PRIORITY",         # Make Priority RT checks errors
+            " -error=ECS",              # empty case statment
+            " -error=ENEIBSC",          # Expression not evaluated in $bits
+            " -error=FCWAIEW",          # FuncCall Without Arguments In Wait/Event
+            " -error=TMPO",             # Too many parameter overrides
+            " -error=V2KGFLUMNT",       # Unrolling may not terminate
+            " -error=WIAP",             # Illegal assignment pattern
+            " -error=UPF_SRSN_NP",      # Object is not a port
+          # " -error=UPF_INVALID_NUM",  # Invalid string specified for a number
+            " -error=UPF_OSRSN",        # Overriding the related power/ground
+            " -error=UPF_ELNF",         # Element Not Found
+          # " -error=UPF_NMFW",         # No match found for wildcard
+            " -error=UPF_PAC",          # Port Already Connected
+            " -error=UPF_SRSN_INVP",    # Invalid Port Specified
+           " -error=UI",  # HSD:14011026124 ovm val_ip to resolve,added msg_config file  
+            " -error=ONGS",   
+            " -error=CONG-BANS",    
+            " -msg_config=$ENV{IP_ROOT}/ace/sbe_msg_config",
+
+            #" +lint=all",
+            #"-file $ENV{IP_ROOT}/ace/vcs_elab_errors.f",
+            "$ENV{ACE_HOME}/lib/pli/PrintHier/PrintHier.c",
+            "-P $ENV{ACE_HOME}/lib/pli/PrintHier/PrintHier.tab",
+         ],
+      },
+
+        -CASA_ENABLE =>  {
+                           alias => "-postsim_scrag_recipe /p/cse/asic/casa/template_postsim_scrag_casa",
+        },
+        -COV_FOCUS =>    {
+                           alias =>"-CASA_ENABLE -test_setenv CASA_CONFIG=\<-CASA_CONFIG\>,TEST_CONFIG=FOCUS,GRADING=\<-GRADE\>,FEATURE=\<-FEATURE\>",
+        },
+        -COV_RANDOM =>  {
+                          alias =>"-CASA_ENABLE -test_setenv CASA_CONFIG=\<-CASA_CONFIG\>,TEST_CONFIG=RANDOM,GRADING=\<-GRADE\>,FEATURE=\<-FEATURE\>",
+        },
+
+        -GRADE =>       {
+                           type => "SCALAR",
+                           default => "0",
+                           help => {
+                                      desc=> "To enable grading please pass switch as 1",
+                         },
+        },
+          -FEATURE => {
+                            type => "SCALAR",
+                            default => "$ENV{ACE_PROJECT}",
+                            help => {
+                            desc=> "To enable seperate brnach in official for vdb collection",
+                       },
+        },
+
+          -CASA_CONFIG => {
+                            type => "SCALAR",
+                            default => "$ENV{SIP_TOOL_VARIATION}",
+                            help => {
+                            desc=> "To pass the config via switch from command line", 
+                       },
+        },
+
+      -fsdb_dump => {
+          alias => "-fsdb -vlog_opts +define+FSDB_DUMP -elab_opts -fsdb",
+      },
+
+    -pa_vlog => {
+         alias => " -vlog_opts -liblist -vlog_opts +define+ENABLE_UPF -vlog_opts +define+NO_PWR_PINS",
+    },
+
+    -pa_elab => {
+         alias => "-elab_opts -liblist -elab_opts UPF+LPA  ", 
+    },  
+
+    -pa_sim => {
+         alias => "-epi", 
+    },
+      
+    -pwr => {
+         help  => {desc => "Power aware simulation for default model",},
+         alias => " -pa_vlog -pa_sim -pa_elab",
+    },
+    -gls => {
+        alias => " -vlog_opts +define+no_unit_delay+GLS+ENABLE_UPF+NO_PWR_PINS+IOSF_SB_ASSERT_OFF,+define+DISABLE_IOSFSB_COMPLIANCE -ASSIGN -mc=sbendpoint_gls -ASSIGN -m2e=sbendpoint_gls -ASSIGN -model=sbendpoint_gls",
+    },  
+    -gls_sim => {
+         alias => "-epi -model sbendpoint_gls", 
+    },  
+    -rata =>  {
+         alias => " -vlog_opts +define+IS_RATA_ENV,+define+IOSFSBM_ASSERT_OFF,+define+DISABLE_SBM_ISM ", 
+    },  
+
+
+      -vlog_opts => {
+         default => [
+            "-timescale=1ps/1ps",
+            "+define+OVM",
+            "+define+IOSF_SB_PH2",
+            #'\<vcs+nonemu+nonfpga\>+define+INTEL_INST_ON',
+            '\<vcs+nonemu+nonfpga\>+define+INTEL_SIMONLY',
+#            "+define+SBEP_POWER_AWARE_SIM",
+            " -error=SIOB",
+            #" -error=MATN-L",
+            " -error=CHCPR",
+            " -error=ECMDSMPD2",
+            " -error=FLVU",
+            " -error=IPDASP",
+            " -error=IPDW",
+            " -error=IRIID-W",
+            " -error=NMIN",
+            " -error=OSPA-O",
+            " -error=PII",
+            " -error=RIV",
+            " -error=MTOCMUCS",
+            " -assert svaext",
+            #" +lint=all",
+            #"-file $ENV{IP_ROOT}/ace/vcs_elab_errors.f",
+         ],
+      },
+
+      -vc_ph2 => {
+         alias => "-vlog_opts +define+IOSF_SB_PH2 -simv_args +define_IOSF_SB_PH2",
+      },                           
+      -simv_args => {
+         default => [
+            "-assert nopostproc",
+            "-assert svaext",
+            '+fsdb+all=on', # required for dumping all signal types in all scopes in debussy/verdi
+            "+define_IOSF_SB_PH2",
+            #"+CTECH_LIB_META_ON +CTECH_LIB_MINUS1_ONLY", #vishnu added for ctech metastability pcr
+            "+CTECH_LIB_META_DISPLAY", #Jignasa removed minus switch            
+            "+TIMEOUT_DELAY=901000000",
+            "-licqueue",
+         ],
+      },
+      -static_check_cfg_file => {
+         clear_default => 1,
+         default => [
+            "$ENV{MODEL_ROOT}/cfg/ace/ace_static_check.cfg",
+            "$ENV{LINTRARULES}/cfg/ace_static_check.lintra.cfg",
+         ],
+      },
+       
+      ${SCOPE} => {
+         __PROTOTYPES => {
+            import => [
+               "TEST",
+               "LOWPOWER",
+               "CDC",
+              # "EMUL",
+               "TSA",
+            ],
+         },
+       -use_lint_mcrd   => {
+                alias       => "-results <-lint_use_results> -model_compile_results_dir <-eng>/<-pwa>/<-lint_use_results>",
+        },
+         -model    => {default => "IosfSbEpTestbench",},
+         -test     => {default => "test01",},
+         -spyglass_goals => {
+                         clear_default => 1,
+                         default => [],
+           },
+         -test_pkg => {default => "iosftest_pkg",},
+         -implicit_runmode_libs => {
+            default => [
+               "iosf_sbc::RunModes"
+            ],
+         },
+         -run_regression => {
+            switch  => {
+               mini => "-exec_test -testlist " .
+                       "$ENV{IP_ROOT}/ace/iosf_sbc_ep_mini.list " .
+                       "-test_results_subdir mini.list",
+               nb   => "-exec_test -testlist " .
+                       "$ENV{IP_ROOT}/ace/iosf_sbc_ep_mini.list " .
+                        "-test_results_subdir mini.list -nb",
+            }, # end switch
+         }, # end -run_regression
+         -zin_opts => {
+            default => [
+               "-c",
+               "-licq",
+            ],
+         },
+         -zin_check_results_files => {
+            clear_default => 1,
+            default => [
+               "cdc_design.rpt", 
+               "cdc.rpt",
+            ],
+         },
+         -enable_post_checker => {
+            default => 0,
+         },
+      }, # end ${SCOPE}
+
+      -regr => { 
+         alias => "-vlog_opts +define+REGR",
+         type  => "string",
+         help  => {
+            desc  =>  "run in regr mode..."
+         },
+      },
+
+      -randregr => { 
+         alias => "-vlog_opts +define+RANDREGR",
+         type  => "string",
+         help  => {
+            desc  =>  "run in regr mode..."
+         },
+      },
+
+      #Khushbu: Specify new switch -xprop
+      -xprop => { 
+         alias => "-vlog_opts +define+ENABLE_NLP_XPROP_WA -elab_opts -xprop=$ENV{IP_ROOT}/ace/xprop_ep.cfg -elab_opts ",
+         type  => "BOOLEAN",
+         help  => {
+            desc  =>  "Build Instrumented Model Enabling Xpropagation..."
+         },
+      },
+   }, # end InterfaceVars
+
+   HDLSpec => {
+      -hdl_compiler => {
+         vcs => {
+            -vlogToolArgs => '-sverilog',
+            -iniContents  => <<EOF,
+--Low-power libraries
+UPF  : $ENV{VCS_HOME}/suse64/packages/upf
+LPA  : $ENV{VCS_HOME}/suse64/packages/lpa
+
+EOF
+         },
+      },
+   },
+);

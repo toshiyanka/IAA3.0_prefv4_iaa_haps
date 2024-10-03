@@ -1,0 +1,50 @@
+##Source File: /nfs/site/disks/ncsg_00170/users/jkerth/hqm-srvrgen4/integration/collage/csv/hqm_sip/hqm_sip_adhoc_clk.txt
+##################################################################################################
+# prim_clk (1GHz)
+
+CP  prim_clk    in  ""  hqm_sip
+
+# Connections to clock gates and free running connections
+
+C   prim_clk    {i_hqm_sif_prim_clkgate/clk i_hqm_sif_prim_clknonflr/clk i_hqm_system_prim_clkgate/clk i_hqm_master_prim_clkgate/clk i_system_buf_hqm_clk_trunk/a i_hqm_system_prim_clk_enable_rptr/clk i_hqm_system_prim_clk_ungate_rptr/clk i_hqm_system_side_rst_sync_prim_n/clk i_hqm_master_prim_clk_enable_rptr/clk i_hqm_master_prim_clk_ungate_rptr/clk i_hqm_master_side_rst_sync_prim_n/clk i_hqm_master/prim_freerun_clk i_hqm_sif/prim_freerun_clk i_hqm_visa/prim_freerun_clk i_hqm_sif_prim_clk_enable_rptr/clk i_hqm_sif_nonflr_clk_enable_rptr/clk} prim_clk
+
+##################################################################################################
+# pgcb_tck (100MHz) Freerunning only
+
+E   i_hqm_master/pgcb_tck       pgcb_tck    1 in   pgcb_tck      {} hqm_sip
+
+##################################################################################################
+# hqm_clk (1GHz)
+
+# Connections to clock gates and free running connections
+
+C   i_system_buf_hqm_clk_trunk/o    {i_hqm_system_clkgate/clk i_hqm_system_clkproc/clk i_hqm_master_clkfree/clk i_hqm_master_hqm_inp_clkgate/clk i_hqm_master_hqm_cdc_clkgate/clk i_hqm_chp_clkproc/clk i_hqm_lsp_clkgate/clk i_hqm_lsp_clkproc/clk i_hqm_qed_clkgate/clk i_hqm_qed_clkproc/clk i_hqm_dp_clkproc/clk i_hqm_nalb_clkproc/clk i_hqm_lsp_hqm_inp_gated_clk_enable_rptr/clk i_hqm_lsp_hqm_gated_clk_enable_rptr/clk i_hqm_lsp_clk_ungate_rptr/clk i_hqm_lsp_flr_prep_rptr/clk i_hqm_lsp_hqm_clk_rptr_rst_sync_n/clk i_hqm_aqed_pipe/hqm_fullrate_clk i_hqm_aqed_pipe/hqm_ungated_clk i_hqm_qed_hqm_inp_gated_clk_enable_rptr/clk i_hqm_qed_hqm_gated_clk_enable_rptr/clk i_hqm_qed_clk_ungate_rptr/clk i_hqm_qed_flr_prep_rptr/clk i_hqm_qed_hqm_clk_rptr_rst_sync_n/clk i_hqm_qed_clk_en_proc_ft_rptr/clk i_hqm_qed_unit_idle_ft_rptr/clk i_hqm_dp_hqm_gated_clk_enable_rptr/clk i_hqm_nalb_hqm_gated_clk_enable_rptr/clk i_hqm_system_hqm_inp_gated_clk_enable_rptr/clk i_hqm_system_hqm_gated_clk_enable_rptr/clk i_hqm_system_clk_ungate_rptr/clk i_hqm_system_flr_prep_rptr/clk i_hqm_system_hqm_clk_rptr_rst_sync_n/clk i_hqm_chp_hqm_gated_clk_enable_rptr/clk i_hqm_visa/hqm_fullrate_clk i_hqm_visa/clk i_hqm_master_hqm_inp_gated_clk_enable_rptr/clk i_hqm_master_hqm_clk_ungate_rptr/clk i_hqm_master/hqm_fullrate_clk i_hqm_master_hqm_freerun_clk_enable_rptr/clk i_hqm_master_hqm_clk_rptr_rst_sync_n/clk i_hqm_master_hqm_cdc_clk_enable_rptr/clk} hqm_clk_trunk
+
+##################################################################################################
+# side_clk (500MHz) Freerunning only
+
+Ci  hqm_sip_aon_wrap/side_clk   i_hqm_visa/side_clk     side_clk
+
+##################################################################################################
+# pgcb_clk (100MHz)
+
+CP  pgcb_clk    in  ""  hqm_sip
+
+# Connections to clock gates and free running external connections
+
+C   pgcb_clk    {i_hqm_chp_pgcb_clk/clk i_hqm_master/pgcb_clk i_hqm_visa/pgcb_clk i_hqm_chp_hqm_gated_rst_pgcb_sync_n/clk} pgcb_clk
+
+##################################################################################################
+# iosf_pgcb_clk (500MHz) Freerunning only
+
+E   i_hqm_sif/pgcb_clk         iosf_pgcb_clk    1 in    iosf_pgcb_clk   {IOSF PGCB clock}   hqm_sip
+
+##################################################################################################
+# DVP clocks Freerunning only
+# fdtf_clk and fdtf_cry_clk are part of DTF::Clock std interface
+
+Ci  hqm_sip_aon_wrap/fdtf_clk  i_hqm_master/aon_clk     fdtf_clk
+
+##################################################################################################
+# Clock halt signal from PMA - no longer used in SIP (active low)
+T   one                                             i_hqm_master/pm_ip_clk_halt_b_2_rpt_0_iosf

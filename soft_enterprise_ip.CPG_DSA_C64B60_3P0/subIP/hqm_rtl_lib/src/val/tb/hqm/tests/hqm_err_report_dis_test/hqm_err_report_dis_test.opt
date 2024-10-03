@@ -1,0 +1,71 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => [
+        "+AW_CONTINUE_ON_ERROR", "+iosf_tracker_filename=iosf_trk", "-assert nopostproc", "+HQMS_DEBUG", "+HQMI_DEBUG", "+EXP_UNWANTED_TXN_TO_HQM", "+hqm_pcie_init_stim_config::skip_msix_cfg=1", "+vcs+lic+wait", "+SLA_FLUSH_PHASE_TIMEOUT=400000", "+SLA_MAX_RUN_CLOCK=8000000",
+        ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+     sec_6_2   => {
+         -simv_args => [ "", ], 
+         }, 
+
+     nf_unmask =>       { 
+         -simv_args => [ " +hqm_sla_pcie_cpl_error_stim_config::ec_sev_mask_type=nf_unmask","+hqm_pcie_init_stim_config::ec_sev=0","+hqm_pcie_init_stim_config::ec_mask=0",
+ "+ovm_set_config_int=*\\,sev_mask_val\\,0", ], 
+ }, 
+     f_unmask =>        { 
+         -simv_args => [ " +hqm_sla_pcie_cpl_error_stim_config::ec_sev_mask_type=f_unmask","+hqm_pcie_init_stim_config::ec_sev=1","+hqm_pcie_init_stim_config::ec_mask=0",  "+ovm_set_config_int=*\\,sev_mask_val\\,1", ], 
+         }, 
+     nf_mask =>         { 
+         -simv_args => [ " +hqm_sla_pcie_cpl_error_stim_config::ec_sev_mask_type=nf_mask","+hqm_pcie_init_stim_config::ec_sev=0","+hqm_pcie_init_stim_config::ec_mask=1", "+ovm_set_config_int=*\\,sev_mask_val\\,2", ], 
+         }, 
+     f_mask =>          { 
+         -simv_args => [ " +hqm_sla_pcie_cpl_error_stim_config::ec_sev_mask_type=f_mask","+hqm_pcie_init_stim_config::ec_sev=1","+hqm_pcie_init_stim_config::ec_mask=1",  "+ovm_set_config_int=*\\,sev_mask_val\\,3", ], 
+         }, 
+     nf_anfes_unmask => { 
+         -simv_args => [ " +hqm_sla_pcie_cpl_error_stim_config::ec_sev_mask_type=nf_anfes_unmask","+hqm_pcie_init_stim_config::ec_sev=0","+hqm_pcie_init_stim_config::ec_mask=0", "+hqm_pcie_init_stim_config::anfes_mask=0","+ovm_set_config_int=*\\,sev_mask_val\\,4", ], 
+         }, 
+
+     ser_en_mtlp_nf_unmask => { 
+         -simv_args => ["+hqm_pcie_init_stim_config::mtlp_sev=0","+hqm_pcie_init_stim_config::mtlp_mask=0",  "+ovm_set_config_int=*\\,sev_mask_val\\,0", "+ovm_set_config_int=*\\,mtlp_report_dis\\,3", ], 
+         }, 
+     ser_en_mtlp_f_unmask  => { 
+         -simv_args => ["+hqm_pcie_init_stim_config::mtlp_sev=1","+hqm_pcie_init_stim_config::mtlp_mask=0",  "+ovm_set_config_int=*\\,sev_mask_val\\,1", "+ovm_set_config_int=*\\,mtlp_report_dis\\,3", ], 
+         }, 
+
+     mtlp_nf_unmask => { 
+         -simv_args => ["+hqm_pcie_init_stim_config::mtlp_sev=0","+hqm_pcie_init_stim_config::mtlp_mask=0",  "+ovm_set_config_int=*\\,sev_mask_val\\,0", "+ovm_set_config_int=*\\,mtlp_report_dis\\,1", ], 
+         }, 
+     mtlp_f_unmask  => { 
+         -simv_args => ["+hqm_pcie_init_stim_config::mtlp_sev=1","+hqm_pcie_init_stim_config::mtlp_mask=0",  "+ovm_set_config_int=*\\,sev_mask_val\\,1", "+ovm_set_config_int=*\\,mtlp_report_dis\\,1", ], 
+         }, 
+
+      pf   => { 
+          -simv_args => [" +HQM_PCIE_CPL_ERR_FUNC_NO=0",],  
+          },
+
+     ur_nf_unmask       =>  { 
+         -simv_args => [ "+ovm_set_config_int=*\\,urro_dis\\,1", "+hqm_pcie_init_stim_config::ur_sev=0 +hqm_pcie_init_stim_config::ur_mask=0 ", "+ovm_set_config_int=*\\,sev_mask_val\\,0", ], 
+         }, 
+     ur_nf_anfes_unmask =>  {
+         -simv_args => [ "+ovm_set_config_int=*\\,urro_dis\\,1", "+hqm_pcie_init_stim_config::ur_sev=0 +hqm_pcie_init_stim_config::ur_mask=0 +hqm_pcie_init_stim_config::anfes_mask=0 ", "+ovm_set_config_int=*\\,sev_mask_val\\,4", ], 
+         }, 
+     ur_f_unmask =>   { 
+         -simv_args => [ "+ovm_set_config_int=*\\,urro_dis\\,1", "+hqm_pcie_init_stim_config::ur_sev=1 +hqm_pcie_init_stim_config::ur_mask=0 ", "+ovm_set_config_int=*\\,sev_mask_val\\,1", ], 
+         }, 
+
+      ur_pf   => { 
+          -simv_args => ["+HQM_PVC_AUTO_TAG_GEN_DIS +HQM_PCIE_MEM_UR_ERR_FUNC_NO=0",  ],  
+          },
+
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

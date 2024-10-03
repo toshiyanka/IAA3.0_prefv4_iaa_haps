@@ -1,0 +1,120 @@
+//------------------------------------------------------------------------------
+// Intel Confidential                                                          -
+//------------------------------------------------------------------------------
+//////////////////////////////////////////////////////////////
+// FileName          : c73p1rfshdxrom2048x16hb4img100.fs_lib 
+// Process           : p1273
+// ROM Library Model
+//////////////////////////////////////////////////////////////
+
+
+library_format_version = 9;
+
+array_delimiter = "[]";
+
+
+
+model c73p1rfshdxrom2048x16hb4img100_NEG_LAT
+  (q, clk, data)
+(
+  model_source = verilog_udp;
+
+  input (clk) ( )  // ActiveLO Level Sensitive Clock.
+  input (data) ()
+  output (q) ( )
+  (
+    primitive = _inv mlc_C_gate (clk, mlc_clock_net);
+    primitive = _dlat mlc_latch (  ,  , mlc_clock_net, data, q, );
+  )
+)
+
+model c73p1rfshdxrom2048x16hb4img100_cmem
+  (ickr_gated, bank_iar_l, read_data)
+(
+  model_source = verilog_module;
+  input (ickr_gated) ( )
+  input (bank_iar_l) (array = 10 : 0;)
+  output (read_data) (array = 15 : 0;)
+  (
+
+    // Remodel of Verilog ROM "rom_bank" :
+    init_file = "c73p1rfshdxrom2048x16hb4img100.hex.tk_atpg_init_file";
+    data_size = 16;
+    address_size = 11;
+    min_address = 0;
+    max_address = 2047;
+
+    //  LEVEL SENSITIVE ports
+
+    // Verilog ROM has no Set or Reset pin : 
+    primitive = _cram rom_bank ( , ,
+
+      // Following read port will Hold output data after reading.
+      _read { , , ,H} ( , ickr_gated, , bank_iar_l, read_data)
+    );
+  )
+)
+
+model c73p1rfshdxrom2048x16hb4img100
+  (ickr, iren, iar, vccd_1p0,
+  ipwreninb, opwrenoutb, odout)
+(
+  model_source = verilog_module;
+  intern (bank_iar_l) (array = 10 : 0;)
+  intern (read_data) (array = 15 : 0;)
+  input (ickr) ( )
+  input (iren) ( )
+  input (iar) (array = 10 : 0;)
+  input (vccd_1p0) (unused; no_fault = sa0 sa1;)
+  input (ipwreninb) ( )
+  output (opwrenoutb) ()
+  output (odout) (array = 15 : 0;)
+  (
+    instance = c73p1rfshdxrom2048x16hb4img100_cmem  rom 
+    ( .ickr_gated(ickr_gated), .bank_iar_l(bank_iar_l), .read_data(read_data) );
+    primitive = _tie1  mlc_tie1_1 ( ifwpwronb );
+    primitive = _buf  buf_pwrenb ( ipwreninb, opwrenoutb );
+    instance = c73p1rfshdxrom2048x16hb4img100_NEG_LAT  lat_bank_iren_l 
+    ( bank_iren_l, ickr, iren );
+    primitive = _and  and_ickr_gated ( ickr, bank_iren_l, ickr_gated );
+    instance = c73p1rfshdxrom2048x16hb4img100_NEG_LAT  lat_bank_iar_l_0 
+    ( bank_iar_l[0], ickr_gated, iar[0] );
+    instance = c73p1rfshdxrom2048x16hb4img100_NEG_LAT  lat_bank_iar_l_1 
+    ( bank_iar_l[1], ickr_gated, iar[1] );
+    instance = c73p1rfshdxrom2048x16hb4img100_NEG_LAT  lat_bank_iar_l_2 
+    ( bank_iar_l[2], ickr_gated, iar[2] );
+    instance = c73p1rfshdxrom2048x16hb4img100_NEG_LAT  lat_bank_iar_l_3 
+    ( bank_iar_l[3], ickr_gated, iar[3] );
+    instance = c73p1rfshdxrom2048x16hb4img100_NEG_LAT  lat_bank_iar_l_4 
+    ( bank_iar_l[4], ickr_gated, iar[4] );
+    instance = c73p1rfshdxrom2048x16hb4img100_NEG_LAT  lat_bank_iar_l_5 
+    ( bank_iar_l[5], ickr_gated, iar[5] );
+    instance = c73p1rfshdxrom2048x16hb4img100_NEG_LAT  lat_bank_iar_l_6 
+    ( bank_iar_l[6], ickr_gated, iar[6] );
+    instance = c73p1rfshdxrom2048x16hb4img100_NEG_LAT  lat_bank_iar_l_7 
+    ( bank_iar_l[7], ickr_gated, iar[7] );
+    instance = c73p1rfshdxrom2048x16hb4img100_NEG_LAT  lat_bank_iar_l_8 
+    ( bank_iar_l[8], ickr_gated, iar[8] );
+    instance = c73p1rfshdxrom2048x16hb4img100_NEG_LAT  lat_bank_iar_l_9 
+    ( bank_iar_l[9], ickr_gated, iar[9] );
+    instance = c73p1rfshdxrom2048x16hb4img100_NEG_LAT  lat_bank_iar_l_10 
+    ( bank_iar_l[10], ickr_gated, iar[10] );
+    primitive = _and  and_odout_0 ( read_data[0], ifwpwronb, odout[0] );
+    primitive = _and  and_odout_1 ( read_data[1], ifwpwronb, odout[1] );
+    primitive = _and  and_odout_2 ( read_data[2], ifwpwronb, odout[2] );
+    primitive = _and  and_odout_3 ( read_data[3], ifwpwronb, odout[3] );
+    primitive = _and  and_odout_4 ( read_data[4], ifwpwronb, odout[4] );
+    primitive = _and  and_odout_5 ( read_data[5], ifwpwronb, odout[5] );
+    primitive = _and  and_odout_6 ( read_data[6], ifwpwronb, odout[6] );
+    primitive = _and  and_odout_7 ( read_data[7], ifwpwronb, odout[7] );
+    primitive = _and  and_odout_8 ( read_data[8], ifwpwronb, odout[8] );
+    primitive = _and  and_odout_9 ( read_data[9], ifwpwronb, odout[9] );
+    primitive = _and  and_odout_10 ( read_data[10], ifwpwronb, odout[10] );
+    primitive = _and  and_odout_11 ( read_data[11], ifwpwronb, odout[11] );
+    primitive = _and  and_odout_12 ( read_data[12], ifwpwronb, odout[12] );
+    primitive = _and  and_odout_13 ( read_data[13], ifwpwronb, odout[13] );
+    primitive = _and  and_odout_14 ( read_data[14], ifwpwronb, odout[14] );
+    primitive = _and  and_odout_15 ( read_data[15], ifwpwronb, odout[15] );
+  )
+)
+

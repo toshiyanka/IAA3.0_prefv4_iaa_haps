@@ -1,0 +1,249 @@
+##--------------------------------------------------------------------------------
+## INTEL CONFIDENTIAL
+##
+## Copyright (June 2005)2 (May 2008)3 Intel Corporation All Rights Reserved.
+## The source code contained or described herein and all documents related to the
+## source code ("Material") are owned by Intel Corporation or its suppliers or
+## licensors. Title to the Material remains with Intel Corporation or its
+## suppliers and licensors. The Material contains trade secrets and proprietary
+## and confidential information of Intel or its suppliers and licensors. The
+## Material is protected by worldwide copyright and trade secret laws and treaty
+## provisions. No part of the Material may be used, copied, reproduced, modified,
+## published, uploaded, posted, transmitted, distributed, or disclosed in any way
+## without Intels prior express written permission.
+##
+## No license under any patent, copyright, trade secret or other intellectual
+## property right is granted to or conferred upon you by disclosure or delivery
+## of the Materials, either expressly, by implication, inducement, estoppel or
+## otherwise. Any license under such intellectual property rights must be express
+## and approved by Intel in writing.
+##
+##--------------------------------------------------------------------------------
+
+##19-Jan-13 Renamed CTT_GENERATED_FILES to GENERATED_FILES_FOR_JTAGBFM
+
+my $PROJECT = "jtagbfm";
+%audf = (
+   HDLSpec => {
+      -hdl_compiler => {
+         vcs => {
+            -iniContents => <<'EOF',
+            --Simulation variables
+            TIMEBASE        = PS
+            TIME_RESOLUTION = 1ps
+
+            --Mapping default work dir
+            work > jtagbfm_vcs_testlib
+            --Mapping system libraries
+EOF
+         },
+      },
+      $PROJECT => {
+         libs => {
+	    uvm_pkg_lib               => { 
+               -tag                   =>   'nonsynth',
+               -vlog_files            => [ "$ENV{UVM_HOME}/src/uvm_pkg.sv", ],
+               -vlog_incdirs          => [ "$ENV{UVM_HOME}/src", ], 
+               -vlog_opts             => [ "-sverilog", ],
+            },
+	    
+	    ovm_pkg_lib               => { 
+               -tag                   =>   'nonsynth',
+               -vlog_files            => [ "$ENV{OVM_HOME}/src/ovm_pkg.sv", ],
+               -vlog_incdirs          => [ "$ENV{OVM_HOME}/src", ], 
+               -vlog_opts             => [ "-sverilog", ],
+            },
+	    
+	    xvm_pkg_lib               => { 
+               -tag                   =>   'nonsynth',
+               -vlog_files            => [ "$ENV{XVM_HOME}/src/xvm_pkg.sv", ],
+               -vlog_incdirs          => [ "$ENV{XVM_HOME}/src", "$ENV{XVM_HOME}/src/macros", "$ENV{UVM_HOME}/src", "$ENV{OVM_HOME}/src", ], 
+               -vlog_opts             => [ "-sverilog", ],
+	       -dependent_libs        => [ "uvm_pkg_lib", "ovm_pkg_lib", ],
+            },
+
+            stap_rtl_lib => {
+               -hdl_spec => [ "subIP/ip-stap/source/rtl/rtl.hdl", ],
+            },
+            mtap_rtl_lib => {
+               -hdl_spec => [ "subIP/ip-master-tap/source/rtl/rtl.hdl", ],
+            },
+            tapnw_rtl_lib => {
+               -hdl_spec => [ "subIP/ip-tap-network/source/rtl/rtl.hdl", ],
+            },
+            sip_shared_lib => {
+               -tag                   =>   'nonsynth',
+               -hdl_spec              => [ "verif/lib/ovm_pkg.hdl", "verif/lib/uvm_pkg.hdl", ],
+               -vlog_files            => [ "$ENV{XVM_HOME}/src/xvm_pkg.sv", ],
+               -vlog_incdirs          => [ "$ENV{XVM_HOME}/src", "$ENV{XVM_HOME}/src/macros", "$ENV{UVM_HOME}/src", "$ENV{OVM_HOME}/src", ], 
+               -vlog_opts             => [ "-sverilog", ],
+
+              -sub_libs              => [ "xvm_pkg_lib", ],
+            },
+            #sip_UVM_shared_lib => {
+            #  -hdl_spec => [ "verif/lib/uvm_pkg.hdl", ],
+            #  -vlog_incdirs => [ "$ENV{UVM_HOME}/src/", ],
+            #},
+            jtag_bfm_pkg_lib => {
+               -hdl_spec => [ "verif/tb/JtagBfm/JtagBfmPkg.hdl", ],
+               -vlog_incdirs => [ "$ENV{XVM_HOME}/src", "$ENV{XVM_HOME}/src/macros", "$ENV{UVM_HOME}/src", "$ENV{OVM_HOME}/src/", "verif/tb/JtagBfm/", "$ENV{GENERATED_FILES_FOR_JTAGBFM}/"],
+               -dependent_libs => [ "sip_shared_lib", ],
+               -tag => ( $ENV{ACE_PROJECT} eq "jtagbfm" ) ? "nonsynth+nonemul+nondesign+validation+nonemu+nonfpga+nonlint" :
+                                                            "nonsynth+nonemu+nonfpga+nonlint",
+		},
+            jtag_bfm_UVM_pkg_lib => {
+               -hdl_spec => [ "verif/tb/JtagBfm_UVM/JtagBfmPkg.hdl", ],
+               -vlog_incdirs => [ "$ENV{UVM_HOME}/src/", "$ENV{OVM_HOME}/src", "$ENV{XVM_HOME}/src", "$ENV{XVM_HOME}/src/macros", "verif/tb/JtagBfm_UVM/", "$ENV{GENERATED_FILES_FOR_JTAGBFM}/"],
+               -dependent_libs => [ "sip_shared_lib", ],
+               -tag => ( $ENV{ACE_PROJECT} eq "jtagbfm" ) ? "nonsynth+nonemul+nondesign+validation+nonemu+nonfpga+nonlint" :
+                                                            "nonsynth+nonemu+nonfpga+nonlint",
+            },
+            jtag_bfm_ti_lib => {
+               -hdl_spec => [ "verif/tb/JtagBfm/JtagBfmTi.hdl", ],
+               -vlog_incdirs => [ "$ENV{OVM_HOME}/src/", "$ENV{UVM_HOME}/src", "$ENV{XVM_HOME}/src/","$ENV{XVM_HOME}/src/macros",],
+               -dependent_libs => [ "sip_shared_lib", "jtag_bfm_pkg_lib", ],
+               -tag => ( $ENV{ACE_PROJECT} eq "jtagbfm" ) ? "nonsynth+nonemul+nondesign+validation+nonemu+nonfpga+nonlint" :
+                                                            "nonsynth+nonemu+nonfpga+nonlint",
+            },
+            jtag_bfm_UVM_ti_lib => {
+               -hdl_spec => [ "verif/tb/JtagBfm_UVM/JtagBfmTi.hdl", ],
+               -vlog_incdirs => [ "$ENV{UVM_HOME}/src/", "$ENV{OVM_HOME}/src", "$ENV{XVM_HOME}/src/","$ENV{XVM_HOME}/src/macros",],
+               -dependent_libs => [ "sip_shared_lib", "jtag_bfm_UVM_pkg_lib", ],
+               -tag => ( $ENV{ACE_PROJECT} eq "jtagbfm" ) ? "nonsynth+nonemul+nondesign+validation+nonemu+nonfpga+nonlint" :
+                                                            "nonsynth+nonemu+nonfpga+nonlint",
+            },
+            converged_jtag_bfm_pkg_lib => {
+               -hdl_spec => [ "verif/tb/Converged_JtagBfm/dfx_tap_env.hdl", ],
+               -vlog_incdirs => [ "$ENV{OVM_HOME}/src/", "$ENV{UVM_HOME}/src", "$ENV{XVM_HOME}/src/","$ENV{XVM_HOME}/src/macros", "verif/tb/Converged_JtagBfm/sequences/", "verif/tb/Converged_JtagBfm/testbench/",  "$ENV{GENERATED_FILES_FOR_CONVERGED_JTAGBFM}/"],
+               -dependent_libs => [ "sip_shared_lib", ],
+            },
+            tapnw_pkg_lib => {
+               -hdl_spec => [ "subIP/ip-tap-network/verif/tb/tapnw_pkg.hdl", ],
+               -vlog_incdirs => [ "$ENV{OVM_HOME}/src/", "$ENV{UVM_HOME}/src", "$ENV{XVM_HOME}/src/", "$ENV{XVM_HOME}/src/macros", ],
+               -dependent_libs => [ "sip_shared_lib", "jtag_bfm_pkg_lib",],
+            },
+            tapnw_UVM_pkg_lib => {
+               -hdl_spec => [ "subIP/ip-tap-network/verif_UVM/tb/tapnw_pkg.hdl", ],
+               -vlog_incdirs => [ "$ENV{UVM_HOME}/src/", "$ENV{OVM_HOME}/src", "$ENV{XVM_HOME}/src/", "$ENV{XVM_HOME}/src/macros", ],
+               -dependent_libs => [ "sip_shared_lib", "jtag_bfm_UVM_pkg_lib",],
+            },
+            tapnw_pkg_lib_converged => {
+               -hdl_spec => [ "subIP/ip-tap-network/verif/tb/tapnw_pkg.hdl", ],
+               -vlog_incdirs => [ "$ENV{OVM_HOME}/src/",  "$ENV{UVM_HOME}/src", "$ENV{XVM_HOME}/src/", "$ENV{XVM_HOME}/src/macros", ],
+               -dependent_libs => [ "sip_shared_lib", "converged_jtag_bfm_pkg_lib",],
+            },
+            tapnw_ti_lib => {
+               -hdl_spec => [ "subIP/ip-tap-network/verif/tb/tapnw_ti.hdl", ],
+               -vlog_incdirs => [ "$ENV{OVM_HOME}/src/",  "$ENV{UVM_HOME}/src", "$ENV{XVM_HOME}/src/", "$ENV{XVM_HOME}/src/macros", ],
+               -dependent_libs => [ "sip_shared_lib", "jtag_bfm_pkg_lib", "tapnw_pkg_lib", "jtag_bfm_ti_lib", ],
+            },
+            tapnw_UVM_ti_lib => {
+               -hdl_spec => [ "subIP/ip-tap-network/verif_UVM/tb/tapnw_ti.hdl", ],
+               -vlog_incdirs => [ "$ENV{UVM_HOME}/src/",  "$ENV{OVM_HOME}/src", "$ENV{XVM_HOME}/src/", "$ENV{XVM_HOME}/src/macros", ],
+               -dependent_libs => [ "sip_shared_lib", "jtag_bfm_UVM_pkg_lib", "tapnw_UVM_pkg_lib", "jtag_bfm_UVM_ti_lib", ],
+            },
+            tapnw_ti_lib_converged => {
+               -hdl_spec => [ "subIP/ip-tap-network/verif/tb/tapnw_ti.hdl", ],
+               -vlog_incdirs => [ "$ENV{OVM_HOME}/src/",  "$ENV{UVM_HOME}/src", "$ENV{XVM_HOME}/src/", "$ENV{XVM_HOME}/src/macros", ],
+               -dependent_libs => [ "sip_shared_lib", "converged_jtag_bfm_pkg_lib", "tapnw_pkg_lib_converged", ],
+            },
+            tapnw_tb_lib => {
+               -hdl_spec => [ "subIP/ip-tap-network/verif/tb/tb.hdl", ],
+               -vlog_incdirs => [ "$ENV{OVM_HOME}/src/", "$ENV{UVM_HOME}/src", ],
+               -dependent_libs => [ "sip_shared_lib", "tapnw_pkg_lib", "jtag_bfm_pkg_lib", "tapnw_rtl_lib", "tapnw_ti_lib", "stap_rtl_lib", "mtap_rtl_lib", "jtag_bfm_ti_lib", ],
+            },
+            tapnw_UVM_tb_lib => {
+               -hdl_spec => [ "subIP/ip-tap-network/verif_UVM/tb/tb.hdl", ],
+               -vlog_incdirs => [ "$ENV{UVM_HOME}/src/", "$ENV{OVM_HOME}/src", ],
+               -dependent_libs => [ "sip_shared_lib", "tapnw_UVM_pkg_lib", "jtag_bfm_UVM_pkg_lib", "tapnw_rtl_lib", "tapnw_UVM_ti_lib", "stap_rtl_lib", "mtap_rtl_lib", "jtag_bfm_UVM_ti_lib", ],
+            },
+            tapnw_tb_lib_converged => {
+               -hdl_spec => [ "subIP/ip-tap-network/verif/tb/tb.hdl", ],
+               -vlog_incdirs => [ "$ENV{OVM_HOME}/src/", "$ENV{UVM_HOME}/src", ],
+               -dependent_libs => [ "sip_shared_lib", "tapnw_pkg_lib_converged", "converged_jtag_bfm_pkg_lib", "tapnw_rtl_lib", "tapnw_ti_lib_converged", "stap_rtl_lib", "mtap_rtl_lib", ],
+            },
+            tapnw_test_lib => {
+               -hdl_spec => [ "subIP/ip-tap-network/verif/tests/tests.hdl", ],
+               -vlog_incdirs => [ "$ENV{OVM_HOME}/src/", "$ENV{UVM_HOME}/src", "$ENV{XVM_HOME}/src/", "$ENV{XVM_HOME}/src/macros", ],
+               -dependent_libs => [ "sip_shared_lib", "tapnw_tb_lib", "tapnw_pkg_lib", "jtag_bfm_pkg_lib", ],
+            },
+            tapnw_UVM_test_lib => {
+               -hdl_spec => [ "subIP/ip-tap-network/verif_UVM/tests/tests.hdl", ],
+               -vlog_incdirs => [ "$ENV{UVM_HOME}/src/", "$ENV{OVM_HOME}/src", "$ENV{XVM_HOME}/src/", "$ENV{XVM_HOME}/src/macros", ],
+               -dependent_libs => [ "sip_shared_lib", "tapnw_UVM_tb_lib", "tapnw_UVM_pkg_lib", "jtag_bfm_UVM_pkg_lib", ],
+            },
+            tapnw_test_lib_converged => {
+               -hdl_spec => [ "subIP/ip-tap-network/verif/tests/tests.hdl", ],
+               -vlog_incdirs => [ "$ENV{OVM_HOME}/src/", "$ENV{UVM_HOME}/src", "$ENV{XVM_HOME}/src/", "$ENV{XVM_HOME}/src/macros", ],
+               -dependent_libs => [ "sip_shared_lib", "tapnw_tb_lib_converged", "tapnw_pkg_lib_converged", "converged_jtag_bfm_pkg_lib", ],
+            },
+         },
+         models => {
+            jtagbfm_model => {
+               top => 'tapnw_tb_lib.top',
+               libs => [qw(
+                  tapnw_test_lib
+                  tapnw_tb_lib
+                  tapnw_ti_lib
+                  tapnw_pkg_lib
+                  jtag_bfm_ti_lib
+                  jtag_bfm_pkg_lib
+                  tapnw_rtl_lib
+                  stap_rtl_lib
+                  mtap_rtl_lib
+                  sip_shared_lib
+               )],
+               pli_libs => [qw(-debussy_pli_libs)],
+               export => {
+                  libs => [qw(
+                     jtag_bfm_ti_lib
+                     jtag_bfm_pkg_lib
+                  )],
+               },
+            },
+            jtagbfm_UVM_model => {
+               top => 'tapnw_UVM_tb_lib.top',
+               libs => [qw(
+                  tapnw_UVM_test_lib
+                  tapnw_UVM_tb_lib
+                  tapnw_UVM_ti_lib
+                  tapnw_UVM_pkg_lib
+                  jtag_bfm_UVM_ti_lib
+                  jtag_bfm_UVM_pkg_lib
+                  tapnw_rtl_lib
+                  stap_rtl_lib
+                  mtap_rtl_lib
+                  sip_shared_lib
+               )],
+               pli_libs => [qw(-debussy_pli_libs)],
+               export => {
+                  libs => [qw(
+                     jtag_bfm_UVM_ti_lib
+                     jtag_bfm_UVM_pkg_lib
+                  )],
+               },
+            },
+            converged_jtagbfm_model => {
+               top => 'tapnw_tb_lib_converged.top',
+               libs => [qw(
+                  tapnw_test_lib_converged
+                  tapnw_tb_lib_converged
+                  tapnw_ti_lib_converged
+                  tapnw_pkg_lib_converged
+                  converged_jtag_bfm_pkg_lib
+                  tapnw_rtl_lib
+                  stap_rtl_lib
+                  mtap_rtl_lib
+                  sip_shared_lib
+               )],
+               pli_libs => [qw(-debussy_pli_libs)],
+               export => {
+                  libs => [qw(
+                     converged_jtag_bfm_pkg_lib
+                  )],
+               },
+            },
+         }, #end models
+      },
+   }, # end of HDLSpec
+);

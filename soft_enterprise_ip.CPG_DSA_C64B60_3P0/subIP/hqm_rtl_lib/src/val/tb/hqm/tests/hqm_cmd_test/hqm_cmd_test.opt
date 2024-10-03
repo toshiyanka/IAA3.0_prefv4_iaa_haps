@@ -1,0 +1,54 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => ["+AW_CONTINUE_ON_ERROR", "+iosf_tracker_filename=iosf_trk", "-assert nopostproc", "+HQMI_DEBUG", 
+                     "+SLA_USER_DATA_PHASE_TIMEOUT=200000 ",
+                     "+SLA_CONFIG_PHASE_TIMEOUT=200000",
+                     "+SLA_FLUSH_PHASE_TIMEOUT=400000",
+                     "+SLA_MAX_RUN_CLOCK=400000",
+                     "+vcs+lic+wait",
+					],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+      sec_5_3_1_4   => { -simv_args => ["",], },
+      sec_6_6_2     => { -simv_args => ["",], },
+      sec_7_7       => { -simv_args => ["",], },
+      sec_9_3_3_3_1 => { -simv_args => ["",], },
+      sec_9_3       => { -simv_args => ["",], },
+      sec_9_4       => { -simv_args => ["",], },
+      pm_state_change => {
+          -simv_args => ["+HQM_CMD_SEQ_MODE=pm_state_change", "+HQM_PF_EXP_NFATAL_MSG_CNT=1 +eot_pf +pcie_anfes +pcie_ur_unc +HQM_VF_0_EXP_NFATAL_MSG_CNT=1", ],
+      },
+      persistent_regs  => {-simv_args => [ "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                                         ],
+      },
+      pf_flrp    => { -simv_args => ["+HQM_CMD_SEQ_MODE=pf_flrp",], },
+
+      csr_strap_load_chk => { -simv_args => [ "+HQM_CMD_SEQ_MODE=csr_strap_load_chk", "+HQM_NO_PCIE_CONFIG_PHASE +HQM_PCIE_SKIP_EOT_SEQ +HQM_TB_EOT_CHECK_DISABLE", ], },
+      cp_all_zeros => { -simv_args => [ "+HQM_STRAP_CSR_LOAD=0x1 +HQM_STRAP_CSR_CP=0x0000000000000000", ], },
+      cp_all_ones  => { -simv_args => [ "+HQM_STRAP_CSR_LOAD=0x1 +HQM_STRAP_CSR_CP=0xffffffffffffffff", ], },
+      cp_all_5s    => { -simv_args => [ "+HQM_STRAP_CSR_LOAD=0x1 +HQM_STRAP_CSR_CP=0x5555555555555555", ], },
+      cp_all_As    => { -simv_args => [ "+HQM_STRAP_CSR_LOAD=0x1 +HQM_STRAP_CSR_CP=0xaaaaaaaaaaaaaaaa", ], },
+
+      wac_all_zeros => { -simv_args => [ "+HQM_STRAP_CSR_LOAD=0x1 +HQM_STRAP_CSR_WAC=0x0000000000000000", ], },
+      wac_all_ones  => { -simv_args => [ "+HQM_STRAP_CSR_LOAD=0x1 +HQM_STRAP_CSR_WAC=0xffffffffffffffff", ], },
+      wac_all_5s    => { -simv_args => [ "+HQM_STRAP_CSR_LOAD=0x1 +HQM_STRAP_CSR_WAC=0x5555555555555555 +HQM_CFG_DEFAULT_SAI=0x1", ], },
+      wac_all_As    => { -simv_args => [ "+HQM_STRAP_CSR_LOAD=0x1 +HQM_STRAP_CSR_WAC=0xaaaaaaaaaaaaaaaa", ], },
+
+      rac_all_zeros => { -simv_args => [ "+HQM_STRAP_CSR_LOAD=0x1 +HQM_STRAP_CSR_RAC=0x0000000000000000", ], },
+      rac_all_ones  => { -simv_args => [ "+HQM_STRAP_CSR_LOAD=0x1 +HQM_STRAP_CSR_RAC=0xffffffffffffffff", ], },
+      rac_all_5s    => { -simv_args => [ "+HQM_STRAP_CSR_LOAD=0x1 +HQM_STRAP_CSR_RAC=0x5555555555555555 +HQM_CFG_DEFAULT_SAI=0x1", ], },
+      rac_all_As    => { -simv_args => [ "+HQM_STRAP_CSR_LOAD=0x1 +HQM_STRAP_CSR_RAC=0xaaaaaaaaaaaaaaaa", ], },
+
+      no_load       => { -simv_args => [ "+HQM_STRAP_CSR_LOAD=0x0 +HQM_STRAP_CSR_CP=0x5555 +HQM_STRAP_CSR_WAC=0x5555 +HQM_STRAP_CSR_RAC=0xaaaa", ], },
+
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

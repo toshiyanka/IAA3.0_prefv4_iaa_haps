@@ -1,0 +1,202 @@
+// File: iommu_env_ifc.va
+// Author: Vasko Nikolov <vasko.nikolov@intel.com>
+// Date: 6/26/2017
+// Description:
+//   This file contains assumptions on the DEVTLB interfaces, which include:
+//     - IO Buffer Interface (primary interface)
+//   This file should be located under source/rtl and be included in the top
+//   level RTL module, so that the assumptions become visible to integration
+//   collateral for assumption checks.
+//
+// -- Intel Proprietary
+// -- Copyright (C) 2016 Intel Corporation
+// -- All Rights Reserved
+//
+//======================================================================================================================
+
+// File iommu_env_ifc.va contains FPV interface assumptions that should be checked with dynamic tests.
+// The assumptions in the file help constrain the DEVTLB inputs to sane values, which eliminates false failures in
+// FPV simulation. In a dynamic environment, these assumptions can just be treated as another set of internal
+// assertions to be checked.
+//
+// This file is non-synthesizable, and will most likely fail LINT checks. the declaration `ifdef INST_ON should
+// prevent synthesis of this file, while the declaration `ifndef LINT_ON should disable this file for LINT checks.
+// Please contact the author if the flags do not work in your environment.
+
+`ifndef LINT_ON 
+   `ifdef HQM_DEVTLB_SIMONLY 
+     
+      //=====================================================================================================================
+      // Primary Interface Credits Tracking
+      //=====================================================================================================================
+      logic [DEVTLB_XREQ_PORTNUM-1:0]                                       req_opcode_valid_primary_port_fv;
+      logic [DEVTLB_XREQ_PORTNUM-1:0]                                       req_opcode_valid_secondary_port_fv;
+      
+      //=====================================================================================================================
+      // In-flight Requests
+      //=====================================================================================================================
+      //
+      //    The in-flight array structure keeps track of all requests that are currently in the DEVTLB. When a request is granted,
+      //    that request, including all relevant info, is stored in the in-flight array. The entries are deallocated in the order that
+      //    they are received when there is a valid response on the interface. A single invalidation will remain valid on the output
+      //    interface for as many cycles as it took to complete the invalidation. The deallocation of the request from the in-flight 
+      //    array takes this into consideration.  An assertion checks whether the request leaving the DEVTLB is the expected request. 
+           
+      // 4 is the length of the IOTLB Pipeline when DEVTLB_TLB_READ_LATENCY is 1      
+      localparam int LOCAL_CB_DEPTH = (DEVTLB_LCB_DEPTH>=DEVTLB_HCB_DEPTH)? DEVTLB_LCB_DEPTH: DEVTLB_HCB_DEPTH;
+      localparam int INFLIGHT_ARR_SIZE_FV = LOCAL_CB_DEPTH + 5 + DEVTLB_TLB_READ_LATENCY; 
+      
+      typedef struct packed{
+         t_devtlb_request        Req;
+         t_devtlb_request_info   Info;
+      } t_devtlb_inflight_req;
+      
+      t_devtlb_inflight_req [DEVTLB_XREQ_PORTNUM-1:0][INFLIGHT_ARR_SIZE_FV-1:0]  inflight_req_fv;           //In-flight array to keep track of requests in DEVTLB
+      t_devtlb_inflight_req [DEVTLB_XREQ_PORTNUM-1:0][INFLIGHT_ARR_SIZE_FV-1:0]  next_inflight_req_fv;
+
+      logic [DEVTLB_XREQ_PORTNUM-1:0][31:0]                                      inflight_h_ptr;            //Pointer to the head of the in-flight array
+      logic [DEVTLB_XREQ_PORTNUM-1:0][31:0]                                      next_inflight_h_ptr;
+      logic [DEVTLB_XREQ_PORTNUM-1:0][31:0]                                      inflight_t_ptr;            //Pointer to the tail of the in-flight array
+      logic [DEVTLB_XREQ_PORTNUM-1:0][31:0]                                      next_inflight_t_ptr;    
+      
+      logic [DEVTLB_XREQ_PORTNUM-1:0]                                            resp_valid_nn1H;        //resp_valid in the previous cycle
+      logic [DEVTLB_XREQ_PORTNUM-1:0][DEVTLB_REQ_ID_WIDTH-1:0]                   resp_id_nn1H;           //resp_id in the previous cycle
+                                                        
+      logic [DEVTLB_XREQ_PORTNUM-1:0]                                            resp_valid_fv;             //resp_valid without multi-cycle hold for invalidations
+      logic [DEVTLB_XREQ_PORTNUM-1:0]                                            inflight_reqs_in_progress; //valid requests in progress in DEVTLB
+      
+      always_comb begin
+         for(int port_id = 0 ; port_id < DEVTLB_XREQ_PORTNUM; port_id++) begin : ENV_NUM_PORTS
+
+            resp_valid_fv[port_id] = devtlb_top.TLBOutPipeV_nnnH[port_id] 
+                                    & ~(devtlb_top.preTLBOutPipeV_nnnH[port_id] 
+                                    & (devtlb_top.TLBPipe_H[port_id][devtlb_top.IOTLB_HIT_TO_OUTPUT_FV].Req.i_ID 
+                                       == devtlb_top.TLBPipe_H[port_id][devtlb_top.IOTLB_HIT_TO_OUTPUT_FV-1].Req.i_ID)); 
+
+
+
+            inflight_reqs_in_progress[port_id] = inflight_h_ptr[port_id] != inflight_t_ptr[port_id];
+            
+            next_inflight_req_fv[port_id] = inflight_req_fv[port_id];
+            next_inflight_h_ptr[port_id]  = inflight_h_ptr[port_id];
+            next_inflight_t_ptr[port_id]  = inflight_t_ptr[port_id];
+            
+            inst_devtlb_id[port_id] = inflight_t_ptr[port_id];
+            
+            if(req_grant[port_id]) begin
+               next_inflight_req_fv[port_id][next_inflight_t_ptr[port_id]].Req.i_ID       = inflight_t_ptr[port_id];
+               next_inflight_req_fv[port_id][next_inflight_t_ptr[port_id]].Req.Opcode     = t_devtlb_opcode'(req_opcode[port_id]);
+               next_inflight_req_fv[port_id][next_inflight_t_ptr[port_id]].Req.PasidV     = req_pasid_valid[port_id] & DEVTLB_PASID_SUPP_EN;
+               next_inflight_req_fv[port_id][next_inflight_t_ptr[port_id]].Req.PASID      = req_pasid[port_id] & {$bits(req_pasid[port_id]){DEVTLB_PASID_SUPP_EN}};
+               next_inflight_req_fv[port_id][next_inflight_t_ptr[port_id]].Req.ER         = req_pasid_er[port_id] & DEVTLB_PASID_SUPP_EN;
+               next_inflight_req_fv[port_id][next_inflight_t_ptr[port_id]].Req.PR         = req_pasid_pr[port_id] & DEVTLB_PASID_SUPP_EN;
+               next_inflight_req_fv[port_id][next_inflight_t_ptr[port_id]].Req.ID         = req_id[port_id];
+               next_inflight_req_fv[port_id][next_inflight_t_ptr[port_id]].Req.TlbId      = req_tlbid[port_id];
+               next_inflight_req_fv[port_id][next_inflight_t_ptr[port_id]].Req.BDF        = req_bdf[port_id];
+                                                                
+               next_inflight_req_fv[port_id][next_inflight_t_ptr[port_id]].Info.Address   = fill_address;
+               next_inflight_req_fv[port_id][next_inflight_t_ptr[port_id]].Info.Size      = t_devtlb_page_type'(`HQM_DEVTLB_ZX(fill_inv_size, $bits(t_devtlb_page_type)));
+               next_inflight_req_fv[port_id][next_inflight_t_ptr[port_id]].Info.N         = fill_no_snoop;
+               next_inflight_req_fv[port_id][next_inflight_t_ptr[port_id]].Info.U         = fill_untrans;
+               next_inflight_req_fv[port_id][next_inflight_t_ptr[port_id]].Info.R         = fill_r;
+               next_inflight_req_fv[port_id][next_inflight_t_ptr[port_id]].Info.W         = fill_w;
+               next_inflight_req_fv[port_id][next_inflight_t_ptr[port_id]].Info.X         = fill_x;
+               next_inflight_req_fv[port_id][next_inflight_t_ptr[port_id]].Info.Global    = fill_inv_g;
+               next_inflight_req_fv[port_id][next_inflight_t_ptr[port_id]].Info.Priv_Data = fill_priv_data;
+               next_inflight_req_fv[port_id][next_inflight_t_ptr[port_id]].Info.Memtype   = fill_memtype;
+               
+               inst_devtlb_id[port_id] = inflight_t_ptr[port_id];
+               
+               
+               if(next_inflight_t_ptr[port_id] < INFLIGHT_ARR_SIZE_FV-1) begin
+                  next_inflight_t_ptr[port_id]++;
+               end else begin
+                  next_inflight_t_ptr[port_id] = 0;
+               end
+            end
+               
+            if(resp_valid_fv[port_id]) begin
+               if(next_inflight_h_ptr[port_id] < INFLIGHT_ARR_SIZE_FV-1) begin
+                  next_inflight_h_ptr[port_id]++;
+               end else begin
+                  next_inflight_h_ptr[port_id] = 0;
+               end
+            end
+               
+            req_opcode_valid_primary_port_fv[port_id] = (t_devtlb_opcode'(req_opcode[port_id]) == DEVTLB_OPCODE_UTRN_ZLREAD)      
+                              | (t_devtlb_opcode'(req_opcode[port_id]) == DEVTLB_OPCODE_UTRN_RW)
+                              | (t_devtlb_opcode'(req_opcode[port_id]) == DEVTLB_OPCODE_UTRN_R)
+                              | (t_devtlb_opcode'(req_opcode[port_id]) == DEVTLB_OPCODE_UTRN_W)
+                              | (t_devtlb_opcode'(req_opcode[port_id]) == DEVTLB_OPCODE_FILL)
+                              | (t_devtlb_opcode'(req_opcode[port_id]) == DEVTLB_OPCODE_DTLB_INV)            
+                              | (t_devtlb_opcode'(req_opcode[port_id]) == DEVTLB_OPCODE_UARCH_INV);            
+             
+            req_opcode_valid_secondary_port_fv[port_id] = (t_devtlb_opcode'(req_opcode[port_id]) == DEVTLB_OPCODE_UTRN_ZLREAD)      
+                              | (t_devtlb_opcode'(req_opcode[port_id]) == DEVTLB_OPCODE_UTRN_RW)
+                              | (t_devtlb_opcode'(req_opcode[port_id]) == DEVTLB_OPCODE_UTRN_R)
+                              | (t_devtlb_opcode'(req_opcode[port_id]) == DEVTLB_OPCODE_UTRN_W);
+            
+  
+         end : ENV_NUM_PORTS
+      end
+
+      `HQM_DEVTLB_RST_MSFF(inflight_req_fv, next_inflight_req_fv, clk, reset) 
+      `HQM_DEVTLB_RST_MSFF(inflight_h_ptr, next_inflight_h_ptr, clk, reset)
+      `HQM_DEVTLB_RST_MSFF(inflight_t_ptr, next_inflight_t_ptr, clk, reset)
+      `HQM_DEVTLB_RST_MSFF(resp_valid_nn1H, resp_valid, clk, reset)
+      `HQM_DEVTLB_RST_MSFF(resp_id_nn1H, resp_id, clk, reset)
+
+      //================================================================================================================
+      // Primary Interface Assumptions
+      //================================================================================================================
+ 
+      //////// implicit_invalidation /////
+      // Must not assert twice
+      logic saw_devtlb_array_init;
+      `HQM_DEVTLB_SET_RST_MSFF(saw_devtlb_array_init, saw_devtlb_array_init, clk, devtlb.implicit_invalidation_valid, reset)
+      `HQM_DEVTLB_ASSUMES_TRIGGER(FPV_DEVTLB_ENV_Array_Init_Only_Once, 
+         saw_devtlb_array_init, ~$rose(devtlb.implicit_invalidation),
+         clk, reset,
+      `HQM_DEVTLB_ERR_MSG("FPV DEVTLB Assumption: implicit_invalidation must not assert twice"));
+      
+      
+      generate
+         for(genvar port_id = 0; port_id < DEVTLB_XREQ_PORTNUM; port_id++) begin
+            
+            `HQM_DEVTLB_ASSUMES_TRIGGER(FPV_DEVTLB_ENV_Valid_Opcodes_On_Proper_Ports,
+               req_valid[port_id], 
+               port_id == 0 ? req_opcode_valid_primary_port_fv[port_id] : req_opcode_valid_secondary_port_fv[port_id], 
+               clk, reset,
+            `HQM_DEVTLB_ERR_MSG("IOMMU FPV Assumption: Opcode field to IOMMU is valid; constrained based on RTL version"));
+      
+            // cannot receive Requests w/ PASID if PASID support is disabled
+            //
+            if (~DEVTLB_PASID_SUPP_EN) begin : PASID_disabled
+               `HQM_DEVTLB_ASSUMES_NEVER(FPV_DEVTLB_PASID_Disabled_implies_no_PASIDV_requests,
+                  req_valid[port_id] & req_pasid_valid[port_id],
+                  posedge clk, reset_INST,
+               `HQM_DEVTLB_ERR_MSG("No Req w/ PASID if IOMMU does not support PASID"));
+            end     
+       
+         end
+      endgenerate
+
+      `HQM_DEVTLB_ASSUMES_TRIGGER(FPV_DEVTLB_ENV_Valid_Pagesize_for_fill_request,
+         req_valid[0] & fill_inv_size & f_IOMMU_Opcode_is_FILL(req_opcode), 
+         (fill_address[`HQM_DEVTLB_TLB_UNTRAN_RANGE(SIZE_2M)] == 9'b011111111)
+         | 
+         (fill_address[`HQM_DEVTLB_TLB_UNTRAN_RANGE(SIZE_1G)] == 18'b011111111111111111), 
+         clk, reset,
+      `HQM_DEVTLB_ERR_MSG("IOMMU FPV Assumption: Only 4K, 2M and 1G page size fill request allowed")); 
+
+      //  FIXME : rvittal (18ww27) : Remove this assumption 
+      `HQM_DEVTLB_ASSUMES_TRIGGER(FPV_DEVTLB_ENV_Valid_TLBID_for_inv,
+         req_valid[0] & (req_opcode[0] == DEVTLB_OPCODE_UARCH_INV), 
+         req_tlbid[0] < DEVTLB_TLB_NUM_ARRAYS, 
+         clk, reset,
+      `HQM_DEVTLB_ERR_MSG("IOMMU FPV Assumption: Only valid TLB ID allowed")); 
+
+
+   `endif //DEVTLB_SIMONLY
+`endif //LINT_ON
+

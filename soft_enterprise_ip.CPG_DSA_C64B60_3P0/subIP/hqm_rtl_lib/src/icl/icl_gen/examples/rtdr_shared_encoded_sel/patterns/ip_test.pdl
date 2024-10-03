@@ -1,0 +1,58 @@
+iProcsForModule ip
+
+iProc ip_test {} {
+
+   iReset
+   iRunLoop 1 -tck
+   iNote "Activate selection for scan mux so_mux, selection 0: sel_ABC\[1:0\] = 'b01 -> so_mux = regA.so"
+   iWrite sel_ABC[1] 0b0
+   iWrite sel_ABC[0] 0b1
+   iApply
+
+   iNote "Scan in verification pattern to the following scan register:"
+   iNote "  regA.DR\[5:0\], load value = 101100"
+   iWrite regA.DR[5:0] 0b101100
+   iApply -end_in_pause
+
+   iNote "Scan out verification pattern from the following scan register:"
+   iNote "  regA.DR\[5:0\], expected value = 101100"
+   iWrite regA.DR[5:0] 0b000000
+   iRead  regA.DR[5:0] 0b101100
+   iApply
+
+   iNote "Activate selection for scan mux so_mux, selection 2: sel_ABC\[1:0\] = 'b11 -> so_mux = regC.so"
+   iWrite sel_ABC[1] 0b1
+   iWrite sel_ABC[0] 0b1
+   iApply
+
+   iNote "Scan in verification pattern to the following scan register:"
+   iNote "  regC.DR\[11:0\], load value = 101100111100"
+   iWrite regC.DR[11:0] 0b101100111100
+   iRead  regC.DR[11:0] 0bXXXXXXXX0101
+   iApply -end_in_pause
+
+   iNote "Scan out verification pattern from the following scan register:"
+   iNote "  regC.DR\[11:0\], expected value = 101100111100"
+   iWrite regC.DR[11:0] 0b000000000101
+   iRead  regC.DR[11:0] 0b101100111100
+   iApply
+
+   iNote "Activate selection for scan mux so_mux, selection 1: sel_ABC\[1:0\] = 'b10 -> so_mux = regB.so"
+   iWrite sel_ABC[1] 0b1
+   iWrite sel_ABC[0] 0b0
+   iApply
+
+   iNote "Scan in verification pattern to the following scan register:"
+   iNote "  regB.DR\[11:0\], load value = 101100111100"
+   iWrite regB.DR[11:0] 0b101100111100
+   iRead  regB.DR[11:0] 0bXXXXXXXX0101
+   iApply -end_in_pause
+
+   iNote "Scan out verification pattern from the following scan register:"
+   iNote "  regB.DR\[11:0\], expected value = 101100111100"
+   iWrite regB.DR[11:0] 0b000000000101
+   iRead  regB.DR[11:0] 0b101100111100
+   iApply
+
+
+}

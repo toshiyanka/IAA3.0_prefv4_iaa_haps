@@ -1,0 +1,137 @@
+##------*--perl--*----------------------------------------------
+
+##
+## Functional coverage related switches for PCH projects - dmeka
+##
+##
+
+my $ace_project = lc($ENV{ACE_PROJECT});
+my $SCOPE = $ace_project;
+my $project = lc($ENV{PROJECT});
+
+%audf = (
+    InterfaceVars => {
+
+        -verif_data_mgmt => {
+            action     => 'verification_manager',
+            shortcut   => 'vdm',
+            help       => {    
+                desc => 'Enables verification management activities',
+                man => 'Enables verification management activities. Each activity has its own switch, but for that to have any effect, this ivar must be set (think of it as an overall kill-switch).',
+                group => 'VM',
+            },      
+        },
+
+        -generate_assertion_reports  => {
+            type => 'BOOLEAN',
+            default => 0,
+            help => {
+                desc => 'Generate assertion text reports using urg for each test that has a vdb',
+                group => 'VM',
+            },
+        },
+
+        -vm_sv2proto => {
+            default => "$ENV{CORAL}/modules/sv2coral/sv2coral.$ENV{VCS_VER}",
+        },
+
+        -vm_cov_converter_opts  => {
+            default => ['--covprop2fcpcov', '--noassert', '--ubcross'],
+        },
+
+        -vm_uploader_script => {
+            type => 'SCALAR',
+            default => "/p/cse/asic/dapkgs/fcov/${project}_latest/upload_to_covdb.pl",  ## moving upload_to_covdb to central location
+            help => {
+                param => 'file',
+                desc => 'script that uploads the contents of a tinfo_upload.txt file to SQL coverage db',
+                group => 'VM',
+            },
+        },
+
+        -vm_upload_test_data => {
+            type => 'BOOLEAN',
+            default => 0,
+            prototype => 'TEST',
+            shortcut => 'vuted',
+            help => {
+                desc => 'upload basic test data to some db using <-vm_uploader_script>',
+                group => 'VM',
+            },
+        },
+
+        -vm_pcovdir => { 
+            default => "/p/$project/val/coverage/$ace_project/",   ## this path can get modified from project to project
+        },
+
+        -vm_move_cdb => {
+            type => 'BOOLEAN',
+            default => 0,
+            prototype => 'TEST',
+            help => {
+                desc => 'Move coverage db to some central location, specified by -vm_pcovdir',
+                group => 'VM',
+            },
+        },
+ 
+       -enable_svcov => {
+            alias => '-vm_convert_coverage -verif_data_mgmt -generate_assertion_reports',
+            shortcut => 'svcov',
+            help => {
+                desc => "Script that parses test.sv for `define seed_value <s>, and synchronises it in test.pl, asyncseed and test.seed.\n\t% <script> <full path to test.sv>\n",
+                group => 'VM',
+            },
+        },
+
+        -collect_data_svcov => {
+            alias => '-verif_data_mgmt -vm_upload_test_data -vm_move_cdb',
+            help => {
+                desc => "Upload test result to indicators database. This is related to verification manager.\n",
+                group => 'VM',
+            },
+        },
+
+        -vm_pcov_cleanup => {
+            help => {
+                desc => "Remove pcov file after successfully copy the pcov file to the central repo.\n",
+                group => 'VM',
+            },
+        },
+    }, # InterfaceVars
+
+
+
+    CommandMapper => {
+        $SCOPE => {
+            -test_manager => {
+                add_mod => {
+                    build_test => [
+                        "common::PostTestBuilder",
+                    ],
+                    exec_test => [
+                        "common::VerificationManager",
+                        "Ace::WorkModules::Cleanup",
+                    ],
+                }, # add_mod
+
+                remove_mod => {
+                    exec_test => [
+                        "Ace::WorkModules::Cleanup",
+                        'Ace::WorkModules::ProtoNI',
+                        'common::VerificationManager',
+                    ],
+                    check_test => [
+                        'Ace::WorkModules::ProtoNI',
+                        'common::VerificationManager',
+                    ],
+                    verification_manager => [
+                        'Ace::WorkModules::VerificationManager',
+                        'common::VerificationManager',
+                    ],
+                },  # remove_mod                  
+            }, # test_manager
+        }, #SCOPE
+    }, # CommandMapper
+
+);
+

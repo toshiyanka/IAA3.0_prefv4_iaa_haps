@@ -1,0 +1,184 @@
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+HCW DIR:DQ_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+IDLE 300
+HCW DIR:DQ_A qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x003 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302
+IDLE 300
+
+#apply prim_reset
+#idle 400
+#force hqm_tb_top.prim_rst_b 0
+#idle 200
+#release hqm_tb_top.prim_rst_b
+#force hqm_tb_top.prim_rst_b 1
+#idle 400
+
+#FORCE PF_FLR
+wr hqm_pf_cfg_i.pcie_cap_device_control.startflr 1
+
+idle 500
+
+rd hqm_pf_cfg_i.pcie_cap_device_control.startflr 
+
+idle 500 
+
+#----------------------------Check the register in initialize state --------------------------------#
+
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id 0x8086
+rd hqm_pf_cfg_i.device_id 0x270B
+rd hqm_pf_cfg_i.device_command 0x0000
+rd hqm_pf_cfg_i.device_status 0x0010
+rd hqm_pf_cfg_i.func_bar_l 0x0000000C
+rd hqm_pf_cfg_i.func_bar_u 0x00000000
+rd hqm_pf_cfg_i.csr_bar_l 0x0000000C
+rd hqm_pf_cfg_i.csr_bar_u 0x00000000
+
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable memory and parity operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+
+sai hostia_boot_sai     # Should be SAI index 4
+
+
+########################################
+#read all HQM CSR policy register 
+wr hqm_system_csr.hqm_csr_cp_lo 0xFFFFFFFF
+wr hqm_system_csr.hqm_csr_cp_hi 0xFFFFFFFF
+rd hqm_system_csr.hqm_csr_cp_lo 0xFFFFFFFF
+rd hqm_system_csr.hqm_csr_cp_hi 0xFFFFFFFF
+
+
+sai hostia_ucode_sai    # Should be SAI index 1
+############################################
+#HQM CSR Read Access Policy Low Register
+wr hqm_system_csr.hqm_csr_rac_lo 0xFFFFFFFF
+wr hqm_system_csr.hqm_csr_rac_hi 0xFFFFFFFF
+rd hqm_system_csr.hqm_csr_rac_lo 0xFFFFFFFF
+rd hqm_system_csr.hqm_csr_rac_hi 0xFFFFFFFF
+##################################################
+#HQM CSR Write Access Policy Low Register
+wr hqm_system_csr.hqm_csr_wac_lo 0xFFFFFFFF
+wr hqm_system_csr.hqm_csr_wac_hi 0xFFFFFFFF
+rd hqm_system_csr.hqm_csr_wac_lo 0xFFFFFFFF
+rd hqm_system_csr.hqm_csr_wac_hi 0xFFFFFFFF
+
+
+#read all
+#--------------------------------------------------------------------------------------------------####
+
+#-------------------start checking Rgister after FLR-------------------------------------------------#
+
+#Read performance register 
+rd list_sel_pipe.CFg_Ldb_Sched_Perf_0_l 0x00000000
+rd list_sel_pipe.CFg_Ldb_Sched_Perf_1_l 0x00000000
+rd list_sel_pipe.CFg_Ldb_Sched_Perf_2_l 0x00000000
+rd list_sel_pipe.CFg_Ldb_Sched_Perf_3_l 0x00000000
+rd list_sel_pipe.CFg_Ldb_Sched_Perf_4_l 0x00000000
+rd list_sel_pipe.CFg_Ldb_Sched_Perf_5_l 0x00000000
+rd list_sel_pipe.CFg_Ldb_Sched_Perf_6_l 0x00000000
+rd list_sel_pipe.CFg_Ldb_Sched_Perf_0_h 0x00000000
+rd list_sel_pipe.CFg_Ldb_Sched_Perf_1_h 0x00000000
+rd list_sel_pipe.CFg_Ldb_Sched_Perf_2_h 0x00000000
+rd list_sel_pipe.CFg_Ldb_Sched_Perf_3_h 0x00000000
+rd list_sel_pipe.CFg_Ldb_Sched_Perf_4_h 0x00000000
+rd list_sel_pipe.CFg_Ldb_Sched_Perf_5_h 0x00000000
+rd list_sel_pipe.CFg_Ldb_Sched_Perf_6_h 0x00000000
+
+
+###################################SMON register #########################
+rd list_sel_pipe.CFG_SMON0_CONFIGURATION0 0x40000000 
+rd list_sel_pipe.CFG_SMON0_CONFIGURATION1 0x00000000
+rd list_sel_pipe.CFG_SMON0_COMPARE0 0x00000000
+rd list_sel_pipe.CFG_SMON0_COMPARE1 0x00000000
+rd list_sel_pipe.CFG_SMON0_COUNTER0 0x00000000
+rd list_sel_pipe.CFG_SMON0_COUNTER1 0x00000000
+rd list_sel_pipe.CFG_SMON0_TIMER 0x00000000
+rd list_sel_pipe.CFG_SMON0_MAXIMUM_TIMER 0x00000000
+rd list_sel_pipe.CFG_SMON1_CONFIGURATION0 0x40000000
+rd list_sel_pipe.CFG_SMON1_CONFIGURATION1 0x00000000
+rd list_sel_pipe.CFG_SMON1_COMPARE0 0x00000000
+rd list_sel_pipe.CFG_SMON1_COMPARE1 0x00000000
+rd list_sel_pipe.CFG_SMON1_COUNTER0 0x00000000
+rd list_sel_pipe.CFG_SMON1_COUNTER1 0x00000000
+rd list_sel_pipe.CFG_SMON1_TIMER 0x00000000
+rd list_sel_pipe.CFG_SMON1_MAXIMUM_TIMER 0x00000000
+#------------------------------------------------------------#
+#syndrome register
+#rd dm_ing_unit.CFG_ING_SYNDROME_ERROR_0x00000000
+#rd dm_ing_unit.CFG_ING_SYNDROME_ERROR_01 0x00000000
+rd dm_vpa_unit.CFG_VPA_SYNDROME_ERROR_00 0x00000000
+rd dm_vpa_unit.CFG_VPA_SYNDROME_ERROR_01 0x00000000
+rd dm_vpa_unit.CFG_VPA_VAS_HW_ERROR_SYNDROME 0x00000000
+rd dm_vpa_unit.CFG_VPA_VAS_SW_ERROR_SYNDROME 0x00000000
+rd dm_mem_unit.CFG_MEM_SYNDROME_ERROR_00 0x00000000
+rd dm_mem_unit.CFG_MEM_SYNDROME_ERROR_01 0x00000000
+rd dm_dma_unit.CFG_DMA_ERROR_SYNDROME_0 0x00000000
+rd dm_dma_unit.CFG_DMA_HW_ERROR_SYNDROME 0x00000000
+rd dm_dma_unit.CFG_DMA_HW_ERROR_SYNDROME 0x00000000
+rd dm_dma_unit.CFG_DMA_ERROR_SYNDROME_0 0x00000000
+#rd dm_hbm_unit.CFG_HBM_HW_ERROR_SYNDROME 0x00000000
+rd dm_hbm_unit.CFG_HBM_ERROR_SYNDROME_0 0x00000000
+rd dm_hbm_unit.CFG_HBM_ERROR_SYNDROME_1 0x00000000
+#rd dm_cmd_unit.CFG_CMD_SYNDROME_ERROR_00 0x00000000
+#rd dm_cmd_unit.CFG_CMD_SYNDROME_ERROR_01 0x00000000
+#rd dm_cmd_unit.CFG_CMP_HW_ERROR_SYNDROME 0x00000000
+#rd dm_cmd_unit.CFG_CMP_NQ_ERROR_SYNDROME_0 0x00000000
+#rd dm_cmd_unit.CFG_CMP_NQ_ERROR_SYNDROME_1 0x00000000
+#rd dm_cmd_unit.CFG_CMP_NQ_ERROR_SYNDROME_2 0x00000000
+#rd dm_cmd_unit.CFG_CMP_NQ_ERROR_SYNDROME_3 0x00000000
+
+rd dm_master.CFG_MSTR_DIAGNOSTIC_SYNDROME 0x00000000
+#rd list_sel_pipe.CFG_SYNDROME_HW 0x00000000
+#rd list_sel_pipe.CFG_SYNDROME_SQ 0x00000000
+rd direct_pipe.CFG_SYNDROME_00 0x00000000
+rd direct_pipe.CFG_SYNDROME_01 0x00000000
+rd credit_hist_pipe.CFG_SYNDROME_00 0x00000000
+rd credit_hist_pipe.CFG_SYNDROME_01 0x00000000
+rd credit_hist_pipe.CFG_SYNDROME_02 0x00000000
+rd credit_hist_pipe.CFG_SYNDROME_03 0x00000000
+rd credit_hist_pipe.CFG_SYNDROME_04 0x00000000
+rd credit_hist_pipe.CFG_SYNDROME_05 0x00000000
+rd credit_hist_pipe.CFG_SYNDROME_06 0x00000000
+rd credit_hist_pipe.CFG_SYNDROME_07 0x0000000
+#hqm_csr syndrome
+rd hqm_system_csr.UNEXP_CMPL_SYND0 0x00000000
+rd hqm_system_csr.UNEXP_CMPL_SYND1 0x00000000
+rd hqm_system_csr.HQM_IOSF_TGTQ_DPAR_ERR_SYND[0] 0x00000000
+rd hqm_system_csr.HQM_IOSF_TGTQ_DPAR_ERR_SYND[1] 0x00000000
+rd hqm_system_csr.HQM_IOSF_TGTQ_DPAR_ERR_SYND[2] 0x00000000
+rd hqm_system_csr.HQM_IOSF_TGTQ_DPAR_ERR_SYND[3] 0x00000000
+rd hqm_system_csr.HQM_IOSF_TGTQ_DPAR_ERR_SYND[4] 0x00000000
+rd hqm_system_csr.HQM_IOSF_TGTQ_DPAR_ERR_SYND[5] 0x00000000
+rd hqm_system_csr.HQM_IOSF_TGTQ_DPAR_ERR_SYND[6] 0x00000000
+rd hqm_system_csr.HQM_IOSF_TGTQ_DPAR_ERR_SYND[7] 0x00000000
+rd hqm_system_csr.HQM_IOSF_TGTQ_DPAR_ERR_SYND[8] 0x00000000
+rd hqm_system_csr.ALARM_PF_SYND0 0x000000000
+rd hqm_system_csr.ALARM_PF_SYND1 0x000000000
+rd hqm_system_csr.ALARM_PF_SYND2 0x000000000
+#rd hqm_system_csr.SERVICE_INT_SYND 0x00000000
+rd hqm_system_csr.PP_DPERR_SYND_P 0x000000000
+rd hqm_system_csr.PP_DPERR_SYND_D 0x000000000
+#rd hqm_system_csr.ALARM_VF_SYND0 0x000000000
+#rd hqm_system_csr.ALARM_VF_SYND1 0x000000000
+#rd hqm_system_csr.ALARM_VF_SYND2 0x000000000
+
+
+
+rd config_master.cfg_diagnostic_syndrome 0x00000000
+###################################
+# Wait for reset to be done (including hardware memory init)
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+
+
+
+#-----------------------------------------------------------------#

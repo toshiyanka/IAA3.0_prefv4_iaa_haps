@@ -1,0 +1,154 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Setup FUNC_VF BAR to a base address of 0x00000003_xxxxxxxx
+###################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+###################################
+wr config_master.cfg_pm_pmcsr_disable.disable 0x0
+rd config_master.cfg_pm_pmcsr_disable.disable 0x0
+##
+###poll to Wait for reset to be done 
+poll config_master.cfg_diagnostic_reset_status 0x800003ff 0x800003ff 500
+###poll to Wait for unit_idle to be done 
+poll config_master.cfg_diagnostic_idle_status  0x0007ffff 0x0007ffff 500
+###################################
+# Setup MSI-X Table entries
+wr hqm_msix_mem.msg_addr_l[0]  0xdeadf00c
+wr hqm_msix_mem.msg_addr_u[0]  0xfeeddeaf
+wr hqm_msix_mem.msg_data[0]    0xa11c0ded
+wr hqm_msix_mem.vector_ctrl[0] 0x00000000
+rd hqm_msix_mem.msg_addr_l[0]  0xdeadf00c
+rd hqm_msix_mem.msg_addr_u[0]  0xfeeddeaf
+rd hqm_msix_mem.msg_data[0]    0xa11c0ded
+rd hqm_msix_mem.vector_ctrl[0] 0x00000000
+###################################
+# Enable MSI-X
+wr hqm_pf_cfg_i.msix_cap_control 0x8000
+rd hqm_pf_cfg_i.msix_cap_control 0x8040
+###################################
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+# pf      Invalid command   (cmd=15)                    aid=illegal_hcw           drop
+# vdev=1  parity error reading vf_dir_vpp2pp            aid=parity_error          drop
+# vdev=2  Invalid command   (cmd=6)                     aid=illegal_hcw           drop
+# vdev=3  Invalid command   (DIR port and cmd=COMP)     aid=illegal_hcw           drop
+# vdev=4  vpp not valid                                 aid=illegal_pp            drop
+# vdev=5  vqid not valid                                aid=illegal_qid           drop
+# vdev=6  directed release  (qtype=DIR and cmd=RELEASE) aid=illegal_qid           drop
+# vdev=7  vasqid not valid                              aid=disabled_qid          drop
+# vdev=8  qtype=ORD and SN=0                            aid=illegal_ldb_qid_cfg   drop
+# vdev=9  qtype=UNO and SN=1                            aid=illegal_ldb_qid_cfg   drop
+# vdev=10 qtype=ATM and FID=0                           aid=illegal_ldb_qid_cfg   drop
+
+
+cfg_begin
+
+  dir qid  0
+  dir qid  1
+  dir qid  2
+  dir qid  3
+  dir qid  4
+  dir qid  5
+  dir qid  6
+  dir qid  7
+  ldb qid  8 
+  ldb qid  9 sn_cfg_v=1
+  ldb qid 10 
+  dir qid 11
+
+  dir qid 63
+
+  vas 0 dir_qidv0=1 dir_qidv1=1 dir_qidv2=1 dir_qidv3=1 dir_qidv4=1 dir_qidv5=1 dir_qidv6=1 dir_qidv7=0 ldb_qidv8=1 ldb_qidv9=1 ldb_qidv10=1 dir_qidv63=1 credit_cnt=8192
+
+  dir pp  0 vas=0
+  dir pp  1 vas=0
+  dir pp  2 vas=0 exp_ill_hcw_cmd_dir_pp=1
+  dir pp  3 vas=0 exp_ill_hcw_cmd_dir_pp=1
+  dir pp  4 vas=0
+  dir pp  5 vas=0
+  ldb pp  6 vas=0
+  dir pp  7 vas=0
+  dir pp  8 vas=0
+  dir pp  9 vas=0
+  dir pp 10 vas=0
+  dir pp 11 vas=0
+
+  dir pp 63 vas=0 exp_ill_hcw_cmd=1
+
+  dir cq  0 gpa=sm cq_depth=8
+  dir cq  1 gpa=sm cq_depth=8
+  dir cq  2 gpa=sm cq_depth=8
+  dir cq  3 gpa=sm cq_depth=8
+  dir cq  4 gpa=sm cq_depth=8
+  dir cq  5 gpa=sm cq_depth=8
+  ldb cq  6 gpa=sm cq_depth=8
+  dir cq  7 gpa=sm cq_depth=8
+  dir cq  8 gpa=sm cq_depth=8
+  dir cq  9 gpa=sm cq_depth=8
+  dir cq 10 gpa=sm cq_depth=8
+  dir cq 11 gpa=sm cq_depth=8
+
+  dir cq 63 gpa=sm cq_depth=8
+
+  vdev  0 dir_pp0_v=1   dir_vqid0_qid=0
+  vdev  1 dir_pp1_v=1   dir_vqid0_qid=1
+  vdev  2 dir_pp2_v=1   dir_vqid0_qid=2
+  vdev  3 dir_pp3_v=1   dir_vqid0_qid=3
+  vdev  4 dir_pp4_v=0   dir_vqid0_qid=4
+#  vdev  4 dir_pp4_v=1
+  vdev  5 dir_pp5_v=1   dir_vqid0_qid=5
+  vdev  5               dir_vqid0_v=0
+  vdev  6 ldb_pp6_v=1   dir_vqid0_qid=6
+  vdev  7 dir_pp7_v=1   dir_vqid0_qid=7
+  vdev  8 dir_pp8_v=1   ldb_vqid0_qid=8
+  vdev  9 dir_pp9_v=1   ldb_vqid0_qid=9
+  vdev 10 dir_pp10_v=1  ldb_vqid0_qid=10
+  vdev 11 dir_pp11_v=1  dir_vqid0_qid=11
+
+cfg_end
+
+###################################
+wr hqm_system_csr.parity_ctl            0x00000001
+wr hqm_system_csr.vf_dir_vpp_v[64]      0x1             # VDEV1, VPP0 (parity error)
+wr hqm_system_csr.parity_ctl            0x00000000
+
+###################################
+# Enable passthrough mode
+wr hqm_system_csr.msix_passthrough      0x00000001
+rd hqm_system_csr.msix_passthrough      0x00000001
+
+# Initialize counters to max value (-1)
+wr hqm_system_csr.hqm_system_cnt_ctl    0x00000003
+wr hqm_system_csr.hqm_system_cnt_ctl    0x00000000
+
+rd hqm_system_csr.alarm_ctl             0x00000000
+wr hqm_system_csr.alarm_ctl             0x0000000f
+rd hqm_system_csr.alarm_ctl             0x0000000f
+wr hqm_system_csr.alarm_ctl             0x00000000
+rd hqm_system_csr.alarm_ctl             0x00000000
+
+# Enable ingress alarms
+rd hqm_system_csr.ingress_alarm_enable  0x00000000
+wr hqm_system_csr.ingress_alarm_enable  0xffffffff
+rd hqm_system_csr.ingress_alarm_enable  0x0000003f
+wr hqm_system_csr.ingress_alarm_enable  0x00000000
+rd hqm_system_csr.ingress_alarm_enable  0x00000000
+wr hqm_system_csr.ingress_alarm_enable  0xffffffff
+rd hqm_system_csr.ingress_alarm_enable  0x0000003f

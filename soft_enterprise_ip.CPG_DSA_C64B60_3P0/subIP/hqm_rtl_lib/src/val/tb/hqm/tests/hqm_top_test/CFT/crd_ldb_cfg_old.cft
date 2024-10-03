@@ -1,0 +1,123 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+
+###################################
+# Wait for reset to be done (including hardware memory init)
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+
+# Setup MSI-X Table entries
+wr hqm_msix_mem.msg_addr_l[0]  0xdeadf00c
+wr hqm_msix_mem.msg_addr_u[0]  0xfeeddeaf
+wr hqm_msix_mem.msg_data[0]    0xa11c0ded
+wr hqm_msix_mem.vector_ctrl[0] 0x00000000
+wr hqm_msix_mem.msg_addr_l[1]  0xdeadf11c
+wr hqm_msix_mem.msg_addr_u[1]  0xfeeddeaf
+wr hqm_msix_mem.msg_data[1]    0x1ce1cebb
+wr hqm_msix_mem.vector_ctrl[1] 0x00000000
+rd hqm_msix_mem.msg_addr_l[0]  0xdeadf00c
+rd hqm_msix_mem.msg_addr_u[0]  0xfeeddeaf
+rd hqm_msix_mem.msg_data[0]    0xa11c0ded
+rd hqm_msix_mem.vector_ctrl[0] 0x00000000
+rd hqm_msix_mem.msg_addr_l[1]  0xdeadf11c
+rd hqm_msix_mem.msg_addr_u[1]  0xfeeddeaf
+rd hqm_msix_mem.msg_data[1]    0x1ce1cebb
+rd hqm_msix_mem.vector_ctrl[1] 0x00000000
+# Enable MSI
+wr hqm_pf_cfg_i.msix_cap_control 0x8000
+rd hqm_pf_cfg_i.msix_cap_control 0x8047
+
+###################################
+# Setup LUTs used by HCWs
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+  ldb qid LQ:*
+  ldb qid 1
+  ldb qid 2
+  ldb qid 3
+  ldb qid 4
+  ldb qid 5
+  ldb qid 6
+  ldb qid 7
+
+  dir pool DP:* credit_cnt=0x000 credit_limit=0x1000 freelist_base=0 freelist_limit=0xfff
+  ldb pool LP:*  credit_cnt=0x3ffc credit_limit=0x4000 freelist_base=0 freelist_limit=0x3fff
+
+  vas VS:* ldb_qidv:LQ=1 
+  vas 0 ldb_qidv0=1 ldb_qidv1=1 ldb_qidv2=1 ldb_qidv3=1 ldb_qidv4=1 ldb_qidv5=1 ldb_qidv6=1 ldb_qidv7=1
+
+
+  ldb pp PP:0 gpa=0x80000000 vas=VS dir_pool=DP ldb_pool=LP ldb_credit_count=0x4 dir_min_credit_quanta=0x000 ldb_min_credit_quanta=0x100 ldb_credit_hwm=0x200 ldb_credit_lwm=0x100
+  ldb cq PP   gpa=0x80200000 qidv0=1 qidix0=LQ 
+
+  ldb pp 1  gpa=sm vas=0 dir_pool=DP ldb_pool=LP dir_credit_count=0x2 ldb_credit_count=0x4 dir_min_credit_quanta=0x000 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x200 dir_credit_lwm=0x100
+  ldb cq 1  gpa=sm qidv0=1 qidix0=0 qidv1=1 qidix1=1 
+
+  ldb pp 2  gpa=sm vas=0 dir_pool=DP ldb_pool=LP dir_credit_count=0x2 ldb_credit_count=0x4 dir_min_credit_quanta=0x000 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x200 dir_credit_lwm=0x100
+  ldb cq 2  gpa=sm qidv0=1 qidix0=2 
+
+  ldb pp 3  gpa=sm vas=0 dir_pool=DP ldb_pool=LP dir_credit_count=0x2 ldb_credit_count=0x4 dir_min_credit_quanta=0x000 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x200 dir_credit_lwm=0x100
+  ldb cq 3  gpa=sm qidv0=1 qidix0=3 
+
+  ldb pp 4  gpa=sm vas=0 dir_pool=DP ldb_pool=LP dir_credit_count=0x2 ldb_credit_count=0x4 dir_min_credit_quanta=0x000 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x200 dir_credit_lwm=0x100
+  ldb cq 4  gpa=sm qidv0=1 qidix0=4 
+
+  ldb pp 7  gpa=sm vas=0 dir_pool=DP ldb_pool=LP dir_credit_count=0x2 ldb_credit_count=0x4 dir_min_credit_quanta=0x000 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x200 dir_credit_lwm=0x100
+  ldb cq 7  gpa=sm qidv0=1 qidix0=7
+   
+  ldb pp 5  gpa=sm vas=0 dir_pool=DP ldb_pool=LP dir_credit_count=0x2 ldb_credit_count=0x4 dir_min_credit_quanta=0x000 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x200 dir_credit_lwm=0x100
+  ldb cq 5  gpa=sm qidv0=1 qidix0=5 
+
+  ldb pp 6  gpa=sm vas=0 dir_pool=DP ldb_pool=LP dir_credit_count=0x2 ldb_credit_count=0x4 dir_min_credit_quanta=0x000 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x200 dir_credit_lwm=0x100
+  ldb cq 6  gpa=sm qidv0=1 qidix0=6 
+
+##################################################################################################################################################################
+  #dir qid DQ_A:*
+  #dir pool 0 credit_cnt=0x3fc credit_limit=0x400 freelist_base=0 freelist_limit=0x3ff
+  #dir pool 1 credit_cnt=0xc00 credit_limit=0xc00 freelist_base=0x400 freelist_limit=0xfff
+  #ldb pool 0 credit_cnt=0x4000 credit_limit=0x4000 freelist_base=0 freelist_limit=0x3fff
+  #vas 0 dir_qidv:DQ_A=1
+  #dir pp DQ_A  gpa=sm vas=0 dir_pool=0 ldb_pool=0 dir_credit_count=0xF dir_min_credit_quanta=0x100 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x200 dir_credit_lwm=0x100
+  #dir cq DQ_A  cq_depth=512 gpa=sm
+
+#changes made 
+#1)dir pool credit cnt =1
+#2)dir_credit_count =0xFF
+#3_dir_credit_hwm=high watermark for PP set to 0
+
+  dir qid DQ_A:*
+  dir pool 0 credit_cnt=0x001 credit_limit=0x400 freelist_base=0 freelist_limit=0x3ff
+  dir pool 1 credit_cnt=0x001 credit_limit=0xc00 freelist_base=0x400 freelist_limit=0xfff
+  ldb pool 0 credit_cnt=0x4000 credit_limit=0x4000 freelist_base=0 freelist_limit=0x3fff
+  vas 0 dir_qidv:DQ_A=1
+  dir pp DQ_A  gpa=sm vas=0 dir_pool=0 ldb_pool=0 dir_credit_count=0x04 dir_min_credit_quanta=0x001 ldb_min_credit_quanta=0x100 dir_credit_hwm=0x000 dir_credit_lwm=0x100
+  dir cq DQ_A  cq_depth=512 gpa=sm
+
+ ####################################################################################################################### 
+
+
+
+
+cfg_end
+
+
+rd hqm_pf_cfg_i.vendor_id

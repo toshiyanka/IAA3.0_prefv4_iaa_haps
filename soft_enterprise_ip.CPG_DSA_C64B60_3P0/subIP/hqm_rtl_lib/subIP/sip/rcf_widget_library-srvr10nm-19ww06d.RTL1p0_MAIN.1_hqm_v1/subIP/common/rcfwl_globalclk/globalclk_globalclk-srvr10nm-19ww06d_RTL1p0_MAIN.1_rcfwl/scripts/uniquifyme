@@ -1,0 +1,61 @@
+#!/usr/intel/bin/tcsh
+
+
+
+## ACCEPT prefix as an argument to uniquifyme 
+set prefix=$1
+
+
+## Exit if no prefix specified
+if( $prefix == "" ) then
+ echo "You must specify a prefix"
+ echo "uniquify_me <prefix>"
+ exit 1
+endif
+
+set uniquify_version = "17.02.03"
+set uniquify_path = "$RTL_PROJ_TOOLS/uniquify/$uniquify_version"
+
+echo "------------------------------------------------"
+echo "Running uniquifyme with prefix: $prefix"
+echo "------------------------------------------------"
+
+$uniquify_path/uniquify -top globalclk -dirs src+verif/testbench -prefix $prefix -rtl_libs scripts/liblist -rtl_scope scripts/scopelist
+
+
+
+sed -i 's/lintra_top => \["gclk_refclkdist",\],/lintra_top => \["'"$prefix"'_gclk_refclkdist",\],/g' cfg/globalclk_hdl.udf 
+sed -i 's/lintra_top => \["gclk_pclkdist",\],/lintra_top => \["'"$prefix"'_gclk_pclkdist",\],/g' cfg/globalclk_hdl.udf 
+sed -i 's/lintra_top => \["gclk_pccdu",\],/lintra_top => \["'"$prefix"'_gclk_pccdu",\],/g' cfg/globalclk_hdl.udf 
+sed -i 's/lintra_top => \["gclk_psyncdist",\],/lintra_top => \["'"$prefix"'_gclk_psyncdist",\],/g' cfg/globalclk_hdl.udf
+sed -i 's/lintra_top => \["gclk_divsync_gen",\],/lintra_top => \["'"$prefix"'_gclk_divsync_gen",\],/g' cfg/globalclk_hdl.udf
+sed -i 's/lintra_top => \["gclk_clkreqaggr",\],/lintra_top => \["'"$prefix"'_gclk_clkreqaggr",\],/g' cfg/globalclk_hdl.udf
+sed -i 's/lintra_top => \["gclk_rcb_lcb",\],/lintra_top => \["'"$prefix"'_gclk_rcb_lcb",\],/g' cfg/globalclk_hdl.udf
+sed -i 's/lintra_top => \["gclk_clkdist_mux",\],/lintra_top => \["'"$prefix"'_gclk_clkdist_mux",\],/g' cfg/globalclk_hdl.udf
+sed -i 's/lintra_top => \["gclk_clkdist_clkmux",\],/lintra_top => \["'"$prefix"'_gclk_clkdist_clkmux",\],/g' cfg/globalclk_hdl.udf
+sed -i 's/lintra_top => \["gclk_clkdist_repeater",\],/lintra_top => \["'"$prefix"'_gclk_clkdist_repeater",\],/g' cfg/globalclk_hdl.udf
+sed -i 's/lintra_top => \["gclk_psocclkdist",\],/lintra_top => \["'"$prefix"'_gclk_psocclkdist",\],/g' cfg/globalclk_hdl.udf
+sed -i 's/lintra_top => \["gclk_psocsyncdist",\],/lintra_top => \["'"$prefix"'_gclk_psocsyncdist",\],/g' cfg/globalclk_hdl.udf
+sed -i 's/lintra_top => \["gclk_pcu_clkdist",\],/lintra_top => \["'"$prefix"'_gclk_pcu_clkdist",\],/g' cfg/globalclk_hdl.udf 
+sed -i 's/lintra_top => \["gclk_mesh_clkdist",\],/lintra_top => \["'"$prefix"'_gclk_mesh_clkdist",\],/g' cfg/globalclk_hdl.udf 
+sed -i 's/lintra_top => \["gclk_make_clk_cda",\],/lintra_top => \["'"$prefix"'_gclk_make_clk_cda",\],/g' cfg/globalclk_hdl.udf 
+sed -i 's/lintra_top => \["gclk_fxr_clkdist",\],/lintra_top => \["'"$prefix"'_gclk_fxr_clkdist",\],/g' cfg/globalclk_hdl.udf 
+sed -i 's/lintra_top => \["gclk_glitchfree_clkmux",\],/lintra_top => \["'"$prefix"'_gclk_glitchfree_clkmux",\],/g' cfg/globalclk_hdl.udf
+sed -i 's/lintra_top => \["gclk_trunk_clock_switch",\],/lintra_top => \["'"$prefix"'_gclk_trunk_clock_switch",\],/g' cfg/globalclk_hdl.udf
+sed -i 's/lintra_top => \["gclk_vret_clock_gate",\],/lintra_top => \["'"$prefix"'_gclk_vret_clock_gate",\],/g' cfg/globalclk_hdl.udf
+sed -i 's/ top => "/ top => "'"$prefix"'_/g' cfg/globalclk_hdl.udf
+sed -i 's/power_top => "/power_top => "'"$prefix"'_/g' cfg/globalclk_hdl.udf
+sed -i "s/gclk_glitchfree_clkmux/$prefix\_gclk_glitchfree_clkmux/g" tools/qcdc/inputs/gclk_glitchfree_clkmux.tcl
+
+#sed -i -e "/sgcdc_top/s/\.gclk/\.$prefix\_gclk/g" cfg/globalclk_hdl.udf
+#sed -i -e "s/gclk/$prefix\_gclk/g"  tools/spyglasscdc/globalclk_permanent.awl  
+#sed -i -e "s/gclk/$prefix\_gclk/g"  tools/spyglasscdc/gclk_*/*.sgdc
+
+sed -i "s/\bgclk_refclkdist_w.xml\b/$prefix\_gclk_refclkdist_w.xml/g" cfg/globalclk_hdl.udf
+sed -i "s/\bgclk_pccdu_w.xml\b/$prefix\_gclk_pccdu_w.xml/g" cfg/globalclk_hdl.udf
+
+sed -i -e "/quick_syn_par/s/$prefix\_gclk_refclkdist/gclk_refclkdist/g" cfg/globalclk_hdl.udf
+sed -i -e "/quick_syn_par/s/$prefix\_gclk_pccdu/gclk_pccdu/g" cfg/globalclk_hdl.udf
+
+sed -i -e "/set_case_analysis/s/gclk_pccdu\./$prefix\_gclk_pccdu\./g" tools/spyglasscdc/gclk_pccdu/gclk_pccdu.sgdc
+sed -i -e "/import_files/s/globalclk/$prefix\_globalclk/g" cfg/globalclk_IPToolData.pm

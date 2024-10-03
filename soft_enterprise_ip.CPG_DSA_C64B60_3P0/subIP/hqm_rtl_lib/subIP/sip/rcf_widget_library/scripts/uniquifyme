@@ -1,0 +1,75 @@
+#!/usr/intel/bin/tcsh
+set prefix=$1
+if( $prefix == "" ) then
+    echo "You must specify a prefix"
+    echo "uniquify_me <prefix>"
+ exit 1
+endif
+if( ! -d "src/rtl/widgets" ) then
+    echo "It doesn't look like we're in the right directory."
+    echo "Please run from the top level of the rcf_widget_library repo"
+    exit 1
+endif
+
+set uniquify_version = "17.08.01"
+set uniquify_path = "$RTL_PROJ_TOOLS/uniquify/$uniquify_version"
+
+#copy the files in tools/cdc/inputs so that after uniquify corrupts them we can put them back
+mkdir cdctmp
+cp tools/cdc/inputs/*.tcl cdctmp/
+
+echo "------------------------------------------------"
+echo "Running uniquifyme with prefix: $prefix"
+echo "------------------------------------------------"
+
+which uniquify
+
+        $uniquify_path/uniquify -top rcf_widget_library -dirs src+subIP/Power_Gate_Control_Block/src/rtl+subIP/common/rcfwl_globalclk/globalclk_current/src/rtl+subIP/common/rcfwl_dfxsecure_plugin/dfxsecure_plugin_current/source/rtl/dfxsecure_plugin -prefix $prefix -rtl_libs scripts/liblist -rtl_scope scripts/scopelist
+
+echo "Starting sed scripts"
+
+cp cdctmp/* tools/cdc/inputs/
+rm -rf cdctmp
+
+#####update the scopes in the necessary files:
+sed -i -e "/scope/s/\([a-z_]*rcfwl\)/$prefix\_\1/"     cfg/rcfwl.udf
+
+##### added lines to catch the tb files because they aren't in a cte lib
+sed -i -e "/dut/s/\([a-z_]*rcfwl_[a-z]\)/$prefix\_\1/" verif/testbench/rcfwl_cdc_wrapper_tb_top.sv     \
+                                                       verif/testbench/rcfwl_dft_reset_sync_tb_top.sv  \
+                                                       verif/testbench/rcfwl_ip_disable_tb_top.sv      \
+                                                       verif/testbench/rcfwl_fuse_hip_glue_tb_top.sv 
+
+##### added lines to catch places the script misses
+sed -i "s/\([a-z_]*rcfwl_[a-z]\)/$prefix\_\1/"         tools/visa/*_cdc_wrapper.sig                        \
+                                                       tools/spyglassdft/rcfwl_cdc_wrapper.ip_info         \
+                                                       tools/spyglassdft/rcfwl_cdc_wrapper_spyglass.opt    \
+                                                       tools/spyglassdft/rcfwl_dft_reset_sync.ip_info      \
+                                                       tools/spyglassdft/rcfwl_dft_reset_sync_spyglass.opt \
+                                                       tools/spyglassdft/rcfwl_ip_disable.ip_info      \
+                                                       tools/spyglassdft/rcfwl_ip_disable_spyglass.opt \
+                                                       tools/spyglassdft/rcfwl_fuse_hip_glue.ip_info      \
+                                                       tools/spyglassdft/rcfwl_fuse_hip_glue_spyglass.opt \
+                                                       tools/visa/visa_lint_waiver.xml
+
+##### very specific cases missed
+sed -i -e "/sigfile/s/\([a-z_]*rcfwl_[a-z]\)/$prefix\_\1/" cfg/rcfwl_hdl.udf
+
+##### added lines to support visa - note that ' is part of the search string
+sed -i "s/'\([a-z_]*VISA_MODULE_XML_PATH\)'/'$prefix\_\1'/" cfg/rcfwl_hdl.udf cfg/RTLToolData.pm
+
+##### rename files
+cd tools/visa
+perl -e 'rename $_, "'${prefix}'_$_" for <*.sig>'
+perl -e 'rename $_, "'${prefix}'_$_" for <*.visa_sig>'
+cd ../../
+
+##### uniquify liblist and scopelist 
+sed -i "s/\([a-z_]*rcfwl_[a-z]\)/$prefix\_\1/"         scripts/liblist
+sed -i "s/\([a-z_]*rcfwl\)/$prefix\_\1/"               scripts/scopelist
+
+
+
+
+
+

@@ -1,0 +1,58 @@
+
+#check aer_cap_uncorr_err_status  and expect unsupporte request and poison TLP
+rd hqm_pf_cfg_i.aer_cap_uncorr_err_status 0x00001000
+
+
+
+#check ERror status
+rd hqm_pf_cfg_i.pcie_cap_device_status 0x0004
+
+#check device status and detected parity error to be set
+rd hqm_pf_cfg_i.device_status 0x8010
+
+
+#update check
+
+rd hqm_pf_cfg_i.func_bar_l 0x0000000C
+rd hqm_pf_cfg_i.func_bar_u 0x00000001
+
+rd hqm_pf_cfg_i.csr_bar_l 0x0000000C
+rd hqm_pf_cfg_i.csr_bar_u 0x00000002
+
+
+rd hqm_pf_cfg_i.int_line 0x00
+
+
+
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000000
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable memory and parity operations
+wr hqm_pf_cfg_i.device_command 0x46
+
+#EOT check 
+wr hqm_pf_cfg_i.pcie_cap_device_status 0xFFFF
+rd hqm_pf_cfg_i.pcie_cap_device_status 0x0000 
+
+ 
+wr hqm_pf_cfg_i.aer_cap_uncorr_err_status 0xFFFFFFFF
+rd hqm_pf_cfg_i.aer_cap_uncorr_err_status 0x00000000
+
+wr hqm_pf_cfg_i.device_status 0xFFFF
+rd hqm_pf_cfg_i.device_status 0x0010
+
+wr  hqm_pf_cfg_i.aer_cap_corr_err_status 0xFFFFFFFF
+rd  hqm_pf_cfg_i.aer_cap_corr_err_status 0x00000000
+
+
+
+
+#check end of reset status
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+

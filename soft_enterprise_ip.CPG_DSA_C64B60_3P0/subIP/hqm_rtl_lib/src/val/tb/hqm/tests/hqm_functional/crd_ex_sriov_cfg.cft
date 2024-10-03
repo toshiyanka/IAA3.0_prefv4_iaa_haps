@@ -1,0 +1,110 @@
+###################################
+# Setup LUTs used by HCWs
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+
+###################################
+# using pp_cq_base_seq 
+# only directed traffic 
+# 
+###################################
+
+cfg_begin
+
+   msix_alarm 0 enable=0x1 addr=0xaaaa5555aaaa5555 data=0xaaaa5555
+
+###################################
+## PF only
+###################################
+
+  dir qid 0
+  dir qid 1
+
+  ldb qid 5 qid_ldb_inflight_limit=0x10
+  ldb qid 6 qid_ldb_inflight_limit=0x10
+  ldb qid 7 qid_ldb_inflight_limit=0x10
+  ldb qid 8 qid_ldb_inflight_limit=0x10
+
+  vas 10 credit_cnt=0x19 ldb_qidv7=1 ldb_qidv8=1 dir_qidv0=1
+  vas 15 credit_cnt=0x17 ldb_qidv5=1 ldb_qidv6=1 dir_qidv1=1
+
+  ldb pp 20 vas=10
+  ldb pp 21 vas=10
+  dir pp 0  vas=10
+  ldb pp 30 vas=15
+  ldb pp 31 vas=15
+  dir pp 1  vas=15
+
+  ldb cq 20 gpa=sm qidv0=1 qidix0=5 cq_ldb_inflight_limit=0x10 hist_list_base=0x0  hist_list_limit=0x1f
+  ldb cq 21 gpa=sm qidv2=1 qidix2=6 cq_ldb_inflight_limit=0x10 hist_list_base=0x20 hist_list_limit=0x3f
+  ldb cq 30 gpa=sm qidv4=1 qidix4=7 cq_ldb_inflight_limit=0x10 hist_list_base=0x40 hist_list_limit=0x5f
+  ldb cq 31 gpa=sm qidv6=1 qidix6=8 cq_ldb_inflight_limit=0x10 hist_list_base=0x60 hist_list_limit=0x7f
+  dir cq 0  gpa=sm
+  dir cq 1  gpa=sm
+###################################
+
+###################################
+## VF only
+###################################
+
+  ldb qid 0  qid_ldb_inflight_limit=0x20
+  ldb qid 1  qid_ldb_inflight_limit=0x20
+  ldb qid 10 qid_ldb_inflight_limit=0x20
+  ldb qid 11 qid_ldb_inflight_limit=0x20
+  dir qid 2
+  dir qid 3
+
+  vas 0  credit_cnt=0x40 ldb_qidv0=1  ldb_qidv1=1 dir_qidv2=1
+  vas 5  credit_cnt=0x20 ldb_qidv10=1 ldb_qidv11=1
+
+  ldb pp 0  vas=0
+  ldb pp 1  vas=0
+  dir pp 2  vas=0
+  ldb pp 10 vas=5
+  ldb pp 11 vas=5
+  dir pp 3  vas=5
+
+  ldb cq 0  gpa=sm qidv0=1 qidix0=10 cq_ldb_inflight_limit=0x20 hist_list_base=0x80  hist_list_limit=0xbf 
+  ldb cq 1  gpa=sm qidv2=1 qidix2=11 cq_ldb_inflight_limit=0x20 hist_list_base=0xc0  hist_list_limit=0xff 
+  ldb cq 10 gpa=sm qidv0=1 qidix0=0  cq_ldb_inflight_limit=0x20 hist_list_base=0x100 hist_list_limit=0x13f 
+  ldb cq 11 gpa=sm qidv0=1 qidix0=1  cq_ldb_inflight_limit=0x20 hist_list_base=0x140 hist_list_limit=0x17f
+  dir cq 2  gpa=sm
+  dir cq 3  gpa=sm
+
+  vf 0   ldb_vpp2_v=1  ldb_vpp2_pp=0   ldb_vpp3_v=1  ldb_vpp3_pp=1   ldb_vqid3_v=1  ldb_vqid3_qid=0   ldb_vqid4_v=1  ldb_vqid4_qid=1   dir_vpp5_v=1 dir_vpp5_pp=2 dir_vqid5_v=1 dir_vqid5_qid=2
+  vf 7   ldb_vpp20_v=1 ldb_vpp20_pp=10 ldb_vpp21_v=1 ldb_vpp21_pp=11 ldb_vqid30_v=1 ldb_vqid30_qid=10 ldb_vqid31_v=1 ldb_vqid31_qid=11 dir_vpp6_v=1 dir_vpp6_pp=3 dir_vqid6_v=1 dir_vqid6_qid=3
+###################################
+
+###################################
+## VF only
+###################################
+
+  ldb qid 26 qid_ldb_inflight_limit=0x10
+  ldb qid 27 qid_ldb_inflight_limit=0x10
+  dir qid 6
+  dir qid 7
+
+  vas 13 credit_cnt=0x30 ldb_qidv26=1 ldb_qidv27=1 dir_qidv6=1 dir_qidv7=1
+  vas 1  credit_cnt=0x0
+
+  ldb pp 2  vas=13
+  ldb pp 3  vas=13
+  ldb pp 22 vas=13
+  ldb pp 23 vas=13
+  dir pp 4  vas=13
+  dir pp 5  vas=13
+  dir pp 6  vas=13
+  dir pp 7  vas=13 
+
+  ldb cq 2  gpa=sm
+  ldb cq 3  gpa=sm
+  ldb cq 22 gpa=sm qidv7=1 qidix7=27  cq_ldb_inflight_limit=0x10 hist_list_base=0x180 hist_list_limit=0x19f
+  ldb cq 23 gpa=sm qidv0=1 qidix0=26  cq_ldb_inflight_limit=0x10 hist_list_base=0x1a0 hist_list_limit=0x1bf
+  dir cq 6  gpa=sm
+  dir cq 7  gpa=sm
+
+##-- VF generating traffic
+  vf 1   ldb_vpp0_v=1  ldb_vpp0_pp=2  ldb_vpp63_v=1 ldb_vpp63_pp=3  ldb_vqid31_v=1 ldb_vqid31_qid=26  ldb_vqid30_v=1 ldb_vqid30_qid=27  dir_vpp10_v=1 dir_vpp10_pp=4 dir_vpp11_v=1 dir_vpp11_pp=5 dir_vqid10_v=1 dir_vqid10_qid=6 dir_vqid11_v=1 dir_vqid11_qid=7 ldb_vpp22_pp=22 ldb_vpp23_pp=23 dir_vpp6_pp=6 dir_vpp7_pp=7
+
+cfg_end

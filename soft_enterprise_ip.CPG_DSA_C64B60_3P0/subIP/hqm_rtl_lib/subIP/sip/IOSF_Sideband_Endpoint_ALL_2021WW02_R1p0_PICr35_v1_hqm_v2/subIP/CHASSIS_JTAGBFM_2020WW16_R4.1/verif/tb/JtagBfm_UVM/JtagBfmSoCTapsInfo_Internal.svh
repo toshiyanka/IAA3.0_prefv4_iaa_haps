@@ -1,0 +1,69 @@
+// File output was printed on: Wednesday, March 20, 2013 9:00:22 AM
+// Chassis TAP Tool version: 0.6.1.2
+//----------------------------------------------------------------------
+//             TAP          SlvIDcode       IDcode      IR_Width  Node  Sec_connections  Hybrid_en  Dfx_Security  Hierarchy_Level  PositionOfTap  IsVendorTap    VendorIdOpcode 
+`ifdef JTAG_BFM_TAPLINK_MODE 
+Create_TAP_LUT (CLTAP,   32'h0000_0001,  32'hC0DE_FF01, 'd12,    32'h140,  32'h000,           'd0,       GREEN,           0,               0,             1,             'h02);
+Create_TAP_LUT (STAP0,   32'h0400_0001,  32'hC0DE_0001, 'd8,     32'h144,  32'h300,           'd0,       ORANGE,          1,               0,             1,             'h0C);
+Create_TAP_LUT (STAP1,   32'h0600_0003,  32'hC0DE_0101, 'd8,     32'h148,  32'h300,           'd0,       ORANGE,          1,               1,             1,             'h0C);
+Create_TAP_LUT (STAP2,   32'h0600_0105,  32'hC0DE_0201, 'd8,     32'h14c,  32'h300,           'd0,       ORANGE,          2,               0,             1,             'h0C);
+Create_TAP_LUT (STAP3,   32'h0400_0207,  32'hC0DE_0301, 'd8,     32'h150,  32'h300,           'd0,       ORANGE,          3,               0,             1,             'h0C);
+Create_TAP_LUT (STAP4,   32'h0600_0209,  32'hC0DE_0401, 'd8,     32'h154,  32'h300,           'd0,       ORANGE,          3,               1,             1,             'h0C);
+Create_TAP_LUT (STAP5,   32'h0400_040B,  32'hC0DE_0501, 'd8,     32'h158,  32'h300,           'd0,       ORANGE,          4,               0,             1,             'h0C);
+Create_TAP_LUT (STAP6,   32'h0400_040D,  32'hC0DE_0601, 'd8,     32'h15c,  32'h300,           'd0,       ORANGE,          4,               1,             1,             'h0C);
+Create_TAP_LUT (STAP7,   32'h0400_020F,  32'hC0DE_0701, 'd8,     32'h160,  32'h304,           'd0,       ORANGE,          3,               2,             1,             'h0C);
+Create_TAP_LUT (STAP8,   32'h0600_0111,  32'hC0DE_0801, 'd8,     32'h164,  32'h304,           'd0,       ORANGE,          2,               1,             1,             'h0C);
+Create_TAP_LUT (STAP9,   32'h0400_0813,  32'hC0DE_0901, 'd8,     32'h168,  32'h304,           'd0,       ORANGE,          3,               0,             1,             'h0C);
+Create_TAP_LUT (STAP10,  32'h0400_0815,  32'hC0DE_1001, 'd8,     32'h16c,  32'h304,           'd0,       ORANGE,          3,               1,             1,             'h0C);
+Create_TAP_LUT (STAP11,  32'h0400_0817,  32'hC0DE_1101, 'd8,     32'h170,  32'h304,           'd0,       ORANGE,          3,               2,             1,             'h0C);
+Create_TAP_LUT (STAP12,  32'h0400_0819,  32'hC0DE_1201, 'd8,     32'h174,  32'h304,           'd0,       ORANGE,          3,               3,             1,             'h0C);
+Create_TAP_LUT (STAP13,  32'h0600_081B,  32'hC0DE_1301, 'd8,     32'h178,  32'h304,           'd0,       ORANGE,          3,               4,             1,             'h0C);
+Create_TAP_LUT (STAP14,  32'h0600_0D1D,  32'hC0DE_1401, 'd8,     32'h17c,  32'h304,           'd0,       ORANGE,          4,               0,             1,             'h0C);
+Create_TAP_LUT (STAP15,  32'h0400_0E1F,  32'hC0DE_1501, 'd8,     32'h180,  32'h304,           'd0,       ORANGE,          5,               0,             1,             'h0C);
+Create_TAP_LUT (STAP16,  32'h0400_0E21,  32'hC0DE_1601, 'd8,     32'h184,  32'h304,           'd0,       ORANGE,          5,               1,             1,             'h0C);
+Create_TAP_LUT (STAP17,  32'h0400_0E23,  32'hC0DE_1701, 'd8,     32'h188,  32'h304,           'd0,       ORANGE,          5,               2,             1,             'h0C);
+Create_TAP_LUT (STAP18,  32'h0400_0E25,  32'hC0DE_1801, 'd8,     32'h18c,  32'h304,           'd0,       ORANGE,          5,               3,             1,             'h0C);
+Create_TAP_LUT (STAP19,  32'h0400_0D27,  32'hC0DE_1901, 'd8,     32'h190,  32'h304,           'd0,       ORANGE,          4,               1,             1,             'h0C);
+Create_TAP_LUT (STAP20,  32'h0600_0029,  32'hC0DE_2001, 'd8,     32'h194,  32'h304,           'd0,       ORANGE,          1,               2,             1,             'h0C);
+Create_TAP_LUT (STAP21,  32'h0400_142B,  32'hC0DE_2101, 'd8,     32'h198,  32'h304,           'd0,       ORANGE,          2,               0,             1,             'h0C);
+Create_TAP_LUT (STAP22,  32'h0400_142D,  32'hC0DE_2201, 'd8,     32'h19c,  32'h304,           'd0,       ORANGE,          2,               1,             1,             'h0C);
+Create_TAP_LUT (STAP23,  32'h0400_142F,  32'hC0DE_2301, 'd8,     32'h1a0,  32'h304,           'd0,       ORANGE,          2,               2,             1,             'h0C);
+Create_TAP_LUT (STAP24,  32'h0600_1431,  32'hC0DE_2401, 'd8,     32'h1a4,  32'h304,           'd0,       ORANGE,          2,               3,             1,             'h0C);
+Create_TAP_LUT (STAP25,  32'h0400_1833,  32'hC0DE_2501, 'd8,     32'h1a8,  32'h304,           'd0,       ORANGE,          3,               0,             1,             'h0C);
+Create_TAP_LUT (STAP26,  32'h0400_1835,  32'hC0DE_2601, 'd8,     32'h1ac,  32'h304,           'd0,       ORANGE,          3,               1,             1,             'h0C);
+Create_TAP_LUT (STAP27,  32'h0400_0005,  32'hC0DE_2701, 'd8,     32'h1b0,  32'h304,           'd0,       ORANGE,          1,               3,             1,             'h0C);
+Create_TAP_LUT (STAP28,  32'h0400_0007,  32'hC0DE_2801, 'd8,     32'h1b4,  32'h304,           'd0,       ORANGE,          1,               4,             1,             'h0C);
+Create_TAP_LUT (STAP29,  32'h0400_0009,  32'hC0DE_2901, 'd8,     32'h1b8,  32'h304,           'd0,       ORANGE,          1,               5,             1,             'h0C);
+`else
+Create_TAP_LUT (CLTAP,   32'h0000_0001,  32'hC0DE_FF01, 'd8,     'd1,       'd1,         'd0,       GREEN,           0,               0,             1,             'h02);
+Create_TAP_LUT (STAP0,   32'h0400_0001,  32'hC0DE_0001, 'd8,     'd0,       'd0,         'd0,       ORANGE,          1,               0,             1,             'h0C);
+Create_TAP_LUT (STAP1,   32'h0600_0003,  32'hC0DE_0101, 'd8,     'd2,       'd1,         'd0,       ORANGE,          1,               1,             1,             'h0C);
+Create_TAP_LUT (STAP2,   32'h0600_0105,  32'hC0DE_0201, 'd8,     'd3,       'd0,         'd0,       ORANGE,          2,               0,             1,             'h0C);
+Create_TAP_LUT (STAP3,   32'h0400_0207,  32'hC0DE_0301, 'd8,     'd0,       'd0,         'd0,       ORANGE,          3,               0,             1,             'h0C);
+Create_TAP_LUT (STAP4,   32'h0600_0209,  32'hC0DE_0401, 'd8,     'd4,       'd0,         'd0,       ORANGE,          3,               1,             1,             'h0C);
+Create_TAP_LUT (STAP5,   32'h0400_040B,  32'hC0DE_0501, 'd8,     'd0,       'd0,         'd0,       ORANGE,          4,               0,             1,             'h0C);
+Create_TAP_LUT (STAP6,   32'h0400_040D,  32'hC0DE_0601, 'd8,     'd0,       'd0,         'd0,       ORANGE,          4,               1,             1,             'h0C);
+Create_TAP_LUT (STAP7,   32'h0400_020F,  32'hC0DE_0701, 'd8,     'd0,       'd0,         'd0,       ORANGE,          3,               2,             1,             'h0C);
+Create_TAP_LUT (STAP8,   32'h0600_0111,  32'hC0DE_0801, 'd8,     'd5,       'd0,         'd0,       ORANGE,          2,               1,             1,             'h0C);
+Create_TAP_LUT (STAP9,   32'h0400_0813,  32'hC0DE_0901, 'd8,     'd0,       'd0,         'd0,       ORANGE,          3,               0,             1,             'h0C);
+Create_TAP_LUT (STAP10,  32'h0400_0815,  32'hC0DE_1001, 'd8,     'd0,       'd0,         'd0,       ORANGE,          3,               1,             1,             'h0C);
+Create_TAP_LUT (STAP11,  32'h0400_0817,  32'hC0DE_1101, 'd8,     'd0,       'd0,         'd0,       ORANGE,          3,               2,             1,             'h0C);
+Create_TAP_LUT (STAP12,  32'h0400_0819,  32'hC0DE_1201, 'd8,     'd0,       'd0,         'd0,       ORANGE,          3,               3,             1,             'h0C);
+Create_TAP_LUT (STAP13,  32'h0600_081B,  32'hC0DE_1301, 'd8,     'd6,       'd1,         'd0,       ORANGE,          3,               4,             1,             'h0C);
+Create_TAP_LUT (STAP14,  32'h0600_0D1D,  32'hC0DE_1401, 'd8,     'd7,       'd0,         'd0,       ORANGE,          4,               0,             1,             'h0C);
+Create_TAP_LUT (STAP15,  32'h0400_0E1F,  32'hC0DE_1501, 'd8,     'd0,       'd0,         'd0,       ORANGE,          5,               0,             1,             'h0C);
+Create_TAP_LUT (STAP16,  32'h0400_0E21,  32'hC0DE_1601, 'd8,     'd0,       'd0,         'd0,       ORANGE,          5,               1,             1,             'h0C);
+Create_TAP_LUT (STAP17,  32'h0400_0E23,  32'hC0DE_1701, 'd8,     'd0,       'd0,         'd0,       ORANGE,          5,               2,             1,             'h0C);
+Create_TAP_LUT (STAP18,  32'h0400_0E25,  32'hC0DE_1801, 'd8,     'd0,       'd0,         'd0,       ORANGE,          5,               3,             1,             'h0C);
+Create_TAP_LUT (STAP19,  32'h0400_0D27,  32'hC0DE_1901, 'd8,     'd0,       'd0,         'd0,       ORANGE,          4,               1,             1,             'h0C);
+Create_TAP_LUT (STAP20,  32'h0600_0029,  32'hC0DE_2001, 'd8,     'd8,       'd0,         'd0,       ORANGE,          1,               2,             1,             'h0C);
+Create_TAP_LUT (STAP21,  32'h0400_142B,  32'hC0DE_2101, 'd8,     'd0,       'd0,         'd0,       ORANGE,          2,               0,             1,             'h0C);
+Create_TAP_LUT (STAP22,  32'h0400_142D,  32'hC0DE_2201, 'd8,     'd0,       'd0,         'd0,       ORANGE,          2,               1,             1,             'h0C);
+Create_TAP_LUT (STAP23,  32'h0400_142F,  32'hC0DE_2301, 'd8,     'd0,       'd0,         'd0,       ORANGE,          2,               2,             1,             'h0C);
+Create_TAP_LUT (STAP24,  32'h0600_1431,  32'hC0DE_2401, 'd8,     'd9,       'd0,         'd0,       ORANGE,          2,               3,             1,             'h0C);
+Create_TAP_LUT (STAP25,  32'h0400_1833,  32'hC0DE_2501, 'd8,     'd0,       'd0,         'd0,       ORANGE,          3,               0,             1,             'h0C);
+Create_TAP_LUT (STAP26,  32'h0400_1835,  32'hC0DE_2601, 'd8,     'd0,       'd0,         'd0,       ORANGE,          3,               1,             1,             'h0C);
+Create_TAP_LUT (STAP27,  32'h0400_0005,  32'hC0DE_2701, 'd8,     'd0,       'd0,         'd0,       ORANGE,          1,               3,             1,             'h0C);
+Create_TAP_LUT (STAP28,  32'h0400_0007,  32'hC0DE_2801, 'd8,     'd0,       'd0,         'd0,       ORANGE,          1,               4,             1,             'h0C);
+Create_TAP_LUT (STAP29,  32'h0400_0009,  32'hC0DE_2901, 'd8,     'd0,       'd0,         'd0,       ORANGE,          1,               5,             1,             'h0C);
+`endif

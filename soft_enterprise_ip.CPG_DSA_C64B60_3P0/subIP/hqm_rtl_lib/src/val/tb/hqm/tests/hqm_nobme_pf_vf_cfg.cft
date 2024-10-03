@@ -1,0 +1,136 @@
+idle 400
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Setup FUNC_VF BAR to a base address of 0x00000003_xxxxxxxx
+###################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x2
+rd hqm_pf_cfg_i.device_command
+###################################
+# 16 VF
+###################################
+# Enable VF and VF memory operations
+#### wr hqm_vf_cfg_i[0].device_command 0x4
+#### wr hqm_vf_cfg_i[1].device_command 0x4
+#### wr hqm_vf_cfg_i[2].device_command 0x4
+#### wr hqm_vf_cfg_i[3].device_command 0x4
+#### wr hqm_vf_cfg_i[4].device_command 0x4
+#### wr hqm_vf_cfg_i[5].device_command 0x4
+#### wr hqm_vf_cfg_i[6].device_command 0x4
+#### wr hqm_vf_cfg_i[7].device_command 0x4
+#### wr hqm_vf_cfg_i[8].device_command 0x4
+#### wr hqm_vf_cfg_i[9].device_command 0x4
+#### wr hqm_vf_cfg_i[10].device_command 0x4
+#### wr hqm_vf_cfg_i[11].device_command 0x4
+#### wr hqm_vf_cfg_i[12].device_command 0x4
+#### wr hqm_vf_cfg_i[13].device_command 0x4
+#### wr hqm_vf_cfg_i[14].device_command 0x4
+#### wr hqm_vf_cfg_i[15].device_command 0x4
+###################################
+wr config_master.cfg_pm_pmcsr_disable.disable 0x0
+rd config_master.cfg_pm_pmcsr_disable.disable 0x0
+##
+###poll to Wait for reset to be done 
+poll config_master.cfg_diagnostic_reset_status 0x800003ff 0x800003ff 500
+###poll to Wait for unit_idle to be done 
+poll config_master.cfg_diagnostic_idle_status  0x0007ffff 0x0007ffff 500
+###################################
+# Setup MSI-X Table entries
+wr hqm_msix_mem.msg_addr_l[0]  0xdeadf00c
+wr hqm_msix_mem.msg_addr_u[0]  0xfeeddeaf
+wr hqm_msix_mem.msg_data[0]    0xa11c0ded
+wr hqm_msix_mem.vector_ctrl[0] 0x00000000
+rd hqm_msix_mem.msg_addr_l[0]  0xdeadf00c
+rd hqm_msix_mem.msg_addr_u[0]  0xfeeddeaf
+rd hqm_msix_mem.msg_data[0]    0xa11c0ded
+rd hqm_msix_mem.vector_ctrl[0] 0x00000000
+###################################
+# Enable MSI-X
+wr hqm_pf_cfg_i.msix_cap_control 0x8000
+rd hqm_pf_cfg_i.msix_cap_control 0x8040
+###################################
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+  dir pp  0 vas=0 exp_drop=1
+  dir pp  1 vas=0 exp_drop=1
+  dir pp  2 vas=0 exp_drop=1
+  dir pp  3 vas=0 exp_drop=1
+  dir pp  4 vas=0 exp_drop=1
+  dir pp  5 vas=0 exp_drop=1
+  dir pp  6 vas=0 exp_drop=1
+  dir pp  7 vas=0 exp_drop=1
+  dir pp  8 vas=0 exp_drop=1
+  dir pp  9 vas=0 exp_drop=1
+  dir pp 10 vas=0 exp_drop=1
+  dir pp 11 vas=0 exp_drop=1
+  dir pp 12 vas=0 exp_drop=1
+  dir pp 13 vas=0 exp_drop=1
+  dir pp 14 vas=0 exp_drop=1
+  dir pp 15 vas=0 exp_drop=1
+
+  dir qid  0
+  dir qid  1
+  dir qid  2
+  dir qid  3
+  dir qid  4
+  dir qid  5
+  dir qid  6
+  dir qid  7
+  dir qid  8
+  dir qid  9
+  dir qid 10
+  dir qid 11
+  dir qid 12
+  dir qid 13
+  dir qid 14
+  dir qid 15
+
+  vas 0 dir_qidv0=1 dir_qidv1=1 dir_qidv2=1 dir_qidv3=1 dir_qidv4=1 dir_qidv5=1 dir_qidv6=1 dir_qidv7=1 dir_qidv8=1 dir_qidv9=1 dir_qidv10=1 dir_qidv11=1 dir_qidv12=1 dir_qidv13=1 dir_qidv14=1 dir_qidv15=1 credit_cnt=8192
+
+  dir cq  0 cq_depth=512 gpa=sm
+  dir cq  1 cq_depth=512 gpa=sm
+  dir cq  2 cq_depth=512 gpa=sm
+  dir cq  3 cq_depth=512 gpa=sm
+  dir cq  4 cq_depth=512 gpa=sm
+  dir cq  5 cq_depth=512 gpa=sm
+  dir cq  6 cq_depth=512 gpa=sm
+  dir cq  7 cq_depth=512 gpa=sm
+  dir cq  8 cq_depth=512 gpa=sm
+  dir cq  9 cq_depth=512 gpa=sm
+  dir cq 10 cq_depth=512 gpa=sm
+  dir cq 11 cq_depth=512 gpa=sm
+  dir cq 12 cq_depth=512 gpa=sm
+  dir cq 13 cq_depth=512 gpa=sm
+  dir cq 14 cq_depth=512 gpa=sm
+  dir cq 15 cq_depth=512 gpa=sm
+
+  vf  0 dir_vpp0_pp=0  dir_vqid0_qid=0  dir_vpp0_v=1
+  vf  1 dir_vpp0_pp=1  dir_vqid0_qid=1  dir_vpp0_v=1
+  vf  2 dir_vpp0_pp=2  dir_vqid0_qid=2  dir_vpp0_v=1
+  vf  3 dir_vpp0_pp=3  dir_vqid0_qid=3  dir_vpp0_v=1
+  vf  4 dir_vpp0_pp=4  dir_vqid0_qid=4  dir_vpp0_v=1
+  vf  5 dir_vpp0_pp=5  dir_vqid0_qid=5  dir_vpp0_v=1
+  vf  6 dir_vpp0_pp=6  dir_vqid0_qid=6  dir_vpp0_v=1
+  vf  7 dir_vpp0_pp=7  dir_vqid0_qid=7  dir_vpp0_v=1
+  vf  8 dir_vpp0_pp=8  dir_vqid0_qid=8  dir_vpp0_v=1
+  vf  9 dir_vpp0_pp=9  dir_vqid0_qid=9  dir_vpp0_v=1
+  vf 10 dir_vpp0_pp=10 dir_vqid0_qid=10 dir_vpp0_v=1
+  vf 11 dir_vpp0_pp=11 dir_vqid0_qid=11 dir_vpp0_v=1
+  vf 12 dir_vpp0_pp=12 dir_vqid0_qid=12 dir_vpp0_v=1
+  vf 13 dir_vpp0_pp=13 dir_vqid0_qid=13 dir_vpp0_v=1
+  vf 14 dir_vpp0_pp=14 dir_vqid0_qid=14 dir_vpp0_v=1
+  vf 15 dir_vpp0_pp=15 dir_vqid0_qid=15 dir_vpp0_v=1
+
+cfg_end
+
+rd hqm_pf_cfg_i.vendor_id 0x8086

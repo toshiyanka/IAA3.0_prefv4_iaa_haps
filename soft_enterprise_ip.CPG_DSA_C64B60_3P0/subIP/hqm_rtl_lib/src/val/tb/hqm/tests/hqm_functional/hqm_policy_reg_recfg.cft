@@ -1,0 +1,42 @@
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable PF memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+###################################
+# Setup FUNC_VF BAR to a base address of 0x00000003_xxxxxxxx
+wr hqm_pf_cfg_i.sriov_cap_func_bar_l 0x00000000
+wr hqm_pf_cfg_i.sriov_cap_func_bar_u 0x00000003
+###################################
+# 16 VF
+wr hqm_pf_cfg_i.sriov_cap_num_vf 0x10
+###################################
+# Enable VF and VF memory operations
+wr hqm_pf_cfg_i.sriov_cap_control_status 0x9
+rd hqm_pf_cfg_i.sriov_cap_control_status
+
+wr config_master.cfg_pm_pmcsr_disable.disable 0x0
+
+
+
+rd hqm_sif_csr.hqm_csr_cp_lo 
+sai hostia_sunpass_sai
+wr hqm_sif_csr.hqm_csr_rac_lo 0xFFFFFFFF
+wr hqm_sif_csr.hqm_csr_rac_hi 0xFFFFFFFF
+wr hqm_sif_csr.hqm_csr_wac_lo 0x0300021F
+wr hqm_sif_csr.hqm_csr_wac_hi 0x20000C00
+
+rd hqm_sif_csr.hqm_csr_rac_lo 0xFFFFFFFF
+rd hqm_sif_csr.hqm_csr_rac_hi 0xFFFFFFFF
+rd hqm_sif_csr.hqm_csr_wac_lo 0x0300021F
+rd hqm_sif_csr.hqm_csr_wac_hi 0x20000C00

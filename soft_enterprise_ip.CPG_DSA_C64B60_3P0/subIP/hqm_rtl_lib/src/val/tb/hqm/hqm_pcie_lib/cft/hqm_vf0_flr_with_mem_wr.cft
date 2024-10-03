@@ -1,0 +1,312 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+
+###################################
+#Normal Operation with BARS set. 
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable PF memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command 0x6
+###################################
+
+rd config_master.cfg_pm_pmcsr_disable.disable 0x1
+wr config_master.cfg_pm_pmcsr_disable.disable 0x0
+rd config_master.cfg_pm_pmcsr_disable.disable 0x0
+
+#poll to Wait for reset to be done 
+poll config_master.cfg_diagnostic_reset_status 0x800003ff 0x800003ff 500
+#poll to Wait for unit_idle to be done 
+poll config_master.cfg_diagnostic_idle_status 0x0007ffff 0x0007ffff 500
+
+# Setup FUNC_VF BAR to a base address of 0x00000000_xxxxxxxx
+wr hqm_pf_cfg_i.sriov_cap_func_bar_l 0x00000000
+wr hqm_pf_cfg_i.sriov_cap_func_bar_u 0x00000005
+###################################
+# 00 VFs
+wr hqm_pf_cfg_i.sriov_cap_num_vf 0x10
+###################################
+# Enable VF and VF memory operations
+wr hqm_pf_cfg_i.sriov_cap_control_status 0x19
+
+## -- Write initial values to all VF(s) -- ##
+wr hqm_vf_cfg_i[0].device_command  0x4
+wr hqm_vf_cfg_i[1].device_command  0x4
+wr hqm_vf_cfg_i[2].device_command  0x4
+wr hqm_vf_cfg_i[3].device_command  0x4
+wr hqm_vf_cfg_i[4].device_command  0x4
+wr hqm_vf_cfg_i[5].device_command  0x4
+wr hqm_vf_cfg_i[6].device_command  0x4
+wr hqm_vf_cfg_i[7].device_command  0x4
+wr hqm_vf_cfg_i[8].device_command  0x4
+wr hqm_vf_cfg_i[9].device_command  0x4
+wr hqm_vf_cfg_i[10].device_command 0x4
+wr hqm_vf_cfg_i[11].device_command 0x4
+wr hqm_vf_cfg_i[12].device_command 0x4
+wr hqm_vf_cfg_i[13].device_command 0x4
+wr hqm_vf_cfg_i[14].device_command 0x4
+wr hqm_vf_cfg_i[15].device_command 0x4
+###################################
+wr hqm_vf_cfg_i[0].int_line  0xa5
+wr hqm_vf_cfg_i[1].int_line  0xa5
+wr hqm_vf_cfg_i[2].int_line  0xa5
+wr hqm_vf_cfg_i[3].int_line  0xa5
+wr hqm_vf_cfg_i[4].int_line  0xa5
+wr hqm_vf_cfg_i[5].int_line  0xa5
+wr hqm_vf_cfg_i[6].int_line  0xa5
+wr hqm_vf_cfg_i[7].int_line  0xa5
+wr hqm_vf_cfg_i[8].int_line  0xa5
+wr hqm_vf_cfg_i[9].int_line  0xa5
+wr hqm_vf_cfg_i[10].int_line 0xa5
+wr hqm_vf_cfg_i[11].int_line 0xa5
+wr hqm_vf_cfg_i[12].int_line 0xa5
+wr hqm_vf_cfg_i[13].int_line 0xa5
+wr hqm_vf_cfg_i[14].int_line 0xa5
+wr hqm_vf_cfg_i[15].int_line 0xa5
+
+## -- Read initial values writen to all VF(s) -- ##
+rd hqm_vf_cfg_i[0].device_command          0x4
+rd hqm_vf_cfg_i[1].device_command          0x4
+rd hqm_vf_cfg_i[2].device_command          0x4
+rd hqm_vf_cfg_i[3].device_command          0x4
+rd hqm_vf_cfg_i[4].device_command          0x4
+rd hqm_vf_cfg_i[5].device_command          0x4
+rd hqm_vf_cfg_i[6].device_command          0x4
+rd hqm_vf_cfg_i[7].device_command          0x4
+rd hqm_vf_cfg_i[8].device_command          0x4
+rd hqm_vf_cfg_i[9].device_command          0x4
+rd hqm_vf_cfg_i[10].device_command         0x4
+rd hqm_vf_cfg_i[11].device_command         0x4
+rd hqm_vf_cfg_i[12].device_command         0x4
+rd hqm_vf_cfg_i[13].device_command         0x4
+rd hqm_vf_cfg_i[14].device_command         0x4
+rd hqm_vf_cfg_i[15].device_command         0x4
+#
+###################################
+rd hqm_vf_cfg_i[0].int_line  0x0
+rd hqm_vf_cfg_i[1].int_line  0x0
+rd hqm_vf_cfg_i[2].int_line  0x0
+rd hqm_vf_cfg_i[3].int_line  0x0
+rd hqm_vf_cfg_i[4].int_line  0x0
+rd hqm_vf_cfg_i[5].int_line  0x0
+rd hqm_vf_cfg_i[6].int_line  0x0
+rd hqm_vf_cfg_i[7].int_line  0x0
+rd hqm_vf_cfg_i[8].int_line  0x0
+rd hqm_vf_cfg_i[9].int_line  0x0
+rd hqm_vf_cfg_i[10].int_line 0x0
+rd hqm_vf_cfg_i[11].int_line 0x0
+rd hqm_vf_cfg_i[12].int_line 0x0
+rd hqm_vf_cfg_i[13].int_line 0x0
+rd hqm_vf_cfg_i[14].int_line 0x0
+rd hqm_vf_cfg_i[15].int_line 0x0
+### -- Read initial values writen to all VF(s) -- ###
+#
+wr hqm_func_vf_bar[0].vf_to_pf_mailbox[0] 0x5555_5555 
+wr hqm_func_vf_bar[0].vf_to_pf_mailbox[1] 0x5555_5555 
+wr hqm_func_vf_bar[0].vf_to_pf_mailbox[2] 0x5555_5555 
+wr hqm_func_vf_bar[0].vf_to_pf_mailbox[3] 0x5555_5555 
+
+## --------- Write data to VFs bar space --------- ##
+wr hqm_func_vf_bar[0].vf_to_pf_mailbox[0]  0x5555_5555 
+wr hqm_func_vf_bar[1].vf_to_pf_mailbox[0]  0x5555_5555 
+wr hqm_func_vf_bar[2].vf_to_pf_mailbox[0]  0x5555_5555 
+wr hqm_func_vf_bar[3].vf_to_pf_mailbox[0]  0x5555_5555 
+wr hqm_func_vf_bar[4].vf_to_pf_mailbox[0]  0x5555_5555 
+wr hqm_func_vf_bar[5].vf_to_pf_mailbox[0]  0x5555_5555 
+wr hqm_func_vf_bar[6].vf_to_pf_mailbox[0]  0x5555_5555 
+wr hqm_func_vf_bar[7].vf_to_pf_mailbox[0]  0x5555_5555 
+wr hqm_func_vf_bar[8].vf_to_pf_mailbox[0]  0x5555_5555 
+wr hqm_func_vf_bar[9].vf_to_pf_mailbox[0]  0x5555_5555 
+wr hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x5555_5555 
+wr hqm_func_vf_bar[11].vf_to_pf_mailbox[0] 0x5555_5555 
+wr hqm_func_vf_bar[12].vf_to_pf_mailbox[0] 0x5555_5555 
+wr hqm_func_vf_bar[13].vf_to_pf_mailbox[0] 0x5555_5555 
+wr hqm_func_vf_bar[14].vf_to_pf_mailbox[0] 0x5555_5555 
+wr hqm_func_vf_bar[15].vf_to_pf_mailbox[0] 0x5555_5555 
+
+## --------- Read data from VFs bar space -------- ##
+rd hqm_func_vf_bar[0].vf_to_pf_mailbox[0]  0x5555_5555 
+rd hqm_func_vf_bar[1].vf_to_pf_mailbox[0]  0x5555_5555 
+rd hqm_func_vf_bar[2].vf_to_pf_mailbox[0]  0x5555_5555 
+rd hqm_func_vf_bar[3].vf_to_pf_mailbox[0]  0x5555_5555 
+rd hqm_func_vf_bar[4].vf_to_pf_mailbox[0]  0x5555_5555 
+rd hqm_func_vf_bar[5].vf_to_pf_mailbox[0]  0x5555_5555 
+rd hqm_func_vf_bar[6].vf_to_pf_mailbox[0]  0x5555_5555 
+rd hqm_func_vf_bar[7].vf_to_pf_mailbox[0]  0x5555_5555 
+rd hqm_func_vf_bar[8].vf_to_pf_mailbox[0]  0x5555_5555 
+rd hqm_func_vf_bar[9].vf_to_pf_mailbox[0]  0x5555_5555 
+rd hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0x5555_5555 
+rd hqm_func_vf_bar[11].vf_to_pf_mailbox[0] 0x5555_5555 
+rd hqm_func_vf_bar[12].vf_to_pf_mailbox[0] 0x5555_5555 
+rd hqm_func_vf_bar[13].vf_to_pf_mailbox[0] 0x5555_5555 
+rd hqm_func_vf_bar[14].vf_to_pf_mailbox[0] 0x5555_5555 
+rd hqm_func_vf_bar[15].vf_to_pf_mailbox[0] 0x5555_5555 
+
+rd hqm_func_vf_bar[0].vf_to_pf_mailbox[0] 0x5555_5555 
+rd hqm_func_vf_bar[0].vf_to_pf_mailbox[1] 0x5555_5555 
+rd hqm_func_vf_bar[0].vf_to_pf_mailbox[2] 0x5555_5555 
+rd hqm_func_vf_bar[0].vf_to_pf_mailbox[3] 0x5555_5555 
+
+### ------------------------------------------ ###
+### ----------- VF FLR related --------------- ### 
+### ------------------------------------------ ###
+rd hqm_vf_cfg_i[0].pcie_cap_device_control 0x0000 0x8020 
+poll hqm_vf_cfg_i[0].pcie_cap_device_status 0x0 0x00000020 10000
+
+##Disable Bus Master, INTX and Mem Txn enable bit from device_command##
+wr  hqm_vf_cfg_i[0].device_command 0x400
+wr  hqm_vf_cfg_i[0].pcie_cap_device_control 0x8000
+
+### ----------- VF FLR related --------------- ### 
+### ------------------------------------------ ###
+idle 150
+
+wr hqm_func_vf_bar[0].vf_to_pf_mailbox[0] 0xaaaa_aaaa 
+wr hqm_func_vf_bar[0].vf_to_pf_mailbox[1] 0xaaaa_aaaa 
+wr hqm_func_vf_bar[0].vf_to_pf_mailbox[2] 0xaaaa_aaaa 
+wr hqm_func_vf_bar[0].vf_to_pf_mailbox[3] 0xaaaa_aaaa 
+
+### ---------- Write to other VFs ------------ ### 
+
+wr hqm_func_vf_bar[0].vf_to_pf_mailbox[0]  0xaaaa_aaaa 
+wr hqm_func_vf_bar[1].vf_to_pf_mailbox[0]  0xaaaa_aaaa 
+wr hqm_func_vf_bar[2].vf_to_pf_mailbox[0]  0xaaaa_aaaa 
+wr hqm_func_vf_bar[3].vf_to_pf_mailbox[0]  0xaaaa_aaaa 
+wr hqm_func_vf_bar[4].vf_to_pf_mailbox[0]  0xaaaa_aaaa 
+wr hqm_func_vf_bar[5].vf_to_pf_mailbox[0]  0xaaaa_aaaa 
+wr hqm_func_vf_bar[6].vf_to_pf_mailbox[0]  0xaaaa_aaaa 
+wr hqm_func_vf_bar[7].vf_to_pf_mailbox[0]  0xaaaa_aaaa 
+wr hqm_func_vf_bar[8].vf_to_pf_mailbox[0]  0xaaaa_aaaa 
+wr hqm_func_vf_bar[9].vf_to_pf_mailbox[0]  0xaaaa_aaaa 
+wr hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0xaaaa_aaaa 
+wr hqm_func_vf_bar[11].vf_to_pf_mailbox[0] 0xaaaa_aaaa 
+wr hqm_func_vf_bar[12].vf_to_pf_mailbox[0] 0xaaaa_aaaa 
+wr hqm_func_vf_bar[13].vf_to_pf_mailbox[0] 0xaaaa_aaaa 
+wr hqm_func_vf_bar[14].vf_to_pf_mailbox[0] 0xaaaa_aaaa 
+wr hqm_func_vf_bar[15].vf_to_pf_mailbox[0] 0xaaaa_aaaa 
+
+idle 1200
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+
+## ----------- Re-init VF[0] ------------ ##
+rd hqm_vf_cfg_i[0].device_command 0x0
+wr hqm_vf_cfg_i[0].device_command 0x4
+rd hqm_sif_csr.hqm_func_vf_bar_disable[0] 0x1
+wr hqm_sif_csr.hqm_func_vf_bar_disable[0] 0x0
+rd hqm_sif_csr.hqm_func_vf_bar_disable[0] 0x0
+
+## ------ Read unaffected data during FLR ------- ##
+rd hqm_func_vf_bar[0].vf_to_pf_mailbox[0] 0x55555555 
+rd hqm_func_vf_bar[0].vf_to_pf_mailbox[1] 0x55555555 
+rd hqm_func_vf_bar[0].vf_to_pf_mailbox[2] 0x55555555 
+rd hqm_func_vf_bar[0].vf_to_pf_mailbox[3] 0x55555555 
+
+## --------- Read data from VFs bar space -------- ##
+wr hqm_func_vf_bar[0].vf_to_pf_mailbox[0]  0xaaaa_aaaa 
+rd hqm_func_vf_bar[0].vf_to_pf_mailbox[0]  0xaaaa_aaaa 
+rd hqm_func_vf_bar[1].vf_to_pf_mailbox[0]  0xaaaa_aaaa 
+rd hqm_func_vf_bar[2].vf_to_pf_mailbox[0]  0xaaaa_aaaa 
+rd hqm_func_vf_bar[3].vf_to_pf_mailbox[0]  0xaaaa_aaaa 
+rd hqm_func_vf_bar[4].vf_to_pf_mailbox[0]  0xaaaa_aaaa 
+rd hqm_func_vf_bar[5].vf_to_pf_mailbox[0]  0xaaaa_aaaa 
+rd hqm_func_vf_bar[6].vf_to_pf_mailbox[0]  0xaaaa_aaaa 
+rd hqm_func_vf_bar[7].vf_to_pf_mailbox[0]  0xaaaa_aaaa 
+rd hqm_func_vf_bar[8].vf_to_pf_mailbox[0]  0xaaaa_aaaa 
+rd hqm_func_vf_bar[9].vf_to_pf_mailbox[0]  0xaaaa_aaaa 
+rd hqm_func_vf_bar[10].vf_to_pf_mailbox[0] 0xaaaa_aaaa 
+rd hqm_func_vf_bar[11].vf_to_pf_mailbox[0] 0xaaaa_aaaa 
+rd hqm_func_vf_bar[12].vf_to_pf_mailbox[0] 0xaaaa_aaaa 
+rd hqm_func_vf_bar[13].vf_to_pf_mailbox[0] 0xaaaa_aaaa 
+rd hqm_func_vf_bar[14].vf_to_pf_mailbox[0] 0xaaaa_aaaa 
+rd hqm_func_vf_bar[15].vf_to_pf_mailbox[0] 0xaaaa_aaaa 
+
+rd hqm_func_pf_per_vf[0].vf_to_pf_flr_isr  0x0001
+rd hqm_func_pf_per_vf[1].vf_to_pf_flr_isr  0x0001
+rd hqm_func_pf_per_vf[2].vf_to_pf_flr_isr  0x0001
+rd hqm_func_pf_per_vf[3].vf_to_pf_flr_isr  0x0001
+rd hqm_func_pf_per_vf[4].vf_to_pf_flr_isr  0x0001
+rd hqm_func_pf_per_vf[5].vf_to_pf_flr_isr  0x0001
+rd hqm_func_pf_per_vf[6].vf_to_pf_flr_isr  0x0001
+rd hqm_func_pf_per_vf[7].vf_to_pf_flr_isr  0x0001
+rd hqm_func_pf_per_vf[8].vf_to_pf_flr_isr  0x0001
+rd hqm_func_pf_per_vf[9].vf_to_pf_flr_isr  0x0001
+rd hqm_func_pf_per_vf[10].vf_to_pf_flr_isr 0x0001
+rd hqm_func_pf_per_vf[11].vf_to_pf_flr_isr 0x0001
+rd hqm_func_pf_per_vf[12].vf_to_pf_flr_isr 0x0001
+rd hqm_func_pf_per_vf[13].vf_to_pf_flr_isr 0x0001
+rd hqm_func_pf_per_vf[14].vf_to_pf_flr_isr 0x0001
+rd hqm_func_pf_per_vf[15].vf_to_pf_flr_isr 0x0001
+
+rd hqm_func_pf_per_vf[0].vf_to_pf_isr_pend  0x1
+rd hqm_func_pf_per_vf[1].vf_to_pf_isr_pend  0x1
+rd hqm_func_pf_per_vf[2].vf_to_pf_isr_pend  0x1
+rd hqm_func_pf_per_vf[3].vf_to_pf_isr_pend  0x1
+rd hqm_func_pf_per_vf[4].vf_to_pf_isr_pend  0x1
+rd hqm_func_pf_per_vf[5].vf_to_pf_isr_pend  0x1
+rd hqm_func_pf_per_vf[6].vf_to_pf_isr_pend  0x1
+rd hqm_func_pf_per_vf[7].vf_to_pf_isr_pend  0x1
+rd hqm_func_pf_per_vf[8].vf_to_pf_isr_pend  0x1
+rd hqm_func_pf_per_vf[9].vf_to_pf_isr_pend  0x1
+rd hqm_func_pf_per_vf[10].vf_to_pf_isr_pend 0x1
+rd hqm_func_pf_per_vf[11].vf_to_pf_isr_pend 0x1
+rd hqm_func_pf_per_vf[12].vf_to_pf_isr_pend 0x1
+rd hqm_func_pf_per_vf[13].vf_to_pf_isr_pend 0x1
+rd hqm_func_pf_per_vf[14].vf_to_pf_isr_pend 0x1
+rd hqm_func_pf_per_vf[15].vf_to_pf_isr_pend 0x1
+
+## -- Read initial values writen to all VF(s) except FLR -- ##
+rd hqm_vf_cfg_i[0].device_command          0x4
+rd hqm_vf_cfg_i[1].device_command          0x4
+rd hqm_vf_cfg_i[2].device_command          0x4
+rd hqm_vf_cfg_i[3].device_command          0x4
+rd hqm_vf_cfg_i[4].device_command          0x4
+rd hqm_vf_cfg_i[5].device_command          0x4
+rd hqm_vf_cfg_i[6].device_command          0x4
+rd hqm_vf_cfg_i[7].device_command          0x4
+rd hqm_vf_cfg_i[8].device_command          0x4
+rd hqm_vf_cfg_i[9].device_command          0x4
+rd hqm_vf_cfg_i[10].device_command         0x4
+rd hqm_vf_cfg_i[11].device_command         0x4
+rd hqm_vf_cfg_i[12].device_command         0x4
+rd hqm_vf_cfg_i[13].device_command         0x4
+rd hqm_vf_cfg_i[14].device_command         0x4
+rd hqm_vf_cfg_i[15].device_command         0x4
+#
+###################################
+rd hqm_vf_cfg_i[0].int_line  0x0
+rd hqm_vf_cfg_i[1].int_line  0x0
+rd hqm_vf_cfg_i[2].int_line  0x0
+rd hqm_vf_cfg_i[3].int_line  0x0
+rd hqm_vf_cfg_i[4].int_line  0x0
+rd hqm_vf_cfg_i[5].int_line  0x0
+rd hqm_vf_cfg_i[6].int_line  0x0
+rd hqm_vf_cfg_i[7].int_line  0x0
+rd hqm_vf_cfg_i[8].int_line  0x0
+rd hqm_vf_cfg_i[9].int_line  0x0
+rd hqm_vf_cfg_i[10].int_line 0x0
+rd hqm_vf_cfg_i[11].int_line 0x0
+rd hqm_vf_cfg_i[12].int_line 0x0
+rd hqm_vf_cfg_i[13].int_line 0x0
+rd hqm_vf_cfg_i[14].int_line 0x0
+rd hqm_vf_cfg_i[15].int_line 0x0
+### -- Read initial values writen to all VF(s) -- ###
+

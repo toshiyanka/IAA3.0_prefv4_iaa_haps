@@ -1,0 +1,139 @@
+################################################################################################
+### emubuild cfg file using YAML format
+################################################################################################
+
+##############################
+# Global Defaults
+##############################
+GLOBAL:
+    #TOP:
+    #SETUP:
+        #- GCC_HOME=$ENV{GCC_HOME}
+        #- EMU_DATA=$ENV{EMU_DATA}
+    #ACE_METAFILES:
+    #    USER_ID:
+    #        FILE: target/emu/$ENV{MODEL}/$ENV{EMU_SCOPE}.M$ENV{MODEL}.filelist.Emulation.pl
+    NETBATCH_FILE: $ENV{EMU_DATA}/cfg/nb.yml
+    #RTL_CHANGES:
+    # .*:
+    #   - tools/emu/rtlchanges  
+    REMOVE_LIBS:
+      - yam_lib
+      - ml_lib
+      - configdb_lib
+      - sip_shared_lib
+    MOD_LIBS:
+     .*:
+       DEFINES:
+          ADD:
+              - INTEL_EMULATION
+              - SVA_OFF
+              - INTEL_SVA_OFF
+          #   - EMULATION
+          #   - NO_PWR_PINS
+          REMOVE:
+             - VCSSIM
+             - HIERREF
+             - INTEL_INST_ON
+             - INTEL_SIMONLY 
+       VERILOG_FILES:
+          REMOVE:
+             - .*verif/testbench/rcfwl_cdc_wrapper_tb_top.sv
+             - .*verif/testbench/rcfwl_dft_reset_sync_tb_top.sv
+             - .*verif/testbench/rcfwl_ip_disable_tb_top.sv
+             - .*verif/testbench/rcfwl_fuse_hip_glue_tb_top.sv
+       #VERILOG_FILES:
+       #   REMOVE:
+       #      - .*verif/tb/clk/cte_refclkgen.vs
+       VERILOG_FFILES:
+          ADD:
+             - ${EMU_DATA}/emulation_defines.f
+
+#   BB_MODULES:
+#         - libname.modulename
+
+##############################
+# Configurations
+##############################
+CONFIGURATIONS:
+   ALL_COMMON:
+      ABSTRACT: YES
+      # no longer works well. specify -target as emu_opts.
+      #WORKDIR: 
+   ZSE:
+      NETBATCH_FILE: target/resource.yml
+      NETBATCH_FILE_MERGE: YES
+      ACE_METAFILES:
+         USER_ID:
+            FILE: target/emu/$ENV{MODEL}/$ENV{EMU_SCOPE}.M$ENV{MODEL}.filelist.Emulation.pl
+            MODEL_NAME: $ENV{MODEL}
+      INHERITS:
+         - ALL_COMMON
+      PLATFORM: ZSE1
+      BOARDS: 1
+      CFG_FILES:
+         - ${EMU_DATA}/zebu/zse_build.utf
+      OTHER_FILES:
+         - $ENV{EMU_DATA}/zebu/zFast.config
+         - ${EMU_DATA}/zebu/zTopBuild_edit.tcl
+#      UNIFIED_COMPILE: 0
+      COMPILE_OPTIONS_FILE: ${EMU_DATA}/zebu/zse_vcsopts.yml
+      NLP: YES
+      UPF:
+         USE_RTL_TOP: YES      
+      USE_HBL: NO
+      SETUP:
+         # these are picked up from the simbuild environment. no need to specify
+         #- ZSE_PATH=
+         #- VCS_HOME=
+         #- GCC_HOME=
+         #- SNPSLMD_LICENSE_FILE=
+         #- NOVAS_HOME=/p/vt/tools/sim/vendor/zse/verdi3/2013.09_p9
+         #- NOVAS_ETC_DIR=${ZSE_PATH}/etc/novas/etc
+         - PATH=${VCS_HOME}/bin:${PATH}               
+      MOD_LIBS:
+        .*:
+          VERILOG_OPTIONS:
+            ADD:
+              - -diag skip_translate_body
+      USER:
+         FLAG_SYNOPSYS_TRANSLATE_OFF:
+            ENABLE: YES
+            SCRIPT: ${EMU_DATA}/scripts/flag_synopsys_translate_off.pl       
+
+
+
+
+   FPGA:
+      NETBATCH_FILE: target/resource.yml
+      NETBATCH_FILE_MERGE: YES
+      ACE_METAFILES:
+         USER_ID:
+            FILE: target/emu/$ENV{MODEL}/$ENV{EMU_SCOPE}.M$ENV{MODEL}.filelist.FPGA.pl
+            MODEL_NAME: $ENV{MODEL}
+      INHERITS:
+         - ALL_COMMON
+      PLATFORM: FPGA_PROTOCOMPILER
+      BOARDS: 1
+      CFG_FILES:
+         - $ENV{EMU_DATA}/fpga/protocompiler_opts.tcl
+      UNIFIED_COMPILE: 0
+      NLP: YES
+      UPF:
+         USE_RTL_TOP: YES
+      MOD_LIBS:
+         .*:
+           # pick the right defines file   
+           VERILOG_FFILES:
+              ADD:
+                 - ${EMU_DATA}/fpga_defines_upf.f
+      #SETUP:
+      #   - NOVAS_HOME=/p/vt/tools/sim/vendor/zse/verdi3/2013.09_p9
+      FPGA_OPTIONS:
+         HARDWARE: HAPS-70
+         DIRECTIVES:
+           COMPILE:
+              - -hdl_define __USELIBGROUPORDER__
+
+
+

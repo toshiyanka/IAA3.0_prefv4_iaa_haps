@@ -1,0 +1,1998 @@
+#//------------------------------------------------------------------------------
+#//  INTEL CONFIDENTIAL
+#//
+#//  Copyright 2020 Intel Corporation All Rights Reserved.
+#//
+#//  The source code contained or described herein and all documents related
+#//  to the source code (Material) are owned by Intel Corporation or its
+#//  suppliers or licensors. Title to the Material remains with Intel
+#//  Corporation or its suppliers and licensors. The Material contains trade
+#//  secrets and proprietary and confidential information of Intel or its
+#//  suppliers and licensors. The Material is protected by worldwide copyright
+#//  and trade secret laws and treaty provisions. No part of the Material may
+#//  be used, copied, reproduced, modified, published, uploaded, posted,
+#//  transmitted, distributed, or disclosed in any way without Intel's prior
+#//  express written permission.
+#//
+#//  No license under any patent, copyright, trade secret or other intellectual
+#//  property right is granted to or conferred upon you by disclosure or
+#//  delivery of the Materials, either expressly, by implication, inducement,
+#//  estoppel or otherwise. Any license under such intellectual property rights
+#//  must be express and approved by Intel in writing.
+#//
+#//
+#//  Collateral Description:
+#//  DTEG DUVE-M
+#//
+#//  Source organization:
+#//  DTEG Engineering Group (DTEG)
+#//
+#//  Support Information:
+#//  HSD: https://hsdes.intel.com/appstore/article/#/dft_services.bugeco/create
+#//
+#//  Revision:
+#//  DUVE_M_2020WW25_R0.1
+#//
+#//  tap_utils.pdl : definitions of custom API to access design metadata in Tessent ICL Model
+#//
+#//------------------------------------------------------------------------------
+#
+#//----------------------------------------------------------------------
+#// Intel Proprietary -- Copyright 2020 Intel -- All rights reserved
+#//----------------------------------------------------------------------
+#// NOTE: Log history is at end of file.
+#//----------------------------------------------------------------------
+#//
+#//    FILENAME    : tap_utils.pdl
+#//    DESIGNER    : Igor V Molchanov
+#//    PROJECT     : DUVE-M
+#//
+#//    PURPOSE     : Definitions of API to access design data in Tessent ICL Model
+#//    DESCRIPTION : API library contains
+#//                   proc get_tdo_mask 
+#//                   proc get_rw_mask 
+#//                   proc get_exp_rst_tdo 
+#//                   proc print_capture_source_x_info 
+#//                   proc print_all_capture_source_x_info 
+#//                   proc num2bin 
+#//                   proc bin2dec 
+#//                   proc get_all_regs 
+#//                   proc find_regs 
+#//                   proc remove_regs_from_collection 
+#//                   proc get_reg_reset_value_bin 
+#//                   proc get_reg_prev_value_cmp 
+#//                   proc get_inverted_sting_value_bin 
+#//                   proc get_expanded_pattern_bin 
+#//                   proc map_tap_regs 
+#//                   proc map_tap_ir_regs 
+#//                   proc iwrite_tap_bypass_ir 
+#//                   proc iwrite_tap_bypass_dr 
+#//                   proc iwrite_no_iapply_tap_bypass_dr 
+#//                   proc iwrite_tap_bypass_ir_all 
+#//                   proc get_tap_parent 
+#//                   proc map_tap_parents 
+#//                   proc tap_get_parents 
+#//                   proc tap_get_parents_all 
+#//                   proc iwrite_no_iapply_bypass_ir_all_parents 
+#//                   proc iwrite_no_iapply_bypass_dr_all_parents 
+#//                   proc set_seed 
+#//                   proc get_random_value_bin 
+#//                   proc get_reg_alias_list 
+#//                   proc get_tap_dr_field_size 
+#//                   proc get_tap_reg_size 
+#//                   proc is_tap_reg_locked 
+#//                   proc iwrite_iapply_secure 
+#//                   proc iread_iapply_secure 
+#//                   proc collapse_tap_network_soft 
+#//                  
+#//----------------------------------------------------------------------
+
+#### General API procedures ######
+
+namespace eval tap_utils {
+
+   # Proc returns tdo mask based on CaptureSource of the specified register
+   # Values 1 correspond to readable bits (RW, RO, Rsvd access types) 
+   proc get_tdo_mask {reg} {
+      # assuming that all numbers are compliant to the ICL standard
+      set capture_source [split [get_attribute_value_list $reg -name capture_source] ,]
+      set is_bus   [get_attribute_value_list $reg -name is_bus]
+      set reg_name  {}
+      if {$is_bus eq "true"} {
+         set reg_name  [get_attribute_value_list $reg -name bus_name]
+      } else {
+         set reg_name [get_attribute_value_list $reg -name leaf_name]
+      }
+      set reg_width [get_tap_reg_size $reg]
+      set reg_full_name  [get_single_name $reg]
+      set reg_tdo_mask {}
+
+      # tracing faninin and returning found mask
+      proc get_fanin_source {port_path} {
+         set driver $port_path
+         set port_prev {}
+         set cnt 10
+         while {$driver ne {} && $cnt} {
+            set port_prev $driver
+            set driver [get_single_name [get_icl_fanins $driver]]
+            incr cnt -1
+         }
+         set tie_v [get_attribute_value_list $port_prev  -name tie_value]
+         if {($tie_v eq "0") || ($tie_v eq "1")} {
+            return "1"
+         } elseif {$tie_v eq "{}"} {
+            # assume that top level input port is readable
+	    return "1"
+         } else {
+            iNote "-ERROR- Not recognized CaptureSource tied value $tie_v"
+            return "0"
+         }
+      }
+      set unsized_found 0
+      set not_recognized_found 0
+      set unsized_x0_bit_str {}
+
+      foreach value $capture_source {
+	 if {$value eq "{}"} {
+            # no CaptureSource specified
+            return [string repeat "0" $reg_width]
+         }
+         if {[regexp {(\w+)\s*\[\s*(\d+)\s*:\s*(\d+)} $value -> name msb lsb]} {
+            #FIXME implement generic function
+	    if {$msb < $lsb} {
+	       set tmp_msb $msb
+	       set msb $lsb
+	       set lsb $tmp_msb
+	    }
+	    if {$name eq $reg_name} {
+	       set reg_tdo_mask [string repeat "1" [expr {$msb-$lsb+1}]]$reg_tdo_mask
+            } else {
+               set port_name  [regsub "(\\\.)*${reg_name}(\\\[.*\\\])*$"  $reg_full_name "\\1$name"]
+               set port_width [lindex [get_attribute_value_list $port_name -name bus_width] 0]
+	       if {$port_width == 1} {
+                  set reg_tdo_mask [get_fanin_source $port_name]$reg_tdo_mask
+	       } else {
+                  for {set bit 0} {$bit < $port_width} {incr bit} {
+                     # check if $name is port of the module
+		     set port_name_i $port_name[$bit]
+                     set reg_tdo_mask [get_fanin_source $port_name_i]$reg_tdo_mask
+                  }
+	       }
+            }
+         } elseif {[regexp {(\w+)\s*\[\s*(\d+)} $value -> name msb]} {
+            if {$name eq $reg_name} {
+	       set reg_tdo_mask 1$reg_tdo_mask
+            } else {
+               # check if $name is port of the module
+               set port_name  [regsub "(\\\.)*${reg_name}(\\\[.*\\\])*$"  $reg_full_name "\\1$name"]
+               set port_width [lindex [get_attribute_value_list $port_name -name bus_width] 0]
+	       if {$port_width == 1} {
+                  set reg_tdo_mask [get_fanin_source $port_name]$reg_tdo_mask
+	       } else {
+                  for {set bit 0} {$bit < $port_width} {incr bit} {
+                     # check if $name is port of the module
+		     set port_name_i $port_name[$bit]
+                     set reg_tdo_mask [get_fanin_source $port_name_i]$reg_tdo_mask
+                  }
+	       }
+            }
+         } elseif {[regexp {^\s*(\w+)\s*$} $value -> name]} {
+            if {$name eq $reg_name} {
+               return [string repeat "1" $reg_width]
+            } else {
+               set port_name  [regsub "(\\\.)*${reg_name}(\\\[.*\\\])*$"  $reg_full_name "\\1$name"]
+               set port_width [lindex [get_attribute_value_list $port_name -name bus_width] 0]
+	       if {$port_width == 1} {
+                  set reg_tdo_mask [get_fanin_source $port_name]$reg_tdo_mask
+	       } else {
+                  for {set bit 0} {$bit < $port_width} {incr bit} {
+                     # check if $name is port of the module
+		     set port_name_i $port_name[$bit]
+                     set reg_tdo_mask [get_fanin_source $port_name_i]$reg_tdo_mask
+                  }
+	       }
+            }
+         } elseif {[regexp {(\d*)\s*'([bBhH])\s*([0-9a-fx_]+)} $value -> width radix str_value]} {
+            set str_value [regsub -all {_} $str_value {}]
+            set str_value [string tolower $str_value]
+            set is_unsized [expr {$width eq {}}]
+            set enable_counting 1
+            if {$is_unsized && $unsized_found} { 
+               # Not counting anymore, unsized_x0_bit_str is preserved
+               iNote "-ERROR- One more unsized value $value, cannot have a few unsized fields"
+               set enable_counting 0
+            }
+            set str_length [string length $str_value]
+            set is_hex [expr {($radix eq "h") || ($radix eq "H")}]
+            set num_incr [expr {$is_hex>0?4:1}]
+	    
+            set x_w 0
+            set r_w 0
+            set is_in_range 1
+            set symbol {}
+            for {set i 0} {$i < $str_length} {incr i} {
+               set symbol [string index $str_value [expr {$str_length - $i - 1}]]
+               set msb_bit_index [expr ($i+1)*$num_incr-1]
+               if {!$is_unsized} { 
+                  if {$msb_bit_index < $width} {
+                     if {$symbol eq "x"} {
+                        set reg_tdo_mask [string repeat "0" $num_incr]$reg_tdo_mask
+                     } else {
+                        set reg_tdo_mask [string repeat "1" $num_incr]$reg_tdo_mask
+                     }
+                     if {$msb_bit_index == $width-1} {
+                        set is_in_range 0
+                     }
+                  } else { 
+                     # extra bits - truncation is required
+                     set extra_size [expr {$msb_bit_index - $width + 1}]
+                     if {$is_hex} {
+                        if {$symbol eq "x"} {
+                           set reg_tdo_mask [string repeat "0" [expr {$is_in_range*$extra_size}]]$reg_tdo_mask
+                        } else {
+                           set reg_tdo_mask [string repeat "1" [expr {$is_in_range*$extra_size}]]$reg_tdo_mask
+                           if {($is_in_range && ($symbol >= (1<<$extra_size))) ||
+                               (!$is_in_range && ($symbol > 0))} {
+                              iNote "-ERROR- Cannot truncate number $value"
+                           }
+                        }
+                     } else { 
+                        # binary
+                        if {$symbol ni {x 0}} {
+                           iNote "-ERROR- Cannot truncate number $value"
+                        }
+                     }
+                     if {$is_in_range} {
+                        iNote "-INFO- Truncating $value, only x and 0 are allowed in msb bits..."
+                     }
+                     set is_in_range 0
+                  }
+               } else {
+                  if {$enable_counting} { 
+                     set is_x [expr {$symbol eq "x"}]
+                     set is_0 [expr {$symbol eq "0"}]
+                     if {$is_x} {
+                        incr x_w $num_incr
+                        set unsized_x0_bit_str $unsized_x0_bit_str[string repeat $symbol $num_incr]
+                     } elseif {$is_0} {
+                        #FIXME
+			incr r_w $num_incr
+                        set unsized_x0_bit_str $unsized_x0_bit_str[string repeat $symbol $num_incr]
+                     } else {
+                        #FIXME
+			set reg_tdo_mask [string repeat "0" [expr {$x_w>0 ? $x_w : $num_incr}]]$reg_tdo_mask
+                        set reg_tdo_mask [string repeat "1" [expr {$r_w>0 ? $r_w : $num_incr}]]$reg_tdo_mask
+                        if {$is_hex} {
+                           set cnt 0
+                           set hex_digit [expr 0x$symbol]
+   
+                           while {$hex_digit > 0} {
+                              incr cnt
+                              set hex_digit [expr {$hex_digit >> 1}]
+                           }
+   
+                           set reg_tdo_mask [string repeat "1" $cnt]$reg_tdo_mask
+                           set r_w [expr {4-$cnt}]
+                           set unsized_x0_bit_str [string repeat 0 $r_w]
+                        } else {
+                           set reg_tdo_mask 1$reg_tdo_mask
+                           set unsized_x0_bit_str {}
+                           set r_w 0
+                        }
+                        set x_w 0
+                     }
+                  }
+               }
+            }
+            if {$is_unsized && !$unsized_found} {
+               #iNote "-WARN- Unsized value $value"
+               set unsized_found 1
+            }
+            if {!$is_unsized && $str_length < $width} {
+               set delta_width [expr {$width - $str_length}]
+               if {$symbol eq "x"} {
+                  set reg_tdo_mask [string repeat "0" $delta_width]$reg_tdo_mask
+               } else {
+                  set reg_tdo_mask [string repeat "1" $delta_width]$reg_tdo_mask
+               }
+            }
+         } else {
+            # Tessent does not allow recognize tied up or down ports today...
+            #iNote "-ERROR- Not recognized CaptureSource value $value"
+            set not_recognized_found 1
+         }
+      }
+      if {$unsized_found} {
+         set cnt [expr {$reg_width - [string length $reg_tdo_mask]}]
+         if {$cnt > 0} {
+            set str_length [string length $unsized_x0_bit_str]
+            set symbol {}
+            for {set i 0} {$i < $str_length} {incr i} {
+               set symbol [string index $unsized_x0_bit_str [expr {$str_length - $i - 1}]]
+               if {$symbol eq "x"} {
+                  set reg_tdo_mask 0$reg_tdo_mask
+               } else {
+                  set reg_tdo_mask 1$reg_tdo_mask
+               }
+               incr cnt -1
+               if {!$cnt} {break}
+            }
+            if {$cnt>0 && $symbol eq "x"} {
+               set reg_tdo_mask [string repeat "0" $cnt]$reg_tdo_mask
+            } else {
+               set reg_tdo_mask [string repeat "1" $cnt]$reg_tdo_mask
+            }
+         } elseif {$cnt < 0} {
+            iNote "-ERROR- something is wrong..."
+         }
+      }
+      if {[string length $reg_tdo_mask] != $reg_width} {
+         iNote "-ERROR- TDO mask: '$reg_tdo_mask' does not have expected width $reg_width"
+      }
+      return $reg_tdo_mask
+   }
+
+   # Proc returns rw mask based on CaptureSource of the specified register
+   # Values 1 correspond to rw-able bits 
+   proc get_rw_mask {reg} {
+      # assuming that all numbers are compliant to the ICL standard
+      set capture_source [split [get_attribute_value_list $reg -name capture_source] ,]
+      set is_bus   [get_attribute_value_list $reg -name is_bus]
+      set reg_name  {}
+      if {$is_bus eq "true"} {
+         set reg_name  [get_attribute_value_list $reg -name bus_name]
+      } else {
+         set reg_name [get_attribute_value_list $reg -name leaf_name]
+      }
+      set reg_width [get_tap_reg_size $reg]
+      set reg_full_name  [get_single_name $reg]
+      set reg_rw_mask {}
+
+      set unsized_found 0
+      set not_recognized_found 0
+      set unsized_x0_bit_str {}
+
+      foreach value $capture_source {
+         if {$value eq "{}"} {
+            # no CaptureSource specified
+            return [string repeat "0" $reg_width]
+         }
+         if {[regexp {(\w+)\s*\[\s*(\d+)\s*:\s*(\d+)} $value -> name msb lsb]} {
+            #FIXME implement generic function
+	    if {$msb < $lsb} {
+	       set tmp_msb $msb
+	       set msb $lsb
+	       set lsb $tmp_msb
+	    }
+	    if {$name eq $reg_name} {
+	       set reg_rw_mask [string repeat "1" [expr {$msb-$lsb+1}]]$reg_rw_mask
+            } else {
+	       set reg_rw_mask [string repeat "0" [expr {$msb-$lsb+1}]]$reg_rw_mask
+            }
+         } elseif {[regexp {(\w+)\s*\[\s*(\d+)} $value -> name msb]} {
+            if {$name eq $reg_name} {
+	       set reg_rw_mask 1$reg_rw_mask
+            } else {
+	       set reg_rw_mask 0$reg_rw_mask
+            }
+         } elseif {[regexp {^\s*(\w+)\s*$} $value -> name]} {
+            if {$name eq $reg_name} {
+               return [string repeat "1" $reg_width]
+            } else {
+	       return [string repeat "0" $reg_width]
+            }
+         } elseif {[regexp {(\d*)\s*'([bBhH])\s*([0-9a-fx_]+)} $value -> width radix str_value]} {
+            # FIXME eliminate extra processing
+	    set str_value [regsub -all {_} $str_value {}]
+            set str_value [string tolower $str_value]
+            set is_unsized [expr {$width eq {}}]
+            set enable_counting 1
+            if {$is_unsized && $unsized_found} { 
+               # Not counting anymore, unsized_x0_bit_str is preserved
+               iNote "-ERROR- One more unsized value $value, cannot have a few unsized fields"
+               set enable_counting 0
+            }
+            set str_length [string length $str_value]
+            set is_hex [expr {($radix eq "h") || ($radix eq "H")}]
+            set num_incr [expr {$is_hex>0?4:1}]
+	    
+            set x_w 0
+            set r_w 0
+            set is_in_range 1
+            set symbol {}
+            for {set i 0} {$i < $str_length} {incr i} {
+               set symbol [string index $str_value [expr {$str_length - $i - 1}]]
+               set msb_bit_index [expr ($i+1)*$num_incr-1]
+               if {!$is_unsized} { 
+                  if {$msb_bit_index < $width} {
+                     set reg_rw_mask [string repeat "0" $num_incr]$reg_rw_mask
+                     if {$msb_bit_index == $width-1} {
+                        set is_in_range 0
+                     }
+                  } else { 
+                     # extra bits - truncation is required
+                     set extra_size [expr {$msb_bit_index - $width + 1}]
+                     if {$is_hex} {
+                        set reg_rw_mask [string repeat "0" [expr {$is_in_range*$extra_size}]]$reg_rw_mask
+                        if {$symbol ne "x"} {
+                           if {($is_in_range && ($symbol >= (1<<$extra_size))) ||
+                               (!$is_in_range && ($symbol > 0))} {
+                              iNote "-ERROR- Cannot truncate number $value"
+                           }
+                        }
+                     } else { 
+                        # binary
+                        if {$symbol ni {x 0}} {
+                           iNote "-ERROR- Cannot truncate number $value"
+                        }
+                     }
+                     if {$is_in_range} {
+                        iNote "-INFO- Truncating $value, only x and 0 are allowed in msb bits..."
+                     }
+                     set is_in_range 0
+                  }
+               } else {
+                  if {$enable_counting} { 
+                     set is_x [expr {$symbol eq "x"}]
+                     set is_0 [expr {$symbol eq "0"}]
+                     if {$is_x} {
+                        incr x_w $num_incr
+                        set unsized_x0_bit_str $unsized_x0_bit_str[string repeat $symbol $num_incr]
+                     } elseif {$is_0} {
+                        #FIXME
+			incr r_w $num_incr
+                        set unsized_x0_bit_str $unsized_x0_bit_str[string repeat $symbol $num_incr]
+                     } else {
+                        #FIXME
+			set reg_rw_mask [string repeat "0" [expr {$x_w>0 ? $x_w : $num_incr}]]$reg_rw_mask
+                        set reg_rw_mask [string repeat "0" [expr {$r_w>0 ? $r_w : $num_incr}]]$reg_rw_mask
+                        if {$is_hex} {
+                           set cnt 0
+                           set hex_digit [expr 0x$symbol]
+   
+                           while {$hex_digit > 0} {
+                              incr cnt
+                              set hex_digit [expr {$hex_digit >> 1}]
+                           }
+   
+                           set reg_rw_mask [string repeat "0" $cnt]$reg_rw_mask
+                           set r_w [expr {4-$cnt}]
+                           set unsized_x0_bit_str [string repeat 0 $r_w]
+                        } else {
+                           set reg_rw_mask 0$reg_rw_mask
+                           set unsized_x0_bit_str {}
+                           set r_w 0
+                        }
+                        set x_w 0
+                     }
+                  }
+               }
+            }
+            if {$is_unsized && !$unsized_found} {
+               #iNote "-WARN- Unsized value $value"
+               set unsized_found 1
+            }
+            if {!$is_unsized && $str_length < $width} {
+               set delta_width [expr {$width - $str_length}]
+               set reg_rw_mask [string repeat "0" $delta_width]$reg_rw_mask
+            }
+         } else {
+            # Tessent does not allow recognize tied up or down ports today...
+            #iNote "-ERROR- Not recognized CaptureSource value $value"
+            set not_recognized_found 1
+         }
+      }
+      if {$unsized_found} {
+         set cnt [expr {$reg_width - [string length $reg_rw_mask]}]
+         if {$cnt > 0} {
+            set str_length [string length $unsized_x0_bit_str]
+            set symbol {}
+            for {set i 0} {$i < $str_length} {incr i} {
+               set symbol [string index $unsized_x0_bit_str [expr {$str_length - $i - 1}]]
+               set reg_rw_mask 0$reg_rw_mask
+               incr cnt -1
+               if {!$cnt} {break}
+            }
+            if {$cnt>0 && $symbol eq "x"} {
+               set reg_rw_mask [string repeat "0" $cnt]$reg_rw_mask
+            } else {
+               set reg_rw_mask [string repeat "0" $cnt]$reg_rw_mask
+            }
+         } elseif {$cnt < 0} {
+            iNote "-ERROR- something is wrong..."
+         }
+      }
+      if {[string length $reg_rw_mask] != $reg_width} {
+         iNote "-ERROR- RW mask: '$reg_rw_mask' does not have expected width $reg_width"
+      }
+      return $reg_rw_mask
+   }
+
+   # Proc returns expected tdo of the register when its reset applied
+   proc get_exp_rst_tdo {reg} {
+      # assuming that all numbers are compliant to the ICL standard
+      set capture_source [split [get_attribute_value_list $reg -name capture_source] ,]
+      set is_bus   [get_attribute_value_list $reg -name is_bus]
+      set reg_name  {}
+      if {$is_bus eq "true"} {
+         set reg_name  [get_attribute_value_list $reg -name bus_name]
+      } else {
+         set reg_name [get_attribute_value_list $reg -name leaf_name]
+      }
+      set reg_width [get_tap_reg_size $reg]
+      set reg_full_name   [get_single_name $reg]
+      set reg_reset_value [get_attribute_value_list $reg -name reset_value]
+      set reg_tdo_exp {}
+
+      # tracing faninin and returning found values
+      # FIXME: support other source types (DataReg, etc)
+      proc get_fanin_source {port_path} {
+         set driver $port_path
+         set port_prev {}
+         set cnt 10
+         while {$driver ne {} && $cnt} {
+            set port_prev $driver
+            set driver [get_single_name [get_icl_fanins $driver]]
+            incr cnt -1
+         }
+         set tie_v [get_attribute_value_list $port_prev  -name tie_value]
+         if {($tie_v eq "0") || ($tie_v eq "1")} {
+            return $tie_v
+         } elseif {$tie_v eq "{}"} {
+            return "x"
+         } else {
+            iNote "-ERROR- Not recognized CaptureSource tied value $tie_v"
+            return "x"
+         }
+      }
+      set unsized_found 0
+      set not_recognized_found 0
+      set unsized_x0_bit_str {}
+
+      foreach value $capture_source {
+         if {$value eq "{}"} {
+            # no CaptureSource specified
+            return [string repeat "x" $reg_width]
+         }
+         if {[regexp {(\w+)\s*\[\s*(\d+)\s*:\s*(\d+)} $value -> name msb lsb]} {
+	    # FIXME
+	    if {$msb < $lsb} {
+	       set tmp_msb $msb
+	       set msb $lsb
+	       set lsb $tmp_msb
+	    }
+            if {$name eq $reg_name} {
+	       set reg_tdo_exp [string range $reg_reset_value [expr {$reg_width-$msb-1}] [expr {$reg_width-$lsb-1}]]$reg_tdo_exp
+            } else {
+               for {set bit $lsb} {$bit <= $msb} {incr bit} {
+                  # check if $name is port of the module
+                  set source_signal [regsub "(\\\.)*$reg_name\\\[.*\\\]"  $reg_full_name "\\1$name\[$bit\]"]
+                  set reg_tdo_exp [get_fanin_source $source_signal]$reg_tdo_exp
+               }
+            }
+         } elseif {[regexp {(\w+)\s*\[\s*(\d+)} $value -> name msb]} {
+            if {$name eq $reg_name} {
+	       set reg_tdo_exp [string index $reg_reset_value [expr {$reg_width-$msb-1}]]$reg_tdo_exp
+            } else {
+               # check if $name is port of the module
+               set source_signal [regsub "(\\\.)*$reg_name\\\[.*\\\]"  $reg_full_name "\\1$name\[$msb\]"]
+               set reg_tdo_exp [get_fanin_source $source_signal]$reg_tdo_exp
+            }
+         } elseif {[regexp {^\s*(\w+)\s*$} $value -> name]} {
+            if {$name eq $reg_name} {
+               return $reg_reset_value
+            } else {
+	       # FIXME review
+               if {$reg_width == 1} {
+                  set source_signal [regsub "(\\\.)*$reg_name.*"  $reg_full_name "\\1$name"]
+                  set reg_tdo_mask [get_fanin_source $source_signal]$reg_tdo_exp
+	       } else {
+                  for {set bit 0} {$bit < $reg_width} {incr bit} {
+		     # FIXME pattern
+                     # check if $name is port of the module
+                     set source_signal [regsub "(\\\.)*$reg_name\\\[.*\\\]"  $reg_full_name "\\1$name\[$bit\]"]
+                     set reg_tdo_exp [get_fanin_source $source_signal]$reg_tdo_exp
+                  }
+	       }
+            }
+         } elseif {[regexp {(\d*)\s*'([bBhH])\s*([0-9a-fx_]+)} $value -> width radix str_value]} {
+            set str_value [regsub -all {_} $str_value {}]
+            set str_value [string tolower $str_value]
+            set is_unsized [expr {$width eq {}}]
+            set enable_counting 1
+            if {$is_unsized && $unsized_found} { 
+               # Not counting anymore, unsized_x0_bit_str is preserved
+               iNote "-ERROR- One more unsized value $value, cannot have a few unsized fields"
+               set enable_counting 0
+            }
+            set str_length [string length $str_value]
+            set is_hex [expr {($radix eq "h") || ($radix eq "H")}]
+            set num_incr [expr {$is_hex>0?4:1}]
+	    
+            set x_w 0
+            set r_w 0
+            set is_in_range 1
+            set symbol {}
+            for {set i 0} {$i < $str_length} {incr i} {
+               set symbol [string index $str_value [expr {$str_length - $i - 1}]]
+               set msb_bit_index [expr ($i+1)*$num_incr-1]
+               if {!$is_unsized} { 
+                  if {$msb_bit_index < $width} {
+                     if {$symbol eq "x"} {
+                        set reg_tdo_exp [string repeat "x" $num_incr]$reg_tdo_exp
+                     } else {
+                        if {$is_hex} {
+			   set reg_tdo_exp [num2bin 0x$symbol $num_incr]$reg_tdo_exp
+			} else {
+			   set reg_tdo_exp $symbol$reg_tdo_exp
+			}
+                     }
+                     if {$msb_bit_index == $width-1} {
+                        set is_in_range 0
+                     }
+                  } else { 
+                     # extra bits - truncation is required
+		     # FIXME double check
+                     set extra_size [expr {$msb_bit_index - $width + 1}]
+                     if {$is_hex} {
+                        if {$symbol eq "x"} {
+                           set reg_tdo_exp [string repeat "x" [expr {$is_in_range*$extra_size}]]$reg_tdo_exp
+                        } else {
+			   set reg_tdo_exp [num2bin 0x$symbol [expr {$is_in_range*$extra_size}]]$reg_tdo_exp
+                           if {($is_in_range && ($symbol >= (1<<$extra_size))) ||
+                               (!$is_in_range && ($symbol > 0))} {
+                              iNote "-ERROR- Cannot truncate number $value"
+                           }
+                        }
+                     } else { 
+                        # binary
+                        if {$symbol ni {x 0}} {
+                           iNote "-ERROR- Cannot truncate number $value"
+                        }
+                     }
+                     if {$is_in_range} {
+                        iNote "-INFO- Truncating $value, only x and 0 are allowed in msb bits..."
+                     }
+                     set is_in_range 0
+                  }
+               } else {
+                  if {$enable_counting} { 
+                     set is_x [expr {$symbol eq "x"}]
+                     set is_0 [expr {$symbol eq "0"}]
+                     if {$is_x} {
+                        incr x_w $num_incr
+                        set unsized_x0_bit_str [string repeat $symbol $num_incr]$unsized_x0_bit_str
+                     } elseif {$is_0} {
+			incr r_w $num_incr
+                        set unsized_x0_bit_str [string repeat $symbol $num_incr]$unsized_x0_bit_str
+                     } else {
+                        #FIXME review
+                        set reg_tdo_exp $unsized_x0_bit_str$reg_tdo_exp
+                        if {$is_hex} {
+                           set cnt 0
+                           set hex_digit [expr 0x$symbol]
+   
+                           while {$hex_digit > 0} {
+                              incr cnt
+                              set hex_digit [expr {$hex_digit >> 1}]
+                           }
+   
+                           set reg_tdo_exp [num2bin 0x$symbol $cnt]$reg_tdo_exp
+                           set r_w [expr {4-$cnt}]
+                           set unsized_x0_bit_str [string repeat 0 $r_w]
+                        } else {
+                           set reg_tdo_exp 1$reg_tdo_exp
+                           set unsized_x0_bit_str {}
+                           set r_w 0
+                        }
+                        set x_w 0
+                     }
+                  }
+               }
+            }
+            if {$is_unsized && !$unsized_found} {
+               #iNote "-WARN- Unsized value $value"
+               set unsized_found 1
+            }
+            if {!$is_unsized && $str_length < $width} {
+               set delta_width [expr {$width - $str_length}]
+               if {$symbol eq "x"} {
+                  set reg_tdo_exp [string repeat "x" $delta_width]$reg_tdo_exp
+               } else {
+                  set reg_tdo_exp [string repeat "0" $delta_width]$reg_tdo_exp
+               }
+            }
+         } else {
+            # Tessent does not allow recognize tied up or down ports today...
+            #iNote "-ERROR- Not recognized CaptureSource value $value"
+            set not_recognized_found 1
+         }
+      }
+      if {$unsized_found} {
+         set cnt [expr {$reg_width - [string length $reg_tdo_exp]}]
+         if {$cnt > 0} {
+            set str_length [string length $unsized_x0_bit_str]
+            set symbol {}
+            for {set i 0} {$i < $str_length} {incr i} {
+               set symbol [string index $unsized_x0_bit_str [expr {$str_length - $i - 1}]]
+               if {$symbol eq "x"} {
+                  set reg_tdo_exp x$reg_tdo_exp
+               } else {
+                  set reg_tdo_exp $symbol$reg_tdo_exp
+               }
+               incr cnt -1
+               if {!$cnt} {break}
+            }
+            if {$cnt>0 && $symbol eq "x"} {
+               set reg_tdo_exp [string repeat "x" $cnt]$reg_tdo_exp
+            } else {
+               set reg_tdo_exp [string repeat "0" $cnt]$reg_tdo_exp
+            }
+         } elseif {$cnt < 0} {
+            iNote "-ERROR- something is wrong..."
+         }
+      }
+      if {[string length $reg_tdo_exp] != $reg_width} {
+         iNote "-ERROR- TDO mask: '$reg_tdo_exp' does not have expected width $reg_width"
+      }
+      return $reg_tdo_exp
+   }
+
+   # Proc prints total width of X CaptureSources for the provided register instance if that width > 0
+   proc print_capture_source_x_info {reg} {
+      # assuming that all numbers are compliant to the ICL standard
+      set capture_source [split [get_attribute_value_list $reg -name capture_source] ,]
+      set is_bus   [get_attribute_value_list $reg -name is_bus]
+      set reg_name  {}
+      if {$is_bus eq "true"} {
+         set reg_name  [get_attribute_value_list $reg -name bus_name]
+      } else {
+         set reg_name [get_attribute_value_list $reg -name leaf_name]
+      }
+      set reg_width [get_tap_reg_size $reg]
+      set reg_full_name  [get_single_name $reg]
+      set x_width 0
+      set r_width 0
+      set x_unsized 0
+      set y_unsized 0
+      set unsized_found 0
+      set not_recognized_found 0
+      set unsized_x0_bit_str {}
+      foreach value $capture_source {
+	 if {$value eq "{}"} {
+            # no CaptureSource specified
+            iNote "-REG_INFO- $reg_full_name has $reg_width UNREADABLE bits out of $reg_width total"
+            return
+         }
+         if {[regexp {(\w+)\s*\[\s*(\d+)\s*:\s*(\d+)} $value -> name msb lsb]} {
+	    #FIXME
+	    if {$msb < $lsb} {
+	       set tmp_msb $msb
+	       set msb $lsb
+	       set lsb $tmp_msb
+	    }
+            if {$name eq $reg_name} {
+               incr r_width [expr {$msb -$lsb + 1}]
+            } else {
+               set port_name  [regsub "(\\\.)*${reg_name}(\\\[.*\\\])*$"  $reg_full_name "\\1$name"]
+               set port_width [lindex [get_attribute_value_list $port_name -name bus_width] 0]
+	       if {$port_width == 1} {
+                  trace_fanin $port_name r_width x_width not_recognized_found
+	       } else {
+                  for {set bit 0} {$bit < $port_width} {incr bit} {
+                     # check if $name is port of the module
+		     set port_name_i $port_name[$bit]
+                     trace_fanin $port_name_i r_width x_width not_recognized_found
+                  }
+	       }
+            }
+         } elseif {[regexp {(\w+)\s*\[\s*(\d+)} $value -> name msb]} {
+            if {$name eq $reg_name} {
+               incr r_width
+            } else {
+               # check if $name is port of the module
+               set port_name  [regsub "(\\\.)*${reg_name}(\\\[.*\\\])*$"  $reg_full_name "\\1$name"]
+               set port_width [lindex [get_attribute_value_list $port_name -name bus_width] 0]
+	       if {$port_width == 1} {
+                  trace_fanin $port_name r_width x_width not_recognized_found
+	       } else {
+                  for {set bit 0} {$bit < $port_width} {incr bit} {
+                     # check if $name is port of the module
+		     set port_name_i $port_name[$bit]
+                     trace_fanin $port_name_i r_width x_width not_recognized_found
+                  }
+	       }
+            }
+         } elseif {[regexp {^\s*(\w+)\s*$} $value -> name]} {
+            if {$name eq $reg_name} {
+               incr r_width $reg_width
+            } else {
+               set port_name  [regsub "(\\\.)*${reg_name}(\\\[.*\\\])*$"  $reg_full_name "\\1$name"]
+	       # If fanin cone of CaptureSource has a mux, tessent doesn't provide API to recognize it,
+	       # resulting in 'not a known object' error.
+	       # -> Need to add check for $port_name object existence and indication of unknown/untraced source type if it is not.
+	       # FIXME: find out a better solution
+               set bus_width_l [get_attribute_value_list $port_name -name bus_width -silent]
+	       if {[llength $bus_width_l] == 0} {
+	          # Object doesn't exist (e.g. DataMux isn't supported by Tessent at the moment)
+		  set not_recognized_found 1
+	       } else {
+	          set port_width [lindex $bus_width_l 0]
+	          if {$port_width == 1} {
+                     trace_fanin $port_name r_width x_width not_recognized_found
+	          } else {
+                     for {set bit 0} {$bit < $port_width} {incr bit} {
+                        # check if $name is port of the module
+		        set port_name_i $port_name[$bit]
+                        trace_fanin $port_name_i r_width x_width not_recognized_found
+                     }
+	          }
+	       }
+            }
+         } elseif {[regexp {(\d*)\s*'([bBhH])\s*([0-9a-fx_]+)} $value -> width radix str_value]} {
+            set str_value [regsub -all {_} $str_value {}]
+            set str_value [string tolower $str_value]
+            set is_unsized [expr {$width eq {}}]
+            set enable_counting 1
+            if {$is_unsized && $unsized_found} { 
+               # Not counting anymore, unsized_x0_bit_str is preserved
+               iNote "-ERROR- One more unsized value $value, cannot have a few unsized fields"
+               set enable_counting 0
+            }
+            set str_length [string length $str_value]
+            set is_hex [expr {($radix eq "h") || ($radix eq "H")}]
+            set num_incr [expr {$is_hex>0?4:1}]
+            set x_w 0
+            set r_w 0
+            set is_in_range 1
+            set symbol {}
+            for {set i 0} {$i < $str_length} {incr i} {
+               set symbol [string index $str_value [expr {$str_length - $i - 1}]]
+               set msb_bit_index [expr ($i+1)*$num_incr-1]
+               if {!$is_unsized} { 
+                  if {$msb_bit_index < $width} {
+                     if {$symbol eq "x"} {
+                        incr x_width $num_incr
+                     } else {
+                        incr r_width $num_incr
+                     }
+                     if {$msb_bit_index == $width-1} {
+                        set is_in_range 0
+                     }
+                  } else { 
+                     # extra bits - truncation is required
+                     set extra_size [expr {$msb_bit_index - $width + 1}]
+                     if {$is_hex} {
+                        if {$symbol eq "x"} {
+                           incr x_width [expr {$is_in_range*$extra_size}]
+                        } else {
+                           incr r_width [expr {$is_in_range*$extra_size}]
+                           if {($is_in_range && ($symbol >= (1<<$extra_size))) ||
+                               (!$is_in_range && ($symbol > 0))} {
+                              iNote "-ERROR- Cannot truncate number $value"
+                           }
+                        }
+                     } else { 
+                        # binary
+                        if {$symbol ni {x 0}} {
+                           iNote "-ERROR- Cannot truncate number $value"
+                        }
+                     }
+                     if {$is_in_range} {
+                        iNote "-INFO- Truncating $value, only x and 0 are allowed in msb bits..."
+                     }
+                     set is_in_range 0
+                  }
+               } else {
+                  if {$enable_counting} { 
+                     set is_x [expr {$symbol eq "x"}]
+                     set is_0 [expr {$symbol eq "0"}]
+                     if {$is_x} {
+                        incr x_w $num_incr
+                        set unsized_x0_bit_str $unsized_x0_bit_str[string repeat $symbol $num_incr]
+                     } elseif {$is_0} {
+                        incr r_w $num_incr
+                        set unsized_x0_bit_str $unsized_x0_bit_str[string repeat $symbol $num_incr]
+                     } else {
+                        incr x_width [expr {$x_w>0 ? $x_w : $num_incr}]
+                        incr r_width [expr {$r_w>0 ? $r_w : $num_incr}]
+                        if {$is_hex} {
+                           set cnt 0
+                           set hex_digit [expr 0x$symbol]
+   
+                           while {$hex_digit > 0} {
+                              incr cnt
+                              set hex_digit [expr {$hex_digit >> 1}]
+                           }
+   
+                           incr r_width $cnt
+                           set r_w [expr {4-$cnt}]
+                           set unsized_x0_bit_str [string repeat 0 $r_w]
+                        } else {
+                           incr r_width 1
+                           set unsized_x0_bit_str {}
+                           set r_w 0
+                        }
+                        set x_w 0
+                     }
+                  }
+               }
+            }
+            if {$is_unsized && !$unsized_found} {
+               #iNote "-WARN- Unsized value $value"
+               set unsized_found 1
+            }
+            if {!$is_unsized && $str_length < $width} {
+               set delta_width [expr {$width - $str_length}]
+               if {$symbol eq "x"} {
+                  incr x_width $delta_width
+               } else {
+                  incr r_width $delta_width
+               }
+            }
+         } else {
+            # Tessent does not allow recognize tied up or down ports today...
+            #iNote "-ERROR- Not recognized CaptureSource value $value"
+            set not_recognized_found 1
+         }
+      }
+      if {$unsized_found} {
+         set cnt [expr {$reg_width - $r_width - $x_width}]
+         if {$cnt > 0} {
+            set str_length [string length $unsized_x0_bit_str]
+            set symbol {}
+            for {set i 0} {$i < $str_length} {incr i} {
+               set symbol [string index $unsized_x0_bit_str [expr {$str_length - $i - 1}]]
+               if {$symbol eq "x"} {
+                  incr x_width
+               } else {
+                  incr r_width
+               }
+               incr cnt -1
+               if {!$cnt} {break}
+            }
+            if {$cnt>0 && $symbol eq "x"} {
+               incr x_width $cnt
+            } else {
+               incr r_width $cnt
+            }
+         } elseif {$cnt < 0} {
+            iNote "-ERROR- something is wrong..."
+         }
+      }
+      set msg_x {}
+      set msg_u {}
+      set andd {}
+      if {$x_width} {
+         set msg_x "$x_width UNREADABLE bits "
+      }
+      if {$not_recognized_found} {
+         set unknown_num [expr {$reg_width-$x_width-$r_width}]
+         set msg_u "$unknown_num UNKNOWN (not traced) bits "
+         if {$unknown_num < 0} {
+            iNote "-ERROR- something is wrong - cannot be negative number of not recognized sources..."
+         }
+      }
+      if {$x_width && $not_recognized_found} {
+         set andd "and "
+      }
+      if {$x_width || $not_recognized_found} {
+         iNote "-REG_INFO- $reg_full_name has $msg_x$andd$msg_u out of $reg_width total"
+      }
+      # tracing faninin and counting x, real, returning non-recognized status
+      proc trace_fanin {port_path r_width x_width not_recognized_found} {
+         upvar 1 $r_width r_w
+         upvar 1 $x_width x_w
+         upvar 1 $not_recognized_found  not_recognized
+         set driver $port_path
+         set port_prev {}
+         set cnt 100
+         while {$driver ne {} && $cnt} {
+            set port_prev $driver
+            set driver [get_single_name [get_icl_fanins $driver]]
+            incr cnt -1
+         }
+         set tie_v [get_attribute_value_list $port_prev  -name tie_value]
+         if {($tie_v eq "0") || ($tie_v eq "1")} {
+            incr r_w
+         } elseif {$tie_v eq "{}"} {
+            # assume that top level port is readable
+	    incr r_w
+         } else {
+            iNote "-ERROR- Not recognized CaptureSource tied value $tie_v"
+            set not_recognized 1
+         }
+      }
+   }
+   
+   # Proc prints total width of X CaptureSources for the provided COLLECTION of register if that width > 0
+   # Returns collection
+   proc print_all_capture_source_x_info {reg_collection} {
+      if {[sizeof_collection $reg_collection] > 0} {
+         foreach_in_collection reg $reg_collection {
+            print_capture_source_x_info $reg
+         }
+      }
+   }
+   
+   # Proc converts numeric value into the binary representation
+   # The result can be padded to the provided size (optional)
+   proc num2bin {value {size 0}} {
+       set result {}
+       while {$value>0} {
+           set result [expr {$value%2}]$result
+           set value [expr {$value/2}]
+       }
+       if {$result == {}} {set result 0}
+       if {$size != 0} {
+          set result_length [string length $result]
+          if {$result_length > $size} {
+            iNote "-WARN- \[num2bin\] Provided argument value does not fit value size spec - will be truncated!"
+            set result [string range $result [expr {$result_length-$size}] end]
+          } elseif {$result_length < $size} {
+            set result [string repeat 0 [expr {$size-$result_length}]]$result
+          }
+       }
+       return $result
+   }
+   
+   # Proc converts binary value into the dec representation
+   proc bin2dec {value} {
+       return [expr "0b$value"]
+   }
+   
+   # Proc returns collection of all registers in the design or under specified instance
+   # Returns collection
+   proc get_all_regs {{inst_path *} {reg_names {}}} {
+      set reg_collection {}
+      if {($inst_path eq "*")} {
+         append_to_collection reg_collection [get_icl_objects -object_type icl_scan_register]
+      } elseif {($inst_path eq ".")} {
+         append_to_collection reg_collection [get_icl_objects -object_type icl_scan_register]
+      } elseif {($inst_path ne {})} {
+         append_to_collection reg_collection [get_icl_objects -object_type icl_scan_register -below_instances $inst_path]
+      }
+      if {$reg_names ne {}} {
+	 set scan_reg_list [get_icl_objects -object_type icl_scan_register -silent]
+	 if {[sizeof_collection $scan_reg_list] > 0} {
+	    foreach reg_pattern $reg_names {
+               foreach_in_collection reg $scan_reg_list {
+	          set reg_name [get_single_name $reg]
+	          if {[lsearch $reg_name $reg_pattern] >= 0} {
+                     append_to_collection reg_collection $reg -unique
+		  }
+	       }
+	    }
+	 }
+      }
+      return $reg_collection
+   }
+   
+   # Proc to find registers by module name and by register name
+   proc find_regs {{module_names {}} {reg_names {}}} {
+      set reg_collection {}
+      if {$module_names ne {}} {
+         set inst_collection [get_icl_instances -of_modules $module_names -silent]
+         if {[sizeof_collection $inst_collection] > 0} {
+   	    set scan_reg_list [get_icl_objects -object_type icl_scan_register -below_instances $inst_collection -silent]
+	    if {[sizeof_collection $scan_reg_list] > 0} {
+               set reg_name_list [get_name_list $scan_reg_list]
+               iNote "-INFO- \[find_regs:m\] Found registers $reg_name_list"
+               append_to_collection reg_collection $scan_reg_list -unique
+	    }
+         }
+      }
+      if {$reg_names ne {}} {
+	 set scan_reg_list [get_icl_objects -object_type icl_scan_register -silent]
+	 if {[sizeof_collection $scan_reg_list] > 0} {
+	    foreach reg_pattern $reg_names {
+               foreach_in_collection reg $scan_reg_list {
+	          set reg_name [get_single_name $reg]
+	          if {[lsearch $reg_name $reg_pattern] >= 0} {
+                     iNote "-INFO- \[find_regs:i\] Found register $reg_name"
+                     append_to_collection reg_collection $reg -unique
+		  }
+	       }
+	    }
+	 }
+      }
+      return $reg_collection
+   }
+   
+   # Proc to exclude registers from the specified modules or based on provided pattern/list
+   # Modifies content of the provided input collection of the registers
+   proc remove_regs_from_collection {reg_collection {excluded_modules {}} {excluded_registers {}}} {
+      upvar 1 $reg_collection test_reg_collection
+      set exlude_list {}
+      if {$excluded_modules ne {}} {
+         set inst_collection [get_icl_instances -of_modules $excluded_modules -silent]
+         if {[sizeof_collection $inst_collection] > 0} {
+   	    set scan_reg_list [get_icl_objects -object_type icl_scan_register -below_instances $inst_collection -silent]
+	    if {[sizeof_collection $scan_reg_list] > 0} {
+               set reg_name_list [get_name_list $scan_reg_list]
+	       append_to_collection exlude_list $reg_name_list 
+	    }
+         }
+      }
+      if {$excluded_registers ne {}} {
+         if {[sizeof_collection $test_reg_collection] > 0} {
+	    foreach reg_pattern $excluded_registers {
+	       foreach_in_collection reg $test_reg_collection {
+	 	  set reg_name [get_single_name $reg]
+	 	  if {[lsearch $reg_name $reg_pattern] >= 0} {
+	             append_to_collection exlude_list $reg 
+	     	  }
+	       }
+	    }
+         }
+      }
+      if {[sizeof_collection $exlude_list] > 0} {
+         set reg_names [get_name_list $exlude_list]
+         iNote "-INFO- Excluded registers: $reg_names"
+         set test_reg_collection [remove_from_collection $test_reg_collection $exlude_list]
+      }
+   }
+   
+   # Proc returns register reset value (x's are substituted with 0's)
+   proc get_reg_reset_value_bin {reg_name} {
+      # FIX for get_attribute_value_list changes in Tessent 2020.4
+      set reset_value_string [get_attribute_value_list $reg_name -name reset_value]
+      if {$reset_value_string eq "{}"} {
+         # Register has no ResetValue specified
+	 return [string repeat 0 [get_tap_reg_size $reg_name]]
+      } else {
+         # Tessent returns full register width reset value in binary
+         return [string map {x 0 X 0} $reset_value_string]
+      } 
+   }
+   
+   # Proc returns register reset value for iRead comparison (x's are kept)
+   proc get_reg_prev_value_cmp {reg_name prev_value} {
+      # Tessent returns full register width reset value in binary
+      set tdo_mask  [get_tdo_mask $reg_name]
+      set rw_mask   [get_rw_mask $reg_name]
+      set reg_width [get_tap_reg_size $reg_name]
+      set reg_reset_value [get_attribute_value_list $reg_name -name reset_value]
+      set prev_value_size [string length $prev_value]
+      set expected_tdo {}
+      set symbol {}
+      if {$prev_value_size < $reg_width} {
+         set prev_value [string repeat "0" [expr {$reg_width-$prev_value_size}]]$prev_value
+      }
+      for {set i 0} {$i < $reg_width} {incr i} {
+	   # FIXME change processing order?
+	   set str_idx [expr {$reg_width - $i - 1}]
+	   set tdo_mask_i [string index $tdo_mask $str_idx]
+	   set rw_mask_i  [string index $rw_mask $str_idx]
+	   set prev_i     [string index $prev_value $str_idx]
+	   set rst_i      [string index $reg_reset_value $str_idx]
+	   if {$tdo_mask_i eq "0"} {
+	      set expected_tdo x$expected_tdo
+	   } elseif {$rw_mask_i eq "1"} {
+	      set expected_tdo $prev_i$expected_tdo
+	   } else {
+	      set expected_tdo $rst_i$expected_tdo
+	   }
+      }
+      return $expected_tdo
+   }
+   
+   # Proc returns inverted value of binary string (bitwise)
+   proc get_inverted_sting_value_bin {value} {
+      return [string map {0 1 1 0} $value]
+   }
+   
+   # Proc expends provided BINARY pattern to the specified size by repeating it required number of times
+   # It also truncates the pattern if register size is smaller than the provided pattern
+   proc get_expanded_pattern_bin {pattern reg_size} {
+     set pattern_size [string length $pattern]
+     set repeat_num [expr {int(ceil(1.0*$reg_size/$pattern_size))}]
+     set pattern_exp [string repeat $pattern $repeat_num]
+     set length_delta [expr {[string length $pattern_exp] - $reg_size}]
+     if {$length_delta > 0} {
+        set pattern_exp [string range $pattern_exp $length_delta end]
+     }
+     return $pattern_exp
+   }
+   
+   # Proc to find/map TAPs and the corresponding IRs/DRs
+   proc map_tap_regs {reg_list ir_list tap_dr_map tap_ir_map} {
+      # find all TAP instances in the design (as modules with TAP FSM)
+      # note, that it can be not top level of tap but a sub-module inside.
+      upvar 1 $tap_dr_map dr_map
+      upvar 1 $tap_ir_map ir_map
+      set all_taps [get_attribute_value_list [get_icl_pins -function to_ir_select -filter {parent_instance !~ .*HTAP[[:digit:]]+_SEL|.*RETAP[[:digit:]]+_SEL} -regexp] -name parent_instance]
+      set all_taps_wrap {}
+      # one level up...
+      foreach tap [get_attribute_value_list $all_taps -name parent_instance -silent] {
+         if {[llength $tap] == 0} {
+            continue
+         } else {
+            # list of next level TAP wrappers without empty elements
+            lappend all_taps_wrap $tap
+         }
+      }
+   
+      # FIXME: why is the proc not found if specified later?
+      # returnns list of taps with matched paths
+      proc match_reg {reg_name tap_list} {
+         set tap_candidates {}
+         foreach tap $tap_list {
+            if {[regexp "^$tap$|^$tap\\." $reg_name]} {
+               lappend  tap_candidates $tap
+            }
+         }
+         return $tap_candidates
+      }
+      # returnned status: 0 - success, 1 - no match, 2 - multiple matches
+      proc map_reg {reg_name tap_candidates reg_type reg_map} {
+         upvar 1 $reg_map r_map
+         set num_matches [llength [lsort -unique $tap_candidates]]
+         if {$num_matches == 1} {
+            if {$reg_type eq "ir"} {
+               set tap [lindex $tap_candidates 0]
+   	         if {[info exists r_map($tap)]} {
+                  if {$r_map($tap) ne $reg_name} {
+                     set another_reg $r_map($tap)
+                     iNote "-ERROR- Something wrong, IR $reg_name matched TAP $tap, but that TAP has matched $another_reg IR already"
+                  }
+               } else {
+                  set r_map($tap) $reg_name
+               }
+            } elseif {$reg_type eq "dr"} {
+               set tap [lindex $tap_candidates 0]
+               if {[info exists r_map($reg_name)]} {
+                  if {$r_map($reg_name) ne $tap} {
+                     set another_tap $r_map($reg_name)
+                     iNote "-ERROR- Something wrong, DR $reg_name matched TAP $tap, but that DR has matched $another_tap already"
+                  }
+               } else {
+                  set r_map($reg_name) $tap
+               }
+            } else {
+               iNote "-ERROR- Unknown type $reg_type of register $reg_name"
+            }
+         } elseif {$num_matches == 0} {
+            return 1
+         } else {
+            iNote "-ERROR- Something wrong, register $reg_name matched multiple TAPs {$tap_candidates}"
+            return 2
+         }
+         return 0
+      }
+      
+      if {[sizeof_collection $ir_list] > 0} {
+         set left_ir_list {}
+         # first pass
+         foreach_in_collection ir $ir_list {
+            set ir_name [get_single_name $ir]
+            set status [map_reg $ir_name [match_reg $ir_name $all_taps] "ir" ir_map]
+            if {$status == 1} {
+               lappend left_ir_list $ir_name
+            }
+         }
+         if {[llength $left_ir_list]} {
+            # second pass using one level up
+            foreach ir_name $left_ir_list {
+               set status [map_reg $ir_name [match_reg $ir_name $all_taps_wrap] "ir" ir_map]
+               #no status-based action -> check log
+            }
+         }
+         set mapped_ir [array get ir_map]
+         iNote "-INFO- TAP->IR mapping summary {$mapped_ir}"
+      } else {
+         iNote "-WARN- \[map_tap_regs\] No IR register list is provided, exiting"
+      }
+      if {[sizeof_collection $reg_list] > 0} {
+         set all_taps_mapped [array names ir_map]
+         set left_dr_list {}
+         # first pass
+         foreach_in_collection dr $reg_list {
+            set dr_name [get_single_name $dr]
+            set status [map_reg $dr_name [match_reg $dr_name $all_taps_mapped] "dr" dr_map]
+            if {$status == 1} {
+               lappend left_dr_list $dr_name
+            }
+         }
+         # first tracing pass for not mapped registers
+         set not_mapped_dr_list {}
+         # FIXME use dict instead?
+         array set trace_hash {}
+         foreach dr_name $left_dr_list {
+            iNote "-INFO- Searching TAP for DR $dr_name ..."
+            set scan_reg_si_source [get_attribute_value_list $dr_name -name scan_in_source]
+	    set is_bus [get_attribute_value_list $dr_name -name is_bus]
+            set scan_reg_bus_name  {}
+	    set inst_name {}
+            if {$is_bus eq "true"} {
+               set scan_reg_bus_name [get_attribute_value_list $dr_name -name bus_name]
+               set inst_name [regsub  "\.$scan_reg_bus_name\\\[.*\\\]$" $dr_name {}]
+            } else {
+               set scan_reg_bus_name [get_attribute_value_list $dr_name -name leaf_name]
+               set inst_name [regsub  "\.$scan_reg_bus_name$" $dr_name {}]
+            }
+            set inst_si_ports [get_attribute_value_list [get_icl_pins -of_instances $inst_name -function scan_in]  -name leaf_name]
+   	      if {[lsearch $inst_si_ports $scan_reg_si_source] >= 0} {
+               # direct si->so path
+   	         set inst_si_ports $inst_name.$scan_reg_si_source
+            } else {
+               set inst_si_ports [get_icl_pins -of_instances $inst_name -function scan_in]
+   	      }
+            set cnt 0
+            set cnt_max 100; # FIXME: max tracing depth, make a parameter?
+            set stop 0
+            set is_found 0
+            set so_candidates {}
+   	      # FIXME use dict instead?
+            set traced_ports {}
+   	      # FIXME check size of collection
+            set si_sources [get_icl_fanin $inst_si_ports]
+            while {!$is_found && !$stop && ($cnt < $cnt_max)} {
+   	         # performing "deep" tracing to the source, not stopping on intermediate ports
+   	         incr cnt 1
+               set tap_candidates {}
+               set exists_in_hash 0
+               set si_name {}
+               # pass 1: check if si sources belong to some matched tap
+               foreach_in_collection si $si_sources {
+                  # check if si is top level port
+   	            set si_name [get_single_name $si]
+   	            if {[get_attribute_value_list $si_name -name object_type] eq "port"} {
+   		            iNote "-INFO- TDR $dr_name: skipping Top level port $si_name"
+   	               continue
+   	            }
+                  if {[info exists trace_hash($si_name)]} {
+                     set exists_in_hash 1
+                     break
+                  }
+                  lappend traced_ports $si_name
+                  # concatenate two lists
+                  set tap_candidates [list {*}$tap_candidates {*}[match_reg $si_name $all_taps_mapped]]
+               }
+               if {$exists_in_hash} {
+                  set found_tap $trace_hash($si_name)
+                  set status [map_reg $dr_name $found_tap "dr" dr_map]
+                  if {$status == 0} {
+                     set is_found 1
+                     break
+                  }
+               }
+               set status [map_reg $dr_name $tap_candidates "dr" dr_map]
+               if {$status == 0} {
+                  set is_found 1
+                  break
+               }
+               set so_list_to_trace {}
+               foreach_in_collection so $si_sources {
+                  # check if si is top level port
+                  set so_name [get_single_name $so]
+   	            if {[get_attribute_value_list $so_name -name object_type] eq "port"} {
+   		            iNote "-INFO- TDR $dr_name: skipping Top level port $so_name"
+   	               continue
+   	            }
+   	            set inst_name [get_attribute_value_list $so_name -name base_name]
+                  iNote "-INFO- \[si trace $cnt\] $so_name, instance $inst_name"
+                  set so_scan_interface [get_attribute_value_list $so_name -name scan_interface_list]
+                  # check if found tdo is a part of tap interface, if yes - skip that port
+   	            set tms_pins [get_icl_pins -of_instances $inst_name -function tms -silent]
+   	            append_to_collection tms_pins [get_icl_pins -of_instances $inst_name -function to_tms -silent]
+   	            if {[sizeof_collection $tms_pins] > 0} {
+   	               set tms_scan_interfaces [get_attribute_value_list $tms_pins -name scan_interface_list]
+   		            if {[lsearch $tms_scan_interfaces $so_scan_interface] >= 0} {
+                        iNote "-INFO- \[si trace $cnt\] Skipping scan_out $so_name, it is a part of TAP ScanInterface $so_scan_interface"
+                        continue
+                     }
+   	            }
+                  iNote "-INFO- \[si trace $cnt\] Evaluating scan_out $so_name, it is a part of Scan ScanInterface $so_scan_interface"
+                  # RTDR/iJTAG scan interface
+                  # continue tracing until driver/source of tdo is found
+                  # find all si ports, exclude all ports for TAP scan interfacs if any
+                 
+                  set inst_si_ports [get_icl_pins -of_instances $inst_name -function scan_in]
+                  foreach_in_collection s $inst_si_ports {
+                     # check if si is top level port
+   		            set si_name [get_single_name $s] 
+   	               if {[get_attribute_value_list $si_name -name object_type] eq "port"} {
+   		               iNote "-INFO- TDR $dr_name: skipping Top level port $si_name"
+   	                  continue
+   	               }
+                     set si_scan_interface [get_attribute_value_list $si_name -name scan_interface_list]
+   		            iNote "-INFO- \[si trace $cnt\] Processing $si_name, ScanInterface $si_scan_interface"
+                     if {[lsearch {$tms_scan_interfaces $to_tms_scan_interfaces} $si_scan_interface] >= 0} {
+                        # TAP scan interface
+   		               iNote "-INFO- \[si trace $cnt\] Skipping scan_in $si_name, it is a part of TAP ScanInterface $si_scan_interface"
+   		               continue
+                     }
+                     set src_list [get_icl_fanin $s]
+                     if {[sizeof_collection $src_list] == 0} { 
+                        # endpoint
+   		               append_to_collection so_candidates $s -unique
+                        lappend traced_ports $si_name
+                     } else {
+                        # continue tracing
+   		               append_to_collection so_list_to_trace $src_list -unique
+                     }
+                  }
+               }
+               #FIXME
+   	         if {[sizeof_collection $so_list_to_trace] == 0} {
+   	            set stop 1
+   	         }
+               set si_sources [copy_collection $so_list_to_trace]
+            }
+            set tap_candidates {}
+            foreach so [get_name_list $so_candidates] {
+               set tap_candidates [list {*}$tap_candidates {*}[match_reg $so $all_taps_mapped]]
+            }
+            set status [map_reg $dr_name $tap_candidates "dr" dr_map]
+            if {$status == 0} {
+               set is_found 1
+               break
+            }
+            # FIXME: if not found, do we need to check next level up (based on $all_taps_wrap)?
+            if {$is_found} {
+               foreach i $traced_ports {
+                  set found_tap $dr_map($dr_name)
+                  if {[info exists trace_hash($i)]} {
+                     if {$trace_hash($i) ne $found_tap} {
+            	         set another_tap $trace_hash($i)
+                        iNote "-ERROR- Something wrong, different traces resulted in different TAPs, $found_tap and $another_tap"
+                     }
+                  } else {
+                     set trace_hash($i) $found_tap
+                  }
+               }
+            } else {
+               lappend not_mapped_dr_list $dr_name
+            }
+         }
+         if {[llength $not_mapped_dr_list]} {
+            iNote "-WARN- \[map_tap_regs\] Master TAPs not found for TDR registers {$not_mapped_dr_list}"
+         }
+      } else {
+         iNote "-WARN- \[map_tap_regs\] No DR register list is provided, exiting"
+      }
+   }
+   
+   # Proc to find/map TAPs and the corresponding IRs
+   proc map_tap_ir_regs {ir_list tap_ir_map} {
+      # find all TAP instances in the design (as modules with TAP FSM)
+      # note, that it can be not top level of tap but a sub-module inside.
+      upvar 1 $tap_ir_map ir_map
+
+      if {[sizeof_collection $ir_list] == 0} {
+         iNote "-WARN- \[map_tap_ir_regs\] No IR register list is provided, exiting"
+	 return
+      }
+
+      set all_tap_fsms [get_attribute_value_list [get_icl_pins -function to_ir_select -filter {parent_instance !~ .*HTAP[[:digit:]]+_SEL|.*RETAP[[:digit:]]+_SEL} -regexp] -name base_name]
+      if {[llength $all_tap_fsms] == 0} {
+         # no TAPs
+         iNote "-WARN- \[map_tap_ir_regs\] No TAP (TAP FSM) found - exiting"
+	 return
+      } elseif {[llength $all_tap_fsms] == 1} {
+         if {[sizeof_collection $ir_list] == 1} {
+            set ir_name [get_single_name $ir_list]
+            set fsm_parent [lindex [get_attribute_value_list $all_tap_fsms -name parent_instance -silent] 0]
+	    if {$fsm_parent == ""} {
+               set ir_map(.) $ir_name
+	    } else {
+               set ir_map($fsm_parent) $ir_name
+	    }
+            set mapped_ir [array get ir_map]
+            iNote "-INFO- TAP->IR mapping summary {$mapped_ir}"
+	    return
+	 } else {
+            iNote "-WARN- \[map_tap_ir_regs\] Single TAP (TAP FSM) found but multiple IR registers specified - exiting"
+	    return
+	 }
+      }
+
+      set all_taps [get_attribute_value_list $all_tap_fsms -name parent_instance -silent]
+      set all_taps_wrap {}
+      # one level up...
+      foreach tap $all_taps {
+         if {[llength $tap] == 0} {
+            continue
+         } else {
+            # list of next level TAP wrappers without empty elements
+            lappend all_taps_wrap $tap
+         }
+      }
+   
+      # FIXME: why is the proc not found if specified later?
+      # returnns list of taps with matched paths
+      proc match_reg {reg_name tap_list} {
+         set tap_candidates {}
+         foreach tap $tap_list {
+            if {[regexp "^$tap$|^$tap\\." $reg_name]} {
+               lappend  tap_candidates $tap
+            }
+         }
+         return $tap_candidates
+      }
+      # returnned status: 0 - success, 1 - no match, 2 - multiple matches
+      proc map_reg {reg_name tap_candidates reg_type reg_map} {
+         upvar 1 $reg_map r_map
+         set num_matches [llength [lsort -unique $tap_candidates]]
+         if {$num_matches == 1} {
+            if {$reg_type eq "ir"} {
+               set tap [lindex $tap_candidates 0]
+   	         if {[info exists r_map($tap)]} {
+                  if {$r_map($tap) ne $reg_name} {
+                     set another_reg $r_map($tap)
+                     iNote "-ERROR- Something wrong, IR $reg_name matched TAP $tap, but that TAP has matched $another_reg IR already"
+                  }
+               } else {
+                  set r_map($tap) $reg_name
+               }
+            } elseif {$reg_type eq "dr"} {
+               set tap [lindex $tap_candidates 0]
+               if {[info exists r_map($reg_name)]} {
+                  if {$r_map($reg_name) ne $tap} {
+                     set another_tap $r_map($reg_name)
+                     iNote "-ERROR- Something wrong, DR $reg_name matched TAP $tap, but that DR has matched $another_tap already"
+                  }
+               } else {
+                  set r_map($reg_name) $tap
+               }
+            } else {
+               iNote "-ERROR- Unknown type $reg_type of register $reg_name"
+            }
+         } elseif {$num_matches == 0} {
+            return 1
+         } else {
+            iNote "-ERROR- Something wrong, register $reg_name matched multiple TAPs {$tap_candidates}"
+            return 2
+         }
+         return 0
+      }
+      
+      set left_ir_list {}
+      # first pass
+      foreach_in_collection ir $ir_list {
+         set ir_name [get_single_name $ir]
+         set status [map_reg $ir_name [match_reg $ir_name $all_taps] "ir" ir_map]
+         if {$status == 1} {
+            lappend left_ir_list $ir_name
+         }
+      }
+      if {[llength $left_ir_list]} {
+         # second pass using one level up
+         foreach ir_name $left_ir_list {
+            set status [map_reg $ir_name [match_reg $ir_name $all_taps_wrap] "ir" ir_map]
+            #no status-based action -> check log
+         }
+      }
+      set mapped_ir [array get ir_map]
+      iNote "-INFO- TAP->IR mapping summary {$mapped_ir}"
+   }
+
+   # Proc wirtes BYPASS opcode (all 1s) to the TAP IR with the specified TDR
+   proc iwrite_tap_bypass_ir {reg_name {tap_dr_map {}} {tap_ir_map {}}} {
+      upvar 1 $tap_dr_map dr_map
+      upvar 1 $tap_ir_map ir_map
+      if {[array exists dr_map] && [array exists ir_map]} {
+         if {[info exists dr_map($reg_name)]} {
+            iNote "-INFO- Setting TAP IR to BYPASS"
+            set tap $dr_map($reg_name)
+            set ir_name $ir_map($tap)
+            set ir_size [get_tap_reg_size $ir_name]
+            set all_1_value [get_expanded_pattern_bin 1 $ir_size]
+            iWrite $ir_name 0b$all_1_value
+            iApply
+         }
+      }
+   }
+   
+   # Proc wirtes to BYPASS DR of the TAP with specified TDR
+   proc iwrite_tap_bypass_dr {reg_name {tap_dr_map {}} {tap_ir_map {}}} {
+      upvar 1 $tap_dr_map dr_map
+      upvar 1 $tap_ir_map ir_map
+      if {[array exists dr_map] && [array exists ir_map]} {
+         if {[info exists dr_map($reg_name)]} {
+            set tap $dr_map($reg_name)
+            iNote "-INFO- Writing 1 to BYPASS of TAP $tap"
+            iWrite $tap.BYPASS 0b1; # FIXME
+            iApply
+         }
+      }
+   }
+   
+   # Proc wirtes to BYPASS DR of the TAP with specified TDR
+   proc iwrite_no_iapply_tap_bypass_dr {reg_name {tap_dr_map {}} {tap_ir_map {}}} {
+      upvar 1 $tap_dr_map dr_map
+      upvar 1 $tap_ir_map ir_map
+      if {[array exists dr_map] && [array exists ir_map]} {
+         if {[info exists dr_map($reg_name)]} {
+            set tap $dr_map($reg_name)
+            iNote "-INFO- Writing 1 to BYPASS DR of TAP $tap"
+            iWrite $tap.BYPASS 0b1; # FIXME
+         }
+      }
+   }
+   
+   # Proc wirtes BYPASS opcodes (all 1s) to the IR of all TAPs
+   proc iwrite_tap_bypass_ir_all {{tap_ir_map {}}} {
+      upvar 1 $tap_ir_map ir_map
+      if {[array exists ir_map]} {
+         set tap_list [array names ir_map]
+         foreach tap $tap_list {
+            set ir_name $ir_map($tap)
+            iNote "-INFO- Setting IR $ir_name of TAP $tap to BYPASS"
+            set ir_size [[get_tap_reg_size $ir_name]
+            set all_1_value [get_expanded_pattern_bin 1 $ir_size]
+            iWrite $ir_name 0b$all_1_value
+            iApply
+         }
+      }
+   }
+   
+   # Proc finds parent tap for the specified tap instance
+   proc get_tap_parent {tap_inst {tap_ir_map {}}} {
+      upvar 1 $tap_ir_map ir_map
+      set all_taps {}
+      if {[array exists ir_map]} {
+         set all_taps [array names ir_map]
+      } else {
+         iNote "-ERROR- No list of available TAPs is provided"
+         return {}
+      }
+      if {$tap_inst eq "."} {
+         return {}
+      }
+      set tms_pins [get_icl_pins -of_instances $tap_inst -function tms -silent]
+      set tms_pins_num [sizeof_collection $tms_pins]
+      if {$tms_pins_num == 1} {
+         # trace loop limit
+         set cnt_max 10
+         set cnt 0
+         set is_found 0
+         set found_tap {}
+         while {!$is_found && ($cnt<$cnt_max)} {
+            set tms_pin [get_single_name [get_icl_fanin [index_collection $tms_pins 0] -stop_on pin -silent]]
+            # check for top level port
+            if {[lindex [get_attribute_value_list $tms_pin -name base_name] 0] eq ""} {
+               break
+            }
+   	      set inst_name [get_attribute_value_list $tms_pin -name base_name]
+            foreach tap $all_taps {
+               if {([regexp "^$tap$|^$tap\\."  $inst_name]) && !([regexp "^$tap$|^$tap\\."  $tap_inst])} {
+                  set found_tap $tap
+                  set is_found 1
+               }
+            }
+            incr cnt 1
+         }
+         if {$is_found} {
+            iNote "-INFO- TAP $found_tap is parent of TAP $tap_inst"
+            return $found_tap
+         } elseif {$cnt == $cnt_max} {
+            iNote "-WARN- No parent found for TAP $tap_inst (reached max trace depth $cnt_max)"
+            return {}
+         } else {
+            iNote "-WARN- No parent found for TAP $tap_inst"
+            return {}
+         }
+      } elseif {$tms_pins_num == 0} {
+         iNote "-ERROR- No TMSPort found for TAP $tap_inst"
+      } else {
+         iNote "-ERROR- Multiple ($$tms_pins_num) TMSPorts found for TAP $tap_inst"
+      }
+   }
+   
+   # Proc creates hash with child->parent tap mapping
+   # FIXME can be optimized by not using get_tap_parent
+   proc map_tap_parents {tap_parent_map {tap_ir_map {}}} {
+      upvar 1 $tap_ir_map ir_map
+      upvar 1 $tap_parent_map parent_map
+      set all_taps {}
+      if {[array exists ir_map]} {
+         set all_taps [array names ir_map]
+      } else {
+         iNote "-ERROR- No list of available TAPs is provided"
+         return
+      }
+      if {![array exists parent_map]} {
+         iNote "-ERROR- No array to populate is provided"
+         return
+      }
+      foreach tap $all_taps {
+         set parent [get_tap_parent $tap ir_map]
+         if {$parent ne ""} {
+            set parent_map($tap) $parent 
+         } else {
+            iNote "-WARN- No parent TAP found for TAP $tap"
+         }
+      }
+   }
+   
+   # Proc returns ordered list of TAP parents (first is immediate parent)
+   proc tap_get_parents {tap_inst tap_parent_map} {
+      upvar 1 $tap_parent_map parent_map
+      set parent_list {}
+      set tap $tap_inst
+      while {[info exists parent_map($tap)]} {
+         set tap $parent_map($tap)
+         lappend parent_list $tap
+      }
+      return $parent_list
+   }
+   
+   # Proc returns ordered list of TAPs above the specified one
+   # FIXME: can be optimized
+   proc tap_get_parents_all {tap_inst tap_parent_map} {
+      upvar 1 $tap_parent_map parent_map
+      set parent_list {}
+      set all_taps [array names parent_map]
+      set tap $tap_inst
+      while {[info exists parent_map($tap)]} {
+         set parent_tap $parent_map($tap)
+         lappend parent_list $parent_tap
+         # skip first parent
+         if {$tap ne $tap_inst} {
+            foreach t $all_taps {
+               if {($t ne $tap) && ($parent_map($t) eq $parent_tap)} {
+                  lappend parent_list $t
+               }
+            }
+         }
+         set tap $parent_tap
+      }
+      return $parent_list
+   }
+   
+   # Proc sets BYPASS opcodes (all 1s, no iApply!) to the IR of all parent TAPs
+   proc iwrite_no_iapply_bypass_ir_all_parents {tap_inst {tap_ir_map {}} {tap_parent_map {}}} {
+      upvar 1 $tap_ir_map ir_map
+      upvar 1 $tap_parent_map parent_map
+      if {[array exists ir_map] && [array exists parent_map]} {
+         set parrent_list [tap_get_parents_all $tap_inst parent_map]
+         foreach tap $parrent_list {
+            set ir_name $ir_map($tap)
+            #iNote "-INFO- Setting IR $ir_name of TAP $tap to BYPASS"
+            set ir_size [get_tap_reg_size $ir_name]
+            set all_1_value [get_expanded_pattern_bin 1 $ir_size]
+            iWrite $ir_name 0b$all_1_value
+         }
+      }
+   }
+   
+   # Proc sets BYPASS DR (no iApply!) to the IR of all parent TAPs
+   proc iwrite_no_iapply_bypass_dr_all_parents {tap_inst {tap_parent_map {}}} {
+      upvar 1 $tap_parent_map parent_map
+      if {[array exists ir_map] && [array exists parent_map]} {
+         set parrent_list [tap_get_parents_all $tap_inst parent_map]
+         foreach tap $parrent_list {
+            iWrite $tap.BYPASS 0b0
+         }
+      }
+   }
+   
+   # prog sets seed for generator of random numbers
+   proc set_seed {seed} {
+      expr { srand($seed) }
+   }
+   
+   # proc generates random bin value of the required size
+   proc get_random_value_bin {size} {
+      set value {}
+      for {set i 0} {$i < $size} {incr i} {
+          if {rand() > 0.5} {
+             append value 1
+          } else {
+             append value 0
+          }
+      }
+      return $value
+   }
+   
+   # proc returns list of the aliases for the specified register
+   proc get_reg_alias_list {reg} {
+      if {[get_attribute_value_list $reg -name object_type] ne "icl_scan_register"} {
+          iNote "-WARN- $reg is not a ScanRegister object"
+          return {}
+      }
+      set inst_path {}
+      set is_bus   [get_attribute_value_list $reg -name is_bus]
+      set reg_name [get_single_name [get_attribute_value_list $reg -name name]]
+      if {$is_bus eq "true"} {
+         set bus_name  [get_attribute_value_list $reg -name bus_name]
+         set reg_name [regsub "(.*\\\.$bus_name)\\\[.*" $reg_name {\1}]
+         set inst_path [regsub "(.*)\\\.$bus_name" $reg_name {\1}]
+      } else {
+         set leaf_name [get_attribute_value_list $reg -name leaf_name]
+         set inst_path [regsub "(.*)\\\.$leaf_name" $reg_name {\1}]
+      }
+      set alias_list [get_icl_objects -object_type icl_alias -below_instance $inst_path -silent]
+      array set alias_hash {}
+      if {[sizeof_collection $alias_list]} {
+         foreach_in_collection alias $alias_list {
+            set alias_name  [get_single_name $alias]
+            set ref_element [regsub "\\\[.*" [lindex [get_attribute_value_list $alias_name -name referenced_element] 0] {}]
+            set alias_name  [regsub "\\\[.*" $alias_name {}]
+            if {($ref_element eq $reg_name) && ![info exists alias_hash($alias_name)]} {
+               set alias_hash($alias_name) 0
+            }
+         }
+      }
+      return [array names alias_hash]
+   }
+   
+   # proc returns size of the specified reg field alias
+   proc get_tap_dr_field_size {alias} {
+      # if the list, take just first alias
+      if {[lindex [get_attribute_value_list $alias -name object_type] 0] ne "icl_alias"} {
+          iNote "-ERROR- $alias is not an Alias object"
+          return 0
+      }
+      set is_bus   [lindex [get_attribute_value_list $alias -name is_bus] 0]
+      if {$is_bus eq "true"} {
+         return [lindex [get_attribute_value_list $alias -name bus_width] 0]
+      } else {
+         return 1
+      }
+   }
+   
+   # proc returns size of the specified tap register
+   proc get_tap_reg_size {reg} {
+      set is_bus [get_attribute_value_list $reg -name is_bus]
+      if {$is_bus eq "true"} {
+         return [get_attribute_value_list $reg -name bus_width]
+      } else {
+         return 1
+      }  
+   }
+   
+   # proc returns expected locked (1, not accessible) or unlocked (0, accessible) status of the specified register
+   # based on comparison of the current security level (proc argument) and 
+   # security attribute of the register
+   # FIXME: support new polices
+   #              DELAYED_AUTHENTICATION_LOCKED (3)
+   #              ENDEBUG_UNLOCKED (6)
+   #              INFRARED_UNLOCKED (7)
+   #              DRAM_DEBUG_UNLOCKED (8)
+   # FIXME: check expected behaviour of OEM_UNLOCKED & USER* levels
+   proc is_tap_reg_locked {reg current_security} {
+   
+      set type [string trim $current_security]
+      set secure_policy 0;      # SECURITY_LOCKED
+   
+      if {$type eq "RED"} {
+         set secure_policy 2;   # SECURITY_UNLOCKED
+      } elseif {$type eq "RED4"} {
+         set secure_policy 4;   # INTEL_UNLOCKED
+      } elseif {$type eq "ORANGE"} {
+         set secure_policy 5;   # OEM_UNLOCKED
+      } elseif {$type eq "GREEN"} {
+         set secure_policy 0;      # SECURITY_LOCKED
+      } elseif {[string is entier $type]} {
+         set secure_policy [bin2dec $type]
+      } else { 
+         # locked - pessimistic from val point of view
+         iNote "-ERROR- Not recognized secure policy $type"
+         return 1
+      }
+   
+      set reg_name [get_single_name $reg]
+      set scan_reg_security [lindex [get_attribute_value_list $reg_name -name intel_TapOpcodeSecurityLevel -silent] 0]
+   
+      set inst_path {}
+      set is_bus   [get_attribute_value_list $reg -name is_bus]
+      if {$is_bus eq "true"} {
+         set bus_name  [get_attribute_value_list $reg -name bus_name]
+         set reg_name [regsub "(.*\\\.$bus_name)\\\[.*" $reg_name {\1}]
+         set inst_path [regsub "(.*)\\\.$bus_name" $reg_name {\1}]
+      } else {
+         set leaf_name [get_attribute_value_list $reg -name leaf_name]
+         set inst_path [regsub "(.*)\\\.$leaf_name" $reg_name {\1}]
+      }
+      
+      set inst_reg_security [lindex [get_attribute_value_list $inst_path -name intel_TapOpcodeSecurityLevel -silent] 0]
+   
+      if {($scan_reg_security eq {}) && ($inst_reg_security eq {})} {
+         # no security attribute, assume GREEN/accessible (pessimistic))
+         iNote "-ERROR- No security attribute found for register $reg_name, assuming GREEN/unlocked"
+         return -1
+      }
+      if {($scan_reg_security eq "SECURE_RED") || ($inst_reg_security eq "SECURE_RED") &&
+         ($scan_reg_security eq {}) || ($inst_reg_security eq {})} {
+         if {[lsearch {2 4 6 7} $secure_policy] >= 0} {
+            return 0
+         }
+      } elseif {($scan_reg_security eq "SECURE_ORANGE") || ($inst_reg_security eq "SECURE_ORANGE") &&
+             ($scan_reg_security eq {}) || ($inst_reg_security eq {})} {
+         # FIXME check USER* behaviour
+         if {[lsearch {5 8 9 10 11 12 13} $secure_policy] >= 0} {
+            return 0
+         }
+      } elseif {($scan_reg_security eq "SECURE_GREEN") || ($inst_reg_security eq "SECURE_GREEN") &&
+             ($scan_reg_security eq {}) || ($inst_reg_security eq {})} {
+         return 0
+      } else {
+         # FIXME: re-check 
+         # not recognized security attribute, assume GREEN
+         iNote "-ERROR- Not recognized or conflicting ScanRegister/Instance security attributes '$scan_reg_security'/'$inst_reg_security' for register $reg_name, assuming GREEN/unlocked"
+         return 0
+      }
+      return 1
+   }
+
+   # iWrite with security handling
+   proc iwrite_iapply_secure {reg value current_security tap_dr_map} {
+      upvar 1 $tap_dr_map dr_map
+      set locked_status [is_tap_reg_locked $reg $current_security]
+      if {$locked_status == 0} {
+         iWrite $reg $value
+      } elseif {$locked_status == 1} {
+         set tap $dr_map($reg)
+	 # FIXME doesn't work at the moment
+	 # Options to fix:
+	 #    1. TS API to LocalParameter (opcode)
+	 #    2. Change LocalParameter to Parameter
+	 #    3. Improve TS solver to keep opcodes <-
+	 #    4. extend iTake to implicit iWrite
+	 #    5. Add opcode attribute per reg instance <-
+         if {[sizeof_collection [get_icl_instances BYPASS_RSVD -below_instances $tap -silent]] == 0} {
+            iNote "-ERROR- \[iwrite_iapply_secure\] TAP $tap does not have BYPASS_RSVD register - skipping iWrite"
+         } else {
+	    iWrite $tap.BYPASS_RSVD.DR 0b1
+	 }
+      } elseif {$locked_status == -1} {
+         # no security 
+         iWrite $reg $value
+      } else {
+         iNote "-INFO- Not supported secure_locked status for register $reg: $locked_status"
+      }
+   }
+
+   # iWrite with security handling
+   proc iread_iapply_secure {reg exp_value current_security tap_dr_map} {
+      upvar 1 $tap_dr_map dr_map
+      set locked_status [is_tap_reg_locked $reg $current_security]
+      if {$locked_status == 0} {
+         iRead $reg $exp_value
+      } elseif {$locked_status == 1} {
+	 # FIXME doesn't work at the moment
+	 # see fix options above
+         set tap $dr_map($reg)
+         if {[sizeof_collection [get_icl_instances BYPASS_RSVD -below_instances $tap -silent]] == 0} {
+            iNote "-ERROR- \[iread_iapply_secure\] TAP $tap does not have BYPASS_RSVD register - skipping iWrite"
+         } else {
+	    iWrite $tap.BYPASS_RSVD.DR 0b1
+	 }
+      } elseif {$locked_status == -1} {
+         # no security 
+         iRead $reg $exp_value
+      } else {
+         iNote "-INFO- Not supported secure_locked status for register $reg: $locked_status"
+      }
+   }
+
+   # proc resets current configuration of TAP network through TAP accesses
+   proc collapse_tap_network_soft {tap_nw_regs {reg_name {}} {tap_dr_map {}} {tap_ir_map {}} {tap_parent_map {}}} {
+      upvar 1 $tap_dr_map dr_map
+      upvar 1 $tap_ir_map ir_map
+      upvar 1 $tap_parent_map parent_map
+      if {[sizeof_collection $tap_nw_regs] > 0} {
+         iNote "-INFO- Collapsing of TAP network - SOFT"
+	 if {[info exists dr_map($reg_name)]} {
+  	    set tap $dr_map($reg_name)
+            set parent_list [tap_get_parents $tap parent_map]
+	    lappend parent_list $tap
+            foreach_in_collection reg $tap_nw_regs {
+               set tap_sel_name [get_single_name $reg]
+               if {[lsearch $parent_list $dr_map($tap_sel_name)] >= 0} {
+	          iNote "-INFO- resetting register $tap_sel_name"
+                  iWrite $tap_sel_name 0b[get_attribute_value_list $reg -name reset_value]
+	       }
+            }
+            iApply
+	    # FIXME hardcoding
+	    iWrite cltap.BYPASS 0b1
+	    iApply
+         }
+      }
+   }
+}
+

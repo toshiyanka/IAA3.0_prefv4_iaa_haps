@@ -1,0 +1,39 @@
+#!/bin/csh
+
+source /p/com/env/psetup/prod/bin/setupTool vcsmx J-2014.12-SP1 
+source /p/com/env/psetup/prod/bin/setupTool vggnu 2011.12
+source /p/com/env/psetup/prod/bin/setupTool ace 2.02.28.01
+source /p/com/env/psetup/prod/bin/setupTool ovm 2.1.2_2
+source /p/com/env/psetup/prod/bin/setupTool saola v20150417
+source /p/com/env/psetup/prod/bin/setupTool verdi 2010.10
+
+setenv IP_ROOT `pwd` 
+setenv SIP_PROJECT ccu_vc
+setenv IPNAME $SIP_PROJECT
+
+setenv ACE_PROJECT ccu_vc
+setenv ACE_SINGLE_TOP_MODULE ACE_SINGLE_TOP_MODULE
+setenv ACE_PWA_DIR `basename $IP_ROOT`
+setenv ACE_ENG `dirname $IP_ROOT`
+setenv ACE_RC $IP_ROOT/ace/$ACE_PROJECT.acerc
+setenv VCS_VER `show_setup -v | sed 's/(eng)//'`
+setenv GCC_LIB_VER gcc-4.2.2_64
+
+setenv TCL       /p/cse/asic/tcl/x86-64_linux26/latest
+setenv CORAL     /p/cse/asic/coral/x86-64_linux26/2.23.3p2
+setenv SURF_HOME /p/cse/asic/surf/latest_sip
+setenv SURF_RC   /p/ccgda/GENERAL/sip/surf.rc
+setenv PATH      $SURF_HOME/scripts:$PATH
+
+setenv LD_LIBRARY_PATH "/p/com/eda/synopsys/vcsmx/${VCS_VER}/suse32/lib:$LD_LIBRARY_PATH"
+setenv VCS_VER ${VCS_VER}_suse32
+
+#setenv NBPOOL fm_vp
+#setenv NBQSLOT /CSG/Sunrisepnt-LP/VAL/clt 
+setenv NBCLASS SLES11_EM64T_2G_nosusp
+setenv NBPOOL fm_normal
+setenv NBQSLOT /EIG/PMC/RTL/pmc
+#setenv NBCLASS SLES10_EM64T_2G_nosusp
+#setenv NB_PROPERTIES "PROJECTNAME=Sunrise Point LP,ACTIVITY=RTL simulation,CLUSTER=pmc"
+
+exit 0

@@ -1,0 +1,527 @@
+## -------------------------------------------------------------------------
+## -- IP: <Name of the IP>
+## -- Target SoC Project: <Target SoC Project>
+## -- Author: <Authors>
+## -- Intel Proprietary
+## -- Copyright (C) YYYY Intel Corporation
+## -- All Rights Reserved
+##
+## <Information related to the UPF file>
+##
+## NOTE: Naming prefix used in the template is based on SoC DA Low Power Methodology Manual
+##
+## -------------------------------------------------------------------------
+
+upf_version 2.1
+
+## This is needed here in upf2.1 to set what applies_to actually applies to in terms of a PD bounary
+## IN UPF 1.0 is only upper boundary and we want to maintain that behavior with UPF2.+
+## https://hsdes.intel.com/resource/1409800925
+set_design_attributes -elements {.} -attribute lower_domain_boundary FALSE
+
+
+## Adding this command for the backward compatibility of Synopsys tools for the usage of both add_power_state and create_pst/add_pst
+## NOTE: DON'T USE this if PST is defined using add_power_state -logic_expr. Will result in errors.
+if {[info exists synopsys_program_name]} {
+set_design_attributes -elements {.} -attribute enable_state_propagation_in_add_power_state TRUE
+}
+
+## Adding this attribute so that Cadence tools treat lower domain boundary false; By default for 2.x, Cadence tools are applying ISO strategies to both the boundaries
+set_design_attributes -elements {.} -attribute domain_interface_def 1.0
+
+## -------------------------------------------------------------------------
+## Dynamically set <IP>_UPF_ROOT_DIR
+## -------------------------------------------------------------------------
+##
+## To greatly improve UPF portability, loads to configs and UPFs must be done relative to the current UPF
+## [file normalize [file dirname [info script]]] is a TCL command that returns the location of the UPF that is being parsed
+## All subsequent loads to configs and SIP UPFs are done relative to the <IP>_UPF_ROOT_DIR
+##
+## This can be used for subIP UPFs that are developed in the IP REPO
+## This can also be used for IP specific cfg
+
+set HQM_UPF_ROOT_DIR [file normalize [file dirname [info script]]]
+
+
+## -------------------------------------------------------------------------
+## Set IP_VARIATION and DUT
+## -------------------------------------------------------------------------
+## Values must also be provided in the integration guide
+## If not applicable, leave empty string for IP_VARIATION and DUT
+
+set IP_VARIATION <VALUE>
+set DUT <VALUE>
+
+
+## -------------------------------------------------------------------------
+## Load global config
+## -------------------------------------------------------------------------
+
+source $HQM_UPF_ROOT_DIR/global_upf.cfg
+
+## IPs can set HIP_UPF_ROOT_DIR in the LOCAL version of GLOBAL soc_upf.cfg
+## If it's not being set locally, then it should default to the relative location to the current UPF
+
+if { ![info exists HIP_UPF_ROOT_DIR] } {
+   set HIP_UPF_ROOT_DIR [file normalize [file dirname [info script]]]
+   ## Soft link all subIP UPFs into same directory as IP UPF
+}
+
+## -------------------------------------------------------------------------
+## Create IP specific cfg that will be used by SoC during integration (OPTIONAL)
+## -------------------------------------------------------------------------
+##
+## Nothing in this cfg can collide with soc_upf.cfg.
+## For program IP UPFs (number of supplies / different configuration) it has to be controlled by <IP>.cfg
+
+#source $<IP>_UPF_ROOT_DIR/cfg/<IP>.cfg
+
+##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++##
+## TYPE A: IP that is all in a single power domain
+##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++##
+
+
+## -------------------------------------------------------------------------
+##  Create Supply Ports and Nets
+## -------------------------------------------------------------------------
+##
+
+create_supply_port vcccfn -direction in
+create_supply_net  vcccfn 
+connect_supply_net vcccfn -ports vcccfn
+
+create_supply_port vss -direction in
+create_supply_net  vss
+connect_supply_net vss -ports vss
+
+create_supply_net vcccfn_gated
+
+## -------------------------------------------------------------------------
+##  Create Supply Sets
+## -------------------------------------------------------------------------
+create_supply_set ss_vcccfn       -function "power vcccfn"       -function "ground vss"
+create_supply_set ss_vcccfn_gated -function "power vcccfn_gated" -function "ground vss"
+
+#Additional supply sets corresponds to supply_nets have to be created
+#create_supply_set ss2_$SOC_<>
+
+## -------------------------------------------------------------------------
+## Create Default Domain
+## -------------------------------------------------------------------------
+if {[info exists __EMU] && $__EMU} {
+    # EMU doesn't like the . in the elements list or the -available_supplies switch or the null string
+    create_power_domain pd_vcccfn_island \
+        -include_scope \
+        -supply "primary ss_vcccfn"
+} else {
+    create_power_domain pd_vcccfn_island \
+        -elements {.} \
+        -supply "primary ss_vcccfn" \
+        -available_supplies ""
+}
+
+## Always gives available_supplies with null value. If power domain has only one net(i.e. primary) give -supply "primary supply_set" but if power domain has more than one nets create extra
+
+## -------------------------------------------------------------------------
+## Create Power States
+## -------------------------------------------------------------------------
+##
+#if {([info exists ::__<IP>_PST_ENABLE] && $::__<IP>_PST_ENABLE) || ([info exists ::__IP_PST_DISABLE_ALL] && !$::__IP_PST_DISABLE_ALL) || ![info exists ::__IP_PST_DISABLE_ALL]} {
+#    add_power_state ss_$SOC_<> -state "<IP>_${SOC_<>}_HV" "-supply_expr {power == {FULL_ON, $VCC_SUPPLY_HV}} -simstate NORMAL"
+#    add_power_state ss_$SOC_<> -state "<IP>_${SOC_<>}_LV" "-supply_expr {power == {FULL_ON, $VCC_SUPPLY_LV}} -simstate NORMAL"
+#    add_power_state ss_$SOC_<> -state "<IP>_${SOC_<>}_OFF" "-supply_expr {power == {OFF}} -simstate CORRUPT"
+#    add_power_state ss_$SOC_<> -state "GND" "-supply_expr {ground == {FULL_ON, $SOC_GROUND_NOM}} -simstate NORMAL"
+#}
+
+##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++##
+## END OF TYPE A
+##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++##
+
+
+## -------------------------------------------------------------------------
+## Load UPFs for HIP(Analog IP) children that have power intent defined for simulation
+## -------------------------------------------------------------------------
+if {[info exists __SIM] && $__SIM} {
+##
+## subIPs developed in the IP REPO (not applicable for HIPs)
+##
+    #load_upf " $<IP>_UPF_ROOT_DIR/<CHILD_NAME>.upf" -scope "<CHILD>"
+##
+## subIPs delivered via IP PACKAGE
+##
+
+## To avoid ambiguity of HIP version the following commands are recommended
+}
+
+##
+## Connect to HIP
+##
+#connect_supply_net ss_${SOC_<>}.power -ports <CHILD>/<PORT>
+#connect_supply_net ss_${SOC_<>}.ground -ports <CHILD>/<PORT>
+
+
+## -------------------------------------------------------------------------
+## Load UPFs for IP children that have power intent defined
+## -------------------------------------------------------------------------
+##
+## subIPs developed in the IP REPO
+##
+#load_upf " $<IP>_UPF_ROOT_DIR/<CHILD_NAME>.upf" -scope "<CHILD>"
+##
+## Connect to IP
+##
+#connect_supply_net ss_${SOC_<>}.power -ports <CHILD>/<PORT>
+#connect_supply_net ss_${SOC_<>}.ground -ports <CHILD>/<PORT>
+
+## -------------------------------------------------------------------------
+## Create additional Power Domains
+## -------------------------------------------------------------------------
+##
+## Please follow guidelines for hierarchy, number of power domains in IP per Power Arch, Design and Validation Guidelines
+## There can be multiple power domains inside IP, but only the default uses -include_scope
+## The element list can only contain 1 module, except in the case where memory co-location wrappers are used. 2 modules can be listed in the case of memory co-location wrappers.
+##
+
+if {[info exists __EMU] && $__EMU} {
+    # EMU doesn't like the -available_supplies switch or the null string
+    create_power_domain pd_vcccfn_gated_island \
+        -elements hqm_sip_gated_wrap \
+        -supply "primary ss_vcccfn_gated" \
+        -supply "supply_ungated ss_vcccfn"
+} else {
+    create_power_domain pd_vcccfn_gated_island \
+        -elements hqm_sip_gated_wrap \
+        -supply "primary ss_vcccfn_gated" \
+        -supply "supply_ungated ss_vcccfn" \
+        -available_supplies ""
+}
+
+## -------------------------------------------------------------------------
+## Enabling SIP to deliver single UPF with/without PGD
+## -------------------------------------------------------------------------
+## Some SIP choose to deliver a universal upf to cover scenario with or without power gated domain (which has a local power switch)
+## Thus, $::<IP>_DISABLE_PGD is used to guard pgd specific code
+## $::<IP>_DISABLE_PGD can be set differently per IP
+#if {([info exists ::<IP>_DISABLE_PGD] && !$::<IP>_DISABLE_PGD)} {
+# 	create_power_domain pd_<Name of power gated domain>	-elements {
+# 	<Hirerahicy of the elements that will be part of the additional Power Gated domain>
+#   	} -supply "primary ss_<>" -supply "supply_1 ss_<>"
+
+
+## -------------------------------------------------------------------------
+## Create Power Switch for controlling Power Gated Domain
+## NOTE: On/Off state condition provided is an example. Behavior is IP specific
+## NOTE: control and ack signals should be ports and should not be tied off
+## -------------------------------------------------------------------------
+
+
+## Create Power Switch (for discrete power switches, for macro switches/gates/LDO follow BMOD Power Intent guidelines)
+## Demonstrating here two separate usage of CPS, one for disabling CPS for EPG, and another for disabling CPS for DFT
+
+
+## Disabling CPS for EPG (embedded_power_gate) and PwrUp topologies. Also, providing capability to port out switched supply when PWR switch is enabled
+
+#create_supply_net ${SOC_SUPPLY_PORT}_EPG_gated
+#create_supply_set ss_${SOC_SUPPLY_PORT}_EPG_gated -function "power ${SOC_SUPPLY_PORT}_EPG_gated" -function "ground $SOC_GROUND"
+
+if {![info exists ::__EPG_DISABLE_PWR_SWITCH] || ( [info exists ::__EPG_DISABLE_PWR_SWITCH] && (!$::__EPG_DISABLE_PWR_SWITCH))} {
+
+  create_power_switch sw_vcccfn_gated_island  \
+    -domain                pd_vcccfn_gated_island \
+    -supply_set            ss_vcccfn \
+    -input_supply_port     "$PS_CELL_UNGATED_IN ss_vcccfn.power" \
+    -output_supply_port    "$PS_CELL_GATED_OUT  ss_vcccfn_gated.power" \
+    -control_port          "$PS_CELL_ENABLE  hqm_sip_aon_wrap_logic_pgcb_fet_en_b" \
+    -control_port          "$PS_CELL_ENABLE2 hqm_sip_aon_wrap_logic_pgcb_fet_en_b" \
+    -ack_port              "$PS_CELL_ACK par_logic_pgcb_fet_en_ack_b $PS_CELL_ENABLE" \
+    -on_state              "SW_ON  $PS_CELL_UNGATED_IN !($PS_CELL_ENABLE|$PS_CELL_ENABLE2)" \
+    -off_state             "SW_OFF                      ($PS_CELL_ENABLE|$PS_CELL_ENABLE2)"
+
+  if {![info exists ::__MAP_PWR_SWITCH_DISABLE] || ([info exists ::__MAP_PWR_SWITCH_DISABLE] && !$::__MAP_PWR_SWITCH_DISABLE)} {
+
+   map_power_switch sw_vcccfn_gated_island \
+         -domain pd_vcccfn_gated_island \
+         -lib_cells ${PS_CELL}
+
+  }
+
+  #if {([info exists ::__PORT_IP_SWITCHED_SUPPLY] && $::__PORT_IP_SWITCHED_SUPPLY)} {
+  #    create_supply_port vcccfn_gated -direction out
+  #    connect_supply_net ss_vcccfn_gated.power -ports ss_vcccfn_gated
+  #}
+
+} elseif {[info exists ::__EPG_DISABLE_PWR_SWITCH] && $::__EPG_DISABLE_PWR_SWITCH} {
+
+   if {([info exists ::__PORT_IP_SWITCHED_SUPPLY] && $::__PORT_IP_SWITCHED_SUPPLY)} {
+       ## Disabled power switch, and provided output port for gated domain merging or PwrUp connectivity
+       create_supply_port vcccfn_gated -direction out
+   } else {
+       ## Disabled power switch, and created input port for EPG connectivity
+       create_supply_port vcccfn_gated -direction in
+   }
+   connect_supply_net ss_vcccfn_gated.power -ports vcccnf_gated
+}
+#add_power_state
+#if {([info exists ::__<IP>_PST_ENABLE] && $::__<IP>_PST_ENABLE) || ([info exists ::__IP_PST_DISABLE_ALL] && !$::__IP_PST_DISABLE_ALL) || ![info exists ::__IP_PST_DISABLE_ALL]} {
+#   add_power_state ss_${SOC_SUPPLY_PORT}_EPG_gated -state "<IP>_<NAME OF GATED DOMAIN ON STATE>" "-supply_expr {power == {FULL_ON, $SOC_SUPPLY_NOM}} -simstate NORMAL"
+#   add_power_state ss_${SOC_SUPPLY_PORT}_EPG_gated -state "<IP>_<NAME OF GATED DOMAIN OFF STATE>" "-supply_expr {power == {OFF}} -simstate CORRUPT"
+
+#}
+
+
+### Disabling CPS for DFT integration
+#create_supply_net $(SOC_SUPPLY_PORT)_DFT_gated
+#create_supply_set ss_${SOC_SUPPLY_PORT}_DFT_gated -function "power $(SOC_SUPPLY_PORT)_DFT_gated" -function "ground $SOC_GROUND"
+#
+# if {![info exists ::__DFT_DISABLE_PWR_SWITCH] || ([info exists ::__DFT_DISABLE_PWR_SWITCH] && (!$::__DFT_DISABLE_PWR_SWITCH))} {
+#  create_power_switch sw_<Name of the switch> \
+#  	 -domain                pd_<Name of the power gated domain> \
+#  	 -input_supply_port     "$PS_CELL_UNGATED_IN pd_<Name of power gated domain>.supply_1.power" \
+#  	 -output_supply_port    "$PS_CELL_GATED_OUT  pd_<Name of power gated domain>.primary.power" \
+#  	 -control_port          "$PS_CELL_ENABLE <Hierarchical path relative to -power_top/load_upf to control signal of PFET>" \
+#  	 -ack_port              "$PS_CELL_ACK <Hierarchical path to ack port> $PS_CELL_ENABLE" \
+#  	 -on_state              "SW_ON   $PS_CELL_UNGATED_IN  \"!$PS_CELL_ENABLE\"" \
+#  	 -off_state             "SW_OFF  \"$PS_CELL_ENABLE\""
+#  if {![info exists ::__MAP_PWR_SWITCH_DISABLE] || ([info exists ::__MAP_PWR_SWITCH_DISABLE] && !$::__MAP_PWR_SWITCH_DISABLE)} {
+#   map_power_switch sw_<Name of the switch> \
+#    	  -domain pd_<Name of the power gated domain> \
+#  	  -lib_cells ${PS_CELL}
+#  }
+#
+#} elesif {[info exists ::__DFT_DISABLE_PWR_SWITCH] && ($::__DFT_DISABLE_PWR_SWITCH)} {
+#   ## Disabled power switch, and provided output port for gated domain merging or PwrUp connectivity
+#   if {([info exists ::__PORT_IP_SWITCHED_SUPPLY] && $::__PORT_IP_SWITCHED_SUPPLY)} {
+#       create_supply_port ${SOC_SUPPLY_PORT}_DFT_gated -direction out
+#   } else {
+#       create_supply_port ${SOC_SUPPLY_PORT}_DFT_gated -direction in
+#   }
+#   connect_supply_net ss_${SOC_SUPPLY_PORT}_DFT_gated.power -ports ${SOC_SUPPLY_PORT}_DFT_gated
+#
+# }
+#  if {([info exists ::__<IP>_PST_ENABLE] && $::__<IP>_PST_ENABLE) || ([info exists ::__IP_PST_DISABLE_ALL] && !$::__IP_PST_DISABLE_ALL) || ![info exists ::__IP_PST_DISABLE_ALL]} {
+#   ##add power states
+#   add_power_state ss_${SOC_SUPPLY_PORT}_DFT_gated -state "<IP>_<NAME OF GATED DOMAIN ON STATE>" "-supply_expr {power == {FULL_ON, $SOC_SUPPLY_NOM}} -simstate NORMAL"
+#   add_power_state ss_${SOC_SUPPLY_PORT}_DFT_gated -state "<IP>_<NAME OF GATED DOMAIN OFF STATE>" "-supply_expr {power == {OFF}} -simstate CORRUPT"
+#
+#  }
+#
+#}
+
+
+## -------------------------------------------------------------------------
+## Isolation strategies are shown below
+## These strategies are required whenever multiple supply crossings exist
+## -------------------------------------------------------------------------
+##
+## -------------------------------------------------------------------------
+## Define isolation strategies
+## Isolation strategies for clamp 1 and 0 need to be separated out
+##
+## NOTE: Each set_isolation and set_isolation_control is considered a pair and
+##       carry the same isolation strategy name
+##
+## -------------------------------------------------------------------------
+##
+## Only clamp 0 isolation is shown for brevity. Coding style will be the same for clamp 1 as well.
+## map_isolation_cell and set_isolation_control are not required for UPF 2.1
+## DC will automatically pick the correct clamp 0 isolation cells based on load and other factors
+## -update can be used add new elements
+## Clamp 0 Isolation Strategy
+source $HQM_UPF_ROOT_DIR/hqm_sip_upf_iso.cfg
+#source $<IP>_UPF_ROOT_DIR/<file name>_clamp0_iso.list
+#  set_isolation            i_clamp0_<isolation strategy name> \
+#      -domain               pd_<Name of the receiving or driving domain> \
+#      -elements             $<Name of the variable that contains element list from _iso.list file sourced> \
+#      -isolation_supply_set <This supply set is AON supply> \
+#      -clamp_value          <clamp value to be used>
+#      -isolation_signal     <path relative to -power_top/load_upf to isolation control signal> \
+#      -isolation_sense      low \
+#      -location             $SOC_ISOLATION_CELL_LOCATION
+
+## Clamp 1 Isolation Strategy -- This might not exist for all IP
+#source $<IP>_UPF_ROOT_DIR/<file name>_clamp1_iso.list
+#  set_isolation             i_clamp1_<isolation strategy name> \
+#      -domain               pd_<Name of the receiving or driving domain> \
+#      -elements             $<Name of the variable that contains element list from _iso.list file sourced> \
+#      -isolation_supply_set <This supply set is AON supply> \
+#      -clamp_value          <clamp value to be used>
+#      -isolation_signal     <path relative to -power_top/load_upf to isolation control signal> \
+#      -isolation_sense      low \
+
+## Clock Isolation Strategy
+## Few projects does not require separate clock isolation strategies since RDT has been enhanced to perform the non-CLK to CLK cell swap automatically
+#source $<IP>_UPF_ROOT_DIR/<file name>_clk_iso.list
+#  set_isolation             i_clk_<isolation strategy name> \
+#      -domain               pd_<Name of RF gated domain> \
+#      -elements             $<Name of the variable that contains element list from _iso.list file sourced> \
+#      -isolation_supply_set <This supply set is AON supply> \
+#      -clamp_value          <clamp value to be used>
+#      -isolation_signal     <path relative to -power_top/load_upf to isolation control signal> \
+#      -isolation_sense      low \
+#      -location             $SOC_ISOLATION_CELL_LOCATION
+
+
+##NOTE: Explicit connect_supply_net command for level shifter is only required if it is a custom block.
+##
+## Connect to LS
+##
+## Connect the driver supply to vcc_in
+## Connect the receiver supply to vcc_out
+##
+## A template standard cells have main_rail = vcc_out
+## B template standard cells have main_rail = vcc_in
+## Be sure to choose the correct template to match the main rail supply and the primary supply of the power domain where LS will be inserted
+##connect_supply_net ss_${SOC_<>}.power -ports <LS_INSTANCE>/vcc_in
+##connect_supply_net ss_${SOC_<>}.power -ports <LS_INSTANCE>/vcc_out
+##connect_supply_net ss_${SOC_<>}.ground -ports <LS_INSTANCE>/vss
+##
+## -------------------------------------------------------------------------
+## Handling of structs for VCS-NLP/Spyglass-LP/DC/Emulation
+##
+## Please refer this documentation for Struct Handling: https://securewiki.ith.intel.com/download/attachments/188326355/Struct%20Handling.pptx?version=1&modificationDate=1448883408637&api=v2
+
+## -------------------------------------------------------------------------
+## Retention strategies, if any for the power gated domain
+## Mapping of flop SR or latch SR is automatically done by DC based on flop/latch
+## inferred functionality from the logic.
+## map_retention_cell is needed for DC to accurately map.
+## This requirement is for retention cells does not apply to all other strategies
+## NOTE: -save_signal and -restore_signal should be the same signal.
+## -update can be used add new elements
+## -------------------------------------------------------------------------
+
+#if {([info exists ::<IP>_DISABLE_PGD] && !$<IP>_DISABLE_PGD)} {
+#    source $<IP>_UPF_ROOT_DIR/<file name>_sr.list
+#	set_retention              sr_<Name of retention strategy> \
+#     	-domain                pd_<Name of the power gated domain> \
+#     	-retention_supply_set  ss_${SOC_SUPPLY_PORT} \
+#     	-elements              $<Name of the variable that contains a list of flops/latches output signal names>
+#        -save_signal           {<hierarchical path relative to -power_top/load_upf to SLEEP control signal low} \
+#        -restore_signal        {<hierarchical path relative to -power_top/load_upf to SLEEP control signal high}
+
+## PLEASE NOTE: Due to a DC limitation all elements inside the element list of set_retention need to use \
+##     -elements             {
+##        <mypath>/myunit1/myflop1 \
+##        <mypath>/myunit1/myflop2 \
+##        <mypath>/myunit2/myflop1 \
+##        <mypath>/myunit2/myflop2 \
+##     }
+
+# map_retention_cell        sr_<Name of the retention strategy> \
+#     -domain               pd_<Name of power gated domain> \
+#     -lib_cells            <CHOOSE FROM AVAILABILITY IN soc_upf.cfg>
+#  }
+
+## -------------------------------------------------------------------------
+
+
+##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++##
+## END OF TYPE B
+##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++##
+
+add_power_state ss_vcccfn               -state ps_vcccfn_HV         "-supply_expr {power  == `{FULL_ON, $VCC_SUPPLY_HV}} -simstate NORMAL"
+add_power_state ss_vcccfn       -update -state ps_vcccfn_LV         "-supply_expr {power  == `{FULL_ON, $VCC_SUPPLY_LV}} -simstate NORMAL"
+add_power_state ss_vcccfn       -update -state ps_vcccfn_OFF        "-supply_expr {power  == `{OFF}}                     -simstate CORRUPT"
+
+add_power_state ss_vcccfn_gated         -state ps_vcccfn_gated_HV   "-supply_expr {power  == `{FULL_ON, $VCC_SUPPLY_HV}} -simstate NORMAL"
+add_power_state ss_vcccfn_gated -update -state ps_vcccfn_gated_LV   "-supply_expr {power  == `{FULL_ON, $VCC_SUPPLY_LV}} -simstate NORMAL"
+add_power_state ss_vcccfn_gated -update -state ps_vcccfn_gated_OFF  "-supply_expr {power  == `{OFF}}                     -simstate CORRUPT"
+
+add_power_state ss_vcccfn       -update -state ps_vss               "-supply_expr {ground == `{FULL_ON, $VSS_GROUND}}    -simstate NORMAL"
+
+
+create_pst                   pst_hqm -supplies {ss_vcccfn.power ss_vcccfn_gated.power ss_vcccfn.ground}
+
+add_pst_state hqm_pst1  -pst pst_hqm -state    {ps_vcccfn_HV    ps_vcccfn_gated_HV    ps_vss}
+add_pst_state hqm_pst2  -pst pst_hqm -state    {ps_vcccfn_HV    ps_vcccfn_gated_OFF   ps_vss}
+add_pst_state hqm_pst3  -pst pst_hqm -state    {ps_vcccfn_LV    ps_vcccfn_gated_LV    ps_vss}
+add_pst_state hqm_pst4  -pst pst_hqm -state    {ps_vcccfn_LV    ps_vcccfn_gated_OFF   ps_vss}
+add_pst_state hqm_pst5  -pst pst_hqm -state    {ps_vcccfn_OFF   ps_vcccfn_gated_OFF   ps_vss}
+
+# Add in CORRUPT_STATE_ON_CHANGE to enable V-Retention
+#if {[info exists __SIM] && $__SIM} {
+#    # CORRUPT_STATE_ON_CHANGE commands for each power domain
+#    add_power_state "<Name of power domain1>.primary" -state <IP>_<supply1>_vret "-supply_expr {power == `{FULL_ON, <PROJECT_V_RET_VOLTAGE>}} -simstate CORRUPT_STATE_ON_CHANGE"
+#    add_power_state "<Name of power domain2>.primary" -state <IP>_<supply2>_vret "-supply_expr {power == `{FULL_ON, <PROJECT_V_RET_VOLTAGE>}} -simstate CORRUPT_STATE_ON_CHANGE"
+#}
+
+## -------------------------------------------------------------------------
+## Define Power State Table
+## Model architectural states : supply sequencing and power modes
+## Model structural states : level shifter and isolation inference
+## The PST Table can be defined using either of create_pst/add_pst or add_power_state -logic_expr
+## Both the way of writing is demonstrated below. Do not use both ways together.
+## NOTE: Make sure to define the "enable_state_propagation_in_add_power_state" attribute in the top while using create_pst/add_pst.
+## -------------------------------------------------------------------------
+#if {([info exists ::__<IP>_PST_ENABLE] && $::__<IP>_PST_ENABLE) || ([info exists ::__IP_PST_DISABLE_ALL] && !$::__IP_PST_DISABLE_ALL) || ![info exists ::__IP_PST_DISABLE_ALL]} {
+#    create_pst pst_<IP> -supplies     "ss_$SOC_<>.power ... ss_$SOC_<>.ground"
+#    add_pst_state <IP>_<Name of Power Mode> -state    { <port states as captured> } -pst pst_<IP>
+#    add_pst_state <IP>_<Name of Power Mode> -state    { <port states as captured> } -pst pst_<IP>
+#}
+
+## NOTE : Regarding <IP>_DISABLE_PGD
+## This variable is for SIPs that would like to deliver a single UPF for configuration with/without PGD
+## For these SIPs, PGD specific code has to be guarded by <IP>_DISABLE_PGD
+## <IP>_DISABLE_PGD is set per IP per integration
+##
+## Create necessary states to capture power states and supply sequencing
+##
+#if {([info exists ::<IP>_DISABLE_PGD] && $::<IP>_DISABLE_PGD)} {
+#    create_pst pst_<IP> -supplies     "ss_$SOC_<>.power ... ss_$SOC_<>.ground"
+#    add_pst_state <IP>_<Name of Power Mode> -state    { <port states as captured> } -pst pst_<IP>
+# } else {
+#    create_pst pst_<IP> -supplies     "ss_$SOC_<>.power ... ss_$SOC_<>.ground"
+#    add_pst_state <IP>_<Name of Power Mode> -state    { <port states as captured> } -pst pst_<IP>
+# }
+
+## NOTE: Regarding integrating CMO type RFs with the internal supply logically ported for PST inclusion
+## Refer this documentation for more details: https://securewiki.ith.intel.com/download/attachments/737509730/UPFRequirementsforRFswithGatedSupplies.pdf
+
+## -------------------------------------------------------------------------
+## VCS specific constructs to disable assertions and re-initialize initial blocks in BMODs
+## Use SNPS_assertion_control KILL to disable assertions in RTL when an associated domain is powered down.
+## Use SNPS_reinit on instances or power domains that contain EBB/IO blocks.
+## -------------------------------------------------------------------------
+if {[info exists __SIM] && $__SIM} {
+
+ if {[info exists __EMU] && $__EMU} {
+
+ } else {
+
+  set_design_attributes -attribute SNPS_assertion_control KILL
+
+  set_design_attributes -elements {pd_vcccfn_island pd_vcccfn_gated_island} -attribute SNPS_reinit TRUE
+
+ }
+
+}
+
+## -------------------------------------------------------------------------
+## set_port_attributes (SRSN)
+## SRSNs are required for all IO that is not related to the primary supply of the default domain
+
+#if {![info exists ::__IP_SRSN_DISABLE] || ([info exists ::__IP_SRSN_DISABLE] && !$::__IP_SRSN_DISABLE)} {
+## Generally port name will be input port name for driver supply But for blackbox user can assign receiver supply to input ports
+#   set_port_attributes -driver_supply ss_<> -ports "port name"
+## Generally port name will be output port name for receiver supply But for blackbox user can assign driver supply to output ports
+#   set_port_attributes -receiver_supply ss_<> -ports "port name"
+## Defining clamp value for isolation strategies
+#   set_port_attributes -ports <> -clamp_value <0/1>
+#}
+
+source ${HQM_UPF_ROOT_DIR}/hqm_sip_port_attributes_upf.tcl
+
+## ------------------------------------------------------------------------
+## find_objects usage Guidelines
+## find_objects can be used as a replacement for elements list.
+## For specifying elements list in create_power_domain, set_isolation, set_retention or set_level_shifter, find_objects can be used.
+## It can also be used to specify ports list in connect_supply_net.
+
+#find_objects <scope> -pattern <search_pattern> -object_type <inst/port/net> -direction <in/out> -transitive <TRUE/FALSE>
+
+## Eg.: create_power_domain pd_<> -supply ... -elements [find_objects . -pattern <pattern> -object_type inst -transitive TRUE]
+## For specifying search pattern, wildcards (* and ?), \x (matches character x) can be used. Do not use other regex patterns like [a-z].
+## NOTE: For set_port_attributes, usage of find_objects is not advisable.
+
+## -------------------------------------------------------------------------
+

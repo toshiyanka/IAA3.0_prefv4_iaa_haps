@@ -1,0 +1,52 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => ["+AW_CONTINUE_ON_ERROR", "+iosf_tracker_filename=iosf_trk", 
+                     "-assert nopostproc", "+HQMS_DEBUG +HQMI_DEBUG +hqm_ral_rand_bus_id=1 +HQM_PCIE_RC_VIP_PRESENT", 
+                     "+hqm_pcie_init_stim_config::mode=sciov",
+                     "+HQM_EXP_PASID_ERROR",
+                     "+hqm_pcie_init_stim_config::skip_msi_cfg=1",
+                     "+vcs+lic+wait",
+
+                     "+SLA_USER_DATA_PHASE_TIMEOUT=800000",
+                    ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+      sec_3_1_3 => { -simv_args => [ ], },
+      sec_7_5_3_15 => { -simv_args => [ ], },
+      stress_p_np_target => { -simv_args => ["+PASID_EN_AER_ERROR=3",  
+                                             "+HQM_IOSF_SETGNTGAP +HQM_IOSF_EN_ORDERINGRULES +HQM_IOSF_GNT_DLY_MIN=200 +HQM_IOSF_GNT_DLY_MAX=300",
+                                             "+HQM_IOSF_EN_RAND_CLKACKDLY +HQM_IOSF_CLK_ACK_DLY_MAX=10",
+                                            ], },
+      aer_ur_mrd => { -simv_args => [
+                                          "+PASID_EN_AER_ERROR=1  +EXP_UNWANTED_TXN_TO_HQM", "+hqm_pcie_init_stim_config::anfes_mask=0", "+HQM_PF_EXP_CORR_MSG_CNT=1", ], },
+      aer_poison_mwr => { -simv_args => [ 
+                                          "+PASID_EN_AER_ERROR=2", "+hqm_pcie_init_stim_config::ptlpr_sev=1",  "+HQM_PF_EXP_FATAL_MSG_CNT=1",   ], },
+      ##------------------------------------------------------------##
+      ##  Agitations 
+      ##------------------------------------------------------------##
+      agitate_fri => {
+          -simv_args => [
+                     "-debug_all -ucli +vcs+dumparrays +HQM_DISABLE_AGITIATE_ASSERT -i aceroot/verif/tb/hqm_proc/tests/agitate/agitate_fri.tcl", 
+                        ],
+      },      
+      agitate_cfg => {
+          -simv_args => [
+                     "-debug_all -ucli +vcs+dumparrays +HQM_DISABLE_AGITIATE_ASSERT -i aceroot/verif/tb/hqm_proc/tests/agitate/agitate_cfg.tcl", 
+                        ],
+      },                   
+      agitate_sys => {
+          -simv_args => [
+                     "-debug_all -ucli +vcs+dumparrays +HQM_DISABLE_AGITIATE_ASSERT -i aceroot/verif/tb/hqm_proc/tests/agitate/agitate_sys.tcl", 
+                        ],
+      },
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

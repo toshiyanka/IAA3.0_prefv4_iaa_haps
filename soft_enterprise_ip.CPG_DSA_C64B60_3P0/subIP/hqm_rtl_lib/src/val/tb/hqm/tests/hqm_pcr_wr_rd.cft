@@ -1,0 +1,809 @@
+###################################
+# include hqm_vf_enable.cft : #####
+###################################
+# Simmer!
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable PF memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+###################################
+# Setup FUNC_VF BAR to a base address of 0x00000003_xxxxxxxx
+###################################
+# 16 VF
+###################################
+# Enable VF and VF memory operations
+###################################
+# Poll the config_master.cfg_diagnostic_reset_status register
+#  until it has a value indicating that all of the hardware
+#  reset initialization writes have completed. 
+#poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+
+rd config_master.cfg_pm_pmcsr_disable.disable 0x0
+
+#poll to Wait for reset to be done
+poll config_master.cfg_diagnostic_reset_status 0x80000bff 0x80000bff 500
+#poll to Wait for unit_idle to be done
+poll config_master.cfg_diagnostic_idle_status 0x0007ffff 0x0007ffff 500
+###################################
+##### hqm_vf_enable.cft EOT #######
+###################################
+# Write - Read  - Restore CP registers
+#sai6 0x00
+SAI 0x01
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO  0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI  0x0000_0400
+###################################
+#sai6 0x01
+SAI 0x03
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO  0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI  0x0000_0400
+###################################
+#sai6 0x02
+SAI 0x05
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO  0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI  0x0000_0400
+###################################
+#sai6 0x03
+SAI 0x07
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x01000218
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x01000218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x00000400
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x00000400
+###################################
+#sai6 0x04
+SAI 0x09
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x00000010
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x01000218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x00000400
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x00000400
+###################################
+#sai6 0x05
+SAI 0x0b
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+###################################
+#sai6 0x06
+SAI 0x0d
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+###################################
+#sai6 0x07
+SAI 0x0f
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+###################################
+#sai6 0x08
+SAI 0x10
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+###################################
+#sai6 0x09
+SAI 0x12
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x01000218
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x01000218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x00000400
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x00000400
+###################################
+#sai6 0x0a
+SAI 0x14
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+###################################
+#sai6 0x0b
+SAI 0x16
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+###################################
+#sai6 0x0c
+SAI 0x18
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+###################################
+#sai6 0x0d
+SAI 0x1a
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+###################################
+#sai6 0x0e
+SAI 0x1c
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+###################################
+#sai6 0x0f
+SAI 0x1e
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+###################################
+#sai6 0x10
+SAI 0x20
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+###################################
+#sai6 0x11
+SAI 0x22
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+###################################
+#sai6 0x12
+SAI 0x24
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+###################################
+#sai6 0x13
+SAI 0x26
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+###################################
+#sai6 0x14
+SAI 0x28
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+###################################
+#sai6 0x15
+SAI 0x2a
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+###################################
+#sai6 0x16
+SAI 0x2c
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+###################################
+#sai6 0x17
+SAI 0x2e
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+###################################
+#sai6 0x18
+SAI 0x30
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x00000000
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x00000000
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x01000218
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x01000218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x00000400
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x00000400
+###################################
+#sai6 0x19
+SAI 0x32
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+###################################
+#sai6 0x1a
+SAI 0x34
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+###################################
+#sai6 0x1b
+SAI 0x36
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO  0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI  0x0000_0400
+###################################
+#sai6 0x1c
+SAI 0x38
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+###################################
+#sai6 0x1d
+SAI 0x3a
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+###################################
+#sai6 0x1e
+SAI 0x3c
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+###################################
+#sai6 0x1f
+SAI 0x3e
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO  0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI  0x0000_0400
+###################################
+#sai6 0x20
+SAI 0x40
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO  0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI  0x0000_0400
+###################################
+#sai6 0x21
+SAI 0x42
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+###################################
+#sai6 0x22
+SAI 0x44
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+###################################
+#sai6 0x23
+SAI 0x46
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO  0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI  0x0000_0400
+###################################
+#sai6 0x24
+SAI 0x48
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO  0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI  0x0000_0400
+###################################
+#sai6 0x25
+SAI 0x4a
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO  0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI  0x0000_0400
+###################################
+#sai6 0x26
+SAI 0x4c
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO  0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI  0x0000_0400
+###################################
+#sai6 0x27
+SAI 0x4e
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO  0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI  0x0000_0400
+###################################
+#sai6 0x28
+SAI 0x50
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO  0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI  0x0000_0400
+###################################
+#sai6 0x29
+SAI 0x52
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO  0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI  0x0000_0400
+###################################
+#sai6 0x2a
+SAI 0x54
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x00000000
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x00000000
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x01000218
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x01000218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x00000000
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x00000000
+wr hqm_sif_csr.HQM_CSR_CP_LO  0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_HI  0x0000_0400
+###################################
+#sai6 0x2b
+SAI 0x56
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO  0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI  0x0000_0400
+###################################
+#sai6 0x2c
+SAI 0x58
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO  0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI  0x0000_0400
+###################################
+#sai6 0x2d
+SAI 0x5a
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO  0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI  0x0000_0400
+###################################
+#sai6 0x2e
+SAI 0x5c
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO  0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI  0x0000_0400
+###################################
+#sai6 0x2f
+SAI 0x5e
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO  0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI  0x0000_0400
+###################################
+#sai6 0x30
+SAI 0x60
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO  0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI  0x0000_0400
+###################################
+#sai6 0x31
+SAI 0x62
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO  0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI  0x0000_0400
+###################################
+#sai6 0x32
+SAI 0x64
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO  0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI  0x0000_0400
+###################################
+#sai6 0x33
+SAI 0x66
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO  0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI  0x0000_0400
+###################################
+#sai6 0x34
+SAI 0x68
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO  0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI  0x0000_0400
+###################################
+#sai6 0x35
+SAI 0x6a
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO  0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI  0x0000_0400
+###################################
+#sai6 0x36
+SAI 0x6c
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO  0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI  0x0000_0400
+###################################
+#sai6 0x37
+SAI 0x6e
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO  0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI  0x0000_0400
+###################################
+#sai6 0x38
+SAI 0x70
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO  0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI  0x0000_0400
+###################################
+#sai6 0x39
+SAI 0x72
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO  0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI  0x0000_0400
+###################################
+#sai6 0x3a
+SAI 0x74
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+###################################
+#sai6 0x3b
+SAI 0x76
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+###################################
+#sai6 0x3c
+SAI 0x78
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+###################################
+#sai6 0x3d
+SAI 0x7a
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+###################################
+#sai6 0x3e
+SAI 0x7c
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+###################################
+#sai6 0x3f
+SAI 0x00
+wr hqm_sif_csr.HQM_CSR_CP_LO 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0xffffffff
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+wr hqm_sif_csr.HQM_CSR_CP_LO 0x0
+rd hqm_sif_csr.HQM_CSR_CP_LO 0x0100_0218
+wr hqm_sif_csr.HQM_CSR_CP_HI 0x0
+rd hqm_sif_csr.HQM_CSR_CP_HI 0x0000_0400
+###################################
+############### EOT ###############

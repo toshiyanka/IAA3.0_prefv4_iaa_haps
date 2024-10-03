@@ -1,0 +1,6186 @@
+module hqm_sip_gated_wrap (
+  ap_alarm_down_v,
+  ap_alarm_up_ready,
+  ap_aqed_ready,
+  ap_aqed_v,
+  ap_cfg_req_down_read,
+  ap_cfg_req_down_write,
+  ap_cfg_rsp_down_ack,
+  ap_reset_done,
+  ap_unit_idle,
+  ap_unit_pipeidle,
+  aqed_alarm_down_v,
+  aqed_ap_enq_ready,
+  aqed_ap_enq_v,
+  aqed_cfg_req_down,
+  aqed_cfg_req_down_read,
+  aqed_cfg_req_down_write,
+  aqed_cfg_rsp_down,
+  aqed_cfg_rsp_down_ack,
+  aqed_chp_sch_ready,
+  aqed_chp_sch_v,
+  aqed_lsp_sch_ready,
+  aqed_lsp_sch_v,
+  aqed_reset_done,
+  aqed_unit_idle,
+  aqed_unit_pipeidle,
+  chp_alarm_up_ready,
+  chp_cfg_req_down_read,
+  chp_cfg_req_down_write,
+  chp_cfg_rsp_down_ack,
+  chp_lsp_cmp_ready,
+  chp_lsp_cmp_v,
+  chp_lsp_token_ready,
+  chp_lsp_token_v,
+  chp_reset_done,
+  chp_rop_hcw_ready,
+  chp_rop_hcw_v,
+  chp_unit_idle,
+  chp_unit_pipeidle,
+  cwdi_interrupt_w_req_ready,
+  cwdi_interrupt_w_req_valid,
+  dp_lsp_enq_dir_ready,
+  dp_lsp_enq_dir_v,
+  dp_lsp_enq_rorply_ready,
+  dp_lsp_enq_rorply_v,
+  dp_reset_done,
+  dp_unit_idle,
+  dp_unit_pipeidle,
+  fscan_byprst_b,
+  fscan_clkungate,
+  fscan_rstbypen,
+  hcw_enq_in_data,
+  hcw_enq_in_ready,
+  hcw_enq_in_v,
+  hcw_enq_w_req_ready,
+  hcw_enq_w_req_valid,
+  hcw_sched_w_req_ready,
+  hcw_sched_w_req_valid,
+  hqm_alarm_ready,
+  hqm_alarm_v,
+  hqm_clk_enable,
+  hqm_clk_rptr_rst_b,
+  hqm_clk_trunk,
+  hqm_clk_ungate,
+  hqm_flr_prep,
+  hqm_gated_local_override,
+  hqm_gated_rst_b,
+  hqm_proc_clk_en_chp,
+  hqm_proc_clk_en_dir,
+  hqm_proc_clk_en_lsp,
+  hqm_proc_clk_en_nalb,
+  hqm_proc_clk_en_qed,
+  hqm_proc_clk_en_sys,
+  hqm_proc_reset_done_sync_hqm,
+  hqm_system_visa_str,
+  i_hqm_aqed_pipe_aqed_lsp_deq_v,
+  i_hqm_aqed_pipe_bcam_AW_bcam_2048x26_cclk,
+  i_hqm_aqed_pipe_bcam_AW_bcam_2048x26_cdata,
+  i_hqm_aqed_pipe_bcam_AW_bcam_2048x26_ce,
+  i_hqm_aqed_pipe_bcam_AW_bcam_2048x26_cmatch,
+  i_hqm_aqed_pipe_bcam_AW_bcam_2048x26_dfx_clk,
+  i_hqm_aqed_pipe_bcam_AW_bcam_2048x26_raddr,
+  i_hqm_aqed_pipe_bcam_AW_bcam_2048x26_rclk,
+  i_hqm_aqed_pipe_bcam_AW_bcam_2048x26_rdata,
+  i_hqm_aqed_pipe_bcam_AW_bcam_2048x26_re,
+  i_hqm_aqed_pipe_bcam_AW_bcam_2048x26_waddr,
+  i_hqm_aqed_pipe_bcam_AW_bcam_2048x26_wclk,
+  i_hqm_aqed_pipe_bcam_AW_bcam_2048x26_wdata,
+  i_hqm_aqed_pipe_bcam_AW_bcam_2048x26_we,
+  i_hqm_aqed_pipe_rf_aqed_fid_cnt_raddr,
+  i_hqm_aqed_pipe_rf_aqed_fid_cnt_rclk,
+  i_hqm_aqed_pipe_rf_aqed_fid_cnt_rclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_fid_cnt_rdata,
+  i_hqm_aqed_pipe_rf_aqed_fid_cnt_re,
+  i_hqm_aqed_pipe_rf_aqed_fid_cnt_waddr,
+  i_hqm_aqed_pipe_rf_aqed_fid_cnt_wclk,
+  i_hqm_aqed_pipe_rf_aqed_fid_cnt_wclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_fid_cnt_wdata,
+  i_hqm_aqed_pipe_rf_aqed_fid_cnt_we,
+  i_hqm_aqed_pipe_rf_aqed_fifo_ap_aqed_raddr,
+  i_hqm_aqed_pipe_rf_aqed_fifo_ap_aqed_rclk,
+  i_hqm_aqed_pipe_rf_aqed_fifo_ap_aqed_rclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_fifo_ap_aqed_rdata,
+  i_hqm_aqed_pipe_rf_aqed_fifo_ap_aqed_re,
+  i_hqm_aqed_pipe_rf_aqed_fifo_ap_aqed_waddr,
+  i_hqm_aqed_pipe_rf_aqed_fifo_ap_aqed_wclk,
+  i_hqm_aqed_pipe_rf_aqed_fifo_ap_aqed_wclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_fifo_ap_aqed_wdata,
+  i_hqm_aqed_pipe_rf_aqed_fifo_ap_aqed_we,
+  i_hqm_aqed_pipe_rf_aqed_fifo_aqed_ap_enq_raddr,
+  i_hqm_aqed_pipe_rf_aqed_fifo_aqed_ap_enq_rclk,
+  i_hqm_aqed_pipe_rf_aqed_fifo_aqed_ap_enq_rclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_fifo_aqed_ap_enq_rdata,
+  i_hqm_aqed_pipe_rf_aqed_fifo_aqed_ap_enq_re,
+  i_hqm_aqed_pipe_rf_aqed_fifo_aqed_ap_enq_waddr,
+  i_hqm_aqed_pipe_rf_aqed_fifo_aqed_ap_enq_wclk,
+  i_hqm_aqed_pipe_rf_aqed_fifo_aqed_ap_enq_wclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_fifo_aqed_ap_enq_wdata,
+  i_hqm_aqed_pipe_rf_aqed_fifo_aqed_ap_enq_we,
+  i_hqm_aqed_pipe_rf_aqed_fifo_aqed_chp_sch_raddr,
+  i_hqm_aqed_pipe_rf_aqed_fifo_aqed_chp_sch_rclk,
+  i_hqm_aqed_pipe_rf_aqed_fifo_aqed_chp_sch_rclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_fifo_aqed_chp_sch_rdata,
+  i_hqm_aqed_pipe_rf_aqed_fifo_aqed_chp_sch_re,
+  i_hqm_aqed_pipe_rf_aqed_fifo_aqed_chp_sch_waddr,
+  i_hqm_aqed_pipe_rf_aqed_fifo_aqed_chp_sch_wclk,
+  i_hqm_aqed_pipe_rf_aqed_fifo_aqed_chp_sch_wclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_fifo_aqed_chp_sch_wdata,
+  i_hqm_aqed_pipe_rf_aqed_fifo_aqed_chp_sch_we,
+  i_hqm_aqed_pipe_rf_aqed_fifo_freelist_return_raddr,
+  i_hqm_aqed_pipe_rf_aqed_fifo_freelist_return_rclk,
+  i_hqm_aqed_pipe_rf_aqed_fifo_freelist_return_rclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_fifo_freelist_return_rdata,
+  i_hqm_aqed_pipe_rf_aqed_fifo_freelist_return_re,
+  i_hqm_aqed_pipe_rf_aqed_fifo_freelist_return_waddr,
+  i_hqm_aqed_pipe_rf_aqed_fifo_freelist_return_wclk,
+  i_hqm_aqed_pipe_rf_aqed_fifo_freelist_return_wclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_fifo_freelist_return_wdata,
+  i_hqm_aqed_pipe_rf_aqed_fifo_freelist_return_we,
+  i_hqm_aqed_pipe_rf_aqed_fifo_lsp_aqed_cmp_raddr,
+  i_hqm_aqed_pipe_rf_aqed_fifo_lsp_aqed_cmp_rclk,
+  i_hqm_aqed_pipe_rf_aqed_fifo_lsp_aqed_cmp_rclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_fifo_lsp_aqed_cmp_rdata,
+  i_hqm_aqed_pipe_rf_aqed_fifo_lsp_aqed_cmp_re,
+  i_hqm_aqed_pipe_rf_aqed_fifo_lsp_aqed_cmp_waddr,
+  i_hqm_aqed_pipe_rf_aqed_fifo_lsp_aqed_cmp_wclk,
+  i_hqm_aqed_pipe_rf_aqed_fifo_lsp_aqed_cmp_wclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_fifo_lsp_aqed_cmp_wdata,
+  i_hqm_aqed_pipe_rf_aqed_fifo_lsp_aqed_cmp_we,
+  i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_fid_raddr,
+  i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_fid_rclk,
+  i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_fid_rclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_fid_rdata,
+  i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_fid_re,
+  i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_fid_waddr,
+  i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_fid_wclk,
+  i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_fid_wclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_fid_wdata,
+  i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_fid_we,
+  i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_raddr,
+  i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_rclk,
+  i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_rclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_rdata,
+  i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_re,
+  i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_waddr,
+  i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_wclk,
+  i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_wclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_wdata,
+  i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_we,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri0_raddr,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri0_rclk,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri0_rclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri0_rdata,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri0_re,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri0_waddr,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri0_wclk,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri0_wclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri0_wdata,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri0_we,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri1_raddr,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri1_rclk,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri1_rclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri1_rdata,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri1_re,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri1_waddr,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri1_wclk,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri1_wclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri1_wdata,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri1_we,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri2_raddr,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri2_rclk,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri2_rclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri2_rdata,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri2_re,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri2_waddr,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri2_wclk,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri2_wclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri2_wdata,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri2_we,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri3_raddr,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri3_rclk,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri3_rclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri3_rdata,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri3_re,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri3_waddr,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri3_wclk,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri3_wclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri3_wdata,
+  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri3_we,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri0_raddr,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri0_rclk,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri0_rclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri0_rdata,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri0_re,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri0_waddr,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri0_wclk,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri0_wclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri0_wdata,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri0_we,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri1_raddr,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri1_rclk,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri1_rclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri1_rdata,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri1_re,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri1_waddr,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri1_wclk,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri1_wclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri1_wdata,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri1_we,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri2_raddr,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri2_rclk,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri2_rclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri2_rdata,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri2_re,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri2_waddr,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri2_wclk,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri2_wclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri2_wdata,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri2_we,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri3_raddr,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri3_rclk,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri3_rclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri3_rdata,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri3_re,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri3_waddr,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri3_wclk,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri3_wclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri3_wdata,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri3_we,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri0_raddr,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri0_rclk,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri0_rclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri0_rdata,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri0_re,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri0_waddr,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri0_wclk,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri0_wclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri0_wdata,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri0_we,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri1_raddr,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri1_rclk,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri1_rclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri1_rdata,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri1_re,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri1_waddr,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri1_wclk,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri1_wclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri1_wdata,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri1_we,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri2_raddr,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri2_rclk,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri2_rclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri2_rdata,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri2_re,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri2_waddr,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri2_wclk,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri2_wclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri2_wdata,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri2_we,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri3_raddr,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri3_rclk,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri3_rclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri3_rdata,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri3_re,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri3_waddr,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri3_wclk,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri3_wclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri3_wdata,
+  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri3_we,
+  i_hqm_aqed_pipe_rf_aqed_qid_cnt_raddr,
+  i_hqm_aqed_pipe_rf_aqed_qid_cnt_rclk,
+  i_hqm_aqed_pipe_rf_aqed_qid_cnt_rclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_qid_cnt_rdata,
+  i_hqm_aqed_pipe_rf_aqed_qid_cnt_re,
+  i_hqm_aqed_pipe_rf_aqed_qid_cnt_waddr,
+  i_hqm_aqed_pipe_rf_aqed_qid_cnt_wclk,
+  i_hqm_aqed_pipe_rf_aqed_qid_cnt_wclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_qid_cnt_wdata,
+  i_hqm_aqed_pipe_rf_aqed_qid_cnt_we,
+  i_hqm_aqed_pipe_rf_aqed_qid_fid_limit_raddr,
+  i_hqm_aqed_pipe_rf_aqed_qid_fid_limit_rclk,
+  i_hqm_aqed_pipe_rf_aqed_qid_fid_limit_rclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_qid_fid_limit_rdata,
+  i_hqm_aqed_pipe_rf_aqed_qid_fid_limit_re,
+  i_hqm_aqed_pipe_rf_aqed_qid_fid_limit_waddr,
+  i_hqm_aqed_pipe_rf_aqed_qid_fid_limit_wclk,
+  i_hqm_aqed_pipe_rf_aqed_qid_fid_limit_wclk_rst_n,
+  i_hqm_aqed_pipe_rf_aqed_qid_fid_limit_wdata,
+  i_hqm_aqed_pipe_rf_aqed_qid_fid_limit_we,
+  i_hqm_aqed_pipe_rf_rx_sync_qed_aqed_enq_raddr,
+  i_hqm_aqed_pipe_rf_rx_sync_qed_aqed_enq_rclk,
+  i_hqm_aqed_pipe_rf_rx_sync_qed_aqed_enq_rclk_rst_n,
+  i_hqm_aqed_pipe_rf_rx_sync_qed_aqed_enq_rdata,
+  i_hqm_aqed_pipe_rf_rx_sync_qed_aqed_enq_re,
+  i_hqm_aqed_pipe_rf_rx_sync_qed_aqed_enq_waddr,
+  i_hqm_aqed_pipe_rf_rx_sync_qed_aqed_enq_wclk,
+  i_hqm_aqed_pipe_rf_rx_sync_qed_aqed_enq_wclk_rst_n,
+  i_hqm_aqed_pipe_rf_rx_sync_qed_aqed_enq_wdata,
+  i_hqm_aqed_pipe_rf_rx_sync_qed_aqed_enq_we,
+  i_hqm_aqed_pipe_sr_aqed_addr,
+  i_hqm_aqed_pipe_sr_aqed_clk,
+  i_hqm_aqed_pipe_sr_aqed_clk_rst_n,
+  i_hqm_aqed_pipe_sr_aqed_freelist_addr,
+  i_hqm_aqed_pipe_sr_aqed_freelist_clk,
+  i_hqm_aqed_pipe_sr_aqed_freelist_clk_rst_n,
+  i_hqm_aqed_pipe_sr_aqed_freelist_rdata,
+  i_hqm_aqed_pipe_sr_aqed_freelist_re,
+  i_hqm_aqed_pipe_sr_aqed_freelist_wdata,
+  i_hqm_aqed_pipe_sr_aqed_freelist_we,
+  i_hqm_aqed_pipe_sr_aqed_ll_qe_hpnxt_addr,
+  i_hqm_aqed_pipe_sr_aqed_ll_qe_hpnxt_clk,
+  i_hqm_aqed_pipe_sr_aqed_ll_qe_hpnxt_clk_rst_n,
+  i_hqm_aqed_pipe_sr_aqed_ll_qe_hpnxt_rdata,
+  i_hqm_aqed_pipe_sr_aqed_ll_qe_hpnxt_re,
+  i_hqm_aqed_pipe_sr_aqed_ll_qe_hpnxt_wdata,
+  i_hqm_aqed_pipe_sr_aqed_ll_qe_hpnxt_we,
+  i_hqm_aqed_pipe_sr_aqed_rdata,
+  i_hqm_aqed_pipe_sr_aqed_re,
+  i_hqm_aqed_pipe_sr_aqed_wdata,
+  i_hqm_aqed_pipe_sr_aqed_we,
+  i_hqm_credit_hist_pipe_chp_cfg_req_down_1_0,
+  i_hqm_credit_hist_pipe_chp_cfg_rsp_down_5_4,
+  i_hqm_credit_hist_pipe_rf_aqed_chp_sch_rx_sync_mem_raddr,
+  i_hqm_credit_hist_pipe_rf_aqed_chp_sch_rx_sync_mem_rclk,
+  i_hqm_credit_hist_pipe_rf_aqed_chp_sch_rx_sync_mem_rclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_aqed_chp_sch_rx_sync_mem_rdata,
+  i_hqm_credit_hist_pipe_rf_aqed_chp_sch_rx_sync_mem_re,
+  i_hqm_credit_hist_pipe_rf_aqed_chp_sch_rx_sync_mem_waddr,
+  i_hqm_credit_hist_pipe_rf_aqed_chp_sch_rx_sync_mem_wclk,
+  i_hqm_credit_hist_pipe_rf_aqed_chp_sch_rx_sync_mem_wclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_aqed_chp_sch_rx_sync_mem_wdata,
+  i_hqm_credit_hist_pipe_rf_aqed_chp_sch_rx_sync_mem_we,
+  i_hqm_credit_hist_pipe_rf_chp_chp_rop_hcw_fifo_mem_raddr,
+  i_hqm_credit_hist_pipe_rf_chp_chp_rop_hcw_fifo_mem_rclk,
+  i_hqm_credit_hist_pipe_rf_chp_chp_rop_hcw_fifo_mem_rclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_chp_chp_rop_hcw_fifo_mem_rdata,
+  i_hqm_credit_hist_pipe_rf_chp_chp_rop_hcw_fifo_mem_re,
+  i_hqm_credit_hist_pipe_rf_chp_chp_rop_hcw_fifo_mem_waddr,
+  i_hqm_credit_hist_pipe_rf_chp_chp_rop_hcw_fifo_mem_wclk,
+  i_hqm_credit_hist_pipe_rf_chp_chp_rop_hcw_fifo_mem_wclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_chp_chp_rop_hcw_fifo_mem_wdata,
+  i_hqm_credit_hist_pipe_rf_chp_chp_rop_hcw_fifo_mem_we,
+  i_hqm_credit_hist_pipe_rf_chp_lsp_ap_cmp_fifo_mem_raddr,
+  i_hqm_credit_hist_pipe_rf_chp_lsp_ap_cmp_fifo_mem_rclk,
+  i_hqm_credit_hist_pipe_rf_chp_lsp_ap_cmp_fifo_mem_rclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_chp_lsp_ap_cmp_fifo_mem_rdata,
+  i_hqm_credit_hist_pipe_rf_chp_lsp_ap_cmp_fifo_mem_re,
+  i_hqm_credit_hist_pipe_rf_chp_lsp_ap_cmp_fifo_mem_waddr,
+  i_hqm_credit_hist_pipe_rf_chp_lsp_ap_cmp_fifo_mem_wclk,
+  i_hqm_credit_hist_pipe_rf_chp_lsp_ap_cmp_fifo_mem_wclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_chp_lsp_ap_cmp_fifo_mem_wdata,
+  i_hqm_credit_hist_pipe_rf_chp_lsp_ap_cmp_fifo_mem_we,
+  i_hqm_credit_hist_pipe_rf_chp_lsp_tok_fifo_mem_raddr,
+  i_hqm_credit_hist_pipe_rf_chp_lsp_tok_fifo_mem_rclk,
+  i_hqm_credit_hist_pipe_rf_chp_lsp_tok_fifo_mem_rclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_chp_lsp_tok_fifo_mem_rdata,
+  i_hqm_credit_hist_pipe_rf_chp_lsp_tok_fifo_mem_re,
+  i_hqm_credit_hist_pipe_rf_chp_lsp_tok_fifo_mem_waddr,
+  i_hqm_credit_hist_pipe_rf_chp_lsp_tok_fifo_mem_wclk,
+  i_hqm_credit_hist_pipe_rf_chp_lsp_tok_fifo_mem_wclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_chp_lsp_tok_fifo_mem_wdata,
+  i_hqm_credit_hist_pipe_rf_chp_lsp_tok_fifo_mem_we,
+  i_hqm_credit_hist_pipe_rf_chp_sys_tx_fifo_mem_raddr,
+  i_hqm_credit_hist_pipe_rf_chp_sys_tx_fifo_mem_rclk,
+  i_hqm_credit_hist_pipe_rf_chp_sys_tx_fifo_mem_rclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_chp_sys_tx_fifo_mem_rdata,
+  i_hqm_credit_hist_pipe_rf_chp_sys_tx_fifo_mem_re,
+  i_hqm_credit_hist_pipe_rf_chp_sys_tx_fifo_mem_waddr,
+  i_hqm_credit_hist_pipe_rf_chp_sys_tx_fifo_mem_wclk,
+  i_hqm_credit_hist_pipe_rf_chp_sys_tx_fifo_mem_wclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_chp_sys_tx_fifo_mem_wdata,
+  i_hqm_credit_hist_pipe_rf_chp_sys_tx_fifo_mem_we,
+  i_hqm_credit_hist_pipe_rf_cmp_id_chk_enbl_mem_raddr,
+  i_hqm_credit_hist_pipe_rf_cmp_id_chk_enbl_mem_rclk,
+  i_hqm_credit_hist_pipe_rf_cmp_id_chk_enbl_mem_rclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_cmp_id_chk_enbl_mem_rdata,
+  i_hqm_credit_hist_pipe_rf_cmp_id_chk_enbl_mem_re,
+  i_hqm_credit_hist_pipe_rf_cmp_id_chk_enbl_mem_waddr,
+  i_hqm_credit_hist_pipe_rf_cmp_id_chk_enbl_mem_wclk,
+  i_hqm_credit_hist_pipe_rf_cmp_id_chk_enbl_mem_wclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_cmp_id_chk_enbl_mem_wdata,
+  i_hqm_credit_hist_pipe_rf_cmp_id_chk_enbl_mem_we,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_dir_mem_raddr,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_dir_mem_rclk,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_dir_mem_rclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_dir_mem_rdata,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_dir_mem_re,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_dir_mem_waddr,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_dir_mem_wclk,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_dir_mem_wclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_dir_mem_wdata,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_dir_mem_we,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_ldb_mem_raddr,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_ldb_mem_rclk,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_ldb_mem_rclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_ldb_mem_rdata,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_ldb_mem_re,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_ldb_mem_waddr,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_ldb_mem_wclk,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_ldb_mem_wclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_ldb_mem_wdata,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_ldb_mem_we,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_dir_mem_raddr,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_dir_mem_rclk,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_dir_mem_rclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_dir_mem_rdata,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_dir_mem_re,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_dir_mem_waddr,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_dir_mem_wclk,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_dir_mem_wclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_dir_mem_wdata,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_dir_mem_we,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_ldb_mem_raddr,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_ldb_mem_rclk,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_ldb_mem_rclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_ldb_mem_rdata,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_ldb_mem_re,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_ldb_mem_waddr,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_ldb_mem_wclk,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_ldb_mem_wclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_ldb_mem_wdata,
+  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_ldb_mem_we,
+  i_hqm_credit_hist_pipe_rf_dir_cq_depth_raddr,
+  i_hqm_credit_hist_pipe_rf_dir_cq_depth_rclk,
+  i_hqm_credit_hist_pipe_rf_dir_cq_depth_rclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_dir_cq_depth_rdata,
+  i_hqm_credit_hist_pipe_rf_dir_cq_depth_re,
+  i_hqm_credit_hist_pipe_rf_dir_cq_depth_waddr,
+  i_hqm_credit_hist_pipe_rf_dir_cq_depth_wclk,
+  i_hqm_credit_hist_pipe_rf_dir_cq_depth_wclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_dir_cq_depth_wdata,
+  i_hqm_credit_hist_pipe_rf_dir_cq_depth_we,
+  i_hqm_credit_hist_pipe_rf_dir_cq_intr_thresh_raddr,
+  i_hqm_credit_hist_pipe_rf_dir_cq_intr_thresh_rclk,
+  i_hqm_credit_hist_pipe_rf_dir_cq_intr_thresh_rclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_dir_cq_intr_thresh_rdata,
+  i_hqm_credit_hist_pipe_rf_dir_cq_intr_thresh_re,
+  i_hqm_credit_hist_pipe_rf_dir_cq_intr_thresh_waddr,
+  i_hqm_credit_hist_pipe_rf_dir_cq_intr_thresh_wclk,
+  i_hqm_credit_hist_pipe_rf_dir_cq_intr_thresh_wclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_dir_cq_intr_thresh_wdata,
+  i_hqm_credit_hist_pipe_rf_dir_cq_intr_thresh_we,
+  i_hqm_credit_hist_pipe_rf_dir_cq_token_depth_select_raddr,
+  i_hqm_credit_hist_pipe_rf_dir_cq_token_depth_select_rclk,
+  i_hqm_credit_hist_pipe_rf_dir_cq_token_depth_select_rclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_dir_cq_token_depth_select_rdata,
+  i_hqm_credit_hist_pipe_rf_dir_cq_token_depth_select_re,
+  i_hqm_credit_hist_pipe_rf_dir_cq_token_depth_select_waddr,
+  i_hqm_credit_hist_pipe_rf_dir_cq_token_depth_select_wclk,
+  i_hqm_credit_hist_pipe_rf_dir_cq_token_depth_select_wclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_dir_cq_token_depth_select_wdata,
+  i_hqm_credit_hist_pipe_rf_dir_cq_token_depth_select_we,
+  i_hqm_credit_hist_pipe_rf_dir_cq_wptr_raddr,
+  i_hqm_credit_hist_pipe_rf_dir_cq_wptr_rclk,
+  i_hqm_credit_hist_pipe_rf_dir_cq_wptr_rclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_dir_cq_wptr_rdata,
+  i_hqm_credit_hist_pipe_rf_dir_cq_wptr_re,
+  i_hqm_credit_hist_pipe_rf_dir_cq_wptr_waddr,
+  i_hqm_credit_hist_pipe_rf_dir_cq_wptr_wclk,
+  i_hqm_credit_hist_pipe_rf_dir_cq_wptr_wclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_dir_cq_wptr_wdata,
+  i_hqm_credit_hist_pipe_rf_dir_cq_wptr_we,
+  i_hqm_credit_hist_pipe_rf_hcw_enq_w_rx_sync_mem_raddr,
+  i_hqm_credit_hist_pipe_rf_hcw_enq_w_rx_sync_mem_rclk,
+  i_hqm_credit_hist_pipe_rf_hcw_enq_w_rx_sync_mem_rclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_hcw_enq_w_rx_sync_mem_rdata,
+  i_hqm_credit_hist_pipe_rf_hcw_enq_w_rx_sync_mem_re,
+  i_hqm_credit_hist_pipe_rf_hcw_enq_w_rx_sync_mem_waddr,
+  i_hqm_credit_hist_pipe_rf_hcw_enq_w_rx_sync_mem_wclk,
+  i_hqm_credit_hist_pipe_rf_hcw_enq_w_rx_sync_mem_wclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_hcw_enq_w_rx_sync_mem_wdata,
+  i_hqm_credit_hist_pipe_rf_hcw_enq_w_rx_sync_mem_we,
+  i_hqm_credit_hist_pipe_rf_hist_list_a_minmax_raddr,
+  i_hqm_credit_hist_pipe_rf_hist_list_a_minmax_rclk,
+  i_hqm_credit_hist_pipe_rf_hist_list_a_minmax_rclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_hist_list_a_minmax_rdata,
+  i_hqm_credit_hist_pipe_rf_hist_list_a_minmax_re,
+  i_hqm_credit_hist_pipe_rf_hist_list_a_minmax_waddr,
+  i_hqm_credit_hist_pipe_rf_hist_list_a_minmax_wclk,
+  i_hqm_credit_hist_pipe_rf_hist_list_a_minmax_wclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_hist_list_a_minmax_wdata,
+  i_hqm_credit_hist_pipe_rf_hist_list_a_minmax_we,
+  i_hqm_credit_hist_pipe_rf_hist_list_a_ptr_raddr,
+  i_hqm_credit_hist_pipe_rf_hist_list_a_ptr_rclk,
+  i_hqm_credit_hist_pipe_rf_hist_list_a_ptr_rclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_hist_list_a_ptr_rdata,
+  i_hqm_credit_hist_pipe_rf_hist_list_a_ptr_re,
+  i_hqm_credit_hist_pipe_rf_hist_list_a_ptr_waddr,
+  i_hqm_credit_hist_pipe_rf_hist_list_a_ptr_wclk,
+  i_hqm_credit_hist_pipe_rf_hist_list_a_ptr_wclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_hist_list_a_ptr_wdata,
+  i_hqm_credit_hist_pipe_rf_hist_list_a_ptr_we,
+  i_hqm_credit_hist_pipe_rf_hist_list_minmax_raddr,
+  i_hqm_credit_hist_pipe_rf_hist_list_minmax_rclk,
+  i_hqm_credit_hist_pipe_rf_hist_list_minmax_rclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_hist_list_minmax_rdata,
+  i_hqm_credit_hist_pipe_rf_hist_list_minmax_re,
+  i_hqm_credit_hist_pipe_rf_hist_list_minmax_waddr,
+  i_hqm_credit_hist_pipe_rf_hist_list_minmax_wclk,
+  i_hqm_credit_hist_pipe_rf_hist_list_minmax_wclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_hist_list_minmax_wdata,
+  i_hqm_credit_hist_pipe_rf_hist_list_minmax_we,
+  i_hqm_credit_hist_pipe_rf_hist_list_ptr_raddr,
+  i_hqm_credit_hist_pipe_rf_hist_list_ptr_rclk,
+  i_hqm_credit_hist_pipe_rf_hist_list_ptr_rclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_hist_list_ptr_rdata,
+  i_hqm_credit_hist_pipe_rf_hist_list_ptr_re,
+  i_hqm_credit_hist_pipe_rf_hist_list_ptr_waddr,
+  i_hqm_credit_hist_pipe_rf_hist_list_ptr_wclk,
+  i_hqm_credit_hist_pipe_rf_hist_list_ptr_wclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_hist_list_ptr_wdata,
+  i_hqm_credit_hist_pipe_rf_hist_list_ptr_we,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_depth_raddr,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_depth_rclk,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_depth_rclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_depth_rdata,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_depth_re,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_depth_waddr,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_depth_wclk,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_depth_wclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_depth_wdata,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_depth_we,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_intr_thresh_raddr,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_intr_thresh_rclk,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_intr_thresh_rclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_intr_thresh_rdata,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_intr_thresh_re,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_intr_thresh_waddr,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_intr_thresh_wclk,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_intr_thresh_wclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_intr_thresh_wdata,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_intr_thresh_we,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_on_off_threshold_raddr,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_on_off_threshold_rclk,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_on_off_threshold_rclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_on_off_threshold_rdata,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_on_off_threshold_re,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_on_off_threshold_waddr,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_on_off_threshold_wclk,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_on_off_threshold_wclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_on_off_threshold_wdata,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_on_off_threshold_we,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_token_depth_select_raddr,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_token_depth_select_rclk,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_token_depth_select_rclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_token_depth_select_rdata,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_token_depth_select_re,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_token_depth_select_waddr,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_token_depth_select_wclk,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_token_depth_select_wclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_token_depth_select_wdata,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_token_depth_select_we,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_wptr_raddr,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_wptr_rclk,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_wptr_rclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_wptr_rdata,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_wptr_re,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_wptr_waddr,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_wptr_wclk,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_wptr_wclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_wptr_wdata,
+  i_hqm_credit_hist_pipe_rf_ldb_cq_wptr_we,
+  i_hqm_credit_hist_pipe_rf_ord_qid_sn_map_raddr,
+  i_hqm_credit_hist_pipe_rf_ord_qid_sn_map_rclk,
+  i_hqm_credit_hist_pipe_rf_ord_qid_sn_map_rclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_ord_qid_sn_map_rdata,
+  i_hqm_credit_hist_pipe_rf_ord_qid_sn_map_re,
+  i_hqm_credit_hist_pipe_rf_ord_qid_sn_map_waddr,
+  i_hqm_credit_hist_pipe_rf_ord_qid_sn_map_wclk,
+  i_hqm_credit_hist_pipe_rf_ord_qid_sn_map_wclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_ord_qid_sn_map_wdata,
+  i_hqm_credit_hist_pipe_rf_ord_qid_sn_map_we,
+  i_hqm_credit_hist_pipe_rf_ord_qid_sn_raddr,
+  i_hqm_credit_hist_pipe_rf_ord_qid_sn_rclk,
+  i_hqm_credit_hist_pipe_rf_ord_qid_sn_rclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_ord_qid_sn_rdata,
+  i_hqm_credit_hist_pipe_rf_ord_qid_sn_re,
+  i_hqm_credit_hist_pipe_rf_ord_qid_sn_waddr,
+  i_hqm_credit_hist_pipe_rf_ord_qid_sn_wclk,
+  i_hqm_credit_hist_pipe_rf_ord_qid_sn_wclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_ord_qid_sn_wdata,
+  i_hqm_credit_hist_pipe_rf_ord_qid_sn_we,
+  i_hqm_credit_hist_pipe_rf_outbound_hcw_fifo_mem_raddr,
+  i_hqm_credit_hist_pipe_rf_outbound_hcw_fifo_mem_rclk,
+  i_hqm_credit_hist_pipe_rf_outbound_hcw_fifo_mem_rclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_outbound_hcw_fifo_mem_rdata,
+  i_hqm_credit_hist_pipe_rf_outbound_hcw_fifo_mem_re,
+  i_hqm_credit_hist_pipe_rf_outbound_hcw_fifo_mem_waddr,
+  i_hqm_credit_hist_pipe_rf_outbound_hcw_fifo_mem_wclk,
+  i_hqm_credit_hist_pipe_rf_outbound_hcw_fifo_mem_wclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_outbound_hcw_fifo_mem_wdata,
+  i_hqm_credit_hist_pipe_rf_outbound_hcw_fifo_mem_we,
+  i_hqm_credit_hist_pipe_rf_qed_chp_sch_flid_ret_rx_sync_mem_raddr,
+  i_hqm_credit_hist_pipe_rf_qed_chp_sch_flid_ret_rx_sync_mem_rclk,
+  i_hqm_credit_hist_pipe_rf_qed_chp_sch_flid_ret_rx_sync_mem_rclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_qed_chp_sch_flid_ret_rx_sync_mem_rdata,
+  i_hqm_credit_hist_pipe_rf_qed_chp_sch_flid_ret_rx_sync_mem_re,
+  i_hqm_credit_hist_pipe_rf_qed_chp_sch_flid_ret_rx_sync_mem_waddr,
+  i_hqm_credit_hist_pipe_rf_qed_chp_sch_flid_ret_rx_sync_mem_wclk,
+  i_hqm_credit_hist_pipe_rf_qed_chp_sch_flid_ret_rx_sync_mem_wclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_qed_chp_sch_flid_ret_rx_sync_mem_wdata,
+  i_hqm_credit_hist_pipe_rf_qed_chp_sch_flid_ret_rx_sync_mem_we,
+  i_hqm_credit_hist_pipe_rf_qed_chp_sch_rx_sync_mem_raddr,
+  i_hqm_credit_hist_pipe_rf_qed_chp_sch_rx_sync_mem_rclk,
+  i_hqm_credit_hist_pipe_rf_qed_chp_sch_rx_sync_mem_rclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_qed_chp_sch_rx_sync_mem_rdata,
+  i_hqm_credit_hist_pipe_rf_qed_chp_sch_rx_sync_mem_re,
+  i_hqm_credit_hist_pipe_rf_qed_chp_sch_rx_sync_mem_waddr,
+  i_hqm_credit_hist_pipe_rf_qed_chp_sch_rx_sync_mem_wclk,
+  i_hqm_credit_hist_pipe_rf_qed_chp_sch_rx_sync_mem_wclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_qed_chp_sch_rx_sync_mem_wdata,
+  i_hqm_credit_hist_pipe_rf_qed_chp_sch_rx_sync_mem_we,
+  i_hqm_credit_hist_pipe_rf_qed_to_cq_fifo_mem_raddr,
+  i_hqm_credit_hist_pipe_rf_qed_to_cq_fifo_mem_rclk,
+  i_hqm_credit_hist_pipe_rf_qed_to_cq_fifo_mem_rclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_qed_to_cq_fifo_mem_rdata,
+  i_hqm_credit_hist_pipe_rf_qed_to_cq_fifo_mem_re,
+  i_hqm_credit_hist_pipe_rf_qed_to_cq_fifo_mem_waddr,
+  i_hqm_credit_hist_pipe_rf_qed_to_cq_fifo_mem_wclk,
+  i_hqm_credit_hist_pipe_rf_qed_to_cq_fifo_mem_wclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_qed_to_cq_fifo_mem_wdata,
+  i_hqm_credit_hist_pipe_rf_qed_to_cq_fifo_mem_we,
+  i_hqm_credit_hist_pipe_rf_threshold_r_pipe_dir_mem_raddr,
+  i_hqm_credit_hist_pipe_rf_threshold_r_pipe_dir_mem_rclk,
+  i_hqm_credit_hist_pipe_rf_threshold_r_pipe_dir_mem_rclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_threshold_r_pipe_dir_mem_rdata,
+  i_hqm_credit_hist_pipe_rf_threshold_r_pipe_dir_mem_re,
+  i_hqm_credit_hist_pipe_rf_threshold_r_pipe_dir_mem_waddr,
+  i_hqm_credit_hist_pipe_rf_threshold_r_pipe_dir_mem_wclk,
+  i_hqm_credit_hist_pipe_rf_threshold_r_pipe_dir_mem_wclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_threshold_r_pipe_dir_mem_wdata,
+  i_hqm_credit_hist_pipe_rf_threshold_r_pipe_dir_mem_we,
+  i_hqm_credit_hist_pipe_rf_threshold_r_pipe_ldb_mem_raddr,
+  i_hqm_credit_hist_pipe_rf_threshold_r_pipe_ldb_mem_rclk,
+  i_hqm_credit_hist_pipe_rf_threshold_r_pipe_ldb_mem_rclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_threshold_r_pipe_ldb_mem_rdata,
+  i_hqm_credit_hist_pipe_rf_threshold_r_pipe_ldb_mem_re,
+  i_hqm_credit_hist_pipe_rf_threshold_r_pipe_ldb_mem_waddr,
+  i_hqm_credit_hist_pipe_rf_threshold_r_pipe_ldb_mem_wclk,
+  i_hqm_credit_hist_pipe_rf_threshold_r_pipe_ldb_mem_wclk_rst_n,
+  i_hqm_credit_hist_pipe_rf_threshold_r_pipe_ldb_mem_wdata,
+  i_hqm_credit_hist_pipe_rf_threshold_r_pipe_ldb_mem_we,
+  i_hqm_credit_hist_pipe_sr_freelist_0_addr,
+  i_hqm_credit_hist_pipe_sr_freelist_0_clk,
+  i_hqm_credit_hist_pipe_sr_freelist_0_clk_rst_n,
+  i_hqm_credit_hist_pipe_sr_freelist_0_rdata,
+  i_hqm_credit_hist_pipe_sr_freelist_0_re,
+  i_hqm_credit_hist_pipe_sr_freelist_0_wdata,
+  i_hqm_credit_hist_pipe_sr_freelist_0_we,
+  i_hqm_credit_hist_pipe_sr_freelist_1_addr,
+  i_hqm_credit_hist_pipe_sr_freelist_1_clk,
+  i_hqm_credit_hist_pipe_sr_freelist_1_clk_rst_n,
+  i_hqm_credit_hist_pipe_sr_freelist_1_rdata,
+  i_hqm_credit_hist_pipe_sr_freelist_1_re,
+  i_hqm_credit_hist_pipe_sr_freelist_1_wdata,
+  i_hqm_credit_hist_pipe_sr_freelist_1_we,
+  i_hqm_credit_hist_pipe_sr_freelist_2_addr,
+  i_hqm_credit_hist_pipe_sr_freelist_2_clk,
+  i_hqm_credit_hist_pipe_sr_freelist_2_clk_rst_n,
+  i_hqm_credit_hist_pipe_sr_freelist_2_rdata,
+  i_hqm_credit_hist_pipe_sr_freelist_2_re,
+  i_hqm_credit_hist_pipe_sr_freelist_2_wdata,
+  i_hqm_credit_hist_pipe_sr_freelist_2_we,
+  i_hqm_credit_hist_pipe_sr_freelist_3_addr,
+  i_hqm_credit_hist_pipe_sr_freelist_3_clk,
+  i_hqm_credit_hist_pipe_sr_freelist_3_clk_rst_n,
+  i_hqm_credit_hist_pipe_sr_freelist_3_rdata,
+  i_hqm_credit_hist_pipe_sr_freelist_3_re,
+  i_hqm_credit_hist_pipe_sr_freelist_3_wdata,
+  i_hqm_credit_hist_pipe_sr_freelist_3_we,
+  i_hqm_credit_hist_pipe_sr_freelist_4_addr,
+  i_hqm_credit_hist_pipe_sr_freelist_4_clk,
+  i_hqm_credit_hist_pipe_sr_freelist_4_clk_rst_n,
+  i_hqm_credit_hist_pipe_sr_freelist_4_rdata,
+  i_hqm_credit_hist_pipe_sr_freelist_4_re,
+  i_hqm_credit_hist_pipe_sr_freelist_4_wdata,
+  i_hqm_credit_hist_pipe_sr_freelist_4_we,
+  i_hqm_credit_hist_pipe_sr_freelist_5_addr,
+  i_hqm_credit_hist_pipe_sr_freelist_5_clk,
+  i_hqm_credit_hist_pipe_sr_freelist_5_clk_rst_n,
+  i_hqm_credit_hist_pipe_sr_freelist_5_rdata,
+  i_hqm_credit_hist_pipe_sr_freelist_5_re,
+  i_hqm_credit_hist_pipe_sr_freelist_5_wdata,
+  i_hqm_credit_hist_pipe_sr_freelist_5_we,
+  i_hqm_credit_hist_pipe_sr_freelist_6_addr,
+  i_hqm_credit_hist_pipe_sr_freelist_6_clk,
+  i_hqm_credit_hist_pipe_sr_freelist_6_clk_rst_n,
+  i_hqm_credit_hist_pipe_sr_freelist_6_rdata,
+  i_hqm_credit_hist_pipe_sr_freelist_6_re,
+  i_hqm_credit_hist_pipe_sr_freelist_6_wdata,
+  i_hqm_credit_hist_pipe_sr_freelist_6_we,
+  i_hqm_credit_hist_pipe_sr_freelist_7_addr,
+  i_hqm_credit_hist_pipe_sr_freelist_7_clk,
+  i_hqm_credit_hist_pipe_sr_freelist_7_clk_rst_n,
+  i_hqm_credit_hist_pipe_sr_freelist_7_rdata,
+  i_hqm_credit_hist_pipe_sr_freelist_7_re,
+  i_hqm_credit_hist_pipe_sr_freelist_7_wdata,
+  i_hqm_credit_hist_pipe_sr_freelist_7_we,
+  i_hqm_credit_hist_pipe_sr_hist_list_a_addr,
+  i_hqm_credit_hist_pipe_sr_hist_list_a_clk,
+  i_hqm_credit_hist_pipe_sr_hist_list_a_clk_rst_n,
+  i_hqm_credit_hist_pipe_sr_hist_list_a_rdata,
+  i_hqm_credit_hist_pipe_sr_hist_list_a_re,
+  i_hqm_credit_hist_pipe_sr_hist_list_a_wdata,
+  i_hqm_credit_hist_pipe_sr_hist_list_a_we,
+  i_hqm_credit_hist_pipe_sr_hist_list_addr,
+  i_hqm_credit_hist_pipe_sr_hist_list_clk,
+  i_hqm_credit_hist_pipe_sr_hist_list_clk_rst_n,
+  i_hqm_credit_hist_pipe_sr_hist_list_rdata,
+  i_hqm_credit_hist_pipe_sr_hist_list_re,
+  i_hqm_credit_hist_pipe_sr_hist_list_wdata,
+  i_hqm_credit_hist_pipe_sr_hist_list_we,
+  i_hqm_list_sel_pipe_ap_cfg_req_down_1_0,
+  i_hqm_list_sel_pipe_ap_cfg_rsp_down_5_4,
+  i_hqm_list_sel_pipe_lsp_cfg_req_down_1_0,
+  i_hqm_list_sel_pipe_lsp_cfg_rsp_down_5_4,
+  i_hqm_list_sel_pipe_rf_aqed_lsp_deq_fifo_mem_raddr,
+  i_hqm_list_sel_pipe_rf_aqed_lsp_deq_fifo_mem_rclk,
+  i_hqm_list_sel_pipe_rf_aqed_lsp_deq_fifo_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_aqed_lsp_deq_fifo_mem_rdata,
+  i_hqm_list_sel_pipe_rf_aqed_lsp_deq_fifo_mem_re,
+  i_hqm_list_sel_pipe_rf_aqed_lsp_deq_fifo_mem_waddr,
+  i_hqm_list_sel_pipe_rf_aqed_lsp_deq_fifo_mem_wclk,
+  i_hqm_list_sel_pipe_rf_aqed_lsp_deq_fifo_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_aqed_lsp_deq_fifo_mem_wdata,
+  i_hqm_list_sel_pipe_rf_aqed_lsp_deq_fifo_mem_we,
+  i_hqm_list_sel_pipe_rf_aqed_qid2cqidix_raddr,
+  i_hqm_list_sel_pipe_rf_aqed_qid2cqidix_rclk,
+  i_hqm_list_sel_pipe_rf_aqed_qid2cqidix_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_aqed_qid2cqidix_rdata,
+  i_hqm_list_sel_pipe_rf_aqed_qid2cqidix_re,
+  i_hqm_list_sel_pipe_rf_aqed_qid2cqidix_waddr,
+  i_hqm_list_sel_pipe_rf_aqed_qid2cqidix_wclk,
+  i_hqm_list_sel_pipe_rf_aqed_qid2cqidix_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_aqed_qid2cqidix_wdata,
+  i_hqm_list_sel_pipe_rf_aqed_qid2cqidix_we,
+  i_hqm_list_sel_pipe_rf_atm_cmp_fifo_mem_raddr,
+  i_hqm_list_sel_pipe_rf_atm_cmp_fifo_mem_rclk,
+  i_hqm_list_sel_pipe_rf_atm_cmp_fifo_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_atm_cmp_fifo_mem_rdata,
+  i_hqm_list_sel_pipe_rf_atm_cmp_fifo_mem_re,
+  i_hqm_list_sel_pipe_rf_atm_cmp_fifo_mem_waddr,
+  i_hqm_list_sel_pipe_rf_atm_cmp_fifo_mem_wclk,
+  i_hqm_list_sel_pipe_rf_atm_cmp_fifo_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_atm_cmp_fifo_mem_wdata,
+  i_hqm_list_sel_pipe_rf_atm_cmp_fifo_mem_we,
+  i_hqm_list_sel_pipe_rf_atm_fifo_ap_aqed_raddr,
+  i_hqm_list_sel_pipe_rf_atm_fifo_ap_aqed_rclk,
+  i_hqm_list_sel_pipe_rf_atm_fifo_ap_aqed_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_atm_fifo_ap_aqed_rdata,
+  i_hqm_list_sel_pipe_rf_atm_fifo_ap_aqed_re,
+  i_hqm_list_sel_pipe_rf_atm_fifo_ap_aqed_waddr,
+  i_hqm_list_sel_pipe_rf_atm_fifo_ap_aqed_wclk,
+  i_hqm_list_sel_pipe_rf_atm_fifo_ap_aqed_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_atm_fifo_ap_aqed_wdata,
+  i_hqm_list_sel_pipe_rf_atm_fifo_ap_aqed_we,
+  i_hqm_list_sel_pipe_rf_atm_fifo_aqed_ap_enq_raddr,
+  i_hqm_list_sel_pipe_rf_atm_fifo_aqed_ap_enq_rclk,
+  i_hqm_list_sel_pipe_rf_atm_fifo_aqed_ap_enq_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_atm_fifo_aqed_ap_enq_rdata,
+  i_hqm_list_sel_pipe_rf_atm_fifo_aqed_ap_enq_re,
+  i_hqm_list_sel_pipe_rf_atm_fifo_aqed_ap_enq_waddr,
+  i_hqm_list_sel_pipe_rf_atm_fifo_aqed_ap_enq_wclk,
+  i_hqm_list_sel_pipe_rf_atm_fifo_aqed_ap_enq_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_atm_fifo_aqed_ap_enq_wdata,
+  i_hqm_list_sel_pipe_rf_atm_fifo_aqed_ap_enq_we,
+  i_hqm_list_sel_pipe_rf_cfg_atm_qid_dpth_thrsh_mem_raddr,
+  i_hqm_list_sel_pipe_rf_cfg_atm_qid_dpth_thrsh_mem_rclk,
+  i_hqm_list_sel_pipe_rf_cfg_atm_qid_dpth_thrsh_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cfg_atm_qid_dpth_thrsh_mem_rdata,
+  i_hqm_list_sel_pipe_rf_cfg_atm_qid_dpth_thrsh_mem_re,
+  i_hqm_list_sel_pipe_rf_cfg_atm_qid_dpth_thrsh_mem_waddr,
+  i_hqm_list_sel_pipe_rf_cfg_atm_qid_dpth_thrsh_mem_wclk,
+  i_hqm_list_sel_pipe_rf_cfg_atm_qid_dpth_thrsh_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cfg_atm_qid_dpth_thrsh_mem_wdata,
+  i_hqm_list_sel_pipe_rf_cfg_atm_qid_dpth_thrsh_mem_we,
+  i_hqm_list_sel_pipe_rf_cfg_cq2priov_mem_raddr,
+  i_hqm_list_sel_pipe_rf_cfg_cq2priov_mem_rclk,
+  i_hqm_list_sel_pipe_rf_cfg_cq2priov_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cfg_cq2priov_mem_rdata,
+  i_hqm_list_sel_pipe_rf_cfg_cq2priov_mem_re,
+  i_hqm_list_sel_pipe_rf_cfg_cq2priov_mem_waddr,
+  i_hqm_list_sel_pipe_rf_cfg_cq2priov_mem_wclk,
+  i_hqm_list_sel_pipe_rf_cfg_cq2priov_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cfg_cq2priov_mem_wdata,
+  i_hqm_list_sel_pipe_rf_cfg_cq2priov_mem_we,
+  i_hqm_list_sel_pipe_rf_cfg_cq2priov_odd_mem_raddr,
+  i_hqm_list_sel_pipe_rf_cfg_cq2priov_odd_mem_rclk,
+  i_hqm_list_sel_pipe_rf_cfg_cq2priov_odd_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cfg_cq2priov_odd_mem_rdata,
+  i_hqm_list_sel_pipe_rf_cfg_cq2priov_odd_mem_re,
+  i_hqm_list_sel_pipe_rf_cfg_cq2priov_odd_mem_waddr,
+  i_hqm_list_sel_pipe_rf_cfg_cq2priov_odd_mem_wclk,
+  i_hqm_list_sel_pipe_rf_cfg_cq2priov_odd_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cfg_cq2priov_odd_mem_wdata,
+  i_hqm_list_sel_pipe_rf_cfg_cq2priov_odd_mem_we,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_mem_raddr,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_mem_rclk,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_mem_rdata,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_mem_re,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_mem_waddr,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_mem_wclk,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_mem_wdata,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_mem_we,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_odd_mem_raddr,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_odd_mem_rclk,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_odd_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_odd_mem_rdata,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_odd_mem_re,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_odd_mem_waddr,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_odd_mem_wclk,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_odd_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_odd_mem_wdata,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_odd_mem_we,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_mem_raddr,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_mem_rclk,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_mem_rdata,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_mem_re,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_mem_waddr,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_mem_wclk,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_mem_wdata,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_mem_we,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_odd_mem_raddr,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_odd_mem_rclk,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_odd_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_odd_mem_rdata,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_odd_mem_re,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_odd_mem_waddr,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_odd_mem_wclk,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_odd_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_odd_mem_wdata,
+  i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_odd_mem_we,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_limit_mem_raddr,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_limit_mem_rclk,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_limit_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_limit_mem_rdata,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_limit_mem_re,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_limit_mem_waddr,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_limit_mem_wclk,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_limit_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_limit_mem_wdata,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_limit_mem_we,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_threshold_mem_raddr,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_threshold_mem_rclk,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_threshold_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_threshold_mem_rdata,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_threshold_mem_re,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_threshold_mem_waddr,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_threshold_mem_wclk,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_threshold_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_threshold_mem_wdata,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_threshold_mem_we,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_token_depth_select_mem_raddr,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_token_depth_select_mem_rclk,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_token_depth_select_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_token_depth_select_mem_rdata,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_token_depth_select_mem_re,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_token_depth_select_mem_waddr,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_token_depth_select_mem_wclk,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_token_depth_select_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_token_depth_select_mem_wdata,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_token_depth_select_mem_we,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_wu_limit_mem_raddr,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_wu_limit_mem_rclk,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_wu_limit_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_wu_limit_mem_rdata,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_wu_limit_mem_re,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_wu_limit_mem_waddr,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_wu_limit_mem_wclk,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_wu_limit_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_wu_limit_mem_wdata,
+  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_wu_limit_mem_we,
+  i_hqm_list_sel_pipe_rf_cfg_dir_qid_dpth_thrsh_mem_raddr,
+  i_hqm_list_sel_pipe_rf_cfg_dir_qid_dpth_thrsh_mem_rclk,
+  i_hqm_list_sel_pipe_rf_cfg_dir_qid_dpth_thrsh_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cfg_dir_qid_dpth_thrsh_mem_rdata,
+  i_hqm_list_sel_pipe_rf_cfg_dir_qid_dpth_thrsh_mem_re,
+  i_hqm_list_sel_pipe_rf_cfg_dir_qid_dpth_thrsh_mem_waddr,
+  i_hqm_list_sel_pipe_rf_cfg_dir_qid_dpth_thrsh_mem_wclk,
+  i_hqm_list_sel_pipe_rf_cfg_dir_qid_dpth_thrsh_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cfg_dir_qid_dpth_thrsh_mem_wdata,
+  i_hqm_list_sel_pipe_rf_cfg_dir_qid_dpth_thrsh_mem_we,
+  i_hqm_list_sel_pipe_rf_cfg_nalb_qid_dpth_thrsh_mem_raddr,
+  i_hqm_list_sel_pipe_rf_cfg_nalb_qid_dpth_thrsh_mem_rclk,
+  i_hqm_list_sel_pipe_rf_cfg_nalb_qid_dpth_thrsh_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cfg_nalb_qid_dpth_thrsh_mem_rdata,
+  i_hqm_list_sel_pipe_rf_cfg_nalb_qid_dpth_thrsh_mem_re,
+  i_hqm_list_sel_pipe_rf_cfg_nalb_qid_dpth_thrsh_mem_waddr,
+  i_hqm_list_sel_pipe_rf_cfg_nalb_qid_dpth_thrsh_mem_wclk,
+  i_hqm_list_sel_pipe_rf_cfg_nalb_qid_dpth_thrsh_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cfg_nalb_qid_dpth_thrsh_mem_wdata,
+  i_hqm_list_sel_pipe_rf_cfg_nalb_qid_dpth_thrsh_mem_we,
+  i_hqm_list_sel_pipe_rf_cfg_qid_aqed_active_limit_mem_raddr,
+  i_hqm_list_sel_pipe_rf_cfg_qid_aqed_active_limit_mem_rclk,
+  i_hqm_list_sel_pipe_rf_cfg_qid_aqed_active_limit_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cfg_qid_aqed_active_limit_mem_rdata,
+  i_hqm_list_sel_pipe_rf_cfg_qid_aqed_active_limit_mem_re,
+  i_hqm_list_sel_pipe_rf_cfg_qid_aqed_active_limit_mem_waddr,
+  i_hqm_list_sel_pipe_rf_cfg_qid_aqed_active_limit_mem_wclk,
+  i_hqm_list_sel_pipe_rf_cfg_qid_aqed_active_limit_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cfg_qid_aqed_active_limit_mem_wdata,
+  i_hqm_list_sel_pipe_rf_cfg_qid_aqed_active_limit_mem_we,
+  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_inflight_limit_mem_raddr,
+  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_inflight_limit_mem_rclk,
+  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_inflight_limit_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_inflight_limit_mem_rdata,
+  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_inflight_limit_mem_re,
+  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_inflight_limit_mem_waddr,
+  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_inflight_limit_mem_wclk,
+  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_inflight_limit_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_inflight_limit_mem_wdata,
+  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_inflight_limit_mem_we,
+  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix2_mem_raddr,
+  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix2_mem_rclk,
+  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix2_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix2_mem_rdata,
+  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix2_mem_re,
+  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix2_mem_waddr,
+  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix2_mem_wclk,
+  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix2_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix2_mem_wdata,
+  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix2_mem_we,
+  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix_mem_raddr,
+  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix_mem_rclk,
+  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix_mem_rdata,
+  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix_mem_re,
+  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix_mem_waddr,
+  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix_mem_wclk,
+  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix_mem_wdata,
+  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix_mem_we,
+  i_hqm_list_sel_pipe_rf_chp_lsp_cmp_rx_sync_fifo_mem_raddr,
+  i_hqm_list_sel_pipe_rf_chp_lsp_cmp_rx_sync_fifo_mem_rclk,
+  i_hqm_list_sel_pipe_rf_chp_lsp_cmp_rx_sync_fifo_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_chp_lsp_cmp_rx_sync_fifo_mem_rdata,
+  i_hqm_list_sel_pipe_rf_chp_lsp_cmp_rx_sync_fifo_mem_re,
+  i_hqm_list_sel_pipe_rf_chp_lsp_cmp_rx_sync_fifo_mem_waddr,
+  i_hqm_list_sel_pipe_rf_chp_lsp_cmp_rx_sync_fifo_mem_wclk,
+  i_hqm_list_sel_pipe_rf_chp_lsp_cmp_rx_sync_fifo_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_chp_lsp_cmp_rx_sync_fifo_mem_wdata,
+  i_hqm_list_sel_pipe_rf_chp_lsp_cmp_rx_sync_fifo_mem_we,
+  i_hqm_list_sel_pipe_rf_chp_lsp_token_rx_sync_fifo_mem_raddr,
+  i_hqm_list_sel_pipe_rf_chp_lsp_token_rx_sync_fifo_mem_rclk,
+  i_hqm_list_sel_pipe_rf_chp_lsp_token_rx_sync_fifo_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_chp_lsp_token_rx_sync_fifo_mem_rdata,
+  i_hqm_list_sel_pipe_rf_chp_lsp_token_rx_sync_fifo_mem_re,
+  i_hqm_list_sel_pipe_rf_chp_lsp_token_rx_sync_fifo_mem_waddr,
+  i_hqm_list_sel_pipe_rf_chp_lsp_token_rx_sync_fifo_mem_wclk,
+  i_hqm_list_sel_pipe_rf_chp_lsp_token_rx_sync_fifo_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_chp_lsp_token_rx_sync_fifo_mem_wdata,
+  i_hqm_list_sel_pipe_rf_chp_lsp_token_rx_sync_fifo_mem_we,
+  i_hqm_list_sel_pipe_rf_cq_atm_pri_arbindex_mem_raddr,
+  i_hqm_list_sel_pipe_rf_cq_atm_pri_arbindex_mem_rclk,
+  i_hqm_list_sel_pipe_rf_cq_atm_pri_arbindex_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cq_atm_pri_arbindex_mem_rdata,
+  i_hqm_list_sel_pipe_rf_cq_atm_pri_arbindex_mem_re,
+  i_hqm_list_sel_pipe_rf_cq_atm_pri_arbindex_mem_waddr,
+  i_hqm_list_sel_pipe_rf_cq_atm_pri_arbindex_mem_wclk,
+  i_hqm_list_sel_pipe_rf_cq_atm_pri_arbindex_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cq_atm_pri_arbindex_mem_wdata,
+  i_hqm_list_sel_pipe_rf_cq_atm_pri_arbindex_mem_we,
+  i_hqm_list_sel_pipe_rf_cq_dir_tot_sch_cnt_mem_raddr,
+  i_hqm_list_sel_pipe_rf_cq_dir_tot_sch_cnt_mem_rclk,
+  i_hqm_list_sel_pipe_rf_cq_dir_tot_sch_cnt_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cq_dir_tot_sch_cnt_mem_rdata,
+  i_hqm_list_sel_pipe_rf_cq_dir_tot_sch_cnt_mem_re,
+  i_hqm_list_sel_pipe_rf_cq_dir_tot_sch_cnt_mem_waddr,
+  i_hqm_list_sel_pipe_rf_cq_dir_tot_sch_cnt_mem_wclk,
+  i_hqm_list_sel_pipe_rf_cq_dir_tot_sch_cnt_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cq_dir_tot_sch_cnt_mem_wdata,
+  i_hqm_list_sel_pipe_rf_cq_dir_tot_sch_cnt_mem_we,
+  i_hqm_list_sel_pipe_rf_cq_ldb_inflight_count_mem_raddr,
+  i_hqm_list_sel_pipe_rf_cq_ldb_inflight_count_mem_rclk,
+  i_hqm_list_sel_pipe_rf_cq_ldb_inflight_count_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cq_ldb_inflight_count_mem_rdata,
+  i_hqm_list_sel_pipe_rf_cq_ldb_inflight_count_mem_re,
+  i_hqm_list_sel_pipe_rf_cq_ldb_inflight_count_mem_waddr,
+  i_hqm_list_sel_pipe_rf_cq_ldb_inflight_count_mem_wclk,
+  i_hqm_list_sel_pipe_rf_cq_ldb_inflight_count_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cq_ldb_inflight_count_mem_wdata,
+  i_hqm_list_sel_pipe_rf_cq_ldb_inflight_count_mem_we,
+  i_hqm_list_sel_pipe_rf_cq_ldb_token_count_mem_raddr,
+  i_hqm_list_sel_pipe_rf_cq_ldb_token_count_mem_rclk,
+  i_hqm_list_sel_pipe_rf_cq_ldb_token_count_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cq_ldb_token_count_mem_rdata,
+  i_hqm_list_sel_pipe_rf_cq_ldb_token_count_mem_re,
+  i_hqm_list_sel_pipe_rf_cq_ldb_token_count_mem_waddr,
+  i_hqm_list_sel_pipe_rf_cq_ldb_token_count_mem_wclk,
+  i_hqm_list_sel_pipe_rf_cq_ldb_token_count_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cq_ldb_token_count_mem_wdata,
+  i_hqm_list_sel_pipe_rf_cq_ldb_token_count_mem_we,
+  i_hqm_list_sel_pipe_rf_cq_ldb_tot_sch_cnt_mem_raddr,
+  i_hqm_list_sel_pipe_rf_cq_ldb_tot_sch_cnt_mem_rclk,
+  i_hqm_list_sel_pipe_rf_cq_ldb_tot_sch_cnt_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cq_ldb_tot_sch_cnt_mem_rdata,
+  i_hqm_list_sel_pipe_rf_cq_ldb_tot_sch_cnt_mem_re,
+  i_hqm_list_sel_pipe_rf_cq_ldb_tot_sch_cnt_mem_waddr,
+  i_hqm_list_sel_pipe_rf_cq_ldb_tot_sch_cnt_mem_wclk,
+  i_hqm_list_sel_pipe_rf_cq_ldb_tot_sch_cnt_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cq_ldb_tot_sch_cnt_mem_wdata,
+  i_hqm_list_sel_pipe_rf_cq_ldb_tot_sch_cnt_mem_we,
+  i_hqm_list_sel_pipe_rf_cq_ldb_wu_count_mem_raddr,
+  i_hqm_list_sel_pipe_rf_cq_ldb_wu_count_mem_rclk,
+  i_hqm_list_sel_pipe_rf_cq_ldb_wu_count_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cq_ldb_wu_count_mem_rdata,
+  i_hqm_list_sel_pipe_rf_cq_ldb_wu_count_mem_re,
+  i_hqm_list_sel_pipe_rf_cq_ldb_wu_count_mem_waddr,
+  i_hqm_list_sel_pipe_rf_cq_ldb_wu_count_mem_wclk,
+  i_hqm_list_sel_pipe_rf_cq_ldb_wu_count_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cq_ldb_wu_count_mem_wdata,
+  i_hqm_list_sel_pipe_rf_cq_ldb_wu_count_mem_we,
+  i_hqm_list_sel_pipe_rf_cq_nalb_pri_arbindex_mem_raddr,
+  i_hqm_list_sel_pipe_rf_cq_nalb_pri_arbindex_mem_rclk,
+  i_hqm_list_sel_pipe_rf_cq_nalb_pri_arbindex_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cq_nalb_pri_arbindex_mem_rdata,
+  i_hqm_list_sel_pipe_rf_cq_nalb_pri_arbindex_mem_re,
+  i_hqm_list_sel_pipe_rf_cq_nalb_pri_arbindex_mem_waddr,
+  i_hqm_list_sel_pipe_rf_cq_nalb_pri_arbindex_mem_wclk,
+  i_hqm_list_sel_pipe_rf_cq_nalb_pri_arbindex_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_cq_nalb_pri_arbindex_mem_wdata,
+  i_hqm_list_sel_pipe_rf_cq_nalb_pri_arbindex_mem_we,
+  i_hqm_list_sel_pipe_rf_dir_enq_cnt_mem_raddr,
+  i_hqm_list_sel_pipe_rf_dir_enq_cnt_mem_rclk,
+  i_hqm_list_sel_pipe_rf_dir_enq_cnt_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_dir_enq_cnt_mem_rdata,
+  i_hqm_list_sel_pipe_rf_dir_enq_cnt_mem_re,
+  i_hqm_list_sel_pipe_rf_dir_enq_cnt_mem_waddr,
+  i_hqm_list_sel_pipe_rf_dir_enq_cnt_mem_wclk,
+  i_hqm_list_sel_pipe_rf_dir_enq_cnt_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_dir_enq_cnt_mem_wdata,
+  i_hqm_list_sel_pipe_rf_dir_enq_cnt_mem_we,
+  i_hqm_list_sel_pipe_rf_dir_tok_cnt_mem_raddr,
+  i_hqm_list_sel_pipe_rf_dir_tok_cnt_mem_rclk,
+  i_hqm_list_sel_pipe_rf_dir_tok_cnt_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_dir_tok_cnt_mem_rdata,
+  i_hqm_list_sel_pipe_rf_dir_tok_cnt_mem_re,
+  i_hqm_list_sel_pipe_rf_dir_tok_cnt_mem_waddr,
+  i_hqm_list_sel_pipe_rf_dir_tok_cnt_mem_wclk,
+  i_hqm_list_sel_pipe_rf_dir_tok_cnt_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_dir_tok_cnt_mem_wdata,
+  i_hqm_list_sel_pipe_rf_dir_tok_cnt_mem_we,
+  i_hqm_list_sel_pipe_rf_dir_tok_lim_mem_raddr,
+  i_hqm_list_sel_pipe_rf_dir_tok_lim_mem_rclk,
+  i_hqm_list_sel_pipe_rf_dir_tok_lim_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_dir_tok_lim_mem_rdata,
+  i_hqm_list_sel_pipe_rf_dir_tok_lim_mem_re,
+  i_hqm_list_sel_pipe_rf_dir_tok_lim_mem_waddr,
+  i_hqm_list_sel_pipe_rf_dir_tok_lim_mem_wclk,
+  i_hqm_list_sel_pipe_rf_dir_tok_lim_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_dir_tok_lim_mem_wdata,
+  i_hqm_list_sel_pipe_rf_dir_tok_lim_mem_we,
+  i_hqm_list_sel_pipe_rf_dp_lsp_enq_dir_rx_sync_fifo_mem_raddr,
+  i_hqm_list_sel_pipe_rf_dp_lsp_enq_dir_rx_sync_fifo_mem_rclk,
+  i_hqm_list_sel_pipe_rf_dp_lsp_enq_dir_rx_sync_fifo_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_dp_lsp_enq_dir_rx_sync_fifo_mem_rdata,
+  i_hqm_list_sel_pipe_rf_dp_lsp_enq_dir_rx_sync_fifo_mem_re,
+  i_hqm_list_sel_pipe_rf_dp_lsp_enq_dir_rx_sync_fifo_mem_waddr,
+  i_hqm_list_sel_pipe_rf_dp_lsp_enq_dir_rx_sync_fifo_mem_wclk,
+  i_hqm_list_sel_pipe_rf_dp_lsp_enq_dir_rx_sync_fifo_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_dp_lsp_enq_dir_rx_sync_fifo_mem_wdata,
+  i_hqm_list_sel_pipe_rf_dp_lsp_enq_dir_rx_sync_fifo_mem_we,
+  i_hqm_list_sel_pipe_rf_dp_lsp_enq_rorply_rx_sync_fifo_mem_raddr,
+  i_hqm_list_sel_pipe_rf_dp_lsp_enq_rorply_rx_sync_fifo_mem_rclk,
+  i_hqm_list_sel_pipe_rf_dp_lsp_enq_rorply_rx_sync_fifo_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_dp_lsp_enq_rorply_rx_sync_fifo_mem_rdata,
+  i_hqm_list_sel_pipe_rf_dp_lsp_enq_rorply_rx_sync_fifo_mem_re,
+  i_hqm_list_sel_pipe_rf_dp_lsp_enq_rorply_rx_sync_fifo_mem_waddr,
+  i_hqm_list_sel_pipe_rf_dp_lsp_enq_rorply_rx_sync_fifo_mem_wclk,
+  i_hqm_list_sel_pipe_rf_dp_lsp_enq_rorply_rx_sync_fifo_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_dp_lsp_enq_rorply_rx_sync_fifo_mem_wdata,
+  i_hqm_list_sel_pipe_rf_dp_lsp_enq_rorply_rx_sync_fifo_mem_we,
+  i_hqm_list_sel_pipe_rf_enq_nalb_fifo_mem_raddr,
+  i_hqm_list_sel_pipe_rf_enq_nalb_fifo_mem_rclk,
+  i_hqm_list_sel_pipe_rf_enq_nalb_fifo_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_enq_nalb_fifo_mem_rdata,
+  i_hqm_list_sel_pipe_rf_enq_nalb_fifo_mem_re,
+  i_hqm_list_sel_pipe_rf_enq_nalb_fifo_mem_waddr,
+  i_hqm_list_sel_pipe_rf_enq_nalb_fifo_mem_wclk,
+  i_hqm_list_sel_pipe_rf_enq_nalb_fifo_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_enq_nalb_fifo_mem_wdata,
+  i_hqm_list_sel_pipe_rf_enq_nalb_fifo_mem_we,
+  i_hqm_list_sel_pipe_rf_fid2cqqidix_raddr,
+  i_hqm_list_sel_pipe_rf_fid2cqqidix_rclk,
+  i_hqm_list_sel_pipe_rf_fid2cqqidix_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_fid2cqqidix_rdata,
+  i_hqm_list_sel_pipe_rf_fid2cqqidix_re,
+  i_hqm_list_sel_pipe_rf_fid2cqqidix_waddr,
+  i_hqm_list_sel_pipe_rf_fid2cqqidix_wclk,
+  i_hqm_list_sel_pipe_rf_fid2cqqidix_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_fid2cqqidix_wdata,
+  i_hqm_list_sel_pipe_rf_fid2cqqidix_we,
+  i_hqm_list_sel_pipe_rf_ldb_token_rtn_fifo_mem_raddr,
+  i_hqm_list_sel_pipe_rf_ldb_token_rtn_fifo_mem_rclk,
+  i_hqm_list_sel_pipe_rf_ldb_token_rtn_fifo_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ldb_token_rtn_fifo_mem_rdata,
+  i_hqm_list_sel_pipe_rf_ldb_token_rtn_fifo_mem_re,
+  i_hqm_list_sel_pipe_rf_ldb_token_rtn_fifo_mem_waddr,
+  i_hqm_list_sel_pipe_rf_ldb_token_rtn_fifo_mem_wclk,
+  i_hqm_list_sel_pipe_rf_ldb_token_rtn_fifo_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ldb_token_rtn_fifo_mem_wdata,
+  i_hqm_list_sel_pipe_rf_ldb_token_rtn_fifo_mem_we,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup0_raddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup0_rclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup0_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup0_rdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup0_re,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup0_waddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup0_wclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup0_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup0_wdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup0_we,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup1_raddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup1_rclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup1_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup1_rdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup1_re,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup1_waddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup1_wclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup1_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup1_wdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup1_we,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup2_raddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup2_rclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup2_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup2_rdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup2_re,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup2_waddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup2_wclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup2_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup2_wdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup2_we,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup3_raddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup3_rclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup3_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup3_rdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup3_re,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup3_waddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup3_wclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup3_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup3_wdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup3_we,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup0_raddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup0_rclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup0_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup0_rdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup0_re,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup0_waddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup0_wclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup0_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup0_wdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup0_we,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup1_raddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup1_rclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup1_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup1_rdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup1_re,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup1_waddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup1_wclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup1_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup1_wdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup1_we,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup2_raddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup2_rclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup2_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup2_rdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup2_re,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup2_waddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup2_wclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup2_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup2_wdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup2_we,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup3_raddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup3_rclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup3_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup3_rdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup3_re,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup3_waddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup3_wclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup3_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup3_wdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup3_we,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup0_raddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup0_rclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup0_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup0_rdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup0_re,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup0_waddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup0_wclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup0_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup0_wdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup0_we,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup1_raddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup1_rclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup1_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup1_rdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup1_re,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup1_waddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup1_wclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup1_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup1_wdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup1_we,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup2_raddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup2_rclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup2_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup2_rdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup2_re,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup2_waddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup2_wclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup2_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup2_wdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup2_we,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup3_raddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup3_rclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup3_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup3_rdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup3_re,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup3_waddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup3_wclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup3_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup3_wdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup3_we,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup0_raddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup0_rclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup0_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup0_rdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup0_re,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup0_waddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup0_wclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup0_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup0_wdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup0_we,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup1_raddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup1_rclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup1_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup1_rdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup1_re,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup1_waddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup1_wclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup1_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup1_wdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup1_we,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup2_raddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup2_rclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup2_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup2_rdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup2_re,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup2_waddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup2_wclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup2_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup2_wdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup2_we,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup3_raddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup3_rclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup3_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup3_rdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup3_re,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup3_waddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup3_wclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup3_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup3_wdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup3_we,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin0_raddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin0_rclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin0_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin0_rdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin0_re,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin0_waddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin0_wclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin0_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin0_wdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin0_we,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin1_raddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin1_rclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin1_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin1_rdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin1_re,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin1_waddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin1_wclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin1_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin1_wdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin1_we,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin2_raddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin2_rclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin2_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin2_rdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin2_re,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin2_waddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin2_wclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin2_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin2_wdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin2_we,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin3_raddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin3_rclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin3_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin3_rdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin3_re,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin3_waddr,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin3_wclk,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin3_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin3_wdata,
+  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin3_we,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin0_raddr,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin0_rclk,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin0_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin0_rdata,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin0_re,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin0_waddr,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin0_wclk,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin0_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin0_wdata,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin0_we,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin1_raddr,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin1_rclk,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin1_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin1_rdata,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin1_re,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin1_waddr,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin1_wclk,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin1_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin1_wdata,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin1_we,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin2_raddr,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin2_rclk,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin2_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin2_rdata,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin2_re,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin2_waddr,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin2_wclk,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin2_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin2_wdata,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin2_we,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin3_raddr,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin3_rclk,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin3_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin3_rdata,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin3_re,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin3_waddr,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin3_wclk,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin3_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin3_wdata,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin3_we,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin0_raddr,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin0_rclk,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin0_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin0_rdata,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin0_re,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin0_waddr,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin0_wclk,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin0_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin0_wdata,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin0_we,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin1_raddr,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin1_rclk,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin1_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin1_rdata,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin1_re,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin1_waddr,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin1_wclk,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin1_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin1_wdata,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin1_we,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin2_raddr,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin2_rclk,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin2_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin2_rdata,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin2_re,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin2_waddr,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin2_wclk,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin2_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin2_wdata,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin2_we,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin3_raddr,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin3_rclk,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin3_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin3_rdata,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin3_re,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin3_waddr,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin3_wclk,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin3_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin3_wdata,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin3_we,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin0_raddr,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin0_rclk,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin0_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin0_rdata,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin0_re,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin0_waddr,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin0_wclk,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin0_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin0_wdata,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin0_we,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin1_raddr,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin1_rclk,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin1_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin1_rdata,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin1_re,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin1_waddr,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin1_wclk,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin1_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin1_wdata,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin1_we,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin2_raddr,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin2_rclk,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin2_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin2_rdata,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin2_re,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin2_waddr,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin2_wclk,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin2_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin2_wdata,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin2_we,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin3_raddr,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin3_rclk,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin3_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin3_rdata,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin3_re,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin3_waddr,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin3_wclk,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin3_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin3_wdata,
+  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin3_we,
+  i_hqm_list_sel_pipe_rf_ll_rlst_cnt_raddr,
+  i_hqm_list_sel_pipe_rf_ll_rlst_cnt_rclk,
+  i_hqm_list_sel_pipe_rf_ll_rlst_cnt_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_rlst_cnt_rdata,
+  i_hqm_list_sel_pipe_rf_ll_rlst_cnt_re,
+  i_hqm_list_sel_pipe_rf_ll_rlst_cnt_waddr,
+  i_hqm_list_sel_pipe_rf_ll_rlst_cnt_wclk,
+  i_hqm_list_sel_pipe_rf_ll_rlst_cnt_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_rlst_cnt_wdata,
+  i_hqm_list_sel_pipe_rf_ll_rlst_cnt_we,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup0_raddr,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup0_rclk,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup0_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup0_rdata,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup0_re,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup0_waddr,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup0_wclk,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup0_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup0_wdata,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup0_we,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup1_raddr,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup1_rclk,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup1_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup1_rdata,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup1_re,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup1_waddr,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup1_wclk,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup1_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup1_wdata,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup1_we,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup2_raddr,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup2_rclk,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup2_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup2_rdata,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup2_re,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup2_waddr,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup2_wclk,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup2_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup2_wdata,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup2_we,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup3_raddr,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup3_rclk,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup3_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup3_rdata,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup3_re,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup3_waddr,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup3_wclk,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup3_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup3_wdata,
+  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup3_we,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin0_raddr,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin0_rclk,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin0_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin0_rdata,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin0_re,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin0_waddr,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin0_wclk,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin0_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin0_wdata,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin0_we,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin1_raddr,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin1_rclk,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin1_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin1_rdata,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin1_re,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin1_waddr,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin1_wclk,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin1_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin1_wdata,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin1_we,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin2_raddr,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin2_rclk,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin2_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin2_rdata,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin2_re,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin2_waddr,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin2_wclk,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin2_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin2_wdata,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin2_we,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin3_raddr,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin3_rclk,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin3_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin3_rdata,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin3_re,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin3_waddr,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin3_wclk,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin3_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin3_wdata,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin3_we,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin0_raddr,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin0_rclk,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin0_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin0_rdata,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin0_re,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin0_waddr,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin0_wclk,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin0_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin0_wdata,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin0_we,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin1_raddr,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin1_rclk,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin1_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin1_rdata,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin1_re,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin1_waddr,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin1_wclk,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin1_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin1_wdata,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin1_we,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin2_raddr,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin2_rclk,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin2_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin2_rdata,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin2_re,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin2_waddr,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin2_wclk,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin2_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin2_wdata,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin2_we,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin3_raddr,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin3_rclk,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin3_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin3_rdata,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin3_re,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin3_waddr,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin3_wclk,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin3_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin3_wdata,
+  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin3_we,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin0_raddr,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin0_rclk,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin0_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin0_rdata,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin0_re,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin0_waddr,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin0_wclk,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin0_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin0_wdata,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin0_we,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin1_raddr,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin1_rclk,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin1_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin1_rdata,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin1_re,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin1_waddr,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin1_wclk,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin1_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin1_wdata,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin1_we,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin2_raddr,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin2_rclk,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin2_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin2_rdata,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin2_re,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin2_waddr,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin2_wclk,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin2_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin2_wdata,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin2_we,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin3_raddr,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin3_rclk,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin3_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin3_rdata,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin3_re,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin3_waddr,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin3_wclk,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin3_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin3_wdata,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin3_we,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin0_raddr,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin0_rclk,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin0_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin0_rdata,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin0_re,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin0_waddr,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin0_wclk,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin0_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin0_wdata,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin0_we,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin1_raddr,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin1_rclk,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin1_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin1_rdata,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin1_re,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin1_waddr,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin1_wclk,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin1_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin1_wdata,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin1_we,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin2_raddr,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin2_rclk,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin2_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin2_rdata,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin2_re,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin2_waddr,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin2_wclk,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin2_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin2_wdata,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin2_we,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin3_raddr,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin3_rclk,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin3_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin3_rdata,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin3_re,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin3_waddr,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin3_wclk,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin3_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin3_wdata,
+  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin3_we,
+  i_hqm_list_sel_pipe_rf_ll_slst_cnt_raddr,
+  i_hqm_list_sel_pipe_rf_ll_slst_cnt_rclk,
+  i_hqm_list_sel_pipe_rf_ll_slst_cnt_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_slst_cnt_rdata,
+  i_hqm_list_sel_pipe_rf_ll_slst_cnt_re,
+  i_hqm_list_sel_pipe_rf_ll_slst_cnt_waddr,
+  i_hqm_list_sel_pipe_rf_ll_slst_cnt_wclk,
+  i_hqm_list_sel_pipe_rf_ll_slst_cnt_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_ll_slst_cnt_wdata,
+  i_hqm_list_sel_pipe_rf_ll_slst_cnt_we,
+  i_hqm_list_sel_pipe_rf_nalb_cmp_fifo_mem_raddr,
+  i_hqm_list_sel_pipe_rf_nalb_cmp_fifo_mem_rclk,
+  i_hqm_list_sel_pipe_rf_nalb_cmp_fifo_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_nalb_cmp_fifo_mem_rdata,
+  i_hqm_list_sel_pipe_rf_nalb_cmp_fifo_mem_re,
+  i_hqm_list_sel_pipe_rf_nalb_cmp_fifo_mem_waddr,
+  i_hqm_list_sel_pipe_rf_nalb_cmp_fifo_mem_wclk,
+  i_hqm_list_sel_pipe_rf_nalb_cmp_fifo_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_nalb_cmp_fifo_mem_wdata,
+  i_hqm_list_sel_pipe_rf_nalb_cmp_fifo_mem_we,
+  i_hqm_list_sel_pipe_rf_nalb_lsp_enq_lb_rx_sync_fifo_mem_raddr,
+  i_hqm_list_sel_pipe_rf_nalb_lsp_enq_lb_rx_sync_fifo_mem_rclk,
+  i_hqm_list_sel_pipe_rf_nalb_lsp_enq_lb_rx_sync_fifo_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_nalb_lsp_enq_lb_rx_sync_fifo_mem_rdata,
+  i_hqm_list_sel_pipe_rf_nalb_lsp_enq_lb_rx_sync_fifo_mem_re,
+  i_hqm_list_sel_pipe_rf_nalb_lsp_enq_lb_rx_sync_fifo_mem_waddr,
+  i_hqm_list_sel_pipe_rf_nalb_lsp_enq_lb_rx_sync_fifo_mem_wclk,
+  i_hqm_list_sel_pipe_rf_nalb_lsp_enq_lb_rx_sync_fifo_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_nalb_lsp_enq_lb_rx_sync_fifo_mem_wdata,
+  i_hqm_list_sel_pipe_rf_nalb_lsp_enq_lb_rx_sync_fifo_mem_we,
+  i_hqm_list_sel_pipe_rf_nalb_lsp_enq_rorply_rx_sync_fifo_mem_raddr,
+  i_hqm_list_sel_pipe_rf_nalb_lsp_enq_rorply_rx_sync_fifo_mem_rclk,
+  i_hqm_list_sel_pipe_rf_nalb_lsp_enq_rorply_rx_sync_fifo_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_nalb_lsp_enq_rorply_rx_sync_fifo_mem_rdata,
+  i_hqm_list_sel_pipe_rf_nalb_lsp_enq_rorply_rx_sync_fifo_mem_re,
+  i_hqm_list_sel_pipe_rf_nalb_lsp_enq_rorply_rx_sync_fifo_mem_waddr,
+  i_hqm_list_sel_pipe_rf_nalb_lsp_enq_rorply_rx_sync_fifo_mem_wclk,
+  i_hqm_list_sel_pipe_rf_nalb_lsp_enq_rorply_rx_sync_fifo_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_nalb_lsp_enq_rorply_rx_sync_fifo_mem_wdata,
+  i_hqm_list_sel_pipe_rf_nalb_lsp_enq_rorply_rx_sync_fifo_mem_we,
+  i_hqm_list_sel_pipe_rf_nalb_sel_nalb_fifo_mem_raddr,
+  i_hqm_list_sel_pipe_rf_nalb_sel_nalb_fifo_mem_rclk,
+  i_hqm_list_sel_pipe_rf_nalb_sel_nalb_fifo_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_nalb_sel_nalb_fifo_mem_rdata,
+  i_hqm_list_sel_pipe_rf_nalb_sel_nalb_fifo_mem_re,
+  i_hqm_list_sel_pipe_rf_nalb_sel_nalb_fifo_mem_waddr,
+  i_hqm_list_sel_pipe_rf_nalb_sel_nalb_fifo_mem_wclk,
+  i_hqm_list_sel_pipe_rf_nalb_sel_nalb_fifo_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_nalb_sel_nalb_fifo_mem_wdata,
+  i_hqm_list_sel_pipe_rf_nalb_sel_nalb_fifo_mem_we,
+  i_hqm_list_sel_pipe_rf_qed_lsp_deq_fifo_mem_raddr,
+  i_hqm_list_sel_pipe_rf_qed_lsp_deq_fifo_mem_rclk,
+  i_hqm_list_sel_pipe_rf_qed_lsp_deq_fifo_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_qed_lsp_deq_fifo_mem_rdata,
+  i_hqm_list_sel_pipe_rf_qed_lsp_deq_fifo_mem_re,
+  i_hqm_list_sel_pipe_rf_qed_lsp_deq_fifo_mem_waddr,
+  i_hqm_list_sel_pipe_rf_qed_lsp_deq_fifo_mem_wclk,
+  i_hqm_list_sel_pipe_rf_qed_lsp_deq_fifo_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_qed_lsp_deq_fifo_mem_wdata,
+  i_hqm_list_sel_pipe_rf_qed_lsp_deq_fifo_mem_we,
+  i_hqm_list_sel_pipe_rf_qid_aqed_active_count_mem_raddr,
+  i_hqm_list_sel_pipe_rf_qid_aqed_active_count_mem_rclk,
+  i_hqm_list_sel_pipe_rf_qid_aqed_active_count_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_qid_aqed_active_count_mem_rdata,
+  i_hqm_list_sel_pipe_rf_qid_aqed_active_count_mem_re,
+  i_hqm_list_sel_pipe_rf_qid_aqed_active_count_mem_waddr,
+  i_hqm_list_sel_pipe_rf_qid_aqed_active_count_mem_wclk,
+  i_hqm_list_sel_pipe_rf_qid_aqed_active_count_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_qid_aqed_active_count_mem_wdata,
+  i_hqm_list_sel_pipe_rf_qid_aqed_active_count_mem_we,
+  i_hqm_list_sel_pipe_rf_qid_atm_active_mem_raddr,
+  i_hqm_list_sel_pipe_rf_qid_atm_active_mem_rclk,
+  i_hqm_list_sel_pipe_rf_qid_atm_active_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_qid_atm_active_mem_rdata,
+  i_hqm_list_sel_pipe_rf_qid_atm_active_mem_re,
+  i_hqm_list_sel_pipe_rf_qid_atm_active_mem_waddr,
+  i_hqm_list_sel_pipe_rf_qid_atm_active_mem_wclk,
+  i_hqm_list_sel_pipe_rf_qid_atm_active_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_qid_atm_active_mem_wdata,
+  i_hqm_list_sel_pipe_rf_qid_atm_active_mem_we,
+  i_hqm_list_sel_pipe_rf_qid_atm_tot_enq_cnt_mem_raddr,
+  i_hqm_list_sel_pipe_rf_qid_atm_tot_enq_cnt_mem_rclk,
+  i_hqm_list_sel_pipe_rf_qid_atm_tot_enq_cnt_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_qid_atm_tot_enq_cnt_mem_rdata,
+  i_hqm_list_sel_pipe_rf_qid_atm_tot_enq_cnt_mem_re,
+  i_hqm_list_sel_pipe_rf_qid_atm_tot_enq_cnt_mem_waddr,
+  i_hqm_list_sel_pipe_rf_qid_atm_tot_enq_cnt_mem_wclk,
+  i_hqm_list_sel_pipe_rf_qid_atm_tot_enq_cnt_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_qid_atm_tot_enq_cnt_mem_wdata,
+  i_hqm_list_sel_pipe_rf_qid_atm_tot_enq_cnt_mem_we,
+  i_hqm_list_sel_pipe_rf_qid_atq_enqueue_count_mem_raddr,
+  i_hqm_list_sel_pipe_rf_qid_atq_enqueue_count_mem_rclk,
+  i_hqm_list_sel_pipe_rf_qid_atq_enqueue_count_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_qid_atq_enqueue_count_mem_rdata,
+  i_hqm_list_sel_pipe_rf_qid_atq_enqueue_count_mem_re,
+  i_hqm_list_sel_pipe_rf_qid_atq_enqueue_count_mem_waddr,
+  i_hqm_list_sel_pipe_rf_qid_atq_enqueue_count_mem_wclk,
+  i_hqm_list_sel_pipe_rf_qid_atq_enqueue_count_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_qid_atq_enqueue_count_mem_wdata,
+  i_hqm_list_sel_pipe_rf_qid_atq_enqueue_count_mem_we,
+  i_hqm_list_sel_pipe_rf_qid_dir_max_depth_mem_raddr,
+  i_hqm_list_sel_pipe_rf_qid_dir_max_depth_mem_rclk,
+  i_hqm_list_sel_pipe_rf_qid_dir_max_depth_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_qid_dir_max_depth_mem_rdata,
+  i_hqm_list_sel_pipe_rf_qid_dir_max_depth_mem_re,
+  i_hqm_list_sel_pipe_rf_qid_dir_max_depth_mem_waddr,
+  i_hqm_list_sel_pipe_rf_qid_dir_max_depth_mem_wclk,
+  i_hqm_list_sel_pipe_rf_qid_dir_max_depth_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_qid_dir_max_depth_mem_wdata,
+  i_hqm_list_sel_pipe_rf_qid_dir_max_depth_mem_we,
+  i_hqm_list_sel_pipe_rf_qid_dir_replay_count_mem_raddr,
+  i_hqm_list_sel_pipe_rf_qid_dir_replay_count_mem_rclk,
+  i_hqm_list_sel_pipe_rf_qid_dir_replay_count_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_qid_dir_replay_count_mem_rdata,
+  i_hqm_list_sel_pipe_rf_qid_dir_replay_count_mem_re,
+  i_hqm_list_sel_pipe_rf_qid_dir_replay_count_mem_waddr,
+  i_hqm_list_sel_pipe_rf_qid_dir_replay_count_mem_wclk,
+  i_hqm_list_sel_pipe_rf_qid_dir_replay_count_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_qid_dir_replay_count_mem_wdata,
+  i_hqm_list_sel_pipe_rf_qid_dir_replay_count_mem_we,
+  i_hqm_list_sel_pipe_rf_qid_dir_tot_enq_cnt_mem_raddr,
+  i_hqm_list_sel_pipe_rf_qid_dir_tot_enq_cnt_mem_rclk,
+  i_hqm_list_sel_pipe_rf_qid_dir_tot_enq_cnt_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_qid_dir_tot_enq_cnt_mem_rdata,
+  i_hqm_list_sel_pipe_rf_qid_dir_tot_enq_cnt_mem_re,
+  i_hqm_list_sel_pipe_rf_qid_dir_tot_enq_cnt_mem_waddr,
+  i_hqm_list_sel_pipe_rf_qid_dir_tot_enq_cnt_mem_wclk,
+  i_hqm_list_sel_pipe_rf_qid_dir_tot_enq_cnt_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_qid_dir_tot_enq_cnt_mem_wdata,
+  i_hqm_list_sel_pipe_rf_qid_dir_tot_enq_cnt_mem_we,
+  i_hqm_list_sel_pipe_rf_qid_ldb_enqueue_count_mem_raddr,
+  i_hqm_list_sel_pipe_rf_qid_ldb_enqueue_count_mem_rclk,
+  i_hqm_list_sel_pipe_rf_qid_ldb_enqueue_count_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_qid_ldb_enqueue_count_mem_rdata,
+  i_hqm_list_sel_pipe_rf_qid_ldb_enqueue_count_mem_re,
+  i_hqm_list_sel_pipe_rf_qid_ldb_enqueue_count_mem_waddr,
+  i_hqm_list_sel_pipe_rf_qid_ldb_enqueue_count_mem_wclk,
+  i_hqm_list_sel_pipe_rf_qid_ldb_enqueue_count_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_qid_ldb_enqueue_count_mem_wdata,
+  i_hqm_list_sel_pipe_rf_qid_ldb_enqueue_count_mem_we,
+  i_hqm_list_sel_pipe_rf_qid_ldb_inflight_count_mem_raddr,
+  i_hqm_list_sel_pipe_rf_qid_ldb_inflight_count_mem_rclk,
+  i_hqm_list_sel_pipe_rf_qid_ldb_inflight_count_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_qid_ldb_inflight_count_mem_rdata,
+  i_hqm_list_sel_pipe_rf_qid_ldb_inflight_count_mem_re,
+  i_hqm_list_sel_pipe_rf_qid_ldb_inflight_count_mem_waddr,
+  i_hqm_list_sel_pipe_rf_qid_ldb_inflight_count_mem_wclk,
+  i_hqm_list_sel_pipe_rf_qid_ldb_inflight_count_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_qid_ldb_inflight_count_mem_wdata,
+  i_hqm_list_sel_pipe_rf_qid_ldb_inflight_count_mem_we,
+  i_hqm_list_sel_pipe_rf_qid_ldb_replay_count_mem_raddr,
+  i_hqm_list_sel_pipe_rf_qid_ldb_replay_count_mem_rclk,
+  i_hqm_list_sel_pipe_rf_qid_ldb_replay_count_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_qid_ldb_replay_count_mem_rdata,
+  i_hqm_list_sel_pipe_rf_qid_ldb_replay_count_mem_re,
+  i_hqm_list_sel_pipe_rf_qid_ldb_replay_count_mem_waddr,
+  i_hqm_list_sel_pipe_rf_qid_ldb_replay_count_mem_wclk,
+  i_hqm_list_sel_pipe_rf_qid_ldb_replay_count_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_qid_ldb_replay_count_mem_wdata,
+  i_hqm_list_sel_pipe_rf_qid_ldb_replay_count_mem_we,
+  i_hqm_list_sel_pipe_rf_qid_naldb_max_depth_mem_raddr,
+  i_hqm_list_sel_pipe_rf_qid_naldb_max_depth_mem_rclk,
+  i_hqm_list_sel_pipe_rf_qid_naldb_max_depth_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_qid_naldb_max_depth_mem_rdata,
+  i_hqm_list_sel_pipe_rf_qid_naldb_max_depth_mem_re,
+  i_hqm_list_sel_pipe_rf_qid_naldb_max_depth_mem_waddr,
+  i_hqm_list_sel_pipe_rf_qid_naldb_max_depth_mem_wclk,
+  i_hqm_list_sel_pipe_rf_qid_naldb_max_depth_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_qid_naldb_max_depth_mem_wdata,
+  i_hqm_list_sel_pipe_rf_qid_naldb_max_depth_mem_we,
+  i_hqm_list_sel_pipe_rf_qid_naldb_tot_enq_cnt_mem_raddr,
+  i_hqm_list_sel_pipe_rf_qid_naldb_tot_enq_cnt_mem_rclk,
+  i_hqm_list_sel_pipe_rf_qid_naldb_tot_enq_cnt_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_qid_naldb_tot_enq_cnt_mem_rdata,
+  i_hqm_list_sel_pipe_rf_qid_naldb_tot_enq_cnt_mem_re,
+  i_hqm_list_sel_pipe_rf_qid_naldb_tot_enq_cnt_mem_waddr,
+  i_hqm_list_sel_pipe_rf_qid_naldb_tot_enq_cnt_mem_wclk,
+  i_hqm_list_sel_pipe_rf_qid_naldb_tot_enq_cnt_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_qid_naldb_tot_enq_cnt_mem_wdata,
+  i_hqm_list_sel_pipe_rf_qid_naldb_tot_enq_cnt_mem_we,
+  i_hqm_list_sel_pipe_rf_qid_rdylst_clamp_raddr,
+  i_hqm_list_sel_pipe_rf_qid_rdylst_clamp_rclk,
+  i_hqm_list_sel_pipe_rf_qid_rdylst_clamp_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_qid_rdylst_clamp_rdata,
+  i_hqm_list_sel_pipe_rf_qid_rdylst_clamp_re,
+  i_hqm_list_sel_pipe_rf_qid_rdylst_clamp_waddr,
+  i_hqm_list_sel_pipe_rf_qid_rdylst_clamp_wclk,
+  i_hqm_list_sel_pipe_rf_qid_rdylst_clamp_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_qid_rdylst_clamp_wdata,
+  i_hqm_list_sel_pipe_rf_qid_rdylst_clamp_we,
+  i_hqm_list_sel_pipe_rf_rop_lsp_reordercmp_rx_sync_fifo_mem_raddr,
+  i_hqm_list_sel_pipe_rf_rop_lsp_reordercmp_rx_sync_fifo_mem_rclk,
+  i_hqm_list_sel_pipe_rf_rop_lsp_reordercmp_rx_sync_fifo_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_rop_lsp_reordercmp_rx_sync_fifo_mem_rdata,
+  i_hqm_list_sel_pipe_rf_rop_lsp_reordercmp_rx_sync_fifo_mem_re,
+  i_hqm_list_sel_pipe_rf_rop_lsp_reordercmp_rx_sync_fifo_mem_waddr,
+  i_hqm_list_sel_pipe_rf_rop_lsp_reordercmp_rx_sync_fifo_mem_wclk,
+  i_hqm_list_sel_pipe_rf_rop_lsp_reordercmp_rx_sync_fifo_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_rop_lsp_reordercmp_rx_sync_fifo_mem_wdata,
+  i_hqm_list_sel_pipe_rf_rop_lsp_reordercmp_rx_sync_fifo_mem_we,
+  i_hqm_list_sel_pipe_rf_send_atm_to_cq_rx_sync_fifo_mem_raddr,
+  i_hqm_list_sel_pipe_rf_send_atm_to_cq_rx_sync_fifo_mem_rclk,
+  i_hqm_list_sel_pipe_rf_send_atm_to_cq_rx_sync_fifo_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_send_atm_to_cq_rx_sync_fifo_mem_rdata,
+  i_hqm_list_sel_pipe_rf_send_atm_to_cq_rx_sync_fifo_mem_re,
+  i_hqm_list_sel_pipe_rf_send_atm_to_cq_rx_sync_fifo_mem_waddr,
+  i_hqm_list_sel_pipe_rf_send_atm_to_cq_rx_sync_fifo_mem_wclk,
+  i_hqm_list_sel_pipe_rf_send_atm_to_cq_rx_sync_fifo_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_send_atm_to_cq_rx_sync_fifo_mem_wdata,
+  i_hqm_list_sel_pipe_rf_send_atm_to_cq_rx_sync_fifo_mem_we,
+  i_hqm_list_sel_pipe_rf_uno_atm_cmp_fifo_mem_raddr,
+  i_hqm_list_sel_pipe_rf_uno_atm_cmp_fifo_mem_rclk,
+  i_hqm_list_sel_pipe_rf_uno_atm_cmp_fifo_mem_rclk_rst_n,
+  i_hqm_list_sel_pipe_rf_uno_atm_cmp_fifo_mem_rdata,
+  i_hqm_list_sel_pipe_rf_uno_atm_cmp_fifo_mem_re,
+  i_hqm_list_sel_pipe_rf_uno_atm_cmp_fifo_mem_waddr,
+  i_hqm_list_sel_pipe_rf_uno_atm_cmp_fifo_mem_wclk,
+  i_hqm_list_sel_pipe_rf_uno_atm_cmp_fifo_mem_wclk_rst_n,
+  i_hqm_list_sel_pipe_rf_uno_atm_cmp_fifo_mem_wdata,
+  i_hqm_list_sel_pipe_rf_uno_atm_cmp_fifo_mem_we,
+  i_hqm_qed_pipe_qed_cfg_req_down_1_0,
+  i_hqm_qed_pipe_qed_cfg_rsp_down_5_4,
+  i_hqm_qed_pipe_qed_lsp_deq_v,
+  i_hqm_qed_pipe_rf_atq_cnt_raddr,
+  i_hqm_qed_pipe_rf_atq_cnt_rclk,
+  i_hqm_qed_pipe_rf_atq_cnt_rclk_rst_n,
+  i_hqm_qed_pipe_rf_atq_cnt_rdata,
+  i_hqm_qed_pipe_rf_atq_cnt_re,
+  i_hqm_qed_pipe_rf_atq_cnt_waddr,
+  i_hqm_qed_pipe_rf_atq_cnt_wclk,
+  i_hqm_qed_pipe_rf_atq_cnt_wclk_rst_n,
+  i_hqm_qed_pipe_rf_atq_cnt_wdata,
+  i_hqm_qed_pipe_rf_atq_cnt_we,
+  i_hqm_qed_pipe_rf_atq_hp_raddr,
+  i_hqm_qed_pipe_rf_atq_hp_rclk,
+  i_hqm_qed_pipe_rf_atq_hp_rclk_rst_n,
+  i_hqm_qed_pipe_rf_atq_hp_rdata,
+  i_hqm_qed_pipe_rf_atq_hp_re,
+  i_hqm_qed_pipe_rf_atq_hp_waddr,
+  i_hqm_qed_pipe_rf_atq_hp_wclk,
+  i_hqm_qed_pipe_rf_atq_hp_wclk_rst_n,
+  i_hqm_qed_pipe_rf_atq_hp_wdata,
+  i_hqm_qed_pipe_rf_atq_hp_we,
+  i_hqm_qed_pipe_rf_atq_tp_raddr,
+  i_hqm_qed_pipe_rf_atq_tp_rclk,
+  i_hqm_qed_pipe_rf_atq_tp_rclk_rst_n,
+  i_hqm_qed_pipe_rf_atq_tp_rdata,
+  i_hqm_qed_pipe_rf_atq_tp_re,
+  i_hqm_qed_pipe_rf_atq_tp_waddr,
+  i_hqm_qed_pipe_rf_atq_tp_wclk,
+  i_hqm_qed_pipe_rf_atq_tp_wclk_rst_n,
+  i_hqm_qed_pipe_rf_atq_tp_wdata,
+  i_hqm_qed_pipe_rf_atq_tp_we,
+  i_hqm_qed_pipe_rf_dir_cnt_raddr,
+  i_hqm_qed_pipe_rf_dir_cnt_rclk,
+  i_hqm_qed_pipe_rf_dir_cnt_rclk_rst_n,
+  i_hqm_qed_pipe_rf_dir_cnt_rdata,
+  i_hqm_qed_pipe_rf_dir_cnt_re,
+  i_hqm_qed_pipe_rf_dir_cnt_waddr,
+  i_hqm_qed_pipe_rf_dir_cnt_wclk,
+  i_hqm_qed_pipe_rf_dir_cnt_wclk_rst_n,
+  i_hqm_qed_pipe_rf_dir_cnt_wdata,
+  i_hqm_qed_pipe_rf_dir_cnt_we,
+  i_hqm_qed_pipe_rf_dir_hp_raddr,
+  i_hqm_qed_pipe_rf_dir_hp_rclk,
+  i_hqm_qed_pipe_rf_dir_hp_rclk_rst_n,
+  i_hqm_qed_pipe_rf_dir_hp_rdata,
+  i_hqm_qed_pipe_rf_dir_hp_re,
+  i_hqm_qed_pipe_rf_dir_hp_waddr,
+  i_hqm_qed_pipe_rf_dir_hp_wclk,
+  i_hqm_qed_pipe_rf_dir_hp_wclk_rst_n,
+  i_hqm_qed_pipe_rf_dir_hp_wdata,
+  i_hqm_qed_pipe_rf_dir_hp_we,
+  i_hqm_qed_pipe_rf_dir_replay_cnt_raddr,
+  i_hqm_qed_pipe_rf_dir_replay_cnt_rclk,
+  i_hqm_qed_pipe_rf_dir_replay_cnt_rclk_rst_n,
+  i_hqm_qed_pipe_rf_dir_replay_cnt_rdata,
+  i_hqm_qed_pipe_rf_dir_replay_cnt_re,
+  i_hqm_qed_pipe_rf_dir_replay_cnt_waddr,
+  i_hqm_qed_pipe_rf_dir_replay_cnt_wclk,
+  i_hqm_qed_pipe_rf_dir_replay_cnt_wclk_rst_n,
+  i_hqm_qed_pipe_rf_dir_replay_cnt_wdata,
+  i_hqm_qed_pipe_rf_dir_replay_cnt_we,
+  i_hqm_qed_pipe_rf_dir_replay_hp_raddr,
+  i_hqm_qed_pipe_rf_dir_replay_hp_rclk,
+  i_hqm_qed_pipe_rf_dir_replay_hp_rclk_rst_n,
+  i_hqm_qed_pipe_rf_dir_replay_hp_rdata,
+  i_hqm_qed_pipe_rf_dir_replay_hp_re,
+  i_hqm_qed_pipe_rf_dir_replay_hp_waddr,
+  i_hqm_qed_pipe_rf_dir_replay_hp_wclk,
+  i_hqm_qed_pipe_rf_dir_replay_hp_wclk_rst_n,
+  i_hqm_qed_pipe_rf_dir_replay_hp_wdata,
+  i_hqm_qed_pipe_rf_dir_replay_hp_we,
+  i_hqm_qed_pipe_rf_dir_replay_tp_raddr,
+  i_hqm_qed_pipe_rf_dir_replay_tp_rclk,
+  i_hqm_qed_pipe_rf_dir_replay_tp_rclk_rst_n,
+  i_hqm_qed_pipe_rf_dir_replay_tp_rdata,
+  i_hqm_qed_pipe_rf_dir_replay_tp_re,
+  i_hqm_qed_pipe_rf_dir_replay_tp_waddr,
+  i_hqm_qed_pipe_rf_dir_replay_tp_wclk,
+  i_hqm_qed_pipe_rf_dir_replay_tp_wclk_rst_n,
+  i_hqm_qed_pipe_rf_dir_replay_tp_wdata,
+  i_hqm_qed_pipe_rf_dir_replay_tp_we,
+  i_hqm_qed_pipe_rf_dir_rofrag_cnt_raddr,
+  i_hqm_qed_pipe_rf_dir_rofrag_cnt_rclk,
+  i_hqm_qed_pipe_rf_dir_rofrag_cnt_rclk_rst_n,
+  i_hqm_qed_pipe_rf_dir_rofrag_cnt_rdata,
+  i_hqm_qed_pipe_rf_dir_rofrag_cnt_re,
+  i_hqm_qed_pipe_rf_dir_rofrag_cnt_waddr,
+  i_hqm_qed_pipe_rf_dir_rofrag_cnt_wclk,
+  i_hqm_qed_pipe_rf_dir_rofrag_cnt_wclk_rst_n,
+  i_hqm_qed_pipe_rf_dir_rofrag_cnt_wdata,
+  i_hqm_qed_pipe_rf_dir_rofrag_cnt_we,
+  i_hqm_qed_pipe_rf_dir_rofrag_hp_raddr,
+  i_hqm_qed_pipe_rf_dir_rofrag_hp_rclk,
+  i_hqm_qed_pipe_rf_dir_rofrag_hp_rclk_rst_n,
+  i_hqm_qed_pipe_rf_dir_rofrag_hp_rdata,
+  i_hqm_qed_pipe_rf_dir_rofrag_hp_re,
+  i_hqm_qed_pipe_rf_dir_rofrag_hp_waddr,
+  i_hqm_qed_pipe_rf_dir_rofrag_hp_wclk,
+  i_hqm_qed_pipe_rf_dir_rofrag_hp_wclk_rst_n,
+  i_hqm_qed_pipe_rf_dir_rofrag_hp_wdata,
+  i_hqm_qed_pipe_rf_dir_rofrag_hp_we,
+  i_hqm_qed_pipe_rf_dir_rofrag_tp_raddr,
+  i_hqm_qed_pipe_rf_dir_rofrag_tp_rclk,
+  i_hqm_qed_pipe_rf_dir_rofrag_tp_rclk_rst_n,
+  i_hqm_qed_pipe_rf_dir_rofrag_tp_rdata,
+  i_hqm_qed_pipe_rf_dir_rofrag_tp_re,
+  i_hqm_qed_pipe_rf_dir_rofrag_tp_waddr,
+  i_hqm_qed_pipe_rf_dir_rofrag_tp_wclk,
+  i_hqm_qed_pipe_rf_dir_rofrag_tp_wclk_rst_n,
+  i_hqm_qed_pipe_rf_dir_rofrag_tp_wdata,
+  i_hqm_qed_pipe_rf_dir_rofrag_tp_we,
+  i_hqm_qed_pipe_rf_dir_tp_raddr,
+  i_hqm_qed_pipe_rf_dir_tp_rclk,
+  i_hqm_qed_pipe_rf_dir_tp_rclk_rst_n,
+  i_hqm_qed_pipe_rf_dir_tp_rdata,
+  i_hqm_qed_pipe_rf_dir_tp_re,
+  i_hqm_qed_pipe_rf_dir_tp_waddr,
+  i_hqm_qed_pipe_rf_dir_tp_wclk,
+  i_hqm_qed_pipe_rf_dir_tp_wclk_rst_n,
+  i_hqm_qed_pipe_rf_dir_tp_wdata,
+  i_hqm_qed_pipe_rf_dir_tp_we,
+  i_hqm_qed_pipe_rf_dp_dqed_raddr,
+  i_hqm_qed_pipe_rf_dp_dqed_rclk,
+  i_hqm_qed_pipe_rf_dp_dqed_rclk_rst_n,
+  i_hqm_qed_pipe_rf_dp_dqed_rdata,
+  i_hqm_qed_pipe_rf_dp_dqed_re,
+  i_hqm_qed_pipe_rf_dp_dqed_waddr,
+  i_hqm_qed_pipe_rf_dp_dqed_wclk,
+  i_hqm_qed_pipe_rf_dp_dqed_wclk_rst_n,
+  i_hqm_qed_pipe_rf_dp_dqed_wdata,
+  i_hqm_qed_pipe_rf_dp_dqed_we,
+  i_hqm_qed_pipe_rf_dp_lsp_enq_dir_raddr,
+  i_hqm_qed_pipe_rf_dp_lsp_enq_dir_rclk,
+  i_hqm_qed_pipe_rf_dp_lsp_enq_dir_rclk_rst_n,
+  i_hqm_qed_pipe_rf_dp_lsp_enq_dir_rdata,
+  i_hqm_qed_pipe_rf_dp_lsp_enq_dir_re,
+  i_hqm_qed_pipe_rf_dp_lsp_enq_dir_waddr,
+  i_hqm_qed_pipe_rf_dp_lsp_enq_dir_wclk,
+  i_hqm_qed_pipe_rf_dp_lsp_enq_dir_wclk_rst_n,
+  i_hqm_qed_pipe_rf_dp_lsp_enq_dir_wdata,
+  i_hqm_qed_pipe_rf_dp_lsp_enq_dir_we,
+  i_hqm_qed_pipe_rf_dp_lsp_enq_rorply_raddr,
+  i_hqm_qed_pipe_rf_dp_lsp_enq_rorply_rclk,
+  i_hqm_qed_pipe_rf_dp_lsp_enq_rorply_rclk_rst_n,
+  i_hqm_qed_pipe_rf_dp_lsp_enq_rorply_rdata,
+  i_hqm_qed_pipe_rf_dp_lsp_enq_rorply_re,
+  i_hqm_qed_pipe_rf_dp_lsp_enq_rorply_waddr,
+  i_hqm_qed_pipe_rf_dp_lsp_enq_rorply_wclk,
+  i_hqm_qed_pipe_rf_dp_lsp_enq_rorply_wclk_rst_n,
+  i_hqm_qed_pipe_rf_dp_lsp_enq_rorply_wdata,
+  i_hqm_qed_pipe_rf_dp_lsp_enq_rorply_we,
+  i_hqm_qed_pipe_rf_lsp_dp_sch_dir_raddr,
+  i_hqm_qed_pipe_rf_lsp_dp_sch_dir_rclk,
+  i_hqm_qed_pipe_rf_lsp_dp_sch_dir_rclk_rst_n,
+  i_hqm_qed_pipe_rf_lsp_dp_sch_dir_rdata,
+  i_hqm_qed_pipe_rf_lsp_dp_sch_dir_re,
+  i_hqm_qed_pipe_rf_lsp_dp_sch_dir_waddr,
+  i_hqm_qed_pipe_rf_lsp_dp_sch_dir_wclk,
+  i_hqm_qed_pipe_rf_lsp_dp_sch_dir_wclk_rst_n,
+  i_hqm_qed_pipe_rf_lsp_dp_sch_dir_wdata,
+  i_hqm_qed_pipe_rf_lsp_dp_sch_dir_we,
+  i_hqm_qed_pipe_rf_lsp_dp_sch_rorply_raddr,
+  i_hqm_qed_pipe_rf_lsp_dp_sch_rorply_rclk,
+  i_hqm_qed_pipe_rf_lsp_dp_sch_rorply_rclk_rst_n,
+  i_hqm_qed_pipe_rf_lsp_dp_sch_rorply_rdata,
+  i_hqm_qed_pipe_rf_lsp_dp_sch_rorply_re,
+  i_hqm_qed_pipe_rf_lsp_dp_sch_rorply_waddr,
+  i_hqm_qed_pipe_rf_lsp_dp_sch_rorply_wclk,
+  i_hqm_qed_pipe_rf_lsp_dp_sch_rorply_wclk_rst_n,
+  i_hqm_qed_pipe_rf_lsp_dp_sch_rorply_wdata,
+  i_hqm_qed_pipe_rf_lsp_dp_sch_rorply_we,
+  i_hqm_qed_pipe_rf_lsp_nalb_sch_atq_raddr,
+  i_hqm_qed_pipe_rf_lsp_nalb_sch_atq_rclk,
+  i_hqm_qed_pipe_rf_lsp_nalb_sch_atq_rclk_rst_n,
+  i_hqm_qed_pipe_rf_lsp_nalb_sch_atq_rdata,
+  i_hqm_qed_pipe_rf_lsp_nalb_sch_atq_re,
+  i_hqm_qed_pipe_rf_lsp_nalb_sch_atq_waddr,
+  i_hqm_qed_pipe_rf_lsp_nalb_sch_atq_wclk,
+  i_hqm_qed_pipe_rf_lsp_nalb_sch_atq_wclk_rst_n,
+  i_hqm_qed_pipe_rf_lsp_nalb_sch_atq_wdata,
+  i_hqm_qed_pipe_rf_lsp_nalb_sch_atq_we,
+  i_hqm_qed_pipe_rf_lsp_nalb_sch_rorply_raddr,
+  i_hqm_qed_pipe_rf_lsp_nalb_sch_rorply_rclk,
+  i_hqm_qed_pipe_rf_lsp_nalb_sch_rorply_rclk_rst_n,
+  i_hqm_qed_pipe_rf_lsp_nalb_sch_rorply_rdata,
+  i_hqm_qed_pipe_rf_lsp_nalb_sch_rorply_re,
+  i_hqm_qed_pipe_rf_lsp_nalb_sch_rorply_waddr,
+  i_hqm_qed_pipe_rf_lsp_nalb_sch_rorply_wclk,
+  i_hqm_qed_pipe_rf_lsp_nalb_sch_rorply_wclk_rst_n,
+  i_hqm_qed_pipe_rf_lsp_nalb_sch_rorply_wdata,
+  i_hqm_qed_pipe_rf_lsp_nalb_sch_rorply_we,
+  i_hqm_qed_pipe_rf_lsp_nalb_sch_unoord_raddr,
+  i_hqm_qed_pipe_rf_lsp_nalb_sch_unoord_rclk,
+  i_hqm_qed_pipe_rf_lsp_nalb_sch_unoord_rclk_rst_n,
+  i_hqm_qed_pipe_rf_lsp_nalb_sch_unoord_rdata,
+  i_hqm_qed_pipe_rf_lsp_nalb_sch_unoord_re,
+  i_hqm_qed_pipe_rf_lsp_nalb_sch_unoord_waddr,
+  i_hqm_qed_pipe_rf_lsp_nalb_sch_unoord_wclk,
+  i_hqm_qed_pipe_rf_lsp_nalb_sch_unoord_wclk_rst_n,
+  i_hqm_qed_pipe_rf_lsp_nalb_sch_unoord_wdata,
+  i_hqm_qed_pipe_rf_lsp_nalb_sch_unoord_we,
+  i_hqm_qed_pipe_rf_nalb_cnt_raddr,
+  i_hqm_qed_pipe_rf_nalb_cnt_rclk,
+  i_hqm_qed_pipe_rf_nalb_cnt_rclk_rst_n,
+  i_hqm_qed_pipe_rf_nalb_cnt_rdata,
+  i_hqm_qed_pipe_rf_nalb_cnt_re,
+  i_hqm_qed_pipe_rf_nalb_cnt_waddr,
+  i_hqm_qed_pipe_rf_nalb_cnt_wclk,
+  i_hqm_qed_pipe_rf_nalb_cnt_wclk_rst_n,
+  i_hqm_qed_pipe_rf_nalb_cnt_wdata,
+  i_hqm_qed_pipe_rf_nalb_cnt_we,
+  i_hqm_qed_pipe_rf_nalb_hp_raddr,
+  i_hqm_qed_pipe_rf_nalb_hp_rclk,
+  i_hqm_qed_pipe_rf_nalb_hp_rclk_rst_n,
+  i_hqm_qed_pipe_rf_nalb_hp_rdata,
+  i_hqm_qed_pipe_rf_nalb_hp_re,
+  i_hqm_qed_pipe_rf_nalb_hp_waddr,
+  i_hqm_qed_pipe_rf_nalb_hp_wclk,
+  i_hqm_qed_pipe_rf_nalb_hp_wclk_rst_n,
+  i_hqm_qed_pipe_rf_nalb_hp_wdata,
+  i_hqm_qed_pipe_rf_nalb_hp_we,
+  i_hqm_qed_pipe_rf_nalb_lsp_enq_rorply_raddr,
+  i_hqm_qed_pipe_rf_nalb_lsp_enq_rorply_rclk,
+  i_hqm_qed_pipe_rf_nalb_lsp_enq_rorply_rclk_rst_n,
+  i_hqm_qed_pipe_rf_nalb_lsp_enq_rorply_rdata,
+  i_hqm_qed_pipe_rf_nalb_lsp_enq_rorply_re,
+  i_hqm_qed_pipe_rf_nalb_lsp_enq_rorply_waddr,
+  i_hqm_qed_pipe_rf_nalb_lsp_enq_rorply_wclk,
+  i_hqm_qed_pipe_rf_nalb_lsp_enq_rorply_wclk_rst_n,
+  i_hqm_qed_pipe_rf_nalb_lsp_enq_rorply_wdata,
+  i_hqm_qed_pipe_rf_nalb_lsp_enq_rorply_we,
+  i_hqm_qed_pipe_rf_nalb_lsp_enq_unoord_raddr,
+  i_hqm_qed_pipe_rf_nalb_lsp_enq_unoord_rclk,
+  i_hqm_qed_pipe_rf_nalb_lsp_enq_unoord_rclk_rst_n,
+  i_hqm_qed_pipe_rf_nalb_lsp_enq_unoord_rdata,
+  i_hqm_qed_pipe_rf_nalb_lsp_enq_unoord_re,
+  i_hqm_qed_pipe_rf_nalb_lsp_enq_unoord_waddr,
+  i_hqm_qed_pipe_rf_nalb_lsp_enq_unoord_wclk,
+  i_hqm_qed_pipe_rf_nalb_lsp_enq_unoord_wclk_rst_n,
+  i_hqm_qed_pipe_rf_nalb_lsp_enq_unoord_wdata,
+  i_hqm_qed_pipe_rf_nalb_lsp_enq_unoord_we,
+  i_hqm_qed_pipe_rf_nalb_qed_raddr,
+  i_hqm_qed_pipe_rf_nalb_qed_rclk,
+  i_hqm_qed_pipe_rf_nalb_qed_rclk_rst_n,
+  i_hqm_qed_pipe_rf_nalb_qed_rdata,
+  i_hqm_qed_pipe_rf_nalb_qed_re,
+  i_hqm_qed_pipe_rf_nalb_qed_waddr,
+  i_hqm_qed_pipe_rf_nalb_qed_wclk,
+  i_hqm_qed_pipe_rf_nalb_qed_wclk_rst_n,
+  i_hqm_qed_pipe_rf_nalb_qed_wdata,
+  i_hqm_qed_pipe_rf_nalb_qed_we,
+  i_hqm_qed_pipe_rf_nalb_replay_cnt_raddr,
+  i_hqm_qed_pipe_rf_nalb_replay_cnt_rclk,
+  i_hqm_qed_pipe_rf_nalb_replay_cnt_rclk_rst_n,
+  i_hqm_qed_pipe_rf_nalb_replay_cnt_rdata,
+  i_hqm_qed_pipe_rf_nalb_replay_cnt_re,
+  i_hqm_qed_pipe_rf_nalb_replay_cnt_waddr,
+  i_hqm_qed_pipe_rf_nalb_replay_cnt_wclk,
+  i_hqm_qed_pipe_rf_nalb_replay_cnt_wclk_rst_n,
+  i_hqm_qed_pipe_rf_nalb_replay_cnt_wdata,
+  i_hqm_qed_pipe_rf_nalb_replay_cnt_we,
+  i_hqm_qed_pipe_rf_nalb_replay_hp_raddr,
+  i_hqm_qed_pipe_rf_nalb_replay_hp_rclk,
+  i_hqm_qed_pipe_rf_nalb_replay_hp_rclk_rst_n,
+  i_hqm_qed_pipe_rf_nalb_replay_hp_rdata,
+  i_hqm_qed_pipe_rf_nalb_replay_hp_re,
+  i_hqm_qed_pipe_rf_nalb_replay_hp_waddr,
+  i_hqm_qed_pipe_rf_nalb_replay_hp_wclk,
+  i_hqm_qed_pipe_rf_nalb_replay_hp_wclk_rst_n,
+  i_hqm_qed_pipe_rf_nalb_replay_hp_wdata,
+  i_hqm_qed_pipe_rf_nalb_replay_hp_we,
+  i_hqm_qed_pipe_rf_nalb_replay_tp_raddr,
+  i_hqm_qed_pipe_rf_nalb_replay_tp_rclk,
+  i_hqm_qed_pipe_rf_nalb_replay_tp_rclk_rst_n,
+  i_hqm_qed_pipe_rf_nalb_replay_tp_rdata,
+  i_hqm_qed_pipe_rf_nalb_replay_tp_re,
+  i_hqm_qed_pipe_rf_nalb_replay_tp_waddr,
+  i_hqm_qed_pipe_rf_nalb_replay_tp_wclk,
+  i_hqm_qed_pipe_rf_nalb_replay_tp_wclk_rst_n,
+  i_hqm_qed_pipe_rf_nalb_replay_tp_wdata,
+  i_hqm_qed_pipe_rf_nalb_replay_tp_we,
+  i_hqm_qed_pipe_rf_nalb_rofrag_cnt_raddr,
+  i_hqm_qed_pipe_rf_nalb_rofrag_cnt_rclk,
+  i_hqm_qed_pipe_rf_nalb_rofrag_cnt_rclk_rst_n,
+  i_hqm_qed_pipe_rf_nalb_rofrag_cnt_rdata,
+  i_hqm_qed_pipe_rf_nalb_rofrag_cnt_re,
+  i_hqm_qed_pipe_rf_nalb_rofrag_cnt_waddr,
+  i_hqm_qed_pipe_rf_nalb_rofrag_cnt_wclk,
+  i_hqm_qed_pipe_rf_nalb_rofrag_cnt_wclk_rst_n,
+  i_hqm_qed_pipe_rf_nalb_rofrag_cnt_wdata,
+  i_hqm_qed_pipe_rf_nalb_rofrag_cnt_we,
+  i_hqm_qed_pipe_rf_nalb_rofrag_hp_raddr,
+  i_hqm_qed_pipe_rf_nalb_rofrag_hp_rclk,
+  i_hqm_qed_pipe_rf_nalb_rofrag_hp_rclk_rst_n,
+  i_hqm_qed_pipe_rf_nalb_rofrag_hp_rdata,
+  i_hqm_qed_pipe_rf_nalb_rofrag_hp_re,
+  i_hqm_qed_pipe_rf_nalb_rofrag_hp_waddr,
+  i_hqm_qed_pipe_rf_nalb_rofrag_hp_wclk,
+  i_hqm_qed_pipe_rf_nalb_rofrag_hp_wclk_rst_n,
+  i_hqm_qed_pipe_rf_nalb_rofrag_hp_wdata,
+  i_hqm_qed_pipe_rf_nalb_rofrag_hp_we,
+  i_hqm_qed_pipe_rf_nalb_rofrag_tp_raddr,
+  i_hqm_qed_pipe_rf_nalb_rofrag_tp_rclk,
+  i_hqm_qed_pipe_rf_nalb_rofrag_tp_rclk_rst_n,
+  i_hqm_qed_pipe_rf_nalb_rofrag_tp_rdata,
+  i_hqm_qed_pipe_rf_nalb_rofrag_tp_re,
+  i_hqm_qed_pipe_rf_nalb_rofrag_tp_waddr,
+  i_hqm_qed_pipe_rf_nalb_rofrag_tp_wclk,
+  i_hqm_qed_pipe_rf_nalb_rofrag_tp_wclk_rst_n,
+  i_hqm_qed_pipe_rf_nalb_rofrag_tp_wdata,
+  i_hqm_qed_pipe_rf_nalb_rofrag_tp_we,
+  i_hqm_qed_pipe_rf_nalb_tp_raddr,
+  i_hqm_qed_pipe_rf_nalb_tp_rclk,
+  i_hqm_qed_pipe_rf_nalb_tp_rclk_rst_n,
+  i_hqm_qed_pipe_rf_nalb_tp_rdata,
+  i_hqm_qed_pipe_rf_nalb_tp_re,
+  i_hqm_qed_pipe_rf_nalb_tp_waddr,
+  i_hqm_qed_pipe_rf_nalb_tp_wclk,
+  i_hqm_qed_pipe_rf_nalb_tp_wclk_rst_n,
+  i_hqm_qed_pipe_rf_nalb_tp_wdata,
+  i_hqm_qed_pipe_rf_nalb_tp_we,
+  i_hqm_qed_pipe_rf_qed_chp_sch_data_raddr,
+  i_hqm_qed_pipe_rf_qed_chp_sch_data_rclk,
+  i_hqm_qed_pipe_rf_qed_chp_sch_data_rclk_rst_n,
+  i_hqm_qed_pipe_rf_qed_chp_sch_data_rdata,
+  i_hqm_qed_pipe_rf_qed_chp_sch_data_re,
+  i_hqm_qed_pipe_rf_qed_chp_sch_data_waddr,
+  i_hqm_qed_pipe_rf_qed_chp_sch_data_wclk,
+  i_hqm_qed_pipe_rf_qed_chp_sch_data_wclk_rst_n,
+  i_hqm_qed_pipe_rf_qed_chp_sch_data_wdata,
+  i_hqm_qed_pipe_rf_qed_chp_sch_data_we,
+  i_hqm_qed_pipe_rf_rop_dp_enq_dir_raddr,
+  i_hqm_qed_pipe_rf_rop_dp_enq_dir_rclk,
+  i_hqm_qed_pipe_rf_rop_dp_enq_dir_rclk_rst_n,
+  i_hqm_qed_pipe_rf_rop_dp_enq_dir_rdata,
+  i_hqm_qed_pipe_rf_rop_dp_enq_dir_re,
+  i_hqm_qed_pipe_rf_rop_dp_enq_dir_waddr,
+  i_hqm_qed_pipe_rf_rop_dp_enq_dir_wclk,
+  i_hqm_qed_pipe_rf_rop_dp_enq_dir_wclk_rst_n,
+  i_hqm_qed_pipe_rf_rop_dp_enq_dir_wdata,
+  i_hqm_qed_pipe_rf_rop_dp_enq_dir_we,
+  i_hqm_qed_pipe_rf_rop_dp_enq_ro_raddr,
+  i_hqm_qed_pipe_rf_rop_dp_enq_ro_rclk,
+  i_hqm_qed_pipe_rf_rop_dp_enq_ro_rclk_rst_n,
+  i_hqm_qed_pipe_rf_rop_dp_enq_ro_rdata,
+  i_hqm_qed_pipe_rf_rop_dp_enq_ro_re,
+  i_hqm_qed_pipe_rf_rop_dp_enq_ro_waddr,
+  i_hqm_qed_pipe_rf_rop_dp_enq_ro_wclk,
+  i_hqm_qed_pipe_rf_rop_dp_enq_ro_wclk_rst_n,
+  i_hqm_qed_pipe_rf_rop_dp_enq_ro_wdata,
+  i_hqm_qed_pipe_rf_rop_dp_enq_ro_we,
+  i_hqm_qed_pipe_rf_rop_nalb_enq_ro_raddr,
+  i_hqm_qed_pipe_rf_rop_nalb_enq_ro_rclk,
+  i_hqm_qed_pipe_rf_rop_nalb_enq_ro_rclk_rst_n,
+  i_hqm_qed_pipe_rf_rop_nalb_enq_ro_rdata,
+  i_hqm_qed_pipe_rf_rop_nalb_enq_ro_re,
+  i_hqm_qed_pipe_rf_rop_nalb_enq_ro_waddr,
+  i_hqm_qed_pipe_rf_rop_nalb_enq_ro_wclk,
+  i_hqm_qed_pipe_rf_rop_nalb_enq_ro_wclk_rst_n,
+  i_hqm_qed_pipe_rf_rop_nalb_enq_ro_wdata,
+  i_hqm_qed_pipe_rf_rop_nalb_enq_ro_we,
+  i_hqm_qed_pipe_rf_rop_nalb_enq_unoord_raddr,
+  i_hqm_qed_pipe_rf_rop_nalb_enq_unoord_rclk,
+  i_hqm_qed_pipe_rf_rop_nalb_enq_unoord_rclk_rst_n,
+  i_hqm_qed_pipe_rf_rop_nalb_enq_unoord_rdata,
+  i_hqm_qed_pipe_rf_rop_nalb_enq_unoord_re,
+  i_hqm_qed_pipe_rf_rop_nalb_enq_unoord_waddr,
+  i_hqm_qed_pipe_rf_rop_nalb_enq_unoord_wclk,
+  i_hqm_qed_pipe_rf_rop_nalb_enq_unoord_wclk_rst_n,
+  i_hqm_qed_pipe_rf_rop_nalb_enq_unoord_wdata,
+  i_hqm_qed_pipe_rf_rop_nalb_enq_unoord_we,
+  i_hqm_qed_pipe_rf_rx_sync_dp_dqed_data_raddr,
+  i_hqm_qed_pipe_rf_rx_sync_dp_dqed_data_rclk,
+  i_hqm_qed_pipe_rf_rx_sync_dp_dqed_data_rclk_rst_n,
+  i_hqm_qed_pipe_rf_rx_sync_dp_dqed_data_rdata,
+  i_hqm_qed_pipe_rf_rx_sync_dp_dqed_data_re,
+  i_hqm_qed_pipe_rf_rx_sync_dp_dqed_data_waddr,
+  i_hqm_qed_pipe_rf_rx_sync_dp_dqed_data_wclk,
+  i_hqm_qed_pipe_rf_rx_sync_dp_dqed_data_wclk_rst_n,
+  i_hqm_qed_pipe_rf_rx_sync_dp_dqed_data_wdata,
+  i_hqm_qed_pipe_rf_rx_sync_dp_dqed_data_we,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_dir_raddr,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_dir_rclk,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_dir_rclk_rst_n,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_dir_rdata,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_dir_re,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_dir_waddr,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_dir_wclk,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_dir_wclk_rst_n,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_dir_wdata,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_dir_we,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_rorply_raddr,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_rorply_rclk,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_rorply_rclk_rst_n,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_rorply_rdata,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_rorply_re,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_rorply_waddr,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_rorply_wclk,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_rorply_wclk_rst_n,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_rorply_wdata,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_rorply_we,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_atq_raddr,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_atq_rclk,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_atq_rclk_rst_n,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_atq_rdata,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_atq_re,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_atq_waddr,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_atq_wclk,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_atq_wclk_rst_n,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_atq_wdata,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_atq_we,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_rorply_raddr,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_rorply_rclk,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_rorply_rclk_rst_n,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_rorply_rdata,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_rorply_re,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_rorply_waddr,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_rorply_wclk,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_rorply_wclk_rst_n,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_rorply_wdata,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_rorply_we,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_unoord_raddr,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_unoord_rclk,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_unoord_rclk_rst_n,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_unoord_rdata,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_unoord_re,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_unoord_waddr,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_unoord_wclk,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_unoord_wclk_rst_n,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_unoord_wdata,
+  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_unoord_we,
+  i_hqm_qed_pipe_rf_rx_sync_nalb_qed_data_raddr,
+  i_hqm_qed_pipe_rf_rx_sync_nalb_qed_data_rclk,
+  i_hqm_qed_pipe_rf_rx_sync_nalb_qed_data_rclk_rst_n,
+  i_hqm_qed_pipe_rf_rx_sync_nalb_qed_data_rdata,
+  i_hqm_qed_pipe_rf_rx_sync_nalb_qed_data_re,
+  i_hqm_qed_pipe_rf_rx_sync_nalb_qed_data_waddr,
+  i_hqm_qed_pipe_rf_rx_sync_nalb_qed_data_wclk,
+  i_hqm_qed_pipe_rf_rx_sync_nalb_qed_data_wclk_rst_n,
+  i_hqm_qed_pipe_rf_rx_sync_nalb_qed_data_wdata,
+  i_hqm_qed_pipe_rf_rx_sync_nalb_qed_data_we,
+  i_hqm_qed_pipe_rf_rx_sync_rop_dp_enq_raddr,
+  i_hqm_qed_pipe_rf_rx_sync_rop_dp_enq_rclk,
+  i_hqm_qed_pipe_rf_rx_sync_rop_dp_enq_rclk_rst_n,
+  i_hqm_qed_pipe_rf_rx_sync_rop_dp_enq_rdata,
+  i_hqm_qed_pipe_rf_rx_sync_rop_dp_enq_re,
+  i_hqm_qed_pipe_rf_rx_sync_rop_dp_enq_waddr,
+  i_hqm_qed_pipe_rf_rx_sync_rop_dp_enq_wclk,
+  i_hqm_qed_pipe_rf_rx_sync_rop_dp_enq_wclk_rst_n,
+  i_hqm_qed_pipe_rf_rx_sync_rop_dp_enq_wdata,
+  i_hqm_qed_pipe_rf_rx_sync_rop_dp_enq_we,
+  i_hqm_qed_pipe_rf_rx_sync_rop_nalb_enq_raddr,
+  i_hqm_qed_pipe_rf_rx_sync_rop_nalb_enq_rclk,
+  i_hqm_qed_pipe_rf_rx_sync_rop_nalb_enq_rclk_rst_n,
+  i_hqm_qed_pipe_rf_rx_sync_rop_nalb_enq_rdata,
+  i_hqm_qed_pipe_rf_rx_sync_rop_nalb_enq_re,
+  i_hqm_qed_pipe_rf_rx_sync_rop_nalb_enq_waddr,
+  i_hqm_qed_pipe_rf_rx_sync_rop_nalb_enq_wclk,
+  i_hqm_qed_pipe_rf_rx_sync_rop_nalb_enq_wclk_rst_n,
+  i_hqm_qed_pipe_rf_rx_sync_rop_nalb_enq_wdata,
+  i_hqm_qed_pipe_rf_rx_sync_rop_nalb_enq_we,
+  i_hqm_qed_pipe_rf_rx_sync_rop_qed_dqed_enq_raddr,
+  i_hqm_qed_pipe_rf_rx_sync_rop_qed_dqed_enq_rclk,
+  i_hqm_qed_pipe_rf_rx_sync_rop_qed_dqed_enq_rclk_rst_n,
+  i_hqm_qed_pipe_rf_rx_sync_rop_qed_dqed_enq_rdata,
+  i_hqm_qed_pipe_rf_rx_sync_rop_qed_dqed_enq_re,
+  i_hqm_qed_pipe_rf_rx_sync_rop_qed_dqed_enq_waddr,
+  i_hqm_qed_pipe_rf_rx_sync_rop_qed_dqed_enq_wclk,
+  i_hqm_qed_pipe_rf_rx_sync_rop_qed_dqed_enq_wclk_rst_n,
+  i_hqm_qed_pipe_rf_rx_sync_rop_qed_dqed_enq_wdata,
+  i_hqm_qed_pipe_rf_rx_sync_rop_qed_dqed_enq_we,
+  i_hqm_qed_pipe_sr_dir_nxthp_addr,
+  i_hqm_qed_pipe_sr_dir_nxthp_clk,
+  i_hqm_qed_pipe_sr_dir_nxthp_clk_rst_n,
+  i_hqm_qed_pipe_sr_dir_nxthp_rdata,
+  i_hqm_qed_pipe_sr_dir_nxthp_re,
+  i_hqm_qed_pipe_sr_dir_nxthp_wdata,
+  i_hqm_qed_pipe_sr_dir_nxthp_we,
+  i_hqm_qed_pipe_sr_nalb_nxthp_addr,
+  i_hqm_qed_pipe_sr_nalb_nxthp_clk,
+  i_hqm_qed_pipe_sr_nalb_nxthp_clk_rst_n,
+  i_hqm_qed_pipe_sr_nalb_nxthp_rdata,
+  i_hqm_qed_pipe_sr_nalb_nxthp_re,
+  i_hqm_qed_pipe_sr_nalb_nxthp_wdata,
+  i_hqm_qed_pipe_sr_nalb_nxthp_we,
+  i_hqm_qed_pipe_sr_qed_0_addr,
+  i_hqm_qed_pipe_sr_qed_0_clk,
+  i_hqm_qed_pipe_sr_qed_0_clk_rst_n,
+  i_hqm_qed_pipe_sr_qed_0_rdata,
+  i_hqm_qed_pipe_sr_qed_0_re,
+  i_hqm_qed_pipe_sr_qed_0_wdata,
+  i_hqm_qed_pipe_sr_qed_0_we,
+  i_hqm_qed_pipe_sr_qed_1_addr,
+  i_hqm_qed_pipe_sr_qed_1_clk,
+  i_hqm_qed_pipe_sr_qed_1_clk_rst_n,
+  i_hqm_qed_pipe_sr_qed_1_rdata,
+  i_hqm_qed_pipe_sr_qed_1_re,
+  i_hqm_qed_pipe_sr_qed_1_wdata,
+  i_hqm_qed_pipe_sr_qed_1_we,
+  i_hqm_qed_pipe_sr_qed_2_addr,
+  i_hqm_qed_pipe_sr_qed_2_clk,
+  i_hqm_qed_pipe_sr_qed_2_clk_rst_n,
+  i_hqm_qed_pipe_sr_qed_2_rdata,
+  i_hqm_qed_pipe_sr_qed_2_re,
+  i_hqm_qed_pipe_sr_qed_2_wdata,
+  i_hqm_qed_pipe_sr_qed_2_we,
+  i_hqm_qed_pipe_sr_qed_3_addr,
+  i_hqm_qed_pipe_sr_qed_3_clk,
+  i_hqm_qed_pipe_sr_qed_3_clk_rst_n,
+  i_hqm_qed_pipe_sr_qed_3_rdata,
+  i_hqm_qed_pipe_sr_qed_3_re,
+  i_hqm_qed_pipe_sr_qed_3_wdata,
+  i_hqm_qed_pipe_sr_qed_3_we,
+  i_hqm_qed_pipe_sr_qed_4_addr,
+  i_hqm_qed_pipe_sr_qed_4_clk,
+  i_hqm_qed_pipe_sr_qed_4_clk_rst_n,
+  i_hqm_qed_pipe_sr_qed_4_rdata,
+  i_hqm_qed_pipe_sr_qed_4_re,
+  i_hqm_qed_pipe_sr_qed_4_wdata,
+  i_hqm_qed_pipe_sr_qed_4_we,
+  i_hqm_qed_pipe_sr_qed_5_addr,
+  i_hqm_qed_pipe_sr_qed_5_clk,
+  i_hqm_qed_pipe_sr_qed_5_clk_rst_n,
+  i_hqm_qed_pipe_sr_qed_5_rdata,
+  i_hqm_qed_pipe_sr_qed_5_re,
+  i_hqm_qed_pipe_sr_qed_5_wdata,
+  i_hqm_qed_pipe_sr_qed_5_we,
+  i_hqm_qed_pipe_sr_qed_6_addr,
+  i_hqm_qed_pipe_sr_qed_6_clk,
+  i_hqm_qed_pipe_sr_qed_6_clk_rst_n,
+  i_hqm_qed_pipe_sr_qed_6_rdata,
+  i_hqm_qed_pipe_sr_qed_6_re,
+  i_hqm_qed_pipe_sr_qed_6_wdata,
+  i_hqm_qed_pipe_sr_qed_6_we,
+  i_hqm_qed_pipe_sr_qed_7_addr,
+  i_hqm_qed_pipe_sr_qed_7_clk,
+  i_hqm_qed_pipe_sr_qed_7_clk_rst_n,
+  i_hqm_qed_pipe_sr_qed_7_rdata,
+  i_hqm_qed_pipe_sr_qed_7_re,
+  i_hqm_qed_pipe_sr_qed_7_wdata,
+  i_hqm_qed_pipe_sr_qed_7_we,
+  i_hqm_reorder_pipe_rf_dir_rply_req_fifo_mem_raddr,
+  i_hqm_reorder_pipe_rf_dir_rply_req_fifo_mem_rclk,
+  i_hqm_reorder_pipe_rf_dir_rply_req_fifo_mem_rclk_rst_n,
+  i_hqm_reorder_pipe_rf_dir_rply_req_fifo_mem_rdata,
+  i_hqm_reorder_pipe_rf_dir_rply_req_fifo_mem_re,
+  i_hqm_reorder_pipe_rf_dir_rply_req_fifo_mem_waddr,
+  i_hqm_reorder_pipe_rf_dir_rply_req_fifo_mem_wclk,
+  i_hqm_reorder_pipe_rf_dir_rply_req_fifo_mem_wclk_rst_n,
+  i_hqm_reorder_pipe_rf_dir_rply_req_fifo_mem_wdata,
+  i_hqm_reorder_pipe_rf_dir_rply_req_fifo_mem_we,
+  i_hqm_reorder_pipe_rf_ldb_rply_req_fifo_mem_raddr,
+  i_hqm_reorder_pipe_rf_ldb_rply_req_fifo_mem_rclk,
+  i_hqm_reorder_pipe_rf_ldb_rply_req_fifo_mem_rclk_rst_n,
+  i_hqm_reorder_pipe_rf_ldb_rply_req_fifo_mem_rdata,
+  i_hqm_reorder_pipe_rf_ldb_rply_req_fifo_mem_re,
+  i_hqm_reorder_pipe_rf_ldb_rply_req_fifo_mem_waddr,
+  i_hqm_reorder_pipe_rf_ldb_rply_req_fifo_mem_wclk,
+  i_hqm_reorder_pipe_rf_ldb_rply_req_fifo_mem_wclk_rst_n,
+  i_hqm_reorder_pipe_rf_ldb_rply_req_fifo_mem_wdata,
+  i_hqm_reorder_pipe_rf_ldb_rply_req_fifo_mem_we,
+  i_hqm_reorder_pipe_rf_lsp_reordercmp_fifo_mem_raddr,
+  i_hqm_reorder_pipe_rf_lsp_reordercmp_fifo_mem_rclk,
+  i_hqm_reorder_pipe_rf_lsp_reordercmp_fifo_mem_rclk_rst_n,
+  i_hqm_reorder_pipe_rf_lsp_reordercmp_fifo_mem_rdata,
+  i_hqm_reorder_pipe_rf_lsp_reordercmp_fifo_mem_re,
+  i_hqm_reorder_pipe_rf_lsp_reordercmp_fifo_mem_waddr,
+  i_hqm_reorder_pipe_rf_lsp_reordercmp_fifo_mem_wclk,
+  i_hqm_reorder_pipe_rf_lsp_reordercmp_fifo_mem_wclk_rst_n,
+  i_hqm_reorder_pipe_rf_lsp_reordercmp_fifo_mem_wdata,
+  i_hqm_reorder_pipe_rf_lsp_reordercmp_fifo_mem_we,
+  i_hqm_reorder_pipe_rf_reord_cnt_mem_raddr,
+  i_hqm_reorder_pipe_rf_reord_cnt_mem_rclk,
+  i_hqm_reorder_pipe_rf_reord_cnt_mem_rclk_rst_n,
+  i_hqm_reorder_pipe_rf_reord_cnt_mem_rdata,
+  i_hqm_reorder_pipe_rf_reord_cnt_mem_re,
+  i_hqm_reorder_pipe_rf_reord_cnt_mem_waddr,
+  i_hqm_reorder_pipe_rf_reord_cnt_mem_wclk,
+  i_hqm_reorder_pipe_rf_reord_cnt_mem_wclk_rst_n,
+  i_hqm_reorder_pipe_rf_reord_cnt_mem_wdata,
+  i_hqm_reorder_pipe_rf_reord_cnt_mem_we,
+  i_hqm_reorder_pipe_rf_reord_dirhp_mem_raddr,
+  i_hqm_reorder_pipe_rf_reord_dirhp_mem_rclk,
+  i_hqm_reorder_pipe_rf_reord_dirhp_mem_rclk_rst_n,
+  i_hqm_reorder_pipe_rf_reord_dirhp_mem_rdata,
+  i_hqm_reorder_pipe_rf_reord_dirhp_mem_re,
+  i_hqm_reorder_pipe_rf_reord_dirhp_mem_waddr,
+  i_hqm_reorder_pipe_rf_reord_dirhp_mem_wclk,
+  i_hqm_reorder_pipe_rf_reord_dirhp_mem_wclk_rst_n,
+  i_hqm_reorder_pipe_rf_reord_dirhp_mem_wdata,
+  i_hqm_reorder_pipe_rf_reord_dirhp_mem_we,
+  i_hqm_reorder_pipe_rf_reord_dirtp_mem_raddr,
+  i_hqm_reorder_pipe_rf_reord_dirtp_mem_rclk,
+  i_hqm_reorder_pipe_rf_reord_dirtp_mem_rclk_rst_n,
+  i_hqm_reorder_pipe_rf_reord_dirtp_mem_rdata,
+  i_hqm_reorder_pipe_rf_reord_dirtp_mem_re,
+  i_hqm_reorder_pipe_rf_reord_dirtp_mem_waddr,
+  i_hqm_reorder_pipe_rf_reord_dirtp_mem_wclk,
+  i_hqm_reorder_pipe_rf_reord_dirtp_mem_wclk_rst_n,
+  i_hqm_reorder_pipe_rf_reord_dirtp_mem_wdata,
+  i_hqm_reorder_pipe_rf_reord_dirtp_mem_we,
+  i_hqm_reorder_pipe_rf_reord_lbhp_mem_raddr,
+  i_hqm_reorder_pipe_rf_reord_lbhp_mem_rclk,
+  i_hqm_reorder_pipe_rf_reord_lbhp_mem_rclk_rst_n,
+  i_hqm_reorder_pipe_rf_reord_lbhp_mem_rdata,
+  i_hqm_reorder_pipe_rf_reord_lbhp_mem_re,
+  i_hqm_reorder_pipe_rf_reord_lbhp_mem_waddr,
+  i_hqm_reorder_pipe_rf_reord_lbhp_mem_wclk,
+  i_hqm_reorder_pipe_rf_reord_lbhp_mem_wclk_rst_n,
+  i_hqm_reorder_pipe_rf_reord_lbhp_mem_wdata,
+  i_hqm_reorder_pipe_rf_reord_lbhp_mem_we,
+  i_hqm_reorder_pipe_rf_reord_lbtp_mem_raddr,
+  i_hqm_reorder_pipe_rf_reord_lbtp_mem_rclk,
+  i_hqm_reorder_pipe_rf_reord_lbtp_mem_rclk_rst_n,
+  i_hqm_reorder_pipe_rf_reord_lbtp_mem_rdata,
+  i_hqm_reorder_pipe_rf_reord_lbtp_mem_re,
+  i_hqm_reorder_pipe_rf_reord_lbtp_mem_waddr,
+  i_hqm_reorder_pipe_rf_reord_lbtp_mem_wclk,
+  i_hqm_reorder_pipe_rf_reord_lbtp_mem_wclk_rst_n,
+  i_hqm_reorder_pipe_rf_reord_lbtp_mem_wdata,
+  i_hqm_reorder_pipe_rf_reord_lbtp_mem_we,
+  i_hqm_reorder_pipe_rf_reord_st_mem_raddr,
+  i_hqm_reorder_pipe_rf_reord_st_mem_rclk,
+  i_hqm_reorder_pipe_rf_reord_st_mem_rclk_rst_n,
+  i_hqm_reorder_pipe_rf_reord_st_mem_rdata,
+  i_hqm_reorder_pipe_rf_reord_st_mem_re,
+  i_hqm_reorder_pipe_rf_reord_st_mem_waddr,
+  i_hqm_reorder_pipe_rf_reord_st_mem_wclk,
+  i_hqm_reorder_pipe_rf_reord_st_mem_wclk_rst_n,
+  i_hqm_reorder_pipe_rf_reord_st_mem_wdata,
+  i_hqm_reorder_pipe_rf_reord_st_mem_we,
+  i_hqm_reorder_pipe_rf_rop_chp_rop_hcw_fifo_mem_raddr,
+  i_hqm_reorder_pipe_rf_rop_chp_rop_hcw_fifo_mem_rclk,
+  i_hqm_reorder_pipe_rf_rop_chp_rop_hcw_fifo_mem_rclk_rst_n,
+  i_hqm_reorder_pipe_rf_rop_chp_rop_hcw_fifo_mem_rdata,
+  i_hqm_reorder_pipe_rf_rop_chp_rop_hcw_fifo_mem_re,
+  i_hqm_reorder_pipe_rf_rop_chp_rop_hcw_fifo_mem_waddr,
+  i_hqm_reorder_pipe_rf_rop_chp_rop_hcw_fifo_mem_wclk,
+  i_hqm_reorder_pipe_rf_rop_chp_rop_hcw_fifo_mem_wclk_rst_n,
+  i_hqm_reorder_pipe_rf_rop_chp_rop_hcw_fifo_mem_wdata,
+  i_hqm_reorder_pipe_rf_rop_chp_rop_hcw_fifo_mem_we,
+  i_hqm_reorder_pipe_rf_sn0_order_shft_mem_raddr,
+  i_hqm_reorder_pipe_rf_sn0_order_shft_mem_rclk,
+  i_hqm_reorder_pipe_rf_sn0_order_shft_mem_rclk_rst_n,
+  i_hqm_reorder_pipe_rf_sn0_order_shft_mem_rdata,
+  i_hqm_reorder_pipe_rf_sn0_order_shft_mem_re,
+  i_hqm_reorder_pipe_rf_sn0_order_shft_mem_waddr,
+  i_hqm_reorder_pipe_rf_sn0_order_shft_mem_wclk,
+  i_hqm_reorder_pipe_rf_sn0_order_shft_mem_wclk_rst_n,
+  i_hqm_reorder_pipe_rf_sn0_order_shft_mem_wdata,
+  i_hqm_reorder_pipe_rf_sn0_order_shft_mem_we,
+  i_hqm_reorder_pipe_rf_sn1_order_shft_mem_raddr,
+  i_hqm_reorder_pipe_rf_sn1_order_shft_mem_rclk,
+  i_hqm_reorder_pipe_rf_sn1_order_shft_mem_rclk_rst_n,
+  i_hqm_reorder_pipe_rf_sn1_order_shft_mem_rdata,
+  i_hqm_reorder_pipe_rf_sn1_order_shft_mem_re,
+  i_hqm_reorder_pipe_rf_sn1_order_shft_mem_waddr,
+  i_hqm_reorder_pipe_rf_sn1_order_shft_mem_wclk,
+  i_hqm_reorder_pipe_rf_sn1_order_shft_mem_wclk_rst_n,
+  i_hqm_reorder_pipe_rf_sn1_order_shft_mem_wdata,
+  i_hqm_reorder_pipe_rf_sn1_order_shft_mem_we,
+  i_hqm_reorder_pipe_rf_sn_complete_fifo_mem_raddr,
+  i_hqm_reorder_pipe_rf_sn_complete_fifo_mem_rclk,
+  i_hqm_reorder_pipe_rf_sn_complete_fifo_mem_rclk_rst_n,
+  i_hqm_reorder_pipe_rf_sn_complete_fifo_mem_rdata,
+  i_hqm_reorder_pipe_rf_sn_complete_fifo_mem_re,
+  i_hqm_reorder_pipe_rf_sn_complete_fifo_mem_waddr,
+  i_hqm_reorder_pipe_rf_sn_complete_fifo_mem_wclk,
+  i_hqm_reorder_pipe_rf_sn_complete_fifo_mem_wclk_rst_n,
+  i_hqm_reorder_pipe_rf_sn_complete_fifo_mem_wdata,
+  i_hqm_reorder_pipe_rf_sn_complete_fifo_mem_we,
+  i_hqm_reorder_pipe_rf_sn_ordered_fifo_mem_raddr,
+  i_hqm_reorder_pipe_rf_sn_ordered_fifo_mem_rclk,
+  i_hqm_reorder_pipe_rf_sn_ordered_fifo_mem_rclk_rst_n,
+  i_hqm_reorder_pipe_rf_sn_ordered_fifo_mem_rdata,
+  i_hqm_reorder_pipe_rf_sn_ordered_fifo_mem_re,
+  i_hqm_reorder_pipe_rf_sn_ordered_fifo_mem_waddr,
+  i_hqm_reorder_pipe_rf_sn_ordered_fifo_mem_wclk,
+  i_hqm_reorder_pipe_rf_sn_ordered_fifo_mem_wclk_rst_n,
+  i_hqm_reorder_pipe_rf_sn_ordered_fifo_mem_wdata,
+  i_hqm_reorder_pipe_rf_sn_ordered_fifo_mem_we,
+  i_hqm_reorder_pipe_rop_cfg_req_down_1_0,
+  i_hqm_reorder_pipe_rop_cfg_rsp_down_5_4,
+  i_hqm_system_rf_alarm_vf_synd0_raddr,
+  i_hqm_system_rf_alarm_vf_synd0_rclk,
+  i_hqm_system_rf_alarm_vf_synd0_rclk_rst_n,
+  i_hqm_system_rf_alarm_vf_synd0_rdata,
+  i_hqm_system_rf_alarm_vf_synd0_re,
+  i_hqm_system_rf_alarm_vf_synd0_waddr,
+  i_hqm_system_rf_alarm_vf_synd0_wclk,
+  i_hqm_system_rf_alarm_vf_synd0_wclk_rst_n,
+  i_hqm_system_rf_alarm_vf_synd0_wdata,
+  i_hqm_system_rf_alarm_vf_synd0_we,
+  i_hqm_system_rf_alarm_vf_synd1_raddr,
+  i_hqm_system_rf_alarm_vf_synd1_rclk,
+  i_hqm_system_rf_alarm_vf_synd1_rclk_rst_n,
+  i_hqm_system_rf_alarm_vf_synd1_rdata,
+  i_hqm_system_rf_alarm_vf_synd1_re,
+  i_hqm_system_rf_alarm_vf_synd1_waddr,
+  i_hqm_system_rf_alarm_vf_synd1_wclk,
+  i_hqm_system_rf_alarm_vf_synd1_wclk_rst_n,
+  i_hqm_system_rf_alarm_vf_synd1_wdata,
+  i_hqm_system_rf_alarm_vf_synd1_we,
+  i_hqm_system_rf_alarm_vf_synd2_raddr,
+  i_hqm_system_rf_alarm_vf_synd2_rclk,
+  i_hqm_system_rf_alarm_vf_synd2_rclk_rst_n,
+  i_hqm_system_rf_alarm_vf_synd2_rdata,
+  i_hqm_system_rf_alarm_vf_synd2_re,
+  i_hqm_system_rf_alarm_vf_synd2_waddr,
+  i_hqm_system_rf_alarm_vf_synd2_wclk,
+  i_hqm_system_rf_alarm_vf_synd2_wclk_rst_n,
+  i_hqm_system_rf_alarm_vf_synd2_wdata,
+  i_hqm_system_rf_alarm_vf_synd2_we,
+  i_hqm_system_rf_dir_wb0_raddr,
+  i_hqm_system_rf_dir_wb0_rclk,
+  i_hqm_system_rf_dir_wb0_rclk_rst_n,
+  i_hqm_system_rf_dir_wb0_rdata,
+  i_hqm_system_rf_dir_wb0_re,
+  i_hqm_system_rf_dir_wb0_waddr,
+  i_hqm_system_rf_dir_wb0_wclk,
+  i_hqm_system_rf_dir_wb0_wclk_rst_n,
+  i_hqm_system_rf_dir_wb0_wdata,
+  i_hqm_system_rf_dir_wb0_we,
+  i_hqm_system_rf_dir_wb1_raddr,
+  i_hqm_system_rf_dir_wb1_rclk,
+  i_hqm_system_rf_dir_wb1_rclk_rst_n,
+  i_hqm_system_rf_dir_wb1_rdata,
+  i_hqm_system_rf_dir_wb1_re,
+  i_hqm_system_rf_dir_wb1_waddr,
+  i_hqm_system_rf_dir_wb1_wclk,
+  i_hqm_system_rf_dir_wb1_wclk_rst_n,
+  i_hqm_system_rf_dir_wb1_wdata,
+  i_hqm_system_rf_dir_wb1_we,
+  i_hqm_system_rf_dir_wb2_raddr,
+  i_hqm_system_rf_dir_wb2_rclk,
+  i_hqm_system_rf_dir_wb2_rclk_rst_n,
+  i_hqm_system_rf_dir_wb2_rdata,
+  i_hqm_system_rf_dir_wb2_re,
+  i_hqm_system_rf_dir_wb2_waddr,
+  i_hqm_system_rf_dir_wb2_wclk,
+  i_hqm_system_rf_dir_wb2_wclk_rst_n,
+  i_hqm_system_rf_dir_wb2_wdata,
+  i_hqm_system_rf_dir_wb2_we,
+  i_hqm_system_rf_hcw_enq_fifo_raddr,
+  i_hqm_system_rf_hcw_enq_fifo_rclk,
+  i_hqm_system_rf_hcw_enq_fifo_rclk_rst_n,
+  i_hqm_system_rf_hcw_enq_fifo_rdata,
+  i_hqm_system_rf_hcw_enq_fifo_re,
+  i_hqm_system_rf_hcw_enq_fifo_waddr,
+  i_hqm_system_rf_hcw_enq_fifo_wclk,
+  i_hqm_system_rf_hcw_enq_fifo_wclk_rst_n,
+  i_hqm_system_rf_hcw_enq_fifo_wdata,
+  i_hqm_system_rf_hcw_enq_fifo_we,
+  i_hqm_system_rf_ldb_wb0_raddr,
+  i_hqm_system_rf_ldb_wb0_rclk,
+  i_hqm_system_rf_ldb_wb0_rclk_rst_n,
+  i_hqm_system_rf_ldb_wb0_rdata,
+  i_hqm_system_rf_ldb_wb0_re,
+  i_hqm_system_rf_ldb_wb0_waddr,
+  i_hqm_system_rf_ldb_wb0_wclk,
+  i_hqm_system_rf_ldb_wb0_wclk_rst_n,
+  i_hqm_system_rf_ldb_wb0_wdata,
+  i_hqm_system_rf_ldb_wb0_we,
+  i_hqm_system_rf_ldb_wb1_raddr,
+  i_hqm_system_rf_ldb_wb1_rclk,
+  i_hqm_system_rf_ldb_wb1_rclk_rst_n,
+  i_hqm_system_rf_ldb_wb1_rdata,
+  i_hqm_system_rf_ldb_wb1_re,
+  i_hqm_system_rf_ldb_wb1_waddr,
+  i_hqm_system_rf_ldb_wb1_wclk,
+  i_hqm_system_rf_ldb_wb1_wclk_rst_n,
+  i_hqm_system_rf_ldb_wb1_wdata,
+  i_hqm_system_rf_ldb_wb1_we,
+  i_hqm_system_rf_ldb_wb2_raddr,
+  i_hqm_system_rf_ldb_wb2_rclk,
+  i_hqm_system_rf_ldb_wb2_rclk_rst_n,
+  i_hqm_system_rf_ldb_wb2_rdata,
+  i_hqm_system_rf_ldb_wb2_re,
+  i_hqm_system_rf_ldb_wb2_waddr,
+  i_hqm_system_rf_ldb_wb2_wclk,
+  i_hqm_system_rf_ldb_wb2_wclk_rst_n,
+  i_hqm_system_rf_ldb_wb2_wdata,
+  i_hqm_system_rf_ldb_wb2_we,
+  i_hqm_system_rf_lut_dir_cq2vf_pf_ro_raddr,
+  i_hqm_system_rf_lut_dir_cq2vf_pf_ro_rclk,
+  i_hqm_system_rf_lut_dir_cq2vf_pf_ro_rclk_rst_n,
+  i_hqm_system_rf_lut_dir_cq2vf_pf_ro_rdata,
+  i_hqm_system_rf_lut_dir_cq2vf_pf_ro_re,
+  i_hqm_system_rf_lut_dir_cq2vf_pf_ro_waddr,
+  i_hqm_system_rf_lut_dir_cq2vf_pf_ro_wclk,
+  i_hqm_system_rf_lut_dir_cq2vf_pf_ro_wclk_rst_n,
+  i_hqm_system_rf_lut_dir_cq2vf_pf_ro_wdata,
+  i_hqm_system_rf_lut_dir_cq2vf_pf_ro_we,
+  i_hqm_system_rf_lut_dir_cq_addr_l_raddr,
+  i_hqm_system_rf_lut_dir_cq_addr_l_rclk,
+  i_hqm_system_rf_lut_dir_cq_addr_l_rclk_rst_n,
+  i_hqm_system_rf_lut_dir_cq_addr_l_rdata,
+  i_hqm_system_rf_lut_dir_cq_addr_l_re,
+  i_hqm_system_rf_lut_dir_cq_addr_l_waddr,
+  i_hqm_system_rf_lut_dir_cq_addr_l_wclk,
+  i_hqm_system_rf_lut_dir_cq_addr_l_wclk_rst_n,
+  i_hqm_system_rf_lut_dir_cq_addr_l_wdata,
+  i_hqm_system_rf_lut_dir_cq_addr_l_we,
+  i_hqm_system_rf_lut_dir_cq_addr_u_raddr,
+  i_hqm_system_rf_lut_dir_cq_addr_u_rclk,
+  i_hqm_system_rf_lut_dir_cq_addr_u_rclk_rst_n,
+  i_hqm_system_rf_lut_dir_cq_addr_u_rdata,
+  i_hqm_system_rf_lut_dir_cq_addr_u_re,
+  i_hqm_system_rf_lut_dir_cq_addr_u_waddr,
+  i_hqm_system_rf_lut_dir_cq_addr_u_wclk,
+  i_hqm_system_rf_lut_dir_cq_addr_u_wclk_rst_n,
+  i_hqm_system_rf_lut_dir_cq_addr_u_wdata,
+  i_hqm_system_rf_lut_dir_cq_addr_u_we,
+  i_hqm_system_rf_lut_dir_cq_ai_addr_l_raddr,
+  i_hqm_system_rf_lut_dir_cq_ai_addr_l_rclk,
+  i_hqm_system_rf_lut_dir_cq_ai_addr_l_rclk_rst_n,
+  i_hqm_system_rf_lut_dir_cq_ai_addr_l_rdata,
+  i_hqm_system_rf_lut_dir_cq_ai_addr_l_re,
+  i_hqm_system_rf_lut_dir_cq_ai_addr_l_waddr,
+  i_hqm_system_rf_lut_dir_cq_ai_addr_l_wclk,
+  i_hqm_system_rf_lut_dir_cq_ai_addr_l_wclk_rst_n,
+  i_hqm_system_rf_lut_dir_cq_ai_addr_l_wdata,
+  i_hqm_system_rf_lut_dir_cq_ai_addr_l_we,
+  i_hqm_system_rf_lut_dir_cq_ai_addr_u_raddr,
+  i_hqm_system_rf_lut_dir_cq_ai_addr_u_rclk,
+  i_hqm_system_rf_lut_dir_cq_ai_addr_u_rclk_rst_n,
+  i_hqm_system_rf_lut_dir_cq_ai_addr_u_rdata,
+  i_hqm_system_rf_lut_dir_cq_ai_addr_u_re,
+  i_hqm_system_rf_lut_dir_cq_ai_addr_u_waddr,
+  i_hqm_system_rf_lut_dir_cq_ai_addr_u_wclk,
+  i_hqm_system_rf_lut_dir_cq_ai_addr_u_wclk_rst_n,
+  i_hqm_system_rf_lut_dir_cq_ai_addr_u_wdata,
+  i_hqm_system_rf_lut_dir_cq_ai_addr_u_we,
+  i_hqm_system_rf_lut_dir_cq_ai_data_raddr,
+  i_hqm_system_rf_lut_dir_cq_ai_data_rclk,
+  i_hqm_system_rf_lut_dir_cq_ai_data_rclk_rst_n,
+  i_hqm_system_rf_lut_dir_cq_ai_data_rdata,
+  i_hqm_system_rf_lut_dir_cq_ai_data_re,
+  i_hqm_system_rf_lut_dir_cq_ai_data_waddr,
+  i_hqm_system_rf_lut_dir_cq_ai_data_wclk,
+  i_hqm_system_rf_lut_dir_cq_ai_data_wclk_rst_n,
+  i_hqm_system_rf_lut_dir_cq_ai_data_wdata,
+  i_hqm_system_rf_lut_dir_cq_ai_data_we,
+  i_hqm_system_rf_lut_dir_cq_isr_raddr,
+  i_hqm_system_rf_lut_dir_cq_isr_rclk,
+  i_hqm_system_rf_lut_dir_cq_isr_rclk_rst_n,
+  i_hqm_system_rf_lut_dir_cq_isr_rdata,
+  i_hqm_system_rf_lut_dir_cq_isr_re,
+  i_hqm_system_rf_lut_dir_cq_isr_waddr,
+  i_hqm_system_rf_lut_dir_cq_isr_wclk,
+  i_hqm_system_rf_lut_dir_cq_isr_wclk_rst_n,
+  i_hqm_system_rf_lut_dir_cq_isr_wdata,
+  i_hqm_system_rf_lut_dir_cq_isr_we,
+  i_hqm_system_rf_lut_dir_cq_pasid_raddr,
+  i_hqm_system_rf_lut_dir_cq_pasid_rclk,
+  i_hqm_system_rf_lut_dir_cq_pasid_rclk_rst_n,
+  i_hqm_system_rf_lut_dir_cq_pasid_rdata,
+  i_hqm_system_rf_lut_dir_cq_pasid_re,
+  i_hqm_system_rf_lut_dir_cq_pasid_waddr,
+  i_hqm_system_rf_lut_dir_cq_pasid_wclk,
+  i_hqm_system_rf_lut_dir_cq_pasid_wclk_rst_n,
+  i_hqm_system_rf_lut_dir_cq_pasid_wdata,
+  i_hqm_system_rf_lut_dir_cq_pasid_we,
+  i_hqm_system_rf_lut_dir_pp2vas_raddr,
+  i_hqm_system_rf_lut_dir_pp2vas_rclk,
+  i_hqm_system_rf_lut_dir_pp2vas_rclk_rst_n,
+  i_hqm_system_rf_lut_dir_pp2vas_rdata,
+  i_hqm_system_rf_lut_dir_pp2vas_re,
+  i_hqm_system_rf_lut_dir_pp2vas_waddr,
+  i_hqm_system_rf_lut_dir_pp2vas_wclk,
+  i_hqm_system_rf_lut_dir_pp2vas_wclk_rst_n,
+  i_hqm_system_rf_lut_dir_pp2vas_wdata,
+  i_hqm_system_rf_lut_dir_pp2vas_we,
+  i_hqm_system_rf_lut_dir_pp_v_raddr,
+  i_hqm_system_rf_lut_dir_pp_v_rclk,
+  i_hqm_system_rf_lut_dir_pp_v_rclk_rst_n,
+  i_hqm_system_rf_lut_dir_pp_v_rdata,
+  i_hqm_system_rf_lut_dir_pp_v_re,
+  i_hqm_system_rf_lut_dir_pp_v_waddr,
+  i_hqm_system_rf_lut_dir_pp_v_wclk,
+  i_hqm_system_rf_lut_dir_pp_v_wclk_rst_n,
+  i_hqm_system_rf_lut_dir_pp_v_wdata,
+  i_hqm_system_rf_lut_dir_pp_v_we,
+  i_hqm_system_rf_lut_dir_vasqid_v_raddr,
+  i_hqm_system_rf_lut_dir_vasqid_v_rclk,
+  i_hqm_system_rf_lut_dir_vasqid_v_rclk_rst_n,
+  i_hqm_system_rf_lut_dir_vasqid_v_rdata,
+  i_hqm_system_rf_lut_dir_vasqid_v_re,
+  i_hqm_system_rf_lut_dir_vasqid_v_waddr,
+  i_hqm_system_rf_lut_dir_vasqid_v_wclk,
+  i_hqm_system_rf_lut_dir_vasqid_v_wclk_rst_n,
+  i_hqm_system_rf_lut_dir_vasqid_v_wdata,
+  i_hqm_system_rf_lut_dir_vasqid_v_we,
+  i_hqm_system_rf_lut_ldb_cq2vf_pf_ro_raddr,
+  i_hqm_system_rf_lut_ldb_cq2vf_pf_ro_rclk,
+  i_hqm_system_rf_lut_ldb_cq2vf_pf_ro_rclk_rst_n,
+  i_hqm_system_rf_lut_ldb_cq2vf_pf_ro_rdata,
+  i_hqm_system_rf_lut_ldb_cq2vf_pf_ro_re,
+  i_hqm_system_rf_lut_ldb_cq2vf_pf_ro_waddr,
+  i_hqm_system_rf_lut_ldb_cq2vf_pf_ro_wclk,
+  i_hqm_system_rf_lut_ldb_cq2vf_pf_ro_wclk_rst_n,
+  i_hqm_system_rf_lut_ldb_cq2vf_pf_ro_wdata,
+  i_hqm_system_rf_lut_ldb_cq2vf_pf_ro_we,
+  i_hqm_system_rf_lut_ldb_cq_addr_l_raddr,
+  i_hqm_system_rf_lut_ldb_cq_addr_l_rclk,
+  i_hqm_system_rf_lut_ldb_cq_addr_l_rclk_rst_n,
+  i_hqm_system_rf_lut_ldb_cq_addr_l_rdata,
+  i_hqm_system_rf_lut_ldb_cq_addr_l_re,
+  i_hqm_system_rf_lut_ldb_cq_addr_l_waddr,
+  i_hqm_system_rf_lut_ldb_cq_addr_l_wclk,
+  i_hqm_system_rf_lut_ldb_cq_addr_l_wclk_rst_n,
+  i_hqm_system_rf_lut_ldb_cq_addr_l_wdata,
+  i_hqm_system_rf_lut_ldb_cq_addr_l_we,
+  i_hqm_system_rf_lut_ldb_cq_addr_u_raddr,
+  i_hqm_system_rf_lut_ldb_cq_addr_u_rclk,
+  i_hqm_system_rf_lut_ldb_cq_addr_u_rclk_rst_n,
+  i_hqm_system_rf_lut_ldb_cq_addr_u_rdata,
+  i_hqm_system_rf_lut_ldb_cq_addr_u_re,
+  i_hqm_system_rf_lut_ldb_cq_addr_u_waddr,
+  i_hqm_system_rf_lut_ldb_cq_addr_u_wclk,
+  i_hqm_system_rf_lut_ldb_cq_addr_u_wclk_rst_n,
+  i_hqm_system_rf_lut_ldb_cq_addr_u_wdata,
+  i_hqm_system_rf_lut_ldb_cq_addr_u_we,
+  i_hqm_system_rf_lut_ldb_cq_ai_addr_l_raddr,
+  i_hqm_system_rf_lut_ldb_cq_ai_addr_l_rclk,
+  i_hqm_system_rf_lut_ldb_cq_ai_addr_l_rclk_rst_n,
+  i_hqm_system_rf_lut_ldb_cq_ai_addr_l_rdata,
+  i_hqm_system_rf_lut_ldb_cq_ai_addr_l_re,
+  i_hqm_system_rf_lut_ldb_cq_ai_addr_l_waddr,
+  i_hqm_system_rf_lut_ldb_cq_ai_addr_l_wclk,
+  i_hqm_system_rf_lut_ldb_cq_ai_addr_l_wclk_rst_n,
+  i_hqm_system_rf_lut_ldb_cq_ai_addr_l_wdata,
+  i_hqm_system_rf_lut_ldb_cq_ai_addr_l_we,
+  i_hqm_system_rf_lut_ldb_cq_ai_addr_u_raddr,
+  i_hqm_system_rf_lut_ldb_cq_ai_addr_u_rclk,
+  i_hqm_system_rf_lut_ldb_cq_ai_addr_u_rclk_rst_n,
+  i_hqm_system_rf_lut_ldb_cq_ai_addr_u_rdata,
+  i_hqm_system_rf_lut_ldb_cq_ai_addr_u_re,
+  i_hqm_system_rf_lut_ldb_cq_ai_addr_u_waddr,
+  i_hqm_system_rf_lut_ldb_cq_ai_addr_u_wclk,
+  i_hqm_system_rf_lut_ldb_cq_ai_addr_u_wclk_rst_n,
+  i_hqm_system_rf_lut_ldb_cq_ai_addr_u_wdata,
+  i_hqm_system_rf_lut_ldb_cq_ai_addr_u_we,
+  i_hqm_system_rf_lut_ldb_cq_ai_data_raddr,
+  i_hqm_system_rf_lut_ldb_cq_ai_data_rclk,
+  i_hqm_system_rf_lut_ldb_cq_ai_data_rclk_rst_n,
+  i_hqm_system_rf_lut_ldb_cq_ai_data_rdata,
+  i_hqm_system_rf_lut_ldb_cq_ai_data_re,
+  i_hqm_system_rf_lut_ldb_cq_ai_data_waddr,
+  i_hqm_system_rf_lut_ldb_cq_ai_data_wclk,
+  i_hqm_system_rf_lut_ldb_cq_ai_data_wclk_rst_n,
+  i_hqm_system_rf_lut_ldb_cq_ai_data_wdata,
+  i_hqm_system_rf_lut_ldb_cq_ai_data_we,
+  i_hqm_system_rf_lut_ldb_cq_isr_raddr,
+  i_hqm_system_rf_lut_ldb_cq_isr_rclk,
+  i_hqm_system_rf_lut_ldb_cq_isr_rclk_rst_n,
+  i_hqm_system_rf_lut_ldb_cq_isr_rdata,
+  i_hqm_system_rf_lut_ldb_cq_isr_re,
+  i_hqm_system_rf_lut_ldb_cq_isr_waddr,
+  i_hqm_system_rf_lut_ldb_cq_isr_wclk,
+  i_hqm_system_rf_lut_ldb_cq_isr_wclk_rst_n,
+  i_hqm_system_rf_lut_ldb_cq_isr_wdata,
+  i_hqm_system_rf_lut_ldb_cq_isr_we,
+  i_hqm_system_rf_lut_ldb_cq_pasid_raddr,
+  i_hqm_system_rf_lut_ldb_cq_pasid_rclk,
+  i_hqm_system_rf_lut_ldb_cq_pasid_rclk_rst_n,
+  i_hqm_system_rf_lut_ldb_cq_pasid_rdata,
+  i_hqm_system_rf_lut_ldb_cq_pasid_re,
+  i_hqm_system_rf_lut_ldb_cq_pasid_waddr,
+  i_hqm_system_rf_lut_ldb_cq_pasid_wclk,
+  i_hqm_system_rf_lut_ldb_cq_pasid_wclk_rst_n,
+  i_hqm_system_rf_lut_ldb_cq_pasid_wdata,
+  i_hqm_system_rf_lut_ldb_cq_pasid_we,
+  i_hqm_system_rf_lut_ldb_pp2vas_raddr,
+  i_hqm_system_rf_lut_ldb_pp2vas_rclk,
+  i_hqm_system_rf_lut_ldb_pp2vas_rclk_rst_n,
+  i_hqm_system_rf_lut_ldb_pp2vas_rdata,
+  i_hqm_system_rf_lut_ldb_pp2vas_re,
+  i_hqm_system_rf_lut_ldb_pp2vas_waddr,
+  i_hqm_system_rf_lut_ldb_pp2vas_wclk,
+  i_hqm_system_rf_lut_ldb_pp2vas_wclk_rst_n,
+  i_hqm_system_rf_lut_ldb_pp2vas_wdata,
+  i_hqm_system_rf_lut_ldb_pp2vas_we,
+  i_hqm_system_rf_lut_ldb_qid2vqid_raddr,
+  i_hqm_system_rf_lut_ldb_qid2vqid_rclk,
+  i_hqm_system_rf_lut_ldb_qid2vqid_rclk_rst_n,
+  i_hqm_system_rf_lut_ldb_qid2vqid_rdata,
+  i_hqm_system_rf_lut_ldb_qid2vqid_re,
+  i_hqm_system_rf_lut_ldb_qid2vqid_waddr,
+  i_hqm_system_rf_lut_ldb_qid2vqid_wclk,
+  i_hqm_system_rf_lut_ldb_qid2vqid_wclk_rst_n,
+  i_hqm_system_rf_lut_ldb_qid2vqid_wdata,
+  i_hqm_system_rf_lut_ldb_qid2vqid_we,
+  i_hqm_system_rf_lut_ldb_vasqid_v_raddr,
+  i_hqm_system_rf_lut_ldb_vasqid_v_rclk,
+  i_hqm_system_rf_lut_ldb_vasqid_v_rclk_rst_n,
+  i_hqm_system_rf_lut_ldb_vasqid_v_rdata,
+  i_hqm_system_rf_lut_ldb_vasqid_v_re,
+  i_hqm_system_rf_lut_ldb_vasqid_v_waddr,
+  i_hqm_system_rf_lut_ldb_vasqid_v_wclk,
+  i_hqm_system_rf_lut_ldb_vasqid_v_wclk_rst_n,
+  i_hqm_system_rf_lut_ldb_vasqid_v_wdata,
+  i_hqm_system_rf_lut_ldb_vasqid_v_we,
+  i_hqm_system_rf_lut_vf_dir_vpp2pp_raddr,
+  i_hqm_system_rf_lut_vf_dir_vpp2pp_rclk,
+  i_hqm_system_rf_lut_vf_dir_vpp2pp_rclk_rst_n,
+  i_hqm_system_rf_lut_vf_dir_vpp2pp_rdata,
+  i_hqm_system_rf_lut_vf_dir_vpp2pp_re,
+  i_hqm_system_rf_lut_vf_dir_vpp2pp_waddr,
+  i_hqm_system_rf_lut_vf_dir_vpp2pp_wclk,
+  i_hqm_system_rf_lut_vf_dir_vpp2pp_wclk_rst_n,
+  i_hqm_system_rf_lut_vf_dir_vpp2pp_wdata,
+  i_hqm_system_rf_lut_vf_dir_vpp2pp_we,
+  i_hqm_system_rf_lut_vf_dir_vpp_v_raddr,
+  i_hqm_system_rf_lut_vf_dir_vpp_v_rclk,
+  i_hqm_system_rf_lut_vf_dir_vpp_v_rclk_rst_n,
+  i_hqm_system_rf_lut_vf_dir_vpp_v_rdata,
+  i_hqm_system_rf_lut_vf_dir_vpp_v_re,
+  i_hqm_system_rf_lut_vf_dir_vpp_v_waddr,
+  i_hqm_system_rf_lut_vf_dir_vpp_v_wclk,
+  i_hqm_system_rf_lut_vf_dir_vpp_v_wclk_rst_n,
+  i_hqm_system_rf_lut_vf_dir_vpp_v_wdata,
+  i_hqm_system_rf_lut_vf_dir_vpp_v_we,
+  i_hqm_system_rf_lut_vf_dir_vqid2qid_raddr,
+  i_hqm_system_rf_lut_vf_dir_vqid2qid_rclk,
+  i_hqm_system_rf_lut_vf_dir_vqid2qid_rclk_rst_n,
+  i_hqm_system_rf_lut_vf_dir_vqid2qid_rdata,
+  i_hqm_system_rf_lut_vf_dir_vqid2qid_re,
+  i_hqm_system_rf_lut_vf_dir_vqid2qid_waddr,
+  i_hqm_system_rf_lut_vf_dir_vqid2qid_wclk,
+  i_hqm_system_rf_lut_vf_dir_vqid2qid_wclk_rst_n,
+  i_hqm_system_rf_lut_vf_dir_vqid2qid_wdata,
+  i_hqm_system_rf_lut_vf_dir_vqid2qid_we,
+  i_hqm_system_rf_lut_vf_dir_vqid_v_raddr,
+  i_hqm_system_rf_lut_vf_dir_vqid_v_rclk,
+  i_hqm_system_rf_lut_vf_dir_vqid_v_rclk_rst_n,
+  i_hqm_system_rf_lut_vf_dir_vqid_v_rdata,
+  i_hqm_system_rf_lut_vf_dir_vqid_v_re,
+  i_hqm_system_rf_lut_vf_dir_vqid_v_waddr,
+  i_hqm_system_rf_lut_vf_dir_vqid_v_wclk,
+  i_hqm_system_rf_lut_vf_dir_vqid_v_wclk_rst_n,
+  i_hqm_system_rf_lut_vf_dir_vqid_v_wdata,
+  i_hqm_system_rf_lut_vf_dir_vqid_v_we,
+  i_hqm_system_rf_lut_vf_ldb_vpp2pp_raddr,
+  i_hqm_system_rf_lut_vf_ldb_vpp2pp_rclk,
+  i_hqm_system_rf_lut_vf_ldb_vpp2pp_rclk_rst_n,
+  i_hqm_system_rf_lut_vf_ldb_vpp2pp_rdata,
+  i_hqm_system_rf_lut_vf_ldb_vpp2pp_re,
+  i_hqm_system_rf_lut_vf_ldb_vpp2pp_waddr,
+  i_hqm_system_rf_lut_vf_ldb_vpp2pp_wclk,
+  i_hqm_system_rf_lut_vf_ldb_vpp2pp_wclk_rst_n,
+  i_hqm_system_rf_lut_vf_ldb_vpp2pp_wdata,
+  i_hqm_system_rf_lut_vf_ldb_vpp2pp_we,
+  i_hqm_system_rf_lut_vf_ldb_vpp_v_raddr,
+  i_hqm_system_rf_lut_vf_ldb_vpp_v_rclk,
+  i_hqm_system_rf_lut_vf_ldb_vpp_v_rclk_rst_n,
+  i_hqm_system_rf_lut_vf_ldb_vpp_v_rdata,
+  i_hqm_system_rf_lut_vf_ldb_vpp_v_re,
+  i_hqm_system_rf_lut_vf_ldb_vpp_v_waddr,
+  i_hqm_system_rf_lut_vf_ldb_vpp_v_wclk,
+  i_hqm_system_rf_lut_vf_ldb_vpp_v_wclk_rst_n,
+  i_hqm_system_rf_lut_vf_ldb_vpp_v_wdata,
+  i_hqm_system_rf_lut_vf_ldb_vpp_v_we,
+  i_hqm_system_rf_lut_vf_ldb_vqid2qid_raddr,
+  i_hqm_system_rf_lut_vf_ldb_vqid2qid_rclk,
+  i_hqm_system_rf_lut_vf_ldb_vqid2qid_rclk_rst_n,
+  i_hqm_system_rf_lut_vf_ldb_vqid2qid_rdata,
+  i_hqm_system_rf_lut_vf_ldb_vqid2qid_re,
+  i_hqm_system_rf_lut_vf_ldb_vqid2qid_waddr,
+  i_hqm_system_rf_lut_vf_ldb_vqid2qid_wclk,
+  i_hqm_system_rf_lut_vf_ldb_vqid2qid_wclk_rst_n,
+  i_hqm_system_rf_lut_vf_ldb_vqid2qid_wdata,
+  i_hqm_system_rf_lut_vf_ldb_vqid2qid_we,
+  i_hqm_system_rf_lut_vf_ldb_vqid_v_raddr,
+  i_hqm_system_rf_lut_vf_ldb_vqid_v_rclk,
+  i_hqm_system_rf_lut_vf_ldb_vqid_v_rclk_rst_n,
+  i_hqm_system_rf_lut_vf_ldb_vqid_v_rdata,
+  i_hqm_system_rf_lut_vf_ldb_vqid_v_re,
+  i_hqm_system_rf_lut_vf_ldb_vqid_v_waddr,
+  i_hqm_system_rf_lut_vf_ldb_vqid_v_wclk,
+  i_hqm_system_rf_lut_vf_ldb_vqid_v_wclk_rst_n,
+  i_hqm_system_rf_lut_vf_ldb_vqid_v_wdata,
+  i_hqm_system_rf_lut_vf_ldb_vqid_v_we,
+  i_hqm_system_rf_msix_tbl_word0_raddr,
+  i_hqm_system_rf_msix_tbl_word0_rclk,
+  i_hqm_system_rf_msix_tbl_word0_rclk_rst_n,
+  i_hqm_system_rf_msix_tbl_word0_rdata,
+  i_hqm_system_rf_msix_tbl_word0_re,
+  i_hqm_system_rf_msix_tbl_word0_waddr,
+  i_hqm_system_rf_msix_tbl_word0_wclk,
+  i_hqm_system_rf_msix_tbl_word0_wclk_rst_n,
+  i_hqm_system_rf_msix_tbl_word0_wdata,
+  i_hqm_system_rf_msix_tbl_word0_we,
+  i_hqm_system_rf_msix_tbl_word1_raddr,
+  i_hqm_system_rf_msix_tbl_word1_rclk,
+  i_hqm_system_rf_msix_tbl_word1_rclk_rst_n,
+  i_hqm_system_rf_msix_tbl_word1_rdata,
+  i_hqm_system_rf_msix_tbl_word1_re,
+  i_hqm_system_rf_msix_tbl_word1_waddr,
+  i_hqm_system_rf_msix_tbl_word1_wclk,
+  i_hqm_system_rf_msix_tbl_word1_wclk_rst_n,
+  i_hqm_system_rf_msix_tbl_word1_wdata,
+  i_hqm_system_rf_msix_tbl_word1_we,
+  i_hqm_system_rf_msix_tbl_word2_raddr,
+  i_hqm_system_rf_msix_tbl_word2_rclk,
+  i_hqm_system_rf_msix_tbl_word2_rclk_rst_n,
+  i_hqm_system_rf_msix_tbl_word2_rdata,
+  i_hqm_system_rf_msix_tbl_word2_re,
+  i_hqm_system_rf_msix_tbl_word2_waddr,
+  i_hqm_system_rf_msix_tbl_word2_wclk,
+  i_hqm_system_rf_msix_tbl_word2_wclk_rst_n,
+  i_hqm_system_rf_msix_tbl_word2_wdata,
+  i_hqm_system_rf_msix_tbl_word2_we,
+  i_hqm_system_rf_sch_out_fifo_raddr,
+  i_hqm_system_rf_sch_out_fifo_rclk,
+  i_hqm_system_rf_sch_out_fifo_rclk_rst_n,
+  i_hqm_system_rf_sch_out_fifo_rdata,
+  i_hqm_system_rf_sch_out_fifo_re,
+  i_hqm_system_rf_sch_out_fifo_waddr,
+  i_hqm_system_rf_sch_out_fifo_wclk,
+  i_hqm_system_rf_sch_out_fifo_wclk_rst_n,
+  i_hqm_system_rf_sch_out_fifo_wdata,
+  i_hqm_system_rf_sch_out_fifo_we,
+  i_hqm_system_side_rst_sync_prim_n_rst_n,
+  i_hqm_system_sr_rob_mem_addr,
+  i_hqm_system_sr_rob_mem_clk,
+  i_hqm_system_sr_rob_mem_clk_rst_n,
+  i_hqm_system_sr_rob_mem_rdata,
+  i_hqm_system_sr_rob_mem_re,
+  i_hqm_system_sr_rob_mem_wdata,
+  i_hqm_system_sr_rob_mem_we,
+  i_hqm_system_system_cfg_req_down_1_0,
+  i_hqm_system_system_cfg_rsp_down_5_4,
+  interrupt_w_req_ready,
+  interrupt_w_req_valid,
+  lsp_alarm_down_v,
+  lsp_alarm_up_ready,
+  lsp_cfg_req_down_read,
+  lsp_cfg_req_down_write,
+  lsp_cfg_rsp_down_ack,
+  lsp_dp_sch_dir_ready,
+  lsp_dp_sch_dir_v,
+  lsp_dp_sch_rorply_ready,
+  lsp_dp_sch_rorply_v,
+  lsp_nalb_sch_atq_ready,
+  lsp_nalb_sch_atq_v,
+  lsp_nalb_sch_rorply_ready,
+  lsp_nalb_sch_rorply_v,
+  lsp_nalb_sch_unoord_ready,
+  lsp_nalb_sch_unoord_v,
+  lsp_reset_done,
+  lsp_unit_idle,
+  lsp_unit_pipeidle,
+  master_chp_timestamp,
+  mstr_cfg_req_down,
+  mstr_cfg_req_down_read,
+  mstr_cfg_req_down_write,
+  nalb_lsp_enq_lb_ready,
+  nalb_lsp_enq_lb_v,
+  nalb_lsp_enq_rorply_ready,
+  nalb_lsp_enq_rorply_v,
+  nalb_reset_done,
+  nalb_unit_idle,
+  nalb_unit_pipeidle,
+  pci_cfg_pmsixctl_fm,
+  pci_cfg_pmsixctl_msie,
+  pci_cfg_sciov_en,
+  pgcb_clk,
+  prim_clk,
+  prim_clk_enable,
+  prim_clk_ungate,
+  qed_alarm_down_v,
+  qed_alarm_up_ready,
+  qed_aqed_enq_ready,
+  qed_aqed_enq_v,
+  qed_cfg_req_down_read,
+  qed_cfg_req_down_write,
+  qed_cfg_rsp_down_ack,
+  qed_chp_sch_ready,
+  qed_chp_sch_v,
+  qed_reset_done,
+  qed_unit_idle,
+  qed_unit_pipeidle,
+  rop_alarm_down_v,
+  rop_alarm_up_ready,
+  rop_cfg_req_down_read,
+  rop_cfg_req_down_write,
+  rop_cfg_rsp_down_ack,
+  rop_dp_enq_ready,
+  rop_dp_enq_v,
+  rop_dqed_enq_ready,
+  rop_lsp_reordercmp_ready,
+  rop_lsp_reordercmp_v,
+  rop_nalb_enq_ready,
+  rop_nalb_enq_v,
+  rop_qed_dqed_enq_v,
+  rop_qed_enq_ready,
+  rop_qed_force_clockon,
+  rop_reset_done,
+  rop_unit_idle,
+  rop_unit_pipeidle,
+  sif_alarm_data,
+  sif_alarm_ready,
+  sif_alarm_v,
+  system_cfg_req_down_read,
+  system_cfg_req_down_write,
+  system_cfg_rsp_down_ack,
+  system_idle,
+  system_reset_done,
+  visa_str_chp_lsp_cmp_data,
+  wd_clkreq,
+  write_buffer_mstr,
+  write_buffer_mstr_ready,
+  write_buffer_mstr_v
+);
+ output  ap_alarm_down_v;
+ output  ap_alarm_up_ready;
+ output  ap_aqed_ready;
+ output  ap_aqed_v;
+ output  ap_cfg_req_down_read;
+ output  ap_cfg_req_down_write;
+ output  ap_cfg_rsp_down_ack;
+ output  ap_reset_done;
+ output  ap_unit_idle;
+ output  ap_unit_pipeidle;
+ output  aqed_alarm_down_v;
+ output  aqed_ap_enq_ready;
+ output  aqed_ap_enq_v;
+ output [92:0] aqed_cfg_req_down;
+ output  aqed_cfg_req_down_read;
+ output  aqed_cfg_req_down_write;
+ output [38:0] aqed_cfg_rsp_down;
+ output  aqed_cfg_rsp_down_ack;
+ output  aqed_chp_sch_ready;
+ output  aqed_chp_sch_v;
+ output  aqed_lsp_sch_ready;
+ output  aqed_lsp_sch_v;
+ output  aqed_reset_done;
+ output  aqed_unit_idle;
+ output  aqed_unit_pipeidle;
+ output  chp_alarm_up_ready;
+ output  chp_cfg_req_down_read;
+ output  chp_cfg_req_down_write;
+ output  chp_cfg_rsp_down_ack;
+ output  chp_lsp_cmp_ready;
+ output  chp_lsp_cmp_v;
+ output  chp_lsp_token_ready;
+ output  chp_lsp_token_v;
+ output  chp_reset_done;
+ output  chp_rop_hcw_ready;
+ output  chp_rop_hcw_v;
+ output  chp_unit_idle;
+ output  chp_unit_pipeidle;
+ output  cwdi_interrupt_w_req_ready;
+ output  cwdi_interrupt_w_req_valid;
+ output  dp_lsp_enq_dir_ready;
+ output  dp_lsp_enq_dir_v;
+ output  dp_lsp_enq_rorply_ready;
+ output  dp_lsp_enq_rorply_v;
+ output  dp_reset_done;
+ output  dp_unit_idle;
+ output  dp_unit_pipeidle;
+ input  fscan_byprst_b;
+ input  fscan_clkungate;
+ input  fscan_rstbypen;
+ input [160:0] hcw_enq_in_data;
+ output  hcw_enq_in_ready;
+ input  hcw_enq_in_v;
+ output  hcw_enq_w_req_ready;
+ output  hcw_enq_w_req_valid;
+ output  hcw_sched_w_req_ready;
+ output  hcw_sched_w_req_valid;
+ output  hqm_alarm_ready;
+ output  hqm_alarm_v;
+ input  hqm_clk_enable;
+ input  hqm_clk_rptr_rst_b;
+ input  hqm_clk_trunk;
+ input  hqm_clk_ungate;
+ input  hqm_flr_prep;
+ input  hqm_gated_local_override;
+ input  hqm_gated_rst_b;
+ output  hqm_proc_clk_en_chp;
+ output  hqm_proc_clk_en_dir;
+ output  hqm_proc_clk_en_lsp;
+ output  hqm_proc_clk_en_nalb;
+ output  hqm_proc_clk_en_qed;
+ output  hqm_proc_clk_en_sys;
+ input  hqm_proc_reset_done_sync_hqm;
+ output [29:0] hqm_system_visa_str;
+ output  i_hqm_aqed_pipe_aqed_lsp_deq_v;
+ output  i_hqm_aqed_pipe_bcam_AW_bcam_2048x26_cclk;
+ output [207:0] i_hqm_aqed_pipe_bcam_AW_bcam_2048x26_cdata;
+ output [7:0] i_hqm_aqed_pipe_bcam_AW_bcam_2048x26_ce;
+ input [2047:0] i_hqm_aqed_pipe_bcam_AW_bcam_2048x26_cmatch;
+ output  i_hqm_aqed_pipe_bcam_AW_bcam_2048x26_dfx_clk;
+ output [7:0] i_hqm_aqed_pipe_bcam_AW_bcam_2048x26_raddr;
+ output  i_hqm_aqed_pipe_bcam_AW_bcam_2048x26_rclk;
+ input [207:0] i_hqm_aqed_pipe_bcam_AW_bcam_2048x26_rdata;
+ output  i_hqm_aqed_pipe_bcam_AW_bcam_2048x26_re;
+ output [63:0] i_hqm_aqed_pipe_bcam_AW_bcam_2048x26_waddr;
+ output  i_hqm_aqed_pipe_bcam_AW_bcam_2048x26_wclk;
+ output [207:0] i_hqm_aqed_pipe_bcam_AW_bcam_2048x26_wdata;
+ output [7:0] i_hqm_aqed_pipe_bcam_AW_bcam_2048x26_we;
+ output [10:0] i_hqm_aqed_pipe_rf_aqed_fid_cnt_raddr;
+ output  i_hqm_aqed_pipe_rf_aqed_fid_cnt_rclk;
+ output  i_hqm_aqed_pipe_rf_aqed_fid_cnt_rclk_rst_n;
+ input [16:0] i_hqm_aqed_pipe_rf_aqed_fid_cnt_rdata;
+ output  i_hqm_aqed_pipe_rf_aqed_fid_cnt_re;
+ output [10:0] i_hqm_aqed_pipe_rf_aqed_fid_cnt_waddr;
+ output  i_hqm_aqed_pipe_rf_aqed_fid_cnt_wclk;
+ output  i_hqm_aqed_pipe_rf_aqed_fid_cnt_wclk_rst_n;
+ output [16:0] i_hqm_aqed_pipe_rf_aqed_fid_cnt_wdata;
+ output  i_hqm_aqed_pipe_rf_aqed_fid_cnt_we;
+ output [3:0] i_hqm_aqed_pipe_rf_aqed_fifo_ap_aqed_raddr;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_ap_aqed_rclk;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_ap_aqed_rclk_rst_n;
+ input [44:0] i_hqm_aqed_pipe_rf_aqed_fifo_ap_aqed_rdata;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_ap_aqed_re;
+ output [3:0] i_hqm_aqed_pipe_rf_aqed_fifo_ap_aqed_waddr;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_ap_aqed_wclk;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_ap_aqed_wclk_rst_n;
+ output [44:0] i_hqm_aqed_pipe_rf_aqed_fifo_ap_aqed_wdata;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_ap_aqed_we;
+ output [3:0] i_hqm_aqed_pipe_rf_aqed_fifo_aqed_ap_enq_raddr;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_aqed_ap_enq_rclk;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_aqed_ap_enq_rclk_rst_n;
+ input [23:0] i_hqm_aqed_pipe_rf_aqed_fifo_aqed_ap_enq_rdata;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_aqed_ap_enq_re;
+ output [3:0] i_hqm_aqed_pipe_rf_aqed_fifo_aqed_ap_enq_waddr;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_aqed_ap_enq_wclk;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_aqed_ap_enq_wclk_rst_n;
+ output [23:0] i_hqm_aqed_pipe_rf_aqed_fifo_aqed_ap_enq_wdata;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_aqed_ap_enq_we;
+ output [3:0] i_hqm_aqed_pipe_rf_aqed_fifo_aqed_chp_sch_raddr;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_aqed_chp_sch_rclk;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_aqed_chp_sch_rclk_rst_n;
+ input [179:0] i_hqm_aqed_pipe_rf_aqed_fifo_aqed_chp_sch_rdata;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_aqed_chp_sch_re;
+ output [3:0] i_hqm_aqed_pipe_rf_aqed_fifo_aqed_chp_sch_waddr;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_aqed_chp_sch_wclk;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_aqed_chp_sch_wclk_rst_n;
+ output [179:0] i_hqm_aqed_pipe_rf_aqed_fifo_aqed_chp_sch_wdata;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_aqed_chp_sch_we;
+ output [3:0] i_hqm_aqed_pipe_rf_aqed_fifo_freelist_return_raddr;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_freelist_return_rclk;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_freelist_return_rclk_rst_n;
+ input [31:0] i_hqm_aqed_pipe_rf_aqed_fifo_freelist_return_rdata;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_freelist_return_re;
+ output [3:0] i_hqm_aqed_pipe_rf_aqed_fifo_freelist_return_waddr;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_freelist_return_wclk;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_freelist_return_wclk_rst_n;
+ output [31:0] i_hqm_aqed_pipe_rf_aqed_fifo_freelist_return_wdata;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_freelist_return_we;
+ output [3:0] i_hqm_aqed_pipe_rf_aqed_fifo_lsp_aqed_cmp_raddr;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_lsp_aqed_cmp_rclk;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_lsp_aqed_cmp_rclk_rst_n;
+ input [34:0] i_hqm_aqed_pipe_rf_aqed_fifo_lsp_aqed_cmp_rdata;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_lsp_aqed_cmp_re;
+ output [3:0] i_hqm_aqed_pipe_rf_aqed_fifo_lsp_aqed_cmp_waddr;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_lsp_aqed_cmp_wclk;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_lsp_aqed_cmp_wclk_rst_n;
+ output [34:0] i_hqm_aqed_pipe_rf_aqed_fifo_lsp_aqed_cmp_wdata;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_lsp_aqed_cmp_we;
+ output [2:0] i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_fid_raddr;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_fid_rclk;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_fid_rclk_rst_n;
+ input [152:0] i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_fid_rdata;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_fid_re;
+ output [2:0] i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_fid_waddr;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_fid_wclk;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_fid_wclk_rst_n;
+ output [152:0] i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_fid_wdata;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_fid_we;
+ output [1:0] i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_raddr;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_rclk;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_rclk_rst_n;
+ input [154:0] i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_rdata;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_re;
+ output [1:0] i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_waddr;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_wclk;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_wclk_rst_n;
+ output [154:0] i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_wdata;
+ output  i_hqm_aqed_pipe_rf_aqed_fifo_qed_aqed_enq_we;
+ output [10:0] i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri0_raddr;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri0_rclk;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri0_rclk_rst_n;
+ input [15:0] i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri0_rdata;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri0_re;
+ output [10:0] i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri0_waddr;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri0_wclk;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri0_wclk_rst_n;
+ output [15:0] i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri0_wdata;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri0_we;
+ output [10:0] i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri1_raddr;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri1_rclk;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri1_rclk_rst_n;
+ input [15:0] i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri1_rdata;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri1_re;
+ output [10:0] i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri1_waddr;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri1_wclk;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri1_wclk_rst_n;
+ output [15:0] i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri1_wdata;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri1_we;
+ output [10:0] i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri2_raddr;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri2_rclk;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri2_rclk_rst_n;
+ input [15:0] i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri2_rdata;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri2_re;
+ output [10:0] i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri2_waddr;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri2_wclk;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri2_wclk_rst_n;
+ output [15:0] i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri2_wdata;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri2_we;
+ output [10:0] i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri3_raddr;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri3_rclk;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri3_rclk_rst_n;
+ input [15:0] i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri3_rdata;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri3_re;
+ output [10:0] i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri3_waddr;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri3_wclk;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri3_wclk_rst_n;
+ output [15:0] i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri3_wdata;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_cnt_pri3_we;
+ output [10:0] i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri0_raddr;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri0_rclk;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri0_rclk_rst_n;
+ input [13:0] i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri0_rdata;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri0_re;
+ output [10:0] i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri0_waddr;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri0_wclk;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri0_wclk_rst_n;
+ output [13:0] i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri0_wdata;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri0_we;
+ output [10:0] i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri1_raddr;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri1_rclk;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri1_rclk_rst_n;
+ input [13:0] i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri1_rdata;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri1_re;
+ output [10:0] i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri1_waddr;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri1_wclk;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri1_wclk_rst_n;
+ output [13:0] i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri1_wdata;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri1_we;
+ output [10:0] i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri2_raddr;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri2_rclk;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri2_rclk_rst_n;
+ input [13:0] i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri2_rdata;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri2_re;
+ output [10:0] i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri2_waddr;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri2_wclk;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri2_wclk_rst_n;
+ output [13:0] i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri2_wdata;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri2_we;
+ output [10:0] i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri3_raddr;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri3_rclk;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri3_rclk_rst_n;
+ input [13:0] i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri3_rdata;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri3_re;
+ output [10:0] i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri3_waddr;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri3_wclk;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri3_wclk_rst_n;
+ output [13:0] i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri3_wdata;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_hp_pri3_we;
+ output [10:0] i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri0_raddr;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri0_rclk;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri0_rclk_rst_n;
+ input [13:0] i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri0_rdata;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri0_re;
+ output [10:0] i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri0_waddr;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri0_wclk;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri0_wclk_rst_n;
+ output [13:0] i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri0_wdata;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri0_we;
+ output [10:0] i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri1_raddr;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri1_rclk;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri1_rclk_rst_n;
+ input [13:0] i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri1_rdata;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri1_re;
+ output [10:0] i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri1_waddr;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri1_wclk;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri1_wclk_rst_n;
+ output [13:0] i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri1_wdata;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri1_we;
+ output [10:0] i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri2_raddr;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri2_rclk;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri2_rclk_rst_n;
+ input [13:0] i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri2_rdata;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri2_re;
+ output [10:0] i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri2_waddr;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri2_wclk;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri2_wclk_rst_n;
+ output [13:0] i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri2_wdata;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri2_we;
+ output [10:0] i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri3_raddr;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri3_rclk;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri3_rclk_rst_n;
+ input [13:0] i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri3_rdata;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri3_re;
+ output [10:0] i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri3_waddr;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri3_wclk;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri3_wclk_rst_n;
+ output [13:0] i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri3_wdata;
+ output  i_hqm_aqed_pipe_rf_aqed_ll_qe_tp_pri3_we;
+ output [4:0] i_hqm_aqed_pipe_rf_aqed_qid_cnt_raddr;
+ output  i_hqm_aqed_pipe_rf_aqed_qid_cnt_rclk;
+ output  i_hqm_aqed_pipe_rf_aqed_qid_cnt_rclk_rst_n;
+ input [14:0] i_hqm_aqed_pipe_rf_aqed_qid_cnt_rdata;
+ output  i_hqm_aqed_pipe_rf_aqed_qid_cnt_re;
+ output [4:0] i_hqm_aqed_pipe_rf_aqed_qid_cnt_waddr;
+ output  i_hqm_aqed_pipe_rf_aqed_qid_cnt_wclk;
+ output  i_hqm_aqed_pipe_rf_aqed_qid_cnt_wclk_rst_n;
+ output [14:0] i_hqm_aqed_pipe_rf_aqed_qid_cnt_wdata;
+ output  i_hqm_aqed_pipe_rf_aqed_qid_cnt_we;
+ output [4:0] i_hqm_aqed_pipe_rf_aqed_qid_fid_limit_raddr;
+ output  i_hqm_aqed_pipe_rf_aqed_qid_fid_limit_rclk;
+ output  i_hqm_aqed_pipe_rf_aqed_qid_fid_limit_rclk_rst_n;
+ input [13:0] i_hqm_aqed_pipe_rf_aqed_qid_fid_limit_rdata;
+ output  i_hqm_aqed_pipe_rf_aqed_qid_fid_limit_re;
+ output [4:0] i_hqm_aqed_pipe_rf_aqed_qid_fid_limit_waddr;
+ output  i_hqm_aqed_pipe_rf_aqed_qid_fid_limit_wclk;
+ output  i_hqm_aqed_pipe_rf_aqed_qid_fid_limit_wclk_rst_n;
+ output [13:0] i_hqm_aqed_pipe_rf_aqed_qid_fid_limit_wdata;
+ output  i_hqm_aqed_pipe_rf_aqed_qid_fid_limit_we;
+ output [1:0] i_hqm_aqed_pipe_rf_rx_sync_qed_aqed_enq_raddr;
+ output  i_hqm_aqed_pipe_rf_rx_sync_qed_aqed_enq_rclk;
+ output  i_hqm_aqed_pipe_rf_rx_sync_qed_aqed_enq_rclk_rst_n;
+ input [138:0] i_hqm_aqed_pipe_rf_rx_sync_qed_aqed_enq_rdata;
+ output  i_hqm_aqed_pipe_rf_rx_sync_qed_aqed_enq_re;
+ output [1:0] i_hqm_aqed_pipe_rf_rx_sync_qed_aqed_enq_waddr;
+ output  i_hqm_aqed_pipe_rf_rx_sync_qed_aqed_enq_wclk;
+ output  i_hqm_aqed_pipe_rf_rx_sync_qed_aqed_enq_wclk_rst_n;
+ output [138:0] i_hqm_aqed_pipe_rf_rx_sync_qed_aqed_enq_wdata;
+ output  i_hqm_aqed_pipe_rf_rx_sync_qed_aqed_enq_we;
+ output [10:0] i_hqm_aqed_pipe_sr_aqed_addr;
+ output  i_hqm_aqed_pipe_sr_aqed_clk;
+ output  i_hqm_aqed_pipe_sr_aqed_clk_rst_n;
+ output [10:0] i_hqm_aqed_pipe_sr_aqed_freelist_addr;
+ output  i_hqm_aqed_pipe_sr_aqed_freelist_clk;
+ output  i_hqm_aqed_pipe_sr_aqed_freelist_clk_rst_n;
+ input [15:0] i_hqm_aqed_pipe_sr_aqed_freelist_rdata;
+ output  i_hqm_aqed_pipe_sr_aqed_freelist_re;
+ output [15:0] i_hqm_aqed_pipe_sr_aqed_freelist_wdata;
+ output  i_hqm_aqed_pipe_sr_aqed_freelist_we;
+ output [10:0] i_hqm_aqed_pipe_sr_aqed_ll_qe_hpnxt_addr;
+ output  i_hqm_aqed_pipe_sr_aqed_ll_qe_hpnxt_clk;
+ output  i_hqm_aqed_pipe_sr_aqed_ll_qe_hpnxt_clk_rst_n;
+ input [15:0] i_hqm_aqed_pipe_sr_aqed_ll_qe_hpnxt_rdata;
+ output  i_hqm_aqed_pipe_sr_aqed_ll_qe_hpnxt_re;
+ output [15:0] i_hqm_aqed_pipe_sr_aqed_ll_qe_hpnxt_wdata;
+ output  i_hqm_aqed_pipe_sr_aqed_ll_qe_hpnxt_we;
+ input [138:0] i_hqm_aqed_pipe_sr_aqed_rdata;
+ output  i_hqm_aqed_pipe_sr_aqed_re;
+ output [138:0] i_hqm_aqed_pipe_sr_aqed_wdata;
+ output  i_hqm_aqed_pipe_sr_aqed_we;
+ output [1:0] i_hqm_credit_hist_pipe_chp_cfg_req_down_1_0;
+ output [1:0] i_hqm_credit_hist_pipe_chp_cfg_rsp_down_5_4;
+ output [1:0] i_hqm_credit_hist_pipe_rf_aqed_chp_sch_rx_sync_mem_raddr;
+ output  i_hqm_credit_hist_pipe_rf_aqed_chp_sch_rx_sync_mem_rclk;
+ output  i_hqm_credit_hist_pipe_rf_aqed_chp_sch_rx_sync_mem_rclk_rst_n;
+ input [178:0] i_hqm_credit_hist_pipe_rf_aqed_chp_sch_rx_sync_mem_rdata;
+ output  i_hqm_credit_hist_pipe_rf_aqed_chp_sch_rx_sync_mem_re;
+ output [1:0] i_hqm_credit_hist_pipe_rf_aqed_chp_sch_rx_sync_mem_waddr;
+ output  i_hqm_credit_hist_pipe_rf_aqed_chp_sch_rx_sync_mem_wclk;
+ output  i_hqm_credit_hist_pipe_rf_aqed_chp_sch_rx_sync_mem_wclk_rst_n;
+ output [178:0] i_hqm_credit_hist_pipe_rf_aqed_chp_sch_rx_sync_mem_wdata;
+ output  i_hqm_credit_hist_pipe_rf_aqed_chp_sch_rx_sync_mem_we;
+ output [3:0] i_hqm_credit_hist_pipe_rf_chp_chp_rop_hcw_fifo_mem_raddr;
+ output  i_hqm_credit_hist_pipe_rf_chp_chp_rop_hcw_fifo_mem_rclk;
+ output  i_hqm_credit_hist_pipe_rf_chp_chp_rop_hcw_fifo_mem_rclk_rst_n;
+ input [200:0] i_hqm_credit_hist_pipe_rf_chp_chp_rop_hcw_fifo_mem_rdata;
+ output  i_hqm_credit_hist_pipe_rf_chp_chp_rop_hcw_fifo_mem_re;
+ output [3:0] i_hqm_credit_hist_pipe_rf_chp_chp_rop_hcw_fifo_mem_waddr;
+ output  i_hqm_credit_hist_pipe_rf_chp_chp_rop_hcw_fifo_mem_wclk;
+ output  i_hqm_credit_hist_pipe_rf_chp_chp_rop_hcw_fifo_mem_wclk_rst_n;
+ output [200:0] i_hqm_credit_hist_pipe_rf_chp_chp_rop_hcw_fifo_mem_wdata;
+ output  i_hqm_credit_hist_pipe_rf_chp_chp_rop_hcw_fifo_mem_we;
+ output [3:0] i_hqm_credit_hist_pipe_rf_chp_lsp_ap_cmp_fifo_mem_raddr;
+ output  i_hqm_credit_hist_pipe_rf_chp_lsp_ap_cmp_fifo_mem_rclk;
+ output  i_hqm_credit_hist_pipe_rf_chp_lsp_ap_cmp_fifo_mem_rclk_rst_n;
+ input [73:0] i_hqm_credit_hist_pipe_rf_chp_lsp_ap_cmp_fifo_mem_rdata;
+ output  i_hqm_credit_hist_pipe_rf_chp_lsp_ap_cmp_fifo_mem_re;
+ output [3:0] i_hqm_credit_hist_pipe_rf_chp_lsp_ap_cmp_fifo_mem_waddr;
+ output  i_hqm_credit_hist_pipe_rf_chp_lsp_ap_cmp_fifo_mem_wclk;
+ output  i_hqm_credit_hist_pipe_rf_chp_lsp_ap_cmp_fifo_mem_wclk_rst_n;
+ output [73:0] i_hqm_credit_hist_pipe_rf_chp_lsp_ap_cmp_fifo_mem_wdata;
+ output  i_hqm_credit_hist_pipe_rf_chp_lsp_ap_cmp_fifo_mem_we;
+ output [3:0] i_hqm_credit_hist_pipe_rf_chp_lsp_tok_fifo_mem_raddr;
+ output  i_hqm_credit_hist_pipe_rf_chp_lsp_tok_fifo_mem_rclk;
+ output  i_hqm_credit_hist_pipe_rf_chp_lsp_tok_fifo_mem_rclk_rst_n;
+ input [28:0] i_hqm_credit_hist_pipe_rf_chp_lsp_tok_fifo_mem_rdata;
+ output  i_hqm_credit_hist_pipe_rf_chp_lsp_tok_fifo_mem_re;
+ output [3:0] i_hqm_credit_hist_pipe_rf_chp_lsp_tok_fifo_mem_waddr;
+ output  i_hqm_credit_hist_pipe_rf_chp_lsp_tok_fifo_mem_wclk;
+ output  i_hqm_credit_hist_pipe_rf_chp_lsp_tok_fifo_mem_wclk_rst_n;
+ output [28:0] i_hqm_credit_hist_pipe_rf_chp_lsp_tok_fifo_mem_wdata;
+ output  i_hqm_credit_hist_pipe_rf_chp_lsp_tok_fifo_mem_we;
+ output [2:0] i_hqm_credit_hist_pipe_rf_chp_sys_tx_fifo_mem_raddr;
+ output  i_hqm_credit_hist_pipe_rf_chp_sys_tx_fifo_mem_rclk;
+ output  i_hqm_credit_hist_pipe_rf_chp_sys_tx_fifo_mem_rclk_rst_n;
+ input [199:0] i_hqm_credit_hist_pipe_rf_chp_sys_tx_fifo_mem_rdata;
+ output  i_hqm_credit_hist_pipe_rf_chp_sys_tx_fifo_mem_re;
+ output [2:0] i_hqm_credit_hist_pipe_rf_chp_sys_tx_fifo_mem_waddr;
+ output  i_hqm_credit_hist_pipe_rf_chp_sys_tx_fifo_mem_wclk;
+ output  i_hqm_credit_hist_pipe_rf_chp_sys_tx_fifo_mem_wclk_rst_n;
+ output [199:0] i_hqm_credit_hist_pipe_rf_chp_sys_tx_fifo_mem_wdata;
+ output  i_hqm_credit_hist_pipe_rf_chp_sys_tx_fifo_mem_we;
+ output [5:0] i_hqm_credit_hist_pipe_rf_cmp_id_chk_enbl_mem_raddr;
+ output  i_hqm_credit_hist_pipe_rf_cmp_id_chk_enbl_mem_rclk;
+ output  i_hqm_credit_hist_pipe_rf_cmp_id_chk_enbl_mem_rclk_rst_n;
+ input [1:0] i_hqm_credit_hist_pipe_rf_cmp_id_chk_enbl_mem_rdata;
+ output  i_hqm_credit_hist_pipe_rf_cmp_id_chk_enbl_mem_re;
+ output [5:0] i_hqm_credit_hist_pipe_rf_cmp_id_chk_enbl_mem_waddr;
+ output  i_hqm_credit_hist_pipe_rf_cmp_id_chk_enbl_mem_wclk;
+ output  i_hqm_credit_hist_pipe_rf_cmp_id_chk_enbl_mem_wclk_rst_n;
+ output [1:0] i_hqm_credit_hist_pipe_rf_cmp_id_chk_enbl_mem_wdata;
+ output  i_hqm_credit_hist_pipe_rf_cmp_id_chk_enbl_mem_we;
+ output [5:0] i_hqm_credit_hist_pipe_rf_count_rmw_pipe_dir_mem_raddr;
+ output  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_dir_mem_rclk;
+ output  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_dir_mem_rclk_rst_n;
+ input [15:0] i_hqm_credit_hist_pipe_rf_count_rmw_pipe_dir_mem_rdata;
+ output  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_dir_mem_re;
+ output [5:0] i_hqm_credit_hist_pipe_rf_count_rmw_pipe_dir_mem_waddr;
+ output  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_dir_mem_wclk;
+ output  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_dir_mem_wclk_rst_n;
+ output [15:0] i_hqm_credit_hist_pipe_rf_count_rmw_pipe_dir_mem_wdata;
+ output  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_dir_mem_we;
+ output [5:0] i_hqm_credit_hist_pipe_rf_count_rmw_pipe_ldb_mem_raddr;
+ output  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_ldb_mem_rclk;
+ output  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_ldb_mem_rclk_rst_n;
+ input [15:0] i_hqm_credit_hist_pipe_rf_count_rmw_pipe_ldb_mem_rdata;
+ output  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_ldb_mem_re;
+ output [5:0] i_hqm_credit_hist_pipe_rf_count_rmw_pipe_ldb_mem_waddr;
+ output  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_ldb_mem_wclk;
+ output  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_ldb_mem_wclk_rst_n;
+ output [15:0] i_hqm_credit_hist_pipe_rf_count_rmw_pipe_ldb_mem_wdata;
+ output  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_ldb_mem_we;
+ output [5:0] i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_dir_mem_raddr;
+ output  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_dir_mem_rclk;
+ output  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_dir_mem_rclk_rst_n;
+ input [9:0] i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_dir_mem_rdata;
+ output  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_dir_mem_re;
+ output [5:0] i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_dir_mem_waddr;
+ output  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_dir_mem_wclk;
+ output  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_dir_mem_wclk_rst_n;
+ output [9:0] i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_dir_mem_wdata;
+ output  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_dir_mem_we;
+ output [5:0] i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_ldb_mem_raddr;
+ output  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_ldb_mem_rclk;
+ output  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_ldb_mem_rclk_rst_n;
+ input [9:0] i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_ldb_mem_rdata;
+ output  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_ldb_mem_re;
+ output [5:0] i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_ldb_mem_waddr;
+ output  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_ldb_mem_wclk;
+ output  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_ldb_mem_wclk_rst_n;
+ output [9:0] i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_ldb_mem_wdata;
+ output  i_hqm_credit_hist_pipe_rf_count_rmw_pipe_wd_ldb_mem_we;
+ output [5:0] i_hqm_credit_hist_pipe_rf_dir_cq_depth_raddr;
+ output  i_hqm_credit_hist_pipe_rf_dir_cq_depth_rclk;
+ output  i_hqm_credit_hist_pipe_rf_dir_cq_depth_rclk_rst_n;
+ input [12:0] i_hqm_credit_hist_pipe_rf_dir_cq_depth_rdata;
+ output  i_hqm_credit_hist_pipe_rf_dir_cq_depth_re;
+ output [5:0] i_hqm_credit_hist_pipe_rf_dir_cq_depth_waddr;
+ output  i_hqm_credit_hist_pipe_rf_dir_cq_depth_wclk;
+ output  i_hqm_credit_hist_pipe_rf_dir_cq_depth_wclk_rst_n;
+ output [12:0] i_hqm_credit_hist_pipe_rf_dir_cq_depth_wdata;
+ output  i_hqm_credit_hist_pipe_rf_dir_cq_depth_we;
+ output [5:0] i_hqm_credit_hist_pipe_rf_dir_cq_intr_thresh_raddr;
+ output  i_hqm_credit_hist_pipe_rf_dir_cq_intr_thresh_rclk;
+ output  i_hqm_credit_hist_pipe_rf_dir_cq_intr_thresh_rclk_rst_n;
+ input [14:0] i_hqm_credit_hist_pipe_rf_dir_cq_intr_thresh_rdata;
+ output  i_hqm_credit_hist_pipe_rf_dir_cq_intr_thresh_re;
+ output [5:0] i_hqm_credit_hist_pipe_rf_dir_cq_intr_thresh_waddr;
+ output  i_hqm_credit_hist_pipe_rf_dir_cq_intr_thresh_wclk;
+ output  i_hqm_credit_hist_pipe_rf_dir_cq_intr_thresh_wclk_rst_n;
+ output [14:0] i_hqm_credit_hist_pipe_rf_dir_cq_intr_thresh_wdata;
+ output  i_hqm_credit_hist_pipe_rf_dir_cq_intr_thresh_we;
+ output [5:0] i_hqm_credit_hist_pipe_rf_dir_cq_token_depth_select_raddr;
+ output  i_hqm_credit_hist_pipe_rf_dir_cq_token_depth_select_rclk;
+ output  i_hqm_credit_hist_pipe_rf_dir_cq_token_depth_select_rclk_rst_n;
+ input [5:0] i_hqm_credit_hist_pipe_rf_dir_cq_token_depth_select_rdata;
+ output  i_hqm_credit_hist_pipe_rf_dir_cq_token_depth_select_re;
+ output [5:0] i_hqm_credit_hist_pipe_rf_dir_cq_token_depth_select_waddr;
+ output  i_hqm_credit_hist_pipe_rf_dir_cq_token_depth_select_wclk;
+ output  i_hqm_credit_hist_pipe_rf_dir_cq_token_depth_select_wclk_rst_n;
+ output [5:0] i_hqm_credit_hist_pipe_rf_dir_cq_token_depth_select_wdata;
+ output  i_hqm_credit_hist_pipe_rf_dir_cq_token_depth_select_we;
+ output [5:0] i_hqm_credit_hist_pipe_rf_dir_cq_wptr_raddr;
+ output  i_hqm_credit_hist_pipe_rf_dir_cq_wptr_rclk;
+ output  i_hqm_credit_hist_pipe_rf_dir_cq_wptr_rclk_rst_n;
+ input [12:0] i_hqm_credit_hist_pipe_rf_dir_cq_wptr_rdata;
+ output  i_hqm_credit_hist_pipe_rf_dir_cq_wptr_re;
+ output [5:0] i_hqm_credit_hist_pipe_rf_dir_cq_wptr_waddr;
+ output  i_hqm_credit_hist_pipe_rf_dir_cq_wptr_wclk;
+ output  i_hqm_credit_hist_pipe_rf_dir_cq_wptr_wclk_rst_n;
+ output [12:0] i_hqm_credit_hist_pipe_rf_dir_cq_wptr_wdata;
+ output  i_hqm_credit_hist_pipe_rf_dir_cq_wptr_we;
+ output [3:0] i_hqm_credit_hist_pipe_rf_hcw_enq_w_rx_sync_mem_raddr;
+ output  i_hqm_credit_hist_pipe_rf_hcw_enq_w_rx_sync_mem_rclk;
+ output  i_hqm_credit_hist_pipe_rf_hcw_enq_w_rx_sync_mem_rclk_rst_n;
+ input [159:0] i_hqm_credit_hist_pipe_rf_hcw_enq_w_rx_sync_mem_rdata;
+ output  i_hqm_credit_hist_pipe_rf_hcw_enq_w_rx_sync_mem_re;
+ output [3:0] i_hqm_credit_hist_pipe_rf_hcw_enq_w_rx_sync_mem_waddr;
+ output  i_hqm_credit_hist_pipe_rf_hcw_enq_w_rx_sync_mem_wclk;
+ output  i_hqm_credit_hist_pipe_rf_hcw_enq_w_rx_sync_mem_wclk_rst_n;
+ output [159:0] i_hqm_credit_hist_pipe_rf_hcw_enq_w_rx_sync_mem_wdata;
+ output  i_hqm_credit_hist_pipe_rf_hcw_enq_w_rx_sync_mem_we;
+ output [5:0] i_hqm_credit_hist_pipe_rf_hist_list_a_minmax_raddr;
+ output  i_hqm_credit_hist_pipe_rf_hist_list_a_minmax_rclk;
+ output  i_hqm_credit_hist_pipe_rf_hist_list_a_minmax_rclk_rst_n;
+ input [29:0] i_hqm_credit_hist_pipe_rf_hist_list_a_minmax_rdata;
+ output  i_hqm_credit_hist_pipe_rf_hist_list_a_minmax_re;
+ output [5:0] i_hqm_credit_hist_pipe_rf_hist_list_a_minmax_waddr;
+ output  i_hqm_credit_hist_pipe_rf_hist_list_a_minmax_wclk;
+ output  i_hqm_credit_hist_pipe_rf_hist_list_a_minmax_wclk_rst_n;
+ output [29:0] i_hqm_credit_hist_pipe_rf_hist_list_a_minmax_wdata;
+ output  i_hqm_credit_hist_pipe_rf_hist_list_a_minmax_we;
+ output [5:0] i_hqm_credit_hist_pipe_rf_hist_list_a_ptr_raddr;
+ output  i_hqm_credit_hist_pipe_rf_hist_list_a_ptr_rclk;
+ output  i_hqm_credit_hist_pipe_rf_hist_list_a_ptr_rclk_rst_n;
+ input [31:0] i_hqm_credit_hist_pipe_rf_hist_list_a_ptr_rdata;
+ output  i_hqm_credit_hist_pipe_rf_hist_list_a_ptr_re;
+ output [5:0] i_hqm_credit_hist_pipe_rf_hist_list_a_ptr_waddr;
+ output  i_hqm_credit_hist_pipe_rf_hist_list_a_ptr_wclk;
+ output  i_hqm_credit_hist_pipe_rf_hist_list_a_ptr_wclk_rst_n;
+ output [31:0] i_hqm_credit_hist_pipe_rf_hist_list_a_ptr_wdata;
+ output  i_hqm_credit_hist_pipe_rf_hist_list_a_ptr_we;
+ output [5:0] i_hqm_credit_hist_pipe_rf_hist_list_minmax_raddr;
+ output  i_hqm_credit_hist_pipe_rf_hist_list_minmax_rclk;
+ output  i_hqm_credit_hist_pipe_rf_hist_list_minmax_rclk_rst_n;
+ input [29:0] i_hqm_credit_hist_pipe_rf_hist_list_minmax_rdata;
+ output  i_hqm_credit_hist_pipe_rf_hist_list_minmax_re;
+ output [5:0] i_hqm_credit_hist_pipe_rf_hist_list_minmax_waddr;
+ output  i_hqm_credit_hist_pipe_rf_hist_list_minmax_wclk;
+ output  i_hqm_credit_hist_pipe_rf_hist_list_minmax_wclk_rst_n;
+ output [29:0] i_hqm_credit_hist_pipe_rf_hist_list_minmax_wdata;
+ output  i_hqm_credit_hist_pipe_rf_hist_list_minmax_we;
+ output [5:0] i_hqm_credit_hist_pipe_rf_hist_list_ptr_raddr;
+ output  i_hqm_credit_hist_pipe_rf_hist_list_ptr_rclk;
+ output  i_hqm_credit_hist_pipe_rf_hist_list_ptr_rclk_rst_n;
+ input [31:0] i_hqm_credit_hist_pipe_rf_hist_list_ptr_rdata;
+ output  i_hqm_credit_hist_pipe_rf_hist_list_ptr_re;
+ output [5:0] i_hqm_credit_hist_pipe_rf_hist_list_ptr_waddr;
+ output  i_hqm_credit_hist_pipe_rf_hist_list_ptr_wclk;
+ output  i_hqm_credit_hist_pipe_rf_hist_list_ptr_wclk_rst_n;
+ output [31:0] i_hqm_credit_hist_pipe_rf_hist_list_ptr_wdata;
+ output  i_hqm_credit_hist_pipe_rf_hist_list_ptr_we;
+ output [5:0] i_hqm_credit_hist_pipe_rf_ldb_cq_depth_raddr;
+ output  i_hqm_credit_hist_pipe_rf_ldb_cq_depth_rclk;
+ output  i_hqm_credit_hist_pipe_rf_ldb_cq_depth_rclk_rst_n;
+ input [12:0] i_hqm_credit_hist_pipe_rf_ldb_cq_depth_rdata;
+ output  i_hqm_credit_hist_pipe_rf_ldb_cq_depth_re;
+ output [5:0] i_hqm_credit_hist_pipe_rf_ldb_cq_depth_waddr;
+ output  i_hqm_credit_hist_pipe_rf_ldb_cq_depth_wclk;
+ output  i_hqm_credit_hist_pipe_rf_ldb_cq_depth_wclk_rst_n;
+ output [12:0] i_hqm_credit_hist_pipe_rf_ldb_cq_depth_wdata;
+ output  i_hqm_credit_hist_pipe_rf_ldb_cq_depth_we;
+ output [5:0] i_hqm_credit_hist_pipe_rf_ldb_cq_intr_thresh_raddr;
+ output  i_hqm_credit_hist_pipe_rf_ldb_cq_intr_thresh_rclk;
+ output  i_hqm_credit_hist_pipe_rf_ldb_cq_intr_thresh_rclk_rst_n;
+ input [12:0] i_hqm_credit_hist_pipe_rf_ldb_cq_intr_thresh_rdata;
+ output  i_hqm_credit_hist_pipe_rf_ldb_cq_intr_thresh_re;
+ output [5:0] i_hqm_credit_hist_pipe_rf_ldb_cq_intr_thresh_waddr;
+ output  i_hqm_credit_hist_pipe_rf_ldb_cq_intr_thresh_wclk;
+ output  i_hqm_credit_hist_pipe_rf_ldb_cq_intr_thresh_wclk_rst_n;
+ output [12:0] i_hqm_credit_hist_pipe_rf_ldb_cq_intr_thresh_wdata;
+ output  i_hqm_credit_hist_pipe_rf_ldb_cq_intr_thresh_we;
+ output [5:0] i_hqm_credit_hist_pipe_rf_ldb_cq_on_off_threshold_raddr;
+ output  i_hqm_credit_hist_pipe_rf_ldb_cq_on_off_threshold_rclk;
+ output  i_hqm_credit_hist_pipe_rf_ldb_cq_on_off_threshold_rclk_rst_n;
+ input [31:0] i_hqm_credit_hist_pipe_rf_ldb_cq_on_off_threshold_rdata;
+ output  i_hqm_credit_hist_pipe_rf_ldb_cq_on_off_threshold_re;
+ output [5:0] i_hqm_credit_hist_pipe_rf_ldb_cq_on_off_threshold_waddr;
+ output  i_hqm_credit_hist_pipe_rf_ldb_cq_on_off_threshold_wclk;
+ output  i_hqm_credit_hist_pipe_rf_ldb_cq_on_off_threshold_wclk_rst_n;
+ output [31:0] i_hqm_credit_hist_pipe_rf_ldb_cq_on_off_threshold_wdata;
+ output  i_hqm_credit_hist_pipe_rf_ldb_cq_on_off_threshold_we;
+ output [5:0] i_hqm_credit_hist_pipe_rf_ldb_cq_token_depth_select_raddr;
+ output  i_hqm_credit_hist_pipe_rf_ldb_cq_token_depth_select_rclk;
+ output  i_hqm_credit_hist_pipe_rf_ldb_cq_token_depth_select_rclk_rst_n;
+ input [5:0] i_hqm_credit_hist_pipe_rf_ldb_cq_token_depth_select_rdata;
+ output  i_hqm_credit_hist_pipe_rf_ldb_cq_token_depth_select_re;
+ output [5:0] i_hqm_credit_hist_pipe_rf_ldb_cq_token_depth_select_waddr;
+ output  i_hqm_credit_hist_pipe_rf_ldb_cq_token_depth_select_wclk;
+ output  i_hqm_credit_hist_pipe_rf_ldb_cq_token_depth_select_wclk_rst_n;
+ output [5:0] i_hqm_credit_hist_pipe_rf_ldb_cq_token_depth_select_wdata;
+ output  i_hqm_credit_hist_pipe_rf_ldb_cq_token_depth_select_we;
+ output [5:0] i_hqm_credit_hist_pipe_rf_ldb_cq_wptr_raddr;
+ output  i_hqm_credit_hist_pipe_rf_ldb_cq_wptr_rclk;
+ output  i_hqm_credit_hist_pipe_rf_ldb_cq_wptr_rclk_rst_n;
+ input [12:0] i_hqm_credit_hist_pipe_rf_ldb_cq_wptr_rdata;
+ output  i_hqm_credit_hist_pipe_rf_ldb_cq_wptr_re;
+ output [5:0] i_hqm_credit_hist_pipe_rf_ldb_cq_wptr_waddr;
+ output  i_hqm_credit_hist_pipe_rf_ldb_cq_wptr_wclk;
+ output  i_hqm_credit_hist_pipe_rf_ldb_cq_wptr_wclk_rst_n;
+ output [12:0] i_hqm_credit_hist_pipe_rf_ldb_cq_wptr_wdata;
+ output  i_hqm_credit_hist_pipe_rf_ldb_cq_wptr_we;
+ output [4:0] i_hqm_credit_hist_pipe_rf_ord_qid_sn_map_raddr;
+ output  i_hqm_credit_hist_pipe_rf_ord_qid_sn_map_rclk;
+ output  i_hqm_credit_hist_pipe_rf_ord_qid_sn_map_rclk_rst_n;
+ input [11:0] i_hqm_credit_hist_pipe_rf_ord_qid_sn_map_rdata;
+ output  i_hqm_credit_hist_pipe_rf_ord_qid_sn_map_re;
+ output [4:0] i_hqm_credit_hist_pipe_rf_ord_qid_sn_map_waddr;
+ output  i_hqm_credit_hist_pipe_rf_ord_qid_sn_map_wclk;
+ output  i_hqm_credit_hist_pipe_rf_ord_qid_sn_map_wclk_rst_n;
+ output [11:0] i_hqm_credit_hist_pipe_rf_ord_qid_sn_map_wdata;
+ output  i_hqm_credit_hist_pipe_rf_ord_qid_sn_map_we;
+ output [4:0] i_hqm_credit_hist_pipe_rf_ord_qid_sn_raddr;
+ output  i_hqm_credit_hist_pipe_rf_ord_qid_sn_rclk;
+ output  i_hqm_credit_hist_pipe_rf_ord_qid_sn_rclk_rst_n;
+ input [11:0] i_hqm_credit_hist_pipe_rf_ord_qid_sn_rdata;
+ output  i_hqm_credit_hist_pipe_rf_ord_qid_sn_re;
+ output [4:0] i_hqm_credit_hist_pipe_rf_ord_qid_sn_waddr;
+ output  i_hqm_credit_hist_pipe_rf_ord_qid_sn_wclk;
+ output  i_hqm_credit_hist_pipe_rf_ord_qid_sn_wclk_rst_n;
+ output [11:0] i_hqm_credit_hist_pipe_rf_ord_qid_sn_wdata;
+ output  i_hqm_credit_hist_pipe_rf_ord_qid_sn_we;
+ output [3:0] i_hqm_credit_hist_pipe_rf_outbound_hcw_fifo_mem_raddr;
+ output  i_hqm_credit_hist_pipe_rf_outbound_hcw_fifo_mem_rclk;
+ output  i_hqm_credit_hist_pipe_rf_outbound_hcw_fifo_mem_rclk_rst_n;
+ input [159:0] i_hqm_credit_hist_pipe_rf_outbound_hcw_fifo_mem_rdata;
+ output  i_hqm_credit_hist_pipe_rf_outbound_hcw_fifo_mem_re;
+ output [3:0] i_hqm_credit_hist_pipe_rf_outbound_hcw_fifo_mem_waddr;
+ output  i_hqm_credit_hist_pipe_rf_outbound_hcw_fifo_mem_wclk;
+ output  i_hqm_credit_hist_pipe_rf_outbound_hcw_fifo_mem_wclk_rst_n;
+ output [159:0] i_hqm_credit_hist_pipe_rf_outbound_hcw_fifo_mem_wdata;
+ output  i_hqm_credit_hist_pipe_rf_outbound_hcw_fifo_mem_we;
+ output [1:0] i_hqm_credit_hist_pipe_rf_qed_chp_sch_flid_ret_rx_sync_mem_raddr;
+ output  i_hqm_credit_hist_pipe_rf_qed_chp_sch_flid_ret_rx_sync_mem_rclk;
+ output  i_hqm_credit_hist_pipe_rf_qed_chp_sch_flid_ret_rx_sync_mem_rclk_rst_n;
+ input [25:0] i_hqm_credit_hist_pipe_rf_qed_chp_sch_flid_ret_rx_sync_mem_rdata;
+ output  i_hqm_credit_hist_pipe_rf_qed_chp_sch_flid_ret_rx_sync_mem_re;
+ output [1:0] i_hqm_credit_hist_pipe_rf_qed_chp_sch_flid_ret_rx_sync_mem_waddr;
+ output  i_hqm_credit_hist_pipe_rf_qed_chp_sch_flid_ret_rx_sync_mem_wclk;
+ output  i_hqm_credit_hist_pipe_rf_qed_chp_sch_flid_ret_rx_sync_mem_wclk_rst_n;
+ output [25:0] i_hqm_credit_hist_pipe_rf_qed_chp_sch_flid_ret_rx_sync_mem_wdata;
+ output  i_hqm_credit_hist_pipe_rf_qed_chp_sch_flid_ret_rx_sync_mem_we;
+ output [2:0] i_hqm_credit_hist_pipe_rf_qed_chp_sch_rx_sync_mem_raddr;
+ output  i_hqm_credit_hist_pipe_rf_qed_chp_sch_rx_sync_mem_rclk;
+ output  i_hqm_credit_hist_pipe_rf_qed_chp_sch_rx_sync_mem_rclk_rst_n;
+ input [176:0] i_hqm_credit_hist_pipe_rf_qed_chp_sch_rx_sync_mem_rdata;
+ output  i_hqm_credit_hist_pipe_rf_qed_chp_sch_rx_sync_mem_re;
+ output [2:0] i_hqm_credit_hist_pipe_rf_qed_chp_sch_rx_sync_mem_waddr;
+ output  i_hqm_credit_hist_pipe_rf_qed_chp_sch_rx_sync_mem_wclk;
+ output  i_hqm_credit_hist_pipe_rf_qed_chp_sch_rx_sync_mem_wclk_rst_n;
+ output [176:0] i_hqm_credit_hist_pipe_rf_qed_chp_sch_rx_sync_mem_wdata;
+ output  i_hqm_credit_hist_pipe_rf_qed_chp_sch_rx_sync_mem_we;
+ output [2:0] i_hqm_credit_hist_pipe_rf_qed_to_cq_fifo_mem_raddr;
+ output  i_hqm_credit_hist_pipe_rf_qed_to_cq_fifo_mem_rclk;
+ output  i_hqm_credit_hist_pipe_rf_qed_to_cq_fifo_mem_rclk_rst_n;
+ input [196:0] i_hqm_credit_hist_pipe_rf_qed_to_cq_fifo_mem_rdata;
+ output  i_hqm_credit_hist_pipe_rf_qed_to_cq_fifo_mem_re;
+ output [2:0] i_hqm_credit_hist_pipe_rf_qed_to_cq_fifo_mem_waddr;
+ output  i_hqm_credit_hist_pipe_rf_qed_to_cq_fifo_mem_wclk;
+ output  i_hqm_credit_hist_pipe_rf_qed_to_cq_fifo_mem_wclk_rst_n;
+ output [196:0] i_hqm_credit_hist_pipe_rf_qed_to_cq_fifo_mem_wdata;
+ output  i_hqm_credit_hist_pipe_rf_qed_to_cq_fifo_mem_we;
+ output [5:0] i_hqm_credit_hist_pipe_rf_threshold_r_pipe_dir_mem_raddr;
+ output  i_hqm_credit_hist_pipe_rf_threshold_r_pipe_dir_mem_rclk;
+ output  i_hqm_credit_hist_pipe_rf_threshold_r_pipe_dir_mem_rclk_rst_n;
+ input [13:0] i_hqm_credit_hist_pipe_rf_threshold_r_pipe_dir_mem_rdata;
+ output  i_hqm_credit_hist_pipe_rf_threshold_r_pipe_dir_mem_re;
+ output [5:0] i_hqm_credit_hist_pipe_rf_threshold_r_pipe_dir_mem_waddr;
+ output  i_hqm_credit_hist_pipe_rf_threshold_r_pipe_dir_mem_wclk;
+ output  i_hqm_credit_hist_pipe_rf_threshold_r_pipe_dir_mem_wclk_rst_n;
+ output [13:0] i_hqm_credit_hist_pipe_rf_threshold_r_pipe_dir_mem_wdata;
+ output  i_hqm_credit_hist_pipe_rf_threshold_r_pipe_dir_mem_we;
+ output [5:0] i_hqm_credit_hist_pipe_rf_threshold_r_pipe_ldb_mem_raddr;
+ output  i_hqm_credit_hist_pipe_rf_threshold_r_pipe_ldb_mem_rclk;
+ output  i_hqm_credit_hist_pipe_rf_threshold_r_pipe_ldb_mem_rclk_rst_n;
+ input [13:0] i_hqm_credit_hist_pipe_rf_threshold_r_pipe_ldb_mem_rdata;
+ output  i_hqm_credit_hist_pipe_rf_threshold_r_pipe_ldb_mem_re;
+ output [5:0] i_hqm_credit_hist_pipe_rf_threshold_r_pipe_ldb_mem_waddr;
+ output  i_hqm_credit_hist_pipe_rf_threshold_r_pipe_ldb_mem_wclk;
+ output  i_hqm_credit_hist_pipe_rf_threshold_r_pipe_ldb_mem_wclk_rst_n;
+ output [13:0] i_hqm_credit_hist_pipe_rf_threshold_r_pipe_ldb_mem_wdata;
+ output  i_hqm_credit_hist_pipe_rf_threshold_r_pipe_ldb_mem_we;
+ output [10:0] i_hqm_credit_hist_pipe_sr_freelist_0_addr;
+ output  i_hqm_credit_hist_pipe_sr_freelist_0_clk;
+ output  i_hqm_credit_hist_pipe_sr_freelist_0_clk_rst_n;
+ input [15:0] i_hqm_credit_hist_pipe_sr_freelist_0_rdata;
+ output  i_hqm_credit_hist_pipe_sr_freelist_0_re;
+ output [15:0] i_hqm_credit_hist_pipe_sr_freelist_0_wdata;
+ output  i_hqm_credit_hist_pipe_sr_freelist_0_we;
+ output [10:0] i_hqm_credit_hist_pipe_sr_freelist_1_addr;
+ output  i_hqm_credit_hist_pipe_sr_freelist_1_clk;
+ output  i_hqm_credit_hist_pipe_sr_freelist_1_clk_rst_n;
+ input [15:0] i_hqm_credit_hist_pipe_sr_freelist_1_rdata;
+ output  i_hqm_credit_hist_pipe_sr_freelist_1_re;
+ output [15:0] i_hqm_credit_hist_pipe_sr_freelist_1_wdata;
+ output  i_hqm_credit_hist_pipe_sr_freelist_1_we;
+ output [10:0] i_hqm_credit_hist_pipe_sr_freelist_2_addr;
+ output  i_hqm_credit_hist_pipe_sr_freelist_2_clk;
+ output  i_hqm_credit_hist_pipe_sr_freelist_2_clk_rst_n;
+ input [15:0] i_hqm_credit_hist_pipe_sr_freelist_2_rdata;
+ output  i_hqm_credit_hist_pipe_sr_freelist_2_re;
+ output [15:0] i_hqm_credit_hist_pipe_sr_freelist_2_wdata;
+ output  i_hqm_credit_hist_pipe_sr_freelist_2_we;
+ output [10:0] i_hqm_credit_hist_pipe_sr_freelist_3_addr;
+ output  i_hqm_credit_hist_pipe_sr_freelist_3_clk;
+ output  i_hqm_credit_hist_pipe_sr_freelist_3_clk_rst_n;
+ input [15:0] i_hqm_credit_hist_pipe_sr_freelist_3_rdata;
+ output  i_hqm_credit_hist_pipe_sr_freelist_3_re;
+ output [15:0] i_hqm_credit_hist_pipe_sr_freelist_3_wdata;
+ output  i_hqm_credit_hist_pipe_sr_freelist_3_we;
+ output [10:0] i_hqm_credit_hist_pipe_sr_freelist_4_addr;
+ output  i_hqm_credit_hist_pipe_sr_freelist_4_clk;
+ output  i_hqm_credit_hist_pipe_sr_freelist_4_clk_rst_n;
+ input [15:0] i_hqm_credit_hist_pipe_sr_freelist_4_rdata;
+ output  i_hqm_credit_hist_pipe_sr_freelist_4_re;
+ output [15:0] i_hqm_credit_hist_pipe_sr_freelist_4_wdata;
+ output  i_hqm_credit_hist_pipe_sr_freelist_4_we;
+ output [10:0] i_hqm_credit_hist_pipe_sr_freelist_5_addr;
+ output  i_hqm_credit_hist_pipe_sr_freelist_5_clk;
+ output  i_hqm_credit_hist_pipe_sr_freelist_5_clk_rst_n;
+ input [15:0] i_hqm_credit_hist_pipe_sr_freelist_5_rdata;
+ output  i_hqm_credit_hist_pipe_sr_freelist_5_re;
+ output [15:0] i_hqm_credit_hist_pipe_sr_freelist_5_wdata;
+ output  i_hqm_credit_hist_pipe_sr_freelist_5_we;
+ output [10:0] i_hqm_credit_hist_pipe_sr_freelist_6_addr;
+ output  i_hqm_credit_hist_pipe_sr_freelist_6_clk;
+ output  i_hqm_credit_hist_pipe_sr_freelist_6_clk_rst_n;
+ input [15:0] i_hqm_credit_hist_pipe_sr_freelist_6_rdata;
+ output  i_hqm_credit_hist_pipe_sr_freelist_6_re;
+ output [15:0] i_hqm_credit_hist_pipe_sr_freelist_6_wdata;
+ output  i_hqm_credit_hist_pipe_sr_freelist_6_we;
+ output [10:0] i_hqm_credit_hist_pipe_sr_freelist_7_addr;
+ output  i_hqm_credit_hist_pipe_sr_freelist_7_clk;
+ output  i_hqm_credit_hist_pipe_sr_freelist_7_clk_rst_n;
+ input [15:0] i_hqm_credit_hist_pipe_sr_freelist_7_rdata;
+ output  i_hqm_credit_hist_pipe_sr_freelist_7_re;
+ output [15:0] i_hqm_credit_hist_pipe_sr_freelist_7_wdata;
+ output  i_hqm_credit_hist_pipe_sr_freelist_7_we;
+ output [10:0] i_hqm_credit_hist_pipe_sr_hist_list_a_addr;
+ output  i_hqm_credit_hist_pipe_sr_hist_list_a_clk;
+ output  i_hqm_credit_hist_pipe_sr_hist_list_a_clk_rst_n;
+ input [65:0] i_hqm_credit_hist_pipe_sr_hist_list_a_rdata;
+ output  i_hqm_credit_hist_pipe_sr_hist_list_a_re;
+ output [65:0] i_hqm_credit_hist_pipe_sr_hist_list_a_wdata;
+ output  i_hqm_credit_hist_pipe_sr_hist_list_a_we;
+ output [10:0] i_hqm_credit_hist_pipe_sr_hist_list_addr;
+ output  i_hqm_credit_hist_pipe_sr_hist_list_clk;
+ output  i_hqm_credit_hist_pipe_sr_hist_list_clk_rst_n;
+ input [65:0] i_hqm_credit_hist_pipe_sr_hist_list_rdata;
+ output  i_hqm_credit_hist_pipe_sr_hist_list_re;
+ output [65:0] i_hqm_credit_hist_pipe_sr_hist_list_wdata;
+ output  i_hqm_credit_hist_pipe_sr_hist_list_we;
+ output [1:0] i_hqm_list_sel_pipe_ap_cfg_req_down_1_0;
+ output [1:0] i_hqm_list_sel_pipe_ap_cfg_rsp_down_5_4;
+ output [1:0] i_hqm_list_sel_pipe_lsp_cfg_req_down_1_0;
+ output [1:0] i_hqm_list_sel_pipe_lsp_cfg_rsp_down_5_4;
+ output [4:0] i_hqm_list_sel_pipe_rf_aqed_lsp_deq_fifo_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_aqed_lsp_deq_fifo_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_aqed_lsp_deq_fifo_mem_rclk_rst_n;
+ input [8:0] i_hqm_list_sel_pipe_rf_aqed_lsp_deq_fifo_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_aqed_lsp_deq_fifo_mem_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_aqed_lsp_deq_fifo_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_aqed_lsp_deq_fifo_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_aqed_lsp_deq_fifo_mem_wclk_rst_n;
+ output [8:0] i_hqm_list_sel_pipe_rf_aqed_lsp_deq_fifo_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_aqed_lsp_deq_fifo_mem_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_aqed_qid2cqidix_raddr;
+ output  i_hqm_list_sel_pipe_rf_aqed_qid2cqidix_rclk;
+ output  i_hqm_list_sel_pipe_rf_aqed_qid2cqidix_rclk_rst_n;
+ input [527:0] i_hqm_list_sel_pipe_rf_aqed_qid2cqidix_rdata;
+ output  i_hqm_list_sel_pipe_rf_aqed_qid2cqidix_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_aqed_qid2cqidix_waddr;
+ output  i_hqm_list_sel_pipe_rf_aqed_qid2cqidix_wclk;
+ output  i_hqm_list_sel_pipe_rf_aqed_qid2cqidix_wclk_rst_n;
+ output [527:0] i_hqm_list_sel_pipe_rf_aqed_qid2cqidix_wdata;
+ output  i_hqm_list_sel_pipe_rf_aqed_qid2cqidix_we;
+ output [2:0] i_hqm_list_sel_pipe_rf_atm_cmp_fifo_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_atm_cmp_fifo_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_atm_cmp_fifo_mem_rclk_rst_n;
+ input [54:0] i_hqm_list_sel_pipe_rf_atm_cmp_fifo_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_atm_cmp_fifo_mem_re;
+ output [2:0] i_hqm_list_sel_pipe_rf_atm_cmp_fifo_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_atm_cmp_fifo_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_atm_cmp_fifo_mem_wclk_rst_n;
+ output [54:0] i_hqm_list_sel_pipe_rf_atm_cmp_fifo_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_atm_cmp_fifo_mem_we;
+ output [3:0] i_hqm_list_sel_pipe_rf_atm_fifo_ap_aqed_raddr;
+ output  i_hqm_list_sel_pipe_rf_atm_fifo_ap_aqed_rclk;
+ output  i_hqm_list_sel_pipe_rf_atm_fifo_ap_aqed_rclk_rst_n;
+ input [44:0] i_hqm_list_sel_pipe_rf_atm_fifo_ap_aqed_rdata;
+ output  i_hqm_list_sel_pipe_rf_atm_fifo_ap_aqed_re;
+ output [3:0] i_hqm_list_sel_pipe_rf_atm_fifo_ap_aqed_waddr;
+ output  i_hqm_list_sel_pipe_rf_atm_fifo_ap_aqed_wclk;
+ output  i_hqm_list_sel_pipe_rf_atm_fifo_ap_aqed_wclk_rst_n;
+ output [44:0] i_hqm_list_sel_pipe_rf_atm_fifo_ap_aqed_wdata;
+ output  i_hqm_list_sel_pipe_rf_atm_fifo_ap_aqed_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_atm_fifo_aqed_ap_enq_raddr;
+ output  i_hqm_list_sel_pipe_rf_atm_fifo_aqed_ap_enq_rclk;
+ output  i_hqm_list_sel_pipe_rf_atm_fifo_aqed_ap_enq_rclk_rst_n;
+ input [23:0] i_hqm_list_sel_pipe_rf_atm_fifo_aqed_ap_enq_rdata;
+ output  i_hqm_list_sel_pipe_rf_atm_fifo_aqed_ap_enq_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_atm_fifo_aqed_ap_enq_waddr;
+ output  i_hqm_list_sel_pipe_rf_atm_fifo_aqed_ap_enq_wclk;
+ output  i_hqm_list_sel_pipe_rf_atm_fifo_aqed_ap_enq_wclk_rst_n;
+ output [23:0] i_hqm_list_sel_pipe_rf_atm_fifo_aqed_ap_enq_wdata;
+ output  i_hqm_list_sel_pipe_rf_atm_fifo_aqed_ap_enq_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_cfg_atm_qid_dpth_thrsh_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_cfg_atm_qid_dpth_thrsh_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_cfg_atm_qid_dpth_thrsh_mem_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_cfg_atm_qid_dpth_thrsh_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_cfg_atm_qid_dpth_thrsh_mem_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_cfg_atm_qid_dpth_thrsh_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_cfg_atm_qid_dpth_thrsh_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_cfg_atm_qid_dpth_thrsh_mem_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_cfg_atm_qid_dpth_thrsh_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_cfg_atm_qid_dpth_thrsh_mem_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_cfg_cq2priov_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2priov_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2priov_mem_rclk_rst_n;
+ input [32:0] i_hqm_list_sel_pipe_rf_cfg_cq2priov_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2priov_mem_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_cfg_cq2priov_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2priov_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2priov_mem_wclk_rst_n;
+ output [32:0] i_hqm_list_sel_pipe_rf_cfg_cq2priov_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2priov_mem_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_cfg_cq2priov_odd_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2priov_odd_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2priov_odd_mem_rclk_rst_n;
+ input [32:0] i_hqm_list_sel_pipe_rf_cfg_cq2priov_odd_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2priov_odd_mem_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_cfg_cq2priov_odd_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2priov_odd_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2priov_odd_mem_wclk_rst_n;
+ output [32:0] i_hqm_list_sel_pipe_rf_cfg_cq2priov_odd_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2priov_odd_mem_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_mem_rclk_rst_n;
+ input [28:0] i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_mem_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_mem_wclk_rst_n;
+ output [28:0] i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_mem_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_odd_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_odd_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_odd_mem_rclk_rst_n;
+ input [28:0] i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_odd_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_odd_mem_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_odd_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_odd_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_odd_mem_wclk_rst_n;
+ output [28:0] i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_odd_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2qid_0_odd_mem_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_mem_rclk_rst_n;
+ input [28:0] i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_mem_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_mem_wclk_rst_n;
+ output [28:0] i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_mem_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_odd_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_odd_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_odd_mem_rclk_rst_n;
+ input [28:0] i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_odd_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_odd_mem_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_odd_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_odd_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_odd_mem_wclk_rst_n;
+ output [28:0] i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_odd_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq2qid_1_odd_mem_we;
+ output [5:0] i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_limit_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_limit_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_limit_mem_rclk_rst_n;
+ input [13:0] i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_limit_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_limit_mem_re;
+ output [5:0] i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_limit_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_limit_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_limit_mem_wclk_rst_n;
+ output [13:0] i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_limit_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_limit_mem_we;
+ output [5:0] i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_threshold_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_threshold_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_threshold_mem_rclk_rst_n;
+ input [13:0] i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_threshold_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_threshold_mem_re;
+ output [5:0] i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_threshold_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_threshold_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_threshold_mem_wclk_rst_n;
+ output [13:0] i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_threshold_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_inflight_threshold_mem_we;
+ output [5:0] i_hqm_list_sel_pipe_rf_cfg_cq_ldb_token_depth_select_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_token_depth_select_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_token_depth_select_mem_rclk_rst_n;
+ input [4:0] i_hqm_list_sel_pipe_rf_cfg_cq_ldb_token_depth_select_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_token_depth_select_mem_re;
+ output [5:0] i_hqm_list_sel_pipe_rf_cfg_cq_ldb_token_depth_select_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_token_depth_select_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_token_depth_select_mem_wclk_rst_n;
+ output [4:0] i_hqm_list_sel_pipe_rf_cfg_cq_ldb_token_depth_select_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_token_depth_select_mem_we;
+ output [5:0] i_hqm_list_sel_pipe_rf_cfg_cq_ldb_wu_limit_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_wu_limit_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_wu_limit_mem_rclk_rst_n;
+ input [16:0] i_hqm_list_sel_pipe_rf_cfg_cq_ldb_wu_limit_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_wu_limit_mem_re;
+ output [5:0] i_hqm_list_sel_pipe_rf_cfg_cq_ldb_wu_limit_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_wu_limit_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_wu_limit_mem_wclk_rst_n;
+ output [16:0] i_hqm_list_sel_pipe_rf_cfg_cq_ldb_wu_limit_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_cfg_cq_ldb_wu_limit_mem_we;
+ output [5:0] i_hqm_list_sel_pipe_rf_cfg_dir_qid_dpth_thrsh_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_cfg_dir_qid_dpth_thrsh_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_cfg_dir_qid_dpth_thrsh_mem_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_cfg_dir_qid_dpth_thrsh_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_cfg_dir_qid_dpth_thrsh_mem_re;
+ output [5:0] i_hqm_list_sel_pipe_rf_cfg_dir_qid_dpth_thrsh_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_cfg_dir_qid_dpth_thrsh_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_cfg_dir_qid_dpth_thrsh_mem_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_cfg_dir_qid_dpth_thrsh_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_cfg_dir_qid_dpth_thrsh_mem_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_cfg_nalb_qid_dpth_thrsh_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_cfg_nalb_qid_dpth_thrsh_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_cfg_nalb_qid_dpth_thrsh_mem_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_cfg_nalb_qid_dpth_thrsh_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_cfg_nalb_qid_dpth_thrsh_mem_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_cfg_nalb_qid_dpth_thrsh_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_cfg_nalb_qid_dpth_thrsh_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_cfg_nalb_qid_dpth_thrsh_mem_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_cfg_nalb_qid_dpth_thrsh_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_cfg_nalb_qid_dpth_thrsh_mem_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_cfg_qid_aqed_active_limit_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_cfg_qid_aqed_active_limit_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_cfg_qid_aqed_active_limit_mem_rclk_rst_n;
+ input [12:0] i_hqm_list_sel_pipe_rf_cfg_qid_aqed_active_limit_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_cfg_qid_aqed_active_limit_mem_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_cfg_qid_aqed_active_limit_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_cfg_qid_aqed_active_limit_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_cfg_qid_aqed_active_limit_mem_wclk_rst_n;
+ output [12:0] i_hqm_list_sel_pipe_rf_cfg_qid_aqed_active_limit_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_cfg_qid_aqed_active_limit_mem_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_cfg_qid_ldb_inflight_limit_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_inflight_limit_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_inflight_limit_mem_rclk_rst_n;
+ input [12:0] i_hqm_list_sel_pipe_rf_cfg_qid_ldb_inflight_limit_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_inflight_limit_mem_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_cfg_qid_ldb_inflight_limit_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_inflight_limit_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_inflight_limit_mem_wclk_rst_n;
+ output [12:0] i_hqm_list_sel_pipe_rf_cfg_qid_ldb_inflight_limit_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_inflight_limit_mem_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix2_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix2_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix2_mem_rclk_rst_n;
+ input [527:0] i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix2_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix2_mem_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix2_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix2_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix2_mem_wclk_rst_n;
+ output [527:0] i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix2_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix2_mem_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix_mem_rclk_rst_n;
+ input [527:0] i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix_mem_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix_mem_wclk_rst_n;
+ output [527:0] i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_cfg_qid_ldb_qid2cqidix_mem_we;
+ output [1:0] i_hqm_list_sel_pipe_rf_chp_lsp_cmp_rx_sync_fifo_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_chp_lsp_cmp_rx_sync_fifo_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_chp_lsp_cmp_rx_sync_fifo_mem_rclk_rst_n;
+ input [72:0] i_hqm_list_sel_pipe_rf_chp_lsp_cmp_rx_sync_fifo_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_chp_lsp_cmp_rx_sync_fifo_mem_re;
+ output [1:0] i_hqm_list_sel_pipe_rf_chp_lsp_cmp_rx_sync_fifo_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_chp_lsp_cmp_rx_sync_fifo_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_chp_lsp_cmp_rx_sync_fifo_mem_wclk_rst_n;
+ output [72:0] i_hqm_list_sel_pipe_rf_chp_lsp_cmp_rx_sync_fifo_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_chp_lsp_cmp_rx_sync_fifo_mem_we;
+ output [1:0] i_hqm_list_sel_pipe_rf_chp_lsp_token_rx_sync_fifo_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_chp_lsp_token_rx_sync_fifo_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_chp_lsp_token_rx_sync_fifo_mem_rclk_rst_n;
+ input [24:0] i_hqm_list_sel_pipe_rf_chp_lsp_token_rx_sync_fifo_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_chp_lsp_token_rx_sync_fifo_mem_re;
+ output [1:0] i_hqm_list_sel_pipe_rf_chp_lsp_token_rx_sync_fifo_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_chp_lsp_token_rx_sync_fifo_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_chp_lsp_token_rx_sync_fifo_mem_wclk_rst_n;
+ output [24:0] i_hqm_list_sel_pipe_rf_chp_lsp_token_rx_sync_fifo_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_chp_lsp_token_rx_sync_fifo_mem_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_cq_atm_pri_arbindex_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_cq_atm_pri_arbindex_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_cq_atm_pri_arbindex_mem_rclk_rst_n;
+ input [95:0] i_hqm_list_sel_pipe_rf_cq_atm_pri_arbindex_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_cq_atm_pri_arbindex_mem_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_cq_atm_pri_arbindex_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_cq_atm_pri_arbindex_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_cq_atm_pri_arbindex_mem_wclk_rst_n;
+ output [95:0] i_hqm_list_sel_pipe_rf_cq_atm_pri_arbindex_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_cq_atm_pri_arbindex_mem_we;
+ output [5:0] i_hqm_list_sel_pipe_rf_cq_dir_tot_sch_cnt_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_cq_dir_tot_sch_cnt_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_cq_dir_tot_sch_cnt_mem_rclk_rst_n;
+ input [65:0] i_hqm_list_sel_pipe_rf_cq_dir_tot_sch_cnt_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_cq_dir_tot_sch_cnt_mem_re;
+ output [5:0] i_hqm_list_sel_pipe_rf_cq_dir_tot_sch_cnt_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_cq_dir_tot_sch_cnt_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_cq_dir_tot_sch_cnt_mem_wclk_rst_n;
+ output [65:0] i_hqm_list_sel_pipe_rf_cq_dir_tot_sch_cnt_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_cq_dir_tot_sch_cnt_mem_we;
+ output [5:0] i_hqm_list_sel_pipe_rf_cq_ldb_inflight_count_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_cq_ldb_inflight_count_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_cq_ldb_inflight_count_mem_rclk_rst_n;
+ input [14:0] i_hqm_list_sel_pipe_rf_cq_ldb_inflight_count_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_cq_ldb_inflight_count_mem_re;
+ output [5:0] i_hqm_list_sel_pipe_rf_cq_ldb_inflight_count_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_cq_ldb_inflight_count_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_cq_ldb_inflight_count_mem_wclk_rst_n;
+ output [14:0] i_hqm_list_sel_pipe_rf_cq_ldb_inflight_count_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_cq_ldb_inflight_count_mem_we;
+ output [5:0] i_hqm_list_sel_pipe_rf_cq_ldb_token_count_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_cq_ldb_token_count_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_cq_ldb_token_count_mem_rclk_rst_n;
+ input [12:0] i_hqm_list_sel_pipe_rf_cq_ldb_token_count_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_cq_ldb_token_count_mem_re;
+ output [5:0] i_hqm_list_sel_pipe_rf_cq_ldb_token_count_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_cq_ldb_token_count_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_cq_ldb_token_count_mem_wclk_rst_n;
+ output [12:0] i_hqm_list_sel_pipe_rf_cq_ldb_token_count_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_cq_ldb_token_count_mem_we;
+ output [5:0] i_hqm_list_sel_pipe_rf_cq_ldb_tot_sch_cnt_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_cq_ldb_tot_sch_cnt_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_cq_ldb_tot_sch_cnt_mem_rclk_rst_n;
+ input [65:0] i_hqm_list_sel_pipe_rf_cq_ldb_tot_sch_cnt_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_cq_ldb_tot_sch_cnt_mem_re;
+ output [5:0] i_hqm_list_sel_pipe_rf_cq_ldb_tot_sch_cnt_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_cq_ldb_tot_sch_cnt_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_cq_ldb_tot_sch_cnt_mem_wclk_rst_n;
+ output [65:0] i_hqm_list_sel_pipe_rf_cq_ldb_tot_sch_cnt_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_cq_ldb_tot_sch_cnt_mem_we;
+ output [5:0] i_hqm_list_sel_pipe_rf_cq_ldb_wu_count_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_cq_ldb_wu_count_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_cq_ldb_wu_count_mem_rclk_rst_n;
+ input [18:0] i_hqm_list_sel_pipe_rf_cq_ldb_wu_count_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_cq_ldb_wu_count_mem_re;
+ output [5:0] i_hqm_list_sel_pipe_rf_cq_ldb_wu_count_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_cq_ldb_wu_count_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_cq_ldb_wu_count_mem_wclk_rst_n;
+ output [18:0] i_hqm_list_sel_pipe_rf_cq_ldb_wu_count_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_cq_ldb_wu_count_mem_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_cq_nalb_pri_arbindex_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_cq_nalb_pri_arbindex_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_cq_nalb_pri_arbindex_mem_rclk_rst_n;
+ input [95:0] i_hqm_list_sel_pipe_rf_cq_nalb_pri_arbindex_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_cq_nalb_pri_arbindex_mem_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_cq_nalb_pri_arbindex_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_cq_nalb_pri_arbindex_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_cq_nalb_pri_arbindex_mem_wclk_rst_n;
+ output [95:0] i_hqm_list_sel_pipe_rf_cq_nalb_pri_arbindex_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_cq_nalb_pri_arbindex_mem_we;
+ output [5:0] i_hqm_list_sel_pipe_rf_dir_enq_cnt_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_dir_enq_cnt_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_dir_enq_cnt_mem_rclk_rst_n;
+ input [16:0] i_hqm_list_sel_pipe_rf_dir_enq_cnt_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_dir_enq_cnt_mem_re;
+ output [5:0] i_hqm_list_sel_pipe_rf_dir_enq_cnt_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_dir_enq_cnt_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_dir_enq_cnt_mem_wclk_rst_n;
+ output [16:0] i_hqm_list_sel_pipe_rf_dir_enq_cnt_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_dir_enq_cnt_mem_we;
+ output [5:0] i_hqm_list_sel_pipe_rf_dir_tok_cnt_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_dir_tok_cnt_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_dir_tok_cnt_mem_rclk_rst_n;
+ input [12:0] i_hqm_list_sel_pipe_rf_dir_tok_cnt_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_dir_tok_cnt_mem_re;
+ output [5:0] i_hqm_list_sel_pipe_rf_dir_tok_cnt_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_dir_tok_cnt_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_dir_tok_cnt_mem_wclk_rst_n;
+ output [12:0] i_hqm_list_sel_pipe_rf_dir_tok_cnt_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_dir_tok_cnt_mem_we;
+ output [5:0] i_hqm_list_sel_pipe_rf_dir_tok_lim_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_dir_tok_lim_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_dir_tok_lim_mem_rclk_rst_n;
+ input [7:0] i_hqm_list_sel_pipe_rf_dir_tok_lim_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_dir_tok_lim_mem_re;
+ output [5:0] i_hqm_list_sel_pipe_rf_dir_tok_lim_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_dir_tok_lim_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_dir_tok_lim_mem_wclk_rst_n;
+ output [7:0] i_hqm_list_sel_pipe_rf_dir_tok_lim_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_dir_tok_lim_mem_we;
+ output [1:0] i_hqm_list_sel_pipe_rf_dp_lsp_enq_dir_rx_sync_fifo_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_dp_lsp_enq_dir_rx_sync_fifo_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_dp_lsp_enq_dir_rx_sync_fifo_mem_rclk_rst_n;
+ input [7:0] i_hqm_list_sel_pipe_rf_dp_lsp_enq_dir_rx_sync_fifo_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_dp_lsp_enq_dir_rx_sync_fifo_mem_re;
+ output [1:0] i_hqm_list_sel_pipe_rf_dp_lsp_enq_dir_rx_sync_fifo_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_dp_lsp_enq_dir_rx_sync_fifo_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_dp_lsp_enq_dir_rx_sync_fifo_mem_wclk_rst_n;
+ output [7:0] i_hqm_list_sel_pipe_rf_dp_lsp_enq_dir_rx_sync_fifo_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_dp_lsp_enq_dir_rx_sync_fifo_mem_we;
+ output [1:0] i_hqm_list_sel_pipe_rf_dp_lsp_enq_rorply_rx_sync_fifo_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_dp_lsp_enq_rorply_rx_sync_fifo_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_dp_lsp_enq_rorply_rx_sync_fifo_mem_rclk_rst_n;
+ input [22:0] i_hqm_list_sel_pipe_rf_dp_lsp_enq_rorply_rx_sync_fifo_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_dp_lsp_enq_rorply_rx_sync_fifo_mem_re;
+ output [1:0] i_hqm_list_sel_pipe_rf_dp_lsp_enq_rorply_rx_sync_fifo_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_dp_lsp_enq_rorply_rx_sync_fifo_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_dp_lsp_enq_rorply_rx_sync_fifo_mem_wclk_rst_n;
+ output [22:0] i_hqm_list_sel_pipe_rf_dp_lsp_enq_rorply_rx_sync_fifo_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_dp_lsp_enq_rorply_rx_sync_fifo_mem_we;
+ output [1:0] i_hqm_list_sel_pipe_rf_enq_nalb_fifo_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_enq_nalb_fifo_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_enq_nalb_fifo_mem_rclk_rst_n;
+ input [9:0] i_hqm_list_sel_pipe_rf_enq_nalb_fifo_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_enq_nalb_fifo_mem_re;
+ output [1:0] i_hqm_list_sel_pipe_rf_enq_nalb_fifo_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_enq_nalb_fifo_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_enq_nalb_fifo_mem_wclk_rst_n;
+ output [9:0] i_hqm_list_sel_pipe_rf_enq_nalb_fifo_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_enq_nalb_fifo_mem_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_fid2cqqidix_raddr;
+ output  i_hqm_list_sel_pipe_rf_fid2cqqidix_rclk;
+ output  i_hqm_list_sel_pipe_rf_fid2cqqidix_rclk_rst_n;
+ input [11:0] i_hqm_list_sel_pipe_rf_fid2cqqidix_rdata;
+ output  i_hqm_list_sel_pipe_rf_fid2cqqidix_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_fid2cqqidix_waddr;
+ output  i_hqm_list_sel_pipe_rf_fid2cqqidix_wclk;
+ output  i_hqm_list_sel_pipe_rf_fid2cqqidix_wclk_rst_n;
+ output [11:0] i_hqm_list_sel_pipe_rf_fid2cqqidix_wdata;
+ output  i_hqm_list_sel_pipe_rf_fid2cqqidix_we;
+ output [2:0] i_hqm_list_sel_pipe_rf_ldb_token_rtn_fifo_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_ldb_token_rtn_fifo_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_ldb_token_rtn_fifo_mem_rclk_rst_n;
+ input [24:0] i_hqm_list_sel_pipe_rf_ldb_token_rtn_fifo_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_ldb_token_rtn_fifo_mem_re;
+ output [2:0] i_hqm_list_sel_pipe_rf_ldb_token_rtn_fifo_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_ldb_token_rtn_fifo_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_ldb_token_rtn_fifo_mem_wclk_rst_n;
+ output [24:0] i_hqm_list_sel_pipe_rf_ldb_token_rtn_fifo_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_ldb_token_rtn_fifo_mem_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup0_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup0_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup0_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup0_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup0_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup0_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup0_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup0_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup0_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup0_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup1_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup1_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup1_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup1_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup1_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup1_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup1_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup1_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup1_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup1_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup2_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup2_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup2_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup2_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup2_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup2_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup2_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup2_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup2_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup2_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup3_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup3_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup3_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup3_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup3_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup3_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup3_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup3_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup3_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin0_dup3_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup0_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup0_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup0_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup0_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup0_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup0_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup0_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup0_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup0_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup0_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup1_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup1_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup1_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup1_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup1_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup1_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup1_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup1_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup1_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup1_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup2_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup2_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup2_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup2_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup2_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup2_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup2_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup2_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup2_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup2_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup3_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup3_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup3_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup3_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup3_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup3_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup3_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup3_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup3_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin1_dup3_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup0_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup0_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup0_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup0_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup0_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup0_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup0_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup0_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup0_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup0_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup1_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup1_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup1_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup1_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup1_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup1_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup1_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup1_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup1_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup1_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup2_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup2_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup2_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup2_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup2_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup2_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup2_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup2_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup2_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup2_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup3_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup3_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup3_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup3_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup3_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup3_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup3_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup3_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup3_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin2_dup3_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup0_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup0_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup0_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup0_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup0_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup0_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup0_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup0_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup0_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup0_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup1_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup1_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup1_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup1_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup1_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup1_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup1_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup1_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup1_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup1_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup2_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup2_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup2_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup2_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup2_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup2_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup2_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup2_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup2_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup2_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup3_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup3_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup3_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup3_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup3_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup3_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup3_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup3_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup3_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_r_bin3_dup3_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin0_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin0_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin0_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin0_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin0_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin0_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin0_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin0_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin0_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin0_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin1_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin1_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin1_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin1_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin1_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin1_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin1_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin1_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin1_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin1_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin2_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin2_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin2_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin2_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin2_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin2_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin2_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin2_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin2_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin2_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin3_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin3_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin3_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin3_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin3_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin3_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin3_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin3_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin3_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_enq_cnt_s_bin3_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin0_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin0_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin0_rclk_rst_n;
+ input [13:0] i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin0_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin0_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin0_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin0_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin0_wclk_rst_n;
+ output [13:0] i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin0_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin0_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin1_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin1_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin1_rclk_rst_n;
+ input [13:0] i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin1_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin1_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin1_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin1_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin1_wclk_rst_n;
+ output [13:0] i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin1_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin1_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin2_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin2_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin2_rclk_rst_n;
+ input [13:0] i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin2_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin2_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin2_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin2_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin2_wclk_rst_n;
+ output [13:0] i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin2_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin2_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin3_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin3_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin3_rclk_rst_n;
+ input [13:0] i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin3_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin3_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin3_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin3_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin3_wclk_rst_n;
+ output [13:0] i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin3_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hp_bin3_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin0_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin0_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin0_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin0_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin0_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin0_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin0_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin0_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin0_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin0_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin1_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin1_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin1_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin1_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin1_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin1_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin1_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin1_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin1_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin1_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin2_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin2_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin2_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin2_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin2_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin2_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin2_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin2_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin2_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin2_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin3_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin3_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin3_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin3_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin3_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin3_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin3_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin3_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin3_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_hpnxt_bin3_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin0_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin0_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin0_rclk_rst_n;
+ input [13:0] i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin0_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin0_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin0_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin0_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin0_wclk_rst_n;
+ output [13:0] i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin0_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin0_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin1_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin1_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin1_rclk_rst_n;
+ input [13:0] i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin1_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin1_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin1_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin1_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin1_wclk_rst_n;
+ output [13:0] i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin1_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin1_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin2_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin2_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin2_rclk_rst_n;
+ input [13:0] i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin2_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin2_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin2_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin2_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin2_wclk_rst_n;
+ output [13:0] i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin2_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin2_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin3_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin3_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin3_rclk_rst_n;
+ input [13:0] i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin3_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin3_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin3_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin3_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin3_wclk_rst_n;
+ output [13:0] i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin3_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_rdylst_tp_bin3_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_ll_rlst_cnt_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_rlst_cnt_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_rlst_cnt_rclk_rst_n;
+ input [55:0] i_hqm_list_sel_pipe_rf_ll_rlst_cnt_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_rlst_cnt_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_ll_rlst_cnt_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_rlst_cnt_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_rlst_cnt_wclk_rst_n;
+ output [55:0] i_hqm_list_sel_pipe_rf_ll_rlst_cnt_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_rlst_cnt_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup0_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup0_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup0_rclk_rst_n;
+ input [16:0] i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup0_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup0_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup0_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup0_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup0_wclk_rst_n;
+ output [16:0] i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup0_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup0_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup1_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup1_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup1_rclk_rst_n;
+ input [16:0] i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup1_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup1_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup1_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup1_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup1_wclk_rst_n;
+ output [16:0] i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup1_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup1_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup2_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup2_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup2_rclk_rst_n;
+ input [16:0] i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup2_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup2_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup2_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup2_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup2_wclk_rst_n;
+ output [16:0] i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup2_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup2_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup3_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup3_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup3_rclk_rst_n;
+ input [16:0] i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup3_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup3_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup3_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup3_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup3_wclk_rst_n;
+ output [16:0] i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup3_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_sch_cnt_dup3_we;
+ output [8:0] i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin0_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin0_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin0_rclk_rst_n;
+ input [13:0] i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin0_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin0_re;
+ output [8:0] i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin0_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin0_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin0_wclk_rst_n;
+ output [13:0] i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin0_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin0_we;
+ output [8:0] i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin1_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin1_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin1_rclk_rst_n;
+ input [13:0] i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin1_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin1_re;
+ output [8:0] i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin1_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin1_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin1_wclk_rst_n;
+ output [13:0] i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin1_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin1_we;
+ output [8:0] i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin2_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin2_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin2_rclk_rst_n;
+ input [13:0] i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin2_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin2_re;
+ output [8:0] i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin2_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin2_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin2_wclk_rst_n;
+ output [13:0] i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin2_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin2_we;
+ output [8:0] i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin3_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin3_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin3_rclk_rst_n;
+ input [13:0] i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin3_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin3_re;
+ output [8:0] i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin3_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin3_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin3_wclk_rst_n;
+ output [13:0] i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin3_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hp_bin3_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin0_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin0_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin0_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin0_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin0_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin0_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin0_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin0_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin0_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin0_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin1_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin1_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin1_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin1_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin1_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin1_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin1_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin1_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin1_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin1_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin2_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin2_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin2_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin2_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin2_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin2_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin2_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin2_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin2_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin2_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin3_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin3_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin3_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin3_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin3_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin3_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin3_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin3_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin3_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_hpnxt_bin3_we;
+ output [8:0] i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin0_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin0_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin0_rclk_rst_n;
+ input [13:0] i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin0_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin0_re;
+ output [8:0] i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin0_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin0_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin0_wclk_rst_n;
+ output [13:0] i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin0_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin0_we;
+ output [8:0] i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin1_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin1_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin1_rclk_rst_n;
+ input [13:0] i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin1_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin1_re;
+ output [8:0] i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin1_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin1_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin1_wclk_rst_n;
+ output [13:0] i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin1_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin1_we;
+ output [8:0] i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin2_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin2_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin2_rclk_rst_n;
+ input [13:0] i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin2_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin2_re;
+ output [8:0] i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin2_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin2_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin2_wclk_rst_n;
+ output [13:0] i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin2_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin2_we;
+ output [8:0] i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin3_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin3_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin3_rclk_rst_n;
+ input [13:0] i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin3_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin3_re;
+ output [8:0] i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin3_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin3_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin3_wclk_rst_n;
+ output [13:0] i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin3_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tp_bin3_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin0_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin0_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin0_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin0_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin0_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin0_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin0_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin0_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin0_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin0_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin1_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin1_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin1_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin1_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin1_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin1_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin1_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin1_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin1_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin1_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin2_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin2_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin2_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin2_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin2_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin2_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin2_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin2_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin2_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin2_we;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin3_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin3_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin3_rclk_rst_n;
+ input [15:0] i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin3_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin3_re;
+ output [10:0] i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin3_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin3_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin3_wclk_rst_n;
+ output [15:0] i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin3_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_schlst_tpprv_bin3_we;
+ output [8:0] i_hqm_list_sel_pipe_rf_ll_slst_cnt_raddr;
+ output  i_hqm_list_sel_pipe_rf_ll_slst_cnt_rclk;
+ output  i_hqm_list_sel_pipe_rf_ll_slst_cnt_rclk_rst_n;
+ input [59:0] i_hqm_list_sel_pipe_rf_ll_slst_cnt_rdata;
+ output  i_hqm_list_sel_pipe_rf_ll_slst_cnt_re;
+ output [8:0] i_hqm_list_sel_pipe_rf_ll_slst_cnt_waddr;
+ output  i_hqm_list_sel_pipe_rf_ll_slst_cnt_wclk;
+ output  i_hqm_list_sel_pipe_rf_ll_slst_cnt_wclk_rst_n;
+ output [59:0] i_hqm_list_sel_pipe_rf_ll_slst_cnt_wdata;
+ output  i_hqm_list_sel_pipe_rf_ll_slst_cnt_we;
+ output [2:0] i_hqm_list_sel_pipe_rf_nalb_cmp_fifo_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_nalb_cmp_fifo_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_nalb_cmp_fifo_mem_rclk_rst_n;
+ input [17:0] i_hqm_list_sel_pipe_rf_nalb_cmp_fifo_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_nalb_cmp_fifo_mem_re;
+ output [2:0] i_hqm_list_sel_pipe_rf_nalb_cmp_fifo_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_nalb_cmp_fifo_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_nalb_cmp_fifo_mem_wclk_rst_n;
+ output [17:0] i_hqm_list_sel_pipe_rf_nalb_cmp_fifo_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_nalb_cmp_fifo_mem_we;
+ output [1:0] i_hqm_list_sel_pipe_rf_nalb_lsp_enq_lb_rx_sync_fifo_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_nalb_lsp_enq_lb_rx_sync_fifo_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_nalb_lsp_enq_lb_rx_sync_fifo_mem_rclk_rst_n;
+ input [9:0] i_hqm_list_sel_pipe_rf_nalb_lsp_enq_lb_rx_sync_fifo_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_nalb_lsp_enq_lb_rx_sync_fifo_mem_re;
+ output [1:0] i_hqm_list_sel_pipe_rf_nalb_lsp_enq_lb_rx_sync_fifo_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_nalb_lsp_enq_lb_rx_sync_fifo_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_nalb_lsp_enq_lb_rx_sync_fifo_mem_wclk_rst_n;
+ output [9:0] i_hqm_list_sel_pipe_rf_nalb_lsp_enq_lb_rx_sync_fifo_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_nalb_lsp_enq_lb_rx_sync_fifo_mem_we;
+ output [1:0] i_hqm_list_sel_pipe_rf_nalb_lsp_enq_rorply_rx_sync_fifo_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_nalb_lsp_enq_rorply_rx_sync_fifo_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_nalb_lsp_enq_rorply_rx_sync_fifo_mem_rclk_rst_n;
+ input [26:0] i_hqm_list_sel_pipe_rf_nalb_lsp_enq_rorply_rx_sync_fifo_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_nalb_lsp_enq_rorply_rx_sync_fifo_mem_re;
+ output [1:0] i_hqm_list_sel_pipe_rf_nalb_lsp_enq_rorply_rx_sync_fifo_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_nalb_lsp_enq_rorply_rx_sync_fifo_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_nalb_lsp_enq_rorply_rx_sync_fifo_mem_wclk_rst_n;
+ output [26:0] i_hqm_list_sel_pipe_rf_nalb_lsp_enq_rorply_rx_sync_fifo_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_nalb_lsp_enq_rorply_rx_sync_fifo_mem_we;
+ output [3:0] i_hqm_list_sel_pipe_rf_nalb_sel_nalb_fifo_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_nalb_sel_nalb_fifo_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_nalb_sel_nalb_fifo_mem_rclk_rst_n;
+ input [26:0] i_hqm_list_sel_pipe_rf_nalb_sel_nalb_fifo_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_nalb_sel_nalb_fifo_mem_re;
+ output [3:0] i_hqm_list_sel_pipe_rf_nalb_sel_nalb_fifo_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_nalb_sel_nalb_fifo_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_nalb_sel_nalb_fifo_mem_wclk_rst_n;
+ output [26:0] i_hqm_list_sel_pipe_rf_nalb_sel_nalb_fifo_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_nalb_sel_nalb_fifo_mem_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_qed_lsp_deq_fifo_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_qed_lsp_deq_fifo_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_qed_lsp_deq_fifo_mem_rclk_rst_n;
+ input [8:0] i_hqm_list_sel_pipe_rf_qed_lsp_deq_fifo_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_qed_lsp_deq_fifo_mem_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_qed_lsp_deq_fifo_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_qed_lsp_deq_fifo_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_qed_lsp_deq_fifo_mem_wclk_rst_n;
+ output [8:0] i_hqm_list_sel_pipe_rf_qed_lsp_deq_fifo_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_qed_lsp_deq_fifo_mem_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_qid_aqed_active_count_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_qid_aqed_active_count_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_qid_aqed_active_count_mem_rclk_rst_n;
+ input [13:0] i_hqm_list_sel_pipe_rf_qid_aqed_active_count_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_qid_aqed_active_count_mem_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_qid_aqed_active_count_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_qid_aqed_active_count_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_qid_aqed_active_count_mem_wclk_rst_n;
+ output [13:0] i_hqm_list_sel_pipe_rf_qid_aqed_active_count_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_qid_aqed_active_count_mem_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_qid_atm_active_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_qid_atm_active_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_qid_atm_active_mem_rclk_rst_n;
+ input [16:0] i_hqm_list_sel_pipe_rf_qid_atm_active_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_qid_atm_active_mem_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_qid_atm_active_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_qid_atm_active_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_qid_atm_active_mem_wclk_rst_n;
+ output [16:0] i_hqm_list_sel_pipe_rf_qid_atm_active_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_qid_atm_active_mem_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_qid_atm_tot_enq_cnt_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_qid_atm_tot_enq_cnt_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_qid_atm_tot_enq_cnt_mem_rclk_rst_n;
+ input [65:0] i_hqm_list_sel_pipe_rf_qid_atm_tot_enq_cnt_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_qid_atm_tot_enq_cnt_mem_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_qid_atm_tot_enq_cnt_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_qid_atm_tot_enq_cnt_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_qid_atm_tot_enq_cnt_mem_wclk_rst_n;
+ output [65:0] i_hqm_list_sel_pipe_rf_qid_atm_tot_enq_cnt_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_qid_atm_tot_enq_cnt_mem_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_qid_atq_enqueue_count_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_qid_atq_enqueue_count_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_qid_atq_enqueue_count_mem_rclk_rst_n;
+ input [16:0] i_hqm_list_sel_pipe_rf_qid_atq_enqueue_count_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_qid_atq_enqueue_count_mem_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_qid_atq_enqueue_count_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_qid_atq_enqueue_count_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_qid_atq_enqueue_count_mem_wclk_rst_n;
+ output [16:0] i_hqm_list_sel_pipe_rf_qid_atq_enqueue_count_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_qid_atq_enqueue_count_mem_we;
+ output [5:0] i_hqm_list_sel_pipe_rf_qid_dir_max_depth_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_qid_dir_max_depth_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_qid_dir_max_depth_mem_rclk_rst_n;
+ input [14:0] i_hqm_list_sel_pipe_rf_qid_dir_max_depth_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_qid_dir_max_depth_mem_re;
+ output [5:0] i_hqm_list_sel_pipe_rf_qid_dir_max_depth_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_qid_dir_max_depth_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_qid_dir_max_depth_mem_wclk_rst_n;
+ output [14:0] i_hqm_list_sel_pipe_rf_qid_dir_max_depth_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_qid_dir_max_depth_mem_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_qid_dir_replay_count_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_qid_dir_replay_count_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_qid_dir_replay_count_mem_rclk_rst_n;
+ input [16:0] i_hqm_list_sel_pipe_rf_qid_dir_replay_count_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_qid_dir_replay_count_mem_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_qid_dir_replay_count_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_qid_dir_replay_count_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_qid_dir_replay_count_mem_wclk_rst_n;
+ output [16:0] i_hqm_list_sel_pipe_rf_qid_dir_replay_count_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_qid_dir_replay_count_mem_we;
+ output [5:0] i_hqm_list_sel_pipe_rf_qid_dir_tot_enq_cnt_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_qid_dir_tot_enq_cnt_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_qid_dir_tot_enq_cnt_mem_rclk_rst_n;
+ input [65:0] i_hqm_list_sel_pipe_rf_qid_dir_tot_enq_cnt_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_qid_dir_tot_enq_cnt_mem_re;
+ output [5:0] i_hqm_list_sel_pipe_rf_qid_dir_tot_enq_cnt_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_qid_dir_tot_enq_cnt_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_qid_dir_tot_enq_cnt_mem_wclk_rst_n;
+ output [65:0] i_hqm_list_sel_pipe_rf_qid_dir_tot_enq_cnt_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_qid_dir_tot_enq_cnt_mem_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_qid_ldb_enqueue_count_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_qid_ldb_enqueue_count_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_qid_ldb_enqueue_count_mem_rclk_rst_n;
+ input [16:0] i_hqm_list_sel_pipe_rf_qid_ldb_enqueue_count_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_qid_ldb_enqueue_count_mem_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_qid_ldb_enqueue_count_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_qid_ldb_enqueue_count_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_qid_ldb_enqueue_count_mem_wclk_rst_n;
+ output [16:0] i_hqm_list_sel_pipe_rf_qid_ldb_enqueue_count_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_qid_ldb_enqueue_count_mem_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_qid_ldb_inflight_count_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_qid_ldb_inflight_count_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_qid_ldb_inflight_count_mem_rclk_rst_n;
+ input [13:0] i_hqm_list_sel_pipe_rf_qid_ldb_inflight_count_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_qid_ldb_inflight_count_mem_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_qid_ldb_inflight_count_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_qid_ldb_inflight_count_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_qid_ldb_inflight_count_mem_wclk_rst_n;
+ output [13:0] i_hqm_list_sel_pipe_rf_qid_ldb_inflight_count_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_qid_ldb_inflight_count_mem_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_qid_ldb_replay_count_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_qid_ldb_replay_count_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_qid_ldb_replay_count_mem_rclk_rst_n;
+ input [16:0] i_hqm_list_sel_pipe_rf_qid_ldb_replay_count_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_qid_ldb_replay_count_mem_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_qid_ldb_replay_count_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_qid_ldb_replay_count_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_qid_ldb_replay_count_mem_wclk_rst_n;
+ output [16:0] i_hqm_list_sel_pipe_rf_qid_ldb_replay_count_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_qid_ldb_replay_count_mem_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_qid_naldb_max_depth_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_qid_naldb_max_depth_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_qid_naldb_max_depth_mem_rclk_rst_n;
+ input [14:0] i_hqm_list_sel_pipe_rf_qid_naldb_max_depth_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_qid_naldb_max_depth_mem_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_qid_naldb_max_depth_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_qid_naldb_max_depth_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_qid_naldb_max_depth_mem_wclk_rst_n;
+ output [14:0] i_hqm_list_sel_pipe_rf_qid_naldb_max_depth_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_qid_naldb_max_depth_mem_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_qid_naldb_tot_enq_cnt_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_qid_naldb_tot_enq_cnt_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_qid_naldb_tot_enq_cnt_mem_rclk_rst_n;
+ input [65:0] i_hqm_list_sel_pipe_rf_qid_naldb_tot_enq_cnt_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_qid_naldb_tot_enq_cnt_mem_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_qid_naldb_tot_enq_cnt_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_qid_naldb_tot_enq_cnt_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_qid_naldb_tot_enq_cnt_mem_wclk_rst_n;
+ output [65:0] i_hqm_list_sel_pipe_rf_qid_naldb_tot_enq_cnt_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_qid_naldb_tot_enq_cnt_mem_we;
+ output [4:0] i_hqm_list_sel_pipe_rf_qid_rdylst_clamp_raddr;
+ output  i_hqm_list_sel_pipe_rf_qid_rdylst_clamp_rclk;
+ output  i_hqm_list_sel_pipe_rf_qid_rdylst_clamp_rclk_rst_n;
+ input [5:0] i_hqm_list_sel_pipe_rf_qid_rdylst_clamp_rdata;
+ output  i_hqm_list_sel_pipe_rf_qid_rdylst_clamp_re;
+ output [4:0] i_hqm_list_sel_pipe_rf_qid_rdylst_clamp_waddr;
+ output  i_hqm_list_sel_pipe_rf_qid_rdylst_clamp_wclk;
+ output  i_hqm_list_sel_pipe_rf_qid_rdylst_clamp_wclk_rst_n;
+ output [5:0] i_hqm_list_sel_pipe_rf_qid_rdylst_clamp_wdata;
+ output  i_hqm_list_sel_pipe_rf_qid_rdylst_clamp_we;
+ output [2:0] i_hqm_list_sel_pipe_rf_rop_lsp_reordercmp_rx_sync_fifo_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_rop_lsp_reordercmp_rx_sync_fifo_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_rop_lsp_reordercmp_rx_sync_fifo_mem_rclk_rst_n;
+ input [16:0] i_hqm_list_sel_pipe_rf_rop_lsp_reordercmp_rx_sync_fifo_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_rop_lsp_reordercmp_rx_sync_fifo_mem_re;
+ output [2:0] i_hqm_list_sel_pipe_rf_rop_lsp_reordercmp_rx_sync_fifo_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_rop_lsp_reordercmp_rx_sync_fifo_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_rop_lsp_reordercmp_rx_sync_fifo_mem_wclk_rst_n;
+ output [16:0] i_hqm_list_sel_pipe_rf_rop_lsp_reordercmp_rx_sync_fifo_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_rop_lsp_reordercmp_rx_sync_fifo_mem_we;
+ output [1:0] i_hqm_list_sel_pipe_rf_send_atm_to_cq_rx_sync_fifo_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_send_atm_to_cq_rx_sync_fifo_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_send_atm_to_cq_rx_sync_fifo_mem_rclk_rst_n;
+ input [34:0] i_hqm_list_sel_pipe_rf_send_atm_to_cq_rx_sync_fifo_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_send_atm_to_cq_rx_sync_fifo_mem_re;
+ output [1:0] i_hqm_list_sel_pipe_rf_send_atm_to_cq_rx_sync_fifo_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_send_atm_to_cq_rx_sync_fifo_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_send_atm_to_cq_rx_sync_fifo_mem_wclk_rst_n;
+ output [34:0] i_hqm_list_sel_pipe_rf_send_atm_to_cq_rx_sync_fifo_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_send_atm_to_cq_rx_sync_fifo_mem_we;
+ output [2:0] i_hqm_list_sel_pipe_rf_uno_atm_cmp_fifo_mem_raddr;
+ output  i_hqm_list_sel_pipe_rf_uno_atm_cmp_fifo_mem_rclk;
+ output  i_hqm_list_sel_pipe_rf_uno_atm_cmp_fifo_mem_rclk_rst_n;
+ input [19:0] i_hqm_list_sel_pipe_rf_uno_atm_cmp_fifo_mem_rdata;
+ output  i_hqm_list_sel_pipe_rf_uno_atm_cmp_fifo_mem_re;
+ output [2:0] i_hqm_list_sel_pipe_rf_uno_atm_cmp_fifo_mem_waddr;
+ output  i_hqm_list_sel_pipe_rf_uno_atm_cmp_fifo_mem_wclk;
+ output  i_hqm_list_sel_pipe_rf_uno_atm_cmp_fifo_mem_wclk_rst_n;
+ output [19:0] i_hqm_list_sel_pipe_rf_uno_atm_cmp_fifo_mem_wdata;
+ output  i_hqm_list_sel_pipe_rf_uno_atm_cmp_fifo_mem_we;
+ output [1:0] i_hqm_qed_pipe_qed_cfg_req_down_1_0;
+ output [1:0] i_hqm_qed_pipe_qed_cfg_rsp_down_5_4;
+ output  i_hqm_qed_pipe_qed_lsp_deq_v;
+ output [4:0] i_hqm_qed_pipe_rf_atq_cnt_raddr;
+ output  i_hqm_qed_pipe_rf_atq_cnt_rclk;
+ output  i_hqm_qed_pipe_rf_atq_cnt_rclk_rst_n;
+ input [67:0] i_hqm_qed_pipe_rf_atq_cnt_rdata;
+ output  i_hqm_qed_pipe_rf_atq_cnt_re;
+ output [4:0] i_hqm_qed_pipe_rf_atq_cnt_waddr;
+ output  i_hqm_qed_pipe_rf_atq_cnt_wclk;
+ output  i_hqm_qed_pipe_rf_atq_cnt_wclk_rst_n;
+ output [67:0] i_hqm_qed_pipe_rf_atq_cnt_wdata;
+ output  i_hqm_qed_pipe_rf_atq_cnt_we;
+ output [6:0] i_hqm_qed_pipe_rf_atq_hp_raddr;
+ output  i_hqm_qed_pipe_rf_atq_hp_rclk;
+ output  i_hqm_qed_pipe_rf_atq_hp_rclk_rst_n;
+ input [14:0] i_hqm_qed_pipe_rf_atq_hp_rdata;
+ output  i_hqm_qed_pipe_rf_atq_hp_re;
+ output [6:0] i_hqm_qed_pipe_rf_atq_hp_waddr;
+ output  i_hqm_qed_pipe_rf_atq_hp_wclk;
+ output  i_hqm_qed_pipe_rf_atq_hp_wclk_rst_n;
+ output [14:0] i_hqm_qed_pipe_rf_atq_hp_wdata;
+ output  i_hqm_qed_pipe_rf_atq_hp_we;
+ output [6:0] i_hqm_qed_pipe_rf_atq_tp_raddr;
+ output  i_hqm_qed_pipe_rf_atq_tp_rclk;
+ output  i_hqm_qed_pipe_rf_atq_tp_rclk_rst_n;
+ input [14:0] i_hqm_qed_pipe_rf_atq_tp_rdata;
+ output  i_hqm_qed_pipe_rf_atq_tp_re;
+ output [6:0] i_hqm_qed_pipe_rf_atq_tp_waddr;
+ output  i_hqm_qed_pipe_rf_atq_tp_wclk;
+ output  i_hqm_qed_pipe_rf_atq_tp_wclk_rst_n;
+ output [14:0] i_hqm_qed_pipe_rf_atq_tp_wdata;
+ output  i_hqm_qed_pipe_rf_atq_tp_we;
+ output [5:0] i_hqm_qed_pipe_rf_dir_cnt_raddr;
+ output  i_hqm_qed_pipe_rf_dir_cnt_rclk;
+ output  i_hqm_qed_pipe_rf_dir_cnt_rclk_rst_n;
+ input [67:0] i_hqm_qed_pipe_rf_dir_cnt_rdata;
+ output  i_hqm_qed_pipe_rf_dir_cnt_re;
+ output [5:0] i_hqm_qed_pipe_rf_dir_cnt_waddr;
+ output  i_hqm_qed_pipe_rf_dir_cnt_wclk;
+ output  i_hqm_qed_pipe_rf_dir_cnt_wclk_rst_n;
+ output [67:0] i_hqm_qed_pipe_rf_dir_cnt_wdata;
+ output  i_hqm_qed_pipe_rf_dir_cnt_we;
+ output [7:0] i_hqm_qed_pipe_rf_dir_hp_raddr;
+ output  i_hqm_qed_pipe_rf_dir_hp_rclk;
+ output  i_hqm_qed_pipe_rf_dir_hp_rclk_rst_n;
+ input [14:0] i_hqm_qed_pipe_rf_dir_hp_rdata;
+ output  i_hqm_qed_pipe_rf_dir_hp_re;
+ output [7:0] i_hqm_qed_pipe_rf_dir_hp_waddr;
+ output  i_hqm_qed_pipe_rf_dir_hp_wclk;
+ output  i_hqm_qed_pipe_rf_dir_hp_wclk_rst_n;
+ output [14:0] i_hqm_qed_pipe_rf_dir_hp_wdata;
+ output  i_hqm_qed_pipe_rf_dir_hp_we;
+ output [4:0] i_hqm_qed_pipe_rf_dir_replay_cnt_raddr;
+ output  i_hqm_qed_pipe_rf_dir_replay_cnt_rclk;
+ output  i_hqm_qed_pipe_rf_dir_replay_cnt_rclk_rst_n;
+ input [67:0] i_hqm_qed_pipe_rf_dir_replay_cnt_rdata;
+ output  i_hqm_qed_pipe_rf_dir_replay_cnt_re;
+ output [4:0] i_hqm_qed_pipe_rf_dir_replay_cnt_waddr;
+ output  i_hqm_qed_pipe_rf_dir_replay_cnt_wclk;
+ output  i_hqm_qed_pipe_rf_dir_replay_cnt_wclk_rst_n;
+ output [67:0] i_hqm_qed_pipe_rf_dir_replay_cnt_wdata;
+ output  i_hqm_qed_pipe_rf_dir_replay_cnt_we;
+ output [6:0] i_hqm_qed_pipe_rf_dir_replay_hp_raddr;
+ output  i_hqm_qed_pipe_rf_dir_replay_hp_rclk;
+ output  i_hqm_qed_pipe_rf_dir_replay_hp_rclk_rst_n;
+ input [14:0] i_hqm_qed_pipe_rf_dir_replay_hp_rdata;
+ output  i_hqm_qed_pipe_rf_dir_replay_hp_re;
+ output [6:0] i_hqm_qed_pipe_rf_dir_replay_hp_waddr;
+ output  i_hqm_qed_pipe_rf_dir_replay_hp_wclk;
+ output  i_hqm_qed_pipe_rf_dir_replay_hp_wclk_rst_n;
+ output [14:0] i_hqm_qed_pipe_rf_dir_replay_hp_wdata;
+ output  i_hqm_qed_pipe_rf_dir_replay_hp_we;
+ output [6:0] i_hqm_qed_pipe_rf_dir_replay_tp_raddr;
+ output  i_hqm_qed_pipe_rf_dir_replay_tp_rclk;
+ output  i_hqm_qed_pipe_rf_dir_replay_tp_rclk_rst_n;
+ input [14:0] i_hqm_qed_pipe_rf_dir_replay_tp_rdata;
+ output  i_hqm_qed_pipe_rf_dir_replay_tp_re;
+ output [6:0] i_hqm_qed_pipe_rf_dir_replay_tp_waddr;
+ output  i_hqm_qed_pipe_rf_dir_replay_tp_wclk;
+ output  i_hqm_qed_pipe_rf_dir_replay_tp_wclk_rst_n;
+ output [14:0] i_hqm_qed_pipe_rf_dir_replay_tp_wdata;
+ output  i_hqm_qed_pipe_rf_dir_replay_tp_we;
+ output [8:0] i_hqm_qed_pipe_rf_dir_rofrag_cnt_raddr;
+ output  i_hqm_qed_pipe_rf_dir_rofrag_cnt_rclk;
+ output  i_hqm_qed_pipe_rf_dir_rofrag_cnt_rclk_rst_n;
+ input [16:0] i_hqm_qed_pipe_rf_dir_rofrag_cnt_rdata;
+ output  i_hqm_qed_pipe_rf_dir_rofrag_cnt_re;
+ output [8:0] i_hqm_qed_pipe_rf_dir_rofrag_cnt_waddr;
+ output  i_hqm_qed_pipe_rf_dir_rofrag_cnt_wclk;
+ output  i_hqm_qed_pipe_rf_dir_rofrag_cnt_wclk_rst_n;
+ output [16:0] i_hqm_qed_pipe_rf_dir_rofrag_cnt_wdata;
+ output  i_hqm_qed_pipe_rf_dir_rofrag_cnt_we;
+ output [8:0] i_hqm_qed_pipe_rf_dir_rofrag_hp_raddr;
+ output  i_hqm_qed_pipe_rf_dir_rofrag_hp_rclk;
+ output  i_hqm_qed_pipe_rf_dir_rofrag_hp_rclk_rst_n;
+ input [14:0] i_hqm_qed_pipe_rf_dir_rofrag_hp_rdata;
+ output  i_hqm_qed_pipe_rf_dir_rofrag_hp_re;
+ output [8:0] i_hqm_qed_pipe_rf_dir_rofrag_hp_waddr;
+ output  i_hqm_qed_pipe_rf_dir_rofrag_hp_wclk;
+ output  i_hqm_qed_pipe_rf_dir_rofrag_hp_wclk_rst_n;
+ output [14:0] i_hqm_qed_pipe_rf_dir_rofrag_hp_wdata;
+ output  i_hqm_qed_pipe_rf_dir_rofrag_hp_we;
+ output [8:0] i_hqm_qed_pipe_rf_dir_rofrag_tp_raddr;
+ output  i_hqm_qed_pipe_rf_dir_rofrag_tp_rclk;
+ output  i_hqm_qed_pipe_rf_dir_rofrag_tp_rclk_rst_n;
+ input [14:0] i_hqm_qed_pipe_rf_dir_rofrag_tp_rdata;
+ output  i_hqm_qed_pipe_rf_dir_rofrag_tp_re;
+ output [8:0] i_hqm_qed_pipe_rf_dir_rofrag_tp_waddr;
+ output  i_hqm_qed_pipe_rf_dir_rofrag_tp_wclk;
+ output  i_hqm_qed_pipe_rf_dir_rofrag_tp_wclk_rst_n;
+ output [14:0] i_hqm_qed_pipe_rf_dir_rofrag_tp_wdata;
+ output  i_hqm_qed_pipe_rf_dir_rofrag_tp_we;
+ output [7:0] i_hqm_qed_pipe_rf_dir_tp_raddr;
+ output  i_hqm_qed_pipe_rf_dir_tp_rclk;
+ output  i_hqm_qed_pipe_rf_dir_tp_rclk_rst_n;
+ input [14:0] i_hqm_qed_pipe_rf_dir_tp_rdata;
+ output  i_hqm_qed_pipe_rf_dir_tp_re;
+ output [7:0] i_hqm_qed_pipe_rf_dir_tp_waddr;
+ output  i_hqm_qed_pipe_rf_dir_tp_wclk;
+ output  i_hqm_qed_pipe_rf_dir_tp_wclk_rst_n;
+ output [14:0] i_hqm_qed_pipe_rf_dir_tp_wdata;
+ output  i_hqm_qed_pipe_rf_dir_tp_we;
+ output [4:0] i_hqm_qed_pipe_rf_dp_dqed_raddr;
+ output  i_hqm_qed_pipe_rf_dp_dqed_rclk;
+ output  i_hqm_qed_pipe_rf_dp_dqed_rclk_rst_n;
+ input [44:0] i_hqm_qed_pipe_rf_dp_dqed_rdata;
+ output  i_hqm_qed_pipe_rf_dp_dqed_re;
+ output [4:0] i_hqm_qed_pipe_rf_dp_dqed_waddr;
+ output  i_hqm_qed_pipe_rf_dp_dqed_wclk;
+ output  i_hqm_qed_pipe_rf_dp_dqed_wclk_rst_n;
+ output [44:0] i_hqm_qed_pipe_rf_dp_dqed_wdata;
+ output  i_hqm_qed_pipe_rf_dp_dqed_we;
+ output [3:0] i_hqm_qed_pipe_rf_dp_lsp_enq_dir_raddr;
+ output  i_hqm_qed_pipe_rf_dp_lsp_enq_dir_rclk;
+ output  i_hqm_qed_pipe_rf_dp_lsp_enq_dir_rclk_rst_n;
+ input [7:0] i_hqm_qed_pipe_rf_dp_lsp_enq_dir_rdata;
+ output  i_hqm_qed_pipe_rf_dp_lsp_enq_dir_re;
+ output [3:0] i_hqm_qed_pipe_rf_dp_lsp_enq_dir_waddr;
+ output  i_hqm_qed_pipe_rf_dp_lsp_enq_dir_wclk;
+ output  i_hqm_qed_pipe_rf_dp_lsp_enq_dir_wclk_rst_n;
+ output [7:0] i_hqm_qed_pipe_rf_dp_lsp_enq_dir_wdata;
+ output  i_hqm_qed_pipe_rf_dp_lsp_enq_dir_we;
+ output [3:0] i_hqm_qed_pipe_rf_dp_lsp_enq_rorply_raddr;
+ output  i_hqm_qed_pipe_rf_dp_lsp_enq_rorply_rclk;
+ output  i_hqm_qed_pipe_rf_dp_lsp_enq_rorply_rclk_rst_n;
+ input [22:0] i_hqm_qed_pipe_rf_dp_lsp_enq_rorply_rdata;
+ output  i_hqm_qed_pipe_rf_dp_lsp_enq_rorply_re;
+ output [3:0] i_hqm_qed_pipe_rf_dp_lsp_enq_rorply_waddr;
+ output  i_hqm_qed_pipe_rf_dp_lsp_enq_rorply_wclk;
+ output  i_hqm_qed_pipe_rf_dp_lsp_enq_rorply_wclk_rst_n;
+ output [22:0] i_hqm_qed_pipe_rf_dp_lsp_enq_rorply_wdata;
+ output  i_hqm_qed_pipe_rf_dp_lsp_enq_rorply_we;
+ output [1:0] i_hqm_qed_pipe_rf_lsp_dp_sch_dir_raddr;
+ output  i_hqm_qed_pipe_rf_lsp_dp_sch_dir_rclk;
+ output  i_hqm_qed_pipe_rf_lsp_dp_sch_dir_rclk_rst_n;
+ input [26:0] i_hqm_qed_pipe_rf_lsp_dp_sch_dir_rdata;
+ output  i_hqm_qed_pipe_rf_lsp_dp_sch_dir_re;
+ output [1:0] i_hqm_qed_pipe_rf_lsp_dp_sch_dir_waddr;
+ output  i_hqm_qed_pipe_rf_lsp_dp_sch_dir_wclk;
+ output  i_hqm_qed_pipe_rf_lsp_dp_sch_dir_wclk_rst_n;
+ output [26:0] i_hqm_qed_pipe_rf_lsp_dp_sch_dir_wdata;
+ output  i_hqm_qed_pipe_rf_lsp_dp_sch_dir_we;
+ output [1:0] i_hqm_qed_pipe_rf_lsp_dp_sch_rorply_raddr;
+ output  i_hqm_qed_pipe_rf_lsp_dp_sch_rorply_rclk;
+ output  i_hqm_qed_pipe_rf_lsp_dp_sch_rorply_rclk_rst_n;
+ input [7:0] i_hqm_qed_pipe_rf_lsp_dp_sch_rorply_rdata;
+ output  i_hqm_qed_pipe_rf_lsp_dp_sch_rorply_re;
+ output [1:0] i_hqm_qed_pipe_rf_lsp_dp_sch_rorply_waddr;
+ output  i_hqm_qed_pipe_rf_lsp_dp_sch_rorply_wclk;
+ output  i_hqm_qed_pipe_rf_lsp_dp_sch_rorply_wclk_rst_n;
+ output [7:0] i_hqm_qed_pipe_rf_lsp_dp_sch_rorply_wdata;
+ output  i_hqm_qed_pipe_rf_lsp_dp_sch_rorply_we;
+ output [4:0] i_hqm_qed_pipe_rf_lsp_nalb_sch_atq_raddr;
+ output  i_hqm_qed_pipe_rf_lsp_nalb_sch_atq_rclk;
+ output  i_hqm_qed_pipe_rf_lsp_nalb_sch_atq_rclk_rst_n;
+ input [7:0] i_hqm_qed_pipe_rf_lsp_nalb_sch_atq_rdata;
+ output  i_hqm_qed_pipe_rf_lsp_nalb_sch_atq_re;
+ output [4:0] i_hqm_qed_pipe_rf_lsp_nalb_sch_atq_waddr;
+ output  i_hqm_qed_pipe_rf_lsp_nalb_sch_atq_wclk;
+ output  i_hqm_qed_pipe_rf_lsp_nalb_sch_atq_wclk_rst_n;
+ output [7:0] i_hqm_qed_pipe_rf_lsp_nalb_sch_atq_wdata;
+ output  i_hqm_qed_pipe_rf_lsp_nalb_sch_atq_we;
+ output [1:0] i_hqm_qed_pipe_rf_lsp_nalb_sch_rorply_raddr;
+ output  i_hqm_qed_pipe_rf_lsp_nalb_sch_rorply_rclk;
+ output  i_hqm_qed_pipe_rf_lsp_nalb_sch_rorply_rclk_rst_n;
+ input [7:0] i_hqm_qed_pipe_rf_lsp_nalb_sch_rorply_rdata;
+ output  i_hqm_qed_pipe_rf_lsp_nalb_sch_rorply_re;
+ output [1:0] i_hqm_qed_pipe_rf_lsp_nalb_sch_rorply_waddr;
+ output  i_hqm_qed_pipe_rf_lsp_nalb_sch_rorply_wclk;
+ output  i_hqm_qed_pipe_rf_lsp_nalb_sch_rorply_wclk_rst_n;
+ output [7:0] i_hqm_qed_pipe_rf_lsp_nalb_sch_rorply_wdata;
+ output  i_hqm_qed_pipe_rf_lsp_nalb_sch_rorply_we;
+ output [1:0] i_hqm_qed_pipe_rf_lsp_nalb_sch_unoord_raddr;
+ output  i_hqm_qed_pipe_rf_lsp_nalb_sch_unoord_rclk;
+ output  i_hqm_qed_pipe_rf_lsp_nalb_sch_unoord_rclk_rst_n;
+ input [26:0] i_hqm_qed_pipe_rf_lsp_nalb_sch_unoord_rdata;
+ output  i_hqm_qed_pipe_rf_lsp_nalb_sch_unoord_re;
+ output [1:0] i_hqm_qed_pipe_rf_lsp_nalb_sch_unoord_waddr;
+ output  i_hqm_qed_pipe_rf_lsp_nalb_sch_unoord_wclk;
+ output  i_hqm_qed_pipe_rf_lsp_nalb_sch_unoord_wclk_rst_n;
+ output [26:0] i_hqm_qed_pipe_rf_lsp_nalb_sch_unoord_wdata;
+ output  i_hqm_qed_pipe_rf_lsp_nalb_sch_unoord_we;
+ output [4:0] i_hqm_qed_pipe_rf_nalb_cnt_raddr;
+ output  i_hqm_qed_pipe_rf_nalb_cnt_rclk;
+ output  i_hqm_qed_pipe_rf_nalb_cnt_rclk_rst_n;
+ input [67:0] i_hqm_qed_pipe_rf_nalb_cnt_rdata;
+ output  i_hqm_qed_pipe_rf_nalb_cnt_re;
+ output [4:0] i_hqm_qed_pipe_rf_nalb_cnt_waddr;
+ output  i_hqm_qed_pipe_rf_nalb_cnt_wclk;
+ output  i_hqm_qed_pipe_rf_nalb_cnt_wclk_rst_n;
+ output [67:0] i_hqm_qed_pipe_rf_nalb_cnt_wdata;
+ output  i_hqm_qed_pipe_rf_nalb_cnt_we;
+ output [6:0] i_hqm_qed_pipe_rf_nalb_hp_raddr;
+ output  i_hqm_qed_pipe_rf_nalb_hp_rclk;
+ output  i_hqm_qed_pipe_rf_nalb_hp_rclk_rst_n;
+ input [14:0] i_hqm_qed_pipe_rf_nalb_hp_rdata;
+ output  i_hqm_qed_pipe_rf_nalb_hp_re;
+ output [6:0] i_hqm_qed_pipe_rf_nalb_hp_waddr;
+ output  i_hqm_qed_pipe_rf_nalb_hp_wclk;
+ output  i_hqm_qed_pipe_rf_nalb_hp_wclk_rst_n;
+ output [14:0] i_hqm_qed_pipe_rf_nalb_hp_wdata;
+ output  i_hqm_qed_pipe_rf_nalb_hp_we;
+ output [4:0] i_hqm_qed_pipe_rf_nalb_lsp_enq_rorply_raddr;
+ output  i_hqm_qed_pipe_rf_nalb_lsp_enq_rorply_rclk;
+ output  i_hqm_qed_pipe_rf_nalb_lsp_enq_rorply_rclk_rst_n;
+ input [26:0] i_hqm_qed_pipe_rf_nalb_lsp_enq_rorply_rdata;
+ output  i_hqm_qed_pipe_rf_nalb_lsp_enq_rorply_re;
+ output [4:0] i_hqm_qed_pipe_rf_nalb_lsp_enq_rorply_waddr;
+ output  i_hqm_qed_pipe_rf_nalb_lsp_enq_rorply_wclk;
+ output  i_hqm_qed_pipe_rf_nalb_lsp_enq_rorply_wclk_rst_n;
+ output [26:0] i_hqm_qed_pipe_rf_nalb_lsp_enq_rorply_wdata;
+ output  i_hqm_qed_pipe_rf_nalb_lsp_enq_rorply_we;
+ output [4:0] i_hqm_qed_pipe_rf_nalb_lsp_enq_unoord_raddr;
+ output  i_hqm_qed_pipe_rf_nalb_lsp_enq_unoord_rclk;
+ output  i_hqm_qed_pipe_rf_nalb_lsp_enq_unoord_rclk_rst_n;
+ input [9:0] i_hqm_qed_pipe_rf_nalb_lsp_enq_unoord_rdata;
+ output  i_hqm_qed_pipe_rf_nalb_lsp_enq_unoord_re;
+ output [4:0] i_hqm_qed_pipe_rf_nalb_lsp_enq_unoord_waddr;
+ output  i_hqm_qed_pipe_rf_nalb_lsp_enq_unoord_wclk;
+ output  i_hqm_qed_pipe_rf_nalb_lsp_enq_unoord_wclk_rst_n;
+ output [9:0] i_hqm_qed_pipe_rf_nalb_lsp_enq_unoord_wdata;
+ output  i_hqm_qed_pipe_rf_nalb_lsp_enq_unoord_we;
+ output [4:0] i_hqm_qed_pipe_rf_nalb_qed_raddr;
+ output  i_hqm_qed_pipe_rf_nalb_qed_rclk;
+ output  i_hqm_qed_pipe_rf_nalb_qed_rclk_rst_n;
+ input [44:0] i_hqm_qed_pipe_rf_nalb_qed_rdata;
+ output  i_hqm_qed_pipe_rf_nalb_qed_re;
+ output [4:0] i_hqm_qed_pipe_rf_nalb_qed_waddr;
+ output  i_hqm_qed_pipe_rf_nalb_qed_wclk;
+ output  i_hqm_qed_pipe_rf_nalb_qed_wclk_rst_n;
+ output [44:0] i_hqm_qed_pipe_rf_nalb_qed_wdata;
+ output  i_hqm_qed_pipe_rf_nalb_qed_we;
+ output [4:0] i_hqm_qed_pipe_rf_nalb_replay_cnt_raddr;
+ output  i_hqm_qed_pipe_rf_nalb_replay_cnt_rclk;
+ output  i_hqm_qed_pipe_rf_nalb_replay_cnt_rclk_rst_n;
+ input [67:0] i_hqm_qed_pipe_rf_nalb_replay_cnt_rdata;
+ output  i_hqm_qed_pipe_rf_nalb_replay_cnt_re;
+ output [4:0] i_hqm_qed_pipe_rf_nalb_replay_cnt_waddr;
+ output  i_hqm_qed_pipe_rf_nalb_replay_cnt_wclk;
+ output  i_hqm_qed_pipe_rf_nalb_replay_cnt_wclk_rst_n;
+ output [67:0] i_hqm_qed_pipe_rf_nalb_replay_cnt_wdata;
+ output  i_hqm_qed_pipe_rf_nalb_replay_cnt_we;
+ output [6:0] i_hqm_qed_pipe_rf_nalb_replay_hp_raddr;
+ output  i_hqm_qed_pipe_rf_nalb_replay_hp_rclk;
+ output  i_hqm_qed_pipe_rf_nalb_replay_hp_rclk_rst_n;
+ input [14:0] i_hqm_qed_pipe_rf_nalb_replay_hp_rdata;
+ output  i_hqm_qed_pipe_rf_nalb_replay_hp_re;
+ output [6:0] i_hqm_qed_pipe_rf_nalb_replay_hp_waddr;
+ output  i_hqm_qed_pipe_rf_nalb_replay_hp_wclk;
+ output  i_hqm_qed_pipe_rf_nalb_replay_hp_wclk_rst_n;
+ output [14:0] i_hqm_qed_pipe_rf_nalb_replay_hp_wdata;
+ output  i_hqm_qed_pipe_rf_nalb_replay_hp_we;
+ output [6:0] i_hqm_qed_pipe_rf_nalb_replay_tp_raddr;
+ output  i_hqm_qed_pipe_rf_nalb_replay_tp_rclk;
+ output  i_hqm_qed_pipe_rf_nalb_replay_tp_rclk_rst_n;
+ input [14:0] i_hqm_qed_pipe_rf_nalb_replay_tp_rdata;
+ output  i_hqm_qed_pipe_rf_nalb_replay_tp_re;
+ output [6:0] i_hqm_qed_pipe_rf_nalb_replay_tp_waddr;
+ output  i_hqm_qed_pipe_rf_nalb_replay_tp_wclk;
+ output  i_hqm_qed_pipe_rf_nalb_replay_tp_wclk_rst_n;
+ output [14:0] i_hqm_qed_pipe_rf_nalb_replay_tp_wdata;
+ output  i_hqm_qed_pipe_rf_nalb_replay_tp_we;
+ output [8:0] i_hqm_qed_pipe_rf_nalb_rofrag_cnt_raddr;
+ output  i_hqm_qed_pipe_rf_nalb_rofrag_cnt_rclk;
+ output  i_hqm_qed_pipe_rf_nalb_rofrag_cnt_rclk_rst_n;
+ input [16:0] i_hqm_qed_pipe_rf_nalb_rofrag_cnt_rdata;
+ output  i_hqm_qed_pipe_rf_nalb_rofrag_cnt_re;
+ output [8:0] i_hqm_qed_pipe_rf_nalb_rofrag_cnt_waddr;
+ output  i_hqm_qed_pipe_rf_nalb_rofrag_cnt_wclk;
+ output  i_hqm_qed_pipe_rf_nalb_rofrag_cnt_wclk_rst_n;
+ output [16:0] i_hqm_qed_pipe_rf_nalb_rofrag_cnt_wdata;
+ output  i_hqm_qed_pipe_rf_nalb_rofrag_cnt_we;
+ output [8:0] i_hqm_qed_pipe_rf_nalb_rofrag_hp_raddr;
+ output  i_hqm_qed_pipe_rf_nalb_rofrag_hp_rclk;
+ output  i_hqm_qed_pipe_rf_nalb_rofrag_hp_rclk_rst_n;
+ input [14:0] i_hqm_qed_pipe_rf_nalb_rofrag_hp_rdata;
+ output  i_hqm_qed_pipe_rf_nalb_rofrag_hp_re;
+ output [8:0] i_hqm_qed_pipe_rf_nalb_rofrag_hp_waddr;
+ output  i_hqm_qed_pipe_rf_nalb_rofrag_hp_wclk;
+ output  i_hqm_qed_pipe_rf_nalb_rofrag_hp_wclk_rst_n;
+ output [14:0] i_hqm_qed_pipe_rf_nalb_rofrag_hp_wdata;
+ output  i_hqm_qed_pipe_rf_nalb_rofrag_hp_we;
+ output [8:0] i_hqm_qed_pipe_rf_nalb_rofrag_tp_raddr;
+ output  i_hqm_qed_pipe_rf_nalb_rofrag_tp_rclk;
+ output  i_hqm_qed_pipe_rf_nalb_rofrag_tp_rclk_rst_n;
+ input [14:0] i_hqm_qed_pipe_rf_nalb_rofrag_tp_rdata;
+ output  i_hqm_qed_pipe_rf_nalb_rofrag_tp_re;
+ output [8:0] i_hqm_qed_pipe_rf_nalb_rofrag_tp_waddr;
+ output  i_hqm_qed_pipe_rf_nalb_rofrag_tp_wclk;
+ output  i_hqm_qed_pipe_rf_nalb_rofrag_tp_wclk_rst_n;
+ output [14:0] i_hqm_qed_pipe_rf_nalb_rofrag_tp_wdata;
+ output  i_hqm_qed_pipe_rf_nalb_rofrag_tp_we;
+ output [6:0] i_hqm_qed_pipe_rf_nalb_tp_raddr;
+ output  i_hqm_qed_pipe_rf_nalb_tp_rclk;
+ output  i_hqm_qed_pipe_rf_nalb_tp_rclk_rst_n;
+ input [14:0] i_hqm_qed_pipe_rf_nalb_tp_rdata;
+ output  i_hqm_qed_pipe_rf_nalb_tp_re;
+ output [6:0] i_hqm_qed_pipe_rf_nalb_tp_waddr;
+ output  i_hqm_qed_pipe_rf_nalb_tp_wclk;
+ output  i_hqm_qed_pipe_rf_nalb_tp_wclk_rst_n;
+ output [14:0] i_hqm_qed_pipe_rf_nalb_tp_wdata;
+ output  i_hqm_qed_pipe_rf_nalb_tp_we;
+ output [2:0] i_hqm_qed_pipe_rf_qed_chp_sch_data_raddr;
+ output  i_hqm_qed_pipe_rf_qed_chp_sch_data_rclk;
+ output  i_hqm_qed_pipe_rf_qed_chp_sch_data_rclk_rst_n;
+ input [176:0] i_hqm_qed_pipe_rf_qed_chp_sch_data_rdata;
+ output  i_hqm_qed_pipe_rf_qed_chp_sch_data_re;
+ output [2:0] i_hqm_qed_pipe_rf_qed_chp_sch_data_waddr;
+ output  i_hqm_qed_pipe_rf_qed_chp_sch_data_wclk;
+ output  i_hqm_qed_pipe_rf_qed_chp_sch_data_wclk_rst_n;
+ output [176:0] i_hqm_qed_pipe_rf_qed_chp_sch_data_wdata;
+ output  i_hqm_qed_pipe_rf_qed_chp_sch_data_we;
+ output [1:0] i_hqm_qed_pipe_rf_rop_dp_enq_dir_raddr;
+ output  i_hqm_qed_pipe_rf_rop_dp_enq_dir_rclk;
+ output  i_hqm_qed_pipe_rf_rop_dp_enq_dir_rclk_rst_n;
+ input [99:0] i_hqm_qed_pipe_rf_rop_dp_enq_dir_rdata;
+ output  i_hqm_qed_pipe_rf_rop_dp_enq_dir_re;
+ output [1:0] i_hqm_qed_pipe_rf_rop_dp_enq_dir_waddr;
+ output  i_hqm_qed_pipe_rf_rop_dp_enq_dir_wclk;
+ output  i_hqm_qed_pipe_rf_rop_dp_enq_dir_wclk_rst_n;
+ output [99:0] i_hqm_qed_pipe_rf_rop_dp_enq_dir_wdata;
+ output  i_hqm_qed_pipe_rf_rop_dp_enq_dir_we;
+ output [1:0] i_hqm_qed_pipe_rf_rop_dp_enq_ro_raddr;
+ output  i_hqm_qed_pipe_rf_rop_dp_enq_ro_rclk;
+ output  i_hqm_qed_pipe_rf_rop_dp_enq_ro_rclk_rst_n;
+ input [99:0] i_hqm_qed_pipe_rf_rop_dp_enq_ro_rdata;
+ output  i_hqm_qed_pipe_rf_rop_dp_enq_ro_re;
+ output [1:0] i_hqm_qed_pipe_rf_rop_dp_enq_ro_waddr;
+ output  i_hqm_qed_pipe_rf_rop_dp_enq_ro_wclk;
+ output  i_hqm_qed_pipe_rf_rop_dp_enq_ro_wclk_rst_n;
+ output [99:0] i_hqm_qed_pipe_rf_rop_dp_enq_ro_wdata;
+ output  i_hqm_qed_pipe_rf_rop_dp_enq_ro_we;
+ output [1:0] i_hqm_qed_pipe_rf_rop_nalb_enq_ro_raddr;
+ output  i_hqm_qed_pipe_rf_rop_nalb_enq_ro_rclk;
+ output  i_hqm_qed_pipe_rf_rop_nalb_enq_ro_rclk_rst_n;
+ input [99:0] i_hqm_qed_pipe_rf_rop_nalb_enq_ro_rdata;
+ output  i_hqm_qed_pipe_rf_rop_nalb_enq_ro_re;
+ output [1:0] i_hqm_qed_pipe_rf_rop_nalb_enq_ro_waddr;
+ output  i_hqm_qed_pipe_rf_rop_nalb_enq_ro_wclk;
+ output  i_hqm_qed_pipe_rf_rop_nalb_enq_ro_wclk_rst_n;
+ output [99:0] i_hqm_qed_pipe_rf_rop_nalb_enq_ro_wdata;
+ output  i_hqm_qed_pipe_rf_rop_nalb_enq_ro_we;
+ output [1:0] i_hqm_qed_pipe_rf_rop_nalb_enq_unoord_raddr;
+ output  i_hqm_qed_pipe_rf_rop_nalb_enq_unoord_rclk;
+ output  i_hqm_qed_pipe_rf_rop_nalb_enq_unoord_rclk_rst_n;
+ input [99:0] i_hqm_qed_pipe_rf_rop_nalb_enq_unoord_rdata;
+ output  i_hqm_qed_pipe_rf_rop_nalb_enq_unoord_re;
+ output [1:0] i_hqm_qed_pipe_rf_rop_nalb_enq_unoord_waddr;
+ output  i_hqm_qed_pipe_rf_rop_nalb_enq_unoord_wclk;
+ output  i_hqm_qed_pipe_rf_rop_nalb_enq_unoord_wclk_rst_n;
+ output [99:0] i_hqm_qed_pipe_rf_rop_nalb_enq_unoord_wdata;
+ output  i_hqm_qed_pipe_rf_rop_nalb_enq_unoord_we;
+ output [1:0] i_hqm_qed_pipe_rf_rx_sync_dp_dqed_data_raddr;
+ output  i_hqm_qed_pipe_rf_rx_sync_dp_dqed_data_rclk;
+ output  i_hqm_qed_pipe_rf_rx_sync_dp_dqed_data_rclk_rst_n;
+ input [44:0] i_hqm_qed_pipe_rf_rx_sync_dp_dqed_data_rdata;
+ output  i_hqm_qed_pipe_rf_rx_sync_dp_dqed_data_re;
+ output [1:0] i_hqm_qed_pipe_rf_rx_sync_dp_dqed_data_waddr;
+ output  i_hqm_qed_pipe_rf_rx_sync_dp_dqed_data_wclk;
+ output  i_hqm_qed_pipe_rf_rx_sync_dp_dqed_data_wclk_rst_n;
+ output [44:0] i_hqm_qed_pipe_rf_rx_sync_dp_dqed_data_wdata;
+ output  i_hqm_qed_pipe_rf_rx_sync_dp_dqed_data_we;
+ output [1:0] i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_dir_raddr;
+ output  i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_dir_rclk;
+ output  i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_dir_rclk_rst_n;
+ input [26:0] i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_dir_rdata;
+ output  i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_dir_re;
+ output [1:0] i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_dir_waddr;
+ output  i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_dir_wclk;
+ output  i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_dir_wclk_rst_n;
+ output [26:0] i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_dir_wdata;
+ output  i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_dir_we;
+ output [1:0] i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_rorply_raddr;
+ output  i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_rorply_rclk;
+ output  i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_rorply_rclk_rst_n;
+ input [7:0] i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_rorply_rdata;
+ output  i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_rorply_re;
+ output [1:0] i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_rorply_waddr;
+ output  i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_rorply_wclk;
+ output  i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_rorply_wclk_rst_n;
+ output [7:0] i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_rorply_wdata;
+ output  i_hqm_qed_pipe_rf_rx_sync_lsp_dp_sch_rorply_we;
+ output [1:0] i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_atq_raddr;
+ output  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_atq_rclk;
+ output  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_atq_rclk_rst_n;
+ input [7:0] i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_atq_rdata;
+ output  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_atq_re;
+ output [1:0] i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_atq_waddr;
+ output  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_atq_wclk;
+ output  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_atq_wclk_rst_n;
+ output [7:0] i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_atq_wdata;
+ output  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_atq_we;
+ output [1:0] i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_rorply_raddr;
+ output  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_rorply_rclk;
+ output  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_rorply_rclk_rst_n;
+ input [7:0] i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_rorply_rdata;
+ output  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_rorply_re;
+ output [1:0] i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_rorply_waddr;
+ output  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_rorply_wclk;
+ output  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_rorply_wclk_rst_n;
+ output [7:0] i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_rorply_wdata;
+ output  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_rorply_we;
+ output [1:0] i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_unoord_raddr;
+ output  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_unoord_rclk;
+ output  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_unoord_rclk_rst_n;
+ input [26:0] i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_unoord_rdata;
+ output  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_unoord_re;
+ output [1:0] i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_unoord_waddr;
+ output  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_unoord_wclk;
+ output  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_unoord_wclk_rst_n;
+ output [26:0] i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_unoord_wdata;
+ output  i_hqm_qed_pipe_rf_rx_sync_lsp_nalb_sch_unoord_we;
+ output [1:0] i_hqm_qed_pipe_rf_rx_sync_nalb_qed_data_raddr;
+ output  i_hqm_qed_pipe_rf_rx_sync_nalb_qed_data_rclk;
+ output  i_hqm_qed_pipe_rf_rx_sync_nalb_qed_data_rclk_rst_n;
+ input [44:0] i_hqm_qed_pipe_rf_rx_sync_nalb_qed_data_rdata;
+ output  i_hqm_qed_pipe_rf_rx_sync_nalb_qed_data_re;
+ output [1:0] i_hqm_qed_pipe_rf_rx_sync_nalb_qed_data_waddr;
+ output  i_hqm_qed_pipe_rf_rx_sync_nalb_qed_data_wclk;
+ output  i_hqm_qed_pipe_rf_rx_sync_nalb_qed_data_wclk_rst_n;
+ output [44:0] i_hqm_qed_pipe_rf_rx_sync_nalb_qed_data_wdata;
+ output  i_hqm_qed_pipe_rf_rx_sync_nalb_qed_data_we;
+ output [1:0] i_hqm_qed_pipe_rf_rx_sync_rop_dp_enq_raddr;
+ output  i_hqm_qed_pipe_rf_rx_sync_rop_dp_enq_rclk;
+ output  i_hqm_qed_pipe_rf_rx_sync_rop_dp_enq_rclk_rst_n;
+ input [99:0] i_hqm_qed_pipe_rf_rx_sync_rop_dp_enq_rdata;
+ output  i_hqm_qed_pipe_rf_rx_sync_rop_dp_enq_re;
+ output [1:0] i_hqm_qed_pipe_rf_rx_sync_rop_dp_enq_waddr;
+ output  i_hqm_qed_pipe_rf_rx_sync_rop_dp_enq_wclk;
+ output  i_hqm_qed_pipe_rf_rx_sync_rop_dp_enq_wclk_rst_n;
+ output [99:0] i_hqm_qed_pipe_rf_rx_sync_rop_dp_enq_wdata;
+ output  i_hqm_qed_pipe_rf_rx_sync_rop_dp_enq_we;
+ output [1:0] i_hqm_qed_pipe_rf_rx_sync_rop_nalb_enq_raddr;
+ output  i_hqm_qed_pipe_rf_rx_sync_rop_nalb_enq_rclk;
+ output  i_hqm_qed_pipe_rf_rx_sync_rop_nalb_enq_rclk_rst_n;
+ input [99:0] i_hqm_qed_pipe_rf_rx_sync_rop_nalb_enq_rdata;
+ output  i_hqm_qed_pipe_rf_rx_sync_rop_nalb_enq_re;
+ output [1:0] i_hqm_qed_pipe_rf_rx_sync_rop_nalb_enq_waddr;
+ output  i_hqm_qed_pipe_rf_rx_sync_rop_nalb_enq_wclk;
+ output  i_hqm_qed_pipe_rf_rx_sync_rop_nalb_enq_wclk_rst_n;
+ output [99:0] i_hqm_qed_pipe_rf_rx_sync_rop_nalb_enq_wdata;
+ output  i_hqm_qed_pipe_rf_rx_sync_rop_nalb_enq_we;
+ output [1:0] i_hqm_qed_pipe_rf_rx_sync_rop_qed_dqed_enq_raddr;
+ output  i_hqm_qed_pipe_rf_rx_sync_rop_qed_dqed_enq_rclk;
+ output  i_hqm_qed_pipe_rf_rx_sync_rop_qed_dqed_enq_rclk_rst_n;
+ input [156:0] i_hqm_qed_pipe_rf_rx_sync_rop_qed_dqed_enq_rdata;
+ output  i_hqm_qed_pipe_rf_rx_sync_rop_qed_dqed_enq_re;
+ output [1:0] i_hqm_qed_pipe_rf_rx_sync_rop_qed_dqed_enq_waddr;
+ output  i_hqm_qed_pipe_rf_rx_sync_rop_qed_dqed_enq_wclk;
+ output  i_hqm_qed_pipe_rf_rx_sync_rop_qed_dqed_enq_wclk_rst_n;
+ output [156:0] i_hqm_qed_pipe_rf_rx_sync_rop_qed_dqed_enq_wdata;
+ output  i_hqm_qed_pipe_rf_rx_sync_rop_qed_dqed_enq_we;
+ output [13:0] i_hqm_qed_pipe_sr_dir_nxthp_addr;
+ output  i_hqm_qed_pipe_sr_dir_nxthp_clk;
+ output  i_hqm_qed_pipe_sr_dir_nxthp_clk_rst_n;
+ input [20:0] i_hqm_qed_pipe_sr_dir_nxthp_rdata;
+ output  i_hqm_qed_pipe_sr_dir_nxthp_re;
+ output [20:0] i_hqm_qed_pipe_sr_dir_nxthp_wdata;
+ output  i_hqm_qed_pipe_sr_dir_nxthp_we;
+ output [13:0] i_hqm_qed_pipe_sr_nalb_nxthp_addr;
+ output  i_hqm_qed_pipe_sr_nalb_nxthp_clk;
+ output  i_hqm_qed_pipe_sr_nalb_nxthp_clk_rst_n;
+ input [20:0] i_hqm_qed_pipe_sr_nalb_nxthp_rdata;
+ output  i_hqm_qed_pipe_sr_nalb_nxthp_re;
+ output [20:0] i_hqm_qed_pipe_sr_nalb_nxthp_wdata;
+ output  i_hqm_qed_pipe_sr_nalb_nxthp_we;
+ output [10:0] i_hqm_qed_pipe_sr_qed_0_addr;
+ output  i_hqm_qed_pipe_sr_qed_0_clk;
+ output  i_hqm_qed_pipe_sr_qed_0_clk_rst_n;
+ input [138:0] i_hqm_qed_pipe_sr_qed_0_rdata;
+ output  i_hqm_qed_pipe_sr_qed_0_re;
+ output [138:0] i_hqm_qed_pipe_sr_qed_0_wdata;
+ output  i_hqm_qed_pipe_sr_qed_0_we;
+ output [10:0] i_hqm_qed_pipe_sr_qed_1_addr;
+ output  i_hqm_qed_pipe_sr_qed_1_clk;
+ output  i_hqm_qed_pipe_sr_qed_1_clk_rst_n;
+ input [138:0] i_hqm_qed_pipe_sr_qed_1_rdata;
+ output  i_hqm_qed_pipe_sr_qed_1_re;
+ output [138:0] i_hqm_qed_pipe_sr_qed_1_wdata;
+ output  i_hqm_qed_pipe_sr_qed_1_we;
+ output [10:0] i_hqm_qed_pipe_sr_qed_2_addr;
+ output  i_hqm_qed_pipe_sr_qed_2_clk;
+ output  i_hqm_qed_pipe_sr_qed_2_clk_rst_n;
+ input [138:0] i_hqm_qed_pipe_sr_qed_2_rdata;
+ output  i_hqm_qed_pipe_sr_qed_2_re;
+ output [138:0] i_hqm_qed_pipe_sr_qed_2_wdata;
+ output  i_hqm_qed_pipe_sr_qed_2_we;
+ output [10:0] i_hqm_qed_pipe_sr_qed_3_addr;
+ output  i_hqm_qed_pipe_sr_qed_3_clk;
+ output  i_hqm_qed_pipe_sr_qed_3_clk_rst_n;
+ input [138:0] i_hqm_qed_pipe_sr_qed_3_rdata;
+ output  i_hqm_qed_pipe_sr_qed_3_re;
+ output [138:0] i_hqm_qed_pipe_sr_qed_3_wdata;
+ output  i_hqm_qed_pipe_sr_qed_3_we;
+ output [10:0] i_hqm_qed_pipe_sr_qed_4_addr;
+ output  i_hqm_qed_pipe_sr_qed_4_clk;
+ output  i_hqm_qed_pipe_sr_qed_4_clk_rst_n;
+ input [138:0] i_hqm_qed_pipe_sr_qed_4_rdata;
+ output  i_hqm_qed_pipe_sr_qed_4_re;
+ output [138:0] i_hqm_qed_pipe_sr_qed_4_wdata;
+ output  i_hqm_qed_pipe_sr_qed_4_we;
+ output [10:0] i_hqm_qed_pipe_sr_qed_5_addr;
+ output  i_hqm_qed_pipe_sr_qed_5_clk;
+ output  i_hqm_qed_pipe_sr_qed_5_clk_rst_n;
+ input [138:0] i_hqm_qed_pipe_sr_qed_5_rdata;
+ output  i_hqm_qed_pipe_sr_qed_5_re;
+ output [138:0] i_hqm_qed_pipe_sr_qed_5_wdata;
+ output  i_hqm_qed_pipe_sr_qed_5_we;
+ output [10:0] i_hqm_qed_pipe_sr_qed_6_addr;
+ output  i_hqm_qed_pipe_sr_qed_6_clk;
+ output  i_hqm_qed_pipe_sr_qed_6_clk_rst_n;
+ input [138:0] i_hqm_qed_pipe_sr_qed_6_rdata;
+ output  i_hqm_qed_pipe_sr_qed_6_re;
+ output [138:0] i_hqm_qed_pipe_sr_qed_6_wdata;
+ output  i_hqm_qed_pipe_sr_qed_6_we;
+ output [10:0] i_hqm_qed_pipe_sr_qed_7_addr;
+ output  i_hqm_qed_pipe_sr_qed_7_clk;
+ output  i_hqm_qed_pipe_sr_qed_7_clk_rst_n;
+ input [138:0] i_hqm_qed_pipe_sr_qed_7_rdata;
+ output  i_hqm_qed_pipe_sr_qed_7_re;
+ output [138:0] i_hqm_qed_pipe_sr_qed_7_wdata;
+ output  i_hqm_qed_pipe_sr_qed_7_we;
+ output [2:0] i_hqm_reorder_pipe_rf_dir_rply_req_fifo_mem_raddr;
+ output  i_hqm_reorder_pipe_rf_dir_rply_req_fifo_mem_rclk;
+ output  i_hqm_reorder_pipe_rf_dir_rply_req_fifo_mem_rclk_rst_n;
+ input [59:0] i_hqm_reorder_pipe_rf_dir_rply_req_fifo_mem_rdata;
+ output  i_hqm_reorder_pipe_rf_dir_rply_req_fifo_mem_re;
+ output [2:0] i_hqm_reorder_pipe_rf_dir_rply_req_fifo_mem_waddr;
+ output  i_hqm_reorder_pipe_rf_dir_rply_req_fifo_mem_wclk;
+ output  i_hqm_reorder_pipe_rf_dir_rply_req_fifo_mem_wclk_rst_n;
+ output [59:0] i_hqm_reorder_pipe_rf_dir_rply_req_fifo_mem_wdata;
+ output  i_hqm_reorder_pipe_rf_dir_rply_req_fifo_mem_we;
+ output [2:0] i_hqm_reorder_pipe_rf_ldb_rply_req_fifo_mem_raddr;
+ output  i_hqm_reorder_pipe_rf_ldb_rply_req_fifo_mem_rclk;
+ output  i_hqm_reorder_pipe_rf_ldb_rply_req_fifo_mem_rclk_rst_n;
+ input [59:0] i_hqm_reorder_pipe_rf_ldb_rply_req_fifo_mem_rdata;
+ output  i_hqm_reorder_pipe_rf_ldb_rply_req_fifo_mem_re;
+ output [2:0] i_hqm_reorder_pipe_rf_ldb_rply_req_fifo_mem_waddr;
+ output  i_hqm_reorder_pipe_rf_ldb_rply_req_fifo_mem_wclk;
+ output  i_hqm_reorder_pipe_rf_ldb_rply_req_fifo_mem_wclk_rst_n;
+ output [59:0] i_hqm_reorder_pipe_rf_ldb_rply_req_fifo_mem_wdata;
+ output  i_hqm_reorder_pipe_rf_ldb_rply_req_fifo_mem_we;
+ output [2:0] i_hqm_reorder_pipe_rf_lsp_reordercmp_fifo_mem_raddr;
+ output  i_hqm_reorder_pipe_rf_lsp_reordercmp_fifo_mem_rclk;
+ output  i_hqm_reorder_pipe_rf_lsp_reordercmp_fifo_mem_rclk_rst_n;
+ input [18:0] i_hqm_reorder_pipe_rf_lsp_reordercmp_fifo_mem_rdata;
+ output  i_hqm_reorder_pipe_rf_lsp_reordercmp_fifo_mem_re;
+ output [2:0] i_hqm_reorder_pipe_rf_lsp_reordercmp_fifo_mem_waddr;
+ output  i_hqm_reorder_pipe_rf_lsp_reordercmp_fifo_mem_wclk;
+ output  i_hqm_reorder_pipe_rf_lsp_reordercmp_fifo_mem_wclk_rst_n;
+ output [18:0] i_hqm_reorder_pipe_rf_lsp_reordercmp_fifo_mem_wdata;
+ output  i_hqm_reorder_pipe_rf_lsp_reordercmp_fifo_mem_we;
+ output [10:0] i_hqm_reorder_pipe_rf_reord_cnt_mem_raddr;
+ output  i_hqm_reorder_pipe_rf_reord_cnt_mem_rclk;
+ output  i_hqm_reorder_pipe_rf_reord_cnt_mem_rclk_rst_n;
+ input [15:0] i_hqm_reorder_pipe_rf_reord_cnt_mem_rdata;
+ output  i_hqm_reorder_pipe_rf_reord_cnt_mem_re;
+ output [10:0] i_hqm_reorder_pipe_rf_reord_cnt_mem_waddr;
+ output  i_hqm_reorder_pipe_rf_reord_cnt_mem_wclk;
+ output  i_hqm_reorder_pipe_rf_reord_cnt_mem_wclk_rst_n;
+ output [15:0] i_hqm_reorder_pipe_rf_reord_cnt_mem_wdata;
+ output  i_hqm_reorder_pipe_rf_reord_cnt_mem_we;
+ output [10:0] i_hqm_reorder_pipe_rf_reord_dirhp_mem_raddr;
+ output  i_hqm_reorder_pipe_rf_reord_dirhp_mem_rclk;
+ output  i_hqm_reorder_pipe_rf_reord_dirhp_mem_rclk_rst_n;
+ input [16:0] i_hqm_reorder_pipe_rf_reord_dirhp_mem_rdata;
+ output  i_hqm_reorder_pipe_rf_reord_dirhp_mem_re;
+ output [10:0] i_hqm_reorder_pipe_rf_reord_dirhp_mem_waddr;
+ output  i_hqm_reorder_pipe_rf_reord_dirhp_mem_wclk;
+ output  i_hqm_reorder_pipe_rf_reord_dirhp_mem_wclk_rst_n;
+ output [16:0] i_hqm_reorder_pipe_rf_reord_dirhp_mem_wdata;
+ output  i_hqm_reorder_pipe_rf_reord_dirhp_mem_we;
+ output [10:0] i_hqm_reorder_pipe_rf_reord_dirtp_mem_raddr;
+ output  i_hqm_reorder_pipe_rf_reord_dirtp_mem_rclk;
+ output  i_hqm_reorder_pipe_rf_reord_dirtp_mem_rclk_rst_n;
+ input [16:0] i_hqm_reorder_pipe_rf_reord_dirtp_mem_rdata;
+ output  i_hqm_reorder_pipe_rf_reord_dirtp_mem_re;
+ output [10:0] i_hqm_reorder_pipe_rf_reord_dirtp_mem_waddr;
+ output  i_hqm_reorder_pipe_rf_reord_dirtp_mem_wclk;
+ output  i_hqm_reorder_pipe_rf_reord_dirtp_mem_wclk_rst_n;
+ output [16:0] i_hqm_reorder_pipe_rf_reord_dirtp_mem_wdata;
+ output  i_hqm_reorder_pipe_rf_reord_dirtp_mem_we;
+ output [10:0] i_hqm_reorder_pipe_rf_reord_lbhp_mem_raddr;
+ output  i_hqm_reorder_pipe_rf_reord_lbhp_mem_rclk;
+ output  i_hqm_reorder_pipe_rf_reord_lbhp_mem_rclk_rst_n;
+ input [16:0] i_hqm_reorder_pipe_rf_reord_lbhp_mem_rdata;
+ output  i_hqm_reorder_pipe_rf_reord_lbhp_mem_re;
+ output [10:0] i_hqm_reorder_pipe_rf_reord_lbhp_mem_waddr;
+ output  i_hqm_reorder_pipe_rf_reord_lbhp_mem_wclk;
+ output  i_hqm_reorder_pipe_rf_reord_lbhp_mem_wclk_rst_n;
+ output [16:0] i_hqm_reorder_pipe_rf_reord_lbhp_mem_wdata;
+ output  i_hqm_reorder_pipe_rf_reord_lbhp_mem_we;
+ output [10:0] i_hqm_reorder_pipe_rf_reord_lbtp_mem_raddr;
+ output  i_hqm_reorder_pipe_rf_reord_lbtp_mem_rclk;
+ output  i_hqm_reorder_pipe_rf_reord_lbtp_mem_rclk_rst_n;
+ input [16:0] i_hqm_reorder_pipe_rf_reord_lbtp_mem_rdata;
+ output  i_hqm_reorder_pipe_rf_reord_lbtp_mem_re;
+ output [10:0] i_hqm_reorder_pipe_rf_reord_lbtp_mem_waddr;
+ output  i_hqm_reorder_pipe_rf_reord_lbtp_mem_wclk;
+ output  i_hqm_reorder_pipe_rf_reord_lbtp_mem_wclk_rst_n;
+ output [16:0] i_hqm_reorder_pipe_rf_reord_lbtp_mem_wdata;
+ output  i_hqm_reorder_pipe_rf_reord_lbtp_mem_we;
+ output [10:0] i_hqm_reorder_pipe_rf_reord_st_mem_raddr;
+ output  i_hqm_reorder_pipe_rf_reord_st_mem_rclk;
+ output  i_hqm_reorder_pipe_rf_reord_st_mem_rclk_rst_n;
+ input [24:0] i_hqm_reorder_pipe_rf_reord_st_mem_rdata;
+ output  i_hqm_reorder_pipe_rf_reord_st_mem_re;
+ output [10:0] i_hqm_reorder_pipe_rf_reord_st_mem_waddr;
+ output  i_hqm_reorder_pipe_rf_reord_st_mem_wclk;
+ output  i_hqm_reorder_pipe_rf_reord_st_mem_wclk_rst_n;
+ output [24:0] i_hqm_reorder_pipe_rf_reord_st_mem_wdata;
+ output  i_hqm_reorder_pipe_rf_reord_st_mem_we;
+ output [1:0] i_hqm_reorder_pipe_rf_rop_chp_rop_hcw_fifo_mem_raddr;
+ output  i_hqm_reorder_pipe_rf_rop_chp_rop_hcw_fifo_mem_rclk;
+ output  i_hqm_reorder_pipe_rf_rop_chp_rop_hcw_fifo_mem_rclk_rst_n;
+ input [203:0] i_hqm_reorder_pipe_rf_rop_chp_rop_hcw_fifo_mem_rdata;
+ output  i_hqm_reorder_pipe_rf_rop_chp_rop_hcw_fifo_mem_re;
+ output [1:0] i_hqm_reorder_pipe_rf_rop_chp_rop_hcw_fifo_mem_waddr;
+ output  i_hqm_reorder_pipe_rf_rop_chp_rop_hcw_fifo_mem_wclk;
+ output  i_hqm_reorder_pipe_rf_rop_chp_rop_hcw_fifo_mem_wclk_rst_n;
+ output [203:0] i_hqm_reorder_pipe_rf_rop_chp_rop_hcw_fifo_mem_wdata;
+ output  i_hqm_reorder_pipe_rf_rop_chp_rop_hcw_fifo_mem_we;
+ output [3:0] i_hqm_reorder_pipe_rf_sn0_order_shft_mem_raddr;
+ output  i_hqm_reorder_pipe_rf_sn0_order_shft_mem_rclk;
+ output  i_hqm_reorder_pipe_rf_sn0_order_shft_mem_rclk_rst_n;
+ input [11:0] i_hqm_reorder_pipe_rf_sn0_order_shft_mem_rdata;
+ output  i_hqm_reorder_pipe_rf_sn0_order_shft_mem_re;
+ output [3:0] i_hqm_reorder_pipe_rf_sn0_order_shft_mem_waddr;
+ output  i_hqm_reorder_pipe_rf_sn0_order_shft_mem_wclk;
+ output  i_hqm_reorder_pipe_rf_sn0_order_shft_mem_wclk_rst_n;
+ output [11:0] i_hqm_reorder_pipe_rf_sn0_order_shft_mem_wdata;
+ output  i_hqm_reorder_pipe_rf_sn0_order_shft_mem_we;
+ output [3:0] i_hqm_reorder_pipe_rf_sn1_order_shft_mem_raddr;
+ output  i_hqm_reorder_pipe_rf_sn1_order_shft_mem_rclk;
+ output  i_hqm_reorder_pipe_rf_sn1_order_shft_mem_rclk_rst_n;
+ input [11:0] i_hqm_reorder_pipe_rf_sn1_order_shft_mem_rdata;
+ output  i_hqm_reorder_pipe_rf_sn1_order_shft_mem_re;
+ output [3:0] i_hqm_reorder_pipe_rf_sn1_order_shft_mem_waddr;
+ output  i_hqm_reorder_pipe_rf_sn1_order_shft_mem_wclk;
+ output  i_hqm_reorder_pipe_rf_sn1_order_shft_mem_wclk_rst_n;
+ output [11:0] i_hqm_reorder_pipe_rf_sn1_order_shft_mem_wdata;
+ output  i_hqm_reorder_pipe_rf_sn1_order_shft_mem_we;
+ output [1:0] i_hqm_reorder_pipe_rf_sn_complete_fifo_mem_raddr;
+ output  i_hqm_reorder_pipe_rf_sn_complete_fifo_mem_rclk;
+ output  i_hqm_reorder_pipe_rf_sn_complete_fifo_mem_rclk_rst_n;
+ input [20:0] i_hqm_reorder_pipe_rf_sn_complete_fifo_mem_rdata;
+ output  i_hqm_reorder_pipe_rf_sn_complete_fifo_mem_re;
+ output [1:0] i_hqm_reorder_pipe_rf_sn_complete_fifo_mem_waddr;
+ output  i_hqm_reorder_pipe_rf_sn_complete_fifo_mem_wclk;
+ output  i_hqm_reorder_pipe_rf_sn_complete_fifo_mem_wclk_rst_n;
+ output [20:0] i_hqm_reorder_pipe_rf_sn_complete_fifo_mem_wdata;
+ output  i_hqm_reorder_pipe_rf_sn_complete_fifo_mem_we;
+ output [4:0] i_hqm_reorder_pipe_rf_sn_ordered_fifo_mem_raddr;
+ output  i_hqm_reorder_pipe_rf_sn_ordered_fifo_mem_rclk;
+ output  i_hqm_reorder_pipe_rf_sn_ordered_fifo_mem_rclk_rst_n;
+ input [12:0] i_hqm_reorder_pipe_rf_sn_ordered_fifo_mem_rdata;
+ output  i_hqm_reorder_pipe_rf_sn_ordered_fifo_mem_re;
+ output [4:0] i_hqm_reorder_pipe_rf_sn_ordered_fifo_mem_waddr;
+ output  i_hqm_reorder_pipe_rf_sn_ordered_fifo_mem_wclk;
+ output  i_hqm_reorder_pipe_rf_sn_ordered_fifo_mem_wclk_rst_n;
+ output [12:0] i_hqm_reorder_pipe_rf_sn_ordered_fifo_mem_wdata;
+ output  i_hqm_reorder_pipe_rf_sn_ordered_fifo_mem_we;
+ output [1:0] i_hqm_reorder_pipe_rop_cfg_req_down_1_0;
+ output [1:0] i_hqm_reorder_pipe_rop_cfg_rsp_down_5_4;
+ output [3:0] i_hqm_system_rf_alarm_vf_synd0_raddr;
+ output  i_hqm_system_rf_alarm_vf_synd0_rclk;
+ output  i_hqm_system_rf_alarm_vf_synd0_rclk_rst_n;
+ input [29:0] i_hqm_system_rf_alarm_vf_synd0_rdata;
+ output  i_hqm_system_rf_alarm_vf_synd0_re;
+ output [3:0] i_hqm_system_rf_alarm_vf_synd0_waddr;
+ output  i_hqm_system_rf_alarm_vf_synd0_wclk;
+ output  i_hqm_system_rf_alarm_vf_synd0_wclk_rst_n;
+ output [29:0] i_hqm_system_rf_alarm_vf_synd0_wdata;
+ output  i_hqm_system_rf_alarm_vf_synd0_we;
+ output [3:0] i_hqm_system_rf_alarm_vf_synd1_raddr;
+ output  i_hqm_system_rf_alarm_vf_synd1_rclk;
+ output  i_hqm_system_rf_alarm_vf_synd1_rclk_rst_n;
+ input [31:0] i_hqm_system_rf_alarm_vf_synd1_rdata;
+ output  i_hqm_system_rf_alarm_vf_synd1_re;
+ output [3:0] i_hqm_system_rf_alarm_vf_synd1_waddr;
+ output  i_hqm_system_rf_alarm_vf_synd1_wclk;
+ output  i_hqm_system_rf_alarm_vf_synd1_wclk_rst_n;
+ output [31:0] i_hqm_system_rf_alarm_vf_synd1_wdata;
+ output  i_hqm_system_rf_alarm_vf_synd1_we;
+ output [3:0] i_hqm_system_rf_alarm_vf_synd2_raddr;
+ output  i_hqm_system_rf_alarm_vf_synd2_rclk;
+ output  i_hqm_system_rf_alarm_vf_synd2_rclk_rst_n;
+ input [31:0] i_hqm_system_rf_alarm_vf_synd2_rdata;
+ output  i_hqm_system_rf_alarm_vf_synd2_re;
+ output [3:0] i_hqm_system_rf_alarm_vf_synd2_waddr;
+ output  i_hqm_system_rf_alarm_vf_synd2_wclk;
+ output  i_hqm_system_rf_alarm_vf_synd2_wclk_rst_n;
+ output [31:0] i_hqm_system_rf_alarm_vf_synd2_wdata;
+ output  i_hqm_system_rf_alarm_vf_synd2_we;
+ output [5:0] i_hqm_system_rf_dir_wb0_raddr;
+ output  i_hqm_system_rf_dir_wb0_rclk;
+ output  i_hqm_system_rf_dir_wb0_rclk_rst_n;
+ input [143:0] i_hqm_system_rf_dir_wb0_rdata;
+ output  i_hqm_system_rf_dir_wb0_re;
+ output [5:0] i_hqm_system_rf_dir_wb0_waddr;
+ output  i_hqm_system_rf_dir_wb0_wclk;
+ output  i_hqm_system_rf_dir_wb0_wclk_rst_n;
+ output [143:0] i_hqm_system_rf_dir_wb0_wdata;
+ output  i_hqm_system_rf_dir_wb0_we;
+ output [5:0] i_hqm_system_rf_dir_wb1_raddr;
+ output  i_hqm_system_rf_dir_wb1_rclk;
+ output  i_hqm_system_rf_dir_wb1_rclk_rst_n;
+ input [143:0] i_hqm_system_rf_dir_wb1_rdata;
+ output  i_hqm_system_rf_dir_wb1_re;
+ output [5:0] i_hqm_system_rf_dir_wb1_waddr;
+ output  i_hqm_system_rf_dir_wb1_wclk;
+ output  i_hqm_system_rf_dir_wb1_wclk_rst_n;
+ output [143:0] i_hqm_system_rf_dir_wb1_wdata;
+ output  i_hqm_system_rf_dir_wb1_we;
+ output [5:0] i_hqm_system_rf_dir_wb2_raddr;
+ output  i_hqm_system_rf_dir_wb2_rclk;
+ output  i_hqm_system_rf_dir_wb2_rclk_rst_n;
+ input [143:0] i_hqm_system_rf_dir_wb2_rdata;
+ output  i_hqm_system_rf_dir_wb2_re;
+ output [5:0] i_hqm_system_rf_dir_wb2_waddr;
+ output  i_hqm_system_rf_dir_wb2_wclk;
+ output  i_hqm_system_rf_dir_wb2_wclk_rst_n;
+ output [143:0] i_hqm_system_rf_dir_wb2_wdata;
+ output  i_hqm_system_rf_dir_wb2_we;
+ output [7:0] i_hqm_system_rf_hcw_enq_fifo_raddr;
+ output  i_hqm_system_rf_hcw_enq_fifo_rclk;
+ output  i_hqm_system_rf_hcw_enq_fifo_rclk_rst_n;
+ input [166:0] i_hqm_system_rf_hcw_enq_fifo_rdata;
+ output  i_hqm_system_rf_hcw_enq_fifo_re;
+ output [7:0] i_hqm_system_rf_hcw_enq_fifo_waddr;
+ output  i_hqm_system_rf_hcw_enq_fifo_wclk;
+ output  i_hqm_system_rf_hcw_enq_fifo_wclk_rst_n;
+ output [166:0] i_hqm_system_rf_hcw_enq_fifo_wdata;
+ output  i_hqm_system_rf_hcw_enq_fifo_we;
+ output [5:0] i_hqm_system_rf_ldb_wb0_raddr;
+ output  i_hqm_system_rf_ldb_wb0_rclk;
+ output  i_hqm_system_rf_ldb_wb0_rclk_rst_n;
+ input [143:0] i_hqm_system_rf_ldb_wb0_rdata;
+ output  i_hqm_system_rf_ldb_wb0_re;
+ output [5:0] i_hqm_system_rf_ldb_wb0_waddr;
+ output  i_hqm_system_rf_ldb_wb0_wclk;
+ output  i_hqm_system_rf_ldb_wb0_wclk_rst_n;
+ output [143:0] i_hqm_system_rf_ldb_wb0_wdata;
+ output  i_hqm_system_rf_ldb_wb0_we;
+ output [5:0] i_hqm_system_rf_ldb_wb1_raddr;
+ output  i_hqm_system_rf_ldb_wb1_rclk;
+ output  i_hqm_system_rf_ldb_wb1_rclk_rst_n;
+ input [143:0] i_hqm_system_rf_ldb_wb1_rdata;
+ output  i_hqm_system_rf_ldb_wb1_re;
+ output [5:0] i_hqm_system_rf_ldb_wb1_waddr;
+ output  i_hqm_system_rf_ldb_wb1_wclk;
+ output  i_hqm_system_rf_ldb_wb1_wclk_rst_n;
+ output [143:0] i_hqm_system_rf_ldb_wb1_wdata;
+ output  i_hqm_system_rf_ldb_wb1_we;
+ output [5:0] i_hqm_system_rf_ldb_wb2_raddr;
+ output  i_hqm_system_rf_ldb_wb2_rclk;
+ output  i_hqm_system_rf_ldb_wb2_rclk_rst_n;
+ input [143:0] i_hqm_system_rf_ldb_wb2_rdata;
+ output  i_hqm_system_rf_ldb_wb2_re;
+ output [5:0] i_hqm_system_rf_ldb_wb2_waddr;
+ output  i_hqm_system_rf_ldb_wb2_wclk;
+ output  i_hqm_system_rf_ldb_wb2_wclk_rst_n;
+ output [143:0] i_hqm_system_rf_ldb_wb2_wdata;
+ output  i_hqm_system_rf_ldb_wb2_we;
+ output [4:0] i_hqm_system_rf_lut_dir_cq2vf_pf_ro_raddr;
+ output  i_hqm_system_rf_lut_dir_cq2vf_pf_ro_rclk;
+ output  i_hqm_system_rf_lut_dir_cq2vf_pf_ro_rclk_rst_n;
+ input [12:0] i_hqm_system_rf_lut_dir_cq2vf_pf_ro_rdata;
+ output  i_hqm_system_rf_lut_dir_cq2vf_pf_ro_re;
+ output [4:0] i_hqm_system_rf_lut_dir_cq2vf_pf_ro_waddr;
+ output  i_hqm_system_rf_lut_dir_cq2vf_pf_ro_wclk;
+ output  i_hqm_system_rf_lut_dir_cq2vf_pf_ro_wclk_rst_n;
+ output [12:0] i_hqm_system_rf_lut_dir_cq2vf_pf_ro_wdata;
+ output  i_hqm_system_rf_lut_dir_cq2vf_pf_ro_we;
+ output [5:0] i_hqm_system_rf_lut_dir_cq_addr_l_raddr;
+ output  i_hqm_system_rf_lut_dir_cq_addr_l_rclk;
+ output  i_hqm_system_rf_lut_dir_cq_addr_l_rclk_rst_n;
+ input [26:0] i_hqm_system_rf_lut_dir_cq_addr_l_rdata;
+ output  i_hqm_system_rf_lut_dir_cq_addr_l_re;
+ output [5:0] i_hqm_system_rf_lut_dir_cq_addr_l_waddr;
+ output  i_hqm_system_rf_lut_dir_cq_addr_l_wclk;
+ output  i_hqm_system_rf_lut_dir_cq_addr_l_wclk_rst_n;
+ output [26:0] i_hqm_system_rf_lut_dir_cq_addr_l_wdata;
+ output  i_hqm_system_rf_lut_dir_cq_addr_l_we;
+ output [5:0] i_hqm_system_rf_lut_dir_cq_addr_u_raddr;
+ output  i_hqm_system_rf_lut_dir_cq_addr_u_rclk;
+ output  i_hqm_system_rf_lut_dir_cq_addr_u_rclk_rst_n;
+ input [32:0] i_hqm_system_rf_lut_dir_cq_addr_u_rdata;
+ output  i_hqm_system_rf_lut_dir_cq_addr_u_re;
+ output [5:0] i_hqm_system_rf_lut_dir_cq_addr_u_waddr;
+ output  i_hqm_system_rf_lut_dir_cq_addr_u_wclk;
+ output  i_hqm_system_rf_lut_dir_cq_addr_u_wclk_rst_n;
+ output [32:0] i_hqm_system_rf_lut_dir_cq_addr_u_wdata;
+ output  i_hqm_system_rf_lut_dir_cq_addr_u_we;
+ output [5:0] i_hqm_system_rf_lut_dir_cq_ai_addr_l_raddr;
+ output  i_hqm_system_rf_lut_dir_cq_ai_addr_l_rclk;
+ output  i_hqm_system_rf_lut_dir_cq_ai_addr_l_rclk_rst_n;
+ input [30:0] i_hqm_system_rf_lut_dir_cq_ai_addr_l_rdata;
+ output  i_hqm_system_rf_lut_dir_cq_ai_addr_l_re;
+ output [5:0] i_hqm_system_rf_lut_dir_cq_ai_addr_l_waddr;
+ output  i_hqm_system_rf_lut_dir_cq_ai_addr_l_wclk;
+ output  i_hqm_system_rf_lut_dir_cq_ai_addr_l_wclk_rst_n;
+ output [30:0] i_hqm_system_rf_lut_dir_cq_ai_addr_l_wdata;
+ output  i_hqm_system_rf_lut_dir_cq_ai_addr_l_we;
+ output [5:0] i_hqm_system_rf_lut_dir_cq_ai_addr_u_raddr;
+ output  i_hqm_system_rf_lut_dir_cq_ai_addr_u_rclk;
+ output  i_hqm_system_rf_lut_dir_cq_ai_addr_u_rclk_rst_n;
+ input [32:0] i_hqm_system_rf_lut_dir_cq_ai_addr_u_rdata;
+ output  i_hqm_system_rf_lut_dir_cq_ai_addr_u_re;
+ output [5:0] i_hqm_system_rf_lut_dir_cq_ai_addr_u_waddr;
+ output  i_hqm_system_rf_lut_dir_cq_ai_addr_u_wclk;
+ output  i_hqm_system_rf_lut_dir_cq_ai_addr_u_wclk_rst_n;
+ output [32:0] i_hqm_system_rf_lut_dir_cq_ai_addr_u_wdata;
+ output  i_hqm_system_rf_lut_dir_cq_ai_addr_u_we;
+ output [5:0] i_hqm_system_rf_lut_dir_cq_ai_data_raddr;
+ output  i_hqm_system_rf_lut_dir_cq_ai_data_rclk;
+ output  i_hqm_system_rf_lut_dir_cq_ai_data_rclk_rst_n;
+ input [32:0] i_hqm_system_rf_lut_dir_cq_ai_data_rdata;
+ output  i_hqm_system_rf_lut_dir_cq_ai_data_re;
+ output [5:0] i_hqm_system_rf_lut_dir_cq_ai_data_waddr;
+ output  i_hqm_system_rf_lut_dir_cq_ai_data_wclk;
+ output  i_hqm_system_rf_lut_dir_cq_ai_data_wclk_rst_n;
+ output [32:0] i_hqm_system_rf_lut_dir_cq_ai_data_wdata;
+ output  i_hqm_system_rf_lut_dir_cq_ai_data_we;
+ output [5:0] i_hqm_system_rf_lut_dir_cq_isr_raddr;
+ output  i_hqm_system_rf_lut_dir_cq_isr_rclk;
+ output  i_hqm_system_rf_lut_dir_cq_isr_rclk_rst_n;
+ input [12:0] i_hqm_system_rf_lut_dir_cq_isr_rdata;
+ output  i_hqm_system_rf_lut_dir_cq_isr_re;
+ output [5:0] i_hqm_system_rf_lut_dir_cq_isr_waddr;
+ output  i_hqm_system_rf_lut_dir_cq_isr_wclk;
+ output  i_hqm_system_rf_lut_dir_cq_isr_wclk_rst_n;
+ output [12:0] i_hqm_system_rf_lut_dir_cq_isr_wdata;
+ output  i_hqm_system_rf_lut_dir_cq_isr_we;
+ output [5:0] i_hqm_system_rf_lut_dir_cq_pasid_raddr;
+ output  i_hqm_system_rf_lut_dir_cq_pasid_rclk;
+ output  i_hqm_system_rf_lut_dir_cq_pasid_rclk_rst_n;
+ input [23:0] i_hqm_system_rf_lut_dir_cq_pasid_rdata;
+ output  i_hqm_system_rf_lut_dir_cq_pasid_re;
+ output [5:0] i_hqm_system_rf_lut_dir_cq_pasid_waddr;
+ output  i_hqm_system_rf_lut_dir_cq_pasid_wclk;
+ output  i_hqm_system_rf_lut_dir_cq_pasid_wclk_rst_n;
+ output [23:0] i_hqm_system_rf_lut_dir_cq_pasid_wdata;
+ output  i_hqm_system_rf_lut_dir_cq_pasid_we;
+ output [4:0] i_hqm_system_rf_lut_dir_pp2vas_raddr;
+ output  i_hqm_system_rf_lut_dir_pp2vas_rclk;
+ output  i_hqm_system_rf_lut_dir_pp2vas_rclk_rst_n;
+ input [10:0] i_hqm_system_rf_lut_dir_pp2vas_rdata;
+ output  i_hqm_system_rf_lut_dir_pp2vas_re;
+ output [4:0] i_hqm_system_rf_lut_dir_pp2vas_waddr;
+ output  i_hqm_system_rf_lut_dir_pp2vas_wclk;
+ output  i_hqm_system_rf_lut_dir_pp2vas_wclk_rst_n;
+ output [10:0] i_hqm_system_rf_lut_dir_pp2vas_wdata;
+ output  i_hqm_system_rf_lut_dir_pp2vas_we;
+ output [1:0] i_hqm_system_rf_lut_dir_pp_v_raddr;
+ output  i_hqm_system_rf_lut_dir_pp_v_rclk;
+ output  i_hqm_system_rf_lut_dir_pp_v_rclk_rst_n;
+ input [16:0] i_hqm_system_rf_lut_dir_pp_v_rdata;
+ output  i_hqm_system_rf_lut_dir_pp_v_re;
+ output [1:0] i_hqm_system_rf_lut_dir_pp_v_waddr;
+ output  i_hqm_system_rf_lut_dir_pp_v_wclk;
+ output  i_hqm_system_rf_lut_dir_pp_v_wclk_rst_n;
+ output [16:0] i_hqm_system_rf_lut_dir_pp_v_wdata;
+ output  i_hqm_system_rf_lut_dir_pp_v_we;
+ output [5:0] i_hqm_system_rf_lut_dir_vasqid_v_raddr;
+ output  i_hqm_system_rf_lut_dir_vasqid_v_rclk;
+ output  i_hqm_system_rf_lut_dir_vasqid_v_rclk_rst_n;
+ input [32:0] i_hqm_system_rf_lut_dir_vasqid_v_rdata;
+ output  i_hqm_system_rf_lut_dir_vasqid_v_re;
+ output [5:0] i_hqm_system_rf_lut_dir_vasqid_v_waddr;
+ output  i_hqm_system_rf_lut_dir_vasqid_v_wclk;
+ output  i_hqm_system_rf_lut_dir_vasqid_v_wclk_rst_n;
+ output [32:0] i_hqm_system_rf_lut_dir_vasqid_v_wdata;
+ output  i_hqm_system_rf_lut_dir_vasqid_v_we;
+ output [4:0] i_hqm_system_rf_lut_ldb_cq2vf_pf_ro_raddr;
+ output  i_hqm_system_rf_lut_ldb_cq2vf_pf_ro_rclk;
+ output  i_hqm_system_rf_lut_ldb_cq2vf_pf_ro_rclk_rst_n;
+ input [12:0] i_hqm_system_rf_lut_ldb_cq2vf_pf_ro_rdata;
+ output  i_hqm_system_rf_lut_ldb_cq2vf_pf_ro_re;
+ output [4:0] i_hqm_system_rf_lut_ldb_cq2vf_pf_ro_waddr;
+ output  i_hqm_system_rf_lut_ldb_cq2vf_pf_ro_wclk;
+ output  i_hqm_system_rf_lut_ldb_cq2vf_pf_ro_wclk_rst_n;
+ output [12:0] i_hqm_system_rf_lut_ldb_cq2vf_pf_ro_wdata;
+ output  i_hqm_system_rf_lut_ldb_cq2vf_pf_ro_we;
+ output [5:0] i_hqm_system_rf_lut_ldb_cq_addr_l_raddr;
+ output  i_hqm_system_rf_lut_ldb_cq_addr_l_rclk;
+ output  i_hqm_system_rf_lut_ldb_cq_addr_l_rclk_rst_n;
+ input [26:0] i_hqm_system_rf_lut_ldb_cq_addr_l_rdata;
+ output  i_hqm_system_rf_lut_ldb_cq_addr_l_re;
+ output [5:0] i_hqm_system_rf_lut_ldb_cq_addr_l_waddr;
+ output  i_hqm_system_rf_lut_ldb_cq_addr_l_wclk;
+ output  i_hqm_system_rf_lut_ldb_cq_addr_l_wclk_rst_n;
+ output [26:0] i_hqm_system_rf_lut_ldb_cq_addr_l_wdata;
+ output  i_hqm_system_rf_lut_ldb_cq_addr_l_we;
+ output [5:0] i_hqm_system_rf_lut_ldb_cq_addr_u_raddr;
+ output  i_hqm_system_rf_lut_ldb_cq_addr_u_rclk;
+ output  i_hqm_system_rf_lut_ldb_cq_addr_u_rclk_rst_n;
+ input [32:0] i_hqm_system_rf_lut_ldb_cq_addr_u_rdata;
+ output  i_hqm_system_rf_lut_ldb_cq_addr_u_re;
+ output [5:0] i_hqm_system_rf_lut_ldb_cq_addr_u_waddr;
+ output  i_hqm_system_rf_lut_ldb_cq_addr_u_wclk;
+ output  i_hqm_system_rf_lut_ldb_cq_addr_u_wclk_rst_n;
+ output [32:0] i_hqm_system_rf_lut_ldb_cq_addr_u_wdata;
+ output  i_hqm_system_rf_lut_ldb_cq_addr_u_we;
+ output [5:0] i_hqm_system_rf_lut_ldb_cq_ai_addr_l_raddr;
+ output  i_hqm_system_rf_lut_ldb_cq_ai_addr_l_rclk;
+ output  i_hqm_system_rf_lut_ldb_cq_ai_addr_l_rclk_rst_n;
+ input [30:0] i_hqm_system_rf_lut_ldb_cq_ai_addr_l_rdata;
+ output  i_hqm_system_rf_lut_ldb_cq_ai_addr_l_re;
+ output [5:0] i_hqm_system_rf_lut_ldb_cq_ai_addr_l_waddr;
+ output  i_hqm_system_rf_lut_ldb_cq_ai_addr_l_wclk;
+ output  i_hqm_system_rf_lut_ldb_cq_ai_addr_l_wclk_rst_n;
+ output [30:0] i_hqm_system_rf_lut_ldb_cq_ai_addr_l_wdata;
+ output  i_hqm_system_rf_lut_ldb_cq_ai_addr_l_we;
+ output [5:0] i_hqm_system_rf_lut_ldb_cq_ai_addr_u_raddr;
+ output  i_hqm_system_rf_lut_ldb_cq_ai_addr_u_rclk;
+ output  i_hqm_system_rf_lut_ldb_cq_ai_addr_u_rclk_rst_n;
+ input [32:0] i_hqm_system_rf_lut_ldb_cq_ai_addr_u_rdata;
+ output  i_hqm_system_rf_lut_ldb_cq_ai_addr_u_re;
+ output [5:0] i_hqm_system_rf_lut_ldb_cq_ai_addr_u_waddr;
+ output  i_hqm_system_rf_lut_ldb_cq_ai_addr_u_wclk;
+ output  i_hqm_system_rf_lut_ldb_cq_ai_addr_u_wclk_rst_n;
+ output [32:0] i_hqm_system_rf_lut_ldb_cq_ai_addr_u_wdata;
+ output  i_hqm_system_rf_lut_ldb_cq_ai_addr_u_we;
+ output [5:0] i_hqm_system_rf_lut_ldb_cq_ai_data_raddr;
+ output  i_hqm_system_rf_lut_ldb_cq_ai_data_rclk;
+ output  i_hqm_system_rf_lut_ldb_cq_ai_data_rclk_rst_n;
+ input [32:0] i_hqm_system_rf_lut_ldb_cq_ai_data_rdata;
+ output  i_hqm_system_rf_lut_ldb_cq_ai_data_re;
+ output [5:0] i_hqm_system_rf_lut_ldb_cq_ai_data_waddr;
+ output  i_hqm_system_rf_lut_ldb_cq_ai_data_wclk;
+ output  i_hqm_system_rf_lut_ldb_cq_ai_data_wclk_rst_n;
+ output [32:0] i_hqm_system_rf_lut_ldb_cq_ai_data_wdata;
+ output  i_hqm_system_rf_lut_ldb_cq_ai_data_we;
+ output [5:0] i_hqm_system_rf_lut_ldb_cq_isr_raddr;
+ output  i_hqm_system_rf_lut_ldb_cq_isr_rclk;
+ output  i_hqm_system_rf_lut_ldb_cq_isr_rclk_rst_n;
+ input [12:0] i_hqm_system_rf_lut_ldb_cq_isr_rdata;
+ output  i_hqm_system_rf_lut_ldb_cq_isr_re;
+ output [5:0] i_hqm_system_rf_lut_ldb_cq_isr_waddr;
+ output  i_hqm_system_rf_lut_ldb_cq_isr_wclk;
+ output  i_hqm_system_rf_lut_ldb_cq_isr_wclk_rst_n;
+ output [12:0] i_hqm_system_rf_lut_ldb_cq_isr_wdata;
+ output  i_hqm_system_rf_lut_ldb_cq_isr_we;
+ output [5:0] i_hqm_system_rf_lut_ldb_cq_pasid_raddr;
+ output  i_hqm_system_rf_lut_ldb_cq_pasid_rclk;
+ output  i_hqm_system_rf_lut_ldb_cq_pasid_rclk_rst_n;
+ input [23:0] i_hqm_system_rf_lut_ldb_cq_pasid_rdata;
+ output  i_hqm_system_rf_lut_ldb_cq_pasid_re;
+ output [5:0] i_hqm_system_rf_lut_ldb_cq_pasid_waddr;
+ output  i_hqm_system_rf_lut_ldb_cq_pasid_wclk;
+ output  i_hqm_system_rf_lut_ldb_cq_pasid_wclk_rst_n;
+ output [23:0] i_hqm_system_rf_lut_ldb_cq_pasid_wdata;
+ output  i_hqm_system_rf_lut_ldb_cq_pasid_we;
+ output [4:0] i_hqm_system_rf_lut_ldb_pp2vas_raddr;
+ output  i_hqm_system_rf_lut_ldb_pp2vas_rclk;
+ output  i_hqm_system_rf_lut_ldb_pp2vas_rclk_rst_n;
+ input [10:0] i_hqm_system_rf_lut_ldb_pp2vas_rdata;
+ output  i_hqm_system_rf_lut_ldb_pp2vas_re;
+ output [4:0] i_hqm_system_rf_lut_ldb_pp2vas_waddr;
+ output  i_hqm_system_rf_lut_ldb_pp2vas_wclk;
+ output  i_hqm_system_rf_lut_ldb_pp2vas_wclk_rst_n;
+ output [10:0] i_hqm_system_rf_lut_ldb_pp2vas_wdata;
+ output  i_hqm_system_rf_lut_ldb_pp2vas_we;
+ output [2:0] i_hqm_system_rf_lut_ldb_qid2vqid_raddr;
+ output  i_hqm_system_rf_lut_ldb_qid2vqid_rclk;
+ output  i_hqm_system_rf_lut_ldb_qid2vqid_rclk_rst_n;
+ input [20:0] i_hqm_system_rf_lut_ldb_qid2vqid_rdata;
+ output  i_hqm_system_rf_lut_ldb_qid2vqid_re;
+ output [2:0] i_hqm_system_rf_lut_ldb_qid2vqid_waddr;
+ output  i_hqm_system_rf_lut_ldb_qid2vqid_wclk;
+ output  i_hqm_system_rf_lut_ldb_qid2vqid_wclk_rst_n;
+ output [20:0] i_hqm_system_rf_lut_ldb_qid2vqid_wdata;
+ output  i_hqm_system_rf_lut_ldb_qid2vqid_we;
+ output [5:0] i_hqm_system_rf_lut_ldb_vasqid_v_raddr;
+ output  i_hqm_system_rf_lut_ldb_vasqid_v_rclk;
+ output  i_hqm_system_rf_lut_ldb_vasqid_v_rclk_rst_n;
+ input [16:0] i_hqm_system_rf_lut_ldb_vasqid_v_rdata;
+ output  i_hqm_system_rf_lut_ldb_vasqid_v_re;
+ output [5:0] i_hqm_system_rf_lut_ldb_vasqid_v_waddr;
+ output  i_hqm_system_rf_lut_ldb_vasqid_v_wclk;
+ output  i_hqm_system_rf_lut_ldb_vasqid_v_wclk_rst_n;
+ output [16:0] i_hqm_system_rf_lut_ldb_vasqid_v_wdata;
+ output  i_hqm_system_rf_lut_ldb_vasqid_v_we;
+ output [7:0] i_hqm_system_rf_lut_vf_dir_vpp2pp_raddr;
+ output  i_hqm_system_rf_lut_vf_dir_vpp2pp_rclk;
+ output  i_hqm_system_rf_lut_vf_dir_vpp2pp_rclk_rst_n;
+ input [30:0] i_hqm_system_rf_lut_vf_dir_vpp2pp_rdata;
+ output  i_hqm_system_rf_lut_vf_dir_vpp2pp_re;
+ output [7:0] i_hqm_system_rf_lut_vf_dir_vpp2pp_waddr;
+ output  i_hqm_system_rf_lut_vf_dir_vpp2pp_wclk;
+ output  i_hqm_system_rf_lut_vf_dir_vpp2pp_wclk_rst_n;
+ output [30:0] i_hqm_system_rf_lut_vf_dir_vpp2pp_wdata;
+ output  i_hqm_system_rf_lut_vf_dir_vpp2pp_we;
+ output [5:0] i_hqm_system_rf_lut_vf_dir_vpp_v_raddr;
+ output  i_hqm_system_rf_lut_vf_dir_vpp_v_rclk;
+ output  i_hqm_system_rf_lut_vf_dir_vpp_v_rclk_rst_n;
+ input [16:0] i_hqm_system_rf_lut_vf_dir_vpp_v_rdata;
+ output  i_hqm_system_rf_lut_vf_dir_vpp_v_re;
+ output [5:0] i_hqm_system_rf_lut_vf_dir_vpp_v_waddr;
+ output  i_hqm_system_rf_lut_vf_dir_vpp_v_wclk;
+ output  i_hqm_system_rf_lut_vf_dir_vpp_v_wclk_rst_n;
+ output [16:0] i_hqm_system_rf_lut_vf_dir_vpp_v_wdata;
+ output  i_hqm_system_rf_lut_vf_dir_vpp_v_we;
+ output [7:0] i_hqm_system_rf_lut_vf_dir_vqid2qid_raddr;
+ output  i_hqm_system_rf_lut_vf_dir_vqid2qid_rclk;
+ output  i_hqm_system_rf_lut_vf_dir_vqid2qid_rclk_rst_n;
+ input [30:0] i_hqm_system_rf_lut_vf_dir_vqid2qid_rdata;
+ output  i_hqm_system_rf_lut_vf_dir_vqid2qid_re;
+ output [7:0] i_hqm_system_rf_lut_vf_dir_vqid2qid_waddr;
+ output  i_hqm_system_rf_lut_vf_dir_vqid2qid_wclk;
+ output  i_hqm_system_rf_lut_vf_dir_vqid2qid_wclk_rst_n;
+ output [30:0] i_hqm_system_rf_lut_vf_dir_vqid2qid_wdata;
+ output  i_hqm_system_rf_lut_vf_dir_vqid2qid_we;
+ output [5:0] i_hqm_system_rf_lut_vf_dir_vqid_v_raddr;
+ output  i_hqm_system_rf_lut_vf_dir_vqid_v_rclk;
+ output  i_hqm_system_rf_lut_vf_dir_vqid_v_rclk_rst_n;
+ input [16:0] i_hqm_system_rf_lut_vf_dir_vqid_v_rdata;
+ output  i_hqm_system_rf_lut_vf_dir_vqid_v_re;
+ output [5:0] i_hqm_system_rf_lut_vf_dir_vqid_v_waddr;
+ output  i_hqm_system_rf_lut_vf_dir_vqid_v_wclk;
+ output  i_hqm_system_rf_lut_vf_dir_vqid_v_wclk_rst_n;
+ output [16:0] i_hqm_system_rf_lut_vf_dir_vqid_v_wdata;
+ output  i_hqm_system_rf_lut_vf_dir_vqid_v_we;
+ output [7:0] i_hqm_system_rf_lut_vf_ldb_vpp2pp_raddr;
+ output  i_hqm_system_rf_lut_vf_ldb_vpp2pp_rclk;
+ output  i_hqm_system_rf_lut_vf_ldb_vpp2pp_rclk_rst_n;
+ input [24:0] i_hqm_system_rf_lut_vf_ldb_vpp2pp_rdata;
+ output  i_hqm_system_rf_lut_vf_ldb_vpp2pp_re;
+ output [7:0] i_hqm_system_rf_lut_vf_ldb_vpp2pp_waddr;
+ output  i_hqm_system_rf_lut_vf_ldb_vpp2pp_wclk;
+ output  i_hqm_system_rf_lut_vf_ldb_vpp2pp_wclk_rst_n;
+ output [24:0] i_hqm_system_rf_lut_vf_ldb_vpp2pp_wdata;
+ output  i_hqm_system_rf_lut_vf_ldb_vpp2pp_we;
+ output [5:0] i_hqm_system_rf_lut_vf_ldb_vpp_v_raddr;
+ output  i_hqm_system_rf_lut_vf_ldb_vpp_v_rclk;
+ output  i_hqm_system_rf_lut_vf_ldb_vpp_v_rclk_rst_n;
+ input [16:0] i_hqm_system_rf_lut_vf_ldb_vpp_v_rdata;
+ output  i_hqm_system_rf_lut_vf_ldb_vpp_v_re;
+ output [5:0] i_hqm_system_rf_lut_vf_ldb_vpp_v_waddr;
+ output  i_hqm_system_rf_lut_vf_ldb_vpp_v_wclk;
+ output  i_hqm_system_rf_lut_vf_ldb_vpp_v_wclk_rst_n;
+ output [16:0] i_hqm_system_rf_lut_vf_ldb_vpp_v_wdata;
+ output  i_hqm_system_rf_lut_vf_ldb_vpp_v_we;
+ output [6:0] i_hqm_system_rf_lut_vf_ldb_vqid2qid_raddr;
+ output  i_hqm_system_rf_lut_vf_ldb_vqid2qid_rclk;
+ output  i_hqm_system_rf_lut_vf_ldb_vqid2qid_rclk_rst_n;
+ input [26:0] i_hqm_system_rf_lut_vf_ldb_vqid2qid_rdata;
+ output  i_hqm_system_rf_lut_vf_ldb_vqid2qid_re;
+ output [6:0] i_hqm_system_rf_lut_vf_ldb_vqid2qid_waddr;
+ output  i_hqm_system_rf_lut_vf_ldb_vqid2qid_wclk;
+ output  i_hqm_system_rf_lut_vf_ldb_vqid2qid_wclk_rst_n;
+ output [26:0] i_hqm_system_rf_lut_vf_ldb_vqid2qid_wdata;
+ output  i_hqm_system_rf_lut_vf_ldb_vqid2qid_we;
+ output [4:0] i_hqm_system_rf_lut_vf_ldb_vqid_v_raddr;
+ output  i_hqm_system_rf_lut_vf_ldb_vqid_v_rclk;
+ output  i_hqm_system_rf_lut_vf_ldb_vqid_v_rclk_rst_n;
+ input [16:0] i_hqm_system_rf_lut_vf_ldb_vqid_v_rdata;
+ output  i_hqm_system_rf_lut_vf_ldb_vqid_v_re;
+ output [4:0] i_hqm_system_rf_lut_vf_ldb_vqid_v_waddr;
+ output  i_hqm_system_rf_lut_vf_ldb_vqid_v_wclk;
+ output  i_hqm_system_rf_lut_vf_ldb_vqid_v_wclk_rst_n;
+ output [16:0] i_hqm_system_rf_lut_vf_ldb_vqid_v_wdata;
+ output  i_hqm_system_rf_lut_vf_ldb_vqid_v_we;
+ output [5:0] i_hqm_system_rf_msix_tbl_word0_raddr;
+ output  i_hqm_system_rf_msix_tbl_word0_rclk;
+ output  i_hqm_system_rf_msix_tbl_word0_rclk_rst_n;
+ input [32:0] i_hqm_system_rf_msix_tbl_word0_rdata;
+ output  i_hqm_system_rf_msix_tbl_word0_re;
+ output [5:0] i_hqm_system_rf_msix_tbl_word0_waddr;
+ output  i_hqm_system_rf_msix_tbl_word0_wclk;
+ output  i_hqm_system_rf_msix_tbl_word0_wclk_rst_n;
+ output [32:0] i_hqm_system_rf_msix_tbl_word0_wdata;
+ output  i_hqm_system_rf_msix_tbl_word0_we;
+ output [5:0] i_hqm_system_rf_msix_tbl_word1_raddr;
+ output  i_hqm_system_rf_msix_tbl_word1_rclk;
+ output  i_hqm_system_rf_msix_tbl_word1_rclk_rst_n;
+ input [32:0] i_hqm_system_rf_msix_tbl_word1_rdata;
+ output  i_hqm_system_rf_msix_tbl_word1_re;
+ output [5:0] i_hqm_system_rf_msix_tbl_word1_waddr;
+ output  i_hqm_system_rf_msix_tbl_word1_wclk;
+ output  i_hqm_system_rf_msix_tbl_word1_wclk_rst_n;
+ output [32:0] i_hqm_system_rf_msix_tbl_word1_wdata;
+ output  i_hqm_system_rf_msix_tbl_word1_we;
+ output [5:0] i_hqm_system_rf_msix_tbl_word2_raddr;
+ output  i_hqm_system_rf_msix_tbl_word2_rclk;
+ output  i_hqm_system_rf_msix_tbl_word2_rclk_rst_n;
+ input [32:0] i_hqm_system_rf_msix_tbl_word2_rdata;
+ output  i_hqm_system_rf_msix_tbl_word2_re;
+ output [5:0] i_hqm_system_rf_msix_tbl_word2_waddr;
+ output  i_hqm_system_rf_msix_tbl_word2_wclk;
+ output  i_hqm_system_rf_msix_tbl_word2_wclk_rst_n;
+ output [32:0] i_hqm_system_rf_msix_tbl_word2_wdata;
+ output  i_hqm_system_rf_msix_tbl_word2_we;
+ output [6:0] i_hqm_system_rf_sch_out_fifo_raddr;
+ output  i_hqm_system_rf_sch_out_fifo_rclk;
+ output  i_hqm_system_rf_sch_out_fifo_rclk_rst_n;
+ input [269:0] i_hqm_system_rf_sch_out_fifo_rdata;
+ output  i_hqm_system_rf_sch_out_fifo_re;
+ output [6:0] i_hqm_system_rf_sch_out_fifo_waddr;
+ output  i_hqm_system_rf_sch_out_fifo_wclk;
+ output  i_hqm_system_rf_sch_out_fifo_wclk_rst_n;
+ output [269:0] i_hqm_system_rf_sch_out_fifo_wdata;
+ output  i_hqm_system_rf_sch_out_fifo_we;
+ input  i_hqm_system_side_rst_sync_prim_n_rst_n;
+ output [10:0] i_hqm_system_sr_rob_mem_addr;
+ output  i_hqm_system_sr_rob_mem_clk;
+ output  i_hqm_system_sr_rob_mem_clk_rst_n;
+ input [155:0] i_hqm_system_sr_rob_mem_rdata;
+ output  i_hqm_system_sr_rob_mem_re;
+ output [155:0] i_hqm_system_sr_rob_mem_wdata;
+ output  i_hqm_system_sr_rob_mem_we;
+ output [1:0] i_hqm_system_system_cfg_req_down_1_0;
+ output [1:0] i_hqm_system_system_cfg_rsp_down_5_4;
+ output  interrupt_w_req_ready;
+ output  interrupt_w_req_valid;
+ output  lsp_alarm_down_v;
+ output  lsp_alarm_up_ready;
+ output  lsp_cfg_req_down_read;
+ output  lsp_cfg_req_down_write;
+ output  lsp_cfg_rsp_down_ack;
+ output  lsp_dp_sch_dir_ready;
+ output  lsp_dp_sch_dir_v;
+ output  lsp_dp_sch_rorply_ready;
+ output  lsp_dp_sch_rorply_v;
+ output  lsp_nalb_sch_atq_ready;
+ output  lsp_nalb_sch_atq_v;
+ output  lsp_nalb_sch_rorply_ready;
+ output  lsp_nalb_sch_rorply_v;
+ output  lsp_nalb_sch_unoord_ready;
+ output  lsp_nalb_sch_unoord_v;
+ output  lsp_reset_done;
+ output  lsp_unit_idle;
+ output  lsp_unit_pipeidle;
+ input [15:0] master_chp_timestamp;
+ input [92:0] mstr_cfg_req_down;
+ input  mstr_cfg_req_down_read;
+ input  mstr_cfg_req_down_write;
+ output  nalb_lsp_enq_lb_ready;
+ output  nalb_lsp_enq_lb_v;
+ output  nalb_lsp_enq_rorply_ready;
+ output  nalb_lsp_enq_rorply_v;
+ output  nalb_reset_done;
+ output  nalb_unit_idle;
+ output  nalb_unit_pipeidle;
+ input  pci_cfg_pmsixctl_fm;
+ input  pci_cfg_pmsixctl_msie;
+ input  pci_cfg_sciov_en;
+ input  pgcb_clk;
+ input  prim_clk;
+ input  prim_clk_enable;
+ input  prim_clk_ungate;
+ output  qed_alarm_down_v;
+ output  qed_alarm_up_ready;
+ output  qed_aqed_enq_ready;
+ output  qed_aqed_enq_v;
+ output  qed_cfg_req_down_read;
+ output  qed_cfg_req_down_write;
+ output  qed_cfg_rsp_down_ack;
+ output  qed_chp_sch_ready;
+ output  qed_chp_sch_v;
+ output  qed_reset_done;
+ output  qed_unit_idle;
+ output  qed_unit_pipeidle;
+ output  rop_alarm_down_v;
+ output  rop_alarm_up_ready;
+ output  rop_cfg_req_down_read;
+ output  rop_cfg_req_down_write;
+ output  rop_cfg_rsp_down_ack;
+ output  rop_dp_enq_ready;
+ output  rop_dp_enq_v;
+ output  rop_dqed_enq_ready;
+ output  rop_lsp_reordercmp_ready;
+ output  rop_lsp_reordercmp_v;
+ output  rop_nalb_enq_ready;
+ output  rop_nalb_enq_v;
+ output  rop_qed_dqed_enq_v;
+ output  rop_qed_enq_ready;
+ output  rop_qed_force_clockon;
+ output  rop_reset_done;
+ output  rop_unit_idle;
+ output  rop_unit_pipeidle;
+ input [24:0] sif_alarm_data;
+ output  sif_alarm_ready;
+ input  sif_alarm_v;
+ output  system_cfg_req_down_read;
+ output  system_cfg_req_down_write;
+ output  system_cfg_rsp_down_ack;
+ output  system_idle;
+ output  system_reset_done;
+ output  visa_str_chp_lsp_cmp_data;
+ output  wd_clkreq;
+ output [638:0] write_buffer_mstr;
+ input  write_buffer_mstr_ready;
+ output  write_buffer_mstr_v;
+ // Output assigns 
+endmodule // hqm_sip_gated_wrap

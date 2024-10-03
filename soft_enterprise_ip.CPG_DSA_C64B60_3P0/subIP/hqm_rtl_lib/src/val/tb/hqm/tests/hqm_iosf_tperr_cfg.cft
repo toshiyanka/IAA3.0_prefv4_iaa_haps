@@ -1,0 +1,58 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup FUNC_VF BAR to a base address of 0x00000003_xxxxxxxx
+###################################
+# Enable PF memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+###################################
+wr config_master.cfg_pm_pmcsr_disable.disable 0x0
+rd config_master.cfg_pm_pmcsr_disable.disable 0x0
+##
+###poll to Wait for reset to be done 
+poll config_master.cfg_diagnostic_reset_status 0x800003ff 0x800003ff 500
+###poll to Wait for unit_idle to be done 
+poll config_master.cfg_diagnostic_idle_status 0x0007ffff 0x0007ffff 500
+###################################
+# Setup LUTs used by HCWs
+
+cfg_begin
+
+  dir pp 0 vas=0 exp_drop=1
+  dir qid 0
+  vas 0 dir_qidv0=1 credit_cnt=4096
+  dir cq 0 cq_depth=512 gpa=sm
+
+cfg_end
+
+# Enable fatal error reporting
+wr hqm_pf_cfg_i.pcie_cap_device_control.fere    1
+rd hqm_pf_cfg_i.pcie_cap_device_control.fere    1
+# Make parity errors fatal
+wr hqm_pf_cfg_i.aer_cap_uncorr_err_sev.ecrcc    1
+rd hqm_pf_cfg_i.aer_cap_uncorr_err_sev.ecrcc    1
+wr hqm_pf_cfg_i.aer_cap_uncorr_err_sev.ptlpr    1
+rd hqm_pf_cfg_i.aer_cap_uncorr_err_sev.ptlpr    1
+#
+rd hqm_pf_cfg_i.pcie_cap_device_status.fed      0
+rd hqm_pf_cfg_i.device_status.dpe               0
+rd hqm_pf_cfg_i.aer_cap_uncorr_err_status.ecrcc 0
+rd hqm_pf_cfg_i.aer_cap_uncorr_err_status.ptlpr 0
+rd hqm_system_csr.alarm_hw_synd                 0x00000000 0x80000000
+rd hqm_sif_csr.ri_parity_err                    0x00000000
+rd hqm_sif_csr.sif_alarm_err                    0x00000000
+

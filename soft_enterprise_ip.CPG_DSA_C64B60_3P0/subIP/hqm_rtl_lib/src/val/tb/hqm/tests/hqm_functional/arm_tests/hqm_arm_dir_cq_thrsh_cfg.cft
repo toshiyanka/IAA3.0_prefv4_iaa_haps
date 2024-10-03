@@ -1,0 +1,34 @@
+rd config_master.cfg_pm_pmcsr_disable.disable 0x1
+wr config_master.cfg_pm_pmcsr_disable.disable 0x0
+rd config_master.cfg_pm_pmcsr_disable.disable 0x0
+
+###################################
+# Wait for reset to be done (including hardware memory init)
+poll config_master.cfg_diagnostic_reset_status 0x80000bff 0xffffffff 1000
+
+###################################
+# Setup 
+# cq_threshold =3, [ send 4HCW to check cq_intr generated]
+# cq_depth_intr_ena=1[ en_ threshold] cq_isr_en_code=3 [PF]
+# cq_isr_vector=1 [ cq0]
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+##  msix_cq 2  addr=0x2222cafebebc200 data=0xbb331001 is_ldb=0 cq=1
+
+  dir qid 1 
+  vas VAS0:* dir_qidv1=1 credit_cnt=1024 
+  dir pp 1  vas=VAS0 
+  dir cq 1  gpa=sm cq_depth=16 cq_timer_intr_thresh=1 cq_timer_intr_ena=0 cq_depth_intr_thresh=3 cq_depth_intr_ena=1 cq_isr_en_code=2  cq_isr_vector=1
+  
+  
+cfg_end
+
+##
+rd hqm_system_csr.ingress_alarm_enable 0x00000000
+wr hqm_system_csr.ingress_alarm_enable 0xffffffff
+rd hqm_system_csr.ingress_alarm_enable 0x0000003f
+
+

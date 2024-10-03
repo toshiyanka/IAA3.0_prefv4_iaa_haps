@@ -1,0 +1,261 @@
+iProcsForModule ip
+
+iProc ip_test {} {
+
+   iReset
+   iRunLoop 1 -tck
+   iNote "Activate selection of the following scan muxes:"
+   iNote "  tap1.tdo_mux,        selection 0: fsm.irsel = 1'b0 -> tdo_mux = dr_mux"
+   iNote "  tap1.dr_mux,         selection 4: IR.tir_out, unlock_red, unlock_orange_or_red = 'bx, \$GREEN -> dr_mux = BYPASS_RSVD.so"
+   iWrite tap1.IR.IR[7:0] 0b01001100
+   iApply
+
+   iNote "Scan in verification pattern to the following scan register:"
+   iNote "  tap1.BYPASS_RSVD.DR\[0:0\], load value = 1"
+   iWrite tap1.BYPASS_RSVD.DR[0] 0b1
+   iRead  tap1.BYPASS_RSVD.DR[0] 0b0
+   iApply -end_in_pause
+
+   iNote "Scan out verification pattern from the following scan register:"
+   iNote "  tap1.BYPASS_RSVD.DR\[0:0\], expected value = 1"
+   iWrite tap1.BYPASS_RSVD.DR[0] 0b0
+   iRead  tap1.BYPASS_RSVD.DR[0] 0b1
+   iApply
+
+   iNote "Activate selection of the following scan muxes:"
+   iNote "  tap1.tdo_mux,        selection 0: fsm.irsel = 1'b0 -> tdo_mux = dr_mux"
+   iNote "  tap1.dr_mux,         selection 3: IR.tir_out, unlock_red, unlock_orange_or_red = \$BYPASS_OPCODE, \$BYPASS_SECURITY -> dr_mux = BYPASS.so"
+   iWrite tap1.IR.IR[7:0] 0b11111111
+   iApply
+
+   iNote "Scan in verification pattern to the following scan register:"
+   iNote "  tap1.BYPASS.DR\[0:0\], load value = 1"
+   iWrite tap1.BYPASS.DR[0] 0b1
+   iRead  tap1.BYPASS.DR[0] 0b0
+   iApply -end_in_pause
+
+   iNote "Scan out verification pattern from the following scan register:"
+   iNote "  tap1.BYPASS.DR\[0:0\], expected value = 1"
+   iWrite tap1.BYPASS.DR[0] 0b0
+   iRead  tap1.BYPASS.DR[0] 0b1
+   iApply
+
+   iNote "Activate selection of the following scan muxes:"
+   iNote "  tap1.tdo_mux,        selection 0: fsm.irsel = 1'b0 -> tdo_mux = dr_mux"
+   iNote "  tap1.dr_mux,         selection 2: IR.tir_out, unlock_red, unlock_orange_or_red = \$regB_OPCODE, \$regB_SECURITY -> dr_mux = regB.so"
+   iWrite tap1.IR.IR[7:0] 0b01000000
+   iApply
+
+   iNote "Scan in verification pattern to the following scan register:"
+   iNote "  tap1.regB.DR\[11:0\], load value = 101100111100"
+   iWrite tap1.regB.DR[11:0] 0b101100111100
+   iRead  tap1.regB.DR[11:0] 0bXXXXXXXX0101
+   iApply -end_in_pause
+
+   iNote "Scan out verification pattern from the following scan register:"
+   iNote "  tap1.regB.DR\[11:0\], expected value = 101100111100"
+   iWrite tap1.regB.DR[11:0] 0b000000000101
+   iRead  tap1.regB.DR[11:0] 0b101100111100
+   iApply
+
+   iNote "Activate selection of the following scan muxes:"
+   iNote "  tap1.tdo_mux,        selection 0: fsm.irsel = 1'b0 -> tdo_mux = dr_mux"
+   iNote "  tap1.dr_mux,         selection 1: IR.tir_out, unlock_red, unlock_orange_or_red = \$regA_OPCODE, \$regA_SECURITY -> dr_mux = regA.so"
+   iWrite fdfx_secure_policy[3] 0b0
+   iWrite fdfx_secure_policy[2] 0b1
+   iWrite fdfx_secure_policy[1] 0b0
+   iWrite fdfx_secure_policy[0] 0b0
+   iWrite ftap_slvidcode_1[7] 0b0
+   iWrite ftap_slvidcode_1[5] 0b0
+   iWrite ftap_slvidcode_1[0] 0b0
+   iWrite ftap_slvidcode_2[7] 0b0
+   iWrite ftap_slvidcode_2[5] 0b0
+   iWrite ftap_slvidcode_2[1] 0b0
+   iWrite ftap_slvidcode_2[0] 0b0
+   iApply
+
+   iWrite tap1.IR.IR[7:0] 0b00110000
+   iApply
+
+   iNote "Scan in verification pattern to the following scan register:"
+   iNote "  tap1.regA.DR\[5:0\], load value = 101100"
+   iWrite tap1.regA.DR[5:0] 0b101100
+   iApply -end_in_pause
+
+   iNote "Scan out verification pattern from the following scan register:"
+   iNote "  tap1.regA.DR\[5:0\], expected value = 101100"
+   iWrite tap1.regA.DR[5:0] 0b000000
+   iRead  tap1.regA.DR[5:0] 0b101100
+   iApply
+
+   iNote "Activate selection of the following scan muxes:"
+   iNote "  tap1.tdo_mux,        selection 0: fsm.irsel = 1'b0 -> tdo_mux = dr_mux"
+   iNote "  tap1.dr_mux,         selection 0: IR.tir_out, unlock_red, unlock_orange_or_red = \$SLVIDCODE_OPCODE, \$SLVIDCODE_SECURITY -> dr_mux = SLVIDCODE.so"
+   iWrite tap1.IR.IR[7:0] 0b00001100
+   iApply
+
+   iNote "Scan in verification pattern to the following scan register:"
+   iNote "  tap1.SLVIDCODE.DR\[31:0\], load value = 10110011110000111111110000000011"
+   iWrite tap1.SLVIDCODE.DR[31:0] 0b10110011110000111111110000000011
+   iApply -end_in_pause
+
+   iNote "Scan out verification pattern from the following scan register:"
+   iNote "  tap1.SLVIDCODE.DR\[31:0\], expected value = 10110011110000111111110000000011"
+   iWrite tap1.SLVIDCODE.DR[31:0] 0b00000001001000110100010101100111
+   iRead  tap1.SLVIDCODE.DR[31:0] 0b10110011110000111111110000000011
+   iApply
+
+   iNote "Activate selection for scan mux tap1.tdo_mux, selection 1: fsm.irsel = 1'b1 -> tdo_mux = IR.so"
+   iNote "Scan in verification pattern to the following scan register:"
+   iNote "  tap1.IR.IR\[7:0\], load value = 10110011"
+   iWrite tap1.IR.IR[7:0] 0b10110011
+   iApply -end_in_pause
+
+   iNote "Scan out verification pattern from the following scan register:"
+   iNote "  tap1.IR.IR\[7:0\], expected value = 10110011"
+   iWrite tap1.IR.IR[7:0] 0b00001100
+   iRead  tap1.IR.IR[7:0] 0b10110011
+   iApply
+
+   iNote "Activate selection of the following scan muxes:"
+   iNote "  tap2.tdo_mux,        selection 0: fsm.irsel = 1'b0 -> tdo_mux = dr_mux"
+   iNote "  tap2.dr_mux,         selection 5: IR.tir_out, unlock_red, unlock_orange_or_red = 'bx, \$GREEN -> dr_mux = BYPASS_RSVD.so"
+   iWrite tap2.IR.IR[7:0] 0b01001100
+   iApply
+
+   iNote "Scan in verification pattern to the following scan register:"
+   iNote "  tap2.BYPASS_RSVD.DR\[0:0\], load value = 1"
+   iWrite tap2.BYPASS_RSVD.DR[0] 0b1
+   iRead  tap2.BYPASS_RSVD.DR[0] 0b0
+   iApply -end_in_pause
+
+   iNote "Scan out verification pattern from the following scan register:"
+   iNote "  tap2.BYPASS_RSVD.DR\[0:0\], expected value = 1"
+   iWrite tap2.BYPASS_RSVD.DR[0] 0b0
+   iRead  tap2.BYPASS_RSVD.DR[0] 0b1
+   iApply
+
+   iNote "Activate selection of the following scan muxes:"
+   iNote "  tap2.tdo_mux,        selection 0: fsm.irsel = 1'b0 -> tdo_mux = dr_mux"
+   iNote "  tap2.dr_mux,         selection 4: IR.tir_out, unlock_red, unlock_orange_or_red = \$BYPASS_OPCODE, \$BYPASS_SECURITY -> dr_mux = BYPASS.so"
+   iWrite tap2.IR.IR[7:0] 0b11111111
+   iApply
+
+   iNote "Scan in verification pattern to the following scan register:"
+   iNote "  tap2.BYPASS.DR\[0:0\], load value = 1"
+   iWrite tap2.BYPASS.DR[0] 0b1
+   iRead  tap2.BYPASS.DR[0] 0b0
+   iApply -end_in_pause
+
+   iNote "Scan out verification pattern from the following scan register:"
+   iNote "  tap2.BYPASS.DR\[0:0\], expected value = 1"
+   iWrite tap2.BYPASS.DR[0] 0b0
+   iRead  tap2.BYPASS.DR[0] 0b1
+   iApply
+
+   iNote "Activate selection of the following scan muxes:"
+   iNote "  tap2.tdo_mux,        selection 0: fsm.irsel = 1'b0 -> tdo_mux = dr_mux"
+   iNote "  tap2.dr_mux,         selection 3: IR.tir_out, unlock_red, unlock_orange_or_red = \$regB_OPCODE, \$regB_SECURITY -> dr_mux = regB.so"
+   iWrite tap2.IR.IR[7:0] 0b01000000
+   iApply
+
+   iNote "Scan in verification pattern to the following scan register:"
+   iNote "  tap2.regB.DR\[11:0\], load value = 101100111100"
+   iWrite tap2.regB.DR[11:0] 0b101100111100
+   iRead  tap2.regB.DR[11:0] 0bXXXXXXXX0101
+   iApply -end_in_pause
+
+   iNote "Scan out verification pattern from the following scan register:"
+   iNote "  tap2.regB.DR\[11:0\], expected value = 101100111100"
+   iWrite tap2.regB.DR[11:0] 0b000000000101
+   iRead  tap2.regB.DR[11:0] 0b101100111100
+   iApply
+
+   iNote "Activate selection of the following scan muxes:"
+   iNote "  tap2.tdo_mux,        selection 0: fsm.irsel = 1'b0 -> tdo_mux = dr_mux"
+   iNote "  tap2.dr_mux,         selection 2: IR.tir_out, unlock_red, unlock_orange_or_red = \$regA2_OPCODE, \$regA2_SECURITY -> dr_mux = regA2.so"
+   iWrite tap2.IR.IR[7:0] 0b00110001
+   iApply
+
+   iNote "Scan in verification pattern to the following scan register:"
+   iNote "  tap2.regA2.DR\[5:0\], load value = 101100"
+   iWrite tap2.regA2.DR[5:0] 0b101100
+   iApply -end_in_pause
+
+   iNote "Scan out verification pattern from the following scan register:"
+   iNote "  tap2.regA2.DR\[5:0\], expected value = 101100"
+   iWrite tap2.regA2.DR[5:0] 0b000000
+   iRead  tap2.regA2.DR[5:0] 0b101100
+   iApply
+
+   iNote "Activate selection of the following scan muxes:"
+   iNote "  tap2.tdo_mux,        selection 0: fsm.irsel = 1'b0 -> tdo_mux = dr_mux"
+   iNote "  tap2.dr_mux,         selection 1: IR.tir_out, unlock_red, unlock_orange_or_red = \$regA1_OPCODE, \$regA1_SECURITY -> dr_mux = regA1.so"
+   iWrite tap2.IR.IR[7:0] 0b00110000
+   iApply
+
+   iNote "Scan in verification pattern to the following scan register:"
+   iNote "  tap2.regA1.DR\[5:0\], load value = 101100"
+   iWrite tap2.regA1.DR[5:0] 0b101100
+   iApply -end_in_pause
+
+   iNote "Scan out verification pattern from the following scan register:"
+   iNote "  tap2.regA1.DR\[5:0\], expected value = 101100"
+   iWrite tap2.regA1.DR[5:0] 0b000000
+   iRead  tap2.regA1.DR[5:0] 0b101100
+   iApply
+
+   iNote "Activate selection of the following scan muxes:"
+   iNote "  tap2.tdo_mux,        selection 0: fsm.irsel = 1'b0 -> tdo_mux = dr_mux"
+   iNote "  tap2.dr_mux,         selection 0: IR.tir_out, unlock_red, unlock_orange_or_red = \$SLVIDCODE_OPCODE, \$SLVIDCODE_SECURITY -> dr_mux = SLVIDCODE.so"
+   iWrite tap2.IR.IR[7:0] 0b00001100
+   iApply
+
+   iNote "Scan in verification pattern to the following scan register:"
+   iNote "  tap2.SLVIDCODE.DR\[31:0\], load value = 10110011110000111111110000000011"
+   iWrite tap2.SLVIDCODE.DR[31:0] 0b10110011110000111111110000000011
+   iApply -end_in_pause
+
+   iNote "Scan out verification pattern from the following scan register:"
+   iNote "  tap2.SLVIDCODE.DR\[31:0\], expected value = 10110011110000111111110000000011"
+   iWrite tap2.SLVIDCODE.DR[31:0] 0b00000001001000110100010101100111
+   iRead  tap2.SLVIDCODE.DR[31:0] 0b10110011110000111111110000000011
+   iApply
+
+   iNote "Activate selection for scan mux tap2.tdo_mux, selection 1: fsm.irsel = 1'b1 -> tdo_mux = IR.so"
+   iNote "Scan in verification pattern to the following scan register:"
+   iNote "  tap2.IR.IR\[7:0\], load value = 10110011"
+   iWrite tap2.IR.IR[7:0] 0b10110011
+   iApply -end_in_pause
+
+   iNote "Scan out verification pattern from the following scan register:"
+   iNote "  tap2.IR.IR\[7:0\], expected value = 10110011"
+   iWrite tap2.IR.IR[7:0] 0b00001100
+   iRead  tap2.IR.IR[7:0] 0b10110011
+   iApply
+
+   iNote "Scan in verification pattern to the following scan register:"
+   iNote "  regA.DR\[5:0\], load value = 101100"
+   iWrite regA.DR[5:0] 0b101100
+   iApply -end_in_pause
+
+   iNote "Scan out verification pattern from the following scan register:"
+   iNote "  regA.DR\[5:0\], expected value = 101100"
+   iWrite regA.DR[5:0] 0b000000
+   iRead  regA.DR[5:0] 0b101100
+   iApply
+
+   iNote "Scan in verification pattern to the following scan register:"
+   iNote "  regB.DR\[11:0\], load value = 101100111100"
+   iWrite regB.DR[11:0] 0b101100111100
+   iRead  regB.DR[11:0] 0bXXXXXXXX0101
+   iApply -end_in_pause
+
+   iNote "Scan out verification pattern from the following scan register:"
+   iNote "  regB.DR\[11:0\], expected value = 101100111100"
+   iWrite regB.DR[11:0] 0b000000000101
+   iRead  regB.DR[11:0] 0b101100111100
+   iApply
+
+
+}

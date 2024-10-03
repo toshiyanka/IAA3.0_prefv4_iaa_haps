@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<!-- Release file -->
+
+<sip_release>
+  <version>8.4 November 13, 2013</version>
+  <date>Thu Sep 25 17:31:47 PDT 2014</date>
+  <user>esavin</user>
+  <sip_name>31</sip_name>
+  <sip_variation>147</sip_variation>
+  <sip_variation_id>147</sip_variation_id>
+  <sip_reldate>2014WW39</sip_reldate>
+  <sip_milestone>1p0</sip_milestone>
+  <sip_relver>v5</sip_relver>
+  <sip_relname>ALL_2014WW39_R1p0_v5</sip_relname>
+  <sip_owner>esavin</sip_owner>
+  <sip_dist></sip_dist>
+  <sip_fixed></sip_fixed>
+  <sip_open></sip_open>
+  <sip_attachment>
+  </sip_attachment>
+  <sip_customers>
+      <sip_customer>20</sip_customer>
+  </sip_customers>
+  <sip_base>1099</sip_base>
+  <sip_features>
+    <sip_feature>
+<![CDATA[
+HTML
+<h2>RTL Updates:</h2>
+         <dt>PCRs: <dt>
+         <dd>
+            HSD <a href="https://hsdes.intel.com/home/default.html#article?id=12042390">12042390, "Implement IOSF Sideband Parity support in SBR and SBE"</a>:
+            The following two parity ports are now exposed at the top level of the Endpoint: 1) mparity output bit associated with mpayload, and 2) tparity input bit associated with tpayload. Only the ports are currently exposed, with no logic for parity generation and checking. An associated parameter is also created, SB_PARITY_REQUIRED, to be used in future releases for enabling parity support on the endpoint. Agents that do not require parity pins should tie off these ports in the Endpoint wrapper. NOTE: The first Sideband Fabric release with support for parity pins is IOSF_Sideband_Fabric_Compiler_ALL_2014WW38_R1p0_v5.
+         </dd>
+         <dt>HSDs: <dt>
+         <dd>
+            HSD <a href="https://hsdes.intel.com/home/default.html#article?id=1203799966">1203799966, "sb endpoint is sending out xxx and firing assertion" (filed by the Connectivity IP team)"</a>:
+            The register-access master-widget had an index-out-of-bound bug on the tx_ext_headers array. This bug is now fixed, by ensuring that the index counter saturates at the max size of the array (and therefore the index can no longer reach out-of-bound values). This bug is limited to Endpoint instances where a master-widget is required, and the following combination of parameters is used: MASTERREG=1, TX_EXT_HEADER_SUPPORT=1, UNIQUE_EXT_HEADERS=0.
+         </dd>
+         <dd>
+            HSD <a href="https://hsdes.intel.com/home/default.html#article?id=1203660674">1203660674, "IOSF Sideband 2014WW29_R1p0_v4 has xprop issue" (filed by Wee Chea Chang on behalf of the CNL-PCH team)</a>:
+            File sbcvram2.sv, included in the RTL deliverables, provides an unsupported option for a latch-based implementation of the FIFOs. The condition expression in an if statement in these latches, was found to violate the xprop checks, and required a fix to replace a 2-state logic-equality (==) operator with its 4-state case-equality (===) counterpart. This line is now fixed, as requested by the CNL-PCH customer.
+         </dd>
+      </dl>
+<h2>Validation Updates:</h2>
+<dt>Added parity port connectivity.<dt>]]>    </sip_feature>
+  </sip_features>
+  <sip_knissues>
+    <sip_knissue>
+<![CDATA[
+HTML
+<p>None</p>]]>    </sip_knissue>
+  </sip_knissues>
+  <sip_speccons>
+    <sip_speccon>
+<![CDATA[
+HTML
+      <h2>Integration Notes:</h2>
+<p><b>NOTE:</b> The first Sideband Fabric release with support for parity pins is IOSF_Sideband_Fabric_Compiler_ALL_2014WW38_R1p0_v5.</p>]]>    </sip_speccon>
+  </sip_speccons>
+  <sip_specins>
+    <sip_specin>
+<![CDATA[
+HTML
+      <ul>
+         <li>For support file an <b>HSD</b> at <a href="https://hsdes.intel.com/home/default.html#magazine?id=101846185&contentId=1012194360">https://hsdes.intel.com/home/default.html#magazine?id=101846185&contentId=1012194360</a></li>
+         <li>Please note that Sideband Endpoint instantiations need to be uniquified in all IP's per the SEG POR instantiation and uniquification methodology to avoid module collisions with other instances of the endpoint with other IPs.</li>
+         <li>Please read integration guide carefully for handling current clock request logic</li>
+         <li>Please read integration guide carefully for conditions of locally clock gating the agent_clk in asynchronous endpoints.</li>
+         <li>Please read integration guide carefully for any necessary power gating logic that may be needed.</li>
+      </ul>]]>    </sip_specin>
+  </sip_specins>
+  <sip_models>
+      <sip_model>4</sip_model>
+  </sip_models>
+</sip_release>

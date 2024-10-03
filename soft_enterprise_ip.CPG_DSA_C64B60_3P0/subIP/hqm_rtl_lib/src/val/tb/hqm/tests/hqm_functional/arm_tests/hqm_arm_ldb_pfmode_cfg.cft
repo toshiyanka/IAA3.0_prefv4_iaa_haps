@@ -1,0 +1,125 @@
+##############################################################
+# Setup
+# verify cq intruupt generated via threshold and timer  
+# timer:cq_timer_intr_thresh=30, cq_timer_intr_ena=1 
+# threshold:  cq_depth_intr_thresh=3 cq_depth_intr_ena=1
+# cq_isr_en_code= [0-disable; 1-VF, 2-PF]
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+
+## Threshold config
+  msix_cq 1  addr=0x2222cafebebc200 data=0xbb331000 is_ldb=1 cq=0
+  msix_cq 2  addr=0x2222cafebebc210 data=0xbb331001 is_ldb=1 cq=1
+  msix_cq 3  addr=0x2222cafebebc220 data=0xbb331002 is_ldb=1 cq=2
+  msix_cq 4  addr=0x2222cafebebc230 data=0xbb331003 is_ldb=1 cq=3
+
+  msix_cq 5  addr=0x2222cafebebc240 data=0xbb331004 is_ldb=1 cq=4
+  msix_cq 6  addr=0x2222cafebebc250 data=0xbb331005 is_ldb=1 cq=5
+  msix_cq 7  addr=0x2222cafebebc260 data=0xbb331006 is_ldb=1 cq=6
+  msix_cq 8  addr=0x2222cafebebc270 data=0xbb331007 is_ldb=1 cq=7
+
+  ##No MISX expected on cq8-11
+  msix_cq 16 addr=0x2222cafebebc280 data=0xbb331008 is_ldb=1 cq=8
+  msix_cq 17 addr=0x2222cafebebc290 data=0xbb331009 is_ldb=1 cq=9
+  msix_cq 18 addr=0x2222cafebebc2a0 data=0xbb331010 is_ldb=1 cq=10
+  msix_cq 19 addr=0x2222cafebebc2b0 data=0xbb331011 is_ldb=1 cq=11
+  ##No MISX expected on cq12-15
+  msix_cq 20 addr=0x2222cafebebc2c0 data=0xbb331012 is_ldb=1 cq=12
+  msix_cq 21 addr=0x2222cafebebc2d0 data=0xbb331013 is_ldb=1 cq=13
+  msix_cq 22 addr=0x2222cafebebc2e0 data=0xbb331014 is_ldb=1 cq=14
+  msix_cq 23 addr=0x2222cafebebc2f0 data=0xbb331015 is_ldb=1 cq=15
+
+
+  ldb qid 0  qid_ldb_inflight_limit=256
+  ldb qid 1  qid_ldb_inflight_limit=256
+  ldb qid 2  qid_ldb_inflight_limit=256
+  ldb qid 3  qid_ldb_inflight_limit=256
+
+  ldb qid 4  qid_ldb_inflight_limit=256
+  ldb qid 5  qid_ldb_inflight_limit=256
+  ldb qid 6  qid_ldb_inflight_limit=256
+  ldb qid 7  qid_ldb_inflight_limit=256
+
+  ldb qid 8  qid_ldb_inflight_limit=256
+  ldb qid 9  qid_ldb_inflight_limit=256
+  ldb qid 10 qid_ldb_inflight_limit=256
+  ldb qid 11 qid_ldb_inflight_limit=256
+
+  ldb qid 12 qid_ldb_inflight_limit=256
+  ldb qid 13 qid_ldb_inflight_limit=256
+  ldb qid 14 qid_ldb_inflight_limit=256
+  ldb qid 15 qid_ldb_inflight_limit=256
+
+
+  vas VAS0:* credit_cnt=1024 ldb_qidv0=1 ldb_qidv1=1 ldb_qidv2=1 ldb_qidv3=1 ldb_qidv4=1 ldb_qidv5=1 ldb_qidv6=1 ldb_qidv7=1 ldb_qidv8=1 ldb_qidv9=1 ldb_qidv10=1 ldb_qidv11=1 ldb_qidv12=1 ldb_qidv13=1 ldb_qidv14=1 ldb_qidv15=1
+
+  ldb pp 0  vas=VAS0 
+  ldb pp 1  vas=VAS0 
+  ldb pp 2  vas=VAS0 
+  ldb pp 3  vas=VAS0 
+
+  ldb pp 4  vas=VAS0 
+  ldb pp 5  vas=VAS0 
+  ldb pp 6  vas=VAS0 
+  ldb pp 7  vas=VAS0 
+
+  ldb pp 8  vas=VAS0 
+  ldb pp 9  vas=VAS0 
+  ldb pp 10 vas=VAS0 
+  ldb pp 11 vas=VAS0 
+
+  ldb pp 12 vas=VAS0 
+  ldb pp 13 vas=VAS0 
+  ldb pp 14 vas=VAS0 
+  ldb pp 15 vas=VAS0 
+
+
+  ##PF+threshold on cq [0,3]
+  ldb cq 0  gpa=sm cq_depth=16 qidv0=1 qidix0=0  cq_timer_intr_thresh=30 cq_timer_intr_ena=0 cq_depth_intr_thresh=3 cq_depth_intr_ena=1 cq_isr_en_code=2  
+  ldb cq 1  gpa=sm cq_depth=16 qidv0=1 qidix0=1
+  ldb cq 2  gpa=sm cq_depth=16 qidv0=1 qidix0=2
+  ldb cq 3  gpa=sm cq_depth=16 qidv0=1 qidix0=3  cq_timer_intr_thresh=30 cq_timer_intr_ena=0 cq_depth_intr_thresh=3 cq_depth_intr_ena=1 cq_isr_en_code=2  
+  ##PF+timer on cq[4,5]
+  ldb cq 4  gpa=sm cq_depth=16 qidv0=1 qidix0=4  cq_timer_intr_thresh=30 cq_timer_intr_ena=1 cq_depth_intr_thresh=3 cq_depth_intr_ena=0 cq_isr_en_code=2  
+  ldb cq 5  gpa=sm cq_depth=16 qidv0=1 qidix0=5  cq_timer_intr_thresh=30 cq_timer_intr_ena=1 cq_depth_intr_thresh=3 cq_depth_intr_ena=0 cq_isr_en_code=2  
+  ldb cq 6  gpa=sm cq_depth=16 qidv0=1 qidix0=6 
+  ldb cq 7  gpa=sm cq_depth=16 qidv0=1 qidix0=7 
+
+  ##Disable+Thrshold+Timer > cq intr armed but no msix
+  ldb cq 8  gpa=sm cq_depth=16 qidv0=1 qidix0=8   cq_timer_intr_thresh=30 cq_timer_intr_ena=1 cq_depth_intr_thresh=3 cq_depth_intr_ena=0 cq_isr_en_code=0  
+  ldb cq 9  gpa=sm cq_depth=16 qidv0=1 qidix0=9   cq_timer_intr_thresh=30 cq_timer_intr_ena=1 cq_depth_intr_thresh=3 cq_depth_intr_ena=0 cq_isr_en_code=0  
+  ldb cq 10 gpa=sm cq_depth=16 qidv0=1 qidix0=10  cq_timer_intr_thresh=30 cq_timer_intr_ena=0 cq_depth_intr_thresh=3 cq_depth_intr_ena=1 cq_isr_en_code=0  
+  ldb cq 11 gpa=sm cq_depth=16 qidv0=1 qidix0=11  cq_timer_intr_thresh=30 cq_timer_intr_ena=0 cq_depth_intr_thresh=3 cq_depth_intr_ena=1 cq_isr_en_code=0  
+
+  ##PF+dis_Thrshold+dis_Timer > cq intr not armed ,no msix
+  ldb cq 12 gpa=sm cq_depth=16 qidv0=1 qidix0=12  cq_timer_intr_thresh=30 cq_timer_intr_ena=0 cq_depth_intr_thresh=3 cq_depth_intr_ena=0 cq_isr_en_code=2  
+  ldb cq 13 gpa=sm cq_depth=16 qidv0=1 qidix0=13  cq_timer_intr_thresh=30 cq_timer_intr_ena=0 cq_depth_intr_thresh=3 cq_depth_intr_ena=0 cq_isr_en_code=2  
+  ldb cq 14 gpa=sm cq_depth=16 qidv0=1 qidix0=14  cq_timer_intr_thresh=30 cq_timer_intr_ena=0 cq_depth_intr_thresh=3 cq_depth_intr_ena=0 cq_isr_en_code=2  
+  ldb cq 15 gpa=sm cq_depth=16 qidv0=1 qidix0=15  cq_timer_intr_thresh=30 cq_timer_intr_ena=0 cq_depth_intr_thresh=3 cq_depth_intr_ena=0 cq_isr_en_code=2  
+
+ 
+cfg_end
+
+
+
+##configuration reg set only for cq for which inter en is set
+rd credit_hist_pipe.cfg_ldb_cq_intr_armed0 0x0
+wr credit_hist_pipe.cfg_ldb_cq_intr_armed0 0x0000FFFF
+rd credit_hist_pipe.cfg_ldb_cq_intr_armed0 0x00000F39
+## Interrupt timer enable bit. &SAMPLE_INTERVAL required for timer intr case
+wr credit_hist_pipe.cfg_ldb_cq_timer_ctl.enb 1
+wr credit_hist_pipe.cfg_ldb_cq_timer_ctl.sample_interval 1
+rd credit_hist_pipe.cfg_ldb_cq_timer_ctl.enb 1
+rd credit_hist_pipe.cfg_ldb_cq_timer_ctl.sample_interval 1
+
+
+##ingress alarm enable
+rd hqm_system_csr.ingress_alarm_enable 0x00000000
+wr hqm_system_csr.ingress_alarm_enable 0xffffffff
+rd hqm_system_csr.ingress_alarm_enable 0x0000003f
+
+
+

@@ -1,0 +1,55 @@
+###################################
+# Read first part of PF header
+idle 400
+##############
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+#wr hqm_pf_cfg_i.func_bar_l 0x00000000
+#wr hqm_pf_cfg_i.func_bar_u 0x00000001
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+CfgWr0 0x10 0x00000000
+CfgWr0 0x14 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+#wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+#wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+# Setup CSR_PF  BAR to a base address of 0x00000002_xxxxxxxx
+CfgWr0 0x18 0x00000000
+CfgWr0 0x1c 0x00000002
+###################################
+# Enable PF memory operations
+#wr hqm_pf_cfg_i.device_command 0x6
+#rd hqm_pf_cfg_i.device_command
+# Enable memory operations
+CfgWr0 0x4 0x2
+CfgRd0 0x4
+###################################
+# Setup FUNC_VF BAR to a base address of 0x00000003_xxxxxxxx
+CfgWr0 0x12c 0x00000000
+CfgWr0 0x130 0x00000003
+###################################
+# 16 VF
+CfgWr0 0x118 0x00000010
+CfgRd0 0x118 0x00000010
+#
+idle 500
+#
+CfgWr0QW 0x118 0x00000010
+CfgRd0QW 0x118 0x00000010
+CfgWr0QW 0x118 0x0000000f
+CfgRd0QW 0x118 0x0000000f
+CfgWr0QW 0x118 0x0000000e
+CfgRd0QW 0x118 0x0000000e
+CfgWr0QW 0x118 0x00000001
+CfgRd0QW 0x118 0x00000001
+#
+idle 500
+#
+CfgWr0 0x118 0x00000010
+CfgRd0 0x118 0x00000010
+###################################
+# Enable VF and VF memory operations
+CfgWr0 0x110 0x00000009
+CfgRd0 0x110
+###################################
+###################################

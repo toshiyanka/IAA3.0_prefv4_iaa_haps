@@ -1,0 +1,383 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => [
+                     "+AW_CONTINUE_ON_ERROR",
+                     "+iosf_tracker_filename=iosf_trk",
+                     "-assert nopostproc",
+                     "+vcs+lic+wait",
+                     "+SLA_MAX_RUN_CLOCK=400000",
+                     "+SLA_USER_DATA_PHASE_TIMEOUT=400000",
+                     "+SLA_CONFIG_PHASE_TIMEOUT=300000",
+                    ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+      uno_pf_inj_traffic => {
+          -simv_args => [
+                     "+LDB_PP20_Q0_NUM_HCW=60",
+                     "+LDB_PP21_Q0_NUM_HCW=60",
+                     "+LDB_PP30_Q0_NUM_HCW=60",
+                     "+LDB_PP31_Q0_NUM_HCW=60",
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/hqm_ldb_mapped_q.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                     "+HQM_EOT_RD_SEQ_ENABLE_CREDIT_CHECK",
+                        ],
+      },
+      atm_pf_inj_traffic => {
+          -simv_args => [
+                         "+LDB_PP20_Q0_NUM_HCW=60", 
+                         "+LDB_PP21_Q0_NUM_HCW=60", 
+                         "+LDB_PP30_Q0_NUM_HCW=60", 
+                         "+LDB_PP31_Q0_NUM_HCW=60",
+                         "+LDB_PP20_QTYPE=qatm",
+                         "+LDB_PP30_QTYPE=qatm",
+                         "+LDB_PP20_Q0_LOCK_ID=aaaa",
+                         "+LDB_PP30_Q0_LOCK_ID=5555",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/hqm_ldb_atm_mapped_q.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                         "+HQM_EOT_RD_SEQ_ENABLE_CREDIT_CHECK",
+                        ],
+      },
+      uno_traffic_smoke => {
+          -simv_args => [
+                         "+HQM_USER_DATA_SEQ_OVERRIDE=hcw_ldb_test_hcw_smoke_seq",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/hcw_sciov_ldb_smk_cfg.cft",
+                         "+HCW_TRAFFIC=aceroot/verif/tb/hqm/tests/hqm_functional/hcw_sciov_ldb_smk_hcw.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                         "+HQM_DISABLE_BACKGROUND_CFG_GEN_SEQ",
+                        ],
+      },
+      uno_traffic_busnum => {
+          -simv_args => [
+                         "+HQM_USER_DATA_SEQ_OVERRIDE=hcw_ldb_test_hcw_busnum_seq",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/hqm_ldb_mapped_q.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                         "+HQM_DISABLE_BACKGROUND_CFG_GEN_SEQ",
+                        ],
+      },
+      uno_traffic_busnum_sciov => {
+          -simv_args => [
+                         "+hqm_pcie_init_stim_config::mode=sciov",
+                         "+HQM_USER_DATA_SEQ_OVERRIDE=hcw_ldb_test_hcw_busnum_sciov_seq",
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/hcw_sciov_ldb_cfg.cft",
+                         "+HCW_TRAFFIC=aceroot/verif/tb/hqm/tests/hqm_functional/hcw_sciov_ldb_hcw.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                         "+HQM_DISABLE_BACKGROUND_CFG_GEN_SEQ",
+                        ],
+      },
+      uno_random_pri => {
+          -simv_args => [
+                     "+LDB_PP20_Q0_NUM_HCW=60",
+                     "+LDB_PP21_Q0_NUM_HCW=60",
+                     "+LDB_PP30_Q0_NUM_HCW=60",
+                     "+LDB_PP31_Q0_NUM_HCW=60",
+                     "+LDB_VF0_PP2_Q0_NUM_HCW=60",
+                     "+LDB_VF0_PP3_Q0_NUM_HCW=60",
+                     "+LDB_VF7_PP20_Q0_NUM_HCW=60",
+                     "+LDB_VF7_PP21_Q0_NUM_HCW=60",
+                     "+LDB_VF10_PP20_Q0_NUM_HCW=60",
+                     "+LDB_VF10_PP21_Q0_NUM_HCW=60",
+                     "+LDB_VF15_PP30_Q0_NUM_HCW=60",
+                     "+LDB_VF15_PP31_Q0_NUM_HCW=60",
+                     "+LDB_VF1_PP0_Q0_NUM_HCW=60",
+                     "+LDB_PP24_Q0_NUM_HCW=60",
+                     "+LDB_PP25_Q0_NUM_HCW=60",
+                     "+LDB_VF14_PP62_Q0_NUM_HCW=60",
+                     "+LDB_PP4_Q0_NUM_HCW=60",
+                     "+LDB_PP5_Q0_NUM_HCW=60",
+                     "+LDB_VF6_PP2_Q0_NUM_HCW=60",
+                     "+LDB_VF6_PP61_Q0_NUM_HCW=60",
+                     "+LDB_VF6_PP3_Q0_NUM_HCW=60",
+                     "+LDB_VF6_PP32_Q0_NUM_HCW=60",
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/hqm_ldb_mapped_q.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                     "+RANDOM_PRI",
+                         "+HQM_EOT_RD_SEQ_ENABLE_CREDIT_CHECK",
+                        ],
+      },
+      atm_random_pri => {
+          -simv_args => [
+                         "+LDB_PP20_Q0_NUM_HCW=1024",
+                         "+LDB_PP20_Q0_LOCK_ID=0000",
+                         "+LDB_PP20_QTYPE=qatm",
+                         
+                         ## -- "+LDB_PP21_Q0_NUM_HCW=1024",
+
+                         "+LDB_PP30_Q0_NUM_HCW=1024",
+                         "+LDB_PP30_Q0_LOCK_ID=1111",
+                         "+LDB_PP30_QTYPE=qatm",
+
+                         ## -- "+LDB_PP31_Q0_NUM_HCW=1024",
+
+                         "+LDB_VF0_PP2_Q0_NUM_HCW=1024",
+                         "+LDB_VF0_PP2_Q0_LOCK_ID=2222",
+                         "+LDB_VF0_PP2_QTYPE=qatm",
+
+                         ## -- "+LDB_VF0_PP3_Q0_NUM_HCW=1024",
+
+                         "+LDB_VF7_PP20_Q0_NUM_HCW=1024",
+                         "+LDB_VF7_PP20_Q0_LOCK_ID=3333",
+                         "+LDB_VF7_PP20_QTYPE=qatm",
+
+                         ## -- "+LDB_VF7_PP21_Q0_NUM_HCW=1024",
+
+                         "+LDB_VF10_PP20_Q0_NUM_HCW=1024",
+                         "+LDB_VF10_PP20_Q0_LOCK_ID=4444",
+                         "+LDB_VF10_PP20_QTYPE=qatm",
+
+                         ## -- "+LDB_VF10_PP21_Q0_NUM_HCW=1024",
+
+                         "+LDB_VF15_PP30_Q0_NUM_HCW=1024",
+                         "+LDB_VF15_PP30_Q0_LOCK_ID=5555",
+                         "+LDB_VF15_PP30_QTYPE=qatm",
+
+                         ## -- "+LDB_VF15_PP31_Q0_NUM_HCW=1024",
+
+                         "+LDB_VF1_PP0_Q0_NUM_HCW=1024",
+                         "+LDB_VF1_PP0_Q0_LOCK_ID=6666",
+                         "+LDB_VF1_PP0_QTYPE=qatm",
+
+                         ## -- "+LDB_VF1_PP63_Q0_NUM_HCW=1024",
+
+                         "+LDB_VF14_PP62_Q0_NUM_HCW=1024",
+                         "+LDB_VF14_PP62_Q0_LOCK_ID=7777",
+                         "+LDB_VF14_PP62_QTYPE=qatm",
+
+                         ## -- "+LDB_VF14_PP1_Q0_NUM_HCW=1024",
+
+                         "+LDB_VF6_PP2_Q0_NUM_HCW=1024",
+                         "+LDB_VF6_PP2_Q0_LOCK_ID=8888",
+                         "+LDB_VF6_PP2_QTYPE=qatm",
+
+                         ## -- "+LDB_VF6_PP61_Q0_NUM_HCW=1024",
+
+                         "+LDB_VF6_PP60_Q0_NUM_HCW=1024",
+                         "+LDB_VF6_PP60_Q0_LOCK_ID=9999",
+                         "+LDB_VF6_PP60_QTYPE=qatm",
+
+                         ## -- "+LDB_VF6_PP3_Q0_NUM_HCW=1024",
+
+                         "+LDB_PP24_Q0_NUM_HCW=1024",
+                         "+LDB_PP24_Q0_LOCK_ID=aaaa",
+                         "+LDB_PP24_QTYPE=qatm",
+                         
+                         ## -- "+LDB_PP25_Q0_NUM_HCW=1024",
+
+                         "+LDB_PP4_Q0_NUM_HCW=1024",
+                         "+LDB_PP4_Q0_LOCK_ID=bbbb",
+                         "+LDB_PP4_QTYPE=qatm",
+
+                         ## -- "+LDB_PP5_Q0_NUM_HCW=1024",
+
+                         "+LDB_PP14_Q0_NUM_HCW=1024",
+                         "+LDB_PP14_Q0_LOCK_ID=cccc",
+                         "+LDB_PP14_QTYPE=qatm",
+
+                         ## -- "+LDB_PP15_Q0_NUM_HCW=1024",
+
+                         "+LDB_PP12_Q0_NUM_HCW=1024",
+                         "+LDB_PP12_Q0_LOCK_ID=dddd",
+                         "+LDB_PP12_QTYPE=qatm",
+
+                         ## -- "+LDB_PP13_Q0_NUM_HCW=1024",
+
+                         "+LDB_PP8_Q0_NUM_HCW=1024",
+                         "+LDB_PP8_Q0_LOCK_ID=eeee",
+                         "+LDB_PP8_QTYPE=qatm",
+                         
+                         ## -- "+LDB_PP9_Q0_NUM_HCW=1024",
+
+                         "+LDB_PP16_Q0_NUM_HCW=1024",
+                         "+LDB_PP16_Q0_LOCK_ID=ffff",
+                         "+LDB_PP16_QTYPE=qatm",
+
+                         ## -- "+LDB_PP17_Q0_NUM_HCW=1024",
+
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/hqm_ldb_atm_mapped_q.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                         "+RANDOM_PRI",
+                         "+HQM_EOT_RD_SEQ_ENABLE_CREDIT_CHECK",
+                         "+CHECK_QPRI_LATENCY",
+                         ## -- Plusargs added to disable background and agitate, as it is difficult to check priority latency
+                         "+HQM_DISABLE_BACKGROUND_CFG_GEN_SEQ",
+                         "+HQM_SKIP_AGITATE_SEQ",
+                        ],
+      },
+      atm_fixed_pri => {
+          -simv_args => [
+                         "+LDB_PP20_Q0_NUM_HCW=512",
+                         "+LDB_PP20_Q0_LOCK_ID=0000",
+                         "+LDB_PP20_Q0_INC_LOCK_ID=1",
+                         "+LDB_PP20_QTYPE=qatm",
+                         "+LDB_PP20_COMP_RETURN_DELAY=15000",
+                         
+                         "+LDB_PP21_COMP_RETURN_DELAY=15000",
+
+                         "+LDB_VF0_PP2_Q0_NUM_HCW=512",
+                         "+LDB_VF0_PP2_Q0_LOCK_ID=2222",
+                         "+LDB_VF0_PP2_Q0_INC_LOCK_ID=1",
+                         "+LDB_VF0_PP2_QTYPE=qatm",
+                         "+LDB_VF0_PP2_COMP_RETURN_DELAY=15000",
+
+                         "+LDB_VF0_PP3_COMP_RETURN_DELAY=15000",
+
+                         "+LDB_VF10_PP20_Q0_NUM_HCW=512",
+                         "+LDB_VF10_PP20_Q0_LOCK_ID=4444",
+                         "+LDB_VF10_PP20_INC_LOCK_ID=1",
+                         "+LDB_VF10_PP20_QTYPE=qatm",
+                         "+LDB_VF10_PP20_COMP_RETURN_DELAY=15000",
+
+                         "+LDB_VF10_PP21_COMP_RETURN_DELAY=15000",
+
+                         "+LDB_VF1_PP0_Q0_NUM_HCW=512",
+                         "+LDB_VF1_PP0_Q0_LOCK_ID=6666",
+                         "+LDB_VF1_PP0_INC_LOCK_ID=1",
+                         "+LDB_VF1_PP0_QTYPE=qatm",
+                         "+LDB_VF1_PP0_COMP_RETURN_DELAY=15000",
+
+                         "+LDB_VF1_PP63_COMP_RETURN_DELAY=15000",
+
+                         "+LDB_VF6_PP2_Q0_NUM_HCW=512",
+                         "+LDB_VF6_PP2_Q0_LOCK_ID=8888",
+                         "+LDB_VF6_PP2_INC_LOCK_ID=1",
+                         "+LDB_VF6_PP2_QTYPE=qatm",
+                         "+LDB_VF6_PP2_COMP_RETURN_DELAY=15000",
+
+                         "+LDB_VF6_PP61_COMP_RETURN_DELAY=15000",
+
+                         "+LDB_PP24_Q0_NUM_HCW=512",
+                         "+LDB_PP24_Q0_LOCK_ID=aaaa",
+                         "+LDB_PP24_Q0_INC_LOCK_ID=1",
+                         "+LDB_PP24_QTYPE=qatm",
+                         "+LDB_PP24_COMP_RETURN_DELAY=15000",
+                         
+                         "+LDB_PP25_COMP_RETURN_DELAY=15000",
+
+                         "+LDB_PP14_Q0_NUM_HCW=512",
+                         "+LDB_PP14_Q0_LOCK_ID=cccc",
+                         "+LDB_PP14_Q0_INC_LOCK_ID=1",
+                         "+LDB_PP14_QTYPE=qatm",
+                         "+LDB_PP14_COMP_RETURN_DELAY=15000",
+
+                         "+LDB_PP15_COMP_RETURN_DELAY=15000",
+
+                         "+LDB_PP8_Q0_NUM_HCW=512",
+                         "+LDB_PP8_Q0_LOCK_ID=eeee",
+                         "+LDB_PP8_Q0_INC_LOCK_ID=1",
+                         "+LDB_PP8_QTYPE=qatm",
+                         "+LDB_PP8_COMP_RETURN_DELAY=15000",
+                         
+                         "+LDB_PP9_COMP_RETURN_DELAY=15000",
+
+                         "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/hqm_ldb_atm_mapped_q.cft",
+                         "+HQM_SEQ_CFG2=aceroot/verif/tb/hqm/tests/hqm_functional/hqm_ldb_atm_mapped_q_fixed_pri.cft",
+                         "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                         "+HQM_EOT_RD_SEQ_ENABLE_CREDIT_CHECK",
+                         #"+CHECK_FID_LIMIT",
+                        ],
+      },
+      uno_skewed_pri => {
+          -simv_args => [
+                     "+LDB_PP20_Q0_NUM_HCW=60",
+                     "+LDB_PP21_Q0_NUM_HCW=60",
+                     "+LDB_PP30_Q0_NUM_HCW=60",
+                     "+LDB_PP31_Q0_NUM_HCW=60",
+                     "+LDB_VF0_PP2_Q0_NUM_HCW=60",
+                     "+LDB_VF0_PP3_Q0_NUM_HCW=60",
+                     "+LDB_VF7_PP20_Q0_NUM_HCW=60",
+                     "+LDB_VF7_PP21_Q0_NUM_HCW=60",
+                     "+LDB_VF10_PP20_Q0_NUM_HCW=60",
+                     "+LDB_VF10_PP21_Q0_NUM_HCW=60",
+                     "+LDB_VF15_PP30_Q0_NUM_HCW=60",
+                     "+LDB_VF15_PP31_Q0_NUM_HCW=60",
+                     "+LDB_VF1_PP0_Q0_NUM_HCW=60",
+                     "+LDB_VF1_PP63_Q0_NUM_HCW=60",
+                     "+LDB_PP24_Q0_NUM_HCW=60",
+                     "+LDB_PP25_Q0_NUM_HCW=60",
+                     "+LDB_VF14_PP1_Q0_NUM_HCW=60",
+                     "+LDB_VF14_PP62_Q0_NUM_HCW=60",
+                     "+LDB_PP4_Q0_NUM_HCW=60",
+                     "+LDB_PP5_Q0_NUM_HCW=60",
+                     "+LDB_VF6_PP2_Q0_NUM_HCW=60",
+                     "+LDB_VF6_PP61_Q0_NUM_HCW=60",
+                     "+LDB_VF6_PP3_Q0_NUM_HCW=60",
+                     "+LDB_VF6_PP60_Q0_NUM_HCW=60",
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/hqm_ldb_mapped_q.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                     "+SKEWED_PRI",
+                         "+HQM_EOT_RD_SEQ_ENABLE_CREDIT_CHECK",
+                        ],
+      },
+      uno_fixed_pri => {
+          -simv_args => [
+                     "+LDB_PP20_Q0_NUM_HCW=60",
+                     "+LDB_PP21_Q0_NUM_HCW=60",
+                     "+LDB_PP30_Q0_NUM_HCW=60",
+                     "+LDB_PP31_Q0_NUM_HCW=60",
+                     "+LDB_VF0_PP2_Q0_NUM_HCW=60",
+                     "+LDB_VF0_PP3_Q0_NUM_HCW=60",
+                     "+LDB_VF7_PP20_Q0_NUM_HCW=60",
+                     "+LDB_VF7_PP21_Q0_NUM_HCW=60",
+                     "+LDB_VF10_PP20_Q0_NUM_HCW=60",
+                     "+LDB_VF10_PP21_Q0_NUM_HCW=60",
+                     "+LDB_VF15_PP30_Q0_NUM_HCW=60",
+                     "+LDB_VF15_PP31_Q0_NUM_HCW=60",
+                     "+LDB_VF1_PP0_Q0_NUM_HCW=60",
+                     "+LDB_PP24_Q0_NUM_HCW=60",
+                     "+LDB_PP25_Q0_NUM_HCW=60",
+                     "+LDB_VF14_PP62_Q0_NUM_HCW=60",
+                     "+LDB_PP4_Q0_NUM_HCW=60",
+                     "+LDB_PP5_Q0_NUM_HCW=60",
+                     "+LDB_VF6_PP2_Q0_NUM_HCW=60",
+                     "+LDB_VF6_PP61_Q0_NUM_HCW=60",
+                     "+LDB_VF6_PP3_Q0_NUM_HCW=60",
+                     "+LDB_VF6_PP60_Q0_NUM_HCW=60",
+                     "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/hqm_ldb_mapped_q.cft",
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                         "+HQM_EOT_RD_SEQ_ENABLE_CREDIT_CHECK",
+                        ],
+      },
+      vf_access_nm_pf => {
+         -simv_args => [
+                        "+LDB_VF0_PP2_Q0_NUM_HCW=6",
+                        "+LDB_VF0_PP3_Q0_NUM_HCW=6",
+                        "+LDB_VF7_PP20_Q0_NUM_HCW=6",
+                        "+LDB_VF7_PP21_Q0_NUM_HCW=6",
+                        "+LDB_VF10_PP20_Q0_NUM_HCW=6",
+                        "+LDB_VF10_PP21_Q0_NUM_HCW=6",
+                        "+LDB_VF7_PP20_NM_PF=1",
+                        "+LDB_VF7_PP21_NM_PF=1",
+                        "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/hqm_ldb_mapped_q.cft",
+                        "+HQM_SEQ_CFG2=aceroot/verif/tb/hqm/tests/hqm_functional/hcw_exp_drop_pp10_pp11.cft",
+                        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                       ],
+      },
+      
+      ##------------------------------------------------------------##
+      ##  Agitations 
+      ##------------------------------------------------------------##
+      agitate_fri => {
+          -simv_args => [
+                     "-debug_all -ucli +vcs+dumparrays +HQM_DISABLE_AGITIATE_ASSERT -i aceroot/verif/tb/hqm_proc/tests/agitate/agitate_fri.tcl", 
+                        ],
+      },      
+      agitate_cfg => {
+          -simv_args => [
+                     "-debug_all -ucli +vcs+dumparrays +HQM_DISABLE_AGITIATE_ASSERT -i aceroot/verif/tb/hqm_proc/tests/agitate/agitate_cfg.tcl", 
+                        ],
+      },                   
+      agitate_sys => {
+          -simv_args => [
+                     "-debug_all -ucli +vcs+dumparrays +HQM_DISABLE_AGITIATE_ASSERT -i aceroot/verif/tb/hqm_proc/tests/agitate/agitate_sys.tcl", 
+                        ],
+      },         
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

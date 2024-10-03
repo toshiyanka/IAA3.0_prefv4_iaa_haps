@@ -1,0 +1,279 @@
+#!/bin/tcsh
+
+if ( !($?noInit) ) then
+   goto INIT
+else
+   goto MAIN
+endif
+
+INIT:
+set SIP_TOOL_NAME=`echo $0 | sed -e 's/.*\///'`
+set thisToolName="runPre($SIP_TOOL_NAME)"
+set ignore="NO"
+set debug=0
+set no_env_checks=0
+set flow_equ='default'
+set exitstatus=0
+set guimode=0
+set nb_job_name='runFlow'
+set generate_collateral=0
+set no_run=0
+set no_source=0
+set runPreRan=0
+set clean=0
+set remove=0
+
+pushd ../../
+setenv SBR_DIR $cwd
+set sbrdir=$cwd
+popd
+
+if( $?SIP_IP_NAME ) then
+   set ipname=$SIP_IP_NAME
+else
+   set ipname=""
+endif
+if( $?SIP_CONF_NAME ) then
+   set config=$SIP_CONF_NAME
+else
+   set config=""
+endif
+if( $?SIP_COMP_NAME ) then
+   set component=$SIP_COMP_NAME
+else
+   set component=""
+endif
+if( $?PUNI_PREFIX ) then
+   set puniprefix=$PUNI_PREFIX
+else
+   set puniprefix=""
+endif
+if( $?DYN_OPT ) then
+   set dynopt=$DYN_OPT
+else
+   set dynopt="nonDyn"
+endif
+
+goto MAIN
+
+EXIT:
+if( $debug == 1 ) echo "${thisToolName} -D- Completed with status code (${exitstatus})"
+set thisToolName=$SIP_TOOL_NAME
+if( $debug == 1 ) echo "${thisToolName} -D- Restored thisToolName to ${thisToolName}"
+exit $exitstatus
+
+ERROR:
+set exitstatus=1
+goto EXIT
+
+HELP:
+echo "================================================================================"
+echo " usage: source ${thisToolName}"
+echo "--------------------------------------------------------------------------------"
+echo "       COMMAND      INPUT         DETAILS                                       "
+echo "--------------------------------------------------------------------------------"
+echo "       -help OR -h                  Displays this help text"
+echo "       -debug                       Debug text enabled. Program returns with the"
+echo "                                    variable 'debug'"
+echo "       -ip_name     <ipname>        Set environment variable SIP_IP_NAME to"
+echo "                                    <ipname>. Program returns with the variable"
+echo "                                    'ipname'"
+echo "       -config      <config>        Set environment variable SIP_CONF_NAME to"
+echo "                                    <config>. Program returns with the variable"
+echo "                                    'config'"
+echo "       -component   <component>     Set environment variable SIP_COMP_NAME to"
+echo "                                    <component>. Program returns with the"
+echo "                                    variable 'component'"
+echo "       -puni_prefix <puniprefix>    Set environment variable PUNI_PREFIX to"
+echo "                                    <puniprefix>. Program returns with the"
+echo "                                    variable 'puniprefix'"
+echo "       -dyn_opt     <dyn_opt>       Sets environment variable DYN_OPT to"
+echo "                                    <dyn_opt>. Program returns with the variable"
+echo "                                    'dynopt'"
+echo "       -flow_equ    <flow_equ>      Select what flow equation to run"
+echo "                                    (mini/default/full). Program returns with"
+echo "                                    the variable 'flow_equ'"
+echo "       -tool_name   <SIP_TOOL_NAME> Set the tool name to match the actual tool"
+echo "                                    called for more accurate messages. Program"
+echo "                                    returns with the variable 'SIP_TOOL_NAME'."
+echo "                                    Program returns with the variable"
+echo "                                    thisToolName."
+echo "       -no_env_checks               Disables basic Sideband environment variable"
+echo "                                    checks. Assumes these are handled outside"
+echo "                                    of ${thisToolName}"
+echo "       -gui                         Starts up the called program in GUI mode,"
+echo "                                    assuming it has one. Program returns with "
+echo "                                    the variable guimode."
+echo "       -nb_job_name <name>          Provides a prefix to be preppended to "
+echo "                                    job names for netbatch jobs spawned by "
+echo "                                    runFlow. "
+echo "       -generate_collateral         Run tool file to generate relavent"
+echo "                                    collateral to that tool and configuration"
+echo "       -no_run                      Do not execute"
+echo "       -no_source                   Prevent the tool script from calling the"
+echo "                                    source scripts. Otherwise, some tools"
+echo "                                    may automatically call setup again."
+echo "       -clean                       Cleans the current instance of the tool."
+echo "       -remove                      Remove all files related to the current"
+echo "                                    instances of the tool."
+echo "================================================================================"
+goto EXIT
+
+MAIN:
+
+# Set the default toolname
+set targ=""
+
+############
+# Switches #
+############
+foreach arg ($argv)
+   # Stripping off qoutes to work around tcsh cmdline limitaitons
+   set arg=`echo $arg | sed -e s/\'//g -e s/\"//g`
+
+   if( $debug == 1 ) echo "${thisToolName} -D- Parsing input argument $arg ($ignore)"
+
+   if( $ignore != 'NO' ) then
+      if( "$arg" =~ -?* ) then
+         if( $debug == 1 ) echo "${thisToolName} -D- Switch $arg not expected ($ignore)"
+         set targ=$arg
+         set arg=""
+      endif
+   endif
+
+   if( $ignore == 'ip_name' ) then
+      setenv SIP_IP_NAME $arg
+      set ipname=$arg
+      if( $debug == 1 ) echo "${thisToolName} -D- SIP_IP_NAME overridden to $ipname"
+   else if( $ignore == 'config' ) then
+      setenv SIP_CONF_NAME $arg
+      set config=$arg
+      if( $debug == 1 ) echo "${thisToolName} -D- SIP_CONF_NAME overridden to $config"
+   else if( $ignore == 'component' ) then
+      setenv SIP_COMP_NAME $arg
+      set component=$arg
+      if( $debug == 1 ) echo "${thisToolName} -D- SIP_COMP_NAME overridden to $component"
+   else if( $ignore == 'puni_prefix' ) then
+      setenv PUNI_PREFIX $arg
+      set puniprefix=$arg
+      if( $debug == 1 ) echo "${thisToolName} -D- PUNI_PREFIX overridden to $puniprefix"
+   else if( $ignore == 'nb_job_name' ) then
+      set nb_job_name=$arg
+      if( $debug == 1 ) echo "${thisToolName} -D- nb_job_name set to $nb_job_name"
+   else if( $ignore == 'flow_equ' ) then
+      if( $arg == 'short' || $arg == 'default' || $arg == 'full' ) then
+         set flow_equ=$arg
+      else
+         echo "${thisToolName} -E- Regression input argument $arg is not a valid selection"
+         goto ERROR
+      endif
+      if( $debug == 1 ) echo "$thisToolName -D- Regression overridden to $flow_equ"
+   else if( $ignore == 'tool_name' ) then
+      set SIP_TOOL_NAME=`echo $arg | sed -e 's/.*\///'`
+      set thisToolName="runPre($SIP_TOOL_NAME)"
+      # Need to set thisToolName again on the way out to give access to the children.
+      if( $debug == 1 ) echo "${thisToolName} -D- SIP_TOOL_NAME overridden to $SIP_TOOL_NAME"
+   else if( $ignore == 'dyn_opt' ) then
+      setenv DYN_OPT $arg
+      set dynopt=$arg
+      if( $debug == 1 ) echo "${thisToolName} -D- Dynamo option overridden to $dynopt"
+   endif
+
+   if( "$targ" != "" ) then
+      if( $debug == 1 ) echo "${thisToolName} -D- Restoring switch $targ"
+      set arg=$targ
+      set targ=""
+      set ignore="NO"
+   endif
+
+   if ( $ignore == 'NO' ) then
+      if ( "$arg" == '-ip_name' ) then
+         set ignore='ip_name'
+      else if ( "$arg" == '-config' ) then
+         set ignore='config'
+      else if ( "$arg" == '-component' ) then
+         set ignore='component'
+      else if ( "$arg" == '-puni_prefix' ) then
+         set ignore='puni_prefix'
+      else if ( "$arg" == '-nb_job_name' ) then
+         set ignore='nb_job_name'
+      else if ( "$arg" == '-dyn_opt' ) then
+         set ignore='dyn_opt'
+      else if ( "$arg" == '-flow_equ' ) then
+         set ignore='flow_equ'
+      else if ( "$arg" == '-debug' ) then
+         set debug=1
+         if ( $debug == 1 ) echo "${thisToolName} -D- Debug Mode Enabled"
+      else if ( "$arg" == '-clean' ) then
+         set clean=1
+         if ( $debug == 1 ) echo "${thisToolName} -D- Clean Tool"
+      else if ( "$arg" == '-remove' ) then
+         set remove=1
+         if ( $debug == 1 ) echo "${thisToolName} -D- Remove Tool"
+      else if ( "$arg" == '-h' || "$arg" == '-help' ) then
+         goto HELP
+      else if ( "$arg" == '-tool_name' ) then
+         set ignore='tool_name'
+      else if ( "$arg" == '-no_env_checks' ) then
+         set no_env_checks=1
+         if ( $debug == 1 ) echo "${thisToolName} -D- No Environment Mode Checking Enabled"
+      else if ( "$arg" == '-gui' ) then
+         set guimode=1
+         if ( $debug == 1 ) echo "${thisToolName} -D- GUI Mode Enabled"
+      else if ( "$arg" == '-generate_collateral' ) then
+         set generate_collateral=1
+         if ( $debug == 1 ) echo "${thisToolName} -D- Generate Collateral"
+      else if ( "$arg" == '-no_run' ) then
+         set no_run=1
+         if ( $debug == 1 ) echo "${thisToolName} -D- Do not run"
+      else if ( "$arg" == '-no_source' ) then
+         set no_source=1
+         if ( $debug == 1 ) echo "${thisToolName} -D- Do not source setup"
+      else
+         echo "${thisToolName} -W- The input $arg is an unknown command"
+      endif
+   else
+      set ignore='NO'
+      if ( $debug == 1 ) echo "${thisToolName} -D- ignore cleared to 'NO'"
+   endif
+end
+      
+#########################################
+# Define variables
+#########################################
+
+setenv SIP_PWD $cwd
+if( $no_env_checks == 0 ) then
+   if (! $?SIP_IP_NAME) then
+     setenv SIP_IP_NAME sbr
+   endif
+   if (! $?SIP_CONF_NAME) then
+      setenv SIP_CONF_NAME sbr
+   endif
+   if (! $?SIP_COMP_NAME) then
+     setenv SIP_COMP_NAME sbr0
+   endif
+   if (! $?PUNI_PREFIX) then
+      setenv PUNI_PREFIX ""
+   endif
+   if (! $?DYN_OPT) then
+     setenv DYN_OPT nonDyn
+   endif
+endif
+
+# Error out if setup has not been called
+if (! $?SBC_SETUP_HAS_BEEN_CALLED) then
+   if ($thisToolName != "runPre(runConfig)" && $thisToolName != "runPre(runFullConfig)") then
+      echo "${thisToolName} -E- Please source setup prior to running scripts"
+      exit (-1)
+   endif
+endif
+
+if (! $?SIP_TOOL_VARIATION) then
+   echo "${thisToolName} -I- Running with default tool variation"
+else
+   echo "${thisToolName} -I- Running with tool variation: ${SIP_TOOL_VARIATION}"
+endif
+
+goto EXIT
+

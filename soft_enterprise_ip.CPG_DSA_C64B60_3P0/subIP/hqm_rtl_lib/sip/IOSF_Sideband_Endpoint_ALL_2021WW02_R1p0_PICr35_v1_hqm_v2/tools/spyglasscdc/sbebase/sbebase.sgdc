@@ -1,0 +1,169 @@
+current_design sbebase
+# Clock information:
+######################################### 
+
+# The helper script runSGCDC in scripts/qa will set/unset this parameter depending on the EP config
+setvar async 0
+setvar rp 0
+setvar bulkrdwr 0
+
+
+clock -name "side_clk"   -domain SIDE_CLK -tag SIDE_CLK
+# the domain and tag for agent_clk will be replaced by the scripts/qa/runSGCDC script when running ASYNC/SYNC configs
+# if running standalone or directly, this will have to be changed to either SIDE_CLK or AGENT_CLK manually depending on SYNC/ASYNC
+
+if {$async == 1} {
+    clock -name "agent_clk"   -domain AGENT_CLK -tag AGENT_CLK
+} else {
+    clock -name "agent_clk"   -domain SIDE_CLK -tag SIDE_CLK
+}
+
+clock -name "visa_ser_cfg_in[0]"   -domain VISACFGCLK_GROUP -tag VISACFGCLK_GROUP
+
+reset -name "side_rst_b" -value 0
+reset_filter_path -type rdc -from_rst side_rst_b
+reset -name "agent_side_rst_b_sync" -value 0
+
+reset_filter_path -type reset_sync02 -from_rst side_rst_b -to_clock side_clk
+
+filter_async_reset_deassert -name sbebase.i_sbcasyncclkreq_side_clk.clkreq_old
+
+if {$bulkrdwr == 1} {
+   reset_sense -pins "\gen_rata.gen_bulk_widget.sbebulkrdwrwrapper .treg_irdy"
+}
+
+# not an interface reset.
+#reset -name "agent_rst_b_sync" -value 0
+#If the capture clock of a seq is guaranteed to be off when the reset deasserts, then no contention (and metastability) occurs
+#reset_filter_path -type reset_sync02 -from_rst RST -to_clock CLK
+
+## async_clkreq_rst is (from sbcasynclkreq) = (rst_b & ~( clkgated & wake ), where rst_b is the side_rst_b. For asyn_clkreq_rst_b = 0, (reset is in effect), rst_b = 0 or clkgated is 1 or wake is 1. In all these cases, ==> gated clk (capture clk) doesn't toggle ==> no contention or no metastability.
+#reset_filter_path -type reset_sync02 -from_rst sbebase.i_sbcasyncclkreq_side_clk.async_clkreq_rst_b -to_clock side_clk
+
+
+reset_filter_path -type reset_sync02 -from_rst side_rst_b -to_clock side_clk
+
+
+#quasi_static -name "jta_*"
+#quasi_static -name "cgctrl_clk*"
+quasi_static -name "usyncselect"
+quasi_static -name "fdfx_sbparity_def"
+quasi_static -name "global_ep_strap"
+
+current_design sbebase 
+
+quasi_static -name "fscan_clkungate"
+quasi_static -name "fscan_latchclosed_b"
+set_case_analysis -name fscan_rstbypen -value 0
+#set_case_analysis -name fscan_mode -value 0
+
+if {$async == 1} {
+    if {$rp == 1} {
+        current_design sbcasyncfifo
+        qualifier \
+            -enable   "sbcasyncegress.qempty==1 && sbcasyncegress.npqempty==1" \
+            -from_obj "sbcasyncingress.\rp_based_impl.i_vram2 .\byte_enable*.i_sb_vram_genram_bees_knees .latched_data*" \
+            -to_clk   "gated_egr_side_clk"
+
+    } else {
+        current_design sbcasyncfifo
+        qualifier \
+            -enable   "sbcasyncegress.qempty==1 && sbcasyncegress.npqempty==1" \
+            -from_obj "sbcasyncingress.\non_rp_based_impl.gen_flop_queue*.i_sbcfifo .fifo" \
+            -to_clk   "gated_egr_side_clk"
+    }
+}
+
+#=================================================
+
+#           ABSTRACT PORT INFORMATION             
+
+#=================================================
+
+current_design sbebase 
+
+# side_rst_b is needed for async modes - so change it using the runSGCDC script
+abstract_port -ports "side_rst_b" -clock "VCLK_sbendpoint_side_rst_b" -direction input -combo no
+abstract_port -ports "agent_side_rst_b_sync" -clock "VCLK_sbendpoint_agent_side_rst_b_sync" -direction input
+
+abstract_port -ports "side_usync" -clock "side_clk" -direction input
+abstract_port -ports "agent_usync" -clock "agent_clk" -direction input
+abstract_port -ports "cgctrl_idlecnt" -clock "agent_clk" -direction input
+# similar to agent_clkreq/agent_idle on sbendpoint
+abstract_port -ports "sbi_sbe_clkreq" -clock "agent_clk" -direction input
+abstract_port -ports "sbi_sbe_idle" -clock "agent_clk" -direction input
+abstract_port -ports "side_ism_fabric" -clock "side_clk" -direction input
+abstract_port -ports "side_ism_lock_b" -clock "side_clk" -direction input
+abstract_port -ports "side_clkack" -clock "VCLK_sbebase_side_clkack" -direction input -combo no
+
+abstract_port -ports "mpccup" -clock "side_clk" -direction input
+abstract_port -ports "mnpcup" -clock "side_clk" -direction input
+abstract_port -ports "tpcput" -clock "side_clk" -direction input
+abstract_port -ports "tnpput" -clock "side_clk" -direction input
+abstract_port -ports "teom" -clock "side_clk" -direction input
+abstract_port -ports "tpayload" -clock "side_clk" -direction input
+abstract_port -ports "tparity" -clock "side_clk" -direction input
+
+abstract_port -ports "sbi_sbe_tmsg_pcfree" -clock "agent_clk" -direction input
+abstract_port -ports "sbi_sbe_tmsg_npfree" -clock "agent_clk" -direction input
+abstract_port -ports "sbi_sbe_tmsg_npclaim" -clock "agent_clk" -direction input
+abstract_port -ports "ur_csairs_valid" -clock "agent_clk" -direction input
+abstract_port -ports "ur_csai" -clock "agent_clk" -direction input
+abstract_port -ports "ur_crs" -clock "agent_clk" -direction input
+abstract_port -ports "sbi_sbe_mmsg_pcirdy" -clock "agent_clk" -direction input
+abstract_port -ports "sbi_sbe_mmsg_npirdy" -clock "agent_clk" -direction input
+abstract_port -ports "sbi_sbe_mmsg_pceom" -clock "agent_clk" -direction input
+abstract_port -ports "sbi_sbe_mmsg_npeom" -clock "agent_clk" -direction input
+abstract_port -ports "sbi_sbe_mmsg_pcpayload" -clock "agent_clk" -direction input
+abstract_port -ports "sbi_sbe_mmsg_nppayload" -clock "agent_clk" -direction input
+abstract_port -ports "sbi_sbe_mmsg_pcparity" -clock "agent_clk" -direction input
+abstract_port -ports "sbi_sbe_mmsg_npparity" -clock "agent_clk" -direction input
+abstract_port -ports "tx_ext_headers" -clock "agent_clk" -direction input
+abstract_port -ports "do_serr_hier_dstid_strap" -clock "agent_clk" -direction input
+abstract_port -ports "do_serr_srcid_strap" -clock "agent_clk" -direction input
+abstract_port -ports "do_serr_dstid_strap" -clock "agent_clk" -direction input
+abstract_port -ports "do_serr_tag_strap" -clock "agent_clk" -direction input
+abstract_port -ports "global_ep_strap" -clock "agent_clk" -direction input
+abstract_port -ports "do_serr_sairs_valid" -clock "agent_clk" -direction input
+abstract_port -ports "do_serr_sai" -clock "agent_clk" -direction input
+abstract_port -ports "do_serr_rs" -clock "agent_clk" -direction input
+abstract_port -ports "ext_parity_err_detected" -clock "agent_clk" -direction input
+abstract_port -ports "fdfx_sbparity_def" -clock "agent_clk" -direction input
+abstract_port -ports "visa_all_disable" -clock "visa_ser_cfg_in[0]" -direction input
+abstract_port -ports "visa_customer_disable" -clock "visa_ser_cfg_in[0]" -direction input
+abstract_port -ports "visa_ser_cfg_in[2:1]" -clock "visa_ser_cfg_in[0]" -direction input
+
+## output ports constrained bcos of tool not recognising?
+#abstract_port -ports "sbe_sbi_mmsg_pctrdy" -clock "agent_clk" -direction output
+#abstract_port -ports "sbe_sbi_mmsg_nptrdy" -clock "agent_clk" -direction output
+## these should be on visa clk. but since EP is delivered pre visa, this is ok
+#abstract_port -ports "visa_port_tier2_sb[mnpput]" -clock "side_clk" -direction output
+#abstract_port -ports "visa_port_tier2_sb[mpcput]" -clock "side_clk" -direction output
+## FIFO wasnt being recognised. Qualifiers will need to be checked
+#abstract_port -ports "sbe_sbi_tmsg_npparity" -clock "agent_clk" -direction output
+#abstract_port -ports "sbe_sbi_tmsg_npvalid" -clock "agent_clk" -direction output
+#abstract_port -ports "sbe_sbi_tmsg_pcparity" -clock "agent_clk" -direction output
+#abstract_port -ports "sbe_sbi_tmsg_pcvalid" -clock "agent_clk" -direction output
+
+## output ports constrained bcos of tool needs this info to check CDC correctly. The qualifier for the cross clock ends before this signal generates and the tool is not able to relate that these signals are from the same qualifier.
+## The payload and eom must be qualified with the put. It is to the user to use put as the qualifier as they are not qualified by the fifo's qualifiers
+abstract_port -ports "sbe_sbi_tmsg_pcput" -clock "agent_clk" -direction output -override
+abstract_port -ports "sbe_sbi_tmsg_pceom" -clock "agent_clk" -direction output -override
+abstract_port -ports "sbe_sbi_tmsg_pcpayload*" -clock "agent_clk" -direction output -override
+abstract_port -ports "sbe_sbi_tmsg_npput" -clock "agent_clk" -direction output -override
+abstract_port -ports "sbe_sbi_tmsg_npeom" -clock "agent_clk" -direction output -override
+abstract_port -ports "sbe_sbi_tmsg_nppayload*" -clock "agent_clk" -direction output -override
+
+#abstract_port -ports "sbe_sbi_tmsg_pccmpl" -clock "agent_clk" -direction output
+##Visa FIFO output signals
+#abstract_port -ports "visa_fifo_tier*_ag*" -clock "side_clk" -direction output
+#abstract_port -ports "visa_fifo_tier*_sb*" -clock "side_clk" -direction output
+##Tool doesnt recognise double sync on ext_parity_err_detected/port_idle_ff etc.
+#abstract_port -ports "sbe_sbi_clkreq" -clock "agent_clk" -direction output
+#abstract_port -ports "sbe_sbi_idle" -clock "agent_clk" -direction output
+
+
+#############
+#   VISA    
+#############
+

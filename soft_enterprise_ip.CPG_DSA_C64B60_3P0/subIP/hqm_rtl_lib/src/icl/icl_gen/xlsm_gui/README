@@ -1,0 +1,30 @@
+# If not found in the local run dir, by default, tap_udp.rdl file from tap_icl_gen repo is used
+# This behaviour can be change by setting env variable $NEBULON_DIR, for xample
+   setenv NEBULON_DIR /p/hdk/rtl/cad/x86-64_linux30/dt/nebulon/d20ww10.1
+# or by providing pointer to the folder with the desired file using -U option
+
+# Run example, ICL output
+tap_icl_gen.pl -inp test1.rdl -icl -hdr test_hdr.icl -debug 1 -type addrmap -name test -pre ip -suf v1 -debug 1 > run.log
+
+# Run example, RDL output
+tap_icl_gen.pl -inp test1.rdl -rdl -debug 1 -type addrmap -name test -debug 1 > run.log
+
+# Notes: 
+#   1. -icl & -rdl options can be provided simultaneously
+#   2. -type/-name options are required only if target component isn't the top in input RDL file
+#   3. -pre/-suf are optional and supported for ICL definiton names uniquification
+
+# in Tessent shell
+SETUP> dofile ts_test_read_icl.dofile 
+SETUP> dofile ts_test_gen_tb.dofile 
+
+#Using xlsm GUI
+# Run example, ICL output
+tap_icl_gen.pl -inp xlsm -icl -debug 1 -type addrmap -name test -pre ip -suf v1 -debug 1 > run.log
+
+# Run example, RDL output
+tap_icl_gen.pl -inp xlsm -rdl -debug 1 -type addrmap -name test -debug 1 > run.log
+
+#Notes:
+The ICL_Generation_Tool.xlsm has parameter sheet, the above commands has higer priority over the parameter sheet.
+ex: if switch -pre is not provided in command then the preix will be taken from the parameter sheet.  

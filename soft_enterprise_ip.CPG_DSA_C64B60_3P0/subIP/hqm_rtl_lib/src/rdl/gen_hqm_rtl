@@ -1,0 +1,49 @@
+osetup nebulon
+setenv PATH ${NEBULON_DIR}/bin:${PATH}
+
+nebulon -input hqm_pf_cfg.rdl           -no_headers -sverilog -I "$NEBULON_DATA/include . ../../subIP/sip/AW/src/rdl" -out_dir .
+
+if ($status != 0) then
+  echo "$0 Error: hqm_pf_cfg.rdl nebulon command failed"
+  exit
+endif
+
+cp output/sverilog/hqm_pf_cfg.sv                ../rtl/system
+cp output/sverilog/hqm_pf_cfg_pkg.vh            ../rtl/system
+cp output/sverilog/rtlgen_include_hqm_pf_cfg.vh ../rtl/system
+cp output/sverilog/rtlgen_pkg_hqm_pf_cfg.vh     ../rtl/system
+
+nebulon -input hqm_pf_cfg_fpga.rdl      -no_headers -sverilog -I "$NEBULON_DATA/include . ../../subIP/sip/AW/src/rdl" -out_dir .
+
+if ($status != 0) then
+  echo "$0 Error: hqm_pf_cfg_fpga.rdl nebulon command failed"
+  exit
+endif
+
+cp output/sverilog/hqm_pf_cfg.sv        ../rtl/system/hqm_pf_cfg_fpga.sv
+cp output/sverilog/hqm_pf_cfg_pkg.vh    ../rtl/system/hqm_pf_cfg_pkg_fpga.vh
+
+nebulon -input hqm_msix_mem.rdl         -no_headers -sverilog -I "$NEBULON_DATA/include . ../../subIP/sip/AW/src/rdl" -out_dir .
+
+if ($status != 0) then
+  echo "$0 Error: hqm_msix_mem.rdl nebulon command failed"
+  exit
+endif
+
+cp output/sverilog/hqm_msix_mem.sv                      ../rtl/system
+cp output/sverilog/hqm_msix_mem_pkg.vh                  ../rtl/system
+cp output/sverilog/rtlgen_include_hqm_msix_mem_map.vh   ../rtl/system
+cp output/sverilog/rtlgen_pkg_hqm_msix_mem_map.vh       ../rtl/system
+
+nebulon -input hqm_system_csr.rdl       -no_headers -sverilog -I "$NEBULON_DATA/include . ../../subIP/sip/AW/src/rdl" -out_dir .
+
+if ($status != 0) then
+  echo "$0 Error: hqm_system_csr.rdl nebulon command failed"
+  exit
+endif
+
+cp output/sverilog/hqm_system_csr.sv                    ../rtl/system
+cp output/sverilog/hqm_system_csr_pkg.vh                ../rtl/system
+cp output/sverilog/rtlgen_include_hqm_system_csr_map.vh ../rtl/system
+cp output/sverilog/rtlgen_pkg_hqm_system_csr_map.vh     ../rtl/system
+

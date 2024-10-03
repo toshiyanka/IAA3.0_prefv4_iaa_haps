@@ -1,0 +1,76 @@
+<% use security; %>
+<% my %Security_Props = security::GetSecurityInfo(); %>
+
+  reg cfg_reset_vf_start_wo_r {
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      IntelRsvd=false;
+      donttest=true;
+      diag_reg=true;
+      name = "Cfg Reset Vf Start";
+      desc = "WRITE ONLY : INITIATES BROADCAST WRITE
+[br]TYPE ENUM:
+[br]([07:04]==3'd0 ) : LDB_CQ
+[br]([07:04]==3'd1 ) : LDB_QID
+[br]([07:04]==3'd2 ) : LDB_POOL
+[br]([07:04]==3'd8 ) : DIR_CQ
+[br]([07:04]==3'd9 ) : DIR_QID
+[br]([07:04]==3'd10) : DIR_POOL
+";
+      regwidth = 32;
+      shared;
+      HandCoded=true;
+      field { fieldwidth = 1; name = "Vf Reset Start"; desc = "BCAST: VF Reset Start"; AccessType = "WO"; PowerWell="vccsa"; IntelRsvd=false;} VF_RESET_START[0:0] = 1'h0;
+      field { fieldwidth = 3; name = "Reserved.";      desc = "Reserved"; AccessType = "WO"; PowerWell="vccsa"; IntelRsvd=false;} RESERVED[3:1] = 3'h0;
+      field { fieldwidth = 4; name = "Vf Reset Type";  desc = "VF Reset Type"; AccessType = "WO";  PowerWell="vccsa"; IntelRsvd=false;} VF_RESET_TYPE[07:04] = 4'h0;
+      field { fieldwidth = 24; name = "Vf Reset Id";    desc = "VF Reset ID";  AccessType = "WO";  PowerWell="vccsa"; IntelRsvd=false;} VF_RESET_ID[31:08] = 24'h0;
+  };
+  reg cfg_unit_timeout_wo_r {
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      IntelRsvd=false;
+      donttest=true;
+      diag_reg=true;
+      name = "Cfg Reset Reserved_01";
+      desc = "WRITE ONLY : INITIATES BROADCAST WRITE";
+      regwidth = 32;
+      shared;
+      HandCoded=true;
+      field { fieldwidth = 1; name = "Cfg Timeout Enable";    desc = "sub module config timeout enable"; AccessType = "WO"; PowerWell="vccsa"; IntelRsvd=false;} CFG_TIMEOUT_ENABLE[31:31] = 1'h1;
+      field { fieldwidth = 11; name = "Reserved";              desc = "Reserved.";  AccessType = "WO";  PowerWell="vccsa"; IntelRsvd=false;} RESERVED[30:20] = 11'h0;
+      field { fieldwidth = 20; name = "Cfg Timeout Threshold"; desc = "sub module config timeout threshold";  AccessType = "WO";  PowerWell="vccsa"; IntelRsvd=false;} CFG_TIMEOUT_THRESHOLD[19:0] = 20'h7ffff;
+  } ;
+
+  reg cfg_reset_reserved_02_wo_r {
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      IntelRsvd=false;
+      donttest=true;
+      diag_reg=true;
+      name = "Cfg Reset Reserved_02";
+      desc = "WRITE ONLY : INITIATES BROADCAST WRITE";
+      regwidth = 32;
+      shared;
+      HandCoded=true;
+      field { fieldwidth = 32; name = "Reserved.";    desc = "Reserved"; AccessType = "WO"; PowerWell="vccsa"; IntelRsvd=false;} RESERVED[31:0] = 32'h0;
+  } ;
+
+  reg cfg_unit_version_wo_r {
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      IntelRsvd=false;
+      donttest=true;
+      diag_reg=true;
+      name = "Cfg Unit Version";
+      desc = "WRITE ONLY : INITIATES BROADCAST WRITE";
+      regwidth = 32;
+      shared;
+      HandCoded=true;
+      field { fieldwidth = 8; name = "Unit version";desc = "unit version number. Writes to this field have no effect."; AccessType = "WO";  PowerWell="vccsa"; IntelRsvd=false;} UNIT_VERSION[31:24] ;
+      field { fieldwidth = 24; name = "Spare.";    desc = "scratch area. broadcsast writable"; AccessType = "WO";  PowerWell="vccsa"; IntelRsvd=false;} SPARE[23:0] = 24'h0;
+  } ;
+

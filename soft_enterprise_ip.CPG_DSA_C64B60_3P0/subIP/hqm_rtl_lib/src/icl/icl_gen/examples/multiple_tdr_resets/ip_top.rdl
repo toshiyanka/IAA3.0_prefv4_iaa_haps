@@ -1,0 +1,29 @@
+// IP TAP RDL example:
+//    Two TAP controllers and two individual TDR registers
+// Three power/reset domains:
+//   - PWRGOOD
+//   - PWRGOOD_D1
+//   - PWRGOOD_D2
+//  tap2 and its TDR's are TLR/TRST reset only
+
+`include "ip_tap1_d1.rdl"
+`include "ip_tap2_tlr.rdl"
+`include "ip_rtdr.rdl"
+
+addrmap ip_top {
+   name = "IP Top";
+   desc = "IP Top description";
+
+   // Instances of TAPs
+   ip_tap1_def tap1;
+   ip_tap2_def tap2;
+
+  // Instances of individual TDR registers (with dedicated interfaces at IP level)
+   // Represented by addrmap with TapType="reg_only"
+   ip_rtdr_def individual_tdrs;
+
+   // Additional register power domains/reset overrides at integration level
+   tap1.regA2 -> TapRegResetType = "PWRGOOD_D2";
+   individual_tdrs.regB -> TapRegResetType = "PWRGOOD_D2";
+
+ };

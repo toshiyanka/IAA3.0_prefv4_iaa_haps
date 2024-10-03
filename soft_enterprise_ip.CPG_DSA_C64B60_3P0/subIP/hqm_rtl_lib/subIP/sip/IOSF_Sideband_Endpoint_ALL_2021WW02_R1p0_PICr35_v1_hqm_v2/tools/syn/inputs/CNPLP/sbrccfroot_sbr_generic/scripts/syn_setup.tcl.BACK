@@ -1,0 +1,127 @@
+################################################################################
+# Intel Top Secret
+################################################################################
+# Copyright (C) 2010, Intel Corporation.  All rights reserved.
+#
+# This is the property of Intel Corporation and may only be utilized
+# pursuant to a written Restricted Use Nondisclosure Agreement
+# with Intel Corporation.  It may not be used, reproduced, or
+# disclosed to others except in accordance with the terms and
+# conditions of such agreement.
+################################################################################
+# Description:
+# This file is setting up key P1273 RDT FLOW PROCEDURES
+# USER - PLEASE DO NOT MODIFY THIS FILE
+#        DONOT DEFINE any synopsys native variable setting or any G_* variable setting
+#
+
+alias rt "report_timing -sort_by slack -significant_digits 4  -transition_time -nets -input_pins -capacitance  -delay_type max -attributes -enable_preset_clear_arcs "
+
+puts "=I= defined shell vars"
+foreach var [list REPO_ROOT IP_RELEASE VISAROOT SCX_ROOT SOC_ROOT HIP_RELEASE] {
+   if {[info exists env($var)]} {
+      puts "=I= $var = $env($var)"
+   } else {
+      puts "=I= $var = <not defined>"
+   }
+}
+
+if { [getvar -quiet G_DESIGN_NAME] eq "" && [info exists env(DBB)] } {
+   setvar G_DESIGN_NAME $env(DBB)
+}
+
+
+
+rdt_source_if_exists dc_vars.tcl -inclusive
+rdt_print_info "######## Synopsys Build Information ########"
+rdt_print_info "Product Version:  $::sh_product_version"
+rdt_print_info "Build Date:       $::product_build_date"
+rdt_print_info "############################################\n"
+file mkdir [getvar G_OUTPUTS_DIR]
+file mkdir [getvar G_REPORTS_DIR]
+file mkdir [getvar G_SCRIPTS_DIR]
+file mkdir [getvar G_INPUTS_DIR]
+rdt_get_license Test-Compiler
+rdt_get_license Power-Optimization
+rdt_get_license DesignWare
+
+### Synopsys specific variable settings
+rdt_print_info "Enabling fuzzy_query_matching rule"
+rdt_print_info "-regsub {{-all} {/} {_}} -regsub {{-all} {__+} {_}} -regsub {{-all} {_+$} {}} -regsub_cumulative"
+set_fuzzy_query_options -regsub {{-all} {/} {_}} -regsub {{-all} {__+} {_}} -regsub {{-all} {_+$} {}} -regsub_cumulative
+set fuzzy_matching_enabled true
+
+# Start SAIF mapping handling database to track RTL and Netlist changes
+rdt_print_info "Enabling SAIF mapping database tracking"
+saif_map -start
+
+# Set pin name synonyms to enable matching of rtl level pin names with mapped netlist pin names
+rdt_print_info "Setting pin synonyms to match rtl pin names to netlist pin names"
+# To debug any synonym matching this variable should be set to true, false by default to not clutter logfile
+set_app_var synonym_pin_query_verbose false
+remove_pin_name_synonym -all
+set_pin_name_synonym ck clocked_on
+set_pin_name_synonym clk clocked_on
+set_pin_name_synonym clkb clocked_on
+set_pin_name_synonym d next_state
+set_pin_name_synonym db next_state
+set_pin_name_synonym o Q
+set_pin_name_synonym rb clear 
+set_pin_name_synonym psb preset 
+
+## For syn_de link to dc.log and map the reports list to syn_de reports
+if { [getvar -quiet G_FLOW] == "syn_de" } {
+   if {[file exists logs/dc.log]} {file delete -force logs/dc.log}
+   sh ln -s [file tail $sh_output_log_file] logs/dc.log
+
+   if {[getvar -quiet -names G_SYN_DE_REPORTS] ne ""} { 
+      rdt_print_info "SYN_DE_REPORTS has been replaced with  SYN_REPORTS variable and will be ignored."
+   }
+   foreach var [getvar -names G_SYN_REPORTS] {
+      setvar G_SYN_DE_REPORTS($var) [getvar G_SYN_REPORTS($var)]
+   }
+}
+
+### syn_utils file
+rdt_source_if_exists syn_utils.tcl -inclusive
+
+### source library setup file
+# NOMAN foreach type [getvar G_LOAD_LIBRARY_LIST] {
+# NOMAN    rdt_source_if_exists library_${type}.tcl -require -inclusive
+# NOMAN } 
+
+puts "NOMAN claling library_e05\n"
+
+  rdt_source_if_exists library_e05.tcl -require -inclusive
+### source reports and utilities
+rdt_source_if_exists reports_utils.tcl -inclusive
+
+### source design qor report
+rdt_source_if_exists design_qor_report.tcl -inclusive
+
+### source reports & outputs definitions and configurations file
+rdt_source_if_exists syn_reports_and_outputs.tcl -inclusive
+
+set_vsdc [getvar G_OUTPUTS_DIR]/[getvar G_DESIGN_NAME].vsdc
+set_svf [getvar G_OUTPUTS_DIR]/[getvar G_DESIGN_NAME].svf
+
+# If in topo mode, make the milkyway library
+if {[shell_is_in_topographical_mode]} {
+   rdt_source_if_exists build_milkyway_library.tcl -require
+} else {
+   rdt_source_if_exists wlm.tcl -require
+}
+
+rdt_source_if_exists power_constraints.tcl -inclusive
+rdt_source_if_exists floorplan.tcl -inclusive
+rdt_source_if_exists create_path_groups.tcl -inclusive
+rdt_source_if_exists ungroup.tcl -inclusive
+rdt_source_if_exists uniquify.tcl -inclusive
+rdt_source_if_exists clock_gating.tcl -inclusive
+rdt_source_if_exists saif.tcl -inclusive
+rdt_source_if_exists operating_conditions.tcl -inclusive
+rdt_source_if_exists area_constraints.tcl -inclusive
+rdt_source_if_exists dft_netlist_checker.tcl -inclusive
+rdt_source_if_exists stamp_clocks.tcl -inclusive
+rdt_source_if_exists variable_info.tcl
+rdt_source_if_exists dfx_setup.tcl -inclusive

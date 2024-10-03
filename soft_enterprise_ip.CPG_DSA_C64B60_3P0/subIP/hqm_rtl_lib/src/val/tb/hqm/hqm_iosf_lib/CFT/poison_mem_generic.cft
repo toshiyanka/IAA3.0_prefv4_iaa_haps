@@ -1,0 +1,39 @@
+#check device status
+rd hqm_pf_cfg_i.device_status 0x0010
+
+#check aer_cap_uncorr_err_status  
+rd hqm_pf_cfg_i.aer_cap_uncorr_err_status 0x00000000
+
+
+
+#check ERror status
+rd hqm_pf_cfg_i.pcie_cap_device_status 0x0000
+
+
+
+
+#update check 
+
+#rd hqm_pf_cfg_i.func_bar_l 0x0000000C
+#rd hqm_pf_cfg_i.func_bar_u 0x00000000
+#
+#rd hqm_pf_cfg_i.csr_bar_l 0x0000000C
+#rd hqm_pf_cfg_i.csr_bar_u 0x00000000
+
+rd hqm_pf_cfg_i.int_line 0x00
+
+
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable memory and parity operations
+wr hqm_pf_cfg_i.device_command 0x46
+rd hqm_pf_cfg_i.device_command
+
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+ 

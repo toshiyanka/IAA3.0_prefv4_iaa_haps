@@ -1,0 +1,1724 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => [
+                     "+AW_CONTINUE_ON_ERROR",
+                     "+iosf_tracker_filename=iosf_trk",
+                     "-assert nopostproc",
+                     "+vcs+lic+wait",
+                     "+SLA_MAX_RUN_CLOCK=8000000",
+                     "+SLA_USER_DATA_PHASE_TIMEOUT=8000000",
+                     "+SLA_CONFIG_PHASE_TIMEOUT=500000",
+                     "+SLA_FLUSH_PHASE_TIMEOUT=400000",
+                     "+OVM_GLOBAL_TIMEOUT=50ms",
+                     "+HQM_LSP_CQ_QID_CFG_CHECK_DIS",
+                     "+HQM_EOT_RD_SEQ_ENABLE_CREDIT_CHECK",
+                     "+HQM_PP_CQ_MON_WATCHDOG_TIMEO=30000", # in some of the modes like prochot, background, agitation and with lot of ports like lq32_dq64_* runmodes, and sometimes with intermedite reset cases, need more time for pp_cq_base_seq to return tokens.
+
+                     "+HQM_PP_CQ_BASE_SEQ_INT_POLL_CQ_BUFFER=1",
+
+                     "+DIR_PP0_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP0_cq_token_return_burst_size=32",
+                     "+DIR_PP0_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP0_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP0_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP0_cq_token_return_enable_mean=1",
+                     "+DIR_PP0_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP0_cq_token_return_enable_min=1",
+                     "+DIR_PP0_cq_token_return_enable_max=1",
+                     "+DIR_PP0_cq_token_return_disable_mean=0",
+                     "+DIR_PP0_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP0_cq_token_return_disable_min=0",
+                     "+DIR_PP0_cq_token_return_disable_max=0",
+                     "+DIR_PP0_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP1_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP1_cq_token_return_burst_size=32",
+                     "+DIR_PP1_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP1_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP1_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP1_cq_token_return_enable_mean=1",
+                     "+DIR_PP1_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP1_cq_token_return_enable_min=1",
+                     "+DIR_PP1_cq_token_return_enable_max=1",
+                     "+DIR_PP1_cq_token_return_disable_mean=0",
+                     "+DIR_PP1_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP1_cq_token_return_disable_min=0",
+                     "+DIR_PP1_cq_token_return_disable_max=0",
+                     "+DIR_PP1_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP2_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP2_cq_token_return_burst_size=32",
+                     "+DIR_PP2_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP2_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP2_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP2_cq_token_return_enable_mean=1",
+                     "+DIR_PP2_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP2_cq_token_return_enable_min=1",
+                     "+DIR_PP2_cq_token_return_enable_max=1",
+                     "+DIR_PP2_cq_token_return_disable_mean=0",
+                     "+DIR_PP2_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP2_cq_token_return_disable_min=0",
+                     "+DIR_PP2_cq_token_return_disable_max=0",
+                     "+DIR_PP2_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP3_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP3_cq_token_return_burst_size=32",
+                     "+DIR_PP3_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP3_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP3_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP3_cq_token_return_enable_mean=1",
+                     "+DIR_PP3_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP3_cq_token_return_enable_min=1",
+                     "+DIR_PP3_cq_token_return_enable_max=1",
+                     "+DIR_PP3_cq_token_return_disable_mean=0",
+                     "+DIR_PP3_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP3_cq_token_return_disable_min=0",
+                     "+DIR_PP3_cq_token_return_disable_max=0",
+                     "+DIR_PP3_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP4_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP4_cq_token_return_burst_size=32",
+                     "+DIR_PP4_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP4_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP4_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP4_cq_token_return_enable_mean=1",
+                     "+DIR_PP4_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP4_cq_token_return_enable_min=1",
+                     "+DIR_PP4_cq_token_return_enable_max=1",
+                     "+DIR_PP4_cq_token_return_disable_mean=0",
+                     "+DIR_PP4_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP4_cq_token_return_disable_min=0",
+                     "+DIR_PP4_cq_token_return_disable_max=0",
+                     "+DIR_PP4_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP5_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP5_cq_token_return_burst_size=32",
+                     "+DIR_PP5_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP5_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP5_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP5_cq_token_return_enable_mean=1",
+                     "+DIR_PP5_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP5_cq_token_return_enable_min=1",
+                     "+DIR_PP5_cq_token_return_enable_max=1",
+                     "+DIR_PP5_cq_token_return_disable_mean=0",
+                     "+DIR_PP5_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP5_cq_token_return_disable_min=0",
+                     "+DIR_PP5_cq_token_return_disable_max=0",
+                     "+DIR_PP5_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP6_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP6_cq_token_return_burst_size=32",
+                     "+DIR_PP6_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP6_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP6_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP6_cq_token_return_enable_mean=1",
+                     "+DIR_PP6_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP6_cq_token_return_enable_min=1",
+                     "+DIR_PP6_cq_token_return_enable_max=1",
+                     "+DIR_PP6_cq_token_return_disable_mean=0",
+                     "+DIR_PP6_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP6_cq_token_return_disable_min=0",
+                     "+DIR_PP6_cq_token_return_disable_max=0",
+                     "+DIR_PP6_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP7_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP7_cq_token_return_burst_size=32",
+                     "+DIR_PP7_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP7_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP7_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP7_cq_token_return_enable_mean=1",
+                     "+DIR_PP7_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP7_cq_token_return_enable_min=1",
+                     "+DIR_PP7_cq_token_return_enable_max=1",
+                     "+DIR_PP7_cq_token_return_disable_mean=0",
+                     "+DIR_PP7_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP7_cq_token_return_disable_min=0",
+                     "+DIR_PP7_cq_token_return_disable_max=0",
+                     "+DIR_PP7_cq_token_return_sel_algorithm=fifo",
+
+                    ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+      ####################################################################################
+      ####################################################################################
+
+      ############################################################
+      ############################################################
+      #HQMV30: Support Cheetah2 flow 
+      ############################################################
+
+      #sequential
+      sequential => {
+          -simv_args => [
+                     "+HQM_CFG_USE_SEQUENTIAL_NAMES",
+                        ],
+      },
+
+      #ims_poll
+      ims_poll => {
+          -simv_args => [
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims_poll=1",
+                        ],
+      },
+
+      ##-----------------------------------------------------------------------------------------
+      # Strap variation for hqm_strap_tx_sai (reflects in schedules HCWs, MSI/MSIX, IMS from HQM)
+      ## strap_hqm_tx_sai[7:0]
+      ##-----------------------------------------------------------------------------------------
+       gp_strap_tx_sai_aa    => {
+           -simv_args => [  "+HQM_STRAP_TX_SAI=0xaa",
+                    ],
+       },
+       gp_strap_tx_sai_55    => {
+           -simv_args => [  "+HQM_STRAP_TX_SAI=0x55",
+                    ],
+       },
+       gp_strap_tx_sai_a5    => {
+           -simv_args => [  "+HQM_STRAP_TX_SAI=0xa5",
+                    ],
+       },
+       gp_strap_tx_sai_5a    => {
+           -simv_args => [  "+HQM_STRAP_TX_SAI=0x5a",
+                    ],
+       },
+       gp_strap_tx_sai_ff    => {
+           -simv_args => [  "+HQM_STRAP_TX_SAI=0xff",
+                    ],
+       },
+       gp_strap_tx_sai_0f    => {
+           -simv_args => [  "+HQM_STRAP_TX_SAI=0x0f",
+                    ],
+       },
+       gp_strap_tx_sai_f0    => {
+           -simv_args => [  "+HQM_STRAP_TX_SAI=0xf0",
+                    ],
+       },
+
+      ############################################################
+      ############################################################
+      #HQMV30: PCQ 
+      ############################################################
+      ############################################################
+      ####################
+      pcq_on => {
+          -simv_args => [
+                     "+hqm_cq_pcq_ctrl=1",
+                        ],
+      },
+
+      pcq_rand => {
+          -simv_args => [
+                     "+hqm_cq_pcq_ctrl=2",
+                        ],
+      },
+
+      ####################
+      #HQMV30: ATS 
+      ####################
+      ats => {
+          -simv_args => [
+                     "+HQMV30_ATS_ENA",
+                     "+ATS_4KPAGE_ONLY",
+                     "+HQM_PP_CQ_BASE_SEQ_INT_POLL_CQ_BUFFER=1",
+                        ],
+      },
+
+      ats_page4k => {
+          -simv_args => [
+                     "+HQM_PB_ADDRMASK=fff",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::dir_cq_depth=256", ###AY_HQMV30_ATS_TMP set cq_depth=256 to use 4K pages
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::ldb_cq_depth=256", ###AY_HQMV30_ATS_TMP set cq_depth=256 to use 4K pages
+                        ],
+      },
+
+      ats_page2M => {
+          -simv_args => [
+                     "+HQMV30_ATS_ENA",
+                     "+HQM_PP_CQ_BASE_SEQ_INT_POLL_CQ_BUFFER=1",
+                     "+HQM_PB_ADDRMASK=1fffff",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::dir_cq_depth=1024", ###AY_HQMV30_ATS_TMP set cq_depth=1024 to use 2M pages
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::ldb_cq_depth=1024", ###AY_HQMV30_ATS_TMP set cq_depth=1024 to use 2M pages
+                        ],
+      },
+
+
+      atsawrnd => {
+          -simv_args => [
+                     "+HQM_PB_AW=0",
+                        ],
+      },
+
+      atstyrnd => {
+          -simv_args => [
+                     "+HQM_PB_PGTT=7",
+                        ],
+      },
+
+      atsrespdelay_mid => {
+          -simv_args => [
+                     "+HQM_MRDCB_ATSDLY_MIN=0",
+                     "+HQM_MRDCB_ATSDLY_MAX=5000",
+                        ],
+      },
+
+      atsrespooo => {
+          -simv_args => [
+                     "+HQM_PVC_OOO_COMPL",
+                     "+HQM_MRDCB_ATSOOO_MIN=0",
+                     "+HQM_MRDCB_ATSOOO_MAX=1",
+                        ],
+      },
+
+      ##############################################
+      ####ATS Response Completion error injections
+      ##############################################
+      #NORW
+      atsresp_norw_problow => {
+          -simv_args => [
+                     "+HQM_MRDCB_CPLDNORW_MIN=0",
+                     "+HQM_MRDCB_CPLDNORW_MAX=20",
+                        ],
+      },
+      atsresp_norw_probmid => {
+          -simv_args => [
+                     "+HQM_MRDCB_CPLDNORW_MIN=0",
+                     "+HQM_MRDCB_CPLDNORW_MAX=50",
+                        ],
+      },
+
+      atsresp_norw_probhigh => {
+          -simv_args => [
+                     "+HQM_MRDCB_CPLDNORW_MIN=0",
+                     "+HQM_MRDCB_CPLDNORW_MAX=90",
+                        ],
+      },
+      atsresp_norw_probon => {
+          -simv_args => [
+                     "+HQM_MRDCB_CPLDNORW_MIN=100",
+                     "+HQM_MRDCB_CPLDNORW_MAX=100",
+                        ],
+      },
+
+
+      #ERRINJ
+      atsresp_errinj_problow => {
+          -simv_args => [
+                     "+HQM_MRDCB_CPLERRINJ_MIN=0",
+                     "+HQM_MRDCB_CPLERRINJ_MAX=20",
+                        ],
+      },
+
+      atsresp_errinj_probmid => {
+          -simv_args => [
+                     "+HQM_MRDCB_CPLERRINJ_MIN=0",
+                     "+HQM_MRDCB_CPLERRINJ_MAX=50",
+                        ],
+      },
+
+      atsresp_errinj_probhigh => {
+          -simv_args => [
+                     "+HQM_MRDCB_CPLERRINJ_MIN=0",
+                     "+HQM_MRDCB_CPLERRINJ_MAX=90",
+                        ],
+      },
+
+      atsresp_errinj_probon => {
+          -simv_args => [
+                     "+HQM_MRDCB_CPLERRINJ_MIN=100",
+                     "+HQM_MRDCB_CPLERRINJ_MAX=100",
+                        ],
+      },
+
+      #ERRINJ ctrl
+      atsresp_errinj_pasid => {
+          -simv_args => [
+                     "+HQM_MRDCB_CPLERRPASID_MIN=1",
+                     "+HQM_MRDCB_CPLERRPASID_MAX=1",
+                        ],
+      },
+
+      atsresp_errinj_dpe => {
+          -simv_args => [
+                     "+HQM_MRDCB_CPLERRDPE_MIN=1",
+                     "+HQM_MRDCB_CPLERRDPE_MAX=1",
+                        ],
+      },
+
+      atsresp_errinj_ep => {
+          -simv_args => [
+                     "+HQM_MRDCB_CPLERREP_MIN=1",
+                     "+HQM_MRDCB_CPLERREP_MAX=1",
+                        ],
+      },
+
+      atsresp_errinj_status => {
+          -simv_args => [
+                     "+HQM_MRDCB_CPLERRST_MIN=1", ##1: CA; 2: UR; 2: CRS
+                     "+HQM_MRDCB_CPLERRST_MAX=3",
+                        ],
+      },
+
+      #ERRINJ by CQ dir_atsresp_errtype ldb_atsresp_errtype (1: r=0/w=0; 2: TBD; 3: data parity error; 4: EP=1; 5: completion status CA/UR/CRS)
+      atsresp_dircq_errinj_rw0 => {
+          -simv_args => [
+                     "+HQM_MRDCB_CPLERR_CQCTRL=1",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::dir_atsresp_errtype=1",
+                        ],
+      },
+      atsresp_ldbcq_errinj_rw0 => {
+          -simv_args => [
+                     "+HQM_MRDCB_CPLERR_CQCTRL=1",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::ldb_atsresp_errtype=1",
+                        ],
+      },
+
+      atsresp_dircq_errinj_dpe => {
+          -simv_args => [
+                     "+HQM_MRDCB_CPLERR_CQCTRL=1",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::dir_atsresp_errtype=3",
+                        ],
+      },
+      atsresp_ldbcq_errinj_dpe => {
+          -simv_args => [
+                     "+HQM_MRDCB_CPLERR_CQCTRL=1",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::ldb_atsresp_errtype=3",
+                        ],
+      },
+
+      atsresp_dircq_errinj_ep => {
+          -simv_args => [
+                     "+HQM_MRDCB_CPLERR_CQCTRL=1",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::dir_atsresp_errtype=4",
+                        ],
+      },
+      atsresp_ldbcq_errinj_ep => {
+          -simv_args => [
+                     "+HQM_MRDCB_CPLERR_CQCTRL=1",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::ldb_atsresp_errtype=4",
+                        ],
+      },
+
+      atsresp_dircq_errinj_cplst => {
+          -simv_args => [
+                     "+HQM_MRDCB_CPLERR_CQCTRL=1",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::dir_atsresp_errtype=5",
+                        ],
+      },
+      atsresp_ldbcq_errinj_cplst => {
+          -simv_args => [
+                     "+HQM_MRDCB_CPLERR_CQCTRL=1",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::ldb_atsresp_errtype=5",
+                        ],
+      },
+
+
+
+      ####################################################################################
+      ####################################################################################
+      ####################
+      #HQMV30: AO 
+      ####################
+      ####################
+      #+cmd_type_sel=0 (default) : RENQ/RENQ_T/COMP/COMP_T tbcnt uses the original tbcnt captured upone SCHED HCW received
+      # "+HQM_USE_CQORD_QUEUE"
+      # A_COMP and COMP are returned in any order
+      ####################
+      ldb_qid_ao_cfg => {
+          -simv_args => [
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::ldb_ao_qid_v=1",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_acomp_rtn_ctrl=2",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_qtype=QATM",
+                     "+HQM_USE_CQORD_QUEUE",
+                        ],
+      },
+
+      ldb_qid_ao_cfg_rnd => {
+          -simv_args => [
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::ldb_ao_qid_v=2",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_acomp_rtn_ctrl=2",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_qtype=QATM",
+                     "+HQM_USE_CQORD_QUEUE",
+                        ],
+      },
+
+      ####################
+      #+cmd_type_sel=0 (default) : RENQ/RENQ_T/COMP/COMP_T tbcnt uses the original tbcnt captured upone SCHED HCW received
+      # "+HQM_USE_CQORD_QUEUE"
+      # "A_COMP+COMP" in order
+      ####################
+      ldb_qid_ao_cfg_acompcomp => {
+          -simv_args => [
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::ldb_ao_qid_v=1",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_acomp_rtn_ctrl=0",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_qtype=QATM",
+                     "+HQM_USE_CQORD_QUEUE",
+
+                     "+LDB_PP0_TBCNT_OFFSET=00000000",
+                     "+LDB_PP1_TBCNT_OFFSET=01000000",
+                     "+LDB_PP2_TBCNT_OFFSET=02000000",
+                     "+LDB_PP3_TBCNT_OFFSET=03000000",
+                     "+LDB_PP4_TBCNT_OFFSET=04000000",
+                     "+LDB_PP5_TBCNT_OFFSET=05000000",
+                     "+LDB_PP6_TBCNT_OFFSET=06000000",
+                     "+LDB_PP7_TBCNT_OFFSET=07000000",
+                     "+LDB_PP8_TBCNT_OFFSET=08000000",
+                     "+LDB_PP9_TBCNT_OFFSET=09000000",
+                     "+LDB_PP10_TBCNT_OFFSET=0a000000",
+                     "+LDB_PP11_TBCNT_OFFSET=0b000000",
+                     "+LDB_PP12_TBCNT_OFFSET=0c000000",
+                     "+LDB_PP13_TBCNT_OFFSET=0d000000",
+                     "+LDB_PP14_TBCNT_OFFSET=0e000000",
+                     "+LDB_PP15_TBCNT_OFFSET=0f000000",
+                     "+LDB_PP16_TBCNT_OFFSET=10000000",
+                     "+LDB_PP17_TBCNT_OFFSET=11000000",
+                     "+LDB_PP18_TBCNT_OFFSET=12000000",
+                     "+LDB_PP19_TBCNT_OFFSET=13000000",
+                     "+LDB_PP20_TBCNT_OFFSET=14000000",
+                     "+LDB_PP21_TBCNT_OFFSET=15000000",
+                     "+LDB_PP22_TBCNT_OFFSET=16000000",
+                     "+LDB_PP23_TBCNT_OFFSET=17000000",
+                     "+LDB_PP24_TBCNT_OFFSET=18000000",
+                     "+LDB_PP25_TBCNT_OFFSET=19000000",
+                     "+LDB_PP26_TBCNT_OFFSET=1a000000",
+                     "+LDB_PP27_TBCNT_OFFSET=1b000000",
+                     "+LDB_PP28_TBCNT_OFFSET=1c000000",
+                     "+LDB_PP29_TBCNT_OFFSET=1d000000",
+                     "+LDB_PP30_TBCNT_OFFSET=1e000000",
+                     "+LDB_PP31_TBCNT_OFFSET=1f000000",
+                        ],
+      },
+
+      ldb_qid_ao_cfg_rnd_acompcomp => {
+          -simv_args => [
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::ldb_ao_qid_v=2",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_acomp_rtn_ctrl=0",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_qtype=QATM",
+                     "+HQM_USE_CQORD_QUEUE",
+                        ],
+      },
+
+      ####################
+      ####################
+      #+cmd_type_sel=3 : RENQ/RENQ_T/COMP/COMP_T tbcnt uses newly generated tbcnt, not the original tbcnt captured upone SCHED HCW received
+      # for such case: remove  ####"+HQM_USE_CQORD_QUEUE", and turn on  +HQM_ORD_QID_Q_RELAXEDCHECK
+      ####################
+      ####################
+      ldb_qid_ao_cfg_sel3 => {
+          -simv_args => [
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::ldb_ao_qid_v=1",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_acomp_rtn_ctrl=2",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_qtype=QATM",
+                     ####"+HQM_USE_CQORD_QUEUE",
+                     "+cmd_type_sel=3",
+                     "+HQM_ORD_QID_Q_RELAXEDCHECK",
+
+                     "+LDB_PP0_TBCNT_OFFSET=00000000",
+                     "+LDB_PP1_TBCNT_OFFSET=01000000",
+                     "+LDB_PP2_TBCNT_OFFSET=02000000",
+                     "+LDB_PP3_TBCNT_OFFSET=03000000",
+                     "+LDB_PP4_TBCNT_OFFSET=04000000",
+                     "+LDB_PP5_TBCNT_OFFSET=05000000",
+                     "+LDB_PP6_TBCNT_OFFSET=06000000",
+                     "+LDB_PP7_TBCNT_OFFSET=07000000",
+                     "+LDB_PP8_TBCNT_OFFSET=08000000",
+                     "+LDB_PP9_TBCNT_OFFSET=09000000",
+                     "+LDB_PP10_TBCNT_OFFSET=0a000000",
+                     "+LDB_PP11_TBCNT_OFFSET=0b000000",
+                     "+LDB_PP12_TBCNT_OFFSET=0c000000",
+                     "+LDB_PP13_TBCNT_OFFSET=0d000000",
+                     "+LDB_PP14_TBCNT_OFFSET=0e000000",
+                     "+LDB_PP15_TBCNT_OFFSET=0f000000",
+                     "+LDB_PP16_TBCNT_OFFSET=10000000",
+                     "+LDB_PP17_TBCNT_OFFSET=11000000",
+                     "+LDB_PP18_TBCNT_OFFSET=12000000",
+                     "+LDB_PP19_TBCNT_OFFSET=13000000",
+                     "+LDB_PP20_TBCNT_OFFSET=14000000",
+                     "+LDB_PP21_TBCNT_OFFSET=15000000",
+                     "+LDB_PP22_TBCNT_OFFSET=16000000",
+                     "+LDB_PP23_TBCNT_OFFSET=17000000",
+                     "+LDB_PP24_TBCNT_OFFSET=18000000",
+                     "+LDB_PP25_TBCNT_OFFSET=19000000",
+                     "+LDB_PP26_TBCNT_OFFSET=1a000000",
+                     "+LDB_PP27_TBCNT_OFFSET=1b000000",
+                     "+LDB_PP28_TBCNT_OFFSET=1c000000",
+                     "+LDB_PP29_TBCNT_OFFSET=1d000000",
+                     "+LDB_PP30_TBCNT_OFFSET=1e000000",
+                     "+LDB_PP31_TBCNT_OFFSET=1f000000",
+                        ],
+      },
+
+      ldb_qid_ao_cfgrnd_sel3 => {
+          -simv_args => [
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::ldb_ao_qid_v=2",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_acomp_rtn_ctrl=2",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_qtype=QATM",
+                     ###"+HQM_USE_CQORD_QUEUE",
+                     "+cmd_type_sel=3",
+                     "+HQM_ORD_QID_Q_RELAXEDCHECK",
+                        ],
+      },
+
+      ##############
+      #A_COMP+COMP:: +hcw_sciov_test_hcw_seq_stim_config::ldb_acomp_rtn_ctrl=0
+      ##############
+      ldb_qid_ao_cfg_sel3_acompcomp => {
+          -simv_args => [
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::ldb_ao_qid_v=1",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_acomp_rtn_ctrl=0",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_qtype=QATM",
+                     ####"+HQM_USE_CQORD_QUEUE",
+                     "+cmd_type_sel=3",
+                     "+HQM_ORD_QID_Q_RELAXEDCHECK",
+
+                     "+LDB_PP0_TBCNT_OFFSET=00000000",
+                     "+LDB_PP1_TBCNT_OFFSET=01000000",
+                     "+LDB_PP2_TBCNT_OFFSET=02000000",
+                     "+LDB_PP3_TBCNT_OFFSET=03000000",
+                     "+LDB_PP4_TBCNT_OFFSET=04000000",
+                     "+LDB_PP5_TBCNT_OFFSET=05000000",
+                     "+LDB_PP6_TBCNT_OFFSET=06000000",
+                     "+LDB_PP7_TBCNT_OFFSET=07000000",
+                     "+LDB_PP8_TBCNT_OFFSET=08000000",
+                     "+LDB_PP9_TBCNT_OFFSET=09000000",
+                     "+LDB_PP10_TBCNT_OFFSET=0a000000",
+                     "+LDB_PP11_TBCNT_OFFSET=0b000000",
+                     "+LDB_PP12_TBCNT_OFFSET=0c000000",
+                     "+LDB_PP13_TBCNT_OFFSET=0d000000",
+                     "+LDB_PP14_TBCNT_OFFSET=0e000000",
+                     "+LDB_PP15_TBCNT_OFFSET=0f000000",
+                     "+LDB_PP16_TBCNT_OFFSET=10000000",
+                     "+LDB_PP17_TBCNT_OFFSET=11000000",
+                     "+LDB_PP18_TBCNT_OFFSET=12000000",
+                     "+LDB_PP19_TBCNT_OFFSET=13000000",
+                     "+LDB_PP20_TBCNT_OFFSET=14000000",
+                     "+LDB_PP21_TBCNT_OFFSET=15000000",
+                     "+LDB_PP22_TBCNT_OFFSET=16000000",
+                     "+LDB_PP23_TBCNT_OFFSET=17000000",
+                     "+LDB_PP24_TBCNT_OFFSET=18000000",
+                     "+LDB_PP25_TBCNT_OFFSET=19000000",
+                     "+LDB_PP26_TBCNT_OFFSET=1a000000",
+                     "+LDB_PP27_TBCNT_OFFSET=1b000000",
+                     "+LDB_PP28_TBCNT_OFFSET=1c000000",
+                     "+LDB_PP29_TBCNT_OFFSET=1d000000",
+                     "+LDB_PP30_TBCNT_OFFSET=1e000000",
+                     "+LDB_PP31_TBCNT_OFFSET=1f000000",
+                        ],
+      },
+
+      ldb_qid_ao_cfgrnd_sel3_acompcomp => {
+          -simv_args => [
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::ldb_ao_qid_v=2",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_acomp_rtn_ctrl=0",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_qtype=QATM",
+                     ###"+HQM_USE_CQORD_QUEUE",
+                     "+cmd_type_sel=3",
+                     "+HQM_ORD_QID_Q_RELAXEDCHECK",
+                        ],
+      },
+      ####################
+      ####################
+
+      #####################
+      #mac cacheline number / pad / shuffle control
+      #####################
+      ###########
+      #ROB enabled? 
+      ###########
+      rob_ena => {
+          -simv_args => [
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::dir_pp_rob_min=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::dir_pp_rob_max=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::ldb_pp_rob_min=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::ldb_pp_rob_max=1",
+                         ],
+      },
+      rob_rnd => {
+          -simv_args => [
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::dir_pp_rob_min=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::dir_pp_rob_max=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::ldb_pp_rob_min=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::ldb_pp_rob_max=1",
+                         ],
+      },
+
+      ###########
+      #MAX cacheline numbder options
+      ###########
+      maxcacheline_num4 => {
+          -simv_args => [
+                     "+hqm_hcw_iosf_pri_enq_seq_stim_config::max_cacheline_num=4",
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_cacheline_max_num_min=4",
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_cacheline_max_num_max=4",
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_cl_pad=1",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_cacheline_max_num_min=4",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_cacheline_max_num_max=4",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_cl_pad=1",
+                         ],
+      },
+
+      dir_maxcacheline_num4 => {
+          -simv_args => [
+                     "+hqm_hcw_iosf_pri_enq_seq_stim_config::max_cacheline_num=4",
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_cacheline_max_num_min=4",
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_cacheline_max_num_max=4",
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_cl_pad=1",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_cacheline_max_num_min=1",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_cacheline_max_num_max=1",
+                         ],
+      },
+
+      ldb_maxcacheline_num4 => {
+          -simv_args => [
+                     "+hqm_hcw_iosf_pri_enq_seq_stim_config::max_cacheline_num=4",
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_cacheline_max_num_min=1",
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_cacheline_max_num_max=1",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_cacheline_max_num_min=4",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_cacheline_max_num_max=4",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_cl_pad=1",
+                         ],
+      },
+
+      ##################
+      ##Shuffle?? 
+      ##################
+      maxcacheline_shuffle => {
+          -simv_args => [
+                     "+hqm_hcw_iosf_pri_enq_seq_stim_config::cacheline_shuffle=1",  ##--choose one set either hqm_hcw_iosf_pri_enq_seq_stim_config::cacheline_shuffle=1 (global setting), or the four knobs below
+
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_cacheline_max_shuffle_min=1",
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_cacheline_max_shuffle_max=1",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_cacheline_max_shuffle_min=1",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_cacheline_max_shuffle_max=1",
+                         ],
+      },
+
+      #force every pp to run with max_cacheline_num and shuffled
+      #force_maxcacheline_and_shuffle => {
+      #    -simv_args => [
+      #               "+HQM_PP_FORCE_CL_SHUFFLED",
+      #                  ],
+      #},
+
+      ####################################
+      ####################################
+      msix => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+HQM_IOSF_PRIM_HCW_ENQ_RAND_PASID",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims_poll=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_msix=1",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+
+      ims_prog_rand  => {
+          -simv_args => [
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims_poll=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_msix=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::ims_prog_rand=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::dir_cq2tc_map=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::ldb_cq2tc_map=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::int2tc_map=0",
+                        ],
+      },
+
+      ims_prog_rand_ims_poll_mode  => {
+          -simv_args => [
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims_poll=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_msix=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::ims_prog_rand=1",
+                        ],
+      },
+
+      ####################################
+      ####################################
+
+      long => {
+          -simv_args => [
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_num_hcw=1024",
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_hcw_delay_min=4",
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_hcw_delay_max=8",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_num_hcw=512",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_hcw_delay_min=4",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_hcw_delay_max=20",
+                        ],
+      },
+      short => {
+          -simv_args => [
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_num_hcw=128",
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_hcw_delay_min=4",
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_hcw_delay_max=8",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_num_hcw=64",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_hcw_delay_min=4",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_hcw_delay_max=20",
+                        ],
+      },
+      short_256 => {
+          -simv_args => [
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_num_hcw=256",
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_hcw_delay_min=4",
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_hcw_delay_max=8",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_num_hcw=256",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_hcw_delay_min=4",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_hcw_delay_max=20",
+                        ],
+      },
+      two => {
+          -simv_args => [
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_num_hcw=2",
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_hcw_delay_min=4",
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_hcw_delay_max=8",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_num_hcw=2",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_hcw_delay_min=4",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_hcw_delay_max=20",
+                        ],
+      },
+      four => {
+          -simv_args => [
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_num_hcw=4",
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_hcw_delay_min=4",
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_hcw_delay_max=8",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_num_hcw=4",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_hcw_delay_min=4",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_hcw_delay_max=20",
+                        ],
+      },
+      eight => {
+          -simv_args => [
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_num_hcw=8",
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_hcw_delay_min=4",
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_hcw_delay_max=8",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_num_hcw=8",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_hcw_delay_min=4",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_hcw_delay_max=20",
+                        ],
+      },
+
+      perf_dir_ldb_1hcw_per_32clks_short => {
+          -simv_args => [
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_num_hcw=128",
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_hcw_delay_min=8",
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_hcw_delay_max=8",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_num_hcw=128",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_hcw_delay_min=8",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_hcw_delay_max=8",
+                     "+hcw_sciov_test_hcw_seq_stim_config::hcw_delay_type=POISSON_DIST",
+                        ],
+      },
+
+      q1 => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+HQM_IOSF_PRIM_HCW_ENQ_RAND_PASID",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=1",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      q1_ims => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+HQM_IOSF_PRIM_HCW_ENQ_RAND_PASID",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims_poll=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=1",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      q1_nointr => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+HQM_IOSF_PRIM_HCW_ENQ_RAND_PASID",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims_poll=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=1",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      q1_ldb => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+HQM_IOSF_PRIM_HCW_ENQ_RAND_PASID",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims_poll=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=1",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      q2 => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+HQM_IOSF_PRIM_HCW_ENQ_RAND_PASID",
+                     #"+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=0",
+                     #"+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims_poll=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=2",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=2",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      q2_ims => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+HQM_IOSF_PRIM_HCW_ENQ_RAND_PASID",
+                     #"+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=1",
+                     #"+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims_poll=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=2",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=2",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+
+      q2_nointr => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+HQM_IOSF_PRIM_HCW_ENQ_RAND_PASID",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims_poll=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=2",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=2",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      q2_ldb => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+HQM_IOSF_PRIM_HCW_ENQ_RAND_PASID",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims_poll=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=2",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      q4_ims => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+HQM_IOSF_PRIM_HCW_ENQ_RAND_PASID",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims_poll=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=4",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=4",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      q4_nointr => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+HQM_IOSF_PRIM_HCW_ENQ_RAND_PASID",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims_poll=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=4",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=4",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      q4_ldb => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+HQM_IOSF_PRIM_HCW_ENQ_RAND_PASID",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims_poll=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=4",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      q4_vdev8_ims_cq_depth_intr_cfg => {
+          -simv_args => [
+                          "+HQM_ENABLE_CIAL",
+                          #"+HQM_SEQ_SCH_OUT_MODE",
+                          "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=1",
+                          "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_vdev=8",
+                          "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=4",
+                          "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=4",
+                          "+hcw_sciov_test_hqm_cfg_seq_stim_config::cq_depth_int_en=1",
+                          "+hcw_sciov_test_hqm_cfg_seq_stim_config::crdt_cnt=1024",
+                          "+hcw_sciov_test_hqm_cfg_seq_stim_config::PpQid_per_vas=1",
+                          "+HQM_PP_CQ_MON_WATCHDOG_TIMEO=20000",
+                          "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      dir_cq_depth_thresh_32 => {
+          -simv_args => [
+                          "+hcw_sciov_test_hqm_cfg_seq_stim_config::dir_cq_depth_int_thresh=32",
+                        ],
+      },
+
+      ldb_cq_depth_thresh_32 => {
+          -simv_args => [
+                          "+hcw_sciov_test_hqm_cfg_seq_stim_config::ldb_cq_depth_int_thresh=32",
+                        ],
+      },
+
+      q8 => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+HQM_IOSF_PRIM_HCW_ENQ_RAND_PASID",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=8",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=8",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      q8_nointr => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+HQM_IOSF_PRIM_HCW_ENQ_RAND_PASID",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims_poll=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=8",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=8",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      q8_ims => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+HQM_IOSF_PRIM_HCW_ENQ_RAND_PASID",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims_poll=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=8",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=8",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      q8_vdev1 => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_vdev=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=8",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=8",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      q8_vdev1_ims => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_vdev=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=8",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=8",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      q8_vdev1_ims_poll1 => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_vdev=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=8",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=8",
+                     "+DIR_PP0_CQ_POLL=1",
+                     "+LDB_PP0_CQ_POLL=1",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      q8_vdev8 => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_vdev=8",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=8",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=8",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      q8_vdev8_ims => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims_poll=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_vdev=8",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=8",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=8",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      q8_vdev8_nointr => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims_poll=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_vdev=8",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=8",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=8",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      q16_vdev16 => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_vdev=16",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=16",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=16",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      q16_vdev16_ims => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims_poll=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_vdev=16",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=16",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=16",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      q16_vdev16_nointr => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims_poll=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_vdev=16",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=16",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=16",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      lq32_dq32_vdev16 => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_vdev=16",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=32",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=32",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      lq32_dq32_vdev16_ims => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims_poll=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_vdev=16",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=32",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=32",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      lq32_dq32_vdev16_nointr => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims_poll=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_vdev=16",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=32",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=32",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      lq32_dq64_vdev16 => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_vdev=16",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=64",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=32",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      lq32_dq64_vdev16_ims => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims_poll=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_vdev=16",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=64",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=32",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      lq32_dq64_vdev16_nointr => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims_poll=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_vdev=16",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=64",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=32",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      lq32_dq64_vdev16_ims_poll1 => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_vdev=16",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=64",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=32",
+                     "+DIR_PP0_CQ_POLL=1",
+                     "+LDB_PP0_CQ_POLL=1",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+
+      dq96 => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=0",
+                     #"+hcw_sciov_test_hqm_cfg_seq_stim_config::num_vdev=16",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=96",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=0",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      ############Test all 64 LDB PP/CQ with vdev=1,2,4,8,16
+      lq64_vdev1 => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_vdev=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=64",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      lq64_vdev2 => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_vdev=2",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=64",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      lq64_vdev4 => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_vdev=4",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=64",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      lq64_vdev8 => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_vdev=8",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=64",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      lq64_vdev16 => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_vdev=16",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=64",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      #turn on ims
+      lq64_vdev1_ims => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_vdev=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=64",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      lq64_vdev2_ims => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_vdev=2",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=64",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      lq64_vdev4_ims => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_vdev=4",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=64",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      lq64_vdev8_ims => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_vdev=8",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=64",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      lq64_vdev16_ims => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_vdev=16",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=64",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+
+      #############
+      #All 96 DIR and 32 LDB
+      #############
+      lq32_dq96_vdev16_ims => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_vdev=16",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=96",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=32",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+
+      #############
+      #All 96 DIR and All 64 LDB
+      #############
+      lq64_dq96_vdev16_ims => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_vdev=16",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=96",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=64",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+     
+
+      #############
+      q16_vdev4 => {
+          -simv_args => [
+                     "+HQM_ENABLE_CIAL",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=0",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_vdev=4",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=16",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=16",
+
+                     "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                        ],
+      },
+      lq32dq64_vdev16_illegal_hcw => {
+          -simv_args => [
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_vdev=16",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=64",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=0",
+
+                     "+EXP_EP_MSIX0_CNT=1",
+                     "+hqm_pcie_init_stim_config::skip_msix_cfg=0",
+                     "+DIR_PP0_ILLEGAL_PROB=50",
+                     "+DIR_PP0_ILLEGAL_HCW_TYPE=ILLEGAL_HCW_CMD",
+                     "+DIR_PP0_INGRESS_ERR=1",
+
+                     "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+                     # Mask the checking of parity error bits, ALARM_VF_SYND0[12:10]
+                     #"+HQM_TB_EOT_OVERRIDE=hqm_system_csr.alarm_pf_synd0=0xc0000100/0xffffe3ff",
+
+                        ],
+      },
+      lq32dq64_vdev16_illegal_hcw_msix_isr => {
+          -simv_args => [
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::enable_ims=1",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_vdev=16",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_dir_pp=64",
+                     "+hcw_sciov_test_hqm_cfg_seq_stim_config::num_ldb_pp=32",
+
+                     "+hqm_pcie_init_stim_config::skip_msix_cfg=0",
+                     "+DIR_PP0_ILLEGAL_PROB=50",
+                     "+DIR_PP0_ILLEGAL_HCW_TYPE=ILLEGAL_HCW_CMD",
+                     "+DIR_PP0_INGRESS_ERR=1",
+
+                     "+LDB_PP1_ILLEGAL_PROB=50",
+                     "+LDB_PP1_ILLEGAL_HCW_TYPE=QID_GRT_127",
+                     "+LDB_PP1_INGRESS_ERR=1",
+
+                     "+DIR_PP63_ILLEGAL_PROB=50",
+                     "+DIR_PP63_ILLEGAL_HCW_TYPE=ILLEGAL_HCW_CMD",
+                     "+DIR_PP63_INGRESS_ERR=1",
+
+                     "+LDB_PP30_ILLEGAL_PROB=50",
+                     "+LDB_PP30_ILLEGAL_HCW_TYPE=QID_GRT_127",
+                     "+LDB_PP30_INGRESS_ERR=1",
+
+                     "+MSIX_0_ISR_ENABLED",
+
+                     "+MULTI_INGRESS_ERR_INJ",
+                     "+DISABLE_MSIX_COUNT_CHECK",
+
+                     "+HQM_TB_EOT_STATUS_FILE=aceroot/verif/tb/hqm/tests/hqm_system_eot.cft",
+
+                        ],
+      },
+
+      #############
+      batch4 => {
+          -simv_args => [
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_batch_min=4",
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_batch_max=4",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_batch_min=4",
+                     "+hcw_sciov_test_hcw_seq_stim_config::ldb_batch_max=4",
+                        ],
+      },
+
+      batch_mode_pp0 => {
+          -simv_args => [
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_batch_min=2",
+                     "+hcw_sciov_test_hcw_seq_stim_config::dir_batch_max=4",
+
+                        ],
+      },
+     rand_pasid_en => {
+          -simv_args => [
+                     "+HQM_IOSF_PRIM_HCW_ENQ_RAND_PASID",
+                        ],
+      },
+
+      warm_rst => {
+          -simv_args => [
+                         "+hcw_sciov_test_hcw_seq_stim_config::dir_batch_min=1",
+                         "+hcw_sciov_test_hcw_seq_stim_config::dir_batch_max=1",
+                         "+hcw_sciov_test_hcw_seq_stim_config::ldb_batch_min=1",
+                         "+hcw_sciov_test_hcw_seq_stim_config::ldb_batch_max=1",
+                         "+HQM_SKIP_AGITATE_SEQ +HQM_NO_PRE_FLUSH_PHASE",
+                         "+HQM_SCIOV_RST_TYPE=warm",
+                         "+HQM_SCIOV_RST_WAITNUM=100", 
+                         "+HQM_IOSF_CONTINUE_ON_PERR", # A fix in this HSD is causing an assertion from hqm_iosf to be triggered in intermediate reset case. plusarg to replace error to warning. HSD:1409176110 - HQMV2: (hqm_iosf) forcePWRGate POK should force hqm_proc to power gate.
+                         "+HQM_BACKGROUND_CFG_RD_ONLY",
+                        ],
+      },
+
+      cold_rst => {
+          -simv_args => [
+                         "+hcw_sciov_test_hcw_seq_stim_config::dir_batch_min=1",
+                         "+hcw_sciov_test_hcw_seq_stim_config::dir_batch_max=1",
+                         "+hcw_sciov_test_hcw_seq_stim_config::ldb_batch_min=1",
+                         "+hcw_sciov_test_hcw_seq_stim_config::ldb_batch_max=1",
+                         "+HQM_SKIP_AGITATE_SEQ +HQM_NO_PRE_FLUSH_PHASE",
+                         "+HQM_SCIOV_RST_TYPE=cold",
+                         "+HQM_SCIOV_RST_WAITNUM=100", 
+                         "+HQM_IOSF_CONTINUE_ON_PERR", # A fix in this HSD is causing an assertion from hqm_iosf to be triggered in intermediate reset case. plusarg to replace error to warning. HSD:1409176110 - HQMV2: (hqm_iosf) forcePWRGate POK should force hqm_proc to power gate.
+                         "+HQM_BACKGROUND_CFG_RD_ONLY", ## to avoid override of valid cfg by bg cfg seq
+                        ],
+      },
+
+      pf_flr => {
+          -simv_args => [
+                         "+hcw_sciov_test_hcw_seq_stim_config::dir_batch_min=1",
+                         "+hcw_sciov_test_hcw_seq_stim_config::dir_batch_max=1",
+                         "+hcw_sciov_test_hcw_seq_stim_config::ldb_batch_min=1",
+                         "+hcw_sciov_test_hcw_seq_stim_config::ldb_batch_max=1",
+                         "+HQM_SKIP_AGITATE_SEQ +HQM_NO_PRE_FLUSH_PHASE",
+                         "+HQM_SCIOV_RST_TYPE=pfFlr",
+                         #"+HQM_SCIOV_RST_WAITNUM=1000", 
+                         "+HQM_IOSF_NO_DROP_CNT_CHECK",
+                         "+HQM_BACKGROUND_CFG_RD_ONLY",
+                        ],
+      },
+
+      rst_waitnum_0 => {
+          -simv_args => [
+                         "+HQM_SCIOV_RST_WAITNUM=10000", 
+                        ],
+      },
+
+      rst_waitnum_1 => {
+          -simv_args => [
+                         "+HQM_SCIOV_RST_WAITNUM=30000", 
+                        ],
+      },
+
+      rst_with_traffic_on => {
+          -simv_args => [
+                         "+HQM_SCIOV_RST_WITH_HCW_PROCESS_ON=1", "+HQM_PF_FLR_WITH_HCW_PROCESS_ON=1", "+HQM_DYNAMIC_CONFIG", 
+                        ],
+      },
+
+      has_pcie_init => {
+          -simv_args => [
+                         "+HAS_PCIE_INIT", 	
+                        ],
+      },
+
+      max_run_clock => {
+          -simv_args => [
+                         "+SLA_MAX_RUN_CLOCK=4000000 +SLA_USER_DATA_PHASE_TIMEOUT=4000000",	
+                        ],
+      },
+
+      with_bg_access => {
+          -simv_args => [
+                         "+HQM_BG_ACC_WITH_PASID=aceroot/verif/tb/hqm/hqm_pcie_lib/cft/hqm_bg_acc_with_pasid +HQM_BACKGROUND_CFG_GEN_SEQ", " +SLA_RANDOM_DATA_PHASE_TIMEOUT=20000000 +SLA_CONFIG_PHASE_TIMEOUT=3000000 +SLA_MAX_RUN_CLOCK=4000000 +SLA_USER_DATA_PHASE_TIMEOUT=4000000",	
+                        ],
+      },
+      dwr_basic => {
+          -simv_args => [
+                         "+HQM_SB_REQ_FOR_DWR",	
+                         #"+IGNORE_DUE_TO_SIDEBAND_RESET",	
+                         "+hqm_warm_reset_sequence_stim_config::skip_for_sideband_reset=1",
+                         "+HQM_PF_FLR_WITH_HCW_PROCESS_ON=1", "+HQM_DYNAMIC_CONFIG",
+                        ],
+      },
+      dwr_no_rstPrep_FPGPOK => {
+          -simv_args => [
+                         "+HQM_SB_REQ_FOR_DWR",	
+                         "+IGNORE_DUE_TO_SIDEBAND_RESET +HQM_DISABLE_BACKGROUND_CFG_GEN_SEQ +HQM_SKIP_AGITATE_SEQ",	
+                         "+HQM_NO_RSTPREP_FPGPOK",	
+                         "+hqm_warm_reset_sequence_stim_config::skip_for_sideband_reset=1",
+                         "+HQM_IOSF_CONTINUE_ON_PERR", # A fix in this HSD is causing an assertion from hqm_iosf to be triggered in intermediate reset case. plusarg to replace error to warning. HSD:1409176110 - HQMV2: (hqm_iosf) forcePWRGate POK should force hqm_proc to power gate.
+                        ],
+      },
+      dwr_multiple_rstPrep_FPGPOK => {
+          -simv_args => [
+                         "+HQM_SB_REQ_FOR_DWR",	
+                         ## -- "+IGNORE_DUE_TO_SIDEBAND_RESET",	
+                         "+HQM_MULTIPLE_RSTPREP_FPGPOK",	
+                         "+hqm_warm_reset_sequence_stim_config::skip_for_sideband_reset=1",
+                         "+HQM_PF_FLR_WITH_HCW_PROCESS_ON=1", "+HQM_DYNAMIC_CONFIG",
+                         "+HQM_IOSF_CONTINUE_ON_PERR", # A fix in this HSD is causing an assertion from hqm_iosf to be triggered in intermediate reset case. plusarg to replace error to warning. HSD:1409176110 - HQMV2: (hqm_iosf) forcePWRGate POK should force hqm_proc to power gate.
+                        ],
+      },
+      dont_wait_resetPrepAck => {
+          -simv_args => [
+                         "+HQM_DONT_WAIT_RESETPREPACK", 	
+                        ],
+      },
+      pma_safemode_en => {
+          -simv_args => [
+                         "+hqm_pma_safemode_c", 	
+                        ],
+      },
+      prim_gntdelay => {
+          -simv_args => [
+                         "+HQM_IOSF_SETGNTGAP +HQM_IOSF_GNT_DLY_MIN=50 +HQM_IOSF_GNT_DLY_MAX=150",
+                         #" +SLA_RANDOM_DATA_PHASE_TIMEOUT=20000000 +SLA_CONFIG_PHASE_TIMEOUT=2000000 +SLA_MAX_RUN_CLOCK=4000000 +SLA_USER_DATA_PHASE_TIMEOUT=4000000",
+                        ],
+      },
+      disable_wb_opt_cq_0 => {
+          -simv_args => [
+                         "+hcw_sciov_test_hqm_cfg_seq_stim_config::disable_wb_opt_cq=0"
+                        ],
+      },
+      disable_cfg_pad_write_dir => {
+          -simv_args => [
+                        "+hcw_sciov_test_hqm_cfg_seq_stim_config::cfg_pad_write_dir=0",
+                        ],
+      },
+      disable_cfg_pad_write_ldb => {
+          -simv_args => [
+                        "+hcw_sciov_test_hqm_cfg_seq_stim_config::cfg_pad_write_ldb=0",
+                        ],
+      },
+      enable_cfg_pad_first_write_dir => {
+          -simv_args => [
+                        "+hcw_sciov_test_hqm_cfg_seq_stim_config::cfg_pad_first_write_dir=1",
+                        ],
+      },
+      enable_cfg_pad_first_write_ldb => {
+          -simv_args => [
+                        "+hcw_sciov_test_hqm_cfg_seq_stim_config::cfg_pad_first_write_ldb=1",
+                        ],
+      },
+      enable_write_single_beats => {
+          -simv_args => [
+                        "+hcw_sciov_test_hqm_cfg_seq_stim_config::write_single_beats=1",
+                        ],
+      },
+      enable_early_dir_int => {
+          -simv_args => [
+                        "+hcw_sciov_test_hqm_cfg_seq_stim_config::early_dir_int=1",
+                        ],
+      },
+
+      ur_txn   => { -simv_args => [ "+HQM_RESETPREP_WITH_UR_TXN +EXP_UNWANTED_TXN_TO_HQM", ], },
+      pf_anfes => { -simv_args => [ "+eot_pf +pcie_anfes", ], },
+
+      np_txns_within_intermediate_reset => {
+          -simv_args => [
+                         "+hqm_warm_reset_sequence_stim_config::adr_flow=1",
+                         "+HQM_SCIOV_RST_NP_TXNS=1",
+                        ],
+      },
+      wait_Resetprep_Ack => {
+          -simv_args => [
+                        "+WAIT_RESETPREP_ACK",
+                        ],
+      },
+      wait_ForcePwrGatePok => {
+          -simv_args => [
+                        "+HQM_WAIT_FORCEPWRGATEPOK",
+                        ],
+      },
+      wait_18_1_1 => {
+          -simv_args => [
+                        "+HQM_WAIT_CLKS=18",
+                        "+HQM_NUM_TXNS=1",
+                        "+HQM_TXN_TYPE=1",
+                        ],
+      },
+      wait_18_1_2 => {
+          -simv_args => [
+                        "+HQM_WAIT_CLKS=18",
+                        "+HQM_NUM_TXNS=1",
+                        "+HQM_TXN_TYPE=2",
+                        ],
+      },
+      skip_np_txns_in_warmreset => {
+          -simv_args => [
+                        "+SKIP_NP_TXNS_IN_WARMRESET",
+                        ],
+      },
+
+
+      hcw_strap_no_mgmt_acks => {
+          -simv_args => [
+                         "+HQM_STRAP_NO_MGMT_ACKS=1",
+                        ],
+      },
+      inj_par_err_ims => { 
+          -simv_args => [
+                         "+SLA_ADD_PHASE_BEFORE_CONFIG_PHASE=IMS_PAR_ERR_PHASE",
+                         "+SLA_IMS_PAR_ERR_PHASE_SEQUENCE=hqm_tb_cfg_file_mode_seq",
+                         "+hqm_tb_hcw_eot_file_mode_seq_stim_config::do_eot_rd_seq=0",
+                         "+HQM_TB_EOT_CHECK_DISABLE",
+                         "+HQM_SYSTEM_CONTINUE_ON_PERR",
+                         "+HQM_SEQ_CFG_OPT=aceroot/verif/tb/hqm/tests/hqm_functional/hqm_par_inj_par_err_int.cft",
+                         "+HQM_EXTRA_DATA_PHASE_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/hqm_par_inj_par_err_int_check.cft",
+                        ],
+      },
+      inj_res_err_ims => { 
+          -simv_args => [
+                         "+SLA_ADD_PHASE_BEFORE_CONFIG_PHASE=IMS_PAR_ERR_PHASE",
+                         "+SLA_IMS_PAR_ERR_PHASE_SEQUENCE=hqm_tb_cfg_file_mode_seq",
+                         "+hqm_tb_hcw_eot_file_mode_seq_stim_config::do_eot_rd_seq=0",
+                         "+HQM_TB_EOT_CHECK_DISABLE",
+                         "+HQM_SYSTEM_CONTINUE_ON_PERR",
+                         "+HQM_SEQ_CFG_OPT=aceroot/verif/tb/hqm/tests/hqm_functional/hqm_par_inj_res_err_int.cft",
+                         "+HQM_EXTRA_DATA_PHASE_CFG=aceroot/verif/tb/hqm/tests/hqm_functional/hqm_par_inj_res_err_int_check.cft",
+                        ],
+      },
+    
+      ##------------------------------------------------------------##
+      ##  Agitations 
+      ##------------------------------------------------------------##
+      agitate_fri => {
+          -simv_args => [
+                     "-debug_all -ucli +vcs+dumparrays +HQM_DISABLE_AGITIATE_ASSERT -i aceroot/verif/tb/hqm/tests/agitate/agitate_fri.tcl", 
+                        ],
+      },      
+      agitate_cfg => {
+          -simv_args => [
+                     "-debug_all -ucli +vcs+dumparrays +HQM_DISABLE_AGITIATE_ASSERT -i aceroot/verif/tb/hqm/tests/agitate/agitate_cfg.tcl", 
+                        ],
+      },                   
+      agitate_sys => {
+          -simv_args => [
+                     "-debug_all -ucli +vcs+dumparrays +HQM_DISABLE_AGITIATE_ASSERT -i aceroot/verif/tb/hqm/tests/agitate/agitate_sys.tcl", 
+                        ],
+      }, 
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

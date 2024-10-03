@@ -1,0 +1,207 @@
+#!/usr/bin/perl -w
+
+# This script first maps input constraints. It then checks clocks, false paths, multi-cycle paths,
+# generated clocks, and clock domain crossings.
+#
+# Options:
+#   -start_string <string>
+#      Do the verification runs in parallel, provided that enough licenses are available. <string> should be a quoted 
+#      string showing how to start a new job. For example, when using LSF, run as:
+#         % verify_all -start_string "bsub -q fast_queue -R rusage=8000 -I"
+#      An option must be provided in the start string that causes the run to wait (block) until it is complete. 
+#      For LSF, -I may be used with bsub for this. Note that the other bsub options (-q, -R) may be
+#      different on your system.
+#      If not running on LSF, start the run exactly as follows:
+#         % verify_all -start_string "start_run_mode"
+
+my $startStr = "";
+my $skip_map = 0;
+my $skip_setup = 0;
+my $skip_gc = 0;
+my $skip_fp = 0;
+my $skip_mcp = 0;
+my $skip_cdc = 0;
+my $skip_gl = 0;
+my $maxParallel = 0;
+for (my $ii = 0; $ii < @ARGV; $ii++) {
+  my $currArg = $ARGV[$ii];
+
+  if ($currArg =~ /-st/) {
+    $ii++;
+    if ($ii == @ARGV) {
+      print STDERR "Error: A start string must be specified when using -start_string\n";
+      exit;
+    }
+    $startStr = $ARGV[$ii];
+  }
+  elsif (($currArg =~ /^-skip_map/) ||
+	   ($currArg eq "-do_map=0")) {
+      $skip_map = 1;
+  }
+  elsif (($currArg =~ /^-skip_setup/) ||
+	   ($currArg eq "-do_setup=0")) {
+      $skip_setup = 1;
+  }
+  elsif (($currArg =~ /^-skip_gc/) ||
+	   ($currArg eq "-do_gc=0")) {
+      $skip_gc = 1;
+  }
+  elsif (($currArg =~ /^-skip_fp/) ||
+	   ($currArg eq "-do_fp=0")) {
+      $skip_fp = 1;
+  }
+  elsif (($currArg =~ /^-skip_mcp/) ||
+	   ($currArg eq "-do_mcp=0")) {
+      $skip_mcp = 1;
+  }
+  elsif (($currArg =~ /^-skip_cdc/) ||
+	   ($currArg eq "-do_cdc=0")) {
+      $skip_cdc = 1;
+  }
+  elsif (($currArg =~ /^-skip_glitch/) ||
+	   ($currArg eq "-do_gl=0")) {
+      $skip_gl = 1;
+  }
+  elsif ($currArg =~ /^-max/) {
+    $ii++;
+    $maxParallel = $ARGV[$ii];
+  }
+}
+
+$ENV{is_verify_all_run} = 1;
+
+# first map 
+chdir("setup");
+if (!$skip_map) {
+    print STDERR "  mapping constraints\n";
+    `./map_sdc_and_check_setup -skip_setup`;
+}
+chdir("..");
+
+# obtain a common database for verification and copy it into setup dir
+chdir("ver_db");
+`./create_ver_db`;
+`/bin/cp -p design.fdb ../setup`;
+chdir("..");
+
+# now run clock check and cdc. fp, mcp, gc, and glitch all need to wait until clock check is complete, and
+# then they can all be run in parallel.
+
+# first set up arrays for each run that can be parallelized.
+@gDirs = ();
+@gRunScripts = ();
+@gMsgs = ();
+@gPIDs = ();
+my $ranSetup = 0;
+if (!$skip_setup) {
+    push @gDirs, "setup";
+    push @gRunScripts, "./map_sdc_and_check_setup -skip_map";
+    push @gMsgs, "checking clock constraints";
+    push @gPIDs, -1;
+    $ranSetup = 1;
+}
+if ((-d "cdc_verification") && !$skip_cdc) {
+    push @gDirs, "cdc_verification";
+    push @gRunScripts, "./verify_cdc";
+    push @gMsgs, "verifying clock domain crossings";
+    push @gPIDs, -1;
+}
+
+if (length($startStr) == 0) {
+    # degenerate case, just run one at a time
+    $maxParallel = 1;
+}
+else {
+    # if no max number of parallel runs specified, default to the number of runs to do
+    if ($maxParallel == 0) {
+	$maxParallel = @gDirs;
+    }
+}
+    
+# do each run in parallel if it is enabled. keep track of the number of runs started.
+my $num = 0;
+my $ii = 0;
+while (($num < $maxParallel) && ($ii < @gDirs)) {
+    $gPIDs[$ii] = &DoOneParallelRun($gDirs[$ii], $startStr, $gRunScripts[$ii], $gMsgs[$ii]);
+    ++$num;
+    ++$ii;
+}
+while ($num > 0) {
+    &WaitAndCheck($gPIDs[0], $ranSetup, $skip_fp, $skip_mcp, $skip_gc, $skip_gl);
+    --$num;
+    if ($ii < @gDirs) {
+	$gPIDs[$ii] = &DoOneParallelRun($gDirs[$ii], $startStr, $gRunScripts[$ii], $gMsgs[$ii]);
+	++$num;
+	++$ii;
+    }
+}
+
+print STDERR "  generating summary html\n";
+`./generate_summary`;
+
+sub WaitAndCheck()
+{
+    my $setupPID = shift(@_);
+    my $ranSetup = shift(@_);
+    my $skip_fp = shift(@_);
+    my $skip_mcp = shift(@_);
+    my $skip_gc = shift(@_);
+    my $skip_gl = shift(@_);
+
+    my $c = wait();
+
+    if (($c == $setupPID) && $ranSetup) {
+
+	# enable the runs that need to wait until the setup run is done
+	if (!$skip_fp) {
+	    push @gDirs, "fp_verification";
+	    push @gRunScripts, "./verify_fp";
+	    push @gMsgs, "verifying false paths";
+	    push @gPIDs, -1;
+	}
+	if (!$skip_mcp) {
+	    push @gDirs, "mcp_verification";
+	    push @gRunScripts, "./verify_mcp";
+	    push @gMsgs, "verifying multi-cycle paths";
+	    push @gPIDs, -1;
+	}
+        if ((-d "gc_verification") && !$skip_gc) {
+	    push @gDirs, "gc_verification";
+	    push @gRunScripts, "./verify_gc";
+	    push @gMsgs, "verifying generated clocks";
+	    push @gPIDs, -1;
+	}
+        if ((-d "glitch_verification") && !$skip_gl) {
+	    push @gDirs, "glitch_verification";
+	    push @gRunScripts, "./verify_glitch";
+	    push @gMsgs, "verifying glitches";
+	    push @gPIDs, -1;
+	}
+    }
+}
+
+sub DoOneParallelRun()
+{
+    my $dir = shift(@_);
+    my $startStr = shift(@_);
+    my $runScr = shift(@_);
+    my $msg = shift(@_);
+    
+    print STDERR "  $msg\n";
+    chdir($dir);
+    my $pid = ForkExec("$startStr ./$runScr");
+    chdir("..");
+    return $pid;
+
+}
+
+sub ForkExec
+{
+  my $pid = fork();
+  if ($pid == 0) {
+    exec(@_);
+  }
+  else {
+    return $pid;
+  }
+}

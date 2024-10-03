@@ -1,0 +1,16 @@
+cfg_begin
+   
+   ldb qid LQ_T:* qid_ldb_inflight_limit=64
+
+   vas VS ldb_qidv:LQ_T=1
+
+   ## -- Test LDB CQ
+   ldb pp LQ_T vas=VS
+   ldb cq LQ_T qidv0=1 qidix0=LQ_T cq_depth=64 cq_depth_intr_thresh=63 cq_depth_intr_ena=1 hist_list_base=0x160 hist_list_limit=0x19f gpa=sm
+   msix_cq 17 addr=0xaaaa5555aaaa5555 data=0x5555aaaa is_ldb=1 cq=LQ_T
+
+cfg_end
+
+wr credit_hist_pipe.cfg_ldb_cq_intr_armed0 0xffffffff
+wr credit_hist_pipe.cfg_ldb_cq_intr_armed1 0xffffffff
+idle 1000

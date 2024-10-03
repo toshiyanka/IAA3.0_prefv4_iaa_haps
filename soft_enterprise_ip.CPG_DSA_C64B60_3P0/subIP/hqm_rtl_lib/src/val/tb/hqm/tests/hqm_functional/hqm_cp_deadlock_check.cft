@@ -1,0 +1,38 @@
+## Reading default value of Policy control registers
+
+rd hqm_sif_csr.hqm_csr_cp_lo 0x01000218
+rd hqm_sif_csr.hqm_csr_cp_hi 0x00000400
+rd hqm_sif_csr.hqm_csr_wac_lo 0x0300021F
+rd hqm_sif_csr.hqm_csr_wac_hi 0x20000C00
+rd hqm_sif_csr.hqm_csr_rac_lo 0xffffffff
+rd hqm_sif_csr.hqm_csr_rac_hi 0xffffffff
+
+##change CP to all 0's, Making all SAI agent as invalid to modify policy control registers
+sai  HOSTIA_SUNPASS_SAI
+wr hqm_sif_csr.hqm_csr_cp_lo 0x00000000
+
+## Read on Policy register is not SAI dependent 
+rd hqm_sif_csr.hqm_csr_cp_lo 0x00000000
+rd hqm_sif_csr.hqm_csr_cp_hi 0x00000400
+
+sai  DFX_INTEL_PRODUCTION_SAI ##index 42
+wr hqm_sif_csr.hqm_csr_cp_hi 0x00000000
+
+rd hqm_sif_csr.hqm_csr_cp_lo 0x00000000
+rd hqm_sif_csr.hqm_csr_cp_hi 0x00000000
+
+#2. Write will not modify the value
+wr hqm_sif_csr.hqm_csr_wac_lo 0xFCFFFDE0
+wr hqm_sif_csr.hqm_csr_wac_hi 0xDFFFF3FF
+wr hqm_sif_csr.hqm_csr_rac_lo 0x00000000
+wr hqm_sif_csr.hqm_csr_rac_hi 0x00000000
+#read will be old value only
+rd hqm_sif_csr.hqm_csr_wac_lo 0x0300021F
+rd hqm_sif_csr.hqm_csr_wac_hi 0x20000C00
+rd hqm_sif_csr.hqm_csr_rac_lo 0xffffffff
+rd hqm_sif_csr.hqm_csr_rac_hi 0xffffffff
+
+wr hqm_sif_csr.hqm_csr_cp_lo 0x01000218
+wr hqm_sif_csr.hqm_csr_cp_hi 0x00000400
+rd hqm_sif_csr.hqm_csr_cp_lo 0x00000000
+rd hqm_sif_csr.hqm_csr_cp_hi 0x00000000

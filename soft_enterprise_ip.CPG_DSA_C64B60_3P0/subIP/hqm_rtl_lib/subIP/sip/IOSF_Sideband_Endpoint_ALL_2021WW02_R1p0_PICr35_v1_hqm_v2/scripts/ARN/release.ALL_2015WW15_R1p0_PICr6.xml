@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<!-- Release file -->
+
+<sip_release>
+  <version>8.4 November 13, 2013</version>
+  <date>Thu Apr  9 13:21:47 PDT 2015</date>
+  <user>esavin</user>
+  <sip_name>138</sip_name>
+  <sip_variation>528</sip_variation>
+  <sip_variation_id>528</sip_variation_id>
+  <sip_reldate>2015WW15</sip_reldate>
+  <sip_milestone>1p0</sip_milestone>
+  <sip_relver>PICr6</sip_relver>
+  <sip_relname>ALL_2015WW15_R1p0_PICr6</sip_relname>
+  <sip_owner>esavin</sip_owner>
+  <sip_dist></sip_dist>
+  <sip_fixed></sip_fixed>
+  <sip_open></sip_open>
+  <sip_attachment>
+  </sip_attachment>
+  <sip_customers>
+  </sip_customers>
+  <sip_base>1722</sip_base>
+  <sip_features>
+    <sip_feature>
+<![CDATA[
+HTML
+<h2>RTL Updates:</h2>
+   <dl>
+      <dt>HSDs: <dt>
+      <dd>1. <a href="https://hsdes.intel.com/home/default.html#article?id=1303911355">1303911355, "one transaction becomes two transactions inside a sideband router (BOGO bug)"</a>:
+            Race condition when the fabric side of a router-to-router link did a put for a short message, at the same time as the agent side ISM was transitioning to IDLE_REQ. The bug was that the fabric side ISM did not capture the put for this short message, and, therefore, it did not IDLE_NAK the IDLE_REQ request, moving into an incorrect IDLE state while the short message was still in flight. A possible adverse outcome of this race condition, was that a local clock gating decision on the port could have interfered with the correct transfer of the short message, e.g., by corrupting the FIFO pointers.</dd>
+      <dd>2. <a
+href="https://hsdes.intel.com/home/default.html#article?id=1404071127">1404071127, "POK completion error"</a>:
+            Race condition on the completion module of a fabric port, when the corresponding Endpoint/agent side deasserted POK, at the same time as non-posted data was being put to the port, from the SBR cetral data path. A local clock gating decision on the port, could have caused the completion module to miss the start-of-message data of the incoming non-posted transaction, and generate unrecognized-message completions with incorrect source and/or destination fields.</dd>
+      <dd>3. <a href="https://hsdes.intel.com/home/default.html#article?id=1205891276">1205891276, "SBR RTL and IOSF spec mismatch on SB ISM transition from IDLE to ACTIVE_REQ"</a>:
+            The fabric ISM was missing a credit_reinit term in the condition to the if block for its transition from IDLE to ACTIVE_REQ. As a result, in situations where an agent attempted to send a message before (or at the same time) as a router was being released from reset, the router could have incorrectly skipped the credit init step, with possible hang outcomes.</dd>
+      <dd>4. <a href="https://hsdes.intel.com/home/default.html#article?id=1303906757">1303906757, "X-prop enhancement - function definition harming X-Prop behavior" </a>:
+            Recent updates to the HDK and RDT flows for 10nm, enforce the use of the automatic keyword in function declarations. In the current release, all function declarations in the Sideband fabric IP were changed to explicitly use this keyword. </dd>
+      <dd>5. <a href="https://hsdes.intel.com/home/default.html#article?id=1205407018">1205407018, "Compliance Error in CNL: fabric ISM state changes when it is not supposed to" </a>:
+            Side effect of the BOGO bug.</dd>
+   </dl>
+
+   <h2>Backend Updates:</h2>
+   <dl>
+      <dt>General Updates: </dt>
+      <dd>General changes for RTL updates.</dd>
+   </dl>
+
+   <h2>Validation Updates:</h2>
+   <dl>
+      <dt>General Updates: </dt>
+      <dd>Test support for the RTL updates.</dd>
+   </dl>            ]]>    </sip_feature>
+  </sip_features>
+  <sip_knissues>
+    <sip_knissue>
+<![CDATA[
+HTML
+<p>None</p>            ]]>    </sip_knissue>
+  </sip_knissues>
+  <sip_speccons>
+    <sip_speccon>
+<![CDATA[
+HTML
+<h2>Integration Notes:</h2>
+   <p><b>NOTE:</b> CTECH_LIB_NAME must point to a valid synthesisable CTECH library when synthesising the IP.</p>
+   <p><b>NOTE:</b> CTECH_LIB_NAME must point to a valid synthesisable/behavior CTECH library when simulating the IP.</p>            ]]>    </sip_speccon>
+  </sip_speccons>
+  <sip_specins>
+    <sip_specin>
+<![CDATA[
+HTML
+<p>For support file an <b>HSD</b> at <a href="https://hsdes.intel.com/home/default.html#magazine?id=101846185&contentId=1012194360">https://hsdes.intel.com/home/default.html#magazine?id=101846185&contentId=1012194360</a></p>
+   <p>The first endpoint release with support for parity pins is 
+IOSF_Sideband_Endpoint_ALL_2014WW31_R1p0_v5.</p>
+   <p>The Zircon scores are uploaded to the IPDS dashboard for the SBR IP at <a href="https://zircon.fm.intel.com/zircon/zircon/zirconReleaseDashboardTable.php?top_filter_checkbox=0&Proj_id=12686&IP_id=17319&milestone_filter=4&Ver_id=all&App_id=all&showlatest=0">https://zircon.fm.intel.com/zircon/zircon/zirconReleaseDashboardTable.php?top_filter_checkbox=0&Proj_id=12686&IP_id=17319&milestone_filter=4&Ver_id=all&App_id=all&showlatest=0
+              </a></p>              ]]>    </sip_specin>
+  </sip_specins>
+  <sip_models>
+  </sip_models>
+</sip_release>

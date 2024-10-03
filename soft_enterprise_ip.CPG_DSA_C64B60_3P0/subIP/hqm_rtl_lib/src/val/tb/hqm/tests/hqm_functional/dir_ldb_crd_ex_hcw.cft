@@ -1,0 +1,121 @@
+################################################################################
+## -- Verify if more HCWs are sent to a DIR QID than credits programmed, then 
+## -- excess HCWs are dropped
+################################################################################
+
+## -- Disable the CQs for scheduling HCWs
+wr list_sel_pipe.cfg_cq_dir_disable[:DQ_A:].disabled 0x1
+rd list_sel_pipe.cfg_cq_dir_disable[:DQ_A:].disabled 0x1
+wr list_sel_pipe.cfg_cq_ldb_disable[:LDB_PP_A:].disabled 0x1
+rd list_sel_pipe.cfg_cq_ldb_disable[:LDB_PP_A:].disabled 0x1
+
+## -- Send 4 HCW to DIR QID from DIR Port
+HCW DIR:DQ_A  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=1 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A  dsi=0x302
+HCW DIR:DQ_A  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A  dsi=0x302
+HCW DIR:DQ_A  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=1 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A  dsi=0x302
+HCW DIR:DQ_A  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A  dsi=0x302
+
+## -- Send 4 HCW to LDB QID from LDB Port
+HCW LDB:LDB_PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ_A dsi=0x302
+HCW LDB:LDB_PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ_A dsi=0x302
+HCW LDB:LDB_PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ_A dsi=0x302
+HCW LDB:LDB_PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ_A dsi=0x302
+
+poll list_sel_pipe.cfg_qid_dir_tot_enq_cntl[:DQ_A:] 0x4   0xffffffff 1000 20
+poll list_sel_pipe.cfg_qid_dir_tot_enq_cnth[:DQ_A:] 0x0   0xffffffff 1000 20
+
+poll list_sel_pipe.cfg_qid_ldb_enqueue_count[:LQ_A:] 0x4 0xffffffff 1000 200
+
+rd credit_hist_pipe.cfg_syndrome_00.syndvalid 0
+
+## NEW -> dropped
+HCW DIR:DQ_A     qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=1 lockid=0x303  msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302 ingress_drop=1
+HCW LDB:LDB_PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0xffff msgtype=0 qpri=0 qtype=uno qid=LQ_A dsi=0x302 ingress_drop=1 
+HCW LDB:LDB_PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0xffff msgtype=0 qpri=0 qtype=atm qid=LQ_A dsi=0x302 ingress_drop=1
+HCW LDB:LDB_PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0xffff msgtype=0 qpri=0 qtype=ord qid=LQ_B dsi=0x302 ingress_drop=1
+IDLE 300
+
+## -- Enable the CQs for scheduling HCWs
+wr list_sel_pipe.cfg_cq_dir_disable[:DQ_A:].disabled 0x0
+rd list_sel_pipe.cfg_cq_dir_disable[:DQ_A:].disabled 0x0
+wr list_sel_pipe.cfg_cq_ldb_disable[:LDB_PP_A:].disabled 0x0
+rd list_sel_pipe.cfg_cq_ldb_disable[:LDB_PP_A:].disabled 0x0
+
+poll_sch  dir:DQ_A      0x4   1000 20
+poll_sch  ldb:LDB_PP_A  0x4   1000 20
+
+rd credit_hist_pipe.cfg_counter_chp_error_drop_l 0x4 0xffffffff 
+rd credit_hist_pipe.cfg_counter_chp_error_drop_h 0x0 0xffffffff
+
+rd credit_hist_pipe.cfg_syndrome_00 0xf0000002 0xffffffff
+wr credit_hist_pipe.cfg_syndrome_00.syndvalid 1
+rd credit_hist_pipe.cfg_syndrome_00.syndvalid 0
+
+#Interrupt.xls -- enqpipe_err_release_qtype_error_drop_f; credit hist pipe drop conditions HCW
+rd hqm_system_csr.alarm_pf_synd0    0xc5010100 0xffffff00
+wr hqm_system_csr.alarm_pf_synd0    0xc5010100
+rd hqm_system_csr.alarm_pf_synd0    0x05010100 0xc0000000
+
+# -- write vas credit count to 0 to verify the NEW_T, RENQ_T, RENQ_T commands for QE to be dropped & tokens,compeltions accepted
+wr credit_hist_pipe.cfg_vas_credit_count[:VS:].count 0x0
+rd credit_hist_pipe.cfg_vas_credit_count[:VS:].count 0x0
+
+
+## NEW_T -> dropped, token accepted
+HCW DIR:DQ_A     qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=1 lockid=0x0  msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302 ingress_drop=1
+HCW LDB:LDB_PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x0 msgtype=0 qpri=0 qtype=uno qid=LQ_A dsi=0x302 ingress_drop=1 
+
+## RENQ -> dropped, completion accepted
+HCW LDB:LDB_PP_A qe_valid=1 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x0 msgtype=0 qpri=0 qtype=uno qid=LQ_A dsi=0x302 ingress_drop=1 
+ 
+## RENQ_T -> dropped, completion and token accepted
+HCW LDB:LDB_PP_A qe_valid=1 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x0 msgtype=0 qpri=0 qtype=uno qid=LQ_A dsi=0x302 ingress_drop=1 
+HCW LDB:LDB_PP_A qe_valid=1 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x0 msgtype=0 qpri=0 qtype=atm qid=LQ_A dsi=0x302 ingress_drop=1
+HCW LDB:LDB_PP_A qe_valid=1 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x0 msgtype=0 qpri=0 qtype=ord qid=LQ_B dsi=0x302 ingress_drop=1
+ 
+## BAT_T -> Return pending 3 DIR tokens
+HCW DIR:DQ_A     qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x2  msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+IDLE 300
+
+poll_sch  dir:DQ_A      0x4   1000 20
+poll_sch  ldb:LDB_PP_A  0x4   1000 20
+
+
+rd credit_hist_pipe.cfg_counter_chp_error_drop_l 0xa 0xffffffff 
+rd credit_hist_pipe.cfg_counter_chp_error_drop_h 0x0 0xffffffff
+
+rd credit_hist_pipe.cfg_syndrome_00 0xf0000002 0xffffffff
+wr credit_hist_pipe.cfg_syndrome_00.syndvalid 1
+rd credit_hist_pipe.cfg_syndrome_00.syndvalid 0
+
+#Interrupt.xls -- enqpipe_err_release_qtype_error_drop_f; credit hist pipe drop conditions HCW
+rd hqm_system_csr.alarm_pf_synd0    0xc5010100 0xffffff00
+wr hqm_system_csr.alarm_pf_synd0    0xc5010100
+rd hqm_system_csr.alarm_pf_synd0    0x05010100 0xc0000000
+
+wr credit_hist_pipe.cfg_vas_credit_count[:VS:].count 0x8
+rd credit_hist_pipe.cfg_vas_credit_count[:VS:].count 0x8
+
+# -- Send 4 DIR, 4 LDB HCWs and check that they are getting enqueued and scheduled
+HCW DIR:DQ_A  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=1 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A  dsi=0x302
+HCW DIR:DQ_A  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A  dsi=0x302
+HCW DIR:DQ_A  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=1 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A  dsi=0x302
+HCW DIR:DQ_A  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQ_A  dsi=0x302
+HCW LDB:LDB_PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ_A dsi=0x302
+HCW LDB:LDB_PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ_A dsi=0x302
+HCW LDB:LDB_PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ_A dsi=0x302
+HCW LDB:LDB_PP_A qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=LQ_A dsi=0x302
+
+poll_sch  dir:DQ_A      0x8   1000 20
+poll_sch  ldb:LDB_PP_A  0x8   1000 20
+
+
+## -- Return 0x4 DIR tokens using BAT_T; 4 LDB tokens, completions using COMP_T
+HCW DIR:DQ_A     qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x3  msgtype=0 qpri=0 qtype=dir qid=DQ_A dsi=0x302
+HCW LDB:LDB_PP_A qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x0 msgtype=0 qpri=0 qtype=uno qid=LQ_A dsi=0x302 
+HCW LDB:LDB_PP_A qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x0 msgtype=0 qpri=0 qtype=uno qid=LQ_A dsi=0x302 
+HCW LDB:LDB_PP_A qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x0 msgtype=0 qpri=0 qtype=uno qid=LQ_A dsi=0x302 
+HCW LDB:LDB_PP_A qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0x0 msgtype=0 qpri=0 qtype=uno qid=LQ_A dsi=0x302 
+IDLE 300
+
+

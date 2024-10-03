@@ -1,0 +1,312 @@
+#!/bin/tcsh -f
+# name: runSynth
+
+################################################################################
+# Source a script that is called at the start of each back-end 
+# scripts/qa/run* script
+################################################################################
+source ./runPre -tool_name $0 $argv
+if ( $status != 0 ) exit $status
+
+#####################################################
+# UNIX Environment setup
+#
+#
+# Design compiler most likely was not setup correctly
+# by the initial source of the setup script. For
+# some reason, vcsmx messes it up.
+#
+# The original source of the setup file set the
+# SIP_TOOL_VARIATION variable. This variable is used here
+# to determine which variation to setup.
+#
+# thisToolName is overriden by setup. Its value
+# is saved to thisToolNameSaved so it can be 
+# restored after calling set.
+#####################################################
+cd ..
+
+set thisToolNameSaved=$thisToolName
+set setupDebugSave=$debug
+if (! $?SIP_TOOL_VARIATION) then
+   echo "${thisToolName} -I- Sourcing setup with default toolset"
+   source setup -ft -only dc
+else
+   echo "${thisToolName} -I- Sourcing setup with ${SIP_TOOL_VARIATION} toolset"
+   source setup -ft -x ${SIP_TOOL_VARIATION} -only dc
+endif
+unsetenv SB_STDCELLS_HDL
+set thisToolName=$thisToolNameSaved
+set debug=$setupDebugSave
+
+cd ../
+
+set sip_process=`echo ${SIP_PROCESS_NAME} | sed -e 's/p//'`
+
+if ( "${config}" =~ "IOSF_Sideband_Endpoint" ) then
+   set ephelperDebugSave=$debug
+   source ${sbrdir}/scripts/qa/ephelper.csh -rtlcfg ${component} \
+                                            -topdir ${sbrdir} \
+                                            -gentool ${thisToolName} \
+                                            -tooldir syn \
+                                            -process ${sip_process}
+
+   set debug=$ephelperDebugSave
+   set synrdtdir="${dsttooldir}/rdt"
+else # Router
+   if (${sip_process} == "1271") then
+      set synrdtdir="${sbrdir}/tools/syn/syn_1271/${component}/rdt"
+   else if (${sip_process} == "1273") then
+      set synrdtdir="${sbrdir}/tools/syn/syn_1273/${component}/rdt"
+   else if (${sip_process} == "1274") then
+       set synrdtdir="${sbrdir}/tools/syn/syn_1274/${component}/rdt"
+   endif
+
+   if (${dynopt} =~ "nonDyn") then
+      set rtltop=${component}
+   else
+      set rtltop=${component}_sbr_generic
+   endif
+endif
+
+#######################
+# Generate Collateral #
+#######################
+
+if ( ${generate_collateral} ) then
+   echo "${thisToolName} -I- Generating ACE CDC Collateral for Router ${component} with ${config} configuration."
+   set tempdir="${sbrdir}/unsupported/export/${config}_${rtltop}_${thisToolName}"
+   mkdir -p ${tempdir}
+   cd ${tempdir}
+   # Create the directory from scratch
+   rm ${synrdtdir} -rf
+   set synscriptsdir=${synrdtdir}/scripts
+   mkdir -p ${synscriptsdir}
+
+   set puni_prefix=`echo $puniprefix | sed -e 's/_$//'`
+   set basecmd="${sbrdir}/unsupported/export/parseXml --ipxact_file ${sbrdir}/verif/tests/networks/${config}.xml -q"
+   if ( "${dynopt}" != "nonDyn" ) then
+      set basecmd="${basecmd} -dynamo -prefix ${puni_prefix}"
+   endif
+
+   set collateral_list=(\
+      "rtl_list.tcl" \
+      "block_setup.tcl" \
+      "additional_upf_setup.tcl" \
+      "io_constraints.tcl" \
+      "clocks.stcl" \
+      "scan_config_1273.tcl" \
+      "scan_config_1274.tcl" \
+      "insert_dft.tcl" \
+      "scon.stcl" \
+      "tcon.stcl" \
+   )
+
+   foreach collateral_file ( ${collateral_list} )
+      ${basecmd} -t ${sbrdir}/unsupported/export/data/xml/${collateral_file}
+      if ( $debug ) echo "${thisToolName} -D- Generated ${tempdir}/${component}_${collateral_file}"
+   end
+
+   mv  ${tempdir}/${component}_rtl_list.tcl                                  ${synscriptsdir}/rtl_list.tcl
+   mv  ${tempdir}/${component}_block_setup.tcl                               ${synscriptsdir}/block_setup.tcl
+   mv  ${tempdir}/${component}_additional_upf_setup.tcl                      ${synscriptsdir}/${rtltop}_additional_upf_setup.tcl
+   mv  ${tempdir}/${component}_io_constraints.tcl                            ${synscriptsdir}/${rtltop}_io_constraints.tcl
+   mv  ${tempdir}/${component}_clocks.stcl                                   ${synscriptsdir}/${rtltop}_clocks.tcl
+   if (${sip_process} == "1274") then
+       mv  ${tempdir}/${component}_scan_config_1274.tcl                          ${synscriptsdir}/${rtltop}_scan_config.tcl
+       mv  ${tempdir}/${component}_insert_dft.tcl                          ${synscriptsdir}/insert_dft.tcl
+   else
+       mv  ${tempdir}/${component}_scan_config_1273.tcl                          ${synscriptsdir}/${rtltop}_scan_config.tcl
+   endif
+   cat ${tempdir}/${component}_scon.stcl ${tempdir}/${component}_tcon.stcl > ${synscriptsdir}/global_cross_clk_exceptions.tcl
+
+   if (${sip_process} == "1271") then
+      set constdir=${sbrdir}/unsupported/export/data/const/syn/scripts_1271
+      cp ${constdir}/global_constraints.tcl ${synscriptsdir}/global_constraints.tcl
+      cp ${constdir}/router_clock_gate.tcl  ${synscriptsdir}/${rtltop}_clock_gate.tcl
+   endif
+
+   rm ${tempdir} -rf
+   echo "${thisToolName} -I- Generated ACE CDC Collateral for Router ${component} with ${config} configuration."
+
+   if ( $no_run ) then
+      exit 1
+   endif
+endif
+
+#####################################################
+# Run commands
+#####################################################
+
+# Test if KIT_PATH exists and is valid
+if ( ! $?KIT_PATH ) then
+   echo "${thisToolName} -E- KIT_PATH was not defined."
+   exit 1
+endif
+
+if ( -d ${KIT_PATH} ) then
+   if ( ${debug} ) echo "${thisToolName} -D- KIT_PATH set to ${KIT_PATH}"
+else
+   echo "${thisToolName} -E- KIT_PATH does not point to a valid directory."
+   exit 1
+endif
+
+set run_tcl="${RDT_COMMON_PATH}/common/scripts/run.tcl"
+set import_design_tcl="${RDT_COMMON_PATH}/syn/scripts/import_design.tcl"
+
+if ("${SIP_PROCESS_NAME}" == "p1271") then
+   if (! $?SIP_LIBRARY_TYPE) then
+      set sip_lib_type="b12.4"
+      echo "${thisToolName} -W- SIP_LIBRARY_TYPE is not defined using default value ${sip_lib_type}"
+   else
+      set sip_lib_type=${SIP_LIBRARY_TYPE}
+   endif
+else if ("${SIP_PROCESS_NAME}" == "p1273") then
+   if (! $?SIP_LIBRARY_TYPE) then
+      set sip_lib_type="d04"
+      echo "${thisToolName} -W- SIP_LIBRARY_TYPE is not defined using default value ${sip_lib_type}"
+   else
+      set sip_lib_type=${SIP_LIBRARY_TYPE}
+   endif
+else if ("${SIP_PROCESS_NAME}" == "p1274") then
+   if (! $?SIP_LIBRARY_TYPE) then
+      set sip_lib_type="e05"
+      echo "${thisToolName} -W- SIP_LIBRARY_TYPE is not defined using default value ${sip_lib_type}"
+   else
+      set sip_lib_type=${SIP_LIBRARY_TYPE}
+   endif
+else
+   echo "${thisToolName} -E- KIT_PATH set with an unsupported process ${KIT_PATH}"
+   exit 1
+endif
+
+set sip_lib_type_def="${sip_lib_type}"
+set sip_lib_type_def=`echo ${sip_lib_type_def} | tr "[a-z]" "[A-Z]"`
+set sip_lib_type_def=`echo ${sip_lib_type_def} | perl -pe 's/\./_/g'`
+set dc_defines="SYNTH=1"
+set ace_network=""
+
+if (${config} =~ "IOSF_Sideband_Endpoint") then
+   cd ${synrdtdir}
+   /bin/rm -rf inputs outputs logs synopsys_cache src WORK alib-52 reports
+   /bin/mkdir inputs outputs reports src logs
+
+   if (${rtlparameterstring} != "" ) then
+      ${sbrdir}/scripts/qa/setRTLparams.pl \
+         -config ${configfile} \
+         -src_rtl ${sbrdir}/source/rtl/iosfsbc/endpoint/${rtltop}.sv \
+         -dst_rtl ${synrdtdir}/src/${rtltop}.sv
+      set exitstatus=$status
+      if ( ${exitstatus} ) then
+         echo "${thisToolName} -E- setRTLparams.pl failed."
+         exit ${exitstatus}
+      endif
+
+
+      set dc_defines="${dc_defines},${rtlparameterstring}"
+   endif
+
+   set dc_defines="SYNTH=1,SIPINT_${sip_process}=1,SIPINT_${sip_lib_type_def}=1"
+   set ace_model=cdc_${rtltop}
+else
+   cd ${synrdtdir}
+   /bin/rm -rf inputs outputs logs synopsys_cache src WORK alib-52 reports
+   /bin/mkdir inputs outputs reports src logs
+   set ace_model=cdc_${rtltop}
+   set ace_network="-ace_network $config"
+
+endif
+
+
+   ${sbrdir}/scripts/qa/get_filelist.pl \
+      -run_ace \
+      -ace_model ${ace_model} \
+      -ace_filter Synthesis \
+      -format syn \
+      -output_file ${synrdtdir}/scripts/rtl_list.tcl \
+      $ace_network
+
+   set exitstatus=$status
+   if( ${exitstatus} ) then
+      echo "${thisToolName} -E- get_filelist.pl failed."
+      exit ${exitstatus}
+   endif
+
+
+if (${config} =~ "IOSF_Sideband_Endpoint") then
+   if (${rtlparameterstring} != "" ) then
+           perl -pi -e 's|/source/rtl/iosfsbc/endpoint/'${rtltop}'.sv|/tools/syn/syn_'${sip_process}'/'${component}'/rdt/src/'${rtltop}'.sv|'        ${synrdtdir}/scripts/rtl_list.tcl
+   endif 
+endif  
+
+
+# Fix for a synthesis kit p1271 8.5.0 flow bug with dft checker
+if ("${KIT_PATH}" =~ "*p1271_8.5.0*") then
+   cp ${sbrdir}/unsupported/export/data/const/syn/dft_netlist_checker.tcl ${synrdtdir}/scripts/
+endif
+
+set finalNetlist="${synrdtdir}/outputs/${rtltop}.syn_final.vg"
+set atpgNetlist="${synrdtdir}/outputs/${rtltop}_atpg.final.v"
+set atpgSpf="${synrdtdir}/outputs/${rtltop}_atpg.final.spf"
+
+/bin/rm -f $finalNetlist $atpgNetlist $atpgSpf
+
+if ( ${guimode} ) then
+   set run_cmd='start_gui'
+   set run_post_cmd=''
+else
+   set run_cmd='if {[runRDT -init] != "TCL_ERROR"} {'
+   set run_post_cmd='}'
+endif
+
+if ( ${debug} ) then
+   echo "Adding and modifying Insert DFT"
+   cp ${RDT_COMMON_PATH}/syn/scripts/insert_dft.tcl          ${synrdtdir}/scripts/insert_dft.tcl
+   perl -pi -e 's/^(\s+)(insert_dft)/$1#$2/ig'               ${synrdtdir}/scripts/insert_dft.tcl
+   perl -pi -e 's/^(\s+)(set_attribute)/$1#$2/ig'            ${synrdtdir}/scripts/insert_dft.tcl
+   perl -pi -e 's/^(\s+)(syn_report_nonscan_flops)/$1#$2/ig' ${synrdtdir}/scripts/insert_dft.tcl
+else if ( (-e ${synrdtdir}/scripts/insert_dft.tcl ) && (${sip_process} != "1274")) then
+    rm ${synrdtdir}/scripts/insert_dft.tcl
+endif
+
+if ( $no_run ) then
+   exit 1
+endif
+
+unsetenv SB_STDCELLS_HDL
+
+dc_shell-t -f ${run_tcl} -topo -64bit <<EOFDC
+set RTL_DEFINES ${dc_defines}
+${run_cmd}
+change_names -rules verilog -verbose
+write_test_protocol -output ${atpgSpf}
+write -format verilog -output ${atpgNetlist} -hier
+${run_post_cmd}
+exit
+EOFDC
+set exitstatus=$status
+
+if ( ${exitstatus} ) then
+   echo "${thisToolName} -E- DC exited with errors"
+   exit ${exitstatus}
+endif
+
+echo "${thisToolName} -I- DC Log can be found at ${synrdtdir}/logs/dc.log"
+
+#####################################################
+# Report
+#####################################################
+if ($?SIP_CREATE_REPORT) then
+endif
+
+#####################################################
+# Verification
+#####################################################
+if (! -f ${finalNetlist}) then
+  echo "${thisToolName} -E- The final netlist ${finalNetlist} was not found."
+  exit 1
+else
+  echo "${thisToolName} -I- The final netlist ${finalNetlist} was found."
+endif
+
+exit 0

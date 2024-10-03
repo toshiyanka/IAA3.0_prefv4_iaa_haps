@@ -1,0 +1,126 @@
+#!/usr//bin/csh -f
+####################################################
+####       For sbebase/sbendpoint               ####
+####################################################
+
+
+# The top module name is placed in RTLTOP by calling script.
+setenv sbTopName ${RTLTOP}
+if (${ASYNC_EP} == 1) then
+   setenv clkCross "async_"
+else
+   setenv clkCross 
+endif  
+
+
+##############################
+# UNIX Environment setup
+##############################
+if (! $?prefix) then
+  setenv prefix
+endif
+
+
+if ($clkCross !=  "" && $clkCross != "async_") then
+   echo "ERROR: clkCross must be '' or 'async_'"
+   exit (-1)
+endif
+
+
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "Testing VISA with clkCross='$clkCross' for $sbTopName"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+
+
+
+# Setup variables pointing to cfg, .f, and .sv files.
+set visa_run_dir=${IP_ROOT}/tools/visa/run
+set visa_cfg=${sbTopName}_visa.cfg
+set vcs_dotf=${visa_run_dir}/${SIP_COMP_NAME}_sbe_visa_tb.f
+
+
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "Running visa_sig2cfg"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+cp ../${sbTopName}/${prefix}${sbTopName}_${clkCross}visa.cfg ${visa_cfg}
+#visa_sig2cfg -s ${visa_cfg}
+$VISAROOT/bin/visa_sig2cfg -s ${visa_cfg}
+if ($?) then
+   exit (-1)
+endif
+
+
+
+
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "Making a copy of RTL file list"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+cp ../filelist/sb_top_dfx_visa.f .
+
+
+
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "Running visa_insert"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+$VISAROOT/bin/visa_insert -t ${prefix}${sbTopName} \
+            -f ./sb_top_dfx_visa.f  \
+            -c ${visa_cfg}.visa
+if ($?) then
+   exit (-1)
+endif
+
+
+## Rename to Altered top level rtl
+cp sb_top.sv_altered ../${prefix}${sbTopName}.sv_visaInserted
+mv sb_top.sv_altered sb_top.sv
+
+## Run VISA validate utility to create test bench for visa 
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "Running visa_validate"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+$VISAROOT/bin/visa_validate -c ${visa_cfg}.visa \
+              -o ${prefix}${sbTopName}_visa_tb.sv 
+if ($?) then
+   exit (-1)
+endif
+
+
+perl -pi -e 's/(.*)Unit Level Mux(.*)/       force `dut.fscan_mode = 0;/g' ${prefix}${sbTopName}_visa_tb.sv 
+
+# Create .f file for VCS
+#
+# (1) Copy over the .f file for the testbench files. 
+# (2) Add top level HDL
+# (3) Add altered Dynamo wrapper
+# (4) Add VISA generated tb
+setenv CTECH_LIB_NAME ${CTECH_SIM_LIB_NAME}
+
+set rtl_list="${IP_ROOT}/tools/visa/run/${SIP_COMP_NAME}_rtl_list.f"
+
+${IP_ROOT}/scripts/qa/get_filelist.pl \
+   -run_ace \
+   -ace_model cdc_${sbTopName} \
+   -ace_network ${SIP_CONF_NAME} \
+   -ace_filter Synthesis \
+   -format lintra \
+   -output_file ${rtl_list}
+
+set exitstatus=$status
+if( ${exitstatus} ) then
+   echo "run_sbr -E- get_filelist.pl failed."
+   exit ${exitstatus}
+endif
+
+perl -pi -e "s/.*${sbTopName}.*//" ${rtl_list}
+
+cp    ${IP_ROOT}/tools/visa/filelist/sbendpoint_visa_tb.f                ${vcs_dotf}
+cat   ${rtl_list}                                                      >> ${vcs_dotf}
+#echo '${IP_ROOT}'"/tools/visa/${run_dir}/${sbTopName}_visa_tb.sv"             >> ${vcs_dotf}
+
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "Running VCS simulation"
+echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+## Run you test bench
+../sim/run_vcs.csh ${vcs_dotf}                  |tee ${sbTopName}_vcs_compile.log
+./simv +VISA_DEBUG |tee                         |tee ${sbTopName}_vcs_sim.log
+

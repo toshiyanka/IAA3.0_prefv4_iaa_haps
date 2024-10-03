@@ -1,0 +1,43 @@
+###############################################################################
+# SOURCE SETUP
+###############################################################################
+setenv IP_ROOT  $cwd
+cd $IP_ROOT/scripts
+source setup
+
+ace -cc -x
+
+To run all tests
+  source scripts/run_all_tests
+
+To run all configs supplied with this IP
+  source scripts/run_all_configs
+
+###############################################################################
+# GUI PARAMETER TOOL
+###############################################################################
+To generate parameters for RTL and Testbench follow steps outlined in
+   cd $IP_ROOT/scripts/dfx_parameter_gui
+   cat README.txt
+
+To run ARN
+----------
+   cd $IP_ROOT/scripts
+   /p/sip/utils/bin/editRelFile
+   /p/sip/utils/bin/sipRelease -rn  -force
+   /p/sip/utils/bin/sipRelease -ann -preview -irr  'https://irrpod.cps.intel.com/irr/#w$KAidQRxDPwtB'
+   /p/sip/utils/bin/sipRelease -ann -real    -irr  'ttps://irrprod.cps.intel.com/irr/#w$KAidQRxDPwtB'
+
+################################################################################
+24-Jul-2015
+===========
+To invoke the DSP Param Gui and copy the relavant files.
+
+cd $IP_ROOT/scripts/dfx_parameter_gui/
+/p/com/eda/intel/siputils/prod/bin/configIP dfxsecure_plugin.config -odf dfxsecure_params_input.vh
+/p/com/eda/intel/siputils/prod/bin/configIP dfxsecure_plugin.config -odf dfxsecure_params_input.vh -if dfxsecure_params_input.vh
+
+cd $IP_ROOT
+cp scripts/dfx_parameter_gui/dfxsecure_params_include.vh                 source/rtl/include/dfxsecure_params_include.vh
+cp scripts/dfx_parameter_gui/DFXSECURE_dfxsecureplugin_param_values.vh   verif/tb/include/DFXSECURE_dfxsecureplugin_param_values.vh
+cp scripts/dfx_parameter_gui/DFXSECURE_DfxSecurePlugin_TbDefines.svh     verif/tb/DfxSecurePlugin_TbDefines.svh

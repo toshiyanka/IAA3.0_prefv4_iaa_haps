@@ -1,0 +1,79 @@
+#!/bin/csh 
+
+set user_run_mode = $1
+
+echo user_run_mode = $user_run_mode
+########################################################################
+## This utility downloads ACE Example design and related emul_build_soc 
+## tools and flow files. 
+setenv ACE_VERSION 2.01.32
+setenv DEMO_DIR $PWD
+setenv LATEST_RELEASE /nfs/site/eda/group/SYSNAME/emu/intel/effm/2015.11
+setenv EMUL_TOOLS_DIR $LATEST_RELEASE/effm_tools
+setenv EMUL_CFG_DIR $LATEST_RELEASE/effm_flows
+
+if($1 == "0") then
+   echo ======================= Step 1 ======================================
+   ##copies a directory named $ACE_VERSION into $DEMO_DIR
+    echo Downloading the ACE prototype example:
+    /p/com/eda/intel/ace/$ACE_VERSION/bin/copy_prototype.pl -prototype project_2  
+
+echo ======================= Step 2 ======================================
+   ##Copy flows/emulation and git version of project_2_ivars.udf 
+   ##Can be removed after ACE fixes this example correctly for future revs
+   echo Downloading emulation env files from EmCoE SVN Repo....
+   pushd $ACE_VERSION/project_2/release/ALL/Q20040609_0840/ace/
+   rm -rf emulation project_2_ivars.udf project_2_hdl.udf
+   cp -f $LATEST_RELEASE/effm_demos/ace_sample/ace/project_2_ivars.udf .
+   cp -f $LATEST_RELEASE/effm_demos/ace_sample/ace/project_2_hdl.udf .
+   popd
+endif
+
+echo ======================= Step 3 =====================================
+echo Setting up ACE Environment 
+echo  source $ACE_VERSION/project_2/release/ALL/Q20040609_0840/bin/project_2.env
+source $ACE_VERSION/project_2/release/ALL/Q20040609_0840/bin/project_2.env
+setenv EMUL_RESULTS_DIR $ACE_ENG/pwa/results/effm
+cd $DEMO_DIR
+
+echo ======================= Step 4 =====================================
+set path = ($EMUL_TOOLS_DIR ./ $path)
+##############sets up Synopsys Synplify Tools 
+# Find and Use the LATEST by running "source /p/com/env/psetup/prod/bin/setupTool synplifypro" 
+setenv LIC_SETUP I-2014.03-1
+source /p/com/env/psetup/prod/bin/setupTool synplifypro $LIC_SETUP
+env | grep EMUL | sort
+
+echo user_run_mode = $user_run_mode
+if($user_run_mode == "0") then
+    echo Running...     ace -cc
+    ace -cc
+else if($user_run_mode == "1") then
+    echo Running...    ace -emul -emul_run_flow CHECK_VELOCE
+    ace -emul -emul_run_flow CHECK_VELOCE
+else if($user_run_mode == "2") then
+    echo Running... ace -emul -emul_run_flow CHECK_ZSE
+    ace -emul -emul_run_flow CHECK_ZSE
+else if($user_run_mode == "3") then
+    echo Running... ace -emul -emul_run_flow CHECK_FPGA
+    ace -emul -emul_run_flow CHECK_FPGA
+endif
+
+
+## echo ================Finished Demo Setup=================
+## echo 
+## echo "Run any of the following commands to get started: "
+## echo "Following cmd will list emulation flow cmd line options available in ACE: " 
+## echo "ace -sh EMULATION " 
+## echo
+## echo "Following cmd will clean compile your RTL files and kick off fpga/emulation friendly checking flows enabled: "
+## echo "ace -cc -emul " 
+## echo
+## echo "Following cmd will run only one specified checking flow. such as the Veloce RTL Checking flow: " 
+## echo "ace -emul -emul_run_flow CHECK_VELOCE" 
+## echo
+## echo "For more info on Emulation-FPGA Friendly Modeling, please visit EFFM Wiki: http://goto/effm"
+## echo "For EFFM deployment assistance for your project or support, contact: effm_support@eclists.intel.com" 
+
+
+

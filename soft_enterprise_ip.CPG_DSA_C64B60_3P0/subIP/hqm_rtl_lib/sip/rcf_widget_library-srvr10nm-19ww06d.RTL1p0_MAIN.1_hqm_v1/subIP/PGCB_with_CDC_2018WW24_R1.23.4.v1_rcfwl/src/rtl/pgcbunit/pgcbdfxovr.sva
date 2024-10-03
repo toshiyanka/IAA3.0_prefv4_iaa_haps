@@ -1,0 +1,28 @@
+`ifndef DC
+   
+if (USE_DFX_SEQ==1) begin : SEQ_OVR_ASSERT
+   // When sleep toggles -> fet turned on, isolation and resets asserted
+   aDFxSeqSleep: assert property ( @(posedge pgcb_tck) disable iff (i_pgcbdfxovr1.SEQ_OVR.sync_fdfx_powergood_rst_b!==1)
+      !$stable(SEQ_OVR.dfxval_sleep) |-> !SEQ_OVR.dfxval_fet_en_b && !SEQ_OVR.dfxval_isol_en_b && !SEQ_OVR.dfxval_force_rst_b &&
+                                         $stable(SEQ_OVR.dfxval_fet_en_b) && $stable(SEQ_OVR.dfxval_isol_en_b) && $stable(SEQ_OVR.dfxval_force_rst_b)
+   );
+
+   // Isolation and resets toggle at the same time
+   aDFxSeqIsolEqReset: assert property ( @(posedge pgcb_tck) disable iff (i_pgcbdfxovr1.SEQ_OVR.sync_fdfx_powergood_rst_b!==1)
+      SEQ_OVR.dfxval_isol_en_b == SEQ_OVR.dfxval_force_rst_b
+   );
+
+   // When Isolation and resets toggle -> fet turned on, sleep deasserted
+   aDFxSeqIsolReset: assert property ( @(posedge pgcb_tck) disable iff (i_pgcbdfxovr1.SEQ_OVR.sync_fdfx_powergood_rst_b!==1)
+      !$stable(SEQ_OVR.dfxval_isol_en_b) || !$stable(SEQ_OVR.dfxval_force_rst_b)
+         |-> !SEQ_OVR.dfxval_fet_en_b && !SEQ_OVR.dfxval_sleep && $stable(SEQ_OVR.dfxval_fet_en_b) && $stable(SEQ_OVR.dfxval_sleep)
+   );
+
+   // When fet_en changes -> sleep asserted, isolation and resets asserted
+   aDFxSeqFetEn: assert property ( @(posedge pgcb_tck) disable iff (i_pgcbdfxovr1.SEQ_OVR.sync_fdfx_powergood_rst_b!==1)
+      !$stable(SEQ_OVR.dfxval_fet_en_b) |-> !SEQ_OVR.dfxval_isol_en_b && !SEQ_OVR.dfxval_force_rst_b && SEQ_OVR.dfxval_sleep &&
+                                            $stable(SEQ_OVR.dfxval_isol_en_b) && $stable(SEQ_OVR.dfxval_force_rst_b) && $stable(SEQ_OVR.dfxval_sleep)
+   );
+end
+
+`endif

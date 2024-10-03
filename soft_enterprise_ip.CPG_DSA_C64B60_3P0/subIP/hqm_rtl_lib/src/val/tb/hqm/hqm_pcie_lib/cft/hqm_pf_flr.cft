@@ -1,0 +1,17 @@
+wr  hqm_pf_cfg_i.device_command 0x06
+
+##MaxPayloadSize supported is 256B->bit 5 is 1##
+rd hqm_pf_cfg_i.pcie_cap_device_control 0x0020 0x8020 
+
+##Check if any transactions are pending, proceed only if none##
+poll hqm_pf_cfg_i.pcie_cap_device_status 0x0 0x00200000 10000
+
+##Disable MSI in order to avoid any unattended INT later##
+wr  hqm_pf_cfg_i.msix_cap_control 0x0000
+
+##Disable Bus Master, INTX and Mem Txn enable bit from device_command##
+wr  hqm_pf_cfg_i.device_command 0x400
+wr  hqm_pf_cfg_i.pcie_cap_device_control 0x8000
+
+idle 200
+rd hqm_pf_cfg_i.pcie_cap_device_control 0x0000 0x8000

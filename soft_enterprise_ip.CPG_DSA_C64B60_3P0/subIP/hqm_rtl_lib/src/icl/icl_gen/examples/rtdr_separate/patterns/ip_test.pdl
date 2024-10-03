@@ -1,0 +1,31 @@
+iProcsForModule ip
+
+iProc ip_test {} {
+
+   iReset
+   iRunLoop 1 -tck
+   iNote "Scan in verification pattern to the following scan register:"
+   iNote "  regA.DR\[5:0\], load value = 101100"
+   iWrite regA.DR[5:0] 0b101100
+   iApply -end_in_pause
+
+   iNote "Scan out verification pattern from the following scan register:"
+   iNote "  regA.DR\[5:0\], expected value = 101100"
+   iWrite regA.DR[5:0] 0b000000
+   iRead  regA.DR[5:0] 0b101100
+   iApply
+
+   iNote "Scan in verification pattern to the following scan register:"
+   iNote "  regB.DR\[11:0\], load value = 101100111100"
+   iWrite regB.DR[11:0] 0b101100111100
+   iRead  regB.DR[11:0] 0bXXXXXXXX0101
+   iApply -end_in_pause
+
+   iNote "Scan out verification pattern from the following scan register:"
+   iNote "  regB.DR\[11:0\], expected value = 101100111100"
+   iWrite regB.DR[11:0] 0b000000000101
+   iRead  regB.DR[11:0] 0b101100111100
+   iApply
+
+
+}

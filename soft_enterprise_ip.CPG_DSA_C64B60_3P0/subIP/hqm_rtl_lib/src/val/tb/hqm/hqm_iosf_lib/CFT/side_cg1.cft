@@ -1,0 +1,19 @@
+#enable enable the idle logic the hqm_core and dm_core must also be configured 
+wr config_master.cfg_control_general.cfg_enable_unit_idle 1
+#wr dm_master.cfg_mstr_control_general.cfg_enable_unit_idle 1
+
+
+#enable idle based clock gating
+wr hqm_sif_csr.side_cdc_ctl 0x00004444
+rd hqm_sif_csr.side_cdc_ctl 0x00004444
+
+#####################################
+# Enable side clock gating
+wr hqm_sif_csr.iosfs_cgctl 0x00000110
+rd hqm_sif_csr.iosfs_cgctl 0x00000110
+###################################
+idle 5000
+
+#wait for reset done
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+

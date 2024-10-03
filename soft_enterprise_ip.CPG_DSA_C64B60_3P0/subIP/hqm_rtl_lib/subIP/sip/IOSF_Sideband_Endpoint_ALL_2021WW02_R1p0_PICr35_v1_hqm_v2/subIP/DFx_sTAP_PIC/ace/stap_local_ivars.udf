@@ -1,0 +1,187 @@
+##--------------------------------------------------------------------------------
+## INTEL CONFIDENTIAL
+##
+## Copyright 2012 Intel Corporation All Rights Reserved.
+## The source code contained or described herein and all documents related to the
+## source code ("Material") are owned by Intel Corporation or its suppliers or
+## licensors. Title to the Material remains with Intel Corporation or its
+## suppliers and licensors. The Material contains trade secrets and proprietary
+## and confidential information of Intel or its suppliers and licensors. The
+## Material is protected by worldwide copyright and trade secret laws and treaty
+## provisions. No part of the Material may be used, copied, reproduced, modified,
+## published, uploaded, posted, transmitted, distributed, or disclosed in any way
+## without Intels prior express written permission.
+##
+## No license under any patent, copyright, trade secret or other intellectual
+## property right is granted to or conferred upon you by disclosure or delivery
+## of the Materials, either expressly, by implication, inducement, estoppel or
+## otherwise. Any license under such intellectual property rights must be express
+## and approved by Intel in writing.
+##
+##--------------------------------------------------------------------------------
+
+my $PROJECT = "stap";
+my $saola_machine;
+
+my $debussy_pli_target;
+   if ($ENV{VCS_TARGET_ARCH} eq 'suse64') {
+      $debussy_pli_target = "LINUX64";
+      $saola_machine = "x86_64";
+   }
+   elsif ($ENV{VCS_TARGET_ARCH} eq 'suse32') {
+      $debussy_pli_target = "LINUX";
+      $saola_machine = "i686";
+   }
+
+%audf = (
+   HDLSpec => {
+-filter => {
+-tag_definitions => {
+design => { default => 'nondesign', },
+emul => { default => 'nonemu', },
+validation => { default => 'validation', },
+},
+},
+   },
+Includes => [
+      #project udf files 
+     "ace/effm_flows/effmcheck.udf",
+   ],
+
+   OSData => {
+      -debussy_pli_libs => {
+         -enable_flag => "-enable_debussy", # or -fsdb
+         -error_if_not_found  => 1,
+    #     vcs => {
+    #        'Linux-SuSE' => {
+    #           'i686' => [
+    #              "$ENV{VERDI_HOME}/share/PLI/snps_unified/$debussy_pli_target/novas.tab",
+    #              "$ENV{VERDI_HOME}/share/PLI/snps_unified/$debussy_pli_target/pli.a",
+    #           ],
+    #           'x86-64' => [
+    #              "$ENV{VERDI_HOME}/share/PLI/snps_unified/$debussy_pli_target/novas.tab",
+    #              "$ENV{VERDI_HOME}/share/PLI/snps_unified/$debussy_pli_target/pli.a",
+    #           ],
+    #        }, ## End of Linux-SuSE
+    #     }, ## End of vcs
+      }, ## End of debussy_pli_libs
+   }, ## End of OSData
+
+   InterfaceVars => {
+      -use_incdir_fulldepth_searchpath => { default =>   1 },
+            -spyglass_compile_opts => {
+          default => [ 'set_option enableSV09 yes',
+                     'set_option define INTEL_SVA_OFF',
+                     'set_option define SVA_OFF',
+                     'set_option allow_non_lrm yes',
+            ],
+    },
+      
+      -enable_spyglass_group_run => {default=> "0"},
+      
+      -enable_sub_libraries            => { default =>   1 },
+      -post_process_pattern_file       => { default =>   "ace/stap_postsim.pp", },
+      -ignored_faulty_hdl_compilers    => { default => [ "debussy",], },
+      -vlog_opts                       => { default => [ "+define+USE_GENERATED_FILES_FOR_JTAGBFM+DTEG_STAP_IP_LEVEL", "+define+CHASSIS_JTAGBFM_USE_PARAMETERIZED_CLASS", "+define+UVM_OBJECT_DO_NOT_NEED_CONSTRUCTOR+UVM_REGEX_NO_DPI", "-assert svaext",], },
+      -simv_args                       => { default => [ "+vcs+flush+all", "+vcs+flush+log", "-licqueue", ], },
+      -simulator                       => { default =>   "vcs", },
+      -elab_opts                       => { default => [ "-sverilog", "-debug_acc+all -debug_region+cell+encrypt", "-debug_access", "-lca", "+vcsd","-error=UNIQUE","-error=PRIORITY","-error=MTOCMUCS", "+memcbk", "+vpi","-CFLAGS \"-D VCS\" -CFLAGS \"-I$ENV{VCS_HOME}/include\" $ENV{UVM_HOME}/src/dpi/uvm_dpi.cc", 
+                                                         "-timescale=1ps/1ps","-licqueue",
+                                                         "-xprop=$ENV{REPO_ROOT}/tools/xprop/xprop_stap.cfg -xprop=unifiedInference",
+                                                         "$ENV{SAOLA_HOME}/libs/Linux_x86_64/libsla.so",],
+      },
+      -static_check_cfg_file           => { merging =>   "ASSIGN",
+                                            default => [ "$ENV{REPO_ROOT}/tools/lint/ace_static_check.lintra.cfg",
+                                                         "$ENV{REPO_ROOT}/ace/ace_static_check.cfg"], },
+      #-use_legacy_tagfilter            => { default =>   1 },
+      -clean_lib_before_recompile      => { default =>   0 },
+      -elab_models                     => { default =>   1 },
+      -test_in_model                   => { default =>   1 },
+      -enable_debussy                  => { default =>   1 },
+      -models_to_compile               => { default => [ "stap_model",], },
+      -use_model_converged                 => {
+                                              default => 0,
+                                              type  => "BOOLEAN",
+                                              alias => "-ASSIGN -models_to_compile=stap_model_converged -ASSIGN -models_to_elab=stap_model_converged -m stap_model_converged -vlog_opts +define+_A_TAP_BFM_+USE_CONVERGED_JTAGBFM ",
+                                              help  => {
+                                                    desc  => "Compiling Converged JTAGBFM Model" ,
+                                              },
+      },
+
+      $PROJECT => {
+         __PROTOTYPES                  => { import  => [ "TEST","CDC", "EMUL", "TSA"] },
+         -hier_dump_top                => { default =>   "top.stap_top_inst",},
+         -test                         => { default =>   "TapTestBypass", },
+         -spyglass_goals               => {clear_default => 1,default => [],},
+         -model                        => { default =>   "stap_model", },
+         -implicit_runmode_libs        => { default => [ "stap_model::RunModes"],},
+         -test_build_target            => { default =>   "all", },
+         -fsdb_file                    => { default =>   "Dump.fsdb", },
+         -test_make_file               => { default =>   "ace/ace_test.mak", },
+         -create_random_regression     => { type    =>   "SCALAR", shortcut => "crr",
+                                            alias   =>   "-x -tl TapTestRandom:<VAL>:random_seed -rtt -nb -nbmon", },
+      },
+   },
+  CommandMapper => {
+      $PROJECT => {
+         -test_manager => { 
+                             remove_mod => { 
+                                 exec_test => [
+                                               "Ace::WorkModules::Cleanup",
+                                               ], 
+                                # ACE lintra
+                                 static_check => [
+                                               "Ace::WorkModules::StaticChecks::DefaultPreCheck",
+                                               "Ace::WorkModules::StaticChecks::DCshell",
+                                               "Ace::WorkModules::StaticChecks::DefaultLira",
+                                               "Ace::WorkModules::StaticChecks::DefaultLintra",
+                                               "Ace::WorkModules::StaticChecks::DefaultPostCheck",
+                                               ],
+                                 },
+                             add_mod    => { 
+                                 exec_test => [
+                                               "simfigen::latest::simfigen", 
+                                               "Ace::WorkModules::Cleanup",
+                                               ], 
+                                # ACE lintra
+                                 static_check => [
+                                               "Ace::WorkModules::StaticChecks::DefaultPreCheck",
+                                               "Ace::WorkModules::StaticChecks::DCshell",
+                                               "Ace::WorkModules::StaticChecks::DefaultLira",
+                                               "Ace::WorkModules::StaticChecks::DefaultLintra",
+                                               "Ace::WorkModules::StaticChecks::DefaultPostCheck",
+                                             ],
+                           },
+                   },
+              },
+     },
+
+  HDLSpec => {
+       -hdl_compiler => {
+          lintra => {
+           -vlogToolArgs => "LIRA_OPTS_START -D SVA_OFF -D INTEL_SVA_OFF -D EMULATION -D ASSSERT_OFF LIRA_OPTS_END",  
+           -vcomToolArgs => "LIRA_OPTS_START -D SVA_OFF -D INTEL_SVA_OFF -D EMULATION -D ASSERT_OFF LIRA_OPTS_END",
+        },
+          vcs => {
+           -vlogToolArgs => "+define+INTEL_SIMONLY",  
+        },
+       },
+          
+  }, 
+
+);
+if($ENV{VERDI_VERSION} =~/2014|2015|2016/){
+$audf{OSData}{'-debussy_pli_libs'}{vcs}{'Linux-SuSE'} = {
+               'i686' => [
+                  "$ENV{VERDI_HOME}/share/PLI/VCS/SUSE64/novas.tab",
+                  "$ENV{VERDI_HOME}/share/PLI/VCS/SUSE64/pli.a",
+               ],
+               'x86-64' => [
+                  "$ENV{VERDI_HOME}/share/PLI/VCS/SUSE64/novas.tab",
+                  "$ENV{VERDI_HOME}/share/PLI/VCS/SUSE64/pli.a",
+               ],
+            }, ## End of Linux-SuSE 
+ 
+}
+print "$audf{OSData}{-debussy_pli_libs}{vcs}{'Linux-SuSE'}{'x86-64'}[0]";
+

@@ -1,0 +1,63 @@
+#!/usr/intel/bin/tcsh
+# auth: Pavan N M,K Mahesh                                                                                
+# desc: source  uniquifyme <prefix>
+# source  uniquifyme idvp
+# hist  1.0  2-May-2016  - Original     
+# hist  1.1  22-Jun-2016 - Enhanced to generate Corekit , Uniquify TB & Initial DOA checks
+# hist  1.2  01-Jul-2016 - Added changes as per DFx Secure Plugin IP
+set prefix=$1
+# since this script is written for ICL, we have hardcoded to ICL as cust
+setenv ONECFG_CUST ICL
+if( $prefix == "" ) then
+    echo "Error:You must specify a prefix"
+    echo "uniquifyme <prefix>"
+    exit 1
+endif
+#if ( ! $?MODEL_ROOT ) then 
+#    echo "Error:MODEL_ROOT is not set, please set MODEL_ROOT to stf_scan_subsystem clone area"
+#    exit 1
+#endif
+#set ip_model_root = `find . -name dfxsecure_plugin.sv | head -n 1`
+#set ip_root_dir = `realpath $ip_model_root | perl -pe 's/source\/rtl\/dfxsecure_plugin\/dfxsecure_plugin.sv//'`
+#setenv MODEL_ROOT $ip_root_dir
+#setenv IP_ROOT $MODEL_ROOT
+#echo "------------------------------------------------"
+#echo "Info:Running uniquify_me with prefix: $prefix"
+#echo "------------------------------------------------"
+## Uniquify command
+## No subSIP RTL
+## RTL libs 
+## List of scopes
+##Setting versioned control to uniquify/uniquify_ascot.pl scripts
+#setenv RTL_PROJ_TOOLS /p/hdk/rtl/proj_tools
+#set uniquify_version = "16.02.10"
+#set uniquify_path = "$RTL_PROJ_TOOLS/uniquify/$uniquify_version"
+## uniquify script has hardcoded paths to src and we have source, just can't win
+## so create a temporary link to src and then remove it when done
+#$uniquify_path/uniquify -top  $prefix \
+#                        -dirs source/rtl \
+#                        -prefix $prefix
+##                        -rtl_libs scripts/liblist 
+##                       -rtl_scope scripts/scopelist
+#echo "-------------------------------------------------"
+#echo "Info:Finished Uniquifing RTL files with prefix: $prefix"
+#echo "Info:Starting Uniquifing  TB_TOP  with  prefix: $prefix"
+#echo "-------------------------------------------------"
+#Shrinidhi adding to test sgcdc#
+sed -i "s/dfxsecure_plugin_rtl_lib.dfxsecure_plugin/$prefix\_dfxsecure_plugin_rtl_lib.$prefix\_dfxsecure_plugin/g"            verif/tests/spyglasscdc/dfxsecure_plugin/dfxsecure_plugin.opt
+
+sed -i "s/dnc_param dfxsecure_plugin/dnc_param $prefix\_dfxsecure_plugin/g"            verif/tests/spyglasscdc/dfxsecure_plugin/dfxsecure_plugin.opt
+
+perl -ne 'if( /current_design/ ) { s/(dfxsecure_plugin)/'$prefix'_$1/; print; } else { print; }' tools/spyglass_cdc/dfxsecure_plugin/dfxsecure_plugin.sgdc > t ; mv -f t tools/spyglass_cdc/dfxsecure_plugin/dfxsecure_plugin.sgdc 
+
+   
+perl -ne 'if( /ACE_PROJECT/ ) { s/(dfxsecure_plugin)/'$prefix'_$1/; print; } else { print; }' cfg/ace/templates/custom_post.env.template > t ; mv -f t cfg/ace/templates/custom_post.env.template
+
+perl -ne 'if( /dfxsecure_plugin =>/ ) { s/(dfxsecure_plugin)/'$prefix'_$1/; print; } else { print; }' ace/dfxsecure_plugin.acerc > t ; mv -f t ace/$prefix\_dfxsecure_plugin.acerc  
+
+perl -ne 'if( /dfxsecure_plugin =>/ ) { s/(dfxsecure_plugin)/'$prefix'_$1/; print; } else { print; }' cfg/ace/dfxsecure_plugin/dfxsecure_plugin.acerc > t ; mv -f t cfg/ace/dfxsecure_plugin/$prefix\_dfxsecure_plugin.acerc  
+
+perl -ne 'if( /\$PROJECT/ ) { s/(dfxsecure_plugin)/'$prefix'_$1/; print; } else { print; }' ace/dfxsecure_plugin_local_ivars.udf > t ; mv -f t ace/dfxsecure_plugin_local_ivars.udf
+
+#cd $MODEL_ROOT
+echo "Uniquification done"

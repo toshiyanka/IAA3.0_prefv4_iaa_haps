@@ -1,0 +1,16 @@
+# Setup to hold the MSI inputs in the write_buffer arbiter
+wr hqm_system_csr.write_buffer_ctl.enable_debug 1
+wr hqm_system_csr.write_buffer_ctl.arb_msi_mask 1
+# Enable the cq_occ ints to be generated
+wr hqm_pf_cfg_i.msix_cap_control         0x8000
+rd hqm_system_csr.write_buffer_ctl.arb_msi_mask 1
+# 2 MSI writes should have made it into the DB before the arbiter
+# Disable the MSIs for VF0
+#### wr hqm_vf_cfg_i[0].msi_cap_msg_control   0x0000
+# Release the 2 MSIs while the MSI enable is off
+wr hqm_system_csr.write_buffer_ctl.arb_msi_mask 0
+rd hqm_pf_cfg_i.vendor_id 0x8086
+idle 1000
+rd hqm_pf_cfg_i.vendor_id 0x8086
+# Both MSIs should have been dropped in the ti_trn
+rd hqm_sif_csr.hqm_sif_cnt_10 0x00000002

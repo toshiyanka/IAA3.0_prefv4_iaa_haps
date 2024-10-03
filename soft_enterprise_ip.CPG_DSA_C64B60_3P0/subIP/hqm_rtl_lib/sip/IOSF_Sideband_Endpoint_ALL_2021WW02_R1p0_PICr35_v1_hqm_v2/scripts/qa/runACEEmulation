@@ -1,0 +1,149 @@
+#!/bin/tcsh -f
+
+################################################################################
+# Source a script that is called at the start of each back-end 
+# scripts/qa/run* script
+################################################################################
+
+unsetenv SB_STDCELLS_HDL
+
+if ( $SB_ACE_FLOW ) then
+   source ./runPre -tool_name $0 $argv
+else
+   source ${MODEL_ROOT}/scripts/qa/runPre -tool_name $0 $argv
+endif
+
+if ( ${status} != 0 ) exit ${status}
+
+if ( "${config}" =~ "IOSF_Sideband_Endpoint" ) then
+   set savename=$thisToolName
+#   if ( $SB_ACE_FLOW == 0 ) then
+#       if ($SIMBUILDTOOLDRUN) then
+#           set sbrdir=${sbrdir}/$CUST/aceroot
+#       endif
+#   endif
+   set sbrdir=${ACE_UTILS_ROOT}
+   source ${sbrdir}/scripts/qa/ephelper.csh -rtlcfg ${component} \
+                                            -topdir ${sbrdir}
+   set thisToolName=$savename
+else
+   if (${dynopt} =~ "nonDyn") then
+      set rtltop="${component}"
+   else
+      set rtltop="${component}_sbr_generic"
+   endif
+endif
+
+###########################
+# Clean Up Tool Directory #
+###########################
+
+if ( ${clean} ) then
+endif
+
+############################
+# Blow Away Tool Directory #
+############################
+
+if ( ${remove} ) then
+endif
+
+
+#######################
+# Generate Collateral #
+#######################
+
+if ( ${generate_collateral} ) then
+endif
+
+###############
+# Prevent Run #
+###############
+
+if ( ${no_run} ) then
+   exit 0
+endif
+
+#####################
+# ACE Emulation Run #
+#####################
+# This is opposite of Localtooldata_p1273, where CTECH_LIB points to backend versions of CTECH_CELLS and CTECH_SIM_LIB points to behavioral (non synthesizable) versions of CTECH. But Lintra/EFFM will work only when CTECH_LIB and CTECH_SIM_LIB both point to the behavioral code.
+
+setenv  CTECH_LIB_NAME          ${CTECH_SIM_LIB_NAME}
+setenv  COMPONENT               ${component}
+
+if ( "${config}" =~ "IOSF_Sideband_Endpoint" ) then
+    set     ace_emul_result_dir =   "${sbrdir}/verif/results/${component}"
+    set     emul_top            =   "iosf_sbc_ep_rtl_lib.${rtltop}"
+else
+    set     ace_emul_result_dir =   "${sbrdir}/verif/results/effm_${rtltop}"
+    set     emul_top            =   "iosf_sbc_rtr_rtl_lib.${rtltop}"
+endif
+
+set gui=""
+if ( ${guimode} ) then
+   set gui="-gui"
+endif
+
+# Compile model
+ace -cc -model cdc_${rtltop} -model_compile_results_dir ${ace_emul_result_dir}
+
+set exitstatus=$status
+if ( ${exitstatus} ) then
+   echo "${thisToolName} -E- ACE Compile Failed"
+   exit ${exitstatus}
+endif
+
+## Source emulation environment and ace versions
+
+### Env vars for projects based on MODEL_ROOT
+setenv EMUL_CFG_DIR                 $IP_ROOT/ace/effm_flows
+setenv EMUL_RESULTS_DIR             ${ace_emul_result_dir}/emul
+setenv EFFM_RESULTS_DIR             ${ace_emul_result_dir}/emul
+setenv EMUL_ENABLE_FILTER           1
+setenv EMUL_METADATA_FILENAME       M:cdc_${rtltop}.ace_metadata.pl
+setenv EFFM_METADATA                M:cdc_${rtltop}.ace_metadata.pl
+setenv EMUL_TOOLS_DIR               /nfs/site/eda/group/SYSNAME/emu/intel/effm/2016.15/effm_tools
+set emul_cfg_path               =   $IP_ROOT/ace/effm_flows/emul_build_soc.cfg
+#set path                        =   ( $EMUL_TOOLS_DIR $path )
+set path                        =   ( ./ $EMUL_TOOLS_DIR $path /nfs/site/eda/group/SYSNAME/emu/intel/effm/latest/tools/emulation)
+
+if ( "${config}" =~ "IOSF_Sideband_Endpoint" ) then
+    setenv EMUL_IP_NAME sbendpoint
+else
+    #setenv EMUL_IP_NAME ${component}
+    setenv EMUL_IP_NAME ${rtltop}
+endif
+
+## Source emulation environment and ace versions
+echo "ACE RESULT DIR    :   ${ace_emul_result_dir}"
+echo "EMUL RESULTS DIR  :   $EMUL_RESULTS_DIR"
+echo "EMUL META DIR     :   $EMUL_METADATA_FILENAME"
+echo "COMPONENT         :   ${component}"
+echo "RTL TOP           :   ${rtltop}"
+
+
+ace -emul \
+    -emul_top            ${emul_top} \
+    -emul_model          cdc_${rtltop} \
+    -emul_cfg            ${emul_cfg_path} \
+    -results             ${ace_emul_result_dir} \
+    -vlog_opts "+define+INTEL_EMULATION" \
+
+
+##################################
+# Verify that everything was good
+##################################
+
+set exitstatus=$status
+if ( $exitstatus ) then
+   echo "${thisToolName} -I- ACE Emulation Checks failed"
+#This exit quits quits once all the checks are done: doesnt execute "resetting the ACE version"
+   exit ${exitstatus}
+else
+    echo "${thisToolName} -I- ACE Emulation Checks passed"
+endif
+
+echo "ACE Version: $ACE_HOME"
+
+exit 0 

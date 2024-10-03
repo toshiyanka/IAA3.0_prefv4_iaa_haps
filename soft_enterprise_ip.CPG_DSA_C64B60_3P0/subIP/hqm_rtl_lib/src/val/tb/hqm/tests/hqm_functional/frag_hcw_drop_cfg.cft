@@ -1,0 +1,24 @@
+## -- Setup LUTs used by HCW
+#mem_update
+
+cfg_begin
+
+   msix_alarm 0 enable=0x1 addr=0xaaaa5555aaaa5555 data=0xaaa5555
+
+   dir qid 0
+   ldb qid 0
+
+   VAS 0 ldb_qidv0=1 dir_qidv0=1 credit_cnt=100
+
+   dir pp 0 vas=0 exp_ill_hcw_cmd=1
+   dir cq 0 gpa=sm
+
+   ldb pp 0 vas=0 exp_ill_hcw_cmd=1
+   ldb cq 0 gpa=sm
+   ldb pp 1 vas=0
+   ldb cq 1 gpa=sm qidv0=1 qidix0=0
+
+cfg_end
+
+wr hqm_system_csr.ingress_alarm_enable.illegal_hcw 0x1
+rd hqm_system_csr.ingress_alarm_enable.illegal_hcw 0x1

@@ -1,0 +1,14 @@
+-include $WORKAREA/src/val/tof/hcw_enqtrf_hqmproc_test/hcw_enqtrf_hqmproc_test.to
+-dirtag cqintr_cqdep_cqthres_cial_cwdt_test0
+-simv_args
+  +MSIX_CQ_check 
+  +HQM_CIAL_INT_ARM_CK_3 
+  +has_rtntokctrl_sel_mode=3      #3: token control when available tokens > _RTNTOKCTRL_NUM check cq_intr if cq_intr is received return token; otherwise don't return token
+  +has_rtntokctrl_cqthres_ctrl=1  #when set this cq_thres_ctrl has_rtntokctrl_holdnum=cq.thres+1
+  +has_rtntokctrl_rtnnum_min=0    #return all tokens before rearm
+  +has_rtntokctrl_rtnnum_max=0
+  +has_cq_cwdt_ctrl=0               #0: wait has_cq_intr_resp_waitnum_max; 1: upon cq.intr received wait for CWDT alarm before return tokens/rearm
+  +has_cq_intr_resp_waitnum_min=3   #3: 3 times of resp delay : expect to receive 3 cwdt from every cq
+  +has_cq_intr_resp_waitnum_max=8000#>1000 to support response delay (response delay: upon cial.intr if no CWDT is received wait 1200 cycles) 
+  +has_cq_rearm_ctrl=43           
+-simv_args-

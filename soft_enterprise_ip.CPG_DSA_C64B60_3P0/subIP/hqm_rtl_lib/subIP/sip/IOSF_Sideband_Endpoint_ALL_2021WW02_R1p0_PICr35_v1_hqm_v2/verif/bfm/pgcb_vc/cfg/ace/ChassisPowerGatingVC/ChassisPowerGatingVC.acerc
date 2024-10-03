@@ -1,0 +1,38 @@
+use lib "$ENV{RTL_PROJ_BIN}/perllib";
+use ToolConfig();
+
+%acerc = (
+    UDF => [
+        "$ENV{TSA_ROOT}/cfg/ace/tsa_global_ivars.udf",
+        "cfg/ace/$ENV{ACE_PROJECT}/$ENV{ACE_PROJECT}.udf",
+    ],
+    
+    LIBS => [
+        "cfg/ace/lib"
+    ],
+    
+    SUB_SCOPES => {
+        subscopes => {
+            $ENV{ACE_PROJECT} => ['uvm', 'ovm', 'saola'],
+        },
+    },
+    
+    # Ace automatically places $ACE_ENG/$ACE_PWA_DIR in the
+    # available search paths
+    SEARCH_PATHS => {
+            $ENV{ACE_PROJECT} => [ 
+                "$ENV{MODEL_ROOT}",
+            ],
+            uvm =>              [&ToolConfig::get_tool_var("ipconfig/uvm",          "SEARCH_PATHS"),],
+            ovm =>              [&ToolConfig::get_tool_var("ipconfig/ovm",          "SEARCH_PATHS"),],
+            saola =>            [&ToolConfig::get_tool_var("ipconfig/saola",        "SEARCH_PATHS"),],
+            
+    },
+    TEST_PATTERNS => [ 'verif/tests/AruTimesyncVc', ],
+
+  
+    # Custom settings
+    'HDLSPEC_FILE_READING_RETRY_DELAY' => '5',
+    'HDLSPEC_FILE_READING_RETRY_LIMIT' => '3',
+    'ENABLE_RECURSIVE_DEP_LIBS' => 1,
+);

@@ -1,0 +1,45 @@
+################################################################################
+## -- Check whether the FRAG/FRAG_T commands are dropped
+################################################################################
+
+## -- Send FRAG/FRAG_T commands from DIR PP
+HCW DIR:0 qe_valid=1 qe_orsp=1 qe_uhl=0 cq_pop=0 wu=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302 exp_ingress_drop=1
+HCW DIR:0 qe_valid=1 qe_orsp=1 qe_uhl=0 cq_pop=1 wu=1 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302 exp_ingress_drop=1
+HCW DIR:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 wu=1 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302 batch=1
+HCW DIR:0 qe_valid=1 qe_orsp=1 qe_uhl=0 cq_pop=0 wu=1 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302 exp_ingress_drop=1
+
+## -- Send FRAG/FRAG_T commands from LDB PP
+HCW LDB:0 qe_valid=1 qe_orsp=1 qe_uhl=0 cq_pop=0 wu=1 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302 exp_ingress_drop=1
+HCW LDB:0 qe_valid=1 qe_orsp=1 qe_uhl=0 cq_pop=1 wu=1 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302 exp_ingress_drop=1
+IDLE 300
+
+HCW LDB:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 wu=1 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302 batch=1
+HCW LDB:0 qe_valid=1 qe_orsp=1 qe_uhl=0 cq_pop=0 wu=1 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302 batch=1 exp_ingress_drop=1
+HCW LDB:0 qe_valid=1 qe_orsp=1 qe_uhl=0 cq_pop=1 wu=1 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302 batch=1 exp_ingress_drop=1
+HCW LDB:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 wu=1 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302 batch=1
+IDLE 600
+
+HCW LDB:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 wu=1 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302
+HCW LDB:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 wu=1 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302
+IDLE 1200
+
+HCW DIR:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 wu=1 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302 batch=1
+HCW DIR:0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 wu=1 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302
+
+poll_sch  dir:0  0x3   1000 20
+
+
+poll_sch  ldb:1  0x4   1000 20
+
+
+## -- BAT_T command - return tokens from DIR 0
+HCW DIR:0 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x002 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302
+
+## -- BAT_T command - return tokens from LDB 1
+HCW LDB:1 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x003 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302
+
+## -- COMP command - indicate completions
+HCW LDB:1 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302
+HCW LDB:1 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302
+HCW LDB:1 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302
+HCW LDB:1 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=0 dsi=0x302

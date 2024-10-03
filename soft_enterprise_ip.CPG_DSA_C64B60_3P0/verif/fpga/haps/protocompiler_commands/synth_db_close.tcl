@@ -1,0 +1,2 @@
+database close
+exit

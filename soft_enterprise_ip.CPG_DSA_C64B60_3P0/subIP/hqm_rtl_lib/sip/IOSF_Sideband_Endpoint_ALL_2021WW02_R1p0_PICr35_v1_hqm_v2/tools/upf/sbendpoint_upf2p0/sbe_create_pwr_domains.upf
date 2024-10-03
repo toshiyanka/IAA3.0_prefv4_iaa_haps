@@ -1,0 +1,79 @@
+
+
+#--------------------------------------------------------------------------------
+# Setup AON domain.
+set PD_SBE_AON_NAME pd_SBE_AON 
+create_power_domain ${PD_SBE_AON_NAME} -include_scope 
+
+create_supply_port $SOC_SUPPLY_PORT -direction in -domain ${PD_SBE_AON_NAME} 
+create_supply_net  $SOC_SUPPLY_PORT -domain               ${PD_SBE_AON_NAME} 
+connect_supply_net $SOC_SUPPLY_PORT -ports $SOC_SUPPLY_PORT 
+
+create_supply_port $SOC_GROUND_PORT -direction in -domain ${PD_SBE_AON_NAME} 
+create_supply_net  $SOC_GROUND_PORT -domain               ${PD_SBE_AON_NAME} 
+connect_supply_net $SOC_GROUND_PORT -ports $SOC_GROUND_PORT 
+
+set_domain_supply_net  ${PD_SBE_AON_NAME} \
+    -primary_power_net   $SOC_SUPPLY_PORT \
+    -primary_ground_net  $SOC_GROUND_PORT 
+
+add_port_state $SOC_SUPPLY_PORT -state "prim_on  $SOC_SUPPLY_NOM"
+add_port_state $SOC_SUPPLY_PORT -state "prim_off off"
+add_port_state $SOC_GROUND_PORT -state "grnd_on  $GND_SUPPLY_NOM"
+
+
+
+
+
+
+
+#--------------------------------------------------------------------------------
+# Setup PG domain.
+
+set sbep_power_domain pd_SBE_PGD
+create_power_domain $sbep_power_domain -elements " \
+            ${path_to_pg_domain} \
+"
+
+create_supply_net ${SOC_SUPPLY_PORT}_gated_sbe -domain $sbep_power_domain
+create_supply_net ${SOC_SUPPLY_PORT} -domain $sbep_power_domain -reuse 
+create_supply_net ${SOC_GROUND_PORT} -domain $sbep_power_domain -reuse 
+
+
+set_domain_supply_net $sbep_power_domain \
+    -primary_power_net  ${SOC_SUPPLY_PORT}_gated_sbe \
+    -primary_ground_net ${SOC_GROUND_PORT} 
+
+
+create_power_switch sw_SBE_PGD \
+   -domain             $sbep_power_domain \
+   -input_supply_port  "$PS_CELL_UNGATED_IN $SOC_SUPPLY_PORT" \
+   -output_supply_port "$PS_CELL_GATED_OUT  ${SOC_SUPPLY_PORT}_gated_sbe" \
+   -control_port       "$PS_CELL_ENABLE     fet_en_b" \
+   -on_state           "SW_ON  $PS_CELL_UNGATED_IN !$PS_CELL_ENABLE" \
+   -off_state          "SW_OFF                      $PS_CELL_ENABLE" \
+
+
+map_power_switch sw_SBE_PGD \
+   -domain $sbep_power_domain \
+   -lib_cells ${PS_CELL}
+
+
+
+add_port_state sw_SBE_PGD/$PS_CELL_GATED_OUT \
+      -state  "SBE_PGD_ON   $SOC_SUPPLY_NOM" 
+add_port_state sw_SBE_PGD/$PS_CELL_GATED_OUT \
+      -state  "SBE_PGD_OFF  off" 
+
+
+
+
+#--------------------------------------------------------------------------------
+# Create the power state table.
+create_pst pst_SBE   -supplies  "$SOC_SUPPLY_PORT ${SOC_SUPPLY_PORT}_gated_sbe $SOC_GROUND_PORT"
+add_pst_state all_on  -state    { prim_on  SBE_PGD_ON  grnd_on  } -pst pst_SBE
+add_pst_state gated   -state    { prim_on  SBE_PGD_OFF grnd_on  } -pst pst_SBE
+add_pst_state all_off -state    { prim_off SBE_PGD_OFF grnd_on  } -pst pst_SBE
+
+
+

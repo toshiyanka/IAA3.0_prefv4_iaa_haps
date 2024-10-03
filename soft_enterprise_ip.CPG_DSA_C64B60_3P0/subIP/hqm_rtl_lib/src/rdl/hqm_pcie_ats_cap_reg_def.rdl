@@ -1,0 +1,96 @@
+regfile hqm_pcie_ats_cap_rf {
+    reg ats_cap_id_r {
+        HqmClassification="PCI_CFG_REG_NA_1";
+        name = "Ats Cap Id";
+        desc = "ATS capability";
+        regwidth = 16;
+        shared;
+        IntelRsvd = false;
+
+        field {
+                name = "Atscid";
+                desc = "Capability ID: PCI SIG assigned capability record ID.";
+                PowerWell="vcccfn"; AccessType = "RO";
+        } ATSCID [15:00] = 16'h000F;
+
+    }; // end register ats_cap_id_r
+
+    reg ats_cap_version_next_ptr_r {
+        HqmClassification="PCI_CFG_REG_NA_1";
+        name = "Ats Cap Version Next Ptr";
+        desc = "ATS Capability Version";
+        regwidth = 16;
+        shared;
+        IntelRsvd = false;
+
+        field {
+                name = "Cap Ptr";
+                desc = "Next Capability Offset - last extended capability.";
+                PowerWell="vcccfn"; AccessType = "RO";
+        } CAP_PTR [15:4] = 12'h00;
+
+        field {
+                name = "Atscv";
+                desc = "ATS Capability Version - This is set to 1h for the Single Root I/O Virtualization and Sharing Specification, Revision 1.1.";
+                PowerWell="vcccfn"; AccessType = "RO";
+        } ATSCV [3:0] = 4'h1;
+
+    }; // end register ats_cap_version_next_ptr_r
+
+    reg ats_cap_r {
+        HqmClassification="PCI_CFG_REG_NA_1";
+        name = "Ats Cap";
+        desc = "ATS Capabilities Register";
+        regwidth = 16;
+        shared;
+        IntelRsvd = false;
+
+        field {
+                name = "Atsgis";
+                desc = "ATS Global Invalidate Support. The devtlb supports global invalidate requests.";
+                PowerWell="vcccfn"; AccessType = "RO";
+        } ATSGIS [6:6] = 1'h1;
+
+        field {
+                name = "Atspar";
+                desc = "ATS Page Aligned Request.  Devtlb will always zero out bits 11:0.";
+                PowerWell="vcccfn"; AccessType = "RO";
+        } ATSPAR [5:5] = 1'h1;
+
+        field {
+                name = "Atsiqd";
+                desc = "ATS Invalidate Queue Depth.  Devtlb supports the maximum of 32 invalidate requests";
+                PowerWell="vcccfn"; AccessType = "RO";
+        } ATSIQD [4:0] = 5'h00;
+
+    }; // end register ats_cap_r
+
+    reg ats_cap_control_r {
+        HqmClassification="PCI_CFG_REG_NA_1";
+        name = "Ats Cap Control";
+        desc = "ATS Capabilities Register";
+        regwidth = 16;
+        shared;
+        IntelRsvd = false;
+
+        field {
+            name = "Atse";
+            desc = "ATS Enable. Behavior is undefined if the PASID enable, Execute Requested, or Privileged Mode Requested bits are changed while this bit is set.";
+            PowerWell="vcccfn"; AccessType = "RW";
+        } ATSE [15:15] = 1'h0;
+
+        field {
+            name = "ATSSTU";
+            desc = "ATS Smallest Translation Unit.  2**STU defines the minimum number of 4K blocks indicated in an ATS completion or invalidate request.";
+            PowerWell="vcccfn"; AccessType = "RW";
+        } ATSSTU [4:0] = 5'h00;
+
+    }; // end register pacscap
+
+    ats_cap_id_r                ATS_CAP_ID                  @0x0;
+    ats_cap_version_next_ptr_r  ATS_CAP_VERSION_NEXT_PTR    @0x2;
+    ats_cap_r                   ATS_CAP                     @0x4;
+    ats_cap_control_r           ATS_CAP_CONTROL             @0x6;
+
+};
+

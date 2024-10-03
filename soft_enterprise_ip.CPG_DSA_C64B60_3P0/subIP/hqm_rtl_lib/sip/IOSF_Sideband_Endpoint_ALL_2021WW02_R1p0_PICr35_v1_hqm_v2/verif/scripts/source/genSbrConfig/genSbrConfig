@@ -1,0 +1,1544 @@
+#!/usr/intel/bin/perl -w
+# Name: genSbdConfig
+# Date: 11 February, 2011
+# Author: Tim Jennings
+# Description: Create the configuration objects for the Sideband testbench
+
+# subroutine declarations
+sub parseCmdLine;
+sub processXML;
+
+$VERSION = "0.1";
+$date = "Feb 11, 2011";
+$toolname = "genSbdConfig";
+$xmlfile = "";
+$outdir = "";
+$template = "";
+%cihash = (); # empty component instance hash
+%ichash = (); # empty interconnect hash
+$componentInstances = "";
+$vendorext = "";
+$interconnects = "";
+#$node_scope = ""; # current node level (scope)
+
+use strict;
+use XML::XPath;
+use Getopt::Long;
+use Pod::Usage;
+use Data::Dumper;
+use File::Basename;
+
+my $help = 0;
+
+###### XML-Template cross reference hash
+
+# elements not handled in this hash
+
+%main::ciConfigElementXRef = (
+   'number_of_nodes' => {
+      xmlpatt => "Number of Nodes",
+      default => "0",
+      comment => "",
+   },
+   'ip_intfc_nids' => {
+      xmlpatt => "ip_intf_nids",
+      default => "",
+      comment => "",
+   },
+   'power_well_number' => {
+      xmlpatt => "Power Well Number",
+      default => "0",
+      comment => "",
+   },
+   'clock_number' => {
+      xmlpatt => "Clock Number",
+      default => "0",
+      comment => "",
+   },
+   'pgcb_enable' => {
+      xmlpatt => "PGCB Enable",
+      default => "0",
+      comment => "",
+   },
+   'psmi_enable' => {
+      xmlpatt => "PSMIArbiterOverride",
+      default => "0",
+      comment => "",
+   }, 
+   'pok_ovrd' => {
+      xmlpatt => "POK Override Enabled",
+      default => "0",
+      comment => "",
+   },
+
+   'chassis_enable' => {
+     xmlpatt => "Chassis Compliant Clocking",
+     default => "0",
+     comment => "",
+   },
+   'clock_name' => {
+      xmlpatt => "Clock Name",
+      default => "clock_default",
+      comment => "",
+   },
+   'num_port_ids' => {
+      xmlpatt => "Number of Port IDs",
+      default => "0",
+      comment => "",
+   },
+   'port_ids' => {
+      xmlpatt => "Port IDs",
+      default => "0",
+      comment => "",
+   },
+   'int_byte_width' => {
+      xmlpatt => "Internal Byte Width",
+      default => "0",
+      comment => "",
+   },
+   'ext_byte_width' => {
+      xmlpatt => "External Byte Width",
+      default => "0",
+      comment => "",
+   },
+   'routed_port_ids' => {
+      xmlpatt => "Routed Port IDs",
+      default => "0",
+      comment => "",
+   },
+   'message_port_ids' => {
+      xmlpatt => "Message Port IDs",
+      default => "0",
+      comment => "",
+   },
+   'np_credit_buffer' => {
+      xmlpatt => "NP Credit Buffer",
+      default => "0",
+      comment => "",
+   },
+   'pc_credit_buffer' => {
+      xmlpatt => "PC Credit Buffer",
+      default => "0",
+      comment => "",
+   },
+   'dut_pc_credit_buffer' => {
+      xmlpatt => "PC Ingress QDepth",
+      default => "0",
+      comment => "",
+   },
+   'dut_np_credit_buffer' => {
+      xmlpatt => "NP Ingress QDepth",
+      default => "0",
+      comment => "",
+   },
+   'misr_enabled' => {
+      xmlpatt => "Accum MISR Enabled",
+      default => "0",
+      comment => "",
+   },
+   'stap_enabled' => {
+      xmlpatt => "DFD STAP Enabled",
+      default => "0",
+      comment => "",
+   },
+   'skip_active_req' => {
+      xmlpatt => "Skip Active Request",
+      default => "0",
+      comment => "",
+   },
+   'port_unused' => {
+      xmlpatt => "MI Port Unused",
+      default => "0",
+      comment => "",
+   },
+   'parity_rtr_en' => {
+      xmlpatt => "Router Parity Enabled",
+      default => "0",
+      comment => "",
+   },
+   'segment_scaling' => {
+      xmlpatt => "GNR Hierarchical Fabric",
+      default => "0",
+      comment => "",
+   },
+   'hierarchical_routing' => {
+      xmlpatt => "Hierarchical Fabric",
+      default => "0",
+      comment => "",
+   },
+   'global_rtr' => {
+      xmlpatt => "Global Router",
+      default => "0",
+      comment => "",
+   },  
+   'global_seg_rtr' => {
+      xmlpatt => "GNR Global Segment",
+      default => "0",
+      comment => "",
+   },
+   'min_global_pid' => {
+      xmlpatt => "Min Global PID",
+      default => "0",
+      comment => "",
+   },
+   'min_gseg_pid' => {
+      xmlpatt => "Min GNR Segment PID",
+      default => "0",
+      comment => "",
+   },
+   'min_gseg_mcast_pid' => {
+      xmlpatt => "Min Mcast Segment Global PID",
+      default => "0",
+      comment => "",
+   },
+   'max_gseg_mcast_pid' => {
+      xmlpatt => "Max Mcast Segment Global PID",
+      default => "0",
+      comment => "",
+   },
+   'min_lseg_mcast_pid' => {
+      xmlpatt => "Min Mcast Segment Local PID",
+      default => "0",
+      comment => "",
+   },
+   'max_lseg_mcast_pid' => {
+      xmlpatt => "Max Mcast Segment Local PID",
+      default => "0",
+      comment => "",
+   },
+   'num_parity_pin' => {
+      xmlpatt => "Num Parity Error Input Pins",
+      default => "0",
+      comment => "",
+   },   
+);
+
+%main::clkRstConfigElementXRef = (
+   'clk_number' => {
+      xmlpatt => "Clock Number",
+      default => "0",
+      comment => "",
+   },
+   'clk_name' => {
+      xmlpatt => "Clock Name",
+      default => "clock_default",
+      comment => "",
+   },
+   'reset_name' => {
+      xmlpatt => "Reset Name",
+      default => "reset_default",
+      comment => "",
+   },
+   'use_rtr_prefix' => {
+      xmlpatt => "Use Router Prefix",
+      default => "0",
+      comment => "",
+   },
+   'pmu_prefix' => {
+      xmlpatt => "PMU Prefix",
+      default => "",
+      comment => "",
+   },
+   'tb_half_per' => {
+      xmlpatt => "Testbench Half Period",
+      default => "",
+      comment => "",
+   },
+   'reset_cycle_cnt' => {
+      xmlpatt => "Reset Cycle Count",
+      default => "1ns",
+      comment => "",
+   },
+   'comments' => {
+      xmlpatt => "Comments",
+      default => "",
+      comment => "",
+   },
+);
+
+%main::multiCastSSFConfigElementXRef = (
+   'grp_port_id' => {
+      xmlpatt => "Group Port ID",
+      default => "0",
+      comment => "",
+   },
+   'ssf_port_id' => {
+      xmlpatt => "SSF Port ID",
+      default => "0",
+      comment => "",
+   },
+   'subnet_type' => {
+      xmlpatt => "Subnet Type",
+      default => "",
+      comment => "",
+   },
+   'num_subnet_port_ids' => {
+      xmlpatt => "Number of Subnet IDs",
+      default => "0",
+      comment => "",
+   },
+   'subnet_port_ids' => {
+      xmlpatt => "Subnet IDs",
+      default => "",
+      comment => "",
+   },
+   'num_port_ids' => {
+      xmlpatt => "Number of Port IDs",
+      default => "0",
+      comment => "",
+   },
+   'port_ids' => {
+      xmlpatt => "Port IDs",
+      default => "",
+      comment => "",
+   },
+);
+
+%main::multiCastGConfigElementXRef = (
+   'grp_port_id' => {
+      xmlpatt => "Group Port ID",
+      default => "0",
+      comment => "",
+   },
+   'num_port_ids' => {
+      xmlpatt => "Number of Port IDs",
+      default => "0",
+      comment => "",
+   },
+   'port_ids' => {
+      xmlpatt => "Port IDs",
+      default => "",
+      comment => "",
+   },
+   'subnet_type' => {
+      xmlpatt => "Subnet Type",
+      default => "",
+      comment => "",
+   },
+   'local_extension' => {
+      xmlpatt => "Local Extension",
+      default => "",
+      comment => "",
+   },
+   'bridge_en' => {
+      xmlpatt => "Transp Bridge Enabled",
+      default => "",
+      comment => "",
+   },
+);
+
+%main::multiCastConfigElementXRef = (
+   'grp_port_id' => {
+      xmlpatt => "Group Port ID",
+      default => "0",
+      comment => "",
+   },
+   'num_port_ids' => {
+      xmlpatt => "Number of Port IDs",
+      default => "0",
+      comment => "",
+   },
+   'port_ids' => {
+      xmlpatt => "Port IDs",
+      default => "",
+      comment => "",
+   },
+);
+
+%main::epSpecRevisionConfigElementXRef = (
+   'sr_mixed_cnt' =>{
+      xmlpatt => "EPs with mixed spec support",
+      default => "0",
+      comment => "",
+   },
+   'sr_ep_names' => {
+      xmlpatt => "EP Names",
+      default => "",
+      comment => "",
+   },
+);
+
+%main::pwrWellConfigElementXRef = (
+   'pwr_well_num' => {
+      xmlpatt => "Power Well Number",
+      default => "0",
+      comment => "",
+   },
+   'pwr_well_iso_sig' => {
+      xmlpatt => "Power Well Isolation Signal",
+      default => "0",
+      comment => "",
+   },
+   'comments' => {
+      xmlpatt => "Comments",
+      default => "0",
+      comment => "",
+   },
+);
+
+%main::clkGatingConfigElementXRef = (
+   'clk_gate_en' => {
+      xmlpatt => "Enable Clock Gating",
+      default => "0",
+      comment => "",
+   },
+   'comments' => {
+      xmlpatt => "Comments",
+      default => "0",
+      comment => "",
+   },
+);
+
+parseCmdLine();
+processXML();
+processTemplate();
+
+
+#=============Subroutines===================#
+sub processTemplate {
+   my $template_name;
+   if( $main::template eq "" ) {
+      print "Template file not indicated\n";
+      exit 1;
+   }
+   if(! -f $main::template ) {
+      print "Template file $main::template does not exist\n";
+      exit 1;
+   }
+   if( ! -d $main::outdir ) {
+      mkdir $main::outdir, 0755;
+   }
+   $template_name = basename($main::template);
+   my $file = $main::outdir . "/" . $template_name;
+   $file =~ s/_tmpl//;
+   open(OUT, ">$file") or die "Output file ($file) not writeable";
+   
+   open $main::tmpl, "<$main::template" or die "template file not readable";
+   my $strng;
+   while($strng = <$main::tmpl>) {
+      if( $strng =~ /<%dt_mday%>/ ) {
+         $strng = dt_mday($strng);
+      }
+      if( $strng =~ /<%dt_month%>/ ) {
+         $strng = dt_month($strng);
+      }
+      if( $strng =~ /<%dt_year%>/ ) {
+         $strng = dt_year($strng);
+      }
+      if( $strng =~ /(.*)<%pgm_cmdline%>/ ) {
+         $strng = pgm_cmdline($strng, $1);
+      }
+      if( $strng =~ /<\?dsn_vendor_extensions\?>/ ) {
+         $strng = dsn_vendor_extentions_cond($strng);
+      }
+      if( $strng =~ /<,rtrrtl_instname,>/ ) {
+         print "Processing <,rtrrtl_instname,>\n" if $main::debug;
+         $strng = rtrrtl_instname_cs($strng);
+      }
+      if( $strng =~ /<\+rtrrtl_instname\+>/ ) {
+         print "Processing <+rtrrtl_instname+>\n" if $main::debug;
+         $strng = splat_instname_iter($main::tmpl, "rtrrtl_instname", "rtr_rtl");
+      }
+      if( $strng =~ /<,rtrtlm_instname,>/ ) {
+         print "Processing <,rtrtlm_instname,>\n" if $main::debug;
+         $strng = rtrtlm_instname_cs($strng);
+      }
+      if( $strng =~ /<\+rtrtlm_instname\+>/ ) {
+         print "Processing <+rtrtlm_instname+>\n" if $main::debug;
+         $strng = splat_instname_iter($main::tmpl, "rtrtlm_instname", "rtr_tlm");
+      }
+      if( $strng =~ /<,eptlm_instname,>/ ) {
+         print "Processing <,eptlm_instname,>\n" if $main::debug;
+         $strng = eptlm_instname_cs($strng);
+      }
+      if( $strng =~ /<\+eptlm_instname\+>/ ) {
+         print "Processing <+eptlm_instname+>\n" if $main::debug;
+         $strng = splat_instname_iter($main::tmpl, "eptlm_instname", "ep_tlm");
+      }
+      if( $strng =~ /<,eprtl_instname,>/ ) {
+         print "Processing <,eprtl_instname,>\n" if $main::debug;
+         $strng = eprtl_instname_cs($strng);
+      }
+      if( $strng =~ /<\+eprtl_instname\+>/ ) {
+         print "Processing <+eprtl_instname+>\n" if $main::debug;
+         $strng = splat_instname_iter($main::tmpl, "eprtl_instname", "ep_rtl");
+      }
+      if( $strng =~ /<\+rtr_instname\+>(.*)/ ) {
+         print "Bad format at line ", __LINE__, "\n" if $1 ne "";
+         print "Processing <+rtr_instname+>\n" if $main::debug;
+         $strng = splat_instname_iter($main::tmpl, "rtr_instname", "rtr_rtl", "rtr_tlm");
+      }
+      if( $strng =~ /<\+ep_instname\+>(.*)/ ) {
+         print "Bad format at line ", __LINE__, "\n" if $1 ne "";
+         print "Processing <+ep_instname+>\n" if $main::debug;
+         $strng = splat_instname_iter($main::tmpl, "ep_instname", "ep_tlm", "ep_rtl");
+      }
+      if( $strng =~ /<\+iconn_name\+>(.*)/ ) {
+         print "Bad format at line ", __LINE__, "\n" if $1 ne "";
+         print "Processing <+iconn_name+>\n" if $main::debug;
+	      $strng = interconnect_instname_iter($main::tmpl);
+      }
+      if( $strng =~ /<\+clk_reset\+>(.*)/ ) {
+         print "Bad format at line ", __LINE__, "\n" if $1 ne "";
+         print "Processing <+clk_reset+>\n" if $main::debug;
+         $strng = clk_reset_iter($main::tmpl);
+      }
+      if( $strng =~ /<\+multi_castSSF\+>(.*)/ ) {
+         print "Bad format at line ", __LINE__, "\n" if $1 ne "";
+         print "Processing <+multi_castSSF+>\n" if $main::debug;
+         $strng = multi_castSSF_iter($main::tmpl);
+      }
+      if( $strng =~ /<\+multi_castG\+>(.*)/ ) {
+         print "Bad format at line ", __LINE__, "\n" if $1 ne "";
+         print "Processing <+multi_castG+>\n" if $main::debug;
+         $strng = multi_castG_iter($main::tmpl);
+      }
+      if( $strng =~ /<\+multi_cast\+>(.*)/ ) {
+         print "Bad format at line ", __LINE__, "\n" if $1 ne "";
+         print "Processing <+multi_cast+>\n" if $main::debug;
+         $strng = multi_cast_iter($main::tmpl);
+      }
+      if( $strng =~ /<\+power_well\+>(.*)/ ) {
+         print "Bad format at line ", __LINE__, "\n" if $1 ne "";
+         print "Processing <+power_well+>\n" if $main::debug;
+         $strng = power_well_iter($main::tmpl);
+      }
+      if( $strng =~ /<\+clock_gating\+>(.*)/ ) {
+         print "Bad format at line ", __LINE__, "\n" if $1 ne "";
+         print "Processing <+clock_gating+>\n" if $main::debug;
+         $strng = clock_gating_iter($main::tmpl);
+      }
+      if( $strng =~ /<%sr_ep_names%>/ ) {
+         $strng = specRevision($strng);
+      }
+      if( $strng =~ /<%sr_mixed_cnt%>/ ) {
+         $strng = specRevision($strng);
+      }
+      if( $strng =~ /<\Q?sr_mixed_cnt?\E>/ ) {
+         $strng = specRevision($strng);
+      }
+      print OUT $strng;
+   }
+   close OUT;
+}
+
+sub processXML {
+   $main::parser = XML::XPath->new($main::xmlfile);
+
+   # get a list of all the component instances
+   $main::componentInstances = $main::parser->find("//spirit:componentInstance");
+   my $n = $main::componentInstances->size;
+   print "# component instances = $n\n" if $main::debug;
+   # load the component instances into a ci hash for quick access
+   
+   foreach my $ci ($main::componentInstances->get_nodelist) {
+      my $iname = $ci->find("spirit:instanceName");
+      print "inserting $iname\n" if $main::debug;
+      $main::cihash{$iname} = $ci;
+   }
+   $main::vendorext =  $main::parser->find("spirit:design/spirit:vendorExtensions");
+   my $m = $main::vendorext->size;
+   print "# vendor extensions = $m\n" if $main::debug;
+   my $vexts = $main::vendorext->pop()->find("*");
+   $m = $vexts->size;
+   print "# ves = $m\n" if $main::debug;
+   foreach my $ve ($vexts->get_nodelist) {
+      my $nm = $ve->getName();
+      print "vendor extension = $nm\n" if $main::debug;
+   }
+
+   $main::interconnects = $main::parser->find("spirit:design/spirit:interconnections/spirit:interconnection");
+   my $s = $main::interconnects->size;
+   print "# interconnects = $s\n" if $main::debug;
+   foreach my $ic ($main::interconnects->get_nodelist) {
+      my $crefs = $ic->find("spirit:activeInterface");
+      my $cnt = $crefs->size;
+      print "crefs: $cnt\n" if $main::debug;
+      my $nm = $ic->find("spirit:name");
+      print "inserting $nm\n" if $main::debug;
+      foreach my $icc ($crefs->get_nodelist) {
+         my $nm = $icc->getAttribute("spirit:componentRef");
+         print "add $nm\n" if $main::debug;
+         $main::ichash{$nm} = $ic;
+      }
+   }
+
+   my $all = $main::parser->find("spirit:design/*");
+   my $t = $all->size;
+   print "# design level nodes = $t\n" if $main::debug;
+}
+
+sub parseCmdLine {
+   my $prnt_version;
+
+   GetOptions( 'help|?'     => \$main::help,
+               'debug'      => \$main::debug,
+               'outdir=s'   => \$main::outdir,
+	       'template=s' => \$main::template,
+	       'version'    => \$prnt_version
+             ) or pod2usage({-verbose => 2, -exitval => 0});
+
+   # print the version
+   if( $prnt_version ) {
+      print "$main::toolname  $main::VERSION  $main::date\n";
+      exit;
+   }
+   # print the -help usage message	     
+   pod2usage({-verbose => 2,
+              -exitval => 0} ) if $main::help;
+   # print the usage message if the output directory is missing	      
+   pod2usage({-verbose => 2,
+              -exitval => 0} ) if $main::outdir eq "";
+   # print the usage message if the input xml file is missing
+   pod2usage({-verbose => 2,
+              -exitval => 0} ) if $#ARGV == -1;  
+
+   $main::xmlfile = shift @ARGV;	     
+}
+
+#### Component instance subroutines
+
+# rtrrtl_instname_iter
+# <+rtrrtl_instname+>
+# iterate over the rtr_rtl instances
+# set the scope to the current instance
+# ARGS:
+#   tstring : string - string to be parsed and printed
+sub splat_instname_iter {
+   my $tmpl = shift;
+   my $patt = shift;
+   my @nms = @_; # the rest are name types
+   my $iterpatt = "<-" . $patt . "->";
+   my $nmpatt = "<%" . $patt . "%>";
+   my $resultstrng = "";
+   my $workstrng = "";
+   my $thistmpl = "";
+   # load the rest of the string up through <-rtr_instance->
+   while( <$tmpl> ) {
+      last if( /$iterpatt/ );
+      $thistmpl .= $_;
+   }
+   foreach my $ci ($main::parser->findnodes("//spirit:componentInstance")) {
+      my $creftype = compRefName($ci);
+      my $found = 0;
+      foreach my $name (@nms) {
+         if( $name eq $creftype ) {
+            $found = 1;
+         }
+      }
+      next if(  ! $found );
+      # start with a fresh string
+      $workstrng = $thistmpl;
+      my $instname = $ci->find("spirit:instanceName");
+      if( $workstrng =~ /$nmpatt/ ) {
+        $workstrng= replace_all($workstrng, $nmpatt, $instname);
+      }
+      
+      foreach my $ce ($ci->findnodes("spirit:configurableElementValues")) {
+         # loop through the possible configurableElementValue
+         for my $key ( keys %main::ciConfigElementXRef ) {
+            my $kcond = "<?" . $key . "?>";
+	         print "$instname: search for $key\n" if $main::debug;
+            if( $workstrng =~ /\Q$kcond\E/ ) {
+	            print "$instname: $key? Found\n" if $main::debug;
+               (my $found, my $repl) = getInstConfigElem($ce, $main::ciConfigElementXRef{$key}{xmlpatt});
+               if( $found ) {
+                  $workstrng = replace_all($workstrng, $kcond, "1");
+               } else {
+                  $workstrng = replace_all($workstrng, $kcond, "0");
+               }
+            }
+            my $krep = "<%" . $key . "%>";
+            if( $workstrng =~ /$krep/ ) {
+               (my $found, my $repl) = getInstConfigElem($ce, $main::ciConfigElementXRef{$key}{xmlpatt});
+               if( $found ) {
+                  $workstrng = replace_all($workstrng, $krep, $repl);
+               } else {
+                  $workstrng = replace_all($workstrng, $krep, $main::ciConfigElementXRef{$key}{default});
+               }
+            }
+         } # config Element Value loop
+      }
+      # handle the payload_width_* configurableElementValue
+      if( $workstrng =~ /<\+payload_width\+>/ ) {
+         $workstrng = strng_var_iter($workstrng, "payload_width", "payload_width_", $ci);
+      }
+      
+      # handle the pid_range_* configurableElementValue
+      if( $workstrng =~ /<\+pid_range\+>/ ) {
+         $workstrng = strng_var_iter($workstrng, "pid_range", "pid_range_", $ci);
+      }
+      
+	  if( $workstrng =~/<\+skip_node\+>/ ) {
+         $workstrng = strng_var_sm_iter($workstrng, "skip_node", "MI Port Unused", $ci);
+      }
+	  
+      if( $workstrng =~/<\+hbridge_node\+>/ ) {
+         $workstrng = strng_var_sm_iter($workstrng, "hbridge_node", "Hierarchical Bridge", $ci);
+      }
+      
+      if( $workstrng =~/<\+hbridge_pid\+>/ ) {
+         $workstrng = strng_var_sm_iter($workstrng, "hbridge_pid", "Hier Bridge PortID", $ci);
+      }
+      
+      if( $workstrng =~/<\+seg_bridge_node\+>/ ) {
+         $workstrng = strng_var_sm_iter($workstrng, "seg_bridge_node", "GNR Bridge Enable", $ci);
+      }
+      
+      if( $workstrng =~/<\+seg_bridge_pid\+>/ ) {
+         $workstrng = strng_var_sm_iter($workstrng, "seg_bridge_pid", "GNR Segment ID", $ci);
+      }
+
+      if( $workstrng =~/<\+ism_strap_en\+>/ ) {
+         $workstrng = strng_var_sm_iter($workstrng, "ism_strap_en", "ISM Is Agent Strap", $ci);
+      }
+
+      if( $workstrng =~/<\+port_parity\+>/ ) {
+         $workstrng = strng_var_custom($workstrng, "port_parity", "Port Parity Enabled", $ci);
+      }
+      
+      # handle the node names
+      if( $workstrng =~/<\+node_name\+>/ ) {
+         $workstrng = strng_var_iter($workstrng, "node_name", "N", $ci);
+      }
+      $resultstrng .= $workstrng;
+   }
+  
+   return $resultstrng;
+}
+
+#### interconnect subroutine ####
+sub interconnect_instname_iter {
+   my $tmpl = shift;
+   my $thistmpl = "";
+   my $resultstrng = "";
+   my $workstrng = "";
+   my $patt = "iconn_name";
+   my $nmpatt = "<%" . $patt . "%>";
+   my $iterpatt = "<-" . $patt . "->";
+   my @crefarr = ();
+   my @brefarr = ();
+   $crefarr[1] = "<%iconn_cref_int1%>";
+   $crefarr[2] = "<%iconn_cref_int2%>";
+   $brefarr[1] = "<%iconn_bref_int1%>";
+   $brefarr[2] = "<%iconn_bref_int2%>";
+   
+   # load the rest of the string up through <-iconn_instname->
+   while( <$tmpl> ) {
+      last if( /$iterpatt/ );
+      $thistmpl .= $_;
+   }
+   # loop through all the interconnects
+   foreach my $ci ($main::parser->findnodes("//spirit:interconnection")) {
+      $workstrng = $thistmpl;
+      my $name = $ci->find("spirit:name");
+#      if( $thistmpl =~ /$nmpatt/ ) {
+        $workstrng .= replace_all($workstrng, $nmpatt, $name);
+#      }
+      my $i = 1;
+      foreach my $ce ($ci->findnodes("spirit:activeInterface")) {
+         my $cref = $ce->getAttribute("spirit:componentRef");
+	      my $bref = $ce->getAttribute("spirit:busRef");
+	      print "ActiveInterface cref $cref, bref $bref, name $name\n" if $main::debug;
+         $workstrng = replace_all($workstrng, $crefarr[$i], $cref);
+	      $workstrng = replace_all($workstrng, $brefarr[$i], $bref);
+	      $i++;
+      }
+      $resultstrng .= $workstrng;
+   }
+   
+   return $resultstrng;
+}
+
+sub clk_reset_iter {
+   my $tmpl = shift;
+   my $patt = "clk_reset";
+   my $nmpatt = "<%" . $patt . "%>";
+   my $iterpatt = "<-" . $patt . "->";
+   my $thistmpl = "";
+   my $resultstrng = "";
+   my $workstrng = "";
+
+   # load the rest of the string up through <-iconn_instname->
+   while( <$tmpl> ) {
+      last if( /$iterpatt/ );
+      $thistmpl .= $_;
+   }
+   # loop through all the clockReset
+   foreach my $ci ($main::parser->findnodes("//spirit:vendorExtensions/iosfsbc:clocks/iosfsbc:clockReset")) {
+      print "Clock Reset\n" if $main::debug;
+      $workstrng = $thistmpl;
+      for my $key ( keys %main::clkRstConfigElementXRef ) {
+         print "Searching ClkReset->$key\n" if $main::debug;
+         my $kcond = "<?" . $key . "?>";
+         if( $workstrng =~ /\Q$kcond\E/ ) {
+	         print "Found $kcond\n" if $main::debug;
+            (my $found, my $repl) = getVEConfigElem($ci, $main::clkRstConfigElementXRef{$key}{xmlpatt});
+            if( $found ) {
+               $workstrng = replace_all($workstrng, $kcond, "1");
+            } else {
+               $workstrng = replace_all($workstrng, $kcond, "0");
+            }
+         }
+         my $krep = "<%" . $key . "%>";
+         if( $workstrng =~ /$krep/ ) {
+	         print "Found $krep\n" if $main::debug;
+            (my $found, my $repl) = getVEConfigElem($ci, $main::clkRstConfigElementXRef{$key}{xmlpatt});
+            print "found=$found, repl=$repl\n" if $main::debug;
+            if( $found ) {
+	            if( $repl eq "" ) {
+	       	      $workstrng = replace_all($workstrng, $krep, $main::clkRstConfigElementXRef{$key}{default});
+	            } else {
+                  $workstrng = replace_all($workstrng, $krep, $repl);
+	            }
+            } else {
+               $workstrng = replace_all($workstrng, $krep, $main::clkRstConfigElementXRef{$key}{default});
+            }
+         }
+      }
+      $resultstrng .= $workstrng;
+   }
+
+   return $resultstrng;
+}
+
+sub multi_castSSF_iter {
+   my $tmpl = shift;
+   my $patt = "multi_castSSF";
+   my $nmpatt = "<%" . $patt . "%>";
+   my $iterpatt = "<-" . $patt . "->";
+   my $thistmpl = "";
+   my $workstrng = "";
+   my $resultstrng = "";
+
+   # load the rest of the string up through <-iconn_instname->
+   while( <$tmpl> ) {
+      last if( /$iterpatt/ );
+      $thistmpl .= $_;
+   }
+
+   # loop through all the clockReset
+   foreach my $ci ($main::parser->findnodes("//spirit:vendorExtensions/iosfsbc:multiCasts/iosfsbc:multiCastSSF")) {
+      print "MultiCast\n" if $main::debug;
+      $workstrng = $thistmpl;
+      for my $key ( keys %main::multiCastSSFConfigElementXRef ) {
+         print "Searching multiCastSSF->$key\n" if $main::debug;
+         my $kcond = "<?" . $key . "?>";
+         if( $workstrng =~ /\Q$kcond\E/ ) {
+	         print "Found $kcond\n" if $main::debug;
+            (my $found, my $repl) = getVEConfigElem($ci, $main::multiCastSSFConfigElementXRef{$key}{xmlpatt});
+            if( $found ) {
+	            print "replacing $kcond with 1 at $.\n" if $main::debug;
+               $workstrng = replace_all($workstrng, $kcond, "1");
+            } else {
+	            print "replacing $kcond with 0 in $.\n" if $main::debug;
+               $workstrng = replace_all($workstrng, $kcond, "0");
+            }
+         }
+         my $krep = "<%" . $key . "%>";
+         if( $workstrng =~ /\Q$krep\E/ ) {
+	         print "Found $krep\n" if $main::debug;
+            (my $found, my $repl) = getVEConfigElem($ci, $main::multiCastSSFConfigElementXRef{$key}{xmlpatt});
+            print "found=$found, repl=$repl\n" if $main::debug;
+            if( $found ) {
+	            if( $repl eq "" ) {
+                  print "replacing $krep with $main::multiCastSSFConfigElementXRef{$key}{default})\n" if $main::debug;
+	       	      $workstrng = replace_all($workstrng, $krep, $main::multiCastSSFConfigElementXRef{$key}{default});
+	            } else {
+	               print "replacing $krep with $repl\n" if $main::debug;
+                  $workstrng = replace_all($workstrng, $krep, $repl);
+	            }
+            } else {
+	            print "replacing $krep with $main::multiCastSSFConfigElementXRef{$key}{default} in $.\n" if $main::debug;
+               $workstrng = replace_all($workstrng, $krep, $main::multiCastSSFConfigElementXRef{$key}{default});
+            }
+         }
+      } 
+      $resultstrng .= $workstrng;
+   }
+
+   return $resultstrng;
+}
+
+sub multi_castG_iter {
+   my $tmpl = shift;
+   my $patt = "multi_castG";
+   my $nmpatt = "<%" . $patt . "%>";
+   my $iterpatt = "<-" . $patt . "->";
+   my $thistmpl = "";
+   my $workstrng = "";
+   my $resultstrng = "";
+
+   # load the rest of the string up through <-iconn_instname->
+   while( <$tmpl> ) {
+      last if( /$iterpatt/ );
+      $thistmpl .= $_;
+   }
+
+   # loop through all the clockReset
+   foreach my $ci ($main::parser->findnodes("//spirit:vendorExtensions/iosfsbc:multiCasts/iosfsbc:multiCastG")) {
+      print "MultiCast\n" if $main::debug;
+      $workstrng = $thistmpl;
+      for my $key ( keys %main::multiCastGConfigElementXRef ) {
+         print "Searching MultCastG->$key\n" if $main::debug;
+         my $kcond = "<?" . $key . "?>";
+         if( $workstrng =~ /\Q$kcond\E/ ) {
+	         print "Found $kcond\n" if $main::debug;
+            (my $found, my $repl) = getVEConfigElem($ci, $main::multiCastGConfigElementXRef{$key}{xmlpatt});
+            if( $found ) {
+	            print "replacing $kcond with 1 at $.\n" if $main::debug;
+               $workstrng = replace_all($workstrng, $kcond, "1");
+            } else {
+	            print "replacing $kcond with 0 in $.\n" if $main::debug;
+               $workstrng = replace_all($workstrng, $kcond, "0");
+            }
+         }
+         my $krep = "<%" . $key . "%>";
+         if( $workstrng =~ /\Q$krep\E/ ) {
+	         print "Found $krep\n" if $main::debug;
+            (my $found, my $repl) = getVEConfigElem($ci, $main::multiCastGConfigElementXRef{$key}{xmlpatt});
+            print "found=$found, repl=$repl\n" if $main::debug;
+            if( $found ) {
+	            if( $repl eq "" ) {
+                  print "replacing $krep with $main::multiCastGConfigElementXRef{$key}{default})\n" if $main::debug;
+	       	      $workstrng = replace_all($workstrng, $krep, $main::multiCastGConfigElementXRef{$key}{default});
+	            } else {
+	               print "replacing $krep with $repl\n" if $main::debug;
+                  $workstrng = replace_all($workstrng, $krep, $repl);
+	            }
+            } else {
+	            print "replacing $krep with $main::multiCastGConfigElementXRef{$key}{default} in $.\n" if $main::debug;
+               $workstrng = replace_all($workstrng, $krep, $main::multiCastGConfigElementXRef{$key}{default});
+            }
+         }
+      } 
+      $resultstrng .= $workstrng;
+   }
+
+   return $resultstrng;
+}
+
+sub multi_cast_iter {
+   my $tmpl = shift;
+   my $patt = "multi_cast";
+   my $nmpatt = "<%" . $patt . "%>";
+   my $iterpatt = "<-" . $patt . "->";
+   my $thistmpl = "";
+   my $workstrng = "";
+   my $resultstrng = "";
+
+   # load the rest of the string up through <-iconn_instname->
+   while( <$tmpl> ) {
+      last if( /$iterpatt/ );
+      $thistmpl .= $_;
+   }
+
+   # loop through all the clockReset
+   foreach my $ci ($main::parser->findnodes("//spirit:vendorExtensions/iosfsbc:multiCasts/iosfsbc:multiCast")) {
+      print "MultiCast\n" if $main::debug;
+      $workstrng = $thistmpl;
+      for my $key ( keys %main::multiCastConfigElementXRef ) {
+         print "Searching MultCast->$key\n" if $main::debug;
+         my $kcond = "<?" . $key . "?>";
+         if( $workstrng =~ /\Q$kcond\E/ ) {
+	         print "Found $kcond\n" if $main::debug;
+            (my $found, my $repl) = getVEConfigElem($ci, $main::multiCastConfigElementXRef{$key}{xmlpatt});
+            if( $found ) {
+	            print "replacing $kcond with 1 at $.\n" if $main::debug;
+               $workstrng = replace_all($workstrng, $kcond, "1");
+            } else {
+	            print "replacing $kcond with 0 in $.\n" if $main::debug;
+               $workstrng = replace_all($workstrng, $kcond, "0");
+            }
+         }
+         my $krep = "<%" . $key . "%>";
+         if( $workstrng =~ /\Q$krep\E/ ) {
+	         print "Found $krep\n" if $main::debug;
+            (my $found, my $repl) = getVEConfigElem($ci, $main::multiCastConfigElementXRef{$key}{xmlpatt});
+            print "found=$found, repl=$repl\n" if $main::debug;
+            if( $found ) {
+	            if( $repl eq "" ) {
+                  print "replacing $krep with $main::multiCastConfigElementXRef{$key}{default})\n" if $main::debug;
+	       	      $workstrng = replace_all($workstrng, $krep, $main::multiCastConfigElementXRef{$key}{default});
+	            } else {
+	               print "replacing $krep with $repl\n" if $main::debug;
+                  $workstrng = replace_all($workstrng, $krep, $repl);
+	            }
+            } else {
+	            print "replacing $krep with $main::multiCastConfigElementXRef{$key}{default} in $.\n" if $main::debug;
+               $workstrng = replace_all($workstrng, $krep, $main::multiCastConfigElementXRef{$key}{default});
+            }
+         }
+      } 
+      $resultstrng .= $workstrng;
+   }
+
+   return $resultstrng;
+}
+
+sub power_well_iter {
+   my $tmpl = shift;
+   my $patt = "power_well";
+   my $nmpatt = "<%" . $patt . "%>";
+   my $iterpatt = "<-" . $patt . "->";
+   my $thistmpl = "";
+   my $resultstrng = "";
+   my $workstrng = "";
+
+   # load the rest of the string up through <-iconn_instname->
+   while( <$tmpl> ) {
+      last if( /$iterpatt/ );
+      $thistmpl .= $_;
+   }
+   
+   # loop through all the powerWell
+   foreach my $ci ($main::parser->findnodes("//spirit:vendorExtensions/iosfsbc:powerWells/iosfsbc:powerWell")) {
+      print "PowerWell\n" if $main::debug;
+      $workstrng = $thistmpl;
+      for my $key ( keys %main::pwrWellConfigElementXRef ) {
+         print "Searching PowerWell->$key\n" if $main::debug;
+         my $kcond = "<?" . $key . "?>";
+         if( $workstrng =~ /\Q$kcond\E/ ) {
+	    print "Found $kcond\n" if $main::debug;
+            (my $found, my $repl) = getVEConfigElem($ci, $main::pwrWellConfigElementXRef{$key}{xmlpatt});
+            if( $found ) {
+               $workstrng = replace_all($workstrng, $kcond, "1");
+            } else {
+               $workstrng = replace_all($workstrng, $kcond, "0");
+            }
+         }
+         my $krep = "<%" . $key . "%>";
+         if( $workstrng =~ /$krep/ ) {
+	    print "Found $krep\n" if $main::debug;
+            (my $found, my $repl) = getVEConfigElem($ci, $main::pwrWellConfigElementXRef{$key}{xmlpatt});
+            print "found=$found, repl=$repl\n" if $main::debug;
+            if( $found ) {
+	       if( $repl eq "" ) {
+	       	  $workstrng = replace_all($workstrng, $krep, $main::pwrWellConfigElementXRef{$key}{default});
+	       } else {
+                  $workstrng = replace_all($workstrng, $krep, $repl);
+	       }
+            } else {
+               $workstrng = replace_all($workstrng, $krep, $main::pwrWellConfigElementXRef{$key}{default});
+            }
+         }
+      }  
+      $resultstrng .= $workstrng;    
+   }
+
+   return $resultstrng;
+}
+
+sub clock_gating_iter {
+   my $tmpl = shift;
+   my $patt = "clock_gating";
+   my $nmpatt = "<%" . $patt . "%>";
+   my $iterpatt = "<-" . $patt . "->";
+   my $resultstrng = "";
+   my $thistmpl = "";
+   my $workstrng = "";
+
+   # load the rest of the string up through <-iconn_instname->
+   while( <$tmpl> ) {
+      last if( /$iterpatt/ );
+      $thistmpl .= $_;
+   }
+   
+   # loop through all the clockReset
+   foreach my $ci ($main::parser->findnodes("//spirit:vendorExtensions/iosfsbc:clockGating")) {
+      print "ClockGating\n" if $main::debug;
+      $workstrng = $thistmpl;
+      for my $key ( keys %main::clkGatingConfigElementXRef ) {
+         print "Searching ClockGating->$key\n" if $main::debug;
+         my $kcond = "<?" . $key . "?>";
+         if( $workstrng =~ /\Q$kcond\E/ ) {
+            print "Found $kcond\n" if $main::debug;
+            (my $found, my $repl) = getVEConfigElem($ci, $main::clkGatingConfigElementXRef{$key}{xmlpatt});
+            if( $found ) {
+               $workstrng = replace_all($workstrng, $kcond, "1");
+            } else {
+               $workstrng = replace_all($workstrng, $kcond, "0");
+            }
+         }
+         my $krep = "<%" . $key . "%>";
+         if( $workstrng =~ /$krep/ ) {
+            print "Found $krep\n" if $main::debug;
+            (my $found, my $repl) = getVEConfigElem($ci, $main::clkGatingConfigElementXRef{$key}{xmlpatt});
+            print "found=$found, repl=$repl\n" if $main::debug;
+            if( $found ) {
+               if( $repl eq "" ) {
+                  $workstrng = replace_all($workstrng, $krep, $main::clkGatingConfigElementXRef{$key}{default});
+               } else {
+                  $workstrng = replace_all($workstrng, $krep, $repl);
+               }
+            } else {
+               $workstrng = replace_all($workstrng, $krep, $main::clkGatingConfigElementXRef{$key}{default});
+            }
+         }
+      } 
+      $resultstrng .= $workstrng;     
+   }
+
+   return $resultstrng;
+}
+
+sub specRevision {
+   my $strng = shift;
+   my $found;
+   my $repl;
+   my $ci1 = $main::parser->find("//spirit:vendorExtensions/iosfsbc:epSpecRevision");
+   if( $ci1->size() == 0 ) {return "";}
+   my $ci = $ci1->pop();
+   for my $key ( keys %main::epSpecRevisionConfigElementXRef ) {
+      print "Searching SpecRevision->$key\n" if $main::debug;
+      my $kcond = "<?" . $key . "?>";
+      if( $strng =~ /\Q$kcond\E/ ) {
+         print "Found $kcond\n" if $main::debug;
+         ($found, $repl) = getVEConfigElem($ci, $main::epSpecRevisionConfigElementXRef{$key}{xmlpatt});
+         if( $found ) {
+            $strng = replace_all($strng, $kcond, "1");
+         } else {
+            $strng = replace_all($strng, $kcond, "0");
+         }
+      }
+      my $krep = "<%" . $key . "%>";
+      if( $strng =~ /$krep/ ) {
+         print "Found $krep\n" if $main::debug;
+         ($found, $repl) = getVEConfigElem($ci, $main::epSpecRevisionConfigElementXRef{$key}{xmlpatt});         
+         if( $found ) {
+            if( $repl eq "" ) {
+               $strng = replace_all($strng, $krep, $main::epSpecRevisionConfigElementXRef{$key}{default});
+            } else {
+               $strng = replace_all($strng, $krep, $repl);
+            }
+         } else {
+            $strng = replace_all($strng, $krep, $main::epSpecRevisionConfigElementXRef{$key}{default});
+         }
+      }
+   }
+   return $strng;
+}
+
+sub dsn_vendor_extentions_cond {
+   my $tmpl = shift;
+   if( $main::parser->exists("/spirit:design/spirit:vendorExtensions") ) {
+      return str_replace($tmpl, "<?dsn_vendor_extensions?>", "1");
+   }
+   return str_replace($tmpl, "<?dsn_vendor_extensions?>", "0");
+}
+
+
+sub strng_var_custom {
+   my $tmpl = shift;
+   my $tmplpatt = shift;
+   my $xmlpatt = shift;
+   my $ci = shift;
+   my $startpatt = "<\\+" . $tmplpatt . "\\+>";
+   my $endpatt = "<-" . $tmplpatt . "->";
+   my $currpatt = "<(" . $tmplpatt . ")>";
+   my $valpatt = "<%" . $tmplpatt . "%>";
+   my $origpatt;
+   my $reppatt;
+   
+   my $done = 0;
+   do {
+      # capture the string between the delimiters
+      if( $tmpl =~ /($startpatt\n((.|\n)*)$endpatt)/ ) {
+         $origpatt = $1;
+         $reppatt = $2;
+         my $tmpstrng = "";
+         my $ep_n = "";
+         my $parity_v = "";
+         foreach my $ce ($ci->findnodes("spirit:configurableElementValues/spirit:configurableElementValue")) {
+            my $att = $ce->getAttribute("spirit:referenceId");
+            if( $att =~ /N\d+$/) {
+                $ep_n = $ce->string_value;
+                print "Matching $ep_n\n";
+            } 
+            if( $att =~ /$xmlpatt/ ) {
+               my $thispatt = $1;
+               my $val = $ce->string_value;
+               $tmpstrng .= $reppatt;
+               print "SM: port = $ep_n -> value = $val, $tmpstrng";
+               $tmpstrng = replace_all($tmpstrng, $currpatt, $ep_n);
+               print "SM: after replace1 $tmpstrng, $val \n";
+               $tmpstrng = replace_all($tmpstrng, $valpatt, $val);
+               print "SM: after replace2 $tmpstrng \n";
+            }
+         }
+         $tmpl = str_replace($tmpl, $origpatt, $tmpstrng);
+      } else {
+         $done = 1;
+      }
+   } while( ! $done );
+   
+   return $tmpl;
+}
+
+
+sub strng_var_iter {
+   my $tmpl = shift;
+   my $tmplpatt = shift;
+   my $xmlpatt = shift;
+   my $ci = shift;
+   my $startpatt = "<\\+" . $tmplpatt . "\\+>";
+   my $endpatt = "<-" . $tmplpatt . "->";
+   my $currpatt = "<(" . $tmplpatt . ")>";
+   my $valpatt = "<%" . $tmplpatt . "%>";
+   my $origpatt;
+   my $reppatt;
+   
+   my $done = 0;
+   do {
+      # capture the string between the delimiters
+      if( $tmpl =~ /($startpatt\n((.|\n)*)$endpatt)/ ) {
+         $origpatt = $1;
+         $reppatt = $2;
+         my $tmpstrng = "";
+         foreach my $ce ($ci->findnodes("spirit:configurableElementValues/spirit:configurableElementValue")) {
+            my $att = $ce->getAttribute("spirit:referenceId");
+            my $patt = $xmlpatt . "\\d+";
+            if( $att =~ /($xmlpatt\d+)/ ) {
+               my $thispatt = $1;
+               my $val = $ce->string_value;
+               $tmpstrng .= $reppatt;
+               $tmpstrng = replace_all($tmpstrng, $currpatt, $thispatt);
+               $tmpstrng = replace_all($tmpstrng, $valpatt, $val);
+            }
+         }
+         $tmpl = str_replace($tmpl, $origpatt, $tmpstrng);
+      } else {
+         $done = 1;
+      }
+   } while( ! $done );
+   
+   return $tmpl;
+}
+
+sub strng_var_sm_iter {
+   my $tmpl = shift;
+   my $tmplpatt = shift;
+   my $xmlpatt = shift;
+   my $ci = shift;
+   my $startpatt = "<\\+" . $tmplpatt . "\\+>";
+   my $endpatt = "<-" . $tmplpatt . "->";
+   my $currpatt = "<(" . $tmplpatt . ")>";
+   my $valpatt = "<%" . $tmplpatt . "%>";
+   my $origpatt;
+   my $reppatt;
+   
+   my $done = 0;
+   do {
+      # capture the string between the delimiters
+      if( $tmpl =~ /($startpatt\n((.|\n)*)$endpatt)/ ) {
+         $origpatt = $1;
+         $reppatt = $2;
+         my $tmpstrng = "";
+         foreach my $ce ($ci->findnodes("spirit:configurableElementValues/spirit:configurableElementValue")) {
+            my $att = $ce->getAttribute("spirit:referenceId");
+            my $patt = $xmlpatt . "\\d+";
+            if( $att =~ /($xmlpatt)/ ) {
+               my $thispatt = $1;
+               my $val = $ce->string_value;
+               $tmpstrng .= $reppatt;
+               $tmpstrng = replace_all($tmpstrng, $currpatt, $thispatt);
+               $tmpstrng = replace_all($tmpstrng, $valpatt, $val);
+            }
+         }
+         $tmpl = str_replace($tmpl, $origpatt, $tmpstrng);
+      } else {
+         $done = 1;
+      }
+   } while( ! $done );
+   return $tmpl;
+}
+
+# rtrrtl_instname_cs
+# Return a comma separated list of rtr_rtl instance names
+# return string format: 'val1, val2, val3' - no preceding or trailing comma
+sub rtrrtl_instname_cs {
+   my $strng = shift;
+   my $comma = "";
+   my $res = "";
+   foreach my $ci ($main::parser->findnodes("//spirit:componentInstance")) {
+      my $instname = $ci->find("spirit:instanceName");
+      my $creftype = compRefName($ci);
+      if(  $creftype eq "rtr_rtl" ) {
+         $res .= $comma . $instname;
+         $comma = ", ";
+      }
+   }
+   
+   # replace every occ of <,rtrrtl_instname,>
+   $strng = replace_all($strng, "<,rtrrtl_instname,>", $res);
+   return $strng;
+}
+
+# rtrtlm_instname_cs
+# Return a comma separated list of rtr_tlm instance names
+# return string format: 'val1, val2, val3' - no preceding or trailing comma
+sub rtrtlm_instname_cs {
+   my $strng = shift;
+   my $comma = "";
+   my $res = "";
+   foreach my $ci ($main::parser->findnodes("//spirit:componentInstance")) {
+      my $instname = $ci->find("spirit:instanceName");;
+      my $creftype = compRefName($ci);
+      if(  $creftype eq "rtr_tlm" ) {
+         $res .= $comma . $instname;
+         $comma = ", ";
+      }
+   }
+   
+   # replace every occ of <,rtrtlm_instname,>
+   $strng = replace_all($strng, "<,rtrtlm_instname,>", $res);
+   return $strng;
+}
+
+# eptlm_instname_cs
+# Return a comma separated list of ep_tlm instance names
+# return string format: 'val1, val2, val3' - no preceding or trailing comma
+sub eptlm_instname_cs {
+   my $strng = shift;
+   my $comma = "";
+   my $res = "";
+   foreach my $ci ($main::parser->findnodes("//spirit:componentInstance")) {
+      my $instname = $ci->find("spirit:instanceName");
+      my $creftype = compRefName($ci);
+      if(  $creftype eq "ep_tlm" ) {
+         $res .= $comma . $instname;
+         $comma = ", ";
+      }
+   }
+   
+   # replace every occ of <,rtrrtl_instname,>
+   $strng = replace_all($strng, "<,eptlm_instname,>", $res);
+   return $strng;
+}
+
+# eprtl_instname_cs
+# Return a comma separated list of ep_rtl instance names
+# return string format: 'val1, val2, val3' - no preceding or trailing comma
+sub eprtl_instname_cs {
+   my $strng = shift;
+   my $comma = "";
+   my $res = "";
+   foreach my $ci ($main::parser->findnodes("//spirit:componentInstance")) {
+      my $instname = $ci->find("spirit:instanceName");
+      my $creftype = compRefName($ci);
+      if(  $creftype eq "ep_rtl" ) {
+         $res .= $comma . $instname;
+         $comma = ", ";
+      }
+   }
+   
+   # replace every occ of <,rtrrtl_instname,>
+   $strng = replace_all($strng, "<,eprtl_instname,>", $res);
+   return $strng;
+}
+
+#### IPXact access subroutines ####
+sub compRefName {
+   my $cinode = shift;
+   my $crnode = $cinode->find("spirit:componentRef");
+   my $nm = $crnode->pop()->getAttribute("spirit:name");
+   return $nm;
+}
+
+sub getCiConfigElem {
+   my $ci = shift;    # component instance 
+   my $refid = shift; # ConfigurableElementValue referenceId to look for
+   my $found = 0;
+   my $val = "";
+   foreach my $ce ($ci->findnodes("spirit:configurableElementValues/spirit:configurableElementValue")) {
+      my $att = $ce->getAttribute("spirit:referenceId");
+      if( $att eq $refid ) {
+         $found = 1;
+         $val = $ce->string_value;
+         last;
+      }
+   }
+   return ($found, $val);
+}
+
+sub getClkRstConfigElem {
+   my $ci = shift;    # clk reset block 
+   my $refid = shift; # ConfigurableElementValue referenceId to look for
+   my $found = 0;
+   my $val = "";
+   foreach my $ce ($ci->findnodes("iosfsbc:configurableElementValue")) {
+      print "ClkRst->configElement\n" if $main::debug;
+      my $att = $ce->getAttribute("iosfsbc:referenceId");
+      if( $att eq $refid ) {
+         $found = 1;
+         $val = $ce->string_value;
+	 print "  found $val\n" if $main::debug;
+         last;
+      }
+   }
+   return ($found, $val);
+}
+
+sub getVEConfigElem {
+   my $ci = shift;    # vendor extension block 
+   my $refid = shift; # ConfigurableElementValue referenceId to look for
+   my $found = 0;
+   my $val = "";
+   print "looking for '$refid'\n" if $main::debug;
+   foreach my $ce ($ci->findnodes("iosfsbc:configurableElementValue")) {
+      my $att = $ce->getAttribute("iosfsbc:referenceId");
+      print " --'$att'\n" if $main::debug;
+      if( $att eq $refid ) {
+         $found = 1;
+         $val = $ce->string_value;
+	 print "  found $val\n" if $main::debug;
+         last;
+      }
+   }
+   return ($found, $val);
+}
+
+sub getInstConfigElem {
+   my $ci = shift;    # vendor extention block 
+   my $refid = shift; # ConfigurableElementValue referenceId to look for
+   my $found = 0;
+   my $val = "";
+   print "looking for '$refid'\n" if $main::debug;
+   foreach my $ce ($ci->findnodes("spirit:configurableElementValue")) {
+      my $att = $ce->getAttribute("spirit:referenceId");
+      print " --'$att'\n" if $main::debug;
+      if( $att eq $refid ) {
+         $found = 1;
+         $val = $ce->string_value;
+	 print "  found $val\n" if $main::debug;
+         last;
+      }
+   }
+   return ($found, $val);
+}
+
+#### DT (date) subroutines
+
+# <%dt_year%>
+# Find ALL occurrences of <%dt_year%> in the string
+sub dt_year {
+   my $strng = shift;
+   my $year = `date +%Y`;
+   chomp $year;
+   # replace every occurrence of <%dt_year%> with the $year variable
+   $strng = replace_all($strng, "<%dt_year%>", $year);
+   return $strng;
+}
+
+# <%dt_month%>
+sub dt_month {
+   my $strng = shift;
+   my $month = `date +%b`;
+   chomp $month;
+   
+   # replace every occurrence of <%dt_month%> witht the $year variable
+   $strng = replace_all($strng, "<%dt_month%>", $month);
+   return $strng;
+}
+
+# <%dt_mday%>
+sub dt_mday {
+   my $strng = shift;
+   my $mday = `date +%d`;
+   chomp $mday;
+   # replace every occurence o <%dt_mday%> with the $mday variable
+   $strng = replace_all($strng, "<%dt_mday%>", $mday);
+   return $strng;
+}
+
+# <%pgm_cmdline%>
+sub pgm_cmdline {
+   my $strng = shift;
+   my $leader = shift;
+   my $cmdline = "$0\n";
+   $cmdline .= "$leader  -outdir $main::outdir\n";
+   $cmdline .= "$leader  -template $main::template\n";
+   $cmdline .= "$leader  $main::xmlfile";
+   $strng = replace_all($strng, "<%pgm_cmdline%>", $cmdline);
+   return $strng;
+}
+
+# general purpose
+# $strng = string to work on
+# $patt = pattern to look for and replace
+# $repl = replacement string to use
+sub replace_all {
+   my $strng = shift;
+   my $patt = shift;
+   my $repl = shift;
+   my $done = 0;
+   do {
+      if( $strng =~ /\Q$patt\E/ ) {
+#         $strng = str_replace($patt, $repl, $strng);
+         print " ..replace_all: replace '$patt' w/ $repl\n" if $main::debug;
+         $strng =~ s/\Q$patt\E/$repl/;
+      } else {
+         $done = 1;
+      }
+   } while( ! $done );
+   return $strng;
+}
+
+#Replace a string without using RegExp.
+sub str_replace {
+   my $string   = shift;
+   my $replace_this = shift;
+   my $with_this  = shift; 
+	
+   my $length = length($string);
+   my $target = length($replace_this);
+   print "..str_replace: length=$length target=$target\n" if $main::debug;
+	
+   for(my $i=0; $i<$length - $target + 1; $i++) {
+      if(substr($string,$i,$target) eq $replace_this) {
+         my $repl = substr($string, $i, $target);
+         print "..str_replace: '$replace_this' at '$repl' w/ $with_this\n" if $main::debug;
+#         $string = substr($string,0,$i) . $with_this . substr($string,$i+$target);
+#			return $string; #Comment this if you want a global replace
+         substr($string, $i, $target) = $with_this;
+      }
+   }
+   return $string;
+}
+__END__
+
+=head1 NAME
+
+genSbdConfig - Generate Sideband Configuration Objects
+
+= head1 SYNOPSYS
+
+genSbdConfig [options] [XML File ...]
+
+ Options:
+   -help         help message
+   -?            help message
+   -outdir       output directory
+   -template     file template to use for output
+   -debug        turn on debug mode
+   
+=head1 OPTIONS
+
+=over 8
+
+=item B<-help|-?>
+
+Print a brief help message and exit
+
+=item B<-outdir>
+
+Sets the output directory to print result files
+
+=back
+
+=head1 DESCRIPTION
+
+B<genSbdConfig> will parse the given XML file and generate a set of config object files 
+then be compiled into the sideband testbench
+
+=cut

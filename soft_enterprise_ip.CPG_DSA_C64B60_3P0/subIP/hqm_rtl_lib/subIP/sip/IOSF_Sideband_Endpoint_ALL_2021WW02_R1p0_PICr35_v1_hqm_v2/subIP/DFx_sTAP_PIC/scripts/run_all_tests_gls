@@ -1,0 +1,20 @@
+cd $IP_ROOT
+rm -rf pwa/results .acetestinfo.log
+
+\cp source/rtl/stap_rtl.hdl_gls_1274 source/rtl/stap_rtl.hdl
+
+ace -cc -vlog_opts "+define+no_unit_delay" -vlog_opts "+define+STAP_GLS=1" -vlog_opts "+define+GLS=1" -pwa pwa_all_tests_gls
+ace -x TapTestOnlyBypass -vlog_opts "+define+no_unit_delay" \
+       TapTestOnlySLVIDCODE -vlog_opts "+define+no_unit_delay" \
+       TapTestBypass -vlog_opts "+define+no_unit_delay" \
+       TapTestRegisterAccess -vlog_opts "+define+no_unit_delay" \
+       TapTestFsmStates -vlog_opts "+define+no_unit_delay" \
+       TapTestTmsGlitch -vlog_opts "+define+no_unit_delay" \
+       TapTestNetworkRegisterAccess -vlog_opts "+define+no_unit_delay" \
+       TapTestRandom -vlog_opts "+define+no_unit_delay" \
+       TapTestBoundaryRegisterAccess -vlog_opts "+define+no_unit_delay" \
+       TapTestReservedOpcodeAccess -vlog_opts "+define+no_unit_delay" \
+       TapTestOrangeGreenRegisterAccess -vlog_opts "+define+no_unit_delay" \
+       TapTestGreenRegisterAccess -vlog_opts "+define+no_unit_delay" -pwa pwa_all_tests_gls -nb -nbmon
+
+\cp source/rtl/stap_rtl.hdl_rtl source/rtl/stap_rtl.hdl

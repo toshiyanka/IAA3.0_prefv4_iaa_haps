@@ -1,0 +1,315 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => [
+                     "+AW_CONTINUE_ON_ERROR",
+                     "+iosf_tracker_filename=iosf_trk",
+                     "-assert nopostproc",
+                     "+vcs+lic+wait",
+                     "+SLA_USER_DATA_PHASE_TIMEOUT=4000000",
+                     "+SLA_CONFIG_PHASE_TIMEOUT=3000000",
+                     "+SLA_MAX_RUN_CLOCK=20000000",
+                     "+HQM_LSP_CQ_QID_CFG_CHECK_DIS",
+                     "+HQM_EOT_RD_SEQ_ENABLE_CREDIT_CHECK",
+                     "+RAND_HQM_PP_CQ_TBCNT_BASE",
+                     "+HQM_SEQ_SCH_OUT_MODE",
+
+                     "+DIR_PP0_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP0_cq_token_return_burst_size=32",
+                     "+DIR_PP0_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP0_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP0_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP0_cq_token_return_enable_mean=1",
+                     "+DIR_PP0_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP0_cq_token_return_enable_min=1",
+                     "+DIR_PP0_cq_token_return_enable_max=1",
+                     "+DIR_PP0_cq_token_return_disable_mean=0",
+                     "+DIR_PP0_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP0_cq_token_return_disable_min=0",
+                     "+DIR_PP0_cq_token_return_disable_max=0",
+                     "+DIR_PP0_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP1_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP1_cq_token_return_burst_size=32",
+                     "+DIR_PP1_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP1_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP1_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP1_cq_token_return_enable_mean=1",
+                     "+DIR_PP1_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP1_cq_token_return_enable_min=1",
+                     "+DIR_PP1_cq_token_return_enable_max=1",
+                     "+DIR_PP1_cq_token_return_disable_mean=0",
+                     "+DIR_PP1_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP1_cq_token_return_disable_min=0",
+                     "+DIR_PP1_cq_token_return_disable_max=0",
+                     "+DIR_PP1_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP2_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP2_cq_token_return_burst_size=32",
+                     "+DIR_PP2_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP2_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP2_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP2_cq_token_return_enable_mean=1",
+                     "+DIR_PP2_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP2_cq_token_return_enable_min=1",
+                     "+DIR_PP2_cq_token_return_enable_max=1",
+                     "+DIR_PP2_cq_token_return_disable_mean=0",
+                     "+DIR_PP2_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP2_cq_token_return_disable_min=0",
+                     "+DIR_PP2_cq_token_return_disable_max=0",
+                     "+DIR_PP2_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP3_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP3_cq_token_return_burst_size=32",
+                     "+DIR_PP3_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP3_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP3_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP3_cq_token_return_enable_mean=1",
+                     "+DIR_PP3_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP3_cq_token_return_enable_min=1",
+                     "+DIR_PP3_cq_token_return_enable_max=1",
+                     "+DIR_PP3_cq_token_return_disable_mean=0",
+                     "+DIR_PP3_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP3_cq_token_return_disable_min=0",
+                     "+DIR_PP3_cq_token_return_disable_max=0",
+                     "+DIR_PP3_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP4_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP4_cq_token_return_burst_size=32",
+                     "+DIR_PP4_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP4_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP4_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP4_cq_token_return_enable_mean=1",
+                     "+DIR_PP4_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP4_cq_token_return_enable_min=1",
+                     "+DIR_PP4_cq_token_return_enable_max=1",
+                     "+DIR_PP4_cq_token_return_disable_mean=0",
+                     "+DIR_PP4_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP4_cq_token_return_disable_min=0",
+                     "+DIR_PP4_cq_token_return_disable_max=0",
+                     "+DIR_PP4_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP5_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP5_cq_token_return_burst_size=32",
+                     "+DIR_PP5_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP5_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP5_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP5_cq_token_return_enable_mean=1",
+                     "+DIR_PP5_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP5_cq_token_return_enable_min=1",
+                     "+DIR_PP5_cq_token_return_enable_max=1",
+                     "+DIR_PP5_cq_token_return_disable_mean=0",
+                     "+DIR_PP5_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP5_cq_token_return_disable_min=0",
+                     "+DIR_PP5_cq_token_return_disable_max=0",
+                     "+DIR_PP5_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP6_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP6_cq_token_return_burst_size=32",
+                     "+DIR_PP6_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP6_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP6_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP6_cq_token_return_enable_mean=1",
+                     "+DIR_PP6_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP6_cq_token_return_enable_min=1",
+                     "+DIR_PP6_cq_token_return_enable_max=1",
+                     "+DIR_PP6_cq_token_return_disable_mean=0",
+                     "+DIR_PP6_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP6_cq_token_return_disable_min=0",
+                     "+DIR_PP6_cq_token_return_disable_max=0",
+                     "+DIR_PP6_cq_token_return_sel_algorithm=fifo",
+
+                     "+DIR_PP7_cq_token_return_burst_high_watermark=32",
+                     "+DIR_PP7_cq_token_return_burst_size=32",
+                     "+DIR_PP7_cq_token_return_burst_min_idle=0",
+                     "+DIR_PP7_cq_token_return_burst_max_idle=500",
+                     "+DIR_PP7_cq_token_return_burst_max_idle_interval=20",
+                     "+DIR_PP7_cq_token_return_enable_mean=1",
+                     "+DIR_PP7_cq_token_return_enable_std_dev=0",
+                     "+DIR_PP7_cq_token_return_enable_min=1",
+                     "+DIR_PP7_cq_token_return_enable_max=1",
+                     "+DIR_PP7_cq_token_return_disable_mean=0",
+                     "+DIR_PP7_cq_token_return_disable_std_dev=0",
+                     "+DIR_PP7_cq_token_return_disable_min=0",
+                     "+DIR_PP7_cq_token_return_disable_max=0",
+                     "+DIR_PP7_cq_token_return_sel_algorithm=fifo",
+
+                     "+HQM_CFG_D0_D3_D0_PRE_SEQ=aceroot/verif/tb/hqm/tests/hqm_functional/hqm_d0_d3_d0_pre.cft",
+#                     "+HQM_CFG_D0_D3_D0_SEQ=aceroot/verif/tb/hqm/tests/hqm_d0_d3_d0.cft",
+
+                    ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+      q1 => {
+          -simv_args => [
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_msix=0",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_msix_poll=0",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_dir_pp=1",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_ldb_pp=1",
+                        ],
+      },
+
+
+      q2 => {
+          -simv_args => [
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_msix=0",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_msix_poll=0",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_dir_pp=2",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_ldb_pp=2",
+                        ],
+      },
+
+
+      q4 => {
+          -simv_args => [
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_msix=0",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_msix_poll=0",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_dir_pp=4",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_ldb_pp=4",
+                        ],
+      },
+
+      q4_wdog => {
+          -simv_args => [
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_msix=0",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_msix_poll=0",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_ims_poll=0",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_wdog_cq=1",
+                     "+HQM_MSIX_ISR_SEQ_CHK_WDOG_CQ=1000",
+                     "+HQM_MSIX_ISR_SEQ_CHK_WDOG_LOOP=8",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_dir_pp=4",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_ldb_pp=4",
+                        ],
+      },
+
+
+      q8 => {
+          -simv_args => [
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_msix=0",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_msix_poll=0",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_ims_poll=0",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_dir_pp=8",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_ldb_pp=8",
+                        ],
+      },
+
+      q8_wdog => {
+          -simv_args => [
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_msix=0",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_msix_poll=0",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_ims_poll=0",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_wdog_cq=1",
+                     "+HQM_MSIX_ISR_SEQ_CHK_WDOG_CQ=1000",
+                     "+HQM_MSIX_ISR_SEQ_CHK_WDOG_LOOP=10",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_dir_pp=8",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_ldb_pp=8",
+                        ],
+      },
+      q8_msix => {
+          -simv_args => [
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_msix=1",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_msix_poll=0",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_dir_pp=8",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_ldb_pp=8",
+                        ],
+      },
+      q8_msix_poll => {
+          -simv_args => [
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_msix_poll=1",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_dir_pp=8",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_ldb_pp=8",
+                        ],
+      },
+      cial_thresh_8 => {
+          -simv_args => [
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::cq_depth_intr_thresh=7",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::cq_timer_intr_ena=1",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_ims_poll=0",
+                     ],
+      },
+      cial_thresh_dir_only => {
+          -simv_args => [
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::cq_depth_intr_thresh=7",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::cq_timer_intr_ena=0",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_ims_poll=0",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_msix=1",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::enable_msix_poll=0",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_dir_pp=8",
+                     "+hcw_pf_test_hqm_cfg_seq_stim_config::num_ldb_pp=0",
+
+                     ],
+      },
+
+      long => {
+          -simv_args => [
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_num_hcw=128",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_delay_min=2",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_delay_max=6",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_num_hcw=128",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_delay_min=4",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_delay_max=12",
+                        ],
+      },
+      short => {
+          -simv_args => [
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_num_hcw=128",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_delay_min=2",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_delay_max=6",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_num_hcw=64",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_delay_min=4",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_delay_max=12",
+                        ],
+      },
+      eight => {
+          -simv_args => [
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_num_hcw=8",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_delay_min=2",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_delay_max=20",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_num_hcw=8",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_delay_min=4",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_delay_max=30",
+                        ],
+      },
+      one => {
+          -simv_args => [
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_num_hcw=1",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_delay_min=4",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_delay_max=4",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_num_hcw=1",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_delay_min=8",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_delay_max=8",
+                        ],
+      },
+      two => {
+          -simv_args => [
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_num_hcw=2",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_delay_min=31",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_hcw_delay_max=63",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_num_hcw=2",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_delay_min=31",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_hcw_delay_max=159",
+                        ],
+      },
+      qatm => {
+          -simv_args => [
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_qtype=QATM",
+                        ],
+      },
+      batch4 => {
+          -simv_args => [
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_batch_min=4",
+                     "+hcw_pf_test_hcw_seq_stim_config::ldb_batch_max=4",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_batch_min=4",
+                     "+hcw_pf_test_hcw_seq_stim_config::dir_batch_max=4",
+                        ],
+      },
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

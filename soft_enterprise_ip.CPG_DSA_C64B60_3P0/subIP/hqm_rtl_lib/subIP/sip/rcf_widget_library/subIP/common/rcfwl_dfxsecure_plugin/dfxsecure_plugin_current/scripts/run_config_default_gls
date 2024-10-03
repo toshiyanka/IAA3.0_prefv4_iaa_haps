@@ -1,0 +1,19 @@
+cd $IP_ROOT
+rm -rf pwa/results .acetestinfo.log
+
+\cp source/rtl/dfxsecure_plugin_rtl.hdl_gls source/rtl/dfxsecure_plugin_rtl.hdl
+
+\cp verif/tb/include/configs/default/DfxSecurePlugin_TbDefines.svh              verif/tb/DfxSecurePlugin_TbDefines.svh
+\cp verif/tb/include/configs/default/DFXSECURE_dfxsecureplugin_param_overide.vh verif/tb/include/DFXSECURE_dfxsecureplugin_param_overide.vh
+\cp verif/tb/include/configs/default/DFXSECURE_dfxsecureplugin_param_values.vh  verif/tb/include/DFXSECURE_dfxsecureplugin_param_values.vh
+
+ace -cc -vlog_opts "+define+no_unit_delay" -pwa pwa_default_gls
+ace -x DfxSecurePlugin_DefaultTest -vlog_opts "+define+no_unit_delay" \
+       DfxSecurePlugin_DriveUserPolicySeqTest -vlog_opts "+define+no_unit_delay" \
+       DfxSecurePlugin_PolicySweepSeqTest -vlog_opts "+define+no_unit_delay" \
+       DfxSecurePlugin_DriveUserPolicyViaSBOVRSeqTest -vlog_opts "+define+no_unit_delay" \
+       -pwa pwa_default_gls -nb -nbmon
+
+\cp source/rtl/dfxsecure_plugin_rtl.hdl_rtl source/rtl/dfxsecure_plugin_rtl.hdl
+
+grep -ir status pwa/results/tests/*/postsim.log

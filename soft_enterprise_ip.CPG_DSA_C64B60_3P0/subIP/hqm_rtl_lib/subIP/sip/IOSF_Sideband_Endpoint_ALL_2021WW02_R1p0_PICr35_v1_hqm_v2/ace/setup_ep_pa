@@ -1,0 +1,21 @@
+# ace setup_ep_pa
+#---------------------------------------------------
+# Verify that this is a tcsh
+if (`/usr/bin/basename $SHELL` != "tcsh") then 
+   echo; echo "ERROR: you need use tcsh to work in this environment. Sorry."
+   echo; exit 1
+endif
+
+# Verify that current directory is SB_EP_ROOT
+if (! -f scripts/setup) then
+   echo; echo "ERROR: ace/setup cannot find scripts/setup"
+   echo; exit 1
+endif
+
+# Set required ACE envirnoment variables
+source ace/setup_ep
+
+
+sed -i 'sz#PAzz' ace/iosf_sbc_ep.pp
+sed -i 'sz#PAzz' ace/iosf_sbc_ep_hdl.udf
+sed -i 'sz#PAzz' ace/iosf_sbc_ep_local_ivars.udf

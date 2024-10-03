@@ -1,0 +1,39 @@
+#!/usr/intel/bin/tcsh
+
+
+
+## ACCEPT prefix as an argument to uniquifyme 
+set prefix=$1
+
+
+## Exit if no prefix specified
+if( $prefix == "" ) then
+ echo "You must specify a prefix"
+ echo "uniquify_me <prefix>"
+ exit 1
+endif
+
+echo "------------------------------------------------"
+echo "Running uniquifyme with prefix: $prefix"
+echo "------------------------------------------------"
+
+uniquify -top globalclk -dirs src+verif/testbench -prefix $prefix -rtl_libs scripts/liblist -rtl_scope scripts/scopelist
+
+
+
+sed -i 's/lintra_top => \["gclk_refclkdist",\],/lintra_top => \["'"$prefix"'_gclk_refclkdist",\],/g' cfg/globalclk_hdl.udf 
+sed -i 's/lintra_top => \["gclk_pclkdist",\],/lintra_top => \["'"$prefix"'_gclk_pclkdist",\],/g' cfg/globalclk_hdl.udf 
+sed -i 's/lintra_top => \["gclk_pccdu",\],/lintra_top => \["'"$prefix"'_gclk_pccdu",\],/g' cfg/globalclk_hdl.udf 
+sed -i 's/lintra_top => \["gclk_psyncdist",\],/lintra_top => \["'"$prefix"'_gclk_psyncdist",\],/g' cfg/globalclk_hdl.udf
+sed -i 's/lintra_top => \["gclk_divsync_gen",\],/lintra_top => \["'"$prefix"'_gclk_divsync_gen",\],/g' cfg/globalclk_hdl.udf
+sed -i 's/lintra_top => \["gclk_clkreqaggr",\],/lintra_top => \["'"$prefix"'_gclk_clkreqaggr",\],/g' cfg/globalclk_hdl.udf
+sed -i 's/lintra_top => \["gclk_rcb_lcb",\],/lintra_top => \["'"$prefix"'_gclk_rcb_lcb",\],/g' cfg/globalclk_hdl.udf
+sed -i 's/lintra_top => \["gclk_clkdist_mux",\],/lintra_top => \["'"$prefix"'_gclk_clkdist_mux",\],/g' cfg/globalclk_hdl.udf
+sed -i 's/lintra_top => \["gclk_clkdist_repeater",\],/lintra_top => \["'"$prefix"'_gclk_clkdist_repeater",\],/g' cfg/globalclk_hdl.udf
+sed -i 's/lintra_top => \["gclk_psocclkdist",\],/lintra_top => \["'"$prefix"'_gclk_psocclkdist",\],/g' cfg/globalclk_hdl.udf
+sed -i 's/lintra_top => \["gclk_psocsyncdist",\],/lintra_top => \["'"$prefix"'_gclk_psocsyncdist",\],/g' cfg/globalclk_hdl.udf
+sed -i 's/lintra_top => \["gclk_pcu_clkdist",\],/lintra_top => \["'"$prefix"'_gclk_pcu_clkdist",\],/g' cfg/globalclk_hdl.udf 
+sed -i 's/lintra_top => \["gclk_mesh_clkdist",\],/lintra_top => \["'"$prefix"'_gclk_mesh_clkdist",\],/g' cfg/globalclk_hdl.udf 
+sed -i 's/lintra_top => \["gclk_fxr_clkdist",\],/lintra_top => \["'"$prefix"'_gclk_fxr_clkdist",\],/g' cfg/globalclk_hdl.udf 
+
+sed -i 's/top => "/top => "'"$prefix"'_/g' cfg/globalclk_hdl.udf

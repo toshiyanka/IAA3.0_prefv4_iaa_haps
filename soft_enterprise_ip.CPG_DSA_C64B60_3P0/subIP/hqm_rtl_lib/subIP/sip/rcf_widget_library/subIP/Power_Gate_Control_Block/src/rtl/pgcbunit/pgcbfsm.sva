@@ -1,0 +1,804 @@
+`ifndef DC
+
+logic assertion_rst_b;
+
+//HSD#2245424 - If the pgcb clock is gated and the pgcb_rst_b is synchronized on an ungated version of the clock,
+//              then IPs may see issues on some assertions such as (aIsolFallVsRst) as the assertions will not
+//              see a clock while the reset is asserted and thus will not be cleared out.
+//              For such cases, setting DELAY_ASSN_RST will guarantee that there is one clock while the assertion
+//              is in reset.
+if (DELAY_ASSN_RST) begin : ASSN_RST_DELAYED
+   always_ff @(posedge clk, negedge pgcb_rst_b) begin
+      if (!pgcb_rst_b)
+         assertion_rst_b <= 1'b0;
+      else
+         assertion_rst_b <= 1'b1;
+   end
+end else begin : ASSN_RST_NORMAL
+   assign assertion_rst_b = pgcb_rst_b;
+end
+
+
+//------------------------ Reset Value Assertions ------------------------//
+   property pValAfterReset(sig, val);
+      @(posedge clk) disable iff (assertion_rst_b!==1)
+         ($past(assertion_rst_b)==0) |-> (sig==val);
+   endproperty
+
+   // Out of reset, force_clks_on_ack is 0
+   aForceClksOnAckReset: assume property (pValAfterReset(ip_pgcb_force_clks_on_ack,0));
+
+   generate if (DEF_PWRON) begin : DEFON_RESET
+      //------------------------ Default Powered Up ------------------------//
+      // Out of reset assume pmc_pgcb_pg_ack_b is 1
+      aPmcIpPGAckReset: assume property (pValAfterReset(pmc_pgcb_pg_ack_b,1));
+
+      // Out of reset assume ip_pgcb_pg_rdy_req_b is 1
+      // With the PGCB Power Gated by default, the only wake event will be pmc_ip_wake assertion
+      // (ip-inaccessible).  PMC will assert the wake only after the assertion_rst_b deassertion.
+      aIpPgcbReqReset: assume property (pValAfterReset(ip_pgcb_pg_rdy_req_b,1));
+      
+      aRestoreReset: assert property (pValAfterReset(pgcb_restore,1));
+
+      //------------------------ End Default Powered Up ------------------------//
+   end else begin : DEFOFF_RESET
+      //------------------------ Default Powered Down ------------------------//
+      // Out of reset assume pmc_pgcb_pg_ack_b is 0
+      aPmcIpPGAckReset: assume property (pValAfterReset(pmc_pgcb_pg_ack_b,0));
+
+      // Out of reset assume ip_pgcb_pg_rdy_req_b is 0
+      // With the PGCB Power Gated by default, the only wake event will be pmc_ip_wake assertion
+      // (ip-inaccessible).  PMC will assert the wake only after the assertion_rst_b deassertion.
+      aIpPgcbReqReset: assume property (pValAfterReset(ip_pgcb_pg_rdy_req_b,0));
+
+      // Out of reset assume ip_pgcb_pg_type is IP-Inaccessible
+      aPGTypeReset: assume property (pValAfterReset(int_pg_type,IPINACC));
+
+      //------------------------ End Default Powered Down ------------------------//
+   end endgenerate
+//------------------------ End Reset Value Assertions ------------------------//
+
+   
+   aPSUnknown: assert property ( @(posedge clk) disable iff (assertion_rst_b!==1)
+      (pgcb_ps!==STATEX)
+   );
+
+//------------------------ Begin IDLE Assertions ------------------------//
+   // pgcb_idle indication should only assert in the PWRSTBLE and PWRDWN states
+   aPwrUpIdle: assert property ( @(posedge clk) disable iff (assertion_rst_b!==1)
+      $stable(assertion_rst_b) |-> (pgcb_idle == (pgcb_ps==PWRSTBLE || pgcb_ps==PWRDWN))
+   );
+   
+   // Powered on Values
+   aPwrUpIdleVals: assert property ( @(posedge clk) disable iff (assertion_rst_b!==1)
+      (pgcb_ps==PWRSTBLE) |-> (
+            pgcb_pmc_pg_req_b==1 &&
+            pgcb_ip_pg_rdy_ack_b==1 &&
+            pgcb_pok==1 &&
+            pgcb_restore==0 &&
+            pgcb_sleep==0 &&
+            pgcb_isol_latchen==1 &&
+            pgcb_isol_en_b==1 &&
+            pgcb_force_rst_b==1 &&
+            pgcb_idle==1 &&
+            pgcb_ip_force_clks_on==0
+         )
+   );
+   
+   // Powered on Values
+   aRestoreVals: assert property ( @(posedge clk) disable iff (assertion_rst_b!==1)
+      (pgcb_ps==RESTORE) |-> (
+            pgcb_pmc_pg_req_b==1 &&
+            pgcb_ip_pg_rdy_ack_b==0 &&
+            pgcb_pok==1 &&
+            pgcb_restore==!int_restore_b &&
+            pgcb_sleep==0 &&
+            pgcb_isol_latchen==1 &&
+            pgcb_isol_en_b==1 &&
+            pgcb_force_rst_b==1 &&
+            pgcb_idle==0 &&
+            pgcb_ip_force_clks_on==0
+         )
+   );
+   
+   
+   // Powered off Values for IPINACCESSIBLE
+   aPwrDwnIdleValsInacc: assert property ( @(posedge clk) disable iff (assertion_rst_b!==1)
+      (pgcb_ps==PWRDWN && int_pg_type==IPINACC) |-> (
+            pgcb_pmc_pg_req_b==0 &&
+            pgcb_ip_pg_rdy_ack_b==0 &&
+            pgcb_pok==0 &&
+            pgcb_restore==0 &&
+            pgcb_sleep==1 && 
+            pgcb_isol_latchen==1 &&
+            pgcb_isol_en_b==0 &&
+            pgcb_force_rst_b==0 &&
+            pgcb_idle==1 &&
+            pgcb_ip_force_clks_on==0
+         )
+   );
+   
+    //Added by Aparna	
+    // Powered off Values for IPACCESSIBLE
+   aPwrDwnIdleValsacc: assert property ( @(posedge clk) disable iff (assertion_rst_b!==1)
+      (pgcb_ps==PWRDWN && int_pg_type==IPACC) |-> (
+            pgcb_pmc_pg_req_b==0 &&
+            pgcb_ip_pg_rdy_ack_b==0 &&
+            pgcb_pok==1 &&
+            pgcb_restore==0 &&
+            pgcb_sleep==1 &&
+            (pgcb_isol_latchen==0 || !int_isollatch_en) &&
+            pgcb_isol_en_b==0 &&
+            pgcb_force_rst_b==0 &&
+            pgcb_idle==1 &&
+            pgcb_ip_force_clks_on==0
+         )
+   );
+
+   
+//------------------------ End IDLE Assertions ------------------------//
+
+//------------------------ Begin Clock Gating Assertions ------------------------//
+   // The PGD clocks should be gated whenever pwrgate_active is high and pgcb_restore is low
+   // The clocks are required to be gated whenever force_rst_b, sleep, isol_latchen toggle
+   aClocksGated: assert property ( @(posedge clk) disable iff((assertion_rst_b!==1) || ($past(assertion_rst_b, 1, 1, @(posedge clk)) !== 1))
+      (!$stable(pgcb_force_rst_b) || !$stable(pgcb_sleep) || !$stable(pgcb_sleep2) || !$stable(pgcb_isol_latchen)) |->
+         (pgcb_pwrgate_active==1 && pgcb_restore==0 && $past(pgcb_pwrgate_active)==1 && $past(pgcb_restore==0))
+   );
+//------------------------ End Clock Gating Assertions ------------------------//
+
+//------------------------ Begin pg_req_b Assertions ------------------------//
+   // When PG is requested from PMC, sleep, isol_en and resets must always be active
+   aPGReqAssert: assert property ( @(posedge clk) disable iff((assertion_rst_b!==1) || ($past(assertion_rst_b, 1, 1, @(posedge clk)) !== 1))
+      $fell(pgcb_pmc_pg_req_b) |-> ( (pgcb_sleep==1) && (pgcb_sleep2==1) && (pgcb_isol_en_b==0) && (pgcb_force_rst_b==0) )
+   );
+
+   // [IP-Acc w/ SR] If PG Req with state retention, isol_latchen must be 0 (closed)
+   aPGReqAssertSR: assert property ( @(posedge clk) disable iff((assertion_rst_b!==1) || ($past(assertion_rst_b, 1, 1, @(posedge clk)) !== 1))
+      ( $fell(pgcb_pmc_pg_req_b) && int_sleep_en==1) |-> ( pgcb_isol_latchen==0 )
+   );
+
+//   // PG Req should only deassert when the IP has requested to un-PG
+//   aPGReqDeassert: assert property ( @(posedge clk) disable iff((assertion_rst_b!==1) || ($past(assertion_rst_b, 1, 1, @(posedge clk)) !== 1))
+//      $rose(pgcb_pmc_pg_req_b) |-> ($past(ip_pgcb_pg_rdy_req_b)==1)
+//   );
+
+//------------------------ End pg_req_b Assertions ------------------------//
+
+//------------------------ Begin pwrgate_active Assertions ------------------------//
+   aPGRdyPGActive: assert property ( @(posedge clk) disable iff (assertion_rst_b!==1)
+      (ip_pgcb_pg_rdy_req_b==0) |-> (pgcb_pwrgate_active==1)
+   );
+   
+   aPGActive: assert property ( @(posedge clk) disable iff (assertion_rst_b!==1)
+      (pgcb_ps!=PWRSTBLE) |-> (pgcb_pwrgate_active==1)
+   );
+
+   // PGCB 1.0 Requirement: pwrgate_active must be low before an IP-Inaccessible entry is requested
+   aInaccPGReq: assume property ( @(posedge clk) disable iff (assertion_rst_b!==1)
+      ($fell(ip_pgcb_pg_rdy_req_b) && (pg_type_typ'(ip_pgcb_pg_type)!=IPACC)) |-> !$past(pgcb_pwrgate_active)
+   );
+
+//------------------------ End pwrgate_active Assertions ------------------------//
+
+
+
+//------------------------ Begin restore_b Assumptions ------------------------//
+   // restore_b can only assert when pg_ack_b is asserted 
+   aRestoreAssert: assume property ( @(posedge clk) disable iff((assertion_rst_b!==1) || ($past(assertion_rst_b, 1, 1, @(posedge clk)) !== 1))
+      $fell(sync_pmc_pgcb_restore_b) |-> (sync_pmc_pgcb_pg_ack_b==0)
+   );
+   
+   // restore_b must be stable for at least 2 clocks 
+   aRestoreStable2Clks: assume property ( @(posedge clk) disable iff((assertion_rst_b!==1) || ($past(assertion_rst_b, 1, 1, @(posedge clk)) !== 1))
+      !$stable(pmc_pgcb_restore_b) |-> ($past(pmc_pgcb_restore_b)==$past(pmc_pgcb_restore_b,2))
+   );
+//------------------------ End restore_b Assertions ------------------------//
+
+//------------------------ Begin pgcb_restore Assertions ------------------------//
+   // pgcb_restore falling means the the pmc_ip_restore_b has deasserted
+   aRestoreFell: assume property ( @(posedge clk) disable iff((assertion_rst_b!==1) || ($past(assertion_rst_b, 1, 1, @(posedge clk)) !== 1))
+      $fell(pgcb_restore) |-> $past(sync_pmc_pgcb_restore_b==1)
+   );
+   
+   // pgcb_restore falling means the the pmc_ip_restore_b has deasserted
+   aRestore: assume property ( @(posedge clk) disable iff((assertion_rst_b!==1) || ($past(assertion_rst_b, 1, 1, @(posedge clk)) !== 1))
+      pgcb_restore |-> 
+         (pgcb_pwrgate_active==1) &&
+         (pgcb_ip_pg_rdy_ack_b==0) &&
+         (pgcb_idle==0) &&
+         (pgcb_force_rst_b==1) &&
+         (pgcb_isol_en_b==1) &&
+         (pgcb_isol_latchen==1) &&
+         (pgcb_pok==1) &&
+         (pgcb_sleep==0) &&
+         ($past(int_restore_b)==0)
+   );
+//------------------------ End pgcb_restore Assertions ------------------------//
+
+//------------------------ Begin force_clks_on/en Assertions ------------------------//
+   aFrcClksEn: assume property ( @(posedge clk) disable iff((assertion_rst_b!==1) || ($past(assertion_rst_b, 1, 1, @(posedge clk)) !== 1))
+      (pgcb_pwrgate_active == 1) |-> ($stable(int_frc_clk_srst_cc_en) && $stable(int_frc_clk_cp_en))
+   );
+
+   aForceClksSRSTDis: assert property ( @(posedge clk) disable iff (assertion_rst_b!==1)
+      (int_frc_clk_srst_cc_en==0 && pgcb_force_rst_b==0) |-> (pgcb_ip_force_clks_on==0)
+   );
+   // Clocks should be forced on before power is requested from PMC
+   aForceClksPowerUp: assert property ( @(posedge clk) disable iff (assertion_rst_b!==1)
+      (int_frc_clk_srst_cc_en==1) && $rose(pgcb_pmc_pg_req_b) |-> (pgcb_ip_force_clks_on && $past(pgcb_ip_force_clks_on))
+   );
+   // When Clocks are forced off, power should be stable 
+   aForceClksOffPowerUp: assert property ( @(posedge clk) disable iff ((assertion_rst_b!==1) || ($past(assertion_rst_b, 1, 1, @(posedge clk)) !== 1))
+      (int_frc_clk_srst_cc_en==1) && $fell(pgcb_ip_force_clks_on) |-> (sync_pmc_pgcb_pg_ack_b && $past(sync_pmc_pgcb_pg_ack_b))
+   );
+   
+   
+   aForceClksCPDis: assert property ( @(posedge clk) disable iff (assertion_rst_b!==1)
+      (int_frc_clk_cp_en==0 && pgcb_force_rst_b==1 && int_pg_type!=WRST) |-> (pgcb_ip_force_clks_on==0)
+   );
+
+  
+   // force_clks_on should not be asserted while sleep is toggling
+   aForceClksVsSlp: assert property ( @(posedge clk) disable iff (assertion_rst_b!==1)
+       !$stable(pgcb_sleep) && int_sleep_en |-> (pgcb_ip_force_clks_on==0)
+   );
+
+   // force_clks_on should not be asserted while sleep is toggling
+   aForceClksVsSlp2: assert property ( @(posedge clk) disable iff (assertion_rst_b!==1)
+       !$stable(pgcb_sleep2) && int_sleep2_en |-> (pgcb_ip_force_clks_on==0)
+   );
+
+//------------------------ End force_clks_on/en Assertions ------------------------//
+
+
+//------------------------ Begin sleep Assertions ------------------------//
+   // [IP-Acc w/ SR] Sleep toggling implies resets are deasserted, clocks are gated and isolation latches are closed
+   aSleepToggleSR: assert property ( @(posedge clk) disable iff((assertion_rst_b!==1) || ($past(assertion_rst_b, 1, 1, @(posedge clk)) !== 1))
+      ( !$stable(pgcb_sleep) &&  int_sleep_en==1 ) |-> (pgcb_force_rst_b==1 && pgcb_isol_latchen==0)
+   );
+   
+   // [IP-Inacc or IP-Acc w/o SR] implies resets are still asserted
+   aSleepToggleNoSR: assert property ( @(posedge clk) disable iff((assertion_rst_b!==1) || ($past(assertion_rst_b, 1, 1, @(posedge clk)) !== 1))
+      ( !$stable(pgcb_sleep) &&  int_sleep_en==0 ) |-> (pgcb_force_rst_b==0)
+   );
+   
+   // if force_reset is asserted, sleep should be stable (if sleep is enabled)
+   aSleepStable: assert property ( @(posedge clk) disable iff((assertion_rst_b!==1) || ($past(assertion_rst_b, 1, 1, @(posedge clk)) !== 1))
+      ((pgcb_force_rst_b==0 ) && int_sleep_en)|-> $stable(pgcb_sleep)
+   );
+
+   // Sleep must always be 1 when power gated
+   aSleep1PG: assert property ( @(posedge clk) disable iff (assertion_rst_b!==1)
+      (pgcb_pmc_pg_req_b==0 || pmc_pgcb_pg_ack_b==0) |-> (pgcb_sleep==1)
+   );
+
+   aUnknownSleep: assert property ( @(posedge clk) disable iff (assertion_rst_b!==1)
+      !$isunknown(pgcb_sleep)
+   );
+
+   aSleep2Toggle: assert property ( @(posedge clk) disable iff((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge clk)) !== 1)) 
+      ( !$stable(pgcb_sleep2) && (int_pg_type==IPACC) ) |-> (pgcb_force_rst_b==1) &&
+                                                            (pgcb_pok==1) && 
+                                                            (pgcb_isol_latchen==((int_sleep_en==1) || (ISOLLATCH_NOSR_EN==1)) ? 1'b0 : 1'b1) && 
+                                                            (pgcb_isol_en_b==1) && 
+                                                            (pgcb_pwrgate_active==1)
+   );
+   
+   aSleep2VsIsol: assert property ( @(posedge clk) disable iff((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge clk)) !== 1)) 
+      ( !$stable(pgcb_isol_en_b) && (int_pg_type==IPACC) ) |-> $past(pgcb_sleep2)==1
+   );
+   aSleep2VsIsolLatchen: assert property ( @(posedge clk) disable iff((pgcb_rst_b!==1) || ($past(pgcb_rst_b, 1, 1, @(posedge clk)) !== 1)) 
+      ( !$stable(pgcb_isol_latchen) && (int_pg_type==IPACC) ) |-> $past(pgcb_sleep2)==0
+   );
+//------------------------ End sleep Assertions ------------------------//
+
+//------------------------ Begin isol_latchen Assertions ------------------------//
+//TODO: need to update with new parameter
+   // Isol Latchen assertion implies IP-Acc w/ SR PG, IOSF interfaces are locked, clocks are gated and sleep is inactive
+   aIsolLatchAssert: assert property ( @(posedge clk) disable iff((assertion_rst_b!==1) || ($past(assertion_rst_b, 1, 1, @(posedge clk)) !== 1))
+      ( !$stable(pgcb_isol_latchen) ) |-> (int_isollatch_en==1 && pgcb_sleep==0)
+   );
+   
+   // Isol Latchen should always be asserted when PG without state-retention
+   aIsolLatchDeassert: assert property ( @(posedge clk) disable iff (assertion_rst_b!==1)
+      (int_isollatch_en==0) |-> (pgcb_isol_latchen==1)
+   );
+//------------------------ End isol_latchen Assertions ------------------------//
+
+//------------------------ Begin isol_en_b Assertions ------------------------//
+
+   // [IP-Acc w/ SR] Isol_en assertion implies Isol Latches are closed and Sleep is enabled
+   aIsolEnAssertSR: assert property ( @(posedge clk) disable iff((assertion_rst_b!==1) || ($past(assertion_rst_b, 1, 1, @(posedge clk)) !== 1))
+      ($fell(pgcb_isol_en_b) && int_sleep_en==1) |-> (pgcb_isol_latchen==0 && pgcb_sleep==1)
+   );
+   
+   // Isol_en deassertion implies IP is requesting ungating and Power is restored and stable
+   aIsolEnDeassert: assert property ( @(posedge clk) disable iff((assertion_rst_b!==1) || ($past(assertion_rst_b, 1, 1, @(posedge clk)) !== 1))
+      $rose(pgcb_isol_en_b) |-> (pmc_pgcb_pg_ack_b==1)
+   );
+   
+   // Isolation should precede reset assertion
+   aIsolFallVsRst: assert property ( @(posedge clk) disable iff((assertion_rst_b!==1) || ($past(assertion_rst_b, 1, 1, @(posedge clk)) !== 1))
+      $fell(pgcb_isol_en_b) |-> ($stable(pgcb_force_rst_b) && pgcb_force_rst_b==1)
+   );
+
+   // Deisolation should precede reset deassertion
+   aIsolRiseVsRst: assert property ( @(posedge clk) disable iff((assertion_rst_b!==1) || ($past(assertion_rst_b, 1, 1, @(posedge clk)) !== 1))
+      $rose(pgcb_isol_en_b) |-> ($stable(pgcb_force_rst_b) && pgcb_force_rst_b==0)
+   );
+//------------------------ End isol_en_b Assertions ------------------------//
+
+//------------------------ Begin force_rst_b Assertions ------------------------//
+   // force_rst_b follows isolation enable
+   aForceRstVsIsolEn: assert property ( @(posedge clk) disable iff((assertion_rst_b!==1) || ($past(assertion_rst_b, 1, 1, @(posedge clk)) !== 1))
+      ( !$stable(pgcb_force_rst_b) ) |-> ( $past(pgcb_isol_en_b)==pgcb_force_rst_b )
+   );
+   
+   // [IP-Inacc] force_rst_b deassertion implies IOSF-SB interface is unlocked
+   //aForceRstDeassertInacc: assert property ( @(posedge clk) disable iff (assertion_rst_b!==1)
+   //   ( $rose(pgcb_force_rst_b) && int_pg_type==IPINACC ) |-> (pgcb_sustain_ism_lock_b==1)
+   //);
+//------------------------ End force_rst_b Assertions ------------------------//
+
+
+//------------------------ Begin PG Flows ------------------------//
+   // If entering ACCSRETLOW, ip_pgcb_all_pg_rst_up must be high
+   aAllRstUp: assert property ( @(posedge clk) disable iff (assertion_rst_b!==1)
+      ($past(pgcb_ps)!=ACCSRETLOW && pgcb_ps==ACCSRETLOW) |-> $past(ip_pgcb_all_pg_rst_up)==1
+   );
+   
+   // 
+   aRegRW: assert property ( @(posedge clk) disable iff (assertion_rst_b!==1)
+      (pgcb_restore_force_reg_rw==pgcb_restore)
+   );
+
+//   // Leaving PWRSTBLE
+//   aPGEntry: assert property ( @(posedge clk) disable iff (assertion_rst_b!==1)
+//      ($past(pgcb_ps)==PWRSTBLE && pgcb_ps!=PWRSTBLE) |-> $past(ip_pgcb_pg_rdy_req_b)==0
+//   );
+//
+//   // IP-Accessible Entry
+//   aIPAccEntry: assert property ( @(posedge clk) disable iff (assertion_rst_b!==1)
+//      ($past(pgcb_ps)==PWRSTBLE && pgcb_ps!=PWRSTBLE && (int_pg_type==IPACC)) |-> ##[0:$]
+//         $fell(pgcb_idle) ##[1:$]
+//         ($fell(pgcb_isol_latchen) || !int_isollatch_en) ##[1:$]
+//         ($rose(pgcb_sleep) || !int_sleep_en) ##[1:$]
+//         $fell(pgcb_isol_en_b) ##[1:$]
+//         ($fell(pgcb_force_rst_b)) ##[1:$]
+//         ($rose(pgcb_sleep) || int_sleep_en) ##[1:$]
+//         ($fell(pgcb_ip_pg_rdy_ack_b) && $fell(pgcb_pmc_pg_req_b)) ##[1:$]
+//         $fell(sync_pmc_pgcb_pg_ack_b) ##[1:$]
+//         $rose(pgcb_idle)
+//   );
+//
+//   // IP-Inccessible Entry
+//   aIPInaccEntry: assert property ( @(posedge clk) disable iff (assertion_rst_b!==1)
+//      ($past(pgcb_ps)==PWRSTBLE && pgcb_ps!=PWRSTBLE && (int_pg_type==IPINACC)) |-> ##[0:$]
+//         $fell(pgcb_idle) ##[1:$]
+//         $fell(pgcb_isol_en_b) ##[1:$]
+//         ($fell(pgcb_force_rst_b)) ##[1:$]
+//         //TODO: Need to enable this up after SR modeling fix is found
+//         //$rose(pgcb_sleep) ##[1:$]
+//         ($fell(pgcb_ip_pg_rdy_ack_b) && $fell(pgcb_pmc_pg_req_b)) ##[1:$]
+//         $fell(sync_pmc_pgcb_pg_ack_b) ##[1:$]
+//         $rose(pgcb_idle)
+//   );
+//
+//
+//
+//   // Common Exit
+//   aCommonExit: assert property ( @(posedge clk) disable iff (assertion_rst_b!==1)
+//      ($rose(ip_pgcb_pg_rdy_req_b) && pgcb_ps==PWRDWN) |-> ##[1:$]
+//         ($fell(pgcb_idle) && $rose(pgcb_pmc_pg_req_b)) ##[1:$]
+//         $rose(sync_pmc_pgcb_pg_ack_b)
+//   );
+//
+//   // IP-Accessible Exit (No Restore)
+//   aIPAccExitNoRestoreFC: assert property ( @(posedge clk) disable iff (assertion_rst_b!==1)
+//      ($rose(sync_pmc_pgcb_pg_ack_b) && (sync_pmc_pgcb_restore_b==1) && (int_pg_type==IPACC)) |-> ##[1:$]
+//         ($fell(pgcb_sleep) || int_sleep_en) ##[1:$]
+//            ($rose(pgcb_ip_force_clks_on) || !int_frc_clk_srst_cc_en) ##[0:$]
+//            ($rose(ip_pgcb_force_clks_on_ack) || !int_frc_clk_srst_cc_en) ##[0:$]
+//            ($fell(pgcb_ip_force_clks_on) || !int_frc_clk_srst_cc_en) ##[0:$]
+//            ($fell(ip_pgcb_force_clks_on_ack) || !int_frc_clk_srst_cc_en) ##[0:$]
+//         $rose(pgcb_isol_en_b) ##[1:$]
+//         ($rose(pgcb_force_rst_b)) ##[1:$]
+//            ($rose(pgcb_ip_force_clks_on) || !int_frc_clk_cp_en) ##[0:$]
+//            ($rose(ip_pgcb_force_clks_on_ack) || !int_frc_clk_cp_en) ##[0:$]
+//            ($fell(pgcb_ip_force_clks_on) || !int_frc_clk_cp_en) ##[0:$]
+//            ($fell(ip_pgcb_force_clks_on_ack) || !int_frc_clk_cp_en) ##[0:$]
+//         (ip_pgcb_all_pg_rst_up==1) ##[0:$]
+//         ($fell(pgcb_sleep) || !int_sleep_en) ##[1:$]
+//         ($rose(pgcb_isol_latchen) || !int_isollatch_en) ##[1:$]
+//         ($rose(pgcb_ip_pg_rdy_ack_b) && $rose(pgcb_idle))
+//   );
+//
+//
+//   // IP-Accessible Exit (Restore)
+//   aIPAccExitRestoreFC: assert property ( @(posedge clk) disable iff (assertion_rst_b!==1)
+//      ($rose(sync_pmc_pgcb_pg_ack_b) && (sync_pmc_pgcb_restore_b==0) && (int_pg_type==IPACC)) |-> ##[1:$]
+//         ($fell(pgcb_sleep) || int_sleep_en) ##[1:$]
+//            ($rose(pgcb_ip_force_clks_on) || !int_frc_clk_srst_cc_en) ##[0:$]
+//            ($rose(ip_pgcb_force_clks_on_ack) || !int_frc_clk_srst_cc_en) ##[0:$]
+//            ($fell(pgcb_ip_force_clks_on) || !int_frc_clk_srst_cc_en) ##[0:$]
+//            ($fell(ip_pgcb_force_clks_on_ack) || !int_frc_clk_srst_cc_en) ##[0:$]
+//         $rose(pgcb_isol_en_b) ##[1:$]
+//         ($rose(pgcb_force_rst_b)) ##[1:$]
+//            ($rose(pgcb_ip_force_clks_on) || !int_frc_clk_cp_en) ##[0:$]
+//            ($rose(ip_pgcb_force_clks_on_ack) || !int_frc_clk_cp_en) ##[0:$]
+//            ($fell(pgcb_ip_force_clks_on) || !int_frc_clk_cp_en) ##[0:$]
+//            ($fell(ip_pgcb_force_clks_on_ack) || !int_frc_clk_cp_en) ##[0:$]
+//         (ip_pgcb_all_pg_rst_up==1) ##[0:$]
+//         ($fell(pgcb_sleep) || !int_sleep_en) ##[1:$]
+//         ($rose(pgcb_isol_latchen) || !int_isollatch_en) ##[1:$]
+//         $rose(pgcb_restore) ##[1:$]
+//         (sync_pmc_pgcb_restore_b==1) ##[0:$]
+//         ($fell(pgcb_restore) && $rose(pgcb_ip_pg_rdy_ack_b) && $rose(pgcb_idle))
+//   );
+//
+//
+//   // IP-Inccessible Exit (No Restore)
+//   aIPInaccExitNoRestoreFC: assert property ( @(posedge clk) disable iff (assertion_rst_b!==1)
+//      ($rose(sync_pmc_pgcb_pg_ack_b) && (sync_pmc_pgcb_restore_b==1) && (int_pg_type==IPINACC)) |-> ##[1:$]
+//         //TODO: Need to enable this up after SR modeling fix is found
+//         //$fell(pgcb_sleep) ##[1:$]
+//            ($rose(pgcb_ip_force_clks_on) || !int_frc_clk_srst_cc_en) ##[0:$]
+//            ($rose(ip_pgcb_force_clks_on_ack) || !int_frc_clk_srst_cc_en) ##[0:$]
+//            ($fell(pgcb_ip_force_clks_on) || !int_frc_clk_srst_cc_en) ##[0:$]
+//            ($fell(ip_pgcb_force_clks_on_ack) || !int_frc_clk_srst_cc_en) ##[0:$]
+//         $rose(pgcb_isol_en_b) ##[1:$]
+//         $rose(pgcb_pok) ##[1:$]
+//         $rose(pgcb_force_rst_b) ##[1:$]
+//         $rose(pgcb_ip_pg_rdy_ack_b) ##[0:$]
+//         $rose(pgcb_idle)
+//   );
+//
+//   // IP-Inccessible Exit (Restore)
+//   aIPInaccExitRestoreFC: assert property ( @(posedge clk) disable iff (assertion_rst_b!==1)
+//      ($rose(sync_pmc_pgcb_pg_ack_b) && (sync_pmc_pgcb_restore_b==0) && (int_pg_type==IPINACC)) |-> ##[1:$]
+//         //TODO: Need to enable this up after SR modeling fix is found
+//         //$fell(pgcb_sleep) ##[1:$]
+//            ($rose(pgcb_ip_force_clks_on) || !int_frc_clk_srst_cc_en) ##[0:$]
+//            ($rose(ip_pgcb_force_clks_on_ack) || !int_frc_clk_srst_cc_en) ##[0:$]
+//            ($fell(pgcb_ip_force_clks_on) || !int_frc_clk_srst_cc_en) ##[0:$]
+//            ($fell(ip_pgcb_force_clks_on_ack) || !int_frc_clk_srst_cc_en) ##[0:$]
+//         $rose(pgcb_isol_en_b) ##[1:$]
+//         $rose(pgcb_pok) ##[1:$]
+//         $rose(pgcb_force_rst_b) ##[1:$]
+//         $rose(pgcb_restore) ##[1:$]
+//         ($fell(pgcb_restore) && $rose(pgcb_ip_pg_rdy_ack_b) && $rose(pgcb_idle))
+//   ); 
+//------------------------ End PG Flows ------------------------//
+
+
+
+
+
+
+
+
+//------------------------ Counter Assertions ------------------------//
+   //Counter Assertions
+   // Counter should only change in the following states 
+   aCntStable: assert property ( @(posedge clk) disable iff((assertion_rst_b!==1) || ($past(assertion_rst_b, 1, 1, @(posedge clk)) !== 1))
+      !$stable(cnt_val) |-> 
+         (
+           (pgcb_ps==POKLOW) ||
+           (pgcb_ps==ISOLLATCHDIS && int_isollatch_en) ||
+           (pgcb_ps==ACCSRETHIGH && (int_pg_type==IPACC)) ||
+            pgcb_ps==INTISOLEN ||
+            pgcb_ps==RSTACT ||
+           (pgcb_ps==INACCSRETHIGH && !int_sleep_en) ||
+           (pgcb_ps==INACCSRETLOW && !int_sleep_en) ||
+            pgcb_ps==CLKSONACK_SRST ||
+            pgcb_ps==CLKSOFFACK_SRST ||
+            pgcb_ps==INTISOLDIS ||
+            pgcb_ps==POKHIGH1 ||
+            pgcb_ps==INACCRSTINACTIV ||
+            pgcb_ps==ACCRSTINACTIV ||
+            pgcb_ps==CLKSONACK_CP ||
+            pgcb_ps==CLKSOFFACK_CP ||
+           (pgcb_ps==ACCSRETLOW && (int_pg_type==IPACC)) ||
+           (pgcb_ps==ISOLLATCHEN && int_isollatch_en) ||
+            pgcb_ps==WRSTCLKSONACK ||
+            pgcb_ps==WRSTCLKSOFFACK
+         )
+   );
+
+   // Transitions between states should only happen when count=0
+   aCntTransitions: assert property ( @(posedge clk) disable iff((assertion_rst_b!==1) || ($past(assertion_rst_b, 1, 1, @(posedge clk)) !== 1))
+      (
+         (pgcb_ps!=pgcb_ns)
+      ) |-> (cnt_val==0)
+   );
+
+   // Counter should be loaded with val (cfg_val) when entering state (state)
+   property pCntLoadVal(state,cfg_val,cond);
+      @(posedge clk) disable iff((assertion_rst_b!==1) || ($past(assertion_rst_b, 1, 1, @(posedge clk)) !== 1))
+         (pgcb_ps!=state && pgcb_ns==state && (cond>0)) |=>
+            (cnt_val==(cfg_val==2'b00 ? LOAD_VAL0-1 : (cfg_val==2'b01 ? LOAD_VAL1-1 : (cfg_val==2'b10 ? LOAD_VAL2-1 : LOAD_VAL3-1 ) ) ));
+   endproperty
+   
+
+   aINACCSRETLOWCntLoad: assert property (pCntLoadVal(INACCSRETLOW,cfg_tsleepinactiv,!int_sleep_en));
+   aCLKSONACK_SRSTCntLoad: assert property (pCntLoadVal(CLKSONACK_SRST,cfg_tclksonack_srst,1));
+   aCLKSOFFACK_SRSTCntLoad: assert property (pCntLoadVal(CLKSOFFACK_SRST,cfg_tclksoffack_srst,1));
+   aINTISOLDISCntLoad: assert property (pCntLoadVal(INTISOLDIS,cfg_tdeisolate,1));
+   aPOKHIGH1CntLoad: assert property (pCntLoadVal(POKHIGH1,cfg_tpokup,1));
+   aINACCRSTINACTIVCntLoad: assert property (pCntLoadVal(INACCRSTINACTIV,cfg_tinaccrstup,1));
+   aRSTINACTIVCntLoad: assert property (pCntLoadVal(ACCRSTINACTIV,cfg_taccrstup,!int_frc_clk_cp_en));
+   aRST2FCCntLoad: assert property (pCntLoadVal(ACCRSTINACTIV,cfg_trstup2frcclks,int_frc_clk_cp_en));
+   aCLKSONACK_CPCntLoad: assert property (pCntLoadVal(CLKSONACK_CP,cfg_tclksonack_cp,1));
+   aCLKSOFFACK_CPCntLoad: assert property (pCntLoadVal(CLKSOFFACK_CP,cfg_taccrstup,1));
+   aACCSRETLOWCntLoad: assert property (pCntLoadVal(ACCSRETLOW,cfg_tsleepinactiv,(int_pg_type==IPACC)));
+   aISOLLATCHENCntLoad: assert property (pCntLoadVal(ISOLLATCHEN,cfg_tlatchen,int_isollatch_en));
+
+   aPOKLOWCntLoad: assert property (pCntLoadVal(POKLOW,cfg_tpokdown,(ip_pgcb_pg_type!=IPACC)));
+   aISOLLATCHDISCntLoad: assert property (pCntLoadVal(ISOLLATCHDIS,cfg_tlatchdis,int_isollatch_en));
+   aACCSRETHIGHCntLoad: assert property (pCntLoadVal(ACCSRETHIGH,cfg_tsleepact,(int_pg_type==IPACC)));
+   aINTISOLENCntLoad: assert property (pCntLoadVal(INTISOLEN,cfg_tisolate,1));
+   aRSTACTCntLoad: assert property (pCntLoadVal(RSTACT,cfg_trstdown,1));
+   aINACCSRETHIGHCntLoad: assert property (pCntLoadVal(INACCSRETHIGH,cfg_tsleepact,!int_sleep_en));
+   
+   aWRSTCLKSONACKCntLoad: assert property (pCntLoadVal(WRSTCLKSONACK,cfg_trsvd0,1));
+   aWRSTCLKSOFFACKCntLoad: assert property (pCntLoadVal(WRSTCLKSOFFACK,cfg_trsvd1,1));
+
+   //TODO: Enable when we have a testbench environment
+   //property afterNClks(start_event, end_event, N);
+   //	int count;
+   //	(start_event, count = 0) |-> (((~end_event, count = count+1) [*0:$]) ##1 (1 and (count >= N)));
+   //endproperty: afterNClks
+   //
+   //property pCnt();
+   //      @(posedge clk) disable iff(assertion_rst_b!==1)
+   //      afterNClks($rose(pgcb_sleep),$fell(pgcb_isol_en_b), (cfg_tsleepact==2'b00 ? 1 : (cfg_tsleepact==2'b01 ? 16 : (cfg_tsleepact==2'b10 ? 256 : 1024 ) ) ) );
+   //endproperty : pCnt
+   //
+   //assert property (pCnt);
+
+//------------------------ End Counter Assertions ------------------------//
+
+
+//------------------------ Config Signal Assertions ------------------------//
+//W47: HSD1404351430 : Added PWRDWN for excluded condition.
+   property pCfgStable(sig);
+      @(posedge clk) disable iff((assertion_rst_b!==1) || ($past(assertion_rst_b, 1, 1, @(posedge clk)) !== 1))
+         (!$stable(sig)) |-> ( ( pgcb_ps==PWRSTBLE )|| ( pgcb_ps==PWRDWN ) ) ;
+   endproperty : pCfgStable
+
+   aTSleepInactivStable: assume property (pCfgStable(cfg_tsleepinactiv));
+   aTDeisolateStable: assume property (pCfgStable(cfg_tdeisolate));
+   aTPokUpStable: assume property (pCfgStable(cfg_tpokup));
+   aTInaccRstUpStable: assume property (pCfgStable(cfg_tinaccrstup));
+   aTAccRstUpStable: assume property (pCfgStable(cfg_taccrstup));
+   aTRst2FCStable: assume property (pCfgStable(cfg_trstup2frcclks));
+   aTLatchenStable: assume property (pCfgStable(cfg_tlatchen));
+   
+   aTClksOnAckCPStable: assume property (pCfgStable(cfg_tclksonack_cp));
+   aTClksOnAckSRSTStable: assume property (pCfgStable(cfg_tclksonack_srst));
+   aTClksOffAckSRSTStable: assume property (pCfgStable(cfg_tclksoffack_srst));
+   
+   aTPokDownStable: assume property (pCfgStable(cfg_tpokdown));
+   aTLatchdisStable: assume property (pCfgStable(cfg_tlatchdis));
+   aTSleepActStable: assume property (pCfgStable(cfg_tsleepact));
+   aTIsolateStable: assume property (pCfgStable(cfg_tisolate));
+   aTResetDownStable: assume property (pCfgStable(cfg_trstdown));
+   
+   aTRsvd0Stable: assume property (pCfgStable(cfg_trsvd0));
+   aTRsvd1Stable: assume property (pCfgStable(cfg_trsvd1));
+   aTRsvd2Stable: assume property (pCfgStable(cfg_trsvd2));
+   aTRsvd3Stable: assume property (pCfgStable(cfg_trsvd3));
+   aTRsvd4Stable: assume property (pCfgStable(cfg_trsvd4));
+
+   // sleep_en must not change at the same time as pg_rdy_req_b
+   //aSleepEnStable: assume property ( @(posedge clk) disable iff (assertion_rst_b!==1) 
+   //   $fell(ip_pgcb_pg_rdy_req_b) |-> $stable(ip_pgcb_sleep_en)
+   //);
+
+   // pg_type must not change at the same time as pg_rdy_req_b
+   //aPGTypeStable: assume property ( @(posedge clk) disable iff (assertion_rst_b!==1) 
+   //   $fell(ip_pgcb_pg_rdy_req_b) |-> $stable(ip_pgcb_pg_type)
+   //);
+//------------------------ End Config Signal Assertions ------------------------//
+
+//------------------------ Handshake Assertions ------------------------//
+
+   // 1 - Ack may only assert (edge) if Req is asserted (edge).
+      property pAckFallReqLow(ack_b, req_b);
+         @(posedge clk) disable iff((assertion_rst_b!==1) || ($past(assertion_rst_b, 1, 1, @(posedge clk)) !== 1))
+            $fell(ack_b) |-> (req_b==0);
+      endproperty : pAckFallReqLow
+
+      //aPGRdyAckFallReqLow: assert property (pAckFallReqLow(pgcb_ip_pg_rdy_ack_b, ip_pgcb_pg_rdy_req_b));
+      aPGHSAckFallReqLow: assume property (pAckFallReqLow(pmc_pgcb_pg_ack_b, pgcb_pmc_pg_req_b));
+      aFCHSAckFallReqLow: assume property (pAckFallReqLow(!ip_pgcb_force_clks_on_ack, !pgcb_ip_force_clks_on));
+
+   // 2 - Ack may only deassert (edge) if Req is deasserted (edge).
+      property pAckRiseReqHigh(ack_b, req_b);
+         @(posedge clk) disable iff((assertion_rst_b!==1) || ($past(assertion_rst_b, 1, 1, @(posedge clk)) !== 1))
+            $rose(ack_b) |-> (req_b==1);
+      endproperty : pAckRiseReqHigh
+
+      //aPGRdyAckRiseReqHigh: assert property (pAckRiseReqHigh(pgcb_ip_pg_rdy_ack_b, ip_pgcb_pg_rdy_req_b));
+      aPGHSAckRiseReqHigh: assume property (pAckRiseReqHigh(pmc_pgcb_pg_ack_b, pgcb_pmc_pg_req_b));
+      aFCHSAckRiseReqHigh: assume property (pAckRiseReqHigh(!ip_pgcb_force_clks_on_ack, !pgcb_ip_force_clks_on));
+      
+   // 3 - Req may only assert (edge) if Ack is deasserted (level).
+      property pReqFallAckHigh(ack_b, req_b);
+         @(posedge clk) disable iff((assertion_rst_b!==1) || ($past(assertion_rst_b, 1, 1, @(posedge clk)) !== 1))
+            $fell(req_b) |-> ($past(ack_b)==1);
+      endproperty : pReqFallAckHigh 
+
+      //aPGRdyReqFallAckHigh: assume property (pReqFallAckHigh(pgcb_ip_pg_rdy_ack_b, ip_pgcb_pg_rdy_req_b));
+      aPGHSReqFallAckHigh: assert property (pReqFallAckHigh(pmc_pgcb_pg_ack_b, pgcb_pmc_pg_req_b));
+      aFCHSReqFallAckHigh: assert property (pReqFallAckHigh(!ip_pgcb_force_clks_on_ack, !pgcb_ip_force_clks_on));
+      
+   // 4 - Req may only deassert (edge) if Ack is asserted (level).
+      property pReqRiseAckLow(ack_b, req_b);
+         @(posedge clk) disable iff((assertion_rst_b!==1) || ($past(assertion_rst_b, 1, 1, @(posedge clk)) !== 1))
+            $rose(req_b) |-> ($past(ack_b)==0);
+      endproperty : pReqRiseAckLow
+
+      //aPGRdyReqRiseAckLow: assume property (pReqRiseAckLow(pgcb_ip_pg_rdy_ack_b, ip_pgcb_pg_rdy_req_b));
+      aPGHSReqRiseAckLow: assert property (pReqRiseAckLow(pmc_pgcb_pg_ack_b, pgcb_pmc_pg_req_b));
+      aFCHSReqRiseAckLow: assert property (pReqRiseAckLow(!ip_pgcb_force_clks_on_ack, !pgcb_ip_force_clks_on));
+      
+
+      // If pg_rdy_req is only asserted for 1 clock cycle in PWRSTABLE state, PG should continue 
+      aPGReq1Clock: assert property ( @(posedge clk) disable iff (assertion_rst_b!==1)
+         ( $fell(ip_pgcb_pg_rdy_req_b) && (pgcb_ps==PWRSTBLE) ) |-> ##1 (pgcb_ps==POKLOW)
+      );
+//------------------------ End Handshake Assertions ------------------------//
+
+//------------------------ Begin FPV Constraints ------------------------//
+`ifdef SVA_FORMAL
+
+   // Constrain Ack to Follow Req within [num] clocks
+   property pAckAfterReqNum (ack_b, req_b, num);
+      @(posedge clk) disable iff(assertion_rst_b!==1)
+         (!$stable(req_b)) |-> ##[1:num] (ack_b==req_b);
+   endproperty : pAckAfterReqNum
+   
+   assume property (pAckAfterReqNum(pmc_pgcb_pg_ack_b, pgcb_pmc_pg_req_b, 3));
+   assume property (pAckAfterReqNum(~ip_pgcb_force_clks_on_ack, ~pgcb_ip_force_clks_on, 3));
+
+   property pReqAfterAckFallNum (ack_b, req_b, num);
+      @(posedge clk) disable iff (assertion_rst_b!==1)
+      $fell(ack_b) |-> ##[1:num] (req_b==1);
+   endproperty : pReqAfterAckFallNum
+
+   assume property (pReqAfterAckFallNum(pgcb_ip_pg_rdy_ack_b, ip_pgcb_pg_rdy_req_b, 3));
+   
+   assume property ( @(posedge clk) disable iff (assertion_rst_b!==1) 
+      (pgcb_ps==RESTORE || pgcb_ps==INACCRSTINACTIV) |=> ##[1:6] pmc_pgcb_restore_b==1
+   );
+   
+   assume property ( @(posedge clk) disable iff (assertion_rst_b!==1) ip_pgcb_all_pg_rst_up == $past(pgcb_force_rst_b,2) );
+`endif
+//------------------------ End FPV Constraints ------------------------//
+
+
+//------------------------ Cover Points ------------------------//
+`ifdef PGCBWAVES
+   // The following assumptions are used only for generating specific waveforms, they should not be
+   // enabled in simulation
+   
+   property pAckAfterReq (ack_b, req_b);
+      @(posedge clk) disable iff(assertion_rst_b!==1)
+         (!$stable(req_b)) |-> $stable(ack_b);
+   endproperty : pAckAfterReq
+
+   assume property (pAckAfterReq(pmc_pgcb_pg_ack_b, pgcb_pmc_pg_req_b));
+
+   assume property ( @(posedge clk) $fell(ip_pgcb_pg_rdy_req_b) |-> $past(cfg_tsleepinactiv)==2'b01);
+   assume property ( @(posedge clk) $fell(ip_pgcb_pg_rdy_req_b) |-> $past(cfg_tdeisolate)==2'b01);
+   assume property ( @(posedge clk) $fell(ip_pgcb_pg_rdy_req_b) |-> $past(cfg_tpokup)==2'b01);
+   assume property ( @(posedge clk) $fell(ip_pgcb_pg_rdy_req_b) |-> $past(cfg_tinaccrstup)==2'b01);
+   assume property ( @(posedge clk) $fell(ip_pgcb_pg_rdy_req_b) |-> $past(cfg_taccrstup)==2'b01);
+   assume property ( @(posedge clk) $fell(ip_pgcb_pg_rdy_req_b) |-> $past(cfg_tlatchen)==2'b01);
+   assume property ( @(posedge clk) $fell(ip_pgcb_pg_rdy_req_b) |-> $past(cfg_tpokdown)==2'b01);
+   assume property ( @(posedge clk) $fell(ip_pgcb_pg_rdy_req_b) |-> $past(cfg_tlatchdis)==2'b01);
+   assume property ( @(posedge clk) $fell(ip_pgcb_pg_rdy_req_b) |-> $past(cfg_tsleepact)==2'b01);
+   assume property ( @(posedge clk) $fell(ip_pgcb_pg_rdy_req_b) |-> $past(cfg_tisolate)==2'b01);
+   assume property ( @(posedge clk) $fell(ip_pgcb_pg_rdy_req_b) |-> $past(cfg_trstdown)==2'b01);
+   assume property ( @(posedge clk) $fell(ip_pgcb_pg_rdy_req_b) |-> $past(cfg_tclksonack_srst)==2'b01);
+   assume property ( @(posedge clk) $fell(ip_pgcb_pg_rdy_req_b) |-> $past(cfg_tclksoffack_srst)==2'b01);
+   assume property ( @(posedge clk) $fell(ip_pgcb_pg_rdy_req_b) |-> $past(cfg_tclksonack_cp)==2'b01);
+   assume property ( @(posedge clk) $fell(ip_pgcb_pg_rdy_req_b) |-> $past(cfg_trstup2frcclks)==2'b01);
+   assume property ( @(posedge clk) $fell(ip_pgcb_pg_rdy_req_b) |-> $past(cfg_trsvd0)==2'b01);
+   assume property ( @(posedge clk) $fell(ip_pgcb_pg_rdy_req_b) |-> $past(cfg_trsvd1)==2'b01);
+   assume property ( @(posedge clk) $fell(ip_pgcb_pg_rdy_req_b) |-> $past(cfg_trsvd2)==2'b01);
+   assume property ( @(posedge clk) $fell(ip_pgcb_pg_rdy_req_b) |-> $past(cfg_trsvd3)==2'b01);
+   assume property ( @(posedge clk) $fell(ip_pgcb_pg_rdy_req_b) |-> $past(cfg_trsvd4)==2'b01);
+
+   cFellSameTime: cover property (@(posedge clk) disable iff (assertion_rst_b!==1)
+      $fell(ip_pgcb_pg_rdy_req_b) && !$stable(ip_pgcb_pg_type)
+   );
+`endif
+
+`ifndef DIS_PGCB_COVERS
+   //JWH - Note: All these cover properties have holes in that they do not limit the state
+   //transitions between the listed states, could be updated to be tighter in this respect
+   
+   //IP-Accessible power-gate entry and exit with state retention (sleep_en==1) without restore
+   cIPAccessible: cover property (@(posedge clk) disable iff (assertion_rst_b!==1)
+      (pgcb_ps==PWRSTBLE) ##1
+      (pgcb_ps==POKLOW) ##[1:$]
+      (pgcb_ps==PWRDWN && int_pg_type==IPACC && pgcb_sleep==1 && int_sleep_en==1) ##[1:$]
+      (pgcb_ps==PWRUPREQ && pmc_pgcb_restore_b==1 && int_restore_b==1) ##[1:$]
+      (pgcb_ps==PWRSTBLE)
+   );
+   
+   //IP-Accessible power-gate entry and exit with state retention (sleep_en==1) with restore
+   cIPAccessibleRestore: cover property (@(posedge clk) disable iff (assertion_rst_b!==1)
+      (pgcb_ps==PWRSTBLE) ##1
+      (pgcb_ps==POKLOW) ##[1:$]
+      (pgcb_ps==PWRDWN && int_pg_type==IPACC && pgcb_sleep==1 && int_sleep_en==1) ##[1:$]
+      (pgcb_ps==RESTORE && int_restore_b==0) ##[1:$]
+      (pgcb_ps==PWRSTBLE)
+   );
+  
+   //IP-Accessible power-gate entry and exit with state retention disabled (sleep_en==0) without restore
+   //Note: Only relevant for IPs which support setting sleep_en to 0
+   cIPAccessibleNoSleep: cover property (@(posedge clk) disable iff (assertion_rst_b!==1)
+      (pgcb_ps==PWRSTBLE) ##1
+      (pgcb_ps==POKLOW) ##[1:$]
+      (pgcb_ps==PWRDWN && int_pg_type==IPACC && int_sleep_en==0) ##[1:$]
+      (pgcb_ps==PWRUPREQ && pmc_pgcb_restore_b==1 && int_restore_b==1) ##[1:$]
+      (pgcb_ps==PWRSTBLE)
+   );
+   
+   //IP-Accessible power-gate entry and exit with state retention disabled (sleep_en==0) with restore
+   //Note: Only relevant for IPs which support setting sleep_en to 0
+   cIPAccessibleNoSleepRestore: cover property (@(posedge clk) disable iff (assertion_rst_b!==1)
+      (pgcb_ps==PWRSTBLE) ##1
+      (pgcb_ps==POKLOW) ##[1:$]
+      (pgcb_ps==PWRDWN && int_pg_type==IPACC && int_sleep_en==0) ##[1:$]
+      (pgcb_ps==RESTORE && int_restore_b==0) ##[1:$]
+      (pgcb_ps==PWRSTBLE)
+   );
+
+   //IP-Inaccessible power-gate entry and exit without restore
+   //Note: This scenario is coded such that it can never be hit if assertion_rst_b
+   //      asserts as part of IP-Inaccessible power gating. For such IP's, 2 internal
+   //      cover points should be coded to cover the entry and exit individually
+   cIPInaccessible: cover property (@(posedge clk) disable iff (assertion_rst_b!==1)
+      (pgcb_ps==PWRSTBLE) ##1
+      (pgcb_ps==POKLOW) ##[1:$]
+      (pgcb_ps==PWRDWN && int_pg_type==IPINACC) ##[1:$]
+      (pgcb_ps==PWRUPREQ && pmc_pgcb_restore_b==1 && int_restore_b==1) ##[1:$]
+      (pgcb_ps==PWRSTBLE)
+   );
+
+   //IP-Inaccessible power-gate entry and exit with restore
+   //Note: This scenario is coded such that it can never be hit if assertion_rst_b
+   //      asserts as part of IP-Inaccessible power gating. For such IP's, 2 internal
+   //      cover points should be coded to cover the entry and exit individually
+   cIPInaccessibleRestore: cover property (@(posedge clk) disable iff (assertion_rst_b!==1)
+      (pgcb_ps==PWRSTBLE) ##1
+      (pgcb_ps==POKLOW) ##[1:$]
+      (pgcb_ps==PWRDWN && int_pg_type==IPINACC) ##[1:$]
+      (pgcb_ps==INACCRSTINACTIV && int_restore_b==0) ##[1:$]
+      (pgcb_ps==PWRSTBLE)
+   );
+
+   //Warm Reset entry and exit
+   cWarmReset: cover property (@(posedge clk) disable iff (assertion_rst_b!==1)
+      (pgcb_ps==PWRSTBLE) ##1
+      (pgcb_ps==POKLOW) ##[1:$]
+      (pgcb_ps==WARMRST) ##[1:$]
+      (pgcb_ps==PWRSTBLE)
+   );
+   
+   //Warm Reset entry and exit with force clocks on for sync reset propagation (frc_clk_srst_en=1)
+   cWarmResetForceClks: cover property (@(posedge clk) disable iff (assertion_rst_b!==1)
+      (pgcb_ps==PWRSTBLE) ##1
+      (pgcb_ps==POKLOW) ##[1:$]
+      (pgcb_ps==WRSTCLKSONACK) ##[1:$]
+      (pgcb_ps==PWRSTBLE && ip_pgcb_pg_rdy_req_b==1)
+   );
+`endif
+//------------------------ End Cover Points ------------------------//
+
+`endif

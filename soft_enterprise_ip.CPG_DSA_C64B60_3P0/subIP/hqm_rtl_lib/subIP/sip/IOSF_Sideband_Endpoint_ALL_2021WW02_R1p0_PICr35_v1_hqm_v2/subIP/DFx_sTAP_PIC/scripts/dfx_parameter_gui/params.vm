@@ -1,0 +1,181 @@
+//----------------------------------------------------------------------
+// Intel Proprietary -- Copyright 2016 Intel -- All rights reserved
+//----------------------------------------------------------------------
+// NOTE: Log history is at end of file.
+//----------------------------------------------------------------------
+//
+//    FILENAME    : stap_params_include.inc
+//    DESIGNER    : Krishnadas B Bhagwat
+//    PROJECT     : sTAP
+//    PURPOSE     : sTAP RTL Parameters
+//    VERSION     : sTAP_2012WW05_R1.5
+//    DESCRIPTION :
+//       This is a RTL parameter file. Please refer IG for more details.
+//----------------------------------------------------------------------
+//    PARAMETERS  :
+//
+//    STAP_NUMBER_OF_BITS_FOR_SLICE
+//       This parameter is used as a reference to generate and identify widths of
+//       all the register in STAP. This is not a user definable parameter and its
+//       value is fixed at 16.
+//
+//    STAP_SIZE_OF_EACH_INSTRUCTION
+//       This parameter specifies the width of instruction register in STAP.
+//
+//    STAP_NUMBER_OF_DFX_FEATURES_TO_SECURE
+//       The minimum number of features to secure is one. Although, theoretically
+//       it can be any number of features but it is likely to be in an single digits.
+//
+//    STAP_DFX_SECURE_WIDTH
+//       This parameter is fixed at 4 for the 14nm chassis generation (Chassis Gen3)
+//
+//    STAP_DFX_SECURE_POLICY_SELECTREG
+//       This parameter determines the policy settings of TAPs on Network.
+//
+//    STAP_DFX_SECURE_POLICY_OPCODE
+//       This parameter determines the policy level per opcode for a given TAP.
+//
+//    STAP_DFX_SECURE_POLICY_MATRIX
+//       This parameter determines the lookup table necessary to assign the
+//       appropriate policy with the DFx feature(s) including VISA access.
+//
+//    STAP_ENABLE_BSCAN
+//       This parameter enables the Bounday scan operation in sTAP. Unlike CLTAP, this
+//       feature is optional in sTAP
+//
+//    STAP_NUMBER_OF_MANDATORY_REGISTERS
+//       This parameter specifies the number of mandatory registers in STAP.
+//       This is not a user definable parameter and its value is fixed to either 2 or 12,
+//       as BYPASS, IDCODE are the real mandatory registers, but Boundary Scan Registers
+//       also get added if BSCAN is enabled in STAP. All other registers are optional.
+//
+//    STAP_NUMBER_OF_TAPS_IN_TAP_NETWORK
+//       This parameter specifies the number of TAPs that could be present
+//       in a TAP NETWORK. This includes the number of STAPs that become part of
+//       TAP NETWORK on a STAP
+//       This parameter specifies the width of register atap_secsel and tapc_select
+//
+//    STAP_NUMBER_OF_WTAPS_IN_NETWORK
+//       This parameter specifies the number of WTAPs that could be present in a
+//       WTAP NETWORK on a STAP
+//       This parameter specifies the width of register atap_wtapnw_selectwir.
+//
+//    STAP_WTAP_NETWORK_ONE_FOR_SERIES_ZERO_FOR_PARALLEL
+//       This parameter will help us to identify whether the WTAPs on
+//       a WTAP NETWORK are connected serially or parallely. Also this helps in
+//       generation of necessary control signals for serial or parallel
+//       stitching of WTAPs in the WTAP NETWORK
+//
+//    STAP_ENABLE_WTAP_CTRL_POS_EDGE
+//       This parameter specifies when WTAP is enabled then to use the control
+//       signals like stap_fsm_capture_dr and stap_fsm_shift_dr on positive edge clk
+//       if this parameter is one or negative edge clk if paramater is zero.
+//
+//    STAP_ENABLE_TAPC_REMOVE
+//       This is a 1-bit DR opcode that will enable the TAP TDI input to pass-thru
+//       this TAP to the TAP.7 network. It will gate the internal TDI and TMS signals
+//       to the FSM/logic block to logic 1. It will not even add the
+//       one clock delay like BYPASS.
+//
+//    STAP_NUMBER_OF_REMOTE_TEST_DATA_REGISTERS
+//       This parameter specifies the number of User-Defined Remote TEST DATA
+//       Registers that the sTAP needs to generate address decode and controls for.
+//
+//    STAP_RTDR_IS_BUSSED
+//       This parameter specifies whether the User-Defined Remote TEST DATA Registers
+//       related pins are bussed or not.
+//
+//    STAP_NUMBER_OF_TEST_DATA_REGISTERS
+//       This parameter specifies the number of User-Defined Optional TEST DATA
+//       Registers that are present in the STAP
+//
+//    STAP_TOTAL_WIDTH_OF_TEST_DATA_REGISTERS
+//       This parameter specifies the combined total widths of all the User-Defined Optional
+//       TEST DATA Registers that are present in the STAP
+//
+//    STAP_TOTAL_WIDTH_OF_TEST_DATA_REGISTERS_NZ
+//       This is local parameter used for lint error removal
+//
+//    STAP_NUMBER_OF_TEST_DATA_REGISTERS_NZ
+//       This is local parameter used for lint error removal
+//
+//    STAP_NUMBER_OF_TOTAL_REGISTERS
+//       This is local parameter used to calculate the total number of register
+//       that could be present in STAP
+//
+//    STAP_INSTRUCTION_FOR_DATA_REGISTERS
+//       This parameter provides the instruction opcode for all the registers
+//       (mandatory + optional) that are present in the STAP
+//
+//    STAP_SIZE_OF_EACH_TEST_DATA_REGISTER
+//       This parameter provides the width of each User-Defined Optional
+//       TEST DATA Registers
+//
+//    STAP_MSB_VALUES_OF_TEST_DATA_REGISTERS
+//       This parameter provides the MSB bit position for each of the User-Defined
+//       Optional TEST DATA Registers
+//
+//    STAP_LSB_VALUES_OF_TEST_DATA_REGISTERS
+//       This parameter provides the LSB bit position for each of the User-Defined
+//       Optional TEST DATA Registers
+//
+//    STAP_RESET_VALUES_OF_TEST_DATA_REGISTERS
+//       This parameter provides the RESET values for each of the User-Defined
+//       Optional TEST DATA Registers
+//----------------------------------------------------------------------------------------
+
+// $define name = stap_default
+// $define version = 2.3
+parameter STAP_NUMBER_OF_BITS_FOR_SLICE = 16,
+
+parameter STAP_SIZE_OF_EACH_INSTRUCTION = 8,
+
+parameter STAP_NUMBER_OF_DFX_FEATURES_TO_SECURE = 1,
+parameter STAP_DFX_SECURE_WIDTH = 4,
+parameter STAP_DFX_SECURE_POLICY_SELECTREG = 0,
+parameter STAP_DFX_SECURE_POLICY_OPCODE = 0,
+parameter [(STAP_DFX_SECURE_WIDTH - 1):0] [(STAP_NUMBER_OF_DFX_FEATURES_TO_SECURE + 1):0] STAP_DFX_SECURE_POLICY_MATRIX = '0,
+
+parameter STAP_ENABLE_BSCAN = 0,
+parameter STAP_NUMBER_OF_MANDATORY_REGISTERS = 2,
+
+parameter STAP_NUMBER_OF_TAPS_IN_TAP_NETWORK = 0,
+
+parameter STAP_NUMBER_OF_WTAPS_IN_NETWORK = 0,
+parameter STAP_WTAP_NETWORK_ONE_FOR_SERIES_ZERO_FOR_PARALLEL = 0,
+parameter STAP_ENABLE_WTAP_CTRL_POS_EDGE = 1,
+
+parameter STAP_ENABLE_TAPC_REMOVE = 0,
+
+parameter STAP_NUMBER_OF_REMOTE_TEST_DATA_REGISTERS = 0,
+
+parameter STAP_RTDR_IS_BUSSED = 0,
+
+parameter STAP_NUMBER_OF_TEST_DATA_REGISTERS = 0,
+parameter STAP_TOTAL_WIDTH_OF_TEST_DATA_REGISTERS = 0,
+parameter STAP_TOTAL_WIDTH_OF_TEST_DATA_REGISTERS_NZ = 1,
+parameter STAP_NUMBER_OF_TOTAL_REGISTERS = 2,
+parameter STAP_NUMBER_OF_TEST_DATA_REGISTERS_NZ = 1,
+
+parameter [((STAP_SIZE_OF_EACH_INSTRUCTION * STAP_NUMBER_OF_TOTAL_REGISTERS) - 1):0] STAP_INSTRUCTION_FOR_DATA_REGISTERS = {
+8'h0C,	//Opcode Address for SLVIDCODE
+{STAP_SIZE_OF_EACH_INSTRUCTION{1'b1}}  //Opcode Address of BYPASS
+},
+
+parameter [((STAP_NUMBER_OF_BITS_FOR_SLICE * STAP_NUMBER_OF_TEST_DATA_REGISTERS_NZ) - 1):0] STAP_SIZE_OF_EACH_TEST_DATA_REGISTER = {
+16'd0
+},
+
+parameter [((STAP_NUMBER_OF_BITS_FOR_SLICE * STAP_NUMBER_OF_TEST_DATA_REGISTERS_NZ) - 1):0] STAP_MSB_VALUES_OF_TEST_DATA_REGISTERS = {
+16'd0
+},
+
+parameter [((STAP_NUMBER_OF_BITS_FOR_SLICE * STAP_NUMBER_OF_TEST_DATA_REGISTERS_NZ) - 1):0] STAP_LSB_VALUES_OF_TEST_DATA_REGISTERS = {
+16'd0
+},
+
+parameter [(STAP_TOTAL_WIDTH_OF_TEST_DATA_REGISTERS_NZ - 1):0] STAP_RESET_VALUES_OF_TEST_DATA_REGISTERS = {
+
+1'b0
+
+},

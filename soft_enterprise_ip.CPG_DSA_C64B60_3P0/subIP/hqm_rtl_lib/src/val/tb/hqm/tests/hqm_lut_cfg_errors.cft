@@ -1,0 +1,956 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+###################################
+# Unmask internal uncorrectable errors
+wr hqm_pf_cfg_i.aer_cap_uncorr_err_mask.ieunc 0
+###################################
+# Enable fatal error reporting
+wr hqm_pf_cfg_i.pcie_cap_device_control.fere 1
+###################################
+wr config_master.cfg_pm_pmcsr_disable.disable 0x0
+rd config_master.cfg_pm_pmcsr_disable.disable 0x0
+##
+###poll to Wait for reset to be done 
+poll config_master.cfg_diagnostic_reset_status 0x800003ff 0x800003ff 500
+###poll to Wait for unit_idle to be done 
+poll config_master.cfg_diagnostic_idle_status 0x0007ffff 0x0007ffff 500
+###################################
+# Setup MSI-X Table entry 0
+wr hqm_msix_mem.msg_addr_l[0]  0xdeadf00c
+wr hqm_msix_mem.msg_addr_u[0]  0xfeeddeaf
+wr hqm_msix_mem.msg_data[0]    0xa11c0ded
+wr hqm_msix_mem.vector_ctrl[0] 0x00000000
+rd hqm_msix_mem.msg_addr_l[0]  0xdeadf00c
+rd hqm_msix_mem.msg_addr_u[0]  0xfeeddeaf
+rd hqm_msix_mem.msg_data[0]    0xa11c0ded
+rd hqm_msix_mem.vector_ctrl[0] 0x00000000
+###################################
+# Enable MSI-X
+wr hqm_pf_cfg_i.msix_cap_control 0x8000
+rd hqm_pf_cfg_i.msix_cap_control 0x8040
+wr hqm_system_csr.sys_alarm_sb_ecc_int_enable   0xffffffff
+###################################
+# Read initial LUT values
+rd hqm_system_csr.parity_ctl            0
+rd hqm_system_csr.vf_dir_vpp2pp[0]      0
+rd hqm_system_csr.vf_ldb_vpp2pp[0]      0
+rd hqm_system_csr.vf_dir_vpp_v[0]       0
+rd hqm_system_csr.vf_ldb_vpp_v[0]       0
+rd hqm_system_csr.dir_pp_v[0]           0
+rd hqm_system_csr.ldb_pp_v[0]           0
+rd hqm_system_csr.vf_dir_vqid2qid[0]    0
+rd hqm_system_csr.vf_ldb_vqid2qid[0]    0
+rd hqm_system_csr.vf_dir_vqid_v[0]      0
+rd hqm_system_csr.vf_ldb_vqid_v[0]      0
+rd hqm_system_csr.ldb_qid_its[0]        0
+rd hqm_system_csr.dir_qid_its[0]        0
+rd hqm_system_csr.dir_qid_v[0]          0
+rd hqm_system_csr.ldb_qid_v[0]          0
+rd hqm_system_csr.ldb_vasqid_v[0]       0
+rd hqm_system_csr.dir_vasqid_v[0]       0
+rd hqm_system_csr.ldb_pp2vas[0]         0
+rd hqm_system_csr.dir_pp2vas[0]         0
+rd hqm_system_csr.ldb_qid_cfg_v[0]      0
+#
+rd hqm_system_csr.ldb_qid2vqid[0]       0
+rd hqm_system_csr.ldb_cq_pasid[0]       0
+rd hqm_system_csr.ldb_cq_addr_l[0]      0
+rd hqm_system_csr.ldb_cq_addr_u[0]      0
+rd hqm_system_csr.ldb_cq2vf_pf_ro[0]    0
+rd hqm_system_csr.dir_cq_pasid[0]       0
+rd hqm_system_csr.dir_cq_addr_l[0]      0
+rd hqm_system_csr.dir_cq_addr_u[0]      0
+rd hqm_system_csr.dir_cq2vf_pf_ro[0]    0
+rd hqm_system_csr.dir_cq_fmt[0]         0
+#
+rd hqm_msix_mem.vector_ctrl[9]          1
+rd hqm_msix_mem.msg_data[9]             0
+rd hqm_msix_mem.msg_addr_u[9]           0
+rd hqm_msix_mem.msg_addr_l[9]           0
+rd hqm_system_csr.ai_data[0]            0
+rd hqm_system_csr.ai_addr_l[0]          0
+rd hqm_system_csr.ai_addr_u[0]          0
+rd hqm_system_csr.ldb_cq_isr[0]         0
+rd hqm_system_csr.dir_cq_isr[0]         0
+#
+rd hqm_system_csr.vf_dir_vpp2pp[9]      0
+rd hqm_system_csr.vf_dir_vqid2qid[9]    0
+rd hqm_system_csr.vf_ldb_vqid2qid[9]    0
+#####################################################
+# Write LUTs
+wr hqm_system_csr.vf_dir_vpp2pp[0]      0
+wr hqm_system_csr.vf_ldb_vpp2pp[0]      0
+wr hqm_system_csr.vf_dir_vpp_v[0]       0
+wr hqm_system_csr.vf_ldb_vpp_v[0]       0
+wr hqm_system_csr.dir_pp_v[0]           0
+wr hqm_system_csr.ldb_pp_v[0]           0
+wr hqm_system_csr.vf_dir_vqid2qid[0]    0
+wr hqm_system_csr.vf_ldb_vqid2qid[0]    0
+wr hqm_system_csr.vf_dir_vqid_v[0]      0
+wr hqm_system_csr.vf_ldb_vqid_v[0]      0
+wr hqm_system_csr.ldb_qid_its[0]        0
+wr hqm_system_csr.dir_qid_its[0]        0
+wr hqm_system_csr.dir_qid_v[0]          0
+wr hqm_system_csr.ldb_qid_v[0]          0
+wr hqm_system_csr.ldb_vasqid_v[0]       0
+wr hqm_system_csr.dir_vasqid_v[0]       0
+wr hqm_system_csr.ldb_pp2vas[0]         0
+wr hqm_system_csr.dir_pp2vas[0]         0
+wr hqm_system_csr.ldb_qid_cfg_v[0]      0
+#
+wr hqm_system_csr.ldb_qid2vqid[0]       0
+wr hqm_system_csr.ldb_cq_pasid[0]       0
+wr hqm_system_csr.ldb_cq_addr_l[0]      0
+wr hqm_system_csr.ldb_cq_addr_u[0]      0
+wr hqm_system_csr.ldb_cq2vf_pf_ro[0]    0
+wr hqm_system_csr.dir_cq_pasid[0]       0
+wr hqm_system_csr.dir_cq_addr_l[0]      0
+wr hqm_system_csr.dir_cq_addr_u[0]      0
+wr hqm_system_csr.dir_cq2vf_pf_ro[0]    0
+wr hqm_system_csr.dir_cq_fmt[0]         0
+#
+wr hqm_msix_mem.vector_ctrl[9]          1
+wr hqm_msix_mem.msg_data[9]             0
+wr hqm_msix_mem.msg_addr_u[9]           0
+wr hqm_msix_mem.msg_addr_l[9]           0
+wr hqm_system_csr.ai_data[0]            0
+wr hqm_system_csr.ai_addr_l[0]          0
+wr hqm_system_csr.ai_addr_u[0]          0
+wr hqm_system_csr.ldb_cq_isr[0]         0
+wr hqm_system_csr.dir_cq_isr[0]         0
+#
+wr hqm_system_csr.vf_dir_vpp2pp[9]      0
+wr hqm_system_csr.vf_dir_vqid2qid[9]    0
+wr hqm_system_csr.vf_ldb_vqid2qid[9]    0
+#####################################################
+# Read LUTs again
+rd hqm_system_csr.vf_dir_vpp2pp[0]      0
+rd hqm_system_csr.vf_ldb_vpp2pp[0]      0
+rd hqm_system_csr.vf_dir_vpp_v[0]       0
+rd hqm_system_csr.vf_ldb_vpp_v[0]       0
+rd hqm_system_csr.dir_pp_v[0]           0
+rd hqm_system_csr.ldb_pp_v[0]           0
+rd hqm_system_csr.vf_dir_vqid2qid[0]    0
+rd hqm_system_csr.vf_ldb_vqid2qid[0]    0
+rd hqm_system_csr.vf_dir_vqid_v[0]      0
+rd hqm_system_csr.vf_ldb_vqid_v[0]      0
+rd hqm_system_csr.ldb_qid_its[0]        0
+rd hqm_system_csr.dir_qid_its[0]        0
+rd hqm_system_csr.dir_qid_v[0]          0
+rd hqm_system_csr.ldb_qid_v[0]          0
+rd hqm_system_csr.ldb_vasqid_v[0]       0
+rd hqm_system_csr.dir_vasqid_v[0]       0
+rd hqm_system_csr.ldb_pp2vas[0]         0
+rd hqm_system_csr.dir_pp2vas[0]         0
+rd hqm_system_csr.ldb_qid_cfg_v[0]      0
+#
+rd hqm_system_csr.ldb_qid2vqid[0]       0
+rd hqm_system_csr.ldb_cq_pasid[0]       0
+rd hqm_system_csr.ldb_cq_addr_l[0]      0
+rd hqm_system_csr.ldb_cq_addr_u[0]      0
+rd hqm_system_csr.ldb_cq2vf_pf_ro[0]    0
+rd hqm_system_csr.dir_cq_pasid[0]       0
+rd hqm_system_csr.dir_cq_addr_l[0]      0
+rd hqm_system_csr.dir_cq_addr_u[0]      0
+rd hqm_system_csr.dir_cq2vf_pf_ro[0]    0
+rd hqm_system_csr.dir_cq_fmt[0]         0
+#
+rd hqm_msix_mem.vector_ctrl[9]          1
+rd hqm_msix_mem.msg_data[9]             0
+rd hqm_msix_mem.msg_addr_u[9]           0
+rd hqm_msix_mem.msg_addr_l[9]           0
+rd hqm_system_csr.ai_data[0]            0
+rd hqm_system_csr.ai_addr_l[0]          0
+rd hqm_system_csr.ai_addr_u[0]          0
+rd hqm_system_csr.ldb_cq_isr[0]         0
+rd hqm_system_csr.dir_cq_isr[0]         0
+#
+rd hqm_system_csr.vf_dir_vpp2pp[9]      0
+rd hqm_system_csr.vf_dir_vqid2qid[9]    0
+rd hqm_system_csr.vf_ldb_vqid2qid[9]    0
+#####################################################
+# Should have been no errors
+rd hqm_system_csr.alarm_hw_synd         0x00000000
+rd hqm_system_csr.ingress_lut_err       0x00000000
+rd hqm_system_csr.egress_lut_err        0x00000000
+rd hqm_system_csr.alarm_lut_perr        0x00000000
+rd hqm_system_csr.alarm_mb_ecc_err      0x00000000
+rd hqm_system_csr.alarm_sb_ecc_err      0x00000000
+rd hqm_system_csr.sbe_cnt_0             0x00000000
+rd hqm_system_csr.msix_31_0_synd        0x00000000
+#####################################################
+# Set write_bad_parity and write_bad_mb_ecc
+wr hqm_system_csr.parity_ctl.write_bad_parity 1
+rd hqm_system_csr.parity_ctl.write_bad_parity 1
+wr hqm_system_csr.ecc_ctl.write_bad_mb_ecc    1
+rd hqm_system_csr.ecc_ctl.write_bad_mb_ecc    1
+# Write bad parity and ECC into LUTs
+wr hqm_system_csr.vf_dir_vpp2pp[0]      0
+wr hqm_system_csr.vf_ldb_vpp2pp[0]      0
+wr hqm_system_csr.vf_dir_vpp_v[0]       0
+wr hqm_system_csr.vf_ldb_vpp_v[0]       0
+wr hqm_system_csr.dir_pp_v[0]           0
+wr hqm_system_csr.ldb_pp_v[0]           0
+wr hqm_system_csr.vf_dir_vqid2qid[0]    0
+wr hqm_system_csr.vf_ldb_vqid2qid[0]    0
+wr hqm_system_csr.vf_dir_vqid_v[0]      0
+wr hqm_system_csr.vf_ldb_vqid_v[0]      0
+wr hqm_system_csr.ldb_qid_its[0]        0
+wr hqm_system_csr.dir_qid_its[0]        0
+wr hqm_system_csr.dir_qid_v[0]          0
+wr hqm_system_csr.ldb_qid_v[0]          0
+wr hqm_system_csr.ldb_vasqid_v[0]       0
+wr hqm_system_csr.dir_vasqid_v[0]       0
+wr hqm_system_csr.ldb_pp2vas[0]         0
+wr hqm_system_csr.dir_pp2vas[0]         0
+wr hqm_system_csr.ldb_qid_cfg_v[0]      0
+#
+wr hqm_system_csr.ldb_qid2vqid[0]       0
+wr hqm_system_csr.ldb_cq_pasid[0]       0
+wr hqm_system_csr.ldb_cq_addr_l[0]      0
+wr hqm_system_csr.ldb_cq_addr_u[0]      0
+wr hqm_system_csr.ldb_cq2vf_pf_ro[0]    0
+wr hqm_system_csr.dir_cq_pasid[0]       0
+wr hqm_system_csr.dir_cq_addr_l[0]      0
+wr hqm_system_csr.dir_cq_addr_u[0]      0
+wr hqm_system_csr.dir_cq2vf_pf_ro[0]    0
+wr hqm_system_csr.dir_cq_fmt[0]         0
+#
+wr hqm_msix_mem.vector_ctrl[9]          1
+wr hqm_msix_mem.msg_data[9]             0
+wr hqm_msix_mem.msg_addr_u[9]           0
+wr hqm_msix_mem.msg_addr_l[9]           0
+wr hqm_system_csr.ai_data[0]            0
+wr hqm_system_csr.ai_addr_l[0]          0
+wr hqm_system_csr.ai_addr_u[0]          0
+wr hqm_system_csr.ai_data[96]           0
+wr hqm_system_csr.ai_addr_l[96]         0
+wr hqm_system_csr.ai_addr_u[96]         0
+wr hqm_system_csr.ldb_cq_isr[0]         0
+wr hqm_system_csr.dir_cq_isr[0]         0
+# Reset write_bad_parity and write_bad_ecc
+wr hqm_system_csr.parity_ctl.write_bad_parity 0
+rd hqm_system_csr.parity_ctl.write_bad_parity 0
+wr hqm_system_csr.ecc_ctl.write_bad_mb_ecc    0
+rd hqm_system_csr.ecc_ctl.write_bad_mb_ecc    0
+#####################################################
+# Set write_bad_sb_ecc
+wr hqm_system_csr.ecc_ctl.write_bad_sb_ecc    1
+rd hqm_system_csr.ecc_ctl.write_bad_sb_ecc    1
+# Write bad ECC into LUTs
+wr hqm_system_csr.vf_dir_vpp2pp[9]      0
+wr hqm_system_csr.vf_dir_vqid2qid[9]    0
+wr hqm_system_csr.vf_ldb_vqid2qid[9]    0
+# Reset write_bad_sb_ecc
+wr hqm_system_csr.ecc_ctl.write_bad_sb_ecc    0
+rd hqm_system_csr.ecc_ctl.write_bad_sb_ecc    0
+#####################################################
+# Cause parity error by reading (this should cause an MSI-X)
+rd hqm_system_csr.ldb_qid_cfg_v[0]
+msix_alarm_wait 500
+# Check that syndrome was set
+rd hqm_system_csr.alarm_hw_synd         0x80488400  # v=1 m=0 src=0 u=1 aid=0x09 cls=2 alarm=1 a=0x00
+rd hqm_system_csr.ingress_lut_err       0x00000001
+# Check that MSI-X was sent
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000001
+rd hqm_system_csr.hqm_system_cnt_16     0x00000001
+#####################################################
+# Cause another perr (this should not cause an MSI-X)
+rd hqm_system_csr.ldb_qid_cfg_v[0]
+# Check that syndrome more bit was set
+rd hqm_system_csr.alarm_hw_synd         0xc0488400  # v=1 m=1 src=0 u=1 aid=0x09 cls=2 alarm=1 a=0x00
+# Check that MSI-X was not sent
+rd hqm_system_csr.hqm_system_cnt_14     0x00000001
+rd hqm_system_csr.hqm_system_cnt_16     0x00000001
+# Test COW1 of syndrome
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+rd hqm_system_csr.alarm_hw_synd         0x40488400  # v=1 m=0 src=0 u=1 aid=0x09 cls=2 alarm=1 a=0x00
+wr hqm_system_csr.alarm_hw_synd         0x40000000
+rd hqm_system_csr.alarm_hw_synd         0x00488400
+wr hqm_system_csr.ingress_lut_err       0x00000001
+rd hqm_system_csr.ingress_lut_err       0x00000000
+#####################################################
+# Cause another perr (this should not cause an MSI-X due to msix_ack being set)
+rd hqm_system_csr.ldb_qid_cfg_v[0]
+# Check syndrome
+rd hqm_system_csr.alarm_hw_synd         0x80488400  # v=1 m=0 src=0 u=1 aid=0x09 cls=2 alarm=1 a=0x00
+rd hqm_system_csr.ingress_lut_err       0x00000001
+# Check that MSI-X was not sent
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000001
+rd hqm_system_csr.hqm_system_cnt_16     0x00000001
+# Clear syndrome
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+rd hqm_system_csr.alarm_hw_synd         0x00488400
+wr hqm_system_csr.ingress_lut_err       0x00000001
+rd hqm_system_csr.ingress_lut_err       0x00000000
+#####################################################
+# Clear the msix_ack bit
+wr hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_ack              0x00000000
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000000
+#####################################################
+# Cause another perr (this should cause an MSI-X)
+rd hqm_system_csr.ldb_qid_cfg_v[0]
+msix_alarm_wait 500
+# Check syndrome
+rd hqm_system_csr.alarm_hw_synd         0x80488400  # v=1 m=0 src=0 u=1 aid=0x09 cls=2 alarm=1 a=0x00
+rd hqm_system_csr.ingress_lut_err       0x00000001
+# Check that MSI-X was sent
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000002
+rd hqm_system_csr.hqm_system_cnt_16     0x00000002
+# Clear syndrome
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+rd hqm_system_csr.alarm_hw_synd         0x00488400
+wr hqm_system_csr.ingress_lut_err       0x00000001
+rd hqm_system_csr.ingress_lut_err       0x00000000
+# Clear the msix_ack bit
+wr hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_ack              0x00000000
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000000
+#####################################################
+# Check ingress_par_off (this should not cause a parity error or MSI-X)
+wr hqm_system_csr.parity_ctl.ingress_par_off 1
+rd hqm_system_csr.ldb_qid_cfg_v[0]
+# Check syndrome was not set
+rd hqm_system_csr.alarm_hw_synd         0x00488400
+rd hqm_system_csr.ingress_lut_err       0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.msix_31_0_synd        0x00000000
+#####################################################
+# This should cause another parity error and MSI-X
+wr hqm_system_csr.parity_ctl.ingress_par_off 0
+rd hqm_system_csr.ldb_qid_cfg_v[0]
+msix_alarm_wait 500
+# Check syndrome
+rd hqm_system_csr.alarm_hw_synd         0x80488400  # v=1 m=0 src=0 u=1 aid=0x09 cls=2 alarm=1 a=0x00
+rd hqm_system_csr.ingress_lut_err       0x00000001
+# Check that MSI-X was sent
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000003
+rd hqm_system_csr.hqm_system_cnt_16     0x00000003
+# Clear syndrome
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+rd hqm_system_csr.alarm_hw_synd         0x00488400
+wr hqm_system_csr.ingress_lut_err       0x00000001
+rd hqm_system_csr.ingress_lut_err       0x00000000
+# Clear the msix_ack bit
+wr hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_ack              0x00000000
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000000
+#####################################################
+# Check each individual LUT
+rd hqm_system_csr.dir_pp2vas[0]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x80488400  # v=1 m=0 src=0 u=1 aid=0x09 cls=2 alarm=1 a=0x00
+rd hqm_system_csr.ingress_lut_err       0x00000002
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000004
+rd hqm_system_csr.hqm_system_cnt_16     0x00000004
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000002
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.ldb_pp2vas[0]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x80488400  # v=1 m=0 src=0 u=1 aid=0x09 cls=2 alarm=1 a=0x00
+rd hqm_system_csr.ingress_lut_err       0x00000004
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000005
+rd hqm_system_csr.hqm_system_cnt_16     0x00000005
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000004
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.dir_vasqid_v[0]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x80488400  # v=1 m=0 src=0 u=1 aid=0x09 cls=2 alarm=1 a=0x00
+rd hqm_system_csr.ingress_lut_err       0x00000008
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000006
+rd hqm_system_csr.hqm_system_cnt_16     0x00000006
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000008
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.ldb_vasqid_v[0]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x80488400  # v=1 m=0 src=0 u=1 aid=0x09 cls=2 alarm=1 a=0x00
+rd hqm_system_csr.ingress_lut_err       0x00000010
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000007
+rd hqm_system_csr.hqm_system_cnt_16     0x00000007
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000010
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.ldb_qid_v[0]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x80488400  # v=1 m=0 src=0 u=1 aid=0x09 cls=2 alarm=1 a=0x00
+rd hqm_system_csr.ingress_lut_err       0x00000020
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000008
+rd hqm_system_csr.hqm_system_cnt_16     0x00000008
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000020
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.dir_qid_v[0]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x80488400  # v=1 m=0 src=0 u=1 aid=0x09 cls=2 alarm=1 a=0x00
+rd hqm_system_csr.ingress_lut_err       0x00000040
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000009
+rd hqm_system_csr.hqm_system_cnt_16     0x00000009
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000040
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.dir_qid_its[0]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x80488400  # v=1 m=0 src=0 u=1 aid=0x09 cls=2 alarm=1 a=0x00
+rd hqm_system_csr.ingress_lut_err       0x00000080
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x0000000a
+rd hqm_system_csr.hqm_system_cnt_16     0x0000000a
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000080
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.ldb_qid_its[0]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x80488400  # v=1 m=0 src=0 u=1 aid=0x09 cls=2 alarm=1 a=0x00
+rd hqm_system_csr.ingress_lut_err       0x00000100
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x0000000b
+rd hqm_system_csr.hqm_system_cnt_16     0x0000000b
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000100
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.vf_ldb_vqid_v[0]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x80488400  # v=1 m=0 src=0 u=1 aid=0x09 cls=2 alarm=1 a=0x00
+rd hqm_system_csr.ingress_lut_err       0x00000200
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x0000000c
+rd hqm_system_csr.hqm_system_cnt_16     0x0000000c
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000200
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.vf_dir_vqid_v[0]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x80488400  # v=1 m=0 src=0 u=1 aid=0x09 cls=2 alarm=1 a=0x00
+rd hqm_system_csr.ingress_lut_err       0x00000400
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x0000000d
+rd hqm_system_csr.hqm_system_cnt_16     0x0000000d
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000400
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.vf_ldb_vqid2qid[0]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x80468400  # v=1 m=0 src=0 u=1 aid=0x07 cls=2 alarm=1 a=0x00
+rd hqm_system_csr.ingress_lut_err       0x00000800
+rd hqm_system_csr.alarm_sb_ecc_err      0x00000000
+rd hqm_system_csr.alarm_mb_ecc_err      0x00000040
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x0000000e
+rd hqm_system_csr.hqm_system_cnt_16     0x0000000e
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000800
+wr hqm_system_csr.alarm_mb_ecc_err      0x00000040
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.vf_dir_vqid2qid[0]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x80458400  # v=1 m=0 src=0 u=1 aid=0x06 cls=2 alarm=1 a=0x00
+rd hqm_system_csr.ingress_lut_err       0x00001000
+rd hqm_system_csr.alarm_sb_ecc_err      0x00000000
+rd hqm_system_csr.alarm_mb_ecc_err      0x00000020
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x0000000f
+rd hqm_system_csr.hqm_system_cnt_16     0x0000000f
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00001000
+wr hqm_system_csr.alarm_mb_ecc_err      0x00000020
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.sbe_cnt_0             0x00000000
+rd hqm_system_csr.vf_ldb_vqid2qid[9]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x80464409  # v=1 m=0 src=0 u=1 aid=0x07 cls=1 alarm=1 a=0x09
+rd hqm_system_csr.ingress_lut_err       0x00000000
+rd hqm_system_csr.alarm_sb_ecc_err      0x00000040
+rd hqm_system_csr.alarm_mb_ecc_err      0x00000000
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000010
+rd hqm_system_csr.hqm_system_cnt_16     0x00000010
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+rd hqm_system_csr.sbe_cnt_0             0x00000001
+wr hqm_system_csr.alarm_sb_ecc_err      0x00000040
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.vf_dir_vqid2qid[9]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x80454409  # v=1 m=0 src=0 u=1 aid=0x06 cls=1 alarm=1 a=0x09
+rd hqm_system_csr.ingress_lut_err       0x00000000
+rd hqm_system_csr.alarm_sb_ecc_err      0x00000020
+rd hqm_system_csr.alarm_mb_ecc_err      0x00000000
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000011
+rd hqm_system_csr.hqm_system_cnt_16     0x00000011
+rd hqm_system_csr.sbe_cnt_0             0x00000002
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.alarm_sb_ecc_err      0x00000020
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.ldb_pp_v[0]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x80488400  # v=1 m=0 src=0 u=1 aid=0x09 cls=2 alarm=1 a=0x00
+rd hqm_system_csr.ingress_lut_err       0x00002000
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000012
+rd hqm_system_csr.hqm_system_cnt_16     0x00000012
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00002000
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.dir_pp_v[0]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x80488400  # v=1 m=0 src=0 u=1 aid=0x09 cls=2 alarm=1 a=0x00
+rd hqm_system_csr.ingress_lut_err       0x00004000
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000013
+rd hqm_system_csr.hqm_system_cnt_16     0x00000013
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00004000
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.vf_ldb_vpp_v[0]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x80488400  # v=1 m=0 src=0 u=1 aid=0x09 cls=2 alarm=1 a=0x00
+rd hqm_system_csr.ingress_lut_err       0x00008000
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000014
+rd hqm_system_csr.hqm_system_cnt_16     0x00000014
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00008000
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.vf_dir_vpp_v[0]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x80488400  # v=1 m=0 src=0 u=1 aid=0x09 cls=2 alarm=1 a=0x00
+rd hqm_system_csr.ingress_lut_err       0x00010000
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000015
+rd hqm_system_csr.hqm_system_cnt_16     0x00000015
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00010000
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.vf_ldb_vpp2pp[0]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x80488400  # v=1 m=0 src=0 u=1 aid=0x09 cls=2 alarm=1 a=0x00
+rd hqm_system_csr.ingress_lut_err       0x00020000
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000016
+rd hqm_system_csr.hqm_system_cnt_16     0x00000016
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00020000
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.vf_dir_vpp2pp[0]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x80448400  # v=1 m=0 src=0 u=1 aid=0x05 cls=2 alarm=1 a=0x00
+rd hqm_system_csr.ingress_lut_err       0x00040000
+rd hqm_system_csr.alarm_sb_ecc_err      0x00000000
+rd hqm_system_csr.alarm_mb_ecc_err      0x00000010
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000017
+rd hqm_system_csr.hqm_system_cnt_16     0x00000017
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00040000
+wr hqm_system_csr.alarm_mb_ecc_err      0x00000010
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.vf_dir_vpp2pp[9]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x80444409  # v=1 m=0 src=0 u=1 aid=0x05 cls=1 alarm=1 a=0x09
+rd hqm_system_csr.ingress_lut_err       0x00000000
+rd hqm_system_csr.alarm_sb_ecc_err      0x00000010
+rd hqm_system_csr.alarm_mb_ecc_err      0x00000000
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000018
+rd hqm_system_csr.hqm_system_cnt_16     0x00000018
+rd hqm_system_csr.sbe_cnt_0             0x00000003
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.alarm_sb_ecc_err      0x00000010
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.dir_cq_fmt[0]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x80498400  # v=1 m=0 src=0 u=1 aid=0x0a cls=2 alarm=1 a=0x00
+rd hqm_system_csr.egress_lut_err        0x00000001
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000019
+rd hqm_system_csr.hqm_system_cnt_16     0x00000019
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.egress_lut_err        0x00000001
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.dir_cq2vf_pf_ro[0]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x80498400  # v=1 m=0 src=0 u=1 aid=0x0a cls=2 alarm=1 a=0x00
+rd hqm_system_csr.egress_lut_err        0x00000002
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x0000001a
+rd hqm_system_csr.hqm_system_cnt_16     0x0000001a
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.egress_lut_err        0x00000002
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.dir_cq_addr_u[0]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x80498400  # v=1 m=0 src=0 u=1 aid=0x0a cls=2 alarm=1 a=0x00
+rd hqm_system_csr.egress_lut_err        0x00000004
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x0000001b
+rd hqm_system_csr.hqm_system_cnt_16     0x0000001b
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.egress_lut_err        0x00000004
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.dir_cq_addr_l[0]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x80498400  # v=1 m=0 src=0 u=1 aid=0x0a cls=2 alarm=1 a=0x00
+rd hqm_system_csr.egress_lut_err        0x00000008
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x0000001c
+rd hqm_system_csr.hqm_system_cnt_16     0x0000001c
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.egress_lut_err        0x00000008
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.dir_cq_pasid[0]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x80498400  # v=1 m=0 src=0 u=1 aid=0x0a cls=2 alarm=1 a=0x00
+rd hqm_system_csr.egress_lut_err        0x00000010
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x0000001d
+rd hqm_system_csr.hqm_system_cnt_16     0x0000001d
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.egress_lut_err        0x00000010
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.ldb_cq2vf_pf_ro[0]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x80498400  # v=1 m=0 src=0 u=1 aid=0x0a cls=2 alarm=1 a=0x00
+rd hqm_system_csr.egress_lut_err        0x00000020
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x0000001e
+rd hqm_system_csr.hqm_system_cnt_16     0x0000001e
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.egress_lut_err        0x00000020
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.ldb_cq_addr_u[0]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x80498400  # v=1 m=0 src=0 u=1 aid=0x0a cls=2 alarm=1 a=0x00
+rd hqm_system_csr.egress_lut_err        0x00000040
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x0000001f
+rd hqm_system_csr.hqm_system_cnt_16     0x0000001f
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.egress_lut_err        0x00000040
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.ldb_cq_addr_l[0]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x80498400  # v=1 m=0 src=0 u=1 aid=0x0a cls=2 alarm=1 a=0x00
+rd hqm_system_csr.egress_lut_err        0x00000080
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000020
+rd hqm_system_csr.hqm_system_cnt_16     0x00000020
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.egress_lut_err        0x00000080
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.ldb_cq_pasid[0]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x80498400  # v=1 m=0 src=0 u=1 aid=0x0a cls=2 alarm=1 a=0x00
+rd hqm_system_csr.egress_lut_err        0x00000100
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000021
+rd hqm_system_csr.hqm_system_cnt_16     0x00000021
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.egress_lut_err        0x00000100
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.ldb_qid2vqid[0]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x80498400  # v=1 m=0 src=0 u=1 aid=0x0a cls=2 alarm=1 a=0x00
+rd hqm_system_csr.egress_lut_err        0x00000200
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000022
+rd hqm_system_csr.hqm_system_cnt_16     0x00000022
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.egress_lut_err        0x00000200
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.dir_cq_isr[0]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x804a8400  # v=1 m=0 src=0 u=1 aid=0x0b cls=2 alarm=1 a=0x00
+rd hqm_system_csr.alarm_lut_perr        0x00000001
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000023
+rd hqm_system_csr.hqm_system_cnt_16     0x00000023
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.alarm_lut_perr        0x00000001
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.ldb_cq_isr[0]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x804a8400  # v=1 m=0 src=0 u=1 aid=0x0b cls=2 alarm=1 a=0x00
+rd hqm_system_csr.alarm_lut_perr        0x00000002
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000024
+rd hqm_system_csr.hqm_system_cnt_16     0x00000024
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.alarm_lut_perr        0x00000002
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.ai_addr_l[0]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x804a8400  # v=1 m=0 src=0 u=1 aid=0x0b cls=2 alarm=1 a=0x00
+rd hqm_system_csr.alarm_lut_perr        0x00000004
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000025
+rd hqm_system_csr.hqm_system_cnt_16     0x00000025
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.alarm_lut_perr        0x00000004
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.ai_addr_u[0]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x804a8400  # v=1 m=0 src=0 u=1 aid=0x0b cls=2 alarm=1 a=0x00
+rd hqm_system_csr.alarm_lut_perr        0x00000008
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000026
+rd hqm_system_csr.hqm_system_cnt_16     0x00000026
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.alarm_lut_perr        0x00000008
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.ai_addr_l[96]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x804a8400  # v=1 m=0 src=0 u=1 aid=0x0b cls=2 alarm=1 a=0x00
+rd hqm_system_csr.alarm_lut_perr        0x00000010
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000027
+rd hqm_system_csr.hqm_system_cnt_16     0x00000027
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.alarm_lut_perr        0x00000010
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.ai_addr_u[96]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x804a8400  # v=1 m=0 src=0 u=1 aid=0x0b cls=2 alarm=1 a=0x00
+rd hqm_system_csr.alarm_lut_perr        0x00000020
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000028
+rd hqm_system_csr.hqm_system_cnt_16     0x00000028
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.alarm_lut_perr        0x00000020
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.ai_data[0]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x804a8400  # v=1 m=0 src=0 u=1 aid=0x0b cls=2 alarm=1 a=0x00
+rd hqm_system_csr.alarm_lut_perr        0x00000040
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000029
+rd hqm_system_csr.hqm_system_cnt_16     0x00000029
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.alarm_lut_perr        0x00000040
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.ai_data[96]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x804a8400  # v=1 m=0 src=0 u=1 aid=0x0b cls=2 alarm=1 a=0x00
+rd hqm_system_csr.alarm_lut_perr        0x00000080
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x0000002a
+rd hqm_system_csr.hqm_system_cnt_16     0x0000002a
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.alarm_lut_perr        0x00000080
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_msix_mem.msg_addr_l[9]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x804a8400  # v=1 m=0 src=0 u=1 aid=0x0b cls=2 alarm=1 a=0x00
+rd hqm_system_csr.alarm_lut_perr        0x00000100
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x0000002b
+rd hqm_system_csr.hqm_system_cnt_16     0x0000002b
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.alarm_lut_perr        0x00000100
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_msix_mem.msg_addr_u[9]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x804a8400  # v=1 m=0 src=0 u=1 aid=0x0b cls=2 alarm=1 a=0x00
+rd hqm_system_csr.alarm_lut_perr        0x00000200
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x0000002c
+rd hqm_system_csr.hqm_system_cnt_16     0x0000002c
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.alarm_lut_perr        0x00000200
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_msix_mem.msg_data[9]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x804a8400  # v=1 m=0 src=0 u=1 aid=0x0b cls=2 alarm=1 a=0x00
+rd hqm_system_csr.alarm_lut_perr        0x00000400
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x0000002d
+rd hqm_system_csr.hqm_system_cnt_16     0x0000002d
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.alarm_lut_perr        0x00000400
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_msix_mem.vector_ctrl[9]
+msix_alarm_wait 500
+rd hqm_system_csr.alarm_hw_synd         0x804a8400  # v=1 m=0 src=0 u=1 aid=0x0b cls=2 alarm=1 a=0x00
+rd hqm_system_csr.alarm_lut_perr        0x00000800
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.msix_31_0_synd        0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x0000002e
+rd hqm_system_csr.hqm_system_cnt_16     0x0000002e
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.alarm_lut_perr        0x00000800
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.msix_31_0_synd        0x00000001
+#####################################################
+rd hqm_system_csr.alarm_hw_synd         0x00000000 0x80000000
+rd hqm_system_csr.alarm_lut_perr        0x00000000
+rd hqm_system_csr.ingress_lut_err       0x00000000
+rd hqm_system_csr.egress_lut_err        0x00000000
+rd hqm_system_csr.alarm_sb_ecc_err      0x00000000
+rd hqm_system_csr.alarm_mb_ecc_err      0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.msix_31_0_synd        0x00000000
+rd hqm_system_csr.hqm_system_cnt_14     0x0000002e
+rd hqm_system_csr.hqm_system_cnt_16     0x0000002e
+rd hqm_system_csr.sbe_cnt_0             0x00000003

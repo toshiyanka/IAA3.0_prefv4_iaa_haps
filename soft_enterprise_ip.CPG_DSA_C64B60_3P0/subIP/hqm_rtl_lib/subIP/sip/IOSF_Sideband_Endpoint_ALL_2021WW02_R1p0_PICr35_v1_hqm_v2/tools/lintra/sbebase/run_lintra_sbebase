@@ -1,0 +1,22 @@
+#!/usr/bin/csh -f
+
+set SIP_TOOL_NAME=`echo $0 | sed -e 's/.*\///'`
+##############################
+# UNIX Environment setup
+##############################
+if (! $?SIP_NO_SETUP) then
+   pushd  ../../../scripts
+   source setup -ft
+   popd
+endif
+
+lintra  -top sbebase \
+        -cfg $LINTRARULES/LintraSoCConfig.xml \
+        -rep lint_sbebase.rpt \
+        -wd ../ \
+        -wf iosfsb_waivers.xml \
+        -lira \
+        ../../../source/rtl/iosfsbc/common/*.sv \
+        ../../../source/rtl/iosfsbc/endpoint/*.sv \
+        +incdir+../../../source/rtl/iosfsbc/common | tee lint_sbebase.log
+

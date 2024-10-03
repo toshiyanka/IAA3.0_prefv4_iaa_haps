@@ -1,0 +1,446 @@
+wash -n intelall soc socenv socrtl dk10nm hdk10nm hdk10nmproc siphdk fabric n7 n7fe s14nm n6 n6fe
+
+FOR SLES12 (not needed for SLES11):
+        setenv RTL_PROJ_BIN_OVERRIDE /p/hdk/rtl/proj_tools/proj_binx/cds/latest
+
+source /p/hdk/rtl/hdk.rc -cfg sip -reentrant
+setenv MODEL_ROOT $cwd
+
+FOR SLES11 (not needed for SLES12):
+        some SLES11 sessions have an HDK_EXEC variable set, which causes tophiergen to fail
+          (see https://hsdes.intel.com/appstore/article/#/14012078181)
+        when picking up a new SLES11 session for CTH tool runs, check if the HDK_EXEC exists
+        if HDK_EXEC does exist, remember to unset it:
+           unsetenv HDK_EXEC
+
+
+CTH N6
+------
+
+NOTE ON PRE-VISA vs POST-VISA:
+   The following steps are the same for PRE-VISA vs POST-VISA
+   For POST-VISA, the following "Step 0" is required before "Step 1":
+    * run visa-insert (e.g., sbr0_runVisa_HDKn7) to generate the <dut>.sv_visaInserted file (e.g., sbr0_sbr_generic.sv_visaInserted).
+    * swap the visaInserted file with the preVisa version, e.g.,
+      > cd $MODEL_ROOT/source/rtl/iosfsbc/router/
+      > mv sbr0_sbr_generic.sv sbr0_sbr_generic.sv_preVisa
+      > cp sbr0_sbr_generic.sv_visaInserted sbr0_sbr_generic.sv
+    * Now, the top-level file, sbr0_sbr_generic.sv has all VISA inserted.
+      Following this, simply proceeded with the exact same steps as for the pre-Visa SBR runs
+
+1. Compile the model
+simbuild -dut sbr -1c -CUST n6 -toolset mat1.6.1.p7 -1c- -ace_args -command "ace -cc -enable_hier_dump" -ace_args- -nf
+
+2. 2-Stage FLG generation
+febe -dut sbr -1c -CUST n6 -toolset mat1.6.1.p7 -1c- -s all +s .tophiergen
+febe -dut sbr -1c -CUST n6 -toolset mat1.6.1.p7 -1c- -s all +s .v2k_prep
+febe -dut sbr -1c -CUST n6 -toolset mat1.6.1.p7 -1c- -s all +s .flg_v2k
+
+3. Run ISAF (SpyglassDFT)
+febe -dut sbr -1c -CUST n6 -toolset mat1.6.1.p7 -1c- -s all +s spyglass_build
+febe -dut sbr -1c -CUST n6 -toolset mat1.6.1.p7 -1c- -s all +s sbr0_sbr_generic.sgdft
+   Commands to run sgdft step by step
+       febe -dut sbr -1c -CUST n6 -toolset mat1.6.1.p7 -1c- -s all +s sbr0_sbr_generic.sgdft.setup
+       febe -dut sbr -1c -CUST n6 -toolset mat1.6.1.p7 -1c- -s all +s sbr0_sbr_generic.sgdft.drc
+       febe -dut sbr -1c -CUST n6 -toolset mat1.6.1.p7 -1c- -s all +s sbr0_sbr_generic.sgdft.sgpackage
+   Command to run sgdft for all routers
+       febe -dut sbr -1c -CUST n6 -toolset mat1.6.1.p7 -1c- -s all +s .sgdft
+
+4. Run FEBE gen_collateral to place the collaterals into proper location for Cheetah flow to populate
+febe -dut sbr -1c -CUST n6 -1c- -s all +s .gen_collateral
+
+5. Enter Cheetah Scope (after this, cannot run FEBE gen_collateral in the same Xterm)
+/p/hdk/bin/cth_eps -groups siphdk,soc,n6,intelall,socenv,socrtl,fabric,n7fe,n7,n6fe -ward_root . \
+-type private -wscfg sipn6 -ward_id sbr -scope sipcth,sipn6,a0,p00,2019.12,n6_tsmc_snps_h240_M132R,20ww26
+
+6. Load required tools
+pte_setup -wfs r2g_tools -stage all
+
+7. Create R2G workdir, initialize a block with a reference template
+cth_r2g populate -id r2g -block sbr0_sbr_generic -init cig-block \
+-febe_output_path $MODEL_ROOT/target/sbr/n6/mat1.6.1.p7_n6.0/aceroot/results/DC/esavin.febe/fe_collaterals
+
+  OR, FOR MULTIPLE ROUTERS, with an id that is different that r2g:
+cth_r2g populate -id cth.ww20.1 -block sbr0_sbr_generic,sbr1_sbr_generic,sbr2_sbr_generic -init cig-block \
+-febe_output_path $MODEL_ROOT/target/sbr/n6/mat1.6.1.p7_n6.0/aceroot/results/DC/esavin.febe/fe_collaterals
+
+8. Prepare Net Batch Settings
+cth_r2g prepare_batch -id r2g -block sbr0_sbr_generic
+
+9. Run DC till elaboration
+NOTE: before running DC, remember to make the following changes:
+
+    10.1.0. Manually remove the stdcell lines from the filelist (r2g.r2g/builds/sbr0_sbr_generic/ext_inputs/fe_collateral/rtl_list_2stage.tcl), e.g.:
+               173 lappend VERILOG_SOURCE_FILES_2 /p/tech/n6/tech-prerelease/v1.0.1_pre.1/tcbn06_bwph240l11p57cpd_base_lvt_c191206_lib/verilog/tcbn06_bwph240l11p57cpd_base_lvt_c191206_100a/tcbn06_bwph240l11p57cpd_base_lvt_c191206.v
+               174 lappend VERILOG_SOURCE_FILES_2 /p/tech/n6/tech-prerelease/v1.0.1_pre.1/tcbn06_bwph240l8p57cpd_base_lvt_c191206_lib/verilog/tcbn06_bwph240l8p57cpd_base_lvt_c191206_100a/tcbn06_bwph240l8p57cpd_base_lvt_c191206.v
+               175 lappend VERILOG_SOURCE_FILES_2 /p/tech/n6/tech-prerelease/v1.0.1_pre.1/tcbn06_bwph240l11p57cpd_base_svt_c191206_lib/verilog/tcbn06_bwph240l11p57cpd_base_svt_c191206_100a/tcbn06_bwph240l11p57cpd_base_svt_c191206.v
+               176 lappend VERILOG_SOURCE_FILES_2 /p/tech/n6/tech-prerelease/v1.0.1_pre.1/tcbn06_bwph240l8p57cpd_base_svt_c191206_lib/verilog/tcbn06_bwph240l8p57cpd_base_svt_c191206_100a/tcbn06_bwph240l8p57cpd_base_svt_c191206.v
+               177 lappend VERILOG_SOURCE_FILES_2 /p/tech/n6/tech-prerelease/v1.0.1_pre.1/tcbn06_bwph240l11p57cpd_base_lvt_c191231_lib/verilog/tcbn06_bwph240l11p57cpd_base_lvt_c191231_100a/tcbn06_bwph240l11p57cpd_base_lvt_c191231.v
+               178 lappend VERILOG_SOURCE_FILES_2 /p/tech/n6/tech-prerelease/v1.0.1_pre.1/tcbn06_bwph240l8p57cpd_base_lvt_c191231_lib/verilog/tcbn06_bwph240l8p57cpd_base_lvt_c191231_100a/tcbn06_bwph240l8p57cpd_base_lvt_c191231.v
+               179 lappend VERILOG_SOURCE_FILES_2 /p/tech/n6/tech-prerelease/v1.0.1_pre.1/tcbn06_bwph240l11p57cpd_base_svt_c191231_lib/verilog/tcbn06_bwph240l11p57cpd_base_svt_c191231_100a/tcbn06_bwph240l11p57cpd_base_svt_c191231.v
+               180 lappend VERILOG_SOURCE_FILES_2 /p/tech/n6/tech-prerelease/v1.0.1_pre.1/tcbn06_bwph240l8p57cpd_base_svt_c191231_lib/verilog/tcbn06_bwph240l8p57cpd_base_svt_c191231_100a/tcbn06_bwph240l8p57cpd_base_svt_c191231.v
+               181 lappend VERILOG_SOURCE_FILES_2 /p/tech/n6/tech-prerelease/v1.0.1_pre.1/tcbn06_bwph240l8p57cpd_syn_lvt_c191230_lib/verilog/tcbn06_bwph240l8p57cpd_syn_lvt_c191230_100a/tcbn06_bwph240l8p57cpd_syn_lvt_c191230.v
+               182 lappend VERILOG_SOURCE_FILES_2 /p/tech/n6/tech-prerelease/v1.0.1_pre.1/tcbn06_bwph240l8p57cpd_syn_svt_c191230_lib/verilog/tcbn06_bwph240l8p57cpd_syn_svt_c191230_100a/tcbn06_bwph240l8p57cpd_syn_svt_c191230.v
+
+    10.1.1 mkdir $MODEL_ROOT/esavin.sbr/r2g.r2g/builds/sbr0_sbr_generic/scripts_build/collateral/timing_common
+    10.1.2 cp $MODEL_ROOT/esavin.sbr/r2g.r2g/builds/sbr0_sbr_generic/ext_inputs/fe_collateral/sbr0_sbr_generic_constraints.tcl \
+              $MODEL_ROOT/esavin.sbr/r2g.r2g/builds/sbr0_sbr_generic/scripts_build/collateral/timing_common/
+
+NOTE 2: at the time of the PICr34 release, file config_flow.xml required the following changes:
+         tkdiff $MODEL_ROOT/esavin.sbr/r2g.r2g/builds/sbr0_sbr_generic/ext_inputs/fe_collateral/config_flow.xml.MOD \
+                $MODEL_ROOT/esavin.sbr/r2g.r2g/builds/sbr0_sbr_generic/ext_inputs/fe_collateral/config_flow.xml.REF
+
+Make sure to manually port the changes noted in the above tkdiff to the config_flow.xml file in
+            $MODEL_ROOT/esavin.sbr/r2g.r2g/builds/sbr0_sbr_generic/scripts_build/conf/config_flow.xml
+
+When the Dynamo config_flow.xml.MOD file can be used as is, without a need to manually port the changes, do the following:
+    10.2 cp $MODEL_ROOT/esavin.sbr/r2g.r2g/builds/sbr0_sbr_generic/ext_inputs/fe_collateral/config_flow.xml.MOD \
+            $MODEL_ROOT/esavin.sbr/r2g.r2g/builds/sbr0_sbr_generic/scripts_build/conf/config_flow.xml
+
+    10.3 Customers who, for some reason, do not use distributed PFET, may need to manually remove the following line
+         "9 set_voltage -object_list "$AON_SUPPLY_PORT"            -min $SOC_SUPPLY_NOM $SOC_SUPPLY_NOM"
+         from file 
+         $MODEL_ROOT/esavin.sbr/r2g.r2g/builds/sbr0_sbr_generic/ext_inputs/fe_collateral/sbr0_sbr_generic_set_voltage.tcl
+         If you don't use distributed PFET and don't see the above line in sbr0_sbr_generic_set_voltage.tcl, it may be
+         due to the fact that I did get around to automate this through Dynamo before PICr34
+
+cth_r2g autorun -id r2g -block sbr0_sbr_generic -run_flow dc_elaborate_baseline
+OR cth_r2g autorun -id r2g -block sbr0_sbr_generic -run_flow dc_elaborate_baseline -local
+
+10. Run full DC
+cth_r2g autorun -id r2g -block sbr0_sbr_generic -run_flow dc_baseline
+OR cth_r2g autorun -id r2g -block sbr0_sbr_generic -run_flow dc_baseline -local
+
+11. Run FEV
+NOTE: before running FEV, remember to make the following changes:
+    11.1 cp $MODEL_ROOT/esavin.sbr/r2g.r2g/builds/sbr0_sbr_generic/ext_inputs/fe_collateral/constraints/fev_user_config.tcl \
+            $MODEL_ROOT/esavin.sbr/r2g.r2g/builds/sbr0_sbr_generic/scripts_build/fev_conformal/fev_r2syn/user_config.tcl
+    11.2 cp $MODEL_ROOT/esavin.sbr/r2g.r2g/builds/sbr0_sbr_generic/ext_inputs/fe_collateral/constraints/fev_user_lec.do \
+            $MODEL_ROOT/esavin.sbr/r2g.r2g/builds/sbr0_sbr_generic/scripts_build/fev_conformal/fev_r2syn/user_lec.do
+    11.3 cp $MODEL_ROOT/esavin.sbr/r2g.r2g/builds/sbr0_sbr_generic/ext_inputs/fe_collateral/constraints/fev_pin_constraints.tcl \
+            $MODEL_ROOT/esavin.sbr/r2g.r2g/builds/sbr0_sbr_generic/scripts_build/fev_conformal/fev_r2syn/pin_constraints.tcl
+
+NOTE 2: At the time of the PICr34 release, the SBR FEV run passes with the default FEV version, 20.10-p100.
+        However, this version did have some issues, that were resolved as described in these HSDs:
+https://hsdes.intel.com/appstore/article/#/14012137500
+https://hsdes.intel.com/appstore/article/#/14012152233
+
+        If still needed, a way to override a tool version in Cheetah R2G flow is currently described in the FAQ section to the
+        FEBE (Cheetah R2G flow) Cheat sheet. At the time of the PICr34 release, the SBR FEV run passes with the de
+https://wiki.ith.intel.com/display/cheetah/FEBE+%28Cheetah+R2G+flow%29+Cheat+sheet+and+FAQs#FEBE(CheetahR2Gflow)CheatsheetandFAQs-SAGEflowcheatsheet
+        Q: How do I override a tool version?
+
+        A: Create a cthconfig.xml file under $WORKAREA with contents like the following:
+
+        <cth_configuration>
+          <override>
+            <wfs name="r2g_tools">
+              <stage name="all">
+                <pte name="conformal" path="/p/hdk/cad/conformal/20.10-d130"/>
+              </stage>
+            </wfs>
+          </override>
+        </cth_configuration>
+
+        $WORKAREA is the top level for the CTH scope, e.g., in my case, "/sideband_network/esavin.sbr"
+
+        The only catch here is to remember to re-source the CTH setup, i.e., "pte_setup -wfs r2g_tools -stage all",
+        upon creating/changing the cthconfig.xml file.
+
+
+cth_r2g autorun -id r2g -block sbr0_sbr_generic -run_flow fev_r2syn -local
+
+NOTE 3: FEV gives a fail result due to waivable errors (Zmapped, and FileNotEmpty)
+        At the crunch time for PICr34 release, the process to create waivers for these "errors" was
+        very convoluted, so decided to document here that these "errors" should be waived.
+
+        To ensure that FEV did indeed pass, grep for "DESIGNS EQUAL" in file
+        r2g.r2g/builds/sbr0_sbr_generic/10_syn/900_outputs_lec/tmp/fev_r2syn/fev_results.log
+
+        One can also check the ERRGEN SUMMARY REPORT in file
+        r2g.r2g/builds/sbr0_sbr_generic/10_syn/900_outputs_lec/tmp/fev_r2syn/logs/lec.log
+        In the above table, all rows are clear of any errors, except for Zmapped and FileNotEmpty
+
+
+12. Run ATPG Stuckat and Atspeed
+    NOTE on setup before atpg run
+    12.1 details/FAQ site for ATPG is here
+      https://wiki.ith.intel.com/display/cheetah/FEBE+%28Cheetah+R2G+flow%29+Cheat+sheet+and+FAQs 
+    12.2 set SVAR(cht_dft,atpg,IP_INFO_FILE) "$SEV(builds_dir)/../../../../$SVAR(design_name)/collateral/dft/$SVAR(design_name).ip_info"; ## please change the value if you are not finding this relative paths, aceroot/results/DC/sb_i3c_lite/collateral/dft/sb_i3c_lite.ip_info
+    12.3 set SVAR(cht_dft,atpg,ATPG_FAULT_MODE) "stuckat" ##When doing autorun,
+      please remove/commented out this line; Lynx-manager run please retain/set this variable
+
+The following Dynamo generated version of the svar_values.tcl file hardcodes steps 12.2 and 12.3 above:
+$MODEL_ROOT/esavin.sbr/r2g.r2g/builds/sbr0_sbr_generic/ext_inputs/fe_collateral/svar_values.tcl.MOD
+
+In order to see the delta for steps 12.2 and 12.3, tkdiff svar_values.tcl.MOD and svar_values.tcl.REF:
+         tkdiff $MODEL_ROOT/esavin.sbr/r2g.r2g/builds/sbr0_sbr_generic/ext_inputs/fe_collateral/svar_values.tcl.MOD \
+                $MODEL_ROOT/esavin.sbr/r2g.r2g/builds/sbr0_sbr_generic/ext_inputs/fe_collateral/svar_values.tcl.REF
+
+Make sure to manually port the changes noted in the above tkdiff to the svar_values file in
+         $MODEL_ROOT/esavin.sbr/r2g.r2g/builds/sbr0_sbr_generic/scripts_build/conf/svar_values.tcl 
+
+When the Dynamo svar_values file can be used as is, without a need to manually port the changes, do the following:
+         cp $MODEL_ROOT/esavin.sbr/r2g.r2g/builds/sbr0_sbr_generic/scripts_build/conf/svar_values.tcl \
+            $MODEL_ROOT/esavin.sbr/r2g.r2g/builds/sbr0_sbr_generic/scripts_build/conf/svar_values.tcl.CTH_GEN
+         cp $MODEL_ROOT/esavin.sbr/r2g.r2g/builds/sbr0_sbr_generic/ext_inputs/fe_collateral/svar_values.tcl.MOD \
+            $MODEL_ROOT/esavin.sbr/r2g.r2g/builds/sbr0_sbr_generic/scripts_build/conf/svar_values.tcl
+
+cth_r2g autorun -id r2g -block sbr0_sbr_generic -run_flow atpg_sage_syn
+cth_r2g autorun -id r2g -block sbr0_sbr_generic -run_flow atpg_sage_atspeed
+OR
+cth_r2g autorun -id r2g -block sbr0_sbr_generic -run_flow atpg_sage_syn,atpg_sage_atspeed
+
+    NOTE 1 : on where to find the coverage results:
+       Coverage numbers can be found in sage/WORK/*_bypass/reports/*.coverage  , e.g.,
+       esavin.sbr/r2g.r2g/builds/sbr0_sbr_generic/sage/WORK/atspeed_bypass/reports/sbr0_sbr_generic.byp.tr.xxxx.trans.x.detailed.fd.coverage
+
+13. CALIBER
+NOTE: Needs the following change to file
+      r2g.r2g/builds/sbr0_sbr_generic/scripts_build/conf/config_flow.xml
+      (https://hsdes.intel.com/appstore/article/#/22010598251)
+
+      <package type="override">
+        <attribute name="type" value="tool_task"/>
+        <attribute name="flow" value="sf_syn_analyze"/>
+        <attribute name="name" value="sta_syn_dmsa"/>
+        <attribute name="variable" value="|TEV(use_sc_exact_match_only)|0"/>
+      </package>
+
+This change is already included when completing step 10.2, in Section "10. Run full DC"
+
+cth_r2g autorun -id r2g -block sbr0_sbr_generic -run_flow sta_syn_dmsa
+cth_r2g autorun -id r2g -block sbr0_sbr_generic -run_flow syn_caliber
+
+NOTE: One may need to move to “cheetah_20.01.003” for caliber in order to get rid of this error:
+      CaliberError on limits for SDFSYNC2RPQD1BWP240H8P57PDLVT in current process corner 
+        (the error message has a comment that says “please file a caliber ticket ..…”).
+NOTE: In order to override the CALIBER version append the following text to file cthconfig.xml
+          Example for caliber version override:
+          /nfs/fm/disks/fm_fabric_00089/wliu2/mtl/ip-psf2_mtlm/cheetah/wliu2.mtlm> cat cthconfig.xml 
+          <cth_configuration>
+            <override>
+              <wfs name="r2g_tools">
+                <stage name="all">
+                  <pte name="caliber" path="/p/hdk/pu_tu/prd/caliber/cheetah_20.01.003"/>
+                </stage>
+              </wfs>
+            </override>
+          </cth_configuration>
+
+          Need to rerun cth_eps and pte_setup to take effect.
+
+
+14. SGLINT (febe n6)
+     febe -dut sbr -1c -CUST n6 -toolset mat1.6.1.p7 -1c- -s all +s lintra_build
+     febe -dut sbr -1c -CUST n6 -toolset mat1.6.1.p7 -1c- -s all +s sbr0_sbr_generic.lintra_elab
+     febe -dut sbr -1c -CUST n6 -toolset mat1.6.1.p7 -1c- -s all +s spyglass_build
+     simbuild -dut sbr -1c -CUST n6 -toolset mat1.6.1.p7 -1c- -s all +s sglint_build -sglint_build "-ASSIGN -mc=sglint_sbr0_sbr_generic"
+     simbuild -dut sbr -1c -CUST n6 -toolset mat1.6.1.p7 -1c- -s all +s sglint_test -sglint_test "-t spyglasslint/sbr0_sbr_generic -noepi"
+
+
+15. SGCDC 
+
+      simbuild -dut sbr -1c -CUST n6 -toolset mat1.6.1.p7 -1c- -s all +s sgcdc_build -sgcdc_build "-ASSIGN -mc=sbr_config_ipxact_workspace -vlog_opts +define+functional+IOSF_SB_PH2"
+      simbuild -dut sbr -1c -CUST n6 -toolset mat1.6.1.p7 -1c- -s all +s sgcdc_test -sgcdc_test "-t spyglass_cdc/sbr0_sbr_generic:SetupChk"
+      simbuild -dut sbr -1c -CUST n6 -toolset mat1.6.1.p7 -1c- -s all +s sgcdc_test -sgcdc_test "-t spyglass_cdc/sbr0_sbr_generic"
+
+NOTE 15.1: The SpyglassCDC version used for PICr34 was P-2019.06-SP2-1
+NOTE 15.2: If SGCDC needs to be run in GUI mode, run the following after the 2nd or 3rd command above:
+      simbuild -dut sbr -1c -CUST n6 -toolset mat1.6.1.p7 -1c- -s all +s sgcdc_gui -sgcdc_gui \
+      /nfs/fm/disks/fm_infrach_00027/PICr34_N6_S11/NEW_IP_SBR/tgplp_async_xbcombo_pfet_pdis/workspace/sideband_network/target/sbr/n6/mat1.6.1.p7_n6.0/aceroot/results/cdc/tests/spyglass_cdc_sbr0_sbr_generic_SetupChk/sbr0_sbr_generic.prj &
+     
+
+16. FISHTAIL
+    16.1. The following lines have to be added to the cfg/LocalToolData_n7.pm file under the tsa_dc_config hash:
+      'FISHTAIL' => {
+        -no_setproj => 1,
+        -no_setup => 1,
+      },
+    16.2. Running gen_collateral generates a json file in the fe_collaterals area, e.g., sbr0_sbr_generic.json
+    16.3. The above generated json file should be copied over into the ext_inputs/fe_collateral area in the Cheetah space
+          when "running cth_r2g populate". Make sure you have the json file under ext_inputs/fe_collateral before 
+          running the fishtail command
+
+febe -dut sbr -s all +s sbr0_sbr_generic.fishtail -1c -CUST n7 -toolset mat1.6.1.p6 -1c-
+
+    NOTE: one should probably be able to run fishtail directly in the Febe space after step 2, with the same command as above, but I didn’t try it.
+
+17. SpyglassLP (febe n6)
+     febe -dut sbr -1c -CUST n6 -toolset mat1.6.1.p7 -1c- -s all +s lintra_build
+     febe -dut sbr -1c -CUST n6 -toolset mat1.6.1.p7 -1c- -s all +s sbr0_sbr_generic.lintra_elab
+     febe -dut sbr -1c -CUST n6 -toolset mat1.6.1.p7 -1c- -s all +s spyglass_build
+     febe -dut sbr -1c -CUST n6 -toolset mat1.6.1.p7 -1c- -s all +s spyglass_build_lp
+     febe -dut sbr -1c -CUST n6 -toolset mat1.6.1.p7 -1c- -s all +s sbr0_sbr_generic.spyglass_lp
+
+18. VCLP (febe n6)
+     febe -dut sbr -1c -CUST n6 -toolset mat1.6.1.p7 -1c- -s all +s lintra_build
+     febe -dut sbr -1c -CUST n6 -toolset mat1.6.1.p7 -1c- -s all +s sbr0_sbr_generic.lintra_elab
+     febe -dut sbr -1c -CUST n6 -toolset mat1.6.1.p7 -1c- -s all +s vclp_build
+     febe -dut sbr -1c -CUST n6 -toolset mat1.6.1.p7 -1c- -s all +s sbr0_sbr_generic.vclp_test
+
+19. PowerArtist
+To run power artist we need 
+
+1)	project.sbrn7.pcfg (config file which has lib path and all, wenli modified it for n7)
+2)	run script runsbrn7PACIFIC (Wenli modified for n7)
+
+We need to add following line in readme file
+# How to run Power Artist 
+o	cd $MODEL_ROOT
+o	tools/powerartist/n7/runsbrn7PACIFIC | tee sbr_pwrart.log
+Note this needs to be run in simbuild created xterm or directly through simbuild, as it requires $IP_ROOT environment variable.
+
+20. ZIRCON
+
+Upload to PEARL 
+/p/hdk/rtl/proj_tools/zircon/master/2.10.09/bin/zirconQA -model_root . -output ./zircon_logs -ovf tools/zirconqa/zirconqa_overrides_2.10.ini -dssmsid 14011779152 -verbose -zirconqarules /p/hdk/rtl/proj_tools/zirconqarules/master/2.10.11 -ms 'RTL1P0' -alias sbr0 -auto -extupload
+
+Run with Zircon IPDS manual rule settings
+/p/hdk/rtl/proj_tools/zircon/master/2.10.09/bin/zirconQA -model_root . -output ./zircon_logs -ovf tools/zirconqa/zirconqa_overrides_2.10.ini -dssmsid 99966 -verbose -zirconqarules /p/hdk/rtl/proj_tools/zirconqarules/master/2.10.11 -ms 'RTL1P0' -alias sbr0 -auto -extupload
+
+21. OPENLATCH (WIP)
+1.	febe -dut sbr -1c -CUST n7 -toolset mat1.6.1.p6 -1c- -s all +s lintra_build
+        febe -dut sbr -1c -CUST n7 -toolset mat1.6.1.p6 -1c- -s all +s sbr0_sbr_generic.lintra_elab
+        sbr0_runLintra_HDKn7
+
+2.	simbuild -dut sbr -ace_args ace -ccolt -mc=sbr_config_ipxact_workspace -ace_args- -1c -CUST n7 -1c- -nf
+3.	simbuild -dut sbr -ace_args ace -sc -t openlatch/sbr1_sbr_generic -ace_args- -1c -CUST n7 -1c-
+
+Openlatch has some dependencies on Lintra, which is why I ran step 1 first.
+
+The ccolt command gives errors on the n7 standard cells. 
+
+
+MAT1.6.1.p6 - p1274
+------------------------------------
+MAT version: ToolConfig.pl show_tool_info onecfg -1c -CUST p1274 -toolset mat1.6.1.p6 -1c-
+simbuild -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -ace xterm &
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s lintra_build
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s sbr0_sbr_generic.lintra_elab
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s gen_collateral +s build_blocksinfo +s sbr0_sbr_generic.dc
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s sbr0_sbr_generic.fv
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s sbr0_sbr_generic.sgdft
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s sbr0_sbr_generic.sage
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s spyglass_build
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s spyglass_build_lp
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s sbr0_sbr_generic.spyglass_lp
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s vclp_build
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s sbr0_sbr_generic.vclp_test
+SGCDC
+simbuild -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s sgcdc_build -sgcdc_build "-ASSIGN -mc=sbr_config_ipxact_workspace -vlog_opts +define+functional+IOSF_SB_PH2"
+simbuild -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s sgcdc_test -sgcdc_test "-t spyglass_cdc/sbr0_sbr_generic:SetupChk"
+simbuild -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s sgcdc_test -sgcdc_test "-t spyglass_cdc/sbr0_sbr_generic"
+SGLINT
+simbuild -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s sglint_build -sglint_build "-ASSIGN -mc=sglint_sbr0_sbr_generic"
+simbuild -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s sglint_test -sglint_test "-t spyglasslint/sbr0_sbr_generic -noepi"
+CALIBER
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s sbr0_sbr_generic.caliber
+      NOTE: SEE HSD 14011545071 SBR caliber not picking waivers for p1274, hdk1.6.1.p6 run
+            (https://hsdes.intel.com/resource/14011545071)
+FISHTAIL
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -s all +s sbr0_sbr_generic.fishtail
+      NOTE: SEE HSD 14011545093 SBR fistail is failing with p1274, hdk1.6.1.p6
+            (https://hsdes.intel.com/resource/14011545093)
+OPENLATCH
+mv ace/p1274_e05_stdcells.hdl ace/p1274_e05_stdcells.hdl.KEEP
+simbuild -dut sbr -ace_args ace -ccolt -mc=sbr_config_ipxact_workspace -ace_args- -1c -CUST p1274 -toolset mat1.6.1.p6 -1c- -nf
+simbuild -dut sbr -ace_args ace -sc -t openlatch/sbr1_sbr_generic -ace_args- -1c -CUST p1274 -toolset mat1.6.1.p6 -1c-
+mv ace/p1274_e05_stdcells.hdl.KEEP ace/p1274_e05_stdcells.hdl
+CORETOOLS version
+ToolConfig.pl get_tool_version coretools -1c -CUST p1274 -toolset mat1.6.1.p6 -1c-
+ToolConfig.pl get_tool_version collage -1c -CUST p1274 -toolset mat1.6.1.p6 -1c-
+
+
+MAT1.6.1.p6 - p1273
+------------------------------------
+MAT version: ToolConfig.pl show_tool_info onecfg -1c -CUST p1273 -toolset mat1.6.1.p6 -1c-
+simbuild -dut sbr -1c -CUST p1273 -toolset mat1.6.1.p6 -1c- -ace xterm &
+febe -dut sbr -1c -CUST p1273 -toolset mat1.6.1.p6 -1c- -s all +s lintra_build
+febe -dut sbr -1c -CUST p1273 -toolset mat1.6.1.p6 -1c- -s all +s sbr0_sbr_generic.lintra_elab
+febe -dut sbr -1c -CUST p1273 -toolset mat1.6.1.p6 -1c- -s all +s gen_collateral +s build_blocksinfo +s sbr0_sbr_generic.dc
+febe -dut sbr -1c -CUST p1273 -toolset mat1.6.1.p6 -1c- -s all +s sbr0_sbr_generic.fv
+febe -dut sbr -1c -CUST p1273 -toolset mat1.6.1.p6 -1c- -s all +s sbr0_sbr_generic.sgdft
+febe -dut sbr -1c -CUST p1273 -toolset mat1.6.1.p6 -1c- -s all +s sbr0_sbr_generic.sage
+febe -dut sbr -1c -CUST p1273 -toolset mat1.6.1.p6 -1c- -s all +s spyglass_build
+febe -dut sbr -1c -CUST p1273 -toolset mat1.6.1.p6 -1c- -s all +s spyglass_build_lp
+febe -dut sbr -1c -CUST p1273 -toolset mat1.6.1.p6 -1c- -s all +s sbr0_sbr_generic.spyglass_lp
+febe -dut sbr -1c -CUST p1273 -toolset mat1.6.1.p6 -1c- -s all +s vclp_build
+febe -dut sbr -1c -CUST p1273 -toolset mat1.6.1.p6 -1c- -s all +s sbr0_sbr_generic.vclp_test
+SGCDC
+simbuild -dut sbr -1c -CUST p1273 -toolset mat1.6.1.p6 -1c- -s all +s sgcdc_build -sgcdc_build "-ASSIGN -mc=sbr_config_ipxact_workspace -vlog_opts +define+functional+IOSF_SB_PH2"
+simbuild -dut sbr -1c -CUST p1273 -toolset mat1.6.1.p6 -1c- -s all +s sgcdc_test -sgcdc_test "-t spyglass_cdc/sbr0_sbr_generic:SetupChk"
+simbuild -dut sbr -1c -CUST p1273 -toolset mat1.6.1.p6 -1c- -s all +s sgcdc_test -sgcdc_test "-t spyglass_cdc/sbr0_sbr_generic"
+SGLINT
+simbuild -dut sbr -1c -CUST p1273 -toolset mat1.6.1.p6 -1c- -s all +s sglint_build -sglint_build "-ASSIGN -mc=sglint_sbr0_sbr_generic"
+simbuild -dut sbr -1c -CUST p1273 -toolset mat1.6.1.p6 -1c- -s all +s sglint_test -sglint_test "-t spyglasslint/sbr0_sbr_generic -noepi"
+CALIBER
+febe -dut sbr -1c -CUST p1273 -toolset mat1.6.1.p6 -1c- -s all +s sbr0_sbr_generic.caliber
+FISHTAIL
+febe -dut sbr -1c -CUST p1273 -toolset mat1.6.1.p6 -1c- -s all +s sbr0_sbr_generic.fishtail
+OPENLATCH
+mv ace/p1273_d04_stdcells.hdl ace/p1273_d04_stdcells.hdl.KEEP
+simbuild -dut sbr -ace_args ace -ccolt -mc=sbr_config_ipxact_workspace -ace_args- -1c -CUST p1273 -toolset mat1.6.1.p6 -1c- -nf
+simbuild -dut sbr -ace_args ace -sc -t openlatch/sbr1_sbr_generic -ace_args- -1c -CUST p1273 -toolset mat1.6.1.p6 -1c-
+mv ace/p1273_d04_stdcells.hdl.KEEP ace/p1273_d04_stdcells.hdl
+CORETOOLS version
+ToolConfig.pl get_tool_version coretools -1c -CUST p1273 -toolset mat1.6.1.p6 -1c-
+ToolConfig.pl get_tool_version collage -1c -CUST p1273 -toolset mat1.6.1.p6 -1c-
+
+
+s14nm
+-----
+wash -n intelall users soc socenv s14nm dk1273 soc73 soc73proc hdk10nm hdk10nmproc siphdk fabric hdk22nm hdk22nmproc
+febe -dut sbr -1c -CUST s14nm -toolset m1713f.p5 -1c- -s all +s lintra_build
+febe -dut sbr -1c -CUST s14nm -toolset m1713f.p5 -1c- -s all +s sbr0_sbr_generic.lintra_elab
+febe -dut sbr -1c -CUST s14nm -toolset m1713f.p5 -1c- -s all +s gen_collateral +s build_blocksinfo +s sbr0_sbr_generic.dc
+febe -dut sbr -1c -CUST s14nm -toolset m1713f.p5 -1c- -s all +s sbr0_sbr_generic.fv
+SGLP
+   cp $MODEL_ROOT/tools/spyglasslp/sbr0_sbr_generic/sbr0_sbr_generic.opt $MODEL_ROOT/tools/spyglasslp/sbr0_sbr_generic/sbr0_sbr_generic.opt.p1274
+   cp $MODEL_ROOT/tools/spyglasslp/sbr0_sbr_generic/sbr0_sbr_generic.opt.s14nm $MODEL_ROOT/tools/spyglasslp/sbr0_sbr_generic/sbr0_sbr_generic.opt
+   febe -dut sbr -1c -CUST s14nm -toolset m1713f.p5 -1c- -s all +s spyglass_build
+   febe -dut sbr -1c -CUST s14nm -toolset m1713f.p5 -1c- -s all +s spyglass_build_lp
+   febe -dut sbr -1c -CUST s14nm -toolset m1713f.p5 -1c- -s all +s sbr0_sbr_generic.spyglass_lp
+SGDFT
+   febe -dut sbr -1c -CUST s14nm -toolset m1713f.p5 -1c- -s all +s sbr0_sbr_generic.sgdft
+SAGE
+   febe -dut sbr -1c -CUST s14nm -toolset m1713f.p5 -1c- -s all +s sbr0_sbr_generic.sage
+VCLP
+   febe -dut sbr -1c -CUST s14nm -toolset m1713f.p5 -1c- -s all +s vclp_build
+   febe -dut sbr -1c -CUST s14nm -toolset m1713f.p5 -1c- -s all +s sbr0_sbr_generic.vclp_test
+SGLINT
+   simbuild -dut sbr -1c -CUST s14nm -toolset m1713f.p5 -1c- -s all +s sglint_build -sglint_build "-ASSIGN -mc=sglint_sbr0_sbr_generic"
+   simbuild -dut sbr -1c -CUST s14nm -toolset m1713f.p5 -1c- -s all +s sglint_test -sglint_test "-t spyglasslint/sbr0_sbr_generic -noepi"
+QUESTA CDC
+  - run Questa CDC under ACE in HDK environment
+      % simbuild -dut sbr -1c -CUST s14nm -toolset m1713f.p5 -1c- -ace xterm &
+    In the newly created xterm:
+      % cd $MODEL_ROOT/tools
+      % sbr0_runACECDC_HDKs14nm
+CALIBER
+   CALIBER IS NOT A REQUIREMENT FOR THE ADP-S PROJECT (s14nm)
+FISHTAIL
+   FISHTAIL IS NOT A REQUIREMENT FOR THE ADP-S PROJECT (s14nm)
+SGCDC 
+   SGCDC IS NOT A REQUIREMENT FOR THE ADP-S PROJECT (s14nm)
+INSERT_DFT
+   INSERT_DFT IS NOT YET QUALIFIED FOR ADP-S, AT THE TIME OF THE SBR PICr28 RELEASE
+
+
+
+
+-----------------------------------
+
+
+CALIBER
+$WARD/febe_debug/caliber.menu.csh
+Select option #1 for a new window of uesetup
+Use the popup window to debug or launch GUI
+In the popup window:
+$DUET/utils/UploadWaivers.tcl -from /nfs/fm/disks/fm_infrach_00003/TSA_PRIME/TGPLP_ASYNC_XBCOMBO_REL_PAR/workspace/sideband_network/tools/caliber/waivers/_Waivers.txt -type user_waivers_db -to /nfs/fm/disks/fm_infrach_00003/TSA_PRIME/TGPLP_ASYNC_XBCOMBO_REL_PAR/workspace/sideband_network/tools/caliber/new_waivers
+To launch GUI:
+syn_caliber_gui -cell sbr0_sbr_generic
+
+FISHTAIL help
+https://wiki.ith.intel.com/display/hdk/Advanced+RTL+Analysis?preview=/1211324897/1211328691/SOC%20FishTail%20FAQ.docx#tool--1908600166 
+

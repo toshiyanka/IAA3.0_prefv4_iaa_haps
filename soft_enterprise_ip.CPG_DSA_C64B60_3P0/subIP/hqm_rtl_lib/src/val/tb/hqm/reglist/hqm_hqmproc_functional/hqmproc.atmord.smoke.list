@@ -1,0 +1,455 @@
+
+##################################################################################
+##################################################################################
+#HQMV30 AO tests
+##################################################################################
+##############################
+#Try AO smoke test with 1st PASS=ATM
+# use +HQMPROC_ATM_1PASS  (check what's the qtype in SCHED HCW)
+##############################
+#ldbPP[0] QORD, QID[0] => CQ[1]
+#ldbPP[1] QATM, QID[1] => CQ[1]  // and return comp/token
+###############################
+############## A_COMP+COMP
+############## A_COMP+RENQ
+###############################
+#####
+#A_COMP+COMP
+#####
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test0+atmord_test_1_t000  -dut hqm -model hqm -dirtag T1_2LDB_ATMORD_FRAG_ACOMPCOMP_SMK00_L  
+
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test2+atmord_test_1_t001  -dut hqm -model hqm -dirtag T1_2LDB_ATMORD_FRAG_ACOMPCOMP_SMK01_L  
+
+#####
+#A_COMP+RENQ
+#####
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test0+atmord_test_1_t002  -dut hqm -model hqm -dirtag T1_2LDB_ATMORD_FRAG_ACOMPRENQ_SMK00_L  
+
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test2+atmord_test_1_t003  -dut hqm -model hqm -dirtag T1_2LDB_ATMORD_FRAG_ACOMPRENQ_SMK01_L  
+
+
+#####
+#FRAG=0
+#A_COMP+COMP
+#####
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test0+atmord_test_1_t004  -dut hqm -model hqm -dirtag T1_2LDB_ATMORD_FRAG0_ACOMPCOMP_SMK00_L   
+
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test2+atmord_test_1_t005  -dut hqm -model hqm -dirtag T1_2LDB_ATMORD_FRAG0_ACOMPCOMP_SMK01_L  
+
+###############################
+############## COMP+A_COMP
+############## RENQ+A_COMP
+###############################
+########
+#FRAG=0 try COMP+A_COMP  +LDB_PP1_ACOMP_CTRL_MODE=1
+#  +HQM_USE_CQORD_QUEUE  +HQMPROC_EOT_HIST_A_CHECK  :: SB_SCH ORD use ldb_cq_ord_q[cq].hcw_q; and SB_ENQ, when it's COMP, use ldb_cq_ord_q[cq].hcw_q to find corresponding tbcnt=ordidx => comp_idx=4
+########
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test0+atmord_test_1_t006  -dut hqm -model hqm -dirtag T1_2LDB_ATMORD_FRAG0_COMPACOMP_SMK00_L    
+
+#FRAG=4
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test0+atmord_test_1_t007  -dut hqm -model hqm -dirtag T1_2LDB_ATMORD_FRAG_COMPACOMP_SMK00_L    
+
+#FRAG=4 w/ RENQ
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test0+atmord_test_1_t008  -dut hqm -model hqm -dirtag T1_2LDB_ATMORD_FRAG_RENQACOMP_SMK00_L    
+
+
+
+
+
+##################################################################################  HQMV30 AO test_2:: 2QIDs
+##################################################################################
+##################################################################################
+#HQMV30 AO tests
+##################################################################################
+##############################
+##############################
+#ldbPP[0] QID[0] QATM(COMB), QID[0] => CQ[1]
+#ldbPP[1] QID[1] QORD, QID[1] => CQ[1]  // and return comp/token
+#2nd PASS: ATM, QID[2]        => CQ[1]
+#ldbPP[2] QID[2] QATM/UNO, QID[2] => CQ[1]  
+#ldbPP[3] QID[3] QATM/UNO, QID[3] => CQ[1]  
+###############################
+############## A_COMP+COMP
+############## A_COMP+RENQ
+###############################
+#####
+#A_COMP+COMP/RENQ
+#####
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test0+atmord_test_2_t000  -dut hqm -model hqm -dirtag T2_QID0COMB_QID1ORD_1CQ_FRAG_ACOMPCOMP_SMK00  
+
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test0+atmord_test_2_t001  -dut hqm -model hqm -dirtag T2_QID0COMB_QID1ORD_1CQ_FRAG_ACOMPRENQ_SMK00  
+
+
+#####
+#FRAG=0
+#A_COMP+COMP/RENQ
+#####
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test0+atmord_test_2_t002  -dut hqm -model hqm -dirtag T2_QID0COMB_QID1ORD_1CQ_FRAG0_ACOMPCOMP_SMK00  
+
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test0+atmord_test_2_t003  -dut hqm -model hqm -dirtag T2_QID0COMB_QID1ORD_1CQ_FRAG0_ACOMPRENQ_SMK00  
+
+
+###############################  +LDB_PP1_ACOMP_CTRL_MODE=1
+############## COMP+A_COMP
+############## RENQ+A_COMP
+###############################
+#####
+#A_COMP+COMP/RENQ
+#####
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test0+atmord_test_2_t004  -dut hqm -model hqm -dirtag T2_QID0COMB_QID1ORD_1CQ_FRAG_COMPACOMP_SMK00  
+
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test0+atmord_test_2_t005  -dut hqm -model hqm -dirtag T2_QID0COMB_QID1ORD_1CQ_FRAG_RENQACOMP_SMK00  
+
+
+#####
+#FRAG=0
+#A_COMP+COMP/RENQ
+#####
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test0+atmord_test_2_t006  -dut hqm -model hqm -dirtag T2_QID0COMB_QID1ORD_1CQ_FRAG0_COMPACOMP_SMK00  
+
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test0+atmord_test_2_t007  -dut hqm -model hqm -dirtag T2_QID0COMB_QID1ORD_1CQ_FRAG0_RENQACOMP_SMK00  
+
+
+
+##################################################################################  HQMV30 AO test_3:: 4QIDs
+##################################################################################
+##################################################################################
+#HQMV30 AO tests
+##################################################################################
+##############################
+##############################
+#ldbPP[0] QID[0] QATM (COMB), QID[0] => CQ[2]  ## run with +LDB_PP0_TRF_QPRI_SELMODE=10
+#ldbPP[1] QID[0] QORD, QID[0] => CQ[2]         ## run with +LDB_PP1_TRF_QPRI_SELMODE=10
+#ldbPP[2] QID[2] QATM/QUNO, QID[2] => CQ[2] #return token/completions 
+#ldbPP[3] QID[3] QATM/QUNO, QID[3] => CQ[2]  
+###############################
+############## A_COMP+COMP
+############## A_COMP+RENQ
+###############################
+#####
+#A_COMP+COMP
+#####
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test1+atmord_test_3_t000  -dut hqm -model hqm -dirtag T3_QID0COMB_QID0ORD_1CQ_FRAG_ACOMPCOMP_SMK00  
+
+
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test1+atmord_test_3_t001  -dut hqm -model hqm -dirtag T3_QID0COMB_QID0ORD_1CQ_FRAG_ACOMPCOMP_SMK01  
+
+#####
+#A_COMP+RENQ
+#####
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test1+atmord_test_3_t002  -dut hqm -model hqm -dirtag T3_QID0COMB_QID0ORD_1CQ_FRAG_ACOMPRENQ_SMK00  
+
+
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test1+atmord_test_3_t003  -dut hqm -model hqm -dirtag T3_QID0COMB_QID0ORD_1CQ_FRAG_ACOMPRENQ_SMK01  
+
+
+#####
+#FRAG=0
+#A_COMP+COMP
+#####
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test1+atmord_test_3_t004  -dut hqm -model hqm -dirtag T3_QID0COMB_QID0ORD_1CQ_FRAG0_ACOMPCOMP_SMK00  
+
+
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test1+atmord_test_3_t005  -dut hqm -model hqm -dirtag T3_QID0COMB_QID0ORD_1CQ_FRAG0_ACOMPCOMP_SMK01  
+
+#####
+#FRAG=0
+#A_COMP+RENQ
+#####
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test1+atmord_test_3_t006  -dut hqm -model hqm -dirtag T3_QID0COMB_QID0ORD_1CQ_FRAG0_ACOMPRENQ_SMK00  
+
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test1+atmord_test_3_t007  -dut hqm -model hqm -dirtag T3_QID0COMB_QID0ORD_1CQ_FRAG0_ACOMPRENQ_SMK01  
+
+
+
+
+###############################
+############## COMP+A_COMP  +LDB_PP2_ACOMP_CTRL_MODE=1
+############## RENQ+ACOMP
+###############################
+#####
+#COMP+A_COMP
+#####
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test1+atmord_test_3_t008  -dut hqm -model hqm -dirtag T3_QID0COMB_QID0ORD_1CQ_FRAG_ACOMPCOMP_SMK00  
+
+
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test1+atmord_test_3_t009  -dut hqm -model hqm -dirtag T3_QID0COMB_QID0ORD_1CQ_FRAG_ACOMPCOMP_SMK01  
+
+#####
+#RENQ+A_COMP
+#####
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test1+atmord_test_3_t010  -dut hqm -model hqm -dirtag T3_QID0COMB_QID0ORD_1CQ_FRAG_ACOMPRENQ_SMK00  
+
+
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test1+atmord_test_3_t011  -dut hqm -model hqm -dirtag T3_QID0COMB_QID0ORD_1CQ_FRAG_ACOMPRENQ_SMK01  
+
+
+#####
+#FRAG=0
+#COMP+A_COMP
+#####
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test1+atmord_test_3_t012  -dut hqm -model hqm -dirtag T3_QID0COMB_QID0ORD_1CQ_FRAG0_ACOMPCOMP_SMK00  
+
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test1+atmord_test_3_t013  -dut hqm -model hqm -dirtag T3_QID0COMB_QID0ORD_1CQ_FRAG0_ACOMPCOMP_SMK01  
+
+#####
+#FRAG=0
+#RENQ+A_COMP
+#####
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test1+atmord_test_3_t014  -dut hqm -model hqm -dirtag T3_QID0COMB_QID0ORD_1CQ_FRAG0_ACOMPRENQ_SMK00  
+
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test1+atmord_test_3_t015  -dut hqm -model hqm -dirtag T3_QID0COMB_QID0ORD_1CQ_FRAG0_ACOMPRENQ_SMK01  
+
+
+
+##################################################################################  HQMV30 AO test_4:: 4QIDs
+##################################################################################
+##################################################################################
+#HQMV30 AO tests
+##################################################################################
+##############################
+##############################
+#ldbPP[0] QID[0] QATM (COMB) or ORD or DIR, QID[0] => CQ[1]  ## run with +LDB_PP0_TRF_QPRI_SELMODE=10  +LDB_PP0_TRF_QTYPE_SELMODE=16 (ORD or COMB)
+#ldbPP[1] QID[1] QATM, QID[1] => CQ[1]         ## run with +LDB_PP1_TRF_QPRI_SELMODE=10 #return token/completions
+#ldbPP[2] QID[2] QATM/QUNO, QID[1] => CQ[1]    
+#ldbPP[3] QID[3] QATM/QUNO, QID[1] => CQ[1]  
+###############################
+############## A_COMP+COMP
+############## A_COMP+RENQ
+###############################
+#####
+#A_COMP+COMP
+#####
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test0+atmord_test_4_t000  -dut hqm -model hqm -dirtag T4_QID0COMBORDMIX_1CQ_FRAG_ACOMPCOMP_SMK00  
+
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test2+atmord_test_4_t001  -dut hqm -model hqm -dirtag T4_QID0COMBORDMIX_1CQ_FRAG_ACOMPCOMP_SMK01  
+
+#####
+#A_COMP+RENQ
+#####
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test0+atmord_test_4_t002  -dut hqm -model hqm -dirtag T4_QID0COMBORDMIX_1CQ_FRAG_ACOMPRENQ_SMK00  
+
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test2+atmord_test_4_t003  -dut hqm -model hqm -dirtag T4_QID0COMBORDMIX_1CQ_FRAG_ACOMPRENQ_SMK01  
+
+
+#####
+#FRAG=0
+#A_COMP+COMP
+#####
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test0+atmord_test_4_t004  -dut hqm -model hqm -dirtag T4_QID0COMBORDMIX_1CQ_FRAG0_ACOMPCOMP_SMK00  
+
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test2+atmord_test_4_t005  -dut hqm -model hqm -dirtag T4_QID0COMBORDMIX_1CQ_FRAG0_ACOMPCOMP_SMK01  
+
+#####
+#FRAG=0
+#A_COMP+RENQ
+#####
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test0+atmord_test_4_t006  -dut hqm -model hqm -dirtag T4_QID0COMBORDMIX_1CQ_FRAG0_ACOMPRENQ_SMK00  
+
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test2+atmord_test_4_t007  -dut hqm -model hqm -dirtag T4_QID0COMBORDMIX_1CQ_FRAG0_ACOMPRENQ_SMK01  
+
+
+###############################  +LDB_PP1_ACOMP_CTRL_MODE=1
+############## COMP+A_COMP
+############## RENQ+A_COMP
+###############################
+#####
+#COMP+A_COMP
+#####
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test0+atmord_test_4_t008  -dut hqm -model hqm -dirtag T4_QID0COMBORDMIX_1CQ_FRAG_COMPACOMP_SMK00  
+
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test2+atmord_test_4_t009  -dut hqm -model hqm -dirtag T4_QID0COMBORDMIX_1CQ_FRAG_COMPACOMP_SMK01  
+
+#####
+#RENQ+A_COMP
+#####
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test0+atmord_test_4_t010  -dut hqm -model hqm -dirtag T4_QID0COMBORDMIX_1CQ_FRAG_RENQACOMP_SMK00  
+
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test2+atmord_test_4_t011  -dut hqm -model hqm -dirtag T4_QID0COMBORDMIX_1CQ_FRAG_RENQACOMP_SMK01  
+
+
+#####
+#FRAG=0
+#COMP+A_COMP
+#####
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test0+atmord_test_4_t012  -dut hqm -model hqm -dirtag T4_QID0COMBORDMIX_1CQ_FRAG0_COMPACOMP_SMK00  
+
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test2+atmord_test_4_t013  -dut hqm -model hqm -dirtag T4_QID0COMBORDMIX_1CQ_FRAG0_COMPACOMP_SMK01  
+
+#####
+#FRAG=0
+#RENQ+A_COMP
+#####
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test0+atmord_test_4_t014  -dut hqm -model hqm -dirtag T4_QID0COMBORDMIX_1CQ_FRAG0_RENQACOMP_SMK00  
+
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test2+atmord_test_4_t015  -dut hqm -model hqm -dirtag T4_QID0COMBORDMIX_1CQ_FRAG0_RENQACOMP_SMK01  
+
+
+
+##################################################################################  HQMV30 AO test_5:: 4QIDs
+##################################################################################
+##################################################################################
+#HQMV30 AO tests
+##################################################################################
+##############################
+##############################
+#ldbPP[0] QID[0] QATM  (COMB), QID[0] => CQ[1]         ##                                 #return token/completions   
+#ldbPP[1] QID[1] QATM/UNO),    QID[1] => CQ[2]         ## 2ndP of QID[0]                  #return token/completions
+#ldbPP[2] QID[2] QATM  (COMB), QID[2] => CQ[3]         ##                                 #return token/completions
+#ldbPP[3] QID[3] QATM/QUNO,    QID[3] => CQ[0]         ## 2ndP of QID[2]                  #return token/completions
+###############################
+############## A_COMP+COMP
+############## A_COMP+RENQ
+###############################
+#####
+#A_COMP+COMP
+#####
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test4+atmord_test_5_t000  -dut hqm -model hqm -dirtag T5_2QIDCOMB_2CQ_FRAG_ACOMPCOMP_SMK00  
+
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test4+atmord_test_5_t001  -dut hqm -model hqm -dirtag T5_2QIDCOMB_2CQ_FRAG_ACOMPRENQ_SMK00  
+
+
+#####
+#FRAG=0
+#A_COMP+COMP
+#####
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test4+atmord_test_5_t002  -dut hqm -model hqm -dirtag T5_2QIDCOMB_2CQ_FRAG0_ACOMPCOMP_SMK00  
+
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test4+atmord_test_5_t003  -dut hqm -model hqm -dirtag T5_2QIDCOMB_2CQ_FRAG0_ACOMPRENQ_SMK00  
+
+
+###############################  +LDB_PP1_ACOMP_CTRL_MODE=1  +LDB_PP3_ACOMP_CTRL_MODE=1
+############## COMP+A_COMP
+############## RENQ+A_COMP
+###############################
+#####
+#COMP+A_COMP
+#####
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test4+atmord_test_5_t004  -dut hqm -model hqm -dirtag T5_2QIDCOMB_2CQ_FRAG_COMPACOMP_SMK00  
+
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test4+atmord_test_5_t005  -dut hqm -model hqm -dirtag T5_2QIDCOMB_2CQ_FRAG_RENQACOMP_SMK00  
+
+
+#####
+#FRAG=0
+#COMP+A_COMP
+#####
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test4+atmord_test_5_t006  -dut hqm -model hqm -dirtag T5_2QIDCOMB_2CQ_FRAG0_COMPACOMP_SMK00  
+
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test4+atmord_test_5_t007  -dut hqm -model hqm -dirtag T5_2QIDCOMB_2CQ_FRAG0_RENQACOMP_SMK00  
+
+
+##################################################################################  HQMV30 AO test_misc:: 4QIDs
+##################################################################################
+##################################################################################
+#HQMV30 AO tests
+##################################################################################
+##############################
+##############################
+#ldbPP[0] QID[1] QATM         QID[1] => CQ[1]  ## 
+#ldbPP[1] QID[0] QATM (COMB), QID[0] => CQ[1]  ## return token/completions
+#ldbPP[2] QID[2] QATM/QUNO, QID[1] => CQ[1]    
+#ldbPP[3] QID[3] QATM/QUNO, QID[1] => CQ[1]  
+###############################
+
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test0+atmord_test_5_t008 -dut hqm -model hqm -dirtag T6_2LDB_ATMORD_FRAG0_SMK02  
+
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test0+atmord_test_5_t009 -dut hqm -model hqm -dirtag T6_2LDB_ATMORD_FRAG0_SMK12  
+
+##############################
+#ldbPP[0] QID[0] QATM         QID[0] => CQ[1]  ## 
+#ldbPP[1] QID[1] QATM (COMB), QID[1] => CQ[1]  ## return token/completions
+#ldbPP[2] QID[2] QATM/QUNO, QID[1] => CQ[1]    
+#ldbPP[3] QID[3] QATM/QUNO, QID[1] => CQ[1]  
+###############################
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test3+atmord_test_5_t010 -dut hqm -model hqm -dirtag T6_2LDB_ATMORD_FRAG0_SMK03  
+
+
+  hcw_enqtrf_hqmproc_test:ldb4ppdir4pp_qid1map_atmord_test3+atmord_test_5_t011 -dut hqm -model hqm -dirtag T6_2LDB_ATMORD_FRAG0_SMK13  
+
+################################################################################################################################
+##################################################################################  HQMV30 AO :: Take ORD tests (from hqmproc.trfsmk.mixfragm11.renqtypem2.short.list)
+##################################################################################               ==> ATMORD tests
+##################################################################################
+#HQMV30 AO tests: random tests
+##################################################################################
+##################
+#4
+##################
+###Added ORD
+#  +has_qid_sel_mode=3  +has_qtype_sel_mode=5 (5: DIR/ATM/ORD)
+#  +has_renq_qtype_sel_mode=15 (dir)  +has_renq_qid_sel_mode=3 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map renq: +has_renq_qid_sel_mode=3  +has_renq_qtype_sel_mode=15(dir)
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb4ppdir4pp_qid1map_atmordmix_rnd0+trf_4ldb4dir_multiqtype5_t00  -dut hqm -model hqm -dirtag 4LDB4DIR_SMAP_ATMORDMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202   
+
+#add  +HQM_DIRPP_QDIR => DIRPP only send QDIR
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb4ppdir4pp_qid1map_atmordmix_rnd0+trf_4ldb4dir_multiqtype5_t01  -dut hqm -model hqm -dirtag 4LDB4DIR_SMAP_ATMORDMIX_DIRPPQDIR_RND0TEST202   
+
+
+
+#mmap  +has_qid_sel_mode=3  +has_qtype_sel_mode=5 ; +has_renq_qid_sel_mode=3  +has_renq_qtype_sel_mode=15
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb4ppdir4pp_qidmmap_atmordmix_rnd0+trf_4ldb4dir_multiqtype5_t00  -dut hqm -model hqm -dirtag 4LDB4DIR_MMAP_ATMORDMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202       
+
+###Added UNO+ORD
+#  +has_qid_sel_mode=3  +has_qtype_sel_mode=7 (6: UNO/ATM/ORD; 7: DIR/UNO/ATM/ORD)
+#  +has_renq_qtype_sel_mode=15 (atm/dir)  +has_renq_qid_sel_mode=3 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map renq: +has_renq_qid_sel_mode=3  +has_renq_qtype_sel_mode=15
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb4ppdir4pp_qid1map_atmordldbmix_rnd0+trf_4ldb4dir_multiqtype5_t02  -dut hqm -model hqm -dirtag 4LDB4DIR_SMAP_ATMORDLDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202       
+
+#mmap  +has_qid_sel_mode=3  +has_qtype_sel_mode=7 ; +has_renq_qid_sel_mode=3  +has_renq_qtype_sel_mode=15
+   hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb4ppdir4pp_qidmmap_atmordldbmix_rnd0+trf_4ldb4dir_multiqtype5_t02  -dut hqm -model hqm -dirtag 4LDB4DIR_MMAP_ATMORDLDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202  
+
+#rerun
+   hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb4ppdir4pp_qidmmap_atmordldbmix_rnd0+trf_4ldb4dir_multiqtype5_t02 -ace  -assertFinal -chop scc -dbg_gdb_batch 1 -dirtag 4LDB4DIR_MMAP_ATMORDLDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202  
+
+##################  run with +acomp_ctrl2+rtn_comp_m1_rnddly1+rtn_acomp_m1_rnddly1 (a_comp and comp)
+#4
+##################
+###Added ORD
+#  +has_qid_sel_mode=3  +has_qtype_sel_mode=5 (5: DIR/ATM/ORD)
+#  +has_renq_qtype_sel_mode=15 (dir)  +has_renq_qid_sel_mode=3 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map renq: +has_renq_qid_sel_mode=3  +has_renq_qtype_sel_mode=15(dir)
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb4ppdir4pp_qid1map_atmordmix_rnd0+acomp_ctrl2+rtn_comp_m1_rnddly1+rtn_acomp_m1_rnddly1+trf_4ldb4dir_multiqtype5_t03  -dut hqm -model hqm -dirtag 4LDB4DIR_SMAP_ATMORDMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202 -dirtag CMPACMPRTNM1RNDDLY1      
+
+#mmap  +has_qid_sel_mode=3  +has_qtype_sel_mode=5 ; +has_renq_qid_sel_mode=3  +has_renq_qtype_sel_mode=15
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb4ppdir4pp_qidmmap_atmordmix_rnd0+acomp_ctrl2+rtn_comp_m1_rnddly1+rtn_acomp_m1_rnddly1+trf_4ldb4dir_multiqtype5_t03  -dut hqm -model hqm -dirtag 4LDB4DIR_MMAP_ATMORDMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202 -dirtag CMPACMPRTNM1RNDDLY1     
+
+###Added UNO+ORD
+#  +has_qid_sel_mode=3  +has_qtype_sel_mode=7 (6: UNO/ATM/ORD; 7: DIR/UNO/ATM/ORD)
+#  +has_renq_qtype_sel_mode=15 (atm/dir)  +has_renq_qid_sel_mode=3 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map renq: +has_renq_qid_sel_mode=3  +has_renq_qtype_sel_mode=15
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb4ppdir4pp_qid1map_atmordldbmix_rnd0+acomp_ctrl2+rtn_comp_m1_rnddly1+rtn_acomp_m1_rnddly1+trf_4ldb4dir_multiqtype5_t04  -dut hqm -model hqm -dirtag 4LDB4DIR_SMAP_ATMORDLDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202 -dirtag CMPACMPRTNM1RNDDLY1       
+
+#mmap  +has_qid_sel_mode=3  +has_qtype_sel_mode=7 ; +has_renq_qid_sel_mode=3  +has_renq_qtype_sel_mode=15
+   hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb4ppdir4pp_qidmmap_atmordldbmix_rnd0+acomp_ctrl2+rtn_comp_m1_rnddly1+rtn_acomp_m1_rnddly1+trf_4ldb4dir_multiqtype5_t04  -dut hqm -model hqm -dirtag 4LDB4DIR_MMAP_ATMORDLDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202 -dirtag CMPACMPRTNM1RNDDLY1  
+
+##################  run with +acomp_ctrl (a_comp and comp)
+#4
+##################
+###Added ORD
+#  +has_qid_sel_mode=3  +has_qtype_sel_mode=5 (5: DIR/ATM/ORD)
+#  +has_renq_qtype_sel_mode=15 (dir)  +has_renq_qid_sel_mode=3 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map renq: +has_renq_qid_sel_mode=3  +has_renq_qtype_sel_mode=15(dir)
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb4ppdir4pp_qid1map_atmordmix_rnd0+acomp_ctrl3+trf_4ldb4dir_multiqtype5_t03  -dut hqm -model hqm -dirtag 4LDB4DIR_SMAP_ATMORDMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202 -dirtag ACOMPCTL3      
+
+#mmap  +has_qid_sel_mode=3  +has_qtype_sel_mode=5 ; +has_renq_qid_sel_mode=3  +has_renq_qtype_sel_mode=15
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb4ppdir4pp_qidmmap_atmordmix_rnd0+acomp_ctrl3+trf_4ldb4dir_multiqtype5_t03  -dut hqm -model hqm -dirtag 4LDB4DIR_MMAP_ATMORDMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202 -dirtag ACOMPCTL3     
+
+###Added UNO+ORD
+#  +has_qid_sel_mode=3  +has_qtype_sel_mode=7 (6: UNO/ATM/ORD; 7: DIR/UNO/ATM/ORD)
+#  +has_renq_qtype_sel_mode=15 (atm/dir)  +has_renq_qid_sel_mode=3 (%/2) =3 (%4) =4(%8) =5(%16)
+####
+#1map renq: +has_renq_qid_sel_mode=3  +has_renq_qtype_sel_mode=15
+ hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb4ppdir4pp_qid1map_atmordldbmix_rnd0+acomp_ctrl3+trf_4ldb4dir_multiqtype5_t04  -dut hqm -model hqm -dirtag 4LDB4DIR_SMAP_ATMORDLDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202 -dirtag ACOMPCTL3       
+
+#mmap  +has_qid_sel_mode=3  +has_qtype_sel_mode=7 ; +has_renq_qid_sel_mode=3  +has_renq_qtype_sel_mode=15
+   hcw_enqtrf_hqmproc_test:cialtimer_cwdt_t0+ldb4ppdir4pp_qidmmap_atmordldbmix_rnd0+acomp_ctrl3+trf_4ldb4dir_multiqtype5_t04  -dut hqm -model hqm -dirtag 4LDB4DIR_MMAP_ATMORDLDBMIXFRAGM11RNDNUM_RENQTYPEM2_RENQIDM_RND0TEST202 -dirtag ACOMPCTL3  
+
+
+
+

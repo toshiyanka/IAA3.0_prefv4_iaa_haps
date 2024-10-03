@@ -1,0 +1,97 @@
+## -- PVIM  1604581969 (HCW Enqueue Stress)
+hqm_cfg_test:hqm_sciov_enq_stress -dirtag hqm_sciov_enq_stress
+####AY_RM_SRIOV_V30 hqm_cfg_test:hqm_sriov_enq_stress -dirtag hqm_sriov_enq_stress
+
+## -- PVIM  1604581921 (HQM Traffic write buffer stress with LDB/optimized DIR traffic)
+hqm_cfg_test:dir_ldb_traffic_wr_optimize -dirtag dir_ldb_traffic_wr_optimize
+
+## -- PVIM  1604581919 (HQM Traffic with extended agitation backpressure on individual FIFOs with large amount of traffic)
+.repeat 10
+##hcw_perf_dir_ldb_test1_agi:TI_PHDR_AFULL -dirtag TI_PHDR_AFULL
+##hcw_perf_dir_ldb_test1_agi:TI_PDATA_AFULL -dirtag TI_PDATA_AFULL
+##hcw_perf_dir_ldb_test1_agi:TI_CMPL_AFULL -dirtag TI_CMPL_AFULL
+hcw_perf_dir_ldb_test1_agi:SIG_NUM_AFULL -dirtag SIG_NUM_AFULL
+hcw_perf_dir_ldb_test1_agi:PEND_SIG_AFULL -dirtag PEND_SIG_AFULL
+hcw_perf_dir_ldb_test1_agi:CSR_DATA_AFULL -dirtag CSR_DATA_AFULL
+hcw_perf_dir_ldb_test1_agi:WB_SCH_OUT_AFULL -dirtag WB_SCH_OUT_AFULL
+hcw_perf_dir_ldb_test1_agi:IG_HCW_ENQ_AFULL -dirtag IG_HCW_ENQ_AFULL
+hcw_perf_dir_ldb_test1_agi:IG_HCW_ENQ_W_DB -dirtag IG_HCW_ENQ_W_DB
+hcw_perf_dir_ldb_test1_agi:EG_HCW_SCHED_DB -dirtag EG_HCW_SCHED_DB
+hcw_perf_dir_ldb_test1_agi:AL_MSI_MSIX_DB -dirtag AL_MSI_MSIX_DB
+hcw_perf_dir_ldb_test1_agi:AL_CWD_ALARM_DB -dirtag AL_CWD_ALARM_DB
+hcw_perf_dir_ldb_test1_agi:AL_HQM_ALARM_DB -dirtag AL_HQM_ALARM_DB
+hcw_perf_dir_ldb_test1_agi:AL_IOSF_ALARM_AFULL -dirtag AL_IOSF_ALARM_AFULL
+.repeat
+
+## -- PVIM  1407678510 (HQM_SYSTEM short burst stress tests)
+.repeat 20
+####AY_TEMP####    hqm_system_burst_test:sb_basic                  -dut hqm -model hqm -dirtag sb_basic
+####AY_RM_VF_V30 hqm_system_burst_test:sb_basic_with_vf_hcw      -dut hqm -model hqm -dirtag sb_basic_with_vf_hcw
+####AY_TEMP####    hqm_system_burst_test:sb_all                    -dut hqm -model hqm -dirtag sb_all
+
+.repeat
+
+## -- PVIM  1407467172 (Validate VF/PF BAR register behavior during D0->D3 and D3->D0 transitions)
+####AY_TEMP####   hqm_system_burst_test:d0_to_d3                  -dut hqm -model hqm -dirtag d0_to_d3
+####AY_TEMP####   hqm_system_burst_test:d3_to_d0                  -dut hqm -model hqm -dirtag d3_to_d0
+
+## -- PVIM  1408585263 (Validate AER header log and First Error Pointer)
+.repeat 5
+####AY_TEMP####   hqm_system_error_burst_test:bursts_100+size_2                           -dut hqm -model hqm -dirtag rand_100_2
+####AY_TEMP####   hqm_system_error_burst_test:bursts_100+size_4                           -dut hqm -model hqm -dirtag rand_100_4
+####AY_TEMP####   hqm_system_error_burst_test:bursts_100+size_10                          -dut hqm -model hqm -dirtag rand_100_10
+####AY_TEMP####   hqm_system_error_burst_test:bursts_100+size_1_20                        -dut hqm -model hqm -dirtag rand_100_1_20
+####AY_TEMP####   hqm_system_error_burst_test:basic+bursts_100+size_1_20                  -dut hqm -model hqm -dirtag basic_100_1_20
+####AY_TEMP####   hqm_system_error_burst_test:basic_with_hcw+bursts_100+size_1_20         -dut hqm -model hqm -dirtag basic_with_hcw_100_1_20
+####AY_RM_VF_V30 hqm_system_error_burst_test:basic_with_hcw_vf_flr+bursts_100+size_1_20  -dut hqm -model hqm -dirtag basic_with_hcw_vf_flr_100_1_20
+####AY_TEMP####   hqm_system_error_burst_test:vf_flr_stress+bursts_100+size_20            -dut hqm -model hqm -dirtag vf_flr_stress
+
+## -- PVIM  1604581917 (HQM Traffic pipeline occupancy test)
+####AY_TEMP####   hcw_pipeline_stress_test:si_0 -dut hqm -model hqm -hqmi_debug -hqms_debug
+####AY_TEMP####   hcw_pipeline_stress_test:si_1024 -dut hqm -model hqm -hqmi_debug -hqms_debug
+####AY_TEMP####   hcw_pipeline_stress_test:si_2048 -dut hqm -model hqm -hqmi_debug -hqms_debug
+####AY_TEMP####   hcw_pipeline_stress_test:si_3072 -dut hqm -model hqm -hqmi_debug -hqms_debug
+####AY_TEMP####   hcw_pipeline_stress_test:si_4096 -dut hqm -model hqm -hqmi_debug -hqms_debug
+####AY_TEMP####   hcw_pipeline_stress_test:si_5120 -dut hqm -model hqm -hqmi_debug -hqms_debug
+####AY_TEMP####   hcw_pipeline_stress_test:si_6144 -dut hqm -model hqm -hqmi_debug -hqms_debug
+####AY_TEMP####   hcw_pipeline_stress_test:si_7168 -dut hqm -model hqm -hqmi_debug -hqms_debug
+####AY_TEMP####   hcw_pipeline_stress_test:si_8192 -dut hqm -model hqm -hqmi_debug -hqms_debug
+####AY_TEMP####   hcw_pipeline_stress_test:si_9216 -dut hqm -model hqm -hqmi_debug -hqms_debug
+####AY_TEMP####   hcw_pipeline_stress_test:si_10240 -dut hqm -model hqm -hqmi_debug -hqms_debug
+####AY_TEMP####   hcw_pipeline_stress_test:si_11264 -dut hqm -model hqm -hqmi_debug -hqms_debug
+####AY_TEMP####   hcw_pipeline_stress_test:si_12288 -dut hqm -model hqm -hqmi_debug -hqms_debug
+####AY_TEMP####   hcw_pipeline_stress_test:si_13312 -dut hqm -model hqm -hqmi_debug -hqms_debug
+####AY_TEMP####   hcw_pipeline_stress_test:si_14336 -dut hqm -model hqm -hqmi_debug -hqms_debug
+####AY_TEMP####   hcw_pipeline_stress_test:si_15360 -dut hqm -model hqm -hqmi_debug -hqms_debug
+####AY_TEMP####   hcw_pipeline_stress_test:si_16384 -dut hqm -model hqm -hqmi_debug -hqms_debug
+####AY_TEMP####   hcw_pipeline_stress_test:si_17408 -dut hqm -model hqm -hqmi_debug -hqms_debug
+####AY_TEMP####   hcw_pipeline_stress_test:si_18432 -dut hqm -model hqm -hqmi_debug -hqms_debug
+####AY_TEMP####   hcw_pipeline_stress_test:si_19456 -dut hqm -model hqm -hqmi_debug -hqms_debug
+####AY_TEMP####   hcw_pipeline_stress_test:si_20480 -dut hqm -model hqm -hqmi_debug -hqms_debug
+####AY_TEMP####   hcw_pipeline_stress_test:si_21504 -dut hqm -model hqm -hqmi_debug -hqms_debug
+####AY_TEMP####   hcw_pipeline_stress_test:si_22528 -dut hqm -model hqm -hqmi_debug -hqms_debug
+####AY_TEMP####   hcw_pipeline_stress_test:si_23552 -dut hqm -model hqm -hqmi_debug -hqms_debug
+####AY_TEMP####   hcw_pipeline_stress_test:si_24576 -dut hqm -model hqm -hqmi_debug -hqms_debug
+####AY_TEMP####   hcw_pipeline_stress_test:si_25600 -dut hqm -model hqm -hqmi_debug -hqms_debug
+####AY_TEMP####   hcw_pipeline_stress_test:si_26624 -dut hqm -model hqm -hqmi_debug -hqms_debug
+####AY_TEMP####   hcw_pipeline_stress_test:si_27648 -dut hqm -model hqm -hqmi_debug -hqms_debug
+####AY_TEMP####   hcw_pipeline_stress_test:si_28672 -dut hqm -model hqm -hqmi_debug -hqms_debug
+####AY_TEMP####   hcw_pipeline_stress_test:si_29696 -dut hqm -model hqm -hqmi_debug -hqms_debug
+####AY_TEMP####   hcw_pipeline_stress_test:si_30720 -dut hqm -model hqm -hqmi_debug -hqms_debug
+####AY_TEMP####   hcw_pipeline_stress_test:si_31744 -dut hqm -model hqm -hqmi_debug -hqms_debug
+
+.repeat
+##PVIM: 1604581930 : Run traffic using all PPs, CQs, and QIDs. Use PF only
+hqm_cfg_test:hcw_traffic_all_resources_pf -dirtag hcw_traffic_all_resources_pf 
+
+## PVIM 1604581932
+####AY_RM_VF_V30 hqm_cfg_test:hcw_traffic_ldb_resources_vf -dirtag hcw_traffic_ldb_resources_vf 
+
+.include hqm_fifo_hwm_stress.list
+
+# PVIM 1409201996
+.include hcw_gnt_req_perf.list
+
+# PVIM 1409202101
+hcw_pf_test:q8_oob_msm -dirtag q8_oob_msm -dut hqm -model hqm
+hqm_cfg_test:hcw_traffic_all_resources_pf_oob_msm -dirtag hcw_traffic_all_resources_pf_oob_msm -model hqm -dut hqm

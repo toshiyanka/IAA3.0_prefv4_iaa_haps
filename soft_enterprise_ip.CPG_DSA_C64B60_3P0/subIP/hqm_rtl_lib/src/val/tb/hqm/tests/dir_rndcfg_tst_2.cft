@@ -1,0 +1,32 @@
+cfg_begin
+    rndcfg num_ldb_pool=0
+    rndcfg num_dir_pool=2  max_num_pp_per_dir_pool=8  max_num_pkt_per_pool=90   min_num_pkt_per_pool=10
+    rndcfg pool_d0_num_pp=4
+    rndcfg pool_d0_weight=20 pool_d0_num_pkt=90
+    rndcfg pool_d0_credit_cnt=128
+    rndcfg pool_d0_credit_limit=256
+    rndcfg pool_d0_freelist_base=100
+    rndcfg pool_d0_freelist_limit=200
+    rndcfg pool_d0_test_name=hcw_enqueue_seq
+
+    rndcfg pool_d0_pp_0_num_pkt=10  pool_d0_pp_0_weight=30
+    rndcfg pool_d0_pp_1_num_pkt=25  pool_d0_pp_1_weight=10
+    rndcfg pool_d0_pp_2_num_pkt=20  pool_d0_pp_2_weight=10
+    rndcfg pool_d0_pp_3_num_pkt=15  pool_d0_pp_3_weight=2
+
+    rndcfg pool_d1_num_pp=6
+    rndcfg pool_d1_weight=40 pool_d1_num_pkt=30 pool_d1_credit_cnt=128  pool_d1_credit_limit=256
+
+cfg_end
+
+runtst sys_init=pool
+
+    rd hqm_pf_cfg_i.vendor_id
+    idle 600
+
+runtst go=1
+
+rd hqm_pf_cfg_i.device_id
+
+
+

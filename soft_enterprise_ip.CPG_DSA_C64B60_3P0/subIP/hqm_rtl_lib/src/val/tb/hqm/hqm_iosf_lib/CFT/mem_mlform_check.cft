@@ -1,0 +1,33 @@
+
+
+#check aer_cap_uncorr_err_status  and expext  malformed TLP
+rd hqm_pf_cfg_i.aer_cap_uncorr_err_status 0x00040000
+
+#check aer_corr err status
+rd  hqm_pf_cfg_i.aer_cap_corr_err_status 0x00000000
+
+
+#Check register  update happened or not
+rd hqm_system_csr.cmpl_data_fifo_ctl 0x0000000C
+rd hqm_system_csr.cmpl_hdr_fifo_ctl  0x00000006
+#check ERror status and expect fatal
+rd hqm_pf_cfg_i.pcie_cap_device_status 0x0004
+
+#check device status and to be set
+rd hqm_pf_cfg_i.device_status 0x0010
+
+#EOT check 
+
+ 
+wr hqm_pf_cfg_i.aer_cap_uncorr_err_status 0xFFFFFFFF
+rd hqm_pf_cfg_i.aer_cap_uncorr_err_status 0x00000000
+
+wr hqm_pf_cfg_i.device_status 0xFFFF
+rd hqm_pf_cfg_i.device_status 0x0010
+
+wr  hqm_pf_cfg_i.aer_cap_corr_err_status 0xFFFFFFFF
+rd  hqm_pf_cfg_i.aer_cap_corr_err_status 0x00000000
+
+wr hqm_pf_cfg_i.pcie_cap_device_status 0xFFFF
+rd hqm_pf_cfg_i.pcie_cap_device_status 0x0000 
+

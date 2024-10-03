@@ -1,0 +1,16 @@
+cfg_begin
+   
+   dir qid DQ_T:*
+
+   vas VS dir_qidv:DQ_T=1
+
+   ## -- Test DIR CQ
+   dir pp DQ_T vas=VS
+   dir cq DQ_T cq_depth=64 gpa=sm cq_depth_intr_thresh=63 cq_depth_intr_ena=1
+   msix_cq 9 addr=0xaaaa5555aaaa5555 data=0x5555aaaa is_ldb=0 cq=DQ_T
+
+cfg_end
+
+wr credit_hist_pipe.cfg_dir_cq_intr_armed0 0xffffffff
+wr credit_hist_pipe.cfg_dir_cq_intr_armed1 0xffffffff
+idle 1000

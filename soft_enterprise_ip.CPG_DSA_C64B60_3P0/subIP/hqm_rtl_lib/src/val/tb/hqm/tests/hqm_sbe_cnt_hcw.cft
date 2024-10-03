@@ -1,0 +1,118 @@
+
+# Enable MSI-X
+wr hqm_pf_cfg_i.msix_cap_control     0x8000
+
+rd hqm_system_csr.alarm_hw_synd      0x00000000
+rd hqm_system_csr.alarm_pf_synd0     0x00000000
+rd hqm_system_csr.alarm_pf_synd1     0x00000000
+rd hqm_system_csr.alarm_pf_synd2     0x00000000
+rd hqm_system_csr.sbe_cnt_0          0x00000000
+rd hqm_system_csr.sbe_cnt_1          0x00000000
+
+#########################################################################################################################
+# Inject SB ECC errors
+wr hqm_system_csr.ecc_ctl.INJ_SB_ECC_HCW_ENQ_MS 1
+rd hqm_system_csr.ecc_ctl.INJ_SB_ECC_HCW_ENQ_MS 1
+HCW DIR:QID_0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=dir qid=QID_0 dsi=0x300
+msix_alarm_wait 1000
+rd hqm_system_csr.sbe_cnt_0          0x00000001
+rd hqm_system_csr.sbe_cnt_1          0x00000000
+rd hqm_system_csr.alarm_sb_ecc_err   0x00000100
+wr hqm_system_csr.alarm_sb_ecc_err   0x00000100
+rd hqm_system_csr.alarm_hw_synd      0x80484500 0xffffff00  # v=1 m=0 src=0 unit=1 aid=09 cls=1 alarm=1 rtype=1 rid=pp
+wr hqm_system_csr.alarm_hw_synd      0x80000000
+wr hqm_system_csr.msix_ack.MSIX_0_ACK 1
+
+wr hqm_system_csr.sbe_cnt_0          0xffffffff
+wr hqm_system_csr.sbe_cnt_1          0x7fffffff
+rd hqm_system_csr.sbe_cnt_0          0xffffffff
+rd hqm_system_csr.sbe_cnt_1          0x7fffffff
+
+wr hqm_system_csr.ecc_ctl.INJ_SB_ECC_HCW_ENQ_LS 1
+rd hqm_system_csr.ecc_ctl.INJ_SB_ECC_HCW_ENQ_LS 1
+HCW DIR:QID_0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=dir qid=QID_0 dsi=0x300
+msix_alarm_wait 1000
+rd hqm_system_csr.sbe_cnt_0          0x00000000
+rd hqm_system_csr.sbe_cnt_1          0x80000000
+rd hqm_system_csr.alarm_sb_ecc_err   0x00000080
+wr hqm_system_csr.alarm_sb_ecc_err   0x00000080
+rd hqm_system_csr.alarm_hw_synd      0x80474500 0xffffff00  # v=1 m=0 src=0 unit=1 aid=08 cls=1 alarm=1 rtype=1 rid=pp
+wr hqm_system_csr.alarm_hw_synd      0x80000000
+wr hqm_system_csr.msix_ack.MSIX_0_ACK 1
+
+wr hqm_system_csr.ecc_ctl.INJ_SB_ECC_WBUF_W0_LS 1
+rd hqm_system_csr.ecc_ctl.INJ_SB_ECC_WBUF_W0_LS 1
+HCW DIR:QID_0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x123 msgtype=0 qpri=0 qtype=dir qid=QID_0 dsi=0x300
+msix_alarm_wait 1000
+rd hqm_system_csr.sbe_cnt_0          0x00000001
+rd hqm_system_csr.sbe_cnt_1          0x80000000
+rd hqm_system_csr.alarm_sb_ecc_err   0x00000001
+wr hqm_system_csr.alarm_sb_ecc_err   0x00000001
+rd hqm_system_csr.alarm_hw_synd      0x80404500 0xffffff00  # v=1 m=0 src=0 unit=1 aid=00 cls=1 alarm=1 rtype=1 rid=pp
+wr hqm_system_csr.alarm_hw_synd      0x80000000
+wr hqm_system_csr.msix_ack.MSIX_0_ACK 1
+
+wr hqm_system_csr.ecc_ctl.INJ_SB_ECC_WBUF_W0_MS 1
+rd hqm_system_csr.ecc_ctl.INJ_SB_ECC_WBUF_W0_MS 1
+HCW DIR:QID_0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0xedc msgtype=0 qpri=0 qtype=dir qid=QID_0 dsi=0x300
+msix_alarm_wait 1000
+rd hqm_system_csr.sbe_cnt_0          0x00000002
+rd hqm_system_csr.sbe_cnt_1          0x80000000
+rd hqm_system_csr.alarm_sb_ecc_err   0x00000002
+wr hqm_system_csr.alarm_sb_ecc_err   0x00000002
+rd hqm_system_csr.alarm_hw_synd      0x80414500 0xffffff00  # v=1 m=0 src=0 unit=1 aid=01 cls=1 alarm=1 rtype=1 rid=pp
+wr hqm_system_csr.alarm_hw_synd      0x80000000
+wr hqm_system_csr.msix_ack.MSIX_0_ACK 1
+
+wr hqm_system_csr.ecc_ctl.INJ_SB_ECC_WBUF_W1_LS 1
+rd hqm_system_csr.ecc_ctl.INJ_SB_ECC_WBUF_W1_LS 1
+HCW DIR:QID_0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=dir qid=QID_0 dsi=0x300 batch=1
+HCW DIR:QID_0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=dir qid=QID_0 dsi=0x300 batch=1
+HCW DIR:QID_0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=dir qid=QID_0 dsi=0x300 batch=1
+HCW DIR:QID_0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=dir qid=QID_0 dsi=0x300
+HCW DIR:QID_0 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x003 msgtype=0 qpri=0 qtype=dir qid=QID_0 dsi=0x300
+msix_alarm_wait 1000
+rd hqm_system_csr.sbe_cnt_0          0x00000003
+rd hqm_system_csr.sbe_cnt_1          0x80000000
+rd hqm_system_csr.alarm_sb_ecc_err   0x00000004
+wr hqm_system_csr.alarm_sb_ecc_err   0x00000004
+rd hqm_system_csr.alarm_hw_synd      0x80424500 0xffffff00  # v=1 m=0 src=0 unit=1 aid=02 cls=1 alarm=1 rtype=1 rid=pp
+wr hqm_system_csr.alarm_hw_synd      0x80000000
+wr hqm_system_csr.msix_ack.MSIX_0_ACK 1
+
+wr hqm_system_csr.ecc_ctl.INJ_SB_ECC_WBUF_W1_MS 1
+rd hqm_system_csr.ecc_ctl.INJ_SB_ECC_WBUF_W1_MS 1
+HCW DIR:QID_0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=dir qid=QID_0 dsi=0x300 batch=1
+HCW DIR:QID_0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=dir qid=QID_0 dsi=0x300 batch=1
+HCW DIR:QID_0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=dir qid=QID_0 dsi=0x300 batch=1
+HCW DIR:QID_0 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=dir qid=QID_0 dsi=0x300
+HCW DIR:QID_0 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x003 msgtype=0 qpri=0 qtype=dir qid=QID_0 dsi=0x300
+msix_alarm_wait 1000
+rd hqm_system_csr.sbe_cnt_0          0x00000004
+rd hqm_system_csr.sbe_cnt_1          0x80000000
+rd hqm_system_csr.alarm_sb_ecc_err   0x00000008
+wr hqm_system_csr.alarm_sb_ecc_err   0x00000008
+rd hqm_system_csr.alarm_hw_synd      0x80434500 0xffffff00  # v=1 m=0 src=0 unit=1 aid=03 cls=1 alarm=1 rtype=1 rid=pp
+wr hqm_system_csr.alarm_hw_synd      0x80000000
+wr hqm_system_csr.msix_ack.MSIX_0_ACK 1
+
+rd hqm_system_csr.alarm_hw_synd      0x00000000 0x80000000
+rd hqm_system_csr.alarm_pf_synd0     0x00000000
+rd hqm_system_csr.alarm_pf_synd1     0x00000000
+rd hqm_system_csr.alarm_pf_synd2     0x00000000
+rd hqm_system_csr.alarm_sb_ecc_err   0x00000000
+
+wr hqm_system_csr.sbe_cnt_0          0x00000000
+rd hqm_system_csr.sbe_cnt_0          0x00000000
+rd hqm_system_csr.sbe_cnt_1          0x80000000
+wr hqm_system_csr.sbe_cnt_1          0x00000000
+rd hqm_system_csr.sbe_cnt_0          0x00000000
+rd hqm_system_csr.sbe_cnt_1          0x00000000
+
+# MSI-Xs
+rd hqm_system_csr.hqm_system_cnt_14  0x00000006
+rd hqm_system_csr.hqm_system_cnt_15  0x00000000
+
+HCW DIR:QID_0 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x003 msgtype=0 qpri=0 qtype=dir qid=QID_0 dsi=0x300
+
+IDLE 500

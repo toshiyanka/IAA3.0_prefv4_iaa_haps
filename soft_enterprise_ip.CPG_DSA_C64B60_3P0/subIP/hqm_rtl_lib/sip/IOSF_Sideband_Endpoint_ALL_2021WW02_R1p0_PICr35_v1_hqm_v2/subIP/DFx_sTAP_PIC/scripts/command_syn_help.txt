@@ -1,0 +1,133 @@
+#######################################################HSD Start############################################################
+Note: 
+1. The utility "da_get_clock_pins" is not available in the RDT flow used at IP level.
+2. Since the boundary of the IP ends on the port, the synthesis directive "-through" doesnt get apllied at the IP level. Hence we used a "-to".
+
+#MCP validated for KBH/CNPLP requirement
+1)SCON 1/2/3: 
+      set_multicycle_path -setup 2 -end -from [da_get_clock_pins */*/*dfx*/clstr_slave_tap/i_stap_tdomux/stap_mux_tdo_int_reg] -through [get_pins */*/*dfx*/clstr_slave_tap/atap_tdo]
+      set_multicycle_path -hold 1 -end -from [da_get_clock_pins */*/*dfx*/clstr_slave_tap/i_stap_tdomux/stap_mux_tdo_int_reg] -through [get_pins */*/*dfx*/clstr_slave_tap/atap_tdo]
+
+      set_multicycle_path -setup 2 -end -from [da_get_clock_pins */*/*dfx*/rgnl_slave_tap/i_stap_tdomux/stap_mux_tdo_int_reg] -through [get_pins */*/*dfx*/rgnl_slave_tap/atap_tdo]
+      set_multicycle_path -hold 1 -end -from [da_get_clock_pins */*/*dfx*/rgcl_slave_tap/i_stap_tdomux/stap_mux_tdo_int_reg] -through [get_pins */*/*dfx*/rgnl_slave_tap/atap_tdo]
+
+      set_multicycle_path -setup 2 -end -from [da_get_clock_pins */*/mst_dfx_core1/mst_stap/i_stap_tdomux/stap_mux_tdo_int_reg] -through [get_pins */*/mst_dfx_core1/mst_stap/atap_tdo]
+      set_multicycle_path -hold 1 -end -from [da_get_clock_pins */*/mst_dfx_core1/mst_stap/i_stap_tdomux/stap_mux_tdo_int_reg] -through [get_pins */*/mst_dfx_core1/mst_stap/atap_tdo]
+
+
+      Validated at the IP level:
+	  All three MCP fall under single bucket at IP level. 
+
+      set_multicycle_path -setup -end -from [get_pins i_stap_tdomux/stap_mux_tdo_int_reg/clkb] -to [get_ports atap_tdo] 2
+      set_multicycle_path -hold -end -from [get_pins i_stap_tdomux/stap_mux_tdo_int_reg/clkb] -to [get_ports atap_tdo] 1
+      report_timing -from [get_pins i_stap_tdomux/stap_mux_tdo_int_reg/clkb] -to [get_ports atap_tdo]
+ 
+ ######################################################BEFORE MCP APPLICATION###########################################################
+ 
+ Startpoint: i_stap_tdomux/stap_mux_tdo_int_reg
+              (falling edge-triggered flip-flop clocked by ftap_tck)
+  Endpoint: atap_tdo (output port clocked by ftapsslv_tck)
+  Path Group: OUTPUT_PATHS
+  Path Type: max
+
+  Des/Clust/Port     Wire Load Model       Library
+  ------------------------------------------------
+  stap               unit_wl               p1273_custom_wireload
+
+  Point                                                   Incr       Path
+  --------------------------------------------------------------------------
+  clock ftap_tck (fall edge)                          3759.398   3759.398
+  clock network delay (ideal)                            0.000   3759.398
+  i_stap_tdomux/stap_mux_tdo_int_reg/clkb (d04fyn8fld0a5)
+                                                         0.000   3759.398 f
+  i_stap_tdomux/stap_mux_tdo_int_reg/o (d04fyn8fld0a5)
+                                                       279.458   4038.856 r
+  i_stap_tdomux/i_stap_ctech_lib_mux_2to1_tdo_posedge_i_ctech_lib_mux_2to1_ctech_lib_dcszo/o (d04mtk22ln0a5)
+                                                        46.326   4085.182 r
+  i_stap_tdomux/stap_mux_tdo (stap_stap_tdomux_0)        0.000   4085.182 r
+  i_stap_glue/stap_mux_tdo (stap_stap_glue_0)            0.000   4085.182 r
+  i_stap_glue/U3/o (d04bfn00ln0a5)                      22.067   4107.249 r
+  i_stap_glue/pre_tdo (stap_stap_glue_0)                 0.000   4107.249 r
+  atap_tdo (out)                                         0.337   4107.586 r
+  data arrival time                                              4107.586
+
+  clock ftapsslv_tck (rise edge)                      7518.797   7518.797
+  clock network delay (ideal)                            0.000   7518.797
+  clock uncertainty                                   -300.000   7218.797
+  output external delay                               -3000.000  4218.797
+  data required time                                             4218.797
+  --------------------------------------------------------------------------
+  data required time                                             4218.797
+  data arrival time                                              -4107.586
+  --------------------------------------------------------------------------
+  slack (MET)                                                     111.211
+
+
+
+#####################################################AFTER MCP #####################################################
+
+Startpoint: i_stap_tdomux/stap_mux_tdo_int_reg
+              (falling edge-triggered flip-flop clocked by ftap_tck)
+  Endpoint: atap_tdo (output port clocked by ftapsslv_tck)
+  Path Group: OUTPUT_PATHS
+  Path Type: max
+
+  Des/Clust/Port     Wire Load Model       Library
+  ------------------------------------------------
+  stap               unit_wl               p1273_custom_wireload
+
+  Point                                                   Incr       Path
+  --------------------------------------------------------------------------
+  clock ftap_tck (fall edge)                          3759.398   3759.398
+  clock network delay (ideal)                            0.000   3759.398
+  i_stap_tdomux/stap_mux_tdo_int_reg/clkb (d04fyn8fld0a5)
+                                                         0.000   3759.398 f
+  i_stap_tdomux/stap_mux_tdo_int_reg/o (d04fyn8fld0a5)
+                                                       279.458   4038.856 r
+  i_stap_tdomux/i_stap_ctech_lib_mux_2to1_tdo_posedge_i_ctech_lib_mux_2to1_ctech_lib_dcszo/o (d04mtk22ln0a5)
+                                                        46.326   4085.182 r
+  i_stap_tdomux/stap_mux_tdo (stap_stap_tdomux_0)        0.000   4085.182 r
+  i_stap_glue/stap_mux_tdo (stap_stap_glue_0)            0.000   4085.182 r
+  i_stap_glue/U3/o (d04bfn00ln0a5)                      22.067   4107.249 r
+  i_stap_glue/pre_tdo (stap_stap_glue_0)                 0.000   4107.249 r
+  atap_tdo (out)                                         0.337   4107.586 r
+  data arrival time                                              4107.586
+
+  clock ftapsslv_tck (rise edge)                      15037.594  15037.594
+  clock network delay (ideal)                            0.000   15037.594
+  clock uncertainty                                   -300.000   14737.594
+  output external delay                               -3000.000  11737.594
+  data required time                                             11737.594
+  --------------------------------------------------------------------------
+  data required time                                             11737.594
+  data arrival time                                              -4107.586
+  --------------------------------------------------------------------------
+  slack (MET)                                                    7630.008
+
+############################################################SCON 1 complete########################################################### 
+############################################################    HSD END    ########################################################### 
+###################################################################################################################################### 
+-----------Learning Start
+Get all the modules inside the design with parameter RTAP_ENABLE_TDO_POS_EDGE= 1
+--------------------------------------
+Q: dc_shell> get_cells
+A: {{U3 U4 i_stap_ctech_lib_clk_buf_rtdr_i_ctech_lib_clk_buf_ctech_lib_dcszo U25 U26 U27 U28 U29 U30 U31 U32 U33 U34 U35 U36 U37 U38 U39 i_stap_fsm i_stap_irreg i_stap_irdecoder i_stap_drreg i_stap_tdomux i_stap_glue i_stap_dfxsecure_plugin U24 U40 U41 U42 U43 U44 U45 U46 U47 U48 U49 U50 U51 U52 U53 U54 U55 U56 U57 U58 U59 U60 U61 U62 U63 U64 U65 U66 U67 U68 U69 U70 U71 U72 U73 U74 U75 U76 U77}
+
+#Find the fanin to the d input of stap_mux_tdo register
+--------------------------------------
+Q: dc_shell> all_fanin -to [get_pins i_stap_tdomux/stap_mux_tdo_int_reg/d] -flat -startpoints_only
+A: {i_stap_irreg/stap_irreg_ireg_reg_2/clkb i_stap_irreg/stap_irreg_ireg_reg_3/clkb i_stap_irreg/stap_irreg_ireg_reg_0/clkb i_stap_irreg/stap_irreg_ireg_reg_1/clkb i_stap_irreg/stap_irreg_ireg_reg_6/clkb i_stap_irreg/stap_irreg_ireg_reg_7/clkb i_stap_irreg/stap_irreg_ireg_reg_4/clkb i_stap_irreg/stap_irreg_ireg_reg_5/clkb i_stap_drreg/bypass_reg_reg/clk i_stap_irreg/shift_reg_reg_0/clk i_stap_irdecoder/stap_irdecoder_drselect_reg_1/clkb i_stap_drreg/slvidcode_reg_reg_0/clk i_stap_irdecoder/stap_irdecoder_drselect_reg_0/clkb i_stap_fsm/state_ps_reg_4/clk i_stap_fsm/state_ps_reg_11/clk i_stap_tdomux/stap_mux_tdo_int_reg/clkb i_stap_fsm/state_ps_reg_0/clk}
+
+
+#Find the fanin to the rst input of stap_tdo_mux register
+--------------------------------------
+Q: dc_shell> all_fanin -to [get_pins i_stap_tdomux/stap_mux_tdo_int_reg/r*] -flat -startpoints_only
+A: {ftap_trst_b fdfx_powergood}
+
+
+#Find the fanout from the o output of stap_tdo_mux register
+--------------------------------------
+Q: dc_shell> all_fanout -from [get_pins i_stap_tdomux/stap_mux_tdo_int_reg/o] -flat -endpoints_only
+A: {i_stap_tdomux/stap_mux_tdo_int_reg/d atap_tdo}
+
+----------Learning End 

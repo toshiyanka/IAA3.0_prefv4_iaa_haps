@@ -1,0 +1,10 @@
+$MODEL_ROOT/src/rtl/common/pgcb_ctech_map.sv
+$MODEL_ROOT/verif/pcgu_ref/rtl/pgcbcg.sv
+$MODEL_ROOT/src/rtl/pcguunit/pcgu_aww.sv
+$MODEL_ROOT/src/rtl/pcguunit/pcgu.sv
+$GLOBAL_CTECH_ROOT/source/v/ctech_lib_doublesync_rstb.v
+$GLOBAL_CTECH_ROOT/source/v/ctech_lib_doublesync_setb.v
+$GLOBAL_CTECH_ROOT/source/v/ctech_lib_mux_2to1.v
+$GLOBAL_CTECH_ROOT/source/v/ctech_lib_dq.v
+$GLOBAL_CTECH_ROOT/source/v/ctech_lib_clk_gate_te.v
+$GLOBAL_CTECH_ROOT/source/v/ctech_lib_clk_buf.v

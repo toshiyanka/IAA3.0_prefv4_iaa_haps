@@ -1,0 +1,960 @@
+#!/usr/bin/python
+######################################################################################################
+# emul_build_soc - Emulation/FPGA Model Build Utility from EmCoE
+# For full documentation on this utility and related tools, please visit: http://goto/emulation
+# To download latest version of this utility, visit EmCoE SVN Repo:
+# https://gforge.pdx.intel.com/svn/emul/tools/
+#
+# This is a simplified, modular, unified front-end interface for ALL emulation and FPGA friendly
+# RTL compliance checking and full-functional model builds. This is integrated into ACE simulation
+# environment which is widely used by SoC projects along with numerous IP providers.
+#
+# The goal of this utility is to facilitate FPGA/Emulation friendly RTL developlement at source
+# by providing simplicity and high-degree of ease-of-complaince-checking. This utility also supports
+# large scale automation of complete emulation and fpga (hybrid) model builds.
+#
+# This utility integrates a number of emulation and fpga tools for different platforms from a number
+# of developers, open-source and vendor tools. Most of utilities have originated as BKMs from different
+# emulation and FPGA teams.
+#
+# This utility is project independent and requires a project-level configuration file: emul_build_soc.cfg
+# This file typically lives in a project design repo: $SOC_ROOT/ace/emul/ dir.
+# To downnload or to see example templates in use by other projects team, please visit the CoE SVN Repository:
+# https://gforge.pdx.intel.com/svn/emul/flows/
+#
+# In conjuction with the emul_build_soc.cfg this utility provides a "makefile" type dependency for
+# parallel or serial execution of sub-flows with ease-of-enable or disable controls managed by
+# specific project emulation team.  This facilitates project-level control and customization of the
+# flows required by a design project.
+#
+# This utility is called by using "ace -emul" cmd or can run stand-alone. Run emul_build_soc -help
+# for usage details. 
+#
+# For more current information on this utility, please visit:
+# http://goto/emulation    or email emul_support@intel.com
+#
+# Architect: Jai Kumar
+# Modified by: Leena N. Saha
+#
+#
+# Copyright (c) 2013 Intel Corporation
+# Intel Confidential
+#
+# Archive information:
+#       $Author: jkumar2 $
+#	$EFFM_VERSION: 2014.33
+#
+#####################################################################
+
+import os
+import sys
+import string
+import subprocess
+import time
+import datetime
+import re
+import socket
+import shutil
+import getopt
+import pdb
+import commands
+###################
+
+#### GLOBAL USER CONFIGURABLE VARIABLES ####
+tool_ver = "2014.33"
+##add a global logging mechanism when available
+global_usage_log = '.ebs_stats'
+#global_track_log = '.ebs_stats'
+####
+
+inc_mode_log = '.emul_inc.log'
+status_file = 'emul_build_soc_status.log'
+
+#### GLOBAL VARIABLE ####
+parallel_flow_cpus = 16
+batch2run = {}
+params_dict = {}
+user_param_dict = {}
+batch2run['NONE'] = 1
+in_run = 0
+process ={}
+run_flow = []
+run_batch_name = []
+batch_print = {}
+cfg_file = ""
+cfg_dir = ""
+cfg = ""
+ready2exec = []
+
+#### Dependency Variables ####
+dep_list = {}
+batch_passed = {}
+batch_passed["NONE"] = 1
+batch_failed = {}
+words2 = ""
+
+
+
+
+## LOGGING
+status_log = open(status_file, 'w') # Cleaning up previous log.
+status_log.close()
+
+
+
+def fatal_error(*text):
+# variable number of args can be sent. All will be received as a tupple
+  #sys.exit("ERROR: Not all required command line arguments provided! \n" + " ".join((text)))
+  print ("\n-E- ERROR: " + " ".join((text)))
+  status_log = open(status_file, 'a')
+  status_log.write(time.asctime(time.localtime(time.time())))
+  status_log.write(" FATAL:\t")
+  status_log.write(" ".join(text)+ "\n")
+  status_log.close()
+  sys.exit(2)
+
+def info_log(*text):
+  status_log = open(status_file, 'a')
+  status_log.write(time.asctime(time.localtime(time.time())))
+  status_log.write(" INFO:\t")
+  status_log.write(" ".join(text)+ "\n")
+  status_log.close()
+
+def error_log(*text):
+  status_log = open(status_file, 'a')
+  status_log.write(time.asctime(time.localtime(time.time())))
+  status_log.write(" -E- ERROR:\t")
+  status_log.write(" ".join(text)+ "\n")
+  status_log.close( )
+
+
+def print_usage():
+  print("""
+################################################################################
+# HELP
+################################################################################
+
+NAME
+
+emul_build_soc - emulation/fpga EFM Checker and model builder for SoC and IP projects
+
+DESCRIPTION
+
+This is a simplified, modular, unified front-end interface for ALL emulation and FPGA friendly RTL compliance checking and full-functional model builds. This is integrated into ACE simulation env and is called by ace -emul or can be run stand-alone. This utility integrates a number of emulation and fpga tools for different platforms from a number of developers, open-source and vendor tools. Most of utilities have originated as BKMs from different emulation and FPGA teams.
+
+This utility is project independent and requires a project-level configuration file: emul_build_soc.cfg
+Project-level customization is accomplished thru this configuration file.
+
+Different emulation and fpga flow jobs are launched sequentially or in parallel as specified and enabled in the configuration file. 
+
+
+SYNOPSIS
+
+emul_build_soc [OPTIONS]
+
+    where supported  [OPTIONS] are:
+
+          [--dut <dut_name>]
+                      : Optional.
+          [--top <top>]
+                      : Optional. If not specified, dut specified thru ACE HDL files
+
+          [--param <PARAM_KEY> <PARAM_VALUE>]
+                      : Optional, parameters in config file that needs to be overridden with cmd line specified value.
+
+          [--run_flow <flow_name>]
+                      : Optional, runs specified EFM RTL compliance checking or model build flows. Flow names can also be 
+		      specified directly on the command line without the '--run_flow' prefix.
+                        The specified flow and its dependent flows are launched in parallel.
+                        
+                        If "--run_flow" is not specified, the "DEFAULT" flow enabled in the config file will be run.
+                        
+                        To list all flows enabled for the project, use --show_flow
+                        
+          [--show_flow ]
+                      : Optional, shows a list of flows enabled in the provided tool configuration file.  
+
+          [--cfg <cfg_file/cfg_dir> ]
+                      : Optional, Path to the tool/project configuration (emul_build_soc.cfg) file or the dir that contains the tool configuraton and related build support files.
+                      
+                        If "--cfg" is not specified, the value is picked up from env var: EMU_CFG_DIR.
+                        A tool configuration file (emul_build_soc.cfg) file is required thru one of above mechanisms. For most users running this tool thru ACE, the configuration file is auto provided.
+                       
+          [-h | -help]    :  Provides this usage help information.
+
+
+
+EXAMPLE:
+   emul_build_soc -help
+   emul_build_soc --show_flow                    ##Lists all flows that can be executed
+   emul_build_soc --cfg emul_build_soc.cfg       ##Runs the DEFAULT flow from specified config file    
+   emul_build_soc --cfg_dir <cfg_dirname> --run_flow <flow_name> -dut <dut_name> -top <top_module>  
+   
+Check file emul_build_soc_status.log for a summary of flows executed and their run status.     
+
+""")
+
+#=================================
+# Parse config for enabled flows
+#=================================
+
+def parse_enabled_flows(config_path):
+
+    ## Regex group extraction
+    ## Python persistent file marker
+    enabled_flows = []
+    disabled_flows = []
+    enabled_flow_set = set()
+    fin = open(config_path)
+    for line in fin:
+        clean_line = line.strip()
+        m1 = re.match('#',clean_line)
+        m2 = re.search('(?<=RUN)\w+', clean_line)
+        m3 = re.match('RUN',clean_line)
+        if (m3 and (not (m1)) and (not (m2))):
+            for line in fin:
+                clean_line = line.strip()
+                m4 = re.search('([\w.-]+)\s+([\w.-]+)', clean_line)
+                m5 = re.match('#',clean_line)
+                if (not (m5) and m4 and (not ('END_RUN' in clean_line))):
+                    if 'ENABLED' in m4.group(2):
+                        enabled_flows.append(m4.group(1))
+                    elif 'DISABLED' in m4.group(2):
+                        disabled_flows.append(m4.group(1))
+    enabled_flow_set = sorted(set(enabled_flows))
+    return enabled_flow_set
+
+             
+#==========================
+# Command Line Parsing
+#==========================
+def parse_command():
+ trailing_opts = []
+ try:
+  options, trailing_opts = getopt.getopt(sys.argv[1:], 'h',
+                                                 ['help',
+                                                 'cfg=',  
+                                                 'cfg_dir=',
+                                                 'cfg_file=',
+                                                 'debug',
+                                                 'params=',
+                                                 'run_stage=', # Temporary for ACE capability
+                                                 'run_flow=',
+                                                 'show_flow',
+                                                 'top=',
+  
+                                                       ])
+
+
+ except getopt.GetoptError:
+   # print help information and exit:
+   print "-E- ERROR:Invalid command line option"  
+   print_usage()
+   sys.exit(2)
+  
+
+ for opt, arg in options:
+    if opt in ('-h', '--help'):
+         output_filename = arg
+         print_usage()
+         sys.exit(2)
+    if opt in ('--top'):
+         top = arg
+         os.environ['TOP'] = top
+    if opt in ('--cfg_dir'):
+         global cfg
+         global cfg_dir
+         global cfg_file
+         cfg_dir = arg
+         cfg = arg 
+	 os.environ['EMU_CFG_DIR'] = cfg_dir
+         cfg_file = os.path.join(cfg_dir, 'emul_build_soc.cfg')
+
+    if opt in ('--cfg' ):
+        #global cfg
+        #global cfg_dir
+        #global cfg_file
+        cfg = arg
+        if(os.path.isdir(cfg) == True):        
+           cfg_dir = cfg
+           if not os.path.exists(cfg_dir):
+             fatal_error("Unable to locate config dir : " +cfg_dir)
+           else:
+             os.environ['EMU_CFG_DIR'] = cfg_dir
+             cfg_file = os.path.join(cfg_dir, 'emul_build_soc.cfg')
+             if not os.path.isfile(cfg_file):
+               fatal_error("Cannot find emul_build_soc.cfg in " +cfg_dir)
+             else:
+               cfg_file = os.path.join(cfg_dir, 'emul_build_soc.cfg')
+        else: 
+           if not os.path.exists(cfg): 
+             fatal_error("Cannot find " +cfg+"  config file in the specified dir\n")  
+           else:  
+             cfg_file = cfg
+             cfg_dir = os.getcwd()
+             os.environ['EMU_CFG_DIR'] = cfg_dir
+    elif (cfg == ""):
+          if ('EMU_CFG_DIR' in os.environ):
+            cfg_dir = os.environ['EMU_CFG_DIR']
+            cfg_file = os.path.join(cfg_dir, 'emul_build_soc.cfg')
+            if not os.path.isfile(cfg_file):
+               fatal_error("Config file provided by ENV VAR  " +cfg_file+ "is not found\n")
+               sys.exit(2)
+            else:
+               cfg_file = os.path.join(cfg_dir, 'emul_build_soc.cfg')
+          else:
+            fatal_error("Command line Argument: --cfg <emul_build_soc.cfg> not provided\n")
+            sys.exit(2)
+    
+    #if opt in ('--cfg_dir'):
+    #     #global cfg_dir
+    #     cfg_dir = arg
+    #     os.environ['EMU_CFG_DIR'] = cfg_dir
+    #     cfg_file = os.path.join(cfg_dir, 'emul_build_soc.cfg')
+    #elif (cfg_dir == ""):
+    #     cfg_dir = os.getcwd() 
+    #     os.environ['EMU_CFG_DIR'] = cfg_dir
+    #     cfg_file = os.path.join(cfg_dir, 'emul_build_soc.cfg')
+
+    #if opt in ('--cfg_file'):
+    #     #global cfg_file
+    #     cfg_file = arg
+    #elif (cfg_file == ""):
+    #     cfg_file = os.path.join(cfg_dir, 'emul_build_soc.cfg')
+
+    if opt in ('--params'):
+         param = arg
+         for x in param:
+             words = param.strip().split('=')
+             user_param_dict[words[0]] = " ".join(words[1:])
+             #print params_dict
+             #user_param_dict[key.strip()] = value.strip()
+    
+    if opt in ('--run_stage'):
+         run_flow.append(arg)
+    if trailing_opts:
+         enabled_flows = parse_enabled_flows(cfg_file)	 
+	 for x in trailing_opts:
+           if x in enabled_flows:
+	   	run_flow.append(x)
+	   else:
+		print "-E- ERROR: %s is an Invalid/Disabled command line option" % x  
+                print_usage()
+                sys.exit(2)
+	 trailing_opts = []
+    if opt in ('--run_flow'):
+         run_flow.append(arg)
+    if opt == '--debug':
+         print "Creating Debug Logs"
+    if opt in ('--show_flow'):
+         count = 0
+         flow_names = parse_flow_names()
+         print "INFO: Run Flows (--run_flow) Supported are:\n"
+         for i in flow_names:
+           print i
+           count += 1
+           if count >= len(flow_names):
+             sys.exit(2)
+           
+
+
+
+
+if len(sys.argv)< 2 : 
+   if ('EMU_CFG_DIR' in os.environ):
+            cfg_dir = os.environ['EMU_CFG_DIR']
+            cfg_file = os.path.join(cfg_dir, 'emul_build_soc.cfg')
+            if not os.path.isfile(cfg_file):
+               fatal_error("Config file provided by ENV VAR  " +cfg_file+ " is not found\n")
+               sys.exit(2)
+            else:
+               cfg_file = os.path.join(cfg_dir, 'emul_build_soc.cfg')
+   else:
+      fatal_error("Command line Argument: --cfg <emul_build_soc.cfg> not provided\n")
+      sys.exit(2)
+
+
+
+
+
+## Global LOGGING ###
+def track_log():
+  if (os.path.exists(global_usage_log)):
+    global_log = open(global_usage_log,"a")
+  else:
+    global_log = open(".etl_stats_temp","a")
+    info_log("Usage info not written!")
+
+  ##Format: user, hostname, time_stamp, tool_version, launch_dir, cfg_file
+  ##(to include project info add: +os.environ['PROJECT']
+  current_time=time.asctime(time.localtime(time.time()))
+  global_log.write(os.environ['LOGNAME']+", "+", "+socket.gethostname()+", "+current_time+", "+tool_ver+", "+os.getcwd()+", "+cfg_file+" \n")
+
+
+def select_work_area():
+  if(params_dict.has_key("MIN_SPACE")): 
+    min_space_inGB = params_dict["MIN_SPACE"]
+  else:
+    min_space_inGB = 0
+  if(params_dict.has_key("NEW_WORK_AREA") and params_dict["NEW_WORK_AREA"] == "ON"):
+    new_work_area = "ON"
+  else:
+    new_work_area = "OFF"
+  if( params_dict.has_key("WORK_AREA_TAG")):
+    work_area_tag = params_dict["WORK_AREA_TAG"]
+  else:
+    work_area_tag = ""
+  paths = params_dict["WORK_AREA"]
+  params_dict["WORK_AREA"] = ""
+  selected_path = ""
+  previous_free = min_space_inGB
+  list_paths = [n for n in paths.split(' ')]
+  for path in list_paths:
+    if (os.path.exists(path)):
+      s = os.statvfs(path)
+      free_space = (s.f_bavail*s.f_frsize)/(1024*1024*1024) # in GB>
+      #if (int(free_space) >= int(min_space_inGB) and int(free_space) > int(previous_free) ):
+      params_dict["WORK_AREA"] = path
+      previous_free = free_space
+    else:
+      error_log("This WORK_AREA path doesn't exist"+path)
+
+  # if WORK_AREA param remain empty there is error
+  if (params_dict["WORK_AREA"] == ""):
+    fatal_error("Couldn't determine a WORK AREA (does not meet min space requirement or path does not exist)")
+  print "SELECTED WORK AREA : "+params_dict["WORK_AREA"]+ "\n"
+  info_log("SELECTED WORK AREA : "+params_dict["WORK_AREA"])
+
+  if (new_work_area == "ON"):
+    t = datetime.datetime.now()
+    date_suffix = str(t.year)+"_"+str(t.month)+"_"+str(t.day)+"_"+str(t.hour)+"_"+str(t.minute)
+    #print params_dict["WORK_AREA"]
+    new_work_area_path = params_dict["WORK_AREA"]+"/"+params_dict["WORK_AREA_TAG"]+"_"+date_suffix
+    # updating the work are param
+    params_dict["WORK_AREA"]= new_work_area_path
+    if (os.path.exists(new_work_area_path)):
+      fatal_error("Couldn't create a new work area since it already exists "+ new_work_area_path)
+    else:
+      os.makedirs(new_work_area_path)
+      print "CREATING NEW WORKING DIR : "+new_work_area_path+"\n"
+      ## Put this value in inc_log if not in inc mode
+      info_log("CREATING NEW WORKING DIR : "+new_work_area_path+"\n")
+
+
+def parse_params():
+  ## This parses params and puts all of them in a dictionary
+  in_param = 0
+  ini = open(cfg_file)
+  if (ini):
+    print "INFO: Using Config file " + cfg_file
+    info_log("Executing... "+ "  ".join(sys.argv[:]))
+
+  else:
+    print "INFO: Config file was not provided\n" 
+    sys.exit(2)
+  global ini_lines
+  ini_lines= ini.readlines()
+  for line in ini_lines:
+    #if(re.match(r"\s*#",line)): print "COMMENTED LINE => "+line
+    # parsing out commented line Def: Line that starts with "#" as the 1st character. White spce is ignored.
+    if(re.match(r"\s*#",line)): pass
+    else:
+      words = line.split()
+      if (words):
+        if(words[0] == 'END_PARAMS'):
+          in_param = 0
+        if (in_param == 1):
+            #print words[0]
+          if user_param_dict:
+             params_dict[words[0]] = " ".join(words[1:])
+             #print params_dict
+             for key in user_param_dict.keys():
+              if (words[0] ==  key):
+               params_dict.update(user_param_dict)
+               #print params_dict.keys()
+               #print params_dict.values()
+          else: 
+                params_dict[words[0]] = " ".join(words[1:])
+                #print params_dict.keys() 
+        if (words[0] == 'PARAMS'):
+          in_param = 1
+
+def create_work_area():
+  if (params_dict.has_key("WORK_AREA")):
+    select_work_area()
+  else:
+    params_dict["WORK_AREA"]= os.getcwd()     #enable this for a default WORK_AREA
+    select_work_area()
+    #fatal_error("WORK_AREA parameter is missing in user config file.")  #no default
+
+
+
+#==============================================================================================
+## Parse and Replace the shell with params ##
+## comes from process_batch before writing the line to batch script. search and replace all params
+#===============================================================================================
+
+## Parse Run ##
+def run_switch(words):
+  batch2run[words[0]] = words[1]
+  if(batch2run[words[0]] == 'ENABLED' or batch2run[words[0]] == 'enabled'):
+     run_batch_name.append(words[0])
+     #lnsaha:
+     #batch = open(words[0], 'a') #creates the flow file which are enabled
+     create_batch2shell(words[0])
+     #print words # prints all the enabled flow
+
+
+
+def process_batch():  
+  active_batch= ""
+  old_batch_name = ""
+  for line in ini_lines:
+       batch_words = line.split()
+       if (batch_words):
+         if (batch_words[0] == 'END_FLOW'):
+           active_batch = 0
+           batch_name = ""
+         if(active_batch == 1):
+            for i in run_batch_name: 
+              if((batch_name == i)and (active_batch == 1)):
+                 batch_print['i']= line
+                 filepath = os.path.join("scripts", i)
+                 batch = open(filepath, 'a')
+                 line_from_snr = params_snr(line)
+                 words = line_from_snr.split()
+                 if(words and words[0] == "CHECK"): # This is run time checking
+                    batch.write('\nif [ ! -e '+words[1]+' ]; then\n echo \" -E- ERROR:path doesnt exist\"\n echo\"$*\" >&2 \n exit 1 \n') #Raise the STDERR and exit
+                    batch.write( " else \n echo \"CHECKING PASSED for " + words[1]+"\"\nfi\n") #Raise the STDERR and exit
+                 else:
+                    batch.write(line_from_snr)
+
+                 if (batch_words[0] == 'END_FLOW'):
+                    active_batch = 0
+
+         if (batch_words[0] == 'FLOW' ): #and batch2run[words[1]] == 'ENABLED' ):
+              create_dependency_matrix(batch_words)
+              #create_batch2shell(words[1])
+              active_batch = 1
+              batch_name = batch_words[1]
+
+
+
+
+def process_final_batch():
+  active_batch= ""
+  old_batch_name = ""
+  for line in ini_lines:
+       batch_words = line.split()
+       if (batch_words):
+         if (batch_words[0] == 'END_FLOW'):
+           active_batch = 0
+           batch_name = ""
+         if(active_batch == 1):
+              if((batch_name == 'FINAL')and (active_batch == 1)):
+                 batch_print['FINAL']= line
+                 filepath = os.path.join("scripts", batch_name)
+                 batch = open(filepath, 'a')
+                 line_from_snr = params_snr(line)
+                 words = line_from_snr.split()
+                 if(words and words[0] == "CHECK"): # This is run time checking
+                    batch.write('\nif [ ! -e '+words[1]+' ]; then\n echo \"-E- ERROR:path doesnt exist\"\n echo\"$*\" >&2 \n exit 1 \n') #Raise the STDERR and exit
+                    batch.write( " else \n echo \"CHECKING PASSED for " + words[1]+"\"\nfi\n") #Raise the STDERR and exit
+                 else:
+                    batch.write(line_from_snr)
+
+                 if (batch_words[0] == 'END_FLOW'):
+                    active_batch = 0
+
+         if (batch_words[0] == 'FLOW' ): #and batch2run[words[1]] == 'ENABLED' ):
+              #create_dependency_matrix(batch_words)   # REMOVED since it was clearing out all the failed/passed flags in run_batch_name list 
+              #create_batch2shell(words[1])
+              active_batch = 1
+              batch_name = batch_words[1]
+
+
+
+
+
+
+def parse_dependent_batch(flow, dep_batch):
+ in_run = 0
+ for line in ini_lines:
+   if(re.match(r"\s*#",line)): pass #parsing comments same as Params
+   else:
+     words = line.split()
+     if (words):   ##Check if it is not an empty line
+       if(words[0] == 'END_RUN'):
+         in_run = 0
+       if(in_run == 1):
+           if(words[0] == dep_batch):
+             #if(batch_passed[dep_batch] != 0 ):
+               if(words[1] == "ENABLED"):
+                run_switch(words)
+               else:
+                print ("-E- ERROR: FLOW " +flow+ " cannot run because dependent flow " +dep_batch+ " is DISABLED. Please ENABLE the " +dep_batch+ " in the "+cfg_file+" and rerun \n")
+                sys.exit()
+       if(words[0] == 'RUN'):
+          in_run = 1
+
+
+
+
+def parse_flow_names():
+ in_run = 0
+ ini = open(cfg_file)
+ global ini_lines
+ ini_lines= ini.readlines()
+
+ flow_name_array = [] 
+ for line in ini_lines:
+   if(re.match(r"\s*#",line)): pass #parsing comments same as Params
+   else:
+      flow_name = line.split()
+      if (flow_name):   ##Check if it is not an empty line
+        if(flow_name[0] == 'END_RUN'):
+          in_run = 0
+        if(in_run == 1):
+          flow_name_array.append(flow_name[0])
+ 
+          #print flow_name_array
+
+        if(flow_name[0] == 'RUN'):
+          in_run = 1
+ #print flow_name_array
+ return flow_name_array
+
+
+
+
+
+def parse_run():
+ in_run = 0
+ for line in ini_lines:
+   if(re.match(r"\s*#",line)): pass #parsing comments same as Params
+   else:
+     words = line.split()
+     if (words):   ##Check if it is not an empty line
+       if(words[0] == 'END_RUN'):
+         in_run = 0
+       if(in_run == 1):
+           if(words[0] == "INITIAL"):
+              if(words[1] == "ENABLED"):
+                run_switch(words)
+              else:
+                print ("Flow " +words[0]+ " not Enabled\n")
+
+           if not(run_flow):
+              if(words[0] == "DEFAULT"):
+                if(words[1] == "ENABLED"):
+                  run_switch(words)
+                else:
+                  print ("Flow " +words[0]+ " not Enabled\n")
+
+
+           else:
+                fl_name = []
+                fl_name = parse_flow_names()
+                for x in run_flow:
+                    if ((x.lower() == words[0].lower()) or (x.upper() == words[0].upper())): 
+                      if(words[1] == "DISABLED"):
+                         print "-E- ERROR: Please ENABLE the FLOW " +words[0]+ " in the config file " +cfg_file+".\n"
+                      else:
+                         run_switch(words)
+
+
+                    if(x.upper() not in fl_name):
+                      print "-E- ERROR: Flow " +x+ " is an invalid flow name, Supported flow names are "+ ", ".join(fl_name)
+                      sys.exit(2) 
+ 
+
+
+       if(words[0] == 'RUN'):
+          in_run = 1
+
+
+
+def params_snr(line):
+  modif_line = line
+  words = line.split()
+  if (words):
+   for w in words:
+    words2 = w.split('=')
+    for y in words2:
+     for param in params_dict:
+        if (y == param):
+          modif_line = modif_line.replace(y,params_dict[param])
+          #print modif_line
+  return modif_line
+
+
+
+def create_dependency_matrix(words):
+ for flow in run_batch_name:
+       #if (batch_words[0] == 'FLOW' and == words[0]):
+       if (words[0] == 'FLOW' and words[1] == flow): 
+          dep_list[words[1]] = words[2:]
+          batch_passed[words[1]] = 0   #initially all are set to zero ( not executed)
+          batch_failed[words[1]] = 0   #initially all are set to zero
+          
+          for u in dep_list[words[1]]:
+           if(u != 'NONE' and u not in run_batch_name ):
+            parse_dependent_batch(flow, u)
+           #batch_passed[words[1]] = 0   #initially all are set to zero ( not executed)
+           #batch_failed[words[1]] = 0   #initially all are set to zero
+
+def create_batch2shell(file_name):
+  if not os.path.exists("scripts"):
+   os.makedirs('scripts')
+  filepath = os.path.join("scripts", file_name)
+  f = open(filepath, 'w')
+  if (not params_dict.has_key("CMD_SHELL")):  # default is bash script
+    params_dict["CMD_SHELL"] = "#!/bin/bash -e"    #-e = check each cmd return status  -x=enable verbose o/p
+  f.write(params_dict["CMD_SHELL"] + "\n")
+  os.chmod(filepath,0774)
+  f.close()
+  
+
+
+
+def pre_exec_checking():
+  # Check if each defined Batch has a run ENABLED/DISABLED define. If missing, Enable it by default
+  # dep_list batch2run
+  for batch in dep_list:
+    if not (batch2run.has_key(batch)):
+      fatal_error("\"" +batch+ "\"" +" is missing within RUN-END_RUN @ cfg file :"+ cfg_file)
+  #for run in batch2run:
+  #  if not (dep_list.has_key(run) or run == "NONE"):
+  #    fatal_error("\"" +run+ "\"" +" does not have a FLOW-END_FLOW defined @ cfg file :"+ cfg_file)
+
+def exec_log (batch_name):
+  batch_log = open (batch_name+".log",'w')
+  batch_log.write("### PID: " + str(process[batch_name].pid) + " ### \n")
+  info_log(batch_name + " PID: " + str(process[batch_name].pid) + " \n")
+  #sys.stdout.write(batch_name+"'s PID: "+str(process[batch_name].pid)+"\n")
+  sys.stdout.flush() 
+
+  while process[batch_name].returncode == None:
+    process[batch_name].poll()
+    op_stdout = process[batch_name].stdout.readline()
+    if op_stdout != '':
+      #sys.stdout.write(str(op_stdout))   #to print o/p as cmd is executed
+      #sys.stdout.flush() #to print o/p as cmd is executed
+      batch_log.write(str(op_stdout))
+      #process[batch_name].poll()
+
+    ## At the termination of the Batch script ## REMOVED since it was showing general messages as errors
+#  stderr_check = process[batch_name].communicate()
+#  if (stderr_check[1]):
+#    print "\nSTDERR: " + stderr_check[1]
+#  batch_log.write("\n#### STDERR ####\n")
+#  batch_log.write(stderr_check[1])
+
+  ## Updating the Pass/Fail Hash before STDOUT/STDERR are lost
+
+  if process[batch_name].returncode == 0:
+    info_log(batch_name," PASSED")
+    info_log ("Please check "+params_dict["WORK_AREA"]+"/"+ batch_name + ".log"); 
+    print  "FLOW " + batch_name +"............................PASSED\n"
+    #print  "Please check "+params_dict["WORK_AREA"]+"/"+ batch_name + ".log\n"
+    #batch_failed[batch_name] = -1
+    batch_failed[batch_name] = 0
+    batch_passed[batch_name] = 1
+  else:
+    error_log(batch_name," FAILED")
+    error_log ("Please check "+params_dict["WORK_AREA"]+"/"+ batch_name + ".log");
+    print  batch_name +"............................FAILED\n"
+    print  "Please check "+params_dict["WORK_AREA"]+"/"+ batch_name + ".log\n"
+    batch_failed[batch_name] = 1
+    #batch_passed[batch_name] = -1
+    batch_passed[batch_name] = 0
+#    sys.exit() # REMOVED since it was preventing the final flow from executing
+
+
+def execution (ready2exec):
+  ## kicking off the ready2exec batches in parallel
+  available_cpus = int(commands.getoutput("grep -c processor /proc/cpuinfo"))
+  if available_cpus < parallel_flow_cpus:
+    for batch_name in ready2exec:
+      filepath = os.path.join("scripts", batch_name)
+      process[batch_name] = subprocess.Popen(filepath,shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+      exec_log(batch_name)
+      process[batch_name].wait()
+  else:
+    for batch_name in ready2exec:
+      filepath = os.path.join("scripts", batch_name)
+      process[batch_name] = subprocess.Popen(filepath,shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+      exec_log(batch_name)
+    #process[batch_name] = subprocess.Popen(batch_name,shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+  #for batch_name in ready2exec:
+    #exec_log(batch_name)
+## Executing the bash files in parllel ##
+## and update batch_passed nd batch_failed
+# log coming from process.communicate is a 2-tuple with STDOUT and STDERR
+
+# Returns 1 if the batch_name is ready to exec
+
+def check_ready_to_exec (batch_name):
+  flag = ''
+  for dep in  dep_list[batch_name]:
+    #print batch_name,dep
+    if (batch_passed.has_key(dep)):
+      if(batch_passed[dep] == 0):
+      ## one of the dep is not executed/failed
+	return 0
+      if (batch2run[dep] == 'DISABLED'):
+        print "Dependent batch" +batch2run[dep]+ " is disabled\n"
+	return 0
+      elif (batch_passed[dep] == 1): # and batch2run[dep] == 'DISABLED' ):
+      # all dep passed and they are ENABLED
+	flag = 1
+  return flag
+
+
+def check_ready2exec(batch_name):
+  flag = ''
+  for dep in dep_list[batch_name]:
+    if(batch_passed.has_key(dep)):
+      if (batch_passed[dep] == 1):
+        flag = 1
+      elif(batch_passed[dep] == 0):
+        flag = 0
+        # return 0
+    else:
+      #print batch_name, dep
+      return 0 # meaning this dep is set to run-off
+  return flag
+
+
+
+
+def next_exec(dep_list, batch_passed , batch_failed): 
+  global ready2exec
+  ready2exec =[]
+  exec_flag = 0
+  for batch in dep_list:
+       if (batch_passed[batch] == 0 and (batch2run[batch] == 'ENABLED' or batch2run[batch] == 'enabled') and check_ready2exec(batch) and batch_failed[batch] == 0):
+         ready2exec.append(batch)
+
+
+  if (ready2exec):
+    print "Executing... FLOW "+ ",".join(ready2exec)
+    info_log("Ready to execute following flow(s) in parallel =>", ",".join(ready2exec))
+  execution (ready2exec)
+
+
+
+
+
+def post_process_log():
+ if not os.path.exists("LOGS"):
+  os.makedirs("LOGS")
+  os.system ("mv *.log LOGS/")
+
+
+
+def post_process():
+ in_run = 0
+ for line in ini_lines:
+   if(re.match(r"\s*#",line)): pass #parsing comments same as Params
+   else:
+     words = line.split()
+     if (words):   ##Check if it is not an empty line
+       if(words[0] == 'END_RUN'):
+         in_run = 0
+       if(in_run == 1):
+           if(words[0] == "FINAL"):
+              if(words[1] == "ENABLED"):
+                run_switch(words)
+                process_final_batch()
+                ready2exec = []
+                ready2exec.append(words[0])
+                if (ready2exec):
+                   print "Executing... FLOW "+words[0]
+                   execution (ready2exec)
+
+              else:
+                print ("Flow " +words[0]+ " not Enabled\n")
+                sys.exit(2)
+
+       if(words[0] == 'RUN'):
+          in_run = 1
+  ## Capture usage log
+ track_log()
+
+  ## EMAIL STATUS.TXT ##
+ sendmail = "/usr/sbin/sendmail" # sendmail location
+ sender = ""                     # Meaning the $user is the sender
+ recipient = []
+ if ( params_dict.has_key("EMAIL_TO") and params_dict["EMAIL_TO"]):
+    recipient.append(params_dict["EMAIL_TO"]) # Must be a list
+    subject = "EMUL BUILD SOC STATUS REPORT"
+    text = ""
+    status_log = open(status_file,'r')
+    for line in status_log:
+      text += "\n"
+      text += line
+    # Prepare  actual message
+    message = """\
+From: %s
+To: %s
+Subject: %s 
+
+%s
+    """ % (sender, ", ".join(recipient), subject, text)
+
+    # Send the mail
+    p = os.popen("%s -t -i" %sendmail, "w")
+    p.write(message)
+    status = p.close()
+    if status:
+      fatal_error("Sendmail failed with exit status"+ status)
+    else:
+      #print message
+      print "Status Email sent"
+      info_log("Status Email sent to "+ ",".join(recipient))
+ else:
+    #print "NO EMAIL SENT"
+    info_log(" No Email Sent")
+
+
+#### MAIN #######################################################
+
+## PREPROCESSING LOGGING ##
+info_log("Launching Emulation SOC build from host "+ socket.gethostname()+ " at " + os.getcwd())
+
+print  "***************************************";
+print  "  emul_build_soc   Version: " +tool_ver 
+print  "***************************************";
+
+
+## Parse command line arguments
+parse_command()
+
+## Create params_dict
+parse_params()
+
+## Create work_area
+create_work_area()
+
+## Processing the config file
+parse_run()
+# Creates batch2run hash
+process_batch()
+
+pre_exec_checking()
+
+# Creates dep_list batch_passed batch_failed
+# Creates bash script for each batch, and executes them and updates batch_passed/batch_failed
+for i in range(len(dep_list)):
+   next_exec(dep_list, batch_passed , batch_failed)
+
+parse_flow_names()
+
+post_process()
+
+for k in run_batch_name:
+   if (batch_failed[k] == 1):
+     sys.exit(2)
+######## END OF SCRIPT ######
+

@@ -1,0 +1,41 @@
+#set TEV(FV_LP) 0
+set TEV(LEC_OPTS) "-sl4"
+#set TEV(CONF_COMPARE_TYPE) "FLAT"
+#set TEV(CONFORMAL_PATH) "/p/hdk/cad/conformal/19.20-p100"
+
+#set G_FV_LP 0
+#set G_REF_LP_TYPE "logical"
+#set G_TAR_LP_TYPE "logical"
+#set G_REF_UPF_1801 0
+#set G_TAR_UPF_1801 0
+
+#set G_CONF_ANALYZE_SETUP 0
+#set G_CONF_ANALYZE_ABORT 0
+set G_MULTI_DIM_TO_1DIM 0
+set G_CONF_DYNAMIC_HIER 0
+set G_HIER_THRESHOLD 5000
+#set G_CONF_ANALYZE_DP 0
+#set G_CONF_RTL_UNDRIVEN_SIGNAL_0 1
+#set G_CONF_DP 0
+#set G_CONF_DP_WORDLEVEL 0
+
+set G_ENABLE_SMARTLEC 1
+set G_CONF_COMPARE_THREADS 4
+
+#1713 1801_REF_OBJ_NOT_FOUND fix
+#set G_DISABLE_DEFAULT_NAMING_RULE 1
+set G_REF_READ_OPTIONS "-Keep_unreach"
+
+
+#set __VCS_ENV 0
+#set G_USE_NATIVE_UPF 0
+#set G_LOGSCAN_RULE ""
+#set G_INV_DESIGN_CELL_MAPPING {}
+
+
+lappend G_CONF_VALID_MODEL "latch_fold"
+lappend G_CONF_VALID_MODEL "latch_transparent"
+
+#Zircon 2.10 fix
+#lappend G_REF_DELETE_DEFINES "SYNTH_D04"
+

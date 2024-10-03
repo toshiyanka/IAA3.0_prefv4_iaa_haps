@@ -1,0 +1,28 @@
+#------------------------------------------------------
+# EFFM code snippet to added to cfg/ToolData.pm
+#------------------------------------------------------
+$ToolConfig_tools{effm} = {
+   VERSION => '2016.15',
+   PATH => "$RTL_CAD_ROOT/intel/effm/&get_tool_version()",
+   SUB_TOOLS => {
+      "synplifypro" => "&get_tool(synplifypro)",
+   },
+};
+#------------------------------------------------------
+# EFFM code snippet to added to cfg/ace/templates/<dut>.env.template
+#------------------------------------------------------
+setenv EMUL_CFG_DIR $IP_ROOT/ace/effm_flows
+setenv EMUL_TOOLS_DIR {.&ToolConfig::ToolConfig_get_tool_path("effm").}/effm_tools
+setenv PATH ${EMUL_TOOLS_DIR}:${PATH}
+setenv SYNPLIFY_VERSION {.&ToolConfig::ToolConfig_get_tool_version("effm/synplifypro").}
+tsetup synplifypro $SYNPLIFY_VERSION
+#------------------------------------------------------
+# EFFM code snippet to added to cfg/FlowSpec.pm
+#------------------------------------------------------
+effm => {
+   stage => ace_command,
+   opts => { command => 'ace -emul -ASSIGN -hdl_compiler=emul',
+      results => 'results',
+   },
+   deps => [qw()],
+},

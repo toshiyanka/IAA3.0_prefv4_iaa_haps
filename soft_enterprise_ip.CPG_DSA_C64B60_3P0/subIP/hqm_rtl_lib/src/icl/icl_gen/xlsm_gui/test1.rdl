@@ -1,0 +1,130 @@
+
+`include "tap_udp.rdl"
+
+reg sib_def {
+
+   name = "SIB";
+   desc = "Segment Insertion Bit";   
+   TapRegType = "SIB";
+   
+   field {
+      desc = "sib field";
+      AccessType = "RW";
+   } sib [1] = 1'h0;
+};
+
+reg TAP_IR {
+  name = "TAP IR";
+  desc = "The TAP IR Opcodes";
+  //TapTotalNumRegBits = 8;
+  //TapShiftRegLength = 8;
+  regwidth = 8;
+  TapPriSignal = "";
+  TapShadowSignal = "";
+  TapUseSignalID = false;
+  field {
+      name = "TAP_IR";
+      desc = "Supported OpCodes
+              [br] 8'h30: USC_CONTROL [br] 
+              [br] 8'hFF: BYPASS [br] This opcode 8selects the IEEE1149.1 spec defined 1-bit bypass register
+      ";
+      AccessType = "RW";
+  } TAP_IR [7:0] = 8'h2;
+};    //end of reg TAP_IR 
+
+reg r_def {
+
+   desc = "reg desc orig";   
+   
+   field {
+      desc = "original";
+      AccessType = "RW";
+   } f1[8] = 8'hA1;
+   field {
+      desc = "original";
+      AccessType = "RW";
+   } f2[1] = 1'h0;
+};
+
+
+regfile ijtag_def {
+
+  desc = "ijtag chain";   
+   TapRegType = "IJTAG";
+
+  // ordered list from TDO to TDI (lsb -> msb)
+
+  sib_def s0;
+      //s0 -> TapRegSecurity = "SECURE_RED";
+
+  sib_def s1;
+      //s1 -> TapRegSecurity = "SECURE_ORANGE";
+      s1 -> TapSibRef = "s0";
+
+  r_def r1;
+      r1 -> TapSibRef = "s1";
+     r1 -> desc = "override ijtag r1";
+
+  sib_def s2;
+      s2 -> TapSibRef = "s0";
+
+  r_def r2;
+      r2 -> TapSibRef = "s2"; 
+};
+
+
+addrmap test {
+
+  TapIrLength = 8;
+  TapSecurityLevel = "SECURE_RED";
+  TapInstName = "t1";
+  TapIrCaptureValue = 8'h1;
+
+  r_def r1;
+  r1 -> desc = "override r1";
+  r1 -> RegOpcode = 8'h55;
+  r1 -> TapOpcodeSecurityLevel = "SECURE_RED";
+
+  r_def r2;
+  r2.f1 -> desc = "override r2 f1";
+  r2 -> RegOpcode = 8'h56;
+  r2 -> TapOpcodeSecurityLevel = "SECURE_GREEN";
+
+  TAP_IR         TAP_IR;
+
+  ijtag_def r3;
+  r3 -> RegOpcode = 8'h02;
+  r3 -> TapOpcodeSecurityLevel = "SECURE_RED";
+
+};
+
+addrmap test2 {
+
+  TapIrLength = 7;
+  TapType = "reg_only";
+  TAP_IR         TAP_IR;
+
+  r_def r1;
+  r_def r2;
+  r1 -> RegOpcode = 0x0;
+  r2 -> RegOpcode = 0x2;
+  r1 -> TapOpcodeSecurityLevel = "SECURE_ORANGE";
+  r2 -> TapOpcodeSecurityLevel = "SECURE_GREEN";
+  
+};
+
+addrmap top {
+
+  TapSecurityLevel = "SECURE_RED";
+  TapType = "reg_only";
+
+   test t1;
+   test t1a;
+   test t1b;
+   test t1c;
+   test2 t2;
+   
+  
+   // FIXME
+   t2 -> TapSecurityLevel = "SECURE_GREEN";
+};

@@ -1,0 +1,30 @@
+use common::RunModes;
+common::RunModes::init_library;
+{
+    %opts = (
+	-model 			        => "cdc_pgcb_collection",     #Refer to the cdc model defined in cdc.udf file 
+	-zin_top 			=> "cdc_pgcbunit_lib.pgcbunit", #Refer to the top level module in the unit
+	-enabled_post_process_modes     => "AceCDC_default,AceCDC_summary",
+        -cdc_ppm                        => "AceCDC_default,AceCDC_summary",
+	-enable_runsim_postsim_checks   => 0,
+	-create_postmortem_file 	=> 1,
+	-postsim_log_max_num_warn 	=> 10,
+	-post_process_parser       	=> "$ENV{ACE_HOME}/bin/ace_postsim.pl",
+	-post_process_pattern_file 	=> "$ENV{ACE_HOME}/udf/ace_base_postsim.pp",
+	-zin_ctrl_files                 => [ 
+                         "$ENV{CDC_RELEASE}/prototype/cdc_global.tcl",
+                         "$ENV{CDC_RELEASE}/custom_sync_cells/p1273/custom_sync_cells.tcl",
+					          "$ENV{MODEL_ROOT}/tools/cdc/pgcbunit/pgcbunit_cdc.tcl", ###Please give absolute path
+	  			             "$ENV{MODEL_ROOT}/tools/cdc/pgcbunit/pgcbunit_waivers.tcl"
+         ]				             
+    );
+
+    %runModes = (
+
+	RptCLK => {
+	    -zin_run_type               => '-report_clock', 
+	    -enabled_post_process_modes => "AceCDC_default",
+	},
+    );
+
+}

@@ -1,0 +1,137 @@
+###########################################
+#reproduce bug URL: https://hsdes.intel.com/resource/22011114370
+#HQMV1: SNR B0: Reads to HCW address space can alias to CSR space 
+###########################################
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+
+###################################
+# Wait for reset to be done (including hardware memory init)
+wr config_master.cfg_pm_pmcsr_disable.disable 0x0 
+rd config_master.cfg_pm_pmcsr_disable.disable 0x0
+poll config_master.cfg_diagnostic_reset_status 0x80000bff 0xffffffff 1000
+
+###################################
+# Setup LUTs used by HCWs
+
+##mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+###################################
+ 
+
+###################################
+#SRIOV
+#if SRIOV is being used, current hardware allows a PF or VF producer access to CSR reg values including mailbox data and ISR status to which it may not be expected to have access. 
+# Configure FUNC_VF to a base address of 0x00000010_xxxxxxxx
+wr hqm_pf_cfg_i.sriov_cap_func_bar_l 0x00000000
+wr hqm_pf_cfg_i.sriov_cap_func_bar_u 0x00000010
+###################################
+# Enable VFs and VF memory operations
+wr hqm_pf_cfg_i.sriov_cap_num_vf 0x10
+wr hqm_pf_cfg_i.sriov_cap_control_status 0x9
+
+###################################
+#Note that the vf_to_pf_error can also be generated when a VF is the initiator and the aliased target is a PF-only reg (updated the description text to also show the PF-only regs).  So the following alarm enable bit would also have to be set to 0 to avoid unexpected alarm generation
+wr hqm_system_csr.sys_alarm_int_enable.vf_to_pf_isr_pend_error 1
+wr hqm_system_csr.sys_alarm_int_enable.pf_to_vf_isr_pend_error 1
+
+
+###############################################
+#write address 1_0000_1000, write data 0xaa55000
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[0]  0xaa550000
+#write address 1_0000_1004, write data 0xaa55001
+wr hqm_func_pf_per_vf[0].vf_to_pf_mailbox[1]  0xaa550001
+
+###############################################
+
+
+###############################################################
+###############################################################
+
+#This looks to be purely a one directional aliasing from the CSR_PF BAR (reads in the case of these tests, but also for writes) into the FUNC_PF and FUNC_VF  BARs”
+
+#I basically did just the following in a cft for the quick test I mentioned (CSR_PF offset read from hqm_system_cnt_0 @0x10001000 with additional offset of 0x800000 to set bit 23 and alias to FUNC_PF BAR offset of 0x00001000) to prove it could be read and written from the CSR_PF BAR:
+
+ord hqm_system_csr.hqm_system_cnt_0 0x00800000
+idle 500
+owr hqm_system_csr.hqm_system_cnt_0 0x00800000 0x12345678
+idle 500
+ord hqm_system_csr.hqm_system_cnt_0 0x00800000
+
+
+###############################################################
+###############################################################
+#rd hqm_func_pf_per_vf[0].vf_to_pf_mailbox_isr_pend
+#The regs that would generate this error when accessed by the VF would be:
+#
+#    hqm_vf_to_pf_flr_dst_isr_r                      VF_TO_PF_FLR_ISR                                @0x00001f04;
+#    hqm_vf_to_pf_isr_pend_r                         VF_TO_PF_ISR_PEND                               @0x00001f10;
+rd hqm_func_pf_per_vf[0].vf_to_pf_flr_isr  0
+rd hqm_func_pf_per_vf[0].vf_to_pf_isr_pend  0
+
+
+##VF hqm_func_vf_bar[0] DIRPP[1] 
+ord hqm_func_vf_bar[0].vf_to_pf_mailbox[0] 0x2000000  0x0
+ord hqm_func_vf_bar[0].vf_to_pf_mailbox[0] 0x2000004  0x0
+ord hqm_func_vf_bar[0].vf_to_pf_mailbox[0] 0x2000008  0x0
+ord hqm_func_vf_bar[0].vf_to_pf_mailbox[0] 0x200000c  0x0
+
+
+###############################################################
+###############################################################
+wr hqm_msix_mem.msg_addr_l[0]  0xdeadf00c
+wr hqm_msix_mem.msg_addr_u[0]  0xfeeddeaf
+wr hqm_msix_mem.msg_data[0]    0xa11c0ded
+wr hqm_msix_mem.vector_ctrl[0] 0x00000000
+
+ord hqm_func_vf_bar[0].vf_to_pf_mailbox[0] 0x00fff000 0x0 
+ord hqm_func_vf_bar[0].vf_to_pf_mailbox[0] 0x00fff004 0x0
+ord hqm_func_vf_bar[0].vf_to_pf_mailbox[0] 0x00fff008 0x0
+ord hqm_func_vf_bar[0].vf_to_pf_mailbox[0] 0x00fff00c 0x0
+
+idle 100
+
+owr hqm_func_vf_bar[0].vf_to_pf_mailbox[0] 0x00fff000 0x5555aaaa
+
+idle 100
+
+rd hqm_msix_mem.msg_addr_l[0]  0xdeadf00c
+rd hqm_msix_mem.msg_addr_u[0]  0xfeeddeaf
+rd hqm_msix_mem.msg_data[0]    0xa11c0ded
+rd hqm_msix_mem.vector_ctrl[0] 0x00000000
+
+
+###############################################################
+###############################################################
+rd hqm_func_pf_per_vf[0].vf_to_pf_flr_isr  0
+rd hqm_func_pf_per_vf[0].vf_to_pf_isr_pend  0
+###############################################################
+###############################################################
+  
+cfg_begin
+
+  dir qid DQ_A:*
+  vas 0 dir_qidv:DQ_A=1 credit_cnt=100
+  dir pp DQ_A  vas=0
+  dir cq DQ_A gpa=sm cq_depth=512
+
+cfg_end
+
+rd hqm_pf_cfg_i.vendor_id

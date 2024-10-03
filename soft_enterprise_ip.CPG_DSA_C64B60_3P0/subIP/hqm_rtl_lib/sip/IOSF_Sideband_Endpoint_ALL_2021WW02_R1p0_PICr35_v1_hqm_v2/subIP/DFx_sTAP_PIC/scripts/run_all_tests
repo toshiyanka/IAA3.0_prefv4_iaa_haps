@@ -1,0 +1,24 @@
+#!/bin/csh -f
+
+cd $IP_ROOT
+rm -rf pwa/results .acetestinfo.log
+
+\cp source/rtl/stap_rtl.hdl_rtl source/rtl/stap_rtl.hdl
+
+ace -cc -pwa pwa_all_tests
+ace -x TapTestOnlyBypass \
+       TapTestOnlySLVIDCODE \
+       TapTestBypass \
+       TapTestRegisterAccess \
+       TapTestFsmStates \
+       TapTestTmsGlitch \
+       TapTestNetworkRegisterAccess \
+       TapTestRandom \
+       TapTestBoundaryRegisterAccess \
+       TapTestReservedOpcodeAccess \
+       TapTestOrangeGreenRegisterAccess \
+       TapTestGreenRegisterAccess -pwa pwa_all_tests -nb -nbmon
+
+\cp source/rtl/stap_rtl.hdl_rtl source/rtl/stap_rtl.hdl
+
+grep -ir status pwa/results/tests/*/postsim.log

@@ -1,0 +1,69 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+
+###################################
+# Wait for reset to be done (including hardware memory init)
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+
+# Setup MSI-X Table entries
+wr hqm_msix_mem.msg_addr_l[3]  0xdeadf00c
+wr hqm_msix_mem.msg_addr_u[3]  0xfeeddeaf
+wr hqm_msix_mem.msg_data[3]    0xa11c0ded
+wr hqm_msix_mem.vector_ctrl[3] 0x00000000
+wr hqm_msix_mem.msg_addr_l[71]  0xdeadf11c
+wr hqm_msix_mem.msg_addr_u[71]  0xfeeddeaf
+wr hqm_msix_mem.msg_data[71]    0x1ce1cebb
+wr hqm_msix_mem.vector_ctrl[71] 0x00000000
+rd hqm_msix_mem.msg_addr_l[3]  0xdeadf00c
+rd hqm_msix_mem.msg_addr_u[3]  0xfeeddeaf
+rd hqm_msix_mem.msg_data[3]    0xa11c0ded
+rd hqm_msix_mem.vector_ctrl[3] 0x00000000
+rd hqm_msix_mem.msg_addr_l[71]  0xdeadf11c
+rd hqm_msix_mem.msg_addr_u[71]  0xfeeddeaf
+rd hqm_msix_mem.msg_data[71]    0x1ce1cebb
+rd hqm_msix_mem.vector_ctrl[71] 0x00000000
+###################################
+# Enable MSI-X
+wr hqm_pf_cfg_i.msix_cap_control 0x8000
+rd hqm_pf_cfg_i.msix_cap_control 0x8047
+
+
+###################################
+# Setup LUTs used by HCWs
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+  ldb qid LQ:*
+  dir pool DP:* credit_cnt=0x1000 credit_limit=0x1000 freelist_base=0 freelist_limit=0xfff
+  ldb pool LP:*  credit_cnt=0x3ffc credit_limit=0x4000 freelist_base=0 freelist_limit=0x3fff
+  vas VS:* ldb_qidv:LQ=0
+  ldb pp PP:* gpa=0x80000000 vas=VS dir_pool=DP ldb_pool=LP ldb_credit_count=0x4 dir_min_credit_quanta=0x100 ldb_min_credit_quanta=0x100 ldb_credit_hwm=0x200 ldb_credit_lwm=0x100
+  ldb cq PP   gpa=0x80200000 qidv0=1 qidix0=LQ
+
+cfg_end
+
+rd hqm_pf_cfg_i.vendor_id
+
+# Enable ingress alarms
+rd hqm_system_csr.ingress_alarm_enable 0x00000000
+wr hqm_system_csr.ingress_alarm_enable 0x0000ffff
+rd hqm_system_csr.ingress_alarm_enable 0x0000007f

@@ -1,0 +1,55 @@
+my $PROJECT = 'CTECH_EXP';
+
+%audf = (
+    GenRTL => {
+        $PROJECT => {
+            -config => {
+                CTECH_EXP_rtl_lib => {
+                    ## fake config to avoid ace throwing warnings about using -generated
+                    enable_config => 1,
+                    gen_commands => ['printenv' ],
+                },
+            },
+        },
+    },
+    HDLSpec =>
+    {
+        $PROJECT =>
+        {
+            # Define all the libraries which could be compiled
+            libs =>
+            {
+                CTECH_EXP_rtl_lib => {
+                    -generated => 1,
+                    -gen_config => 'CTECH_EXP::CTECH_EXP_rtl_lib',
+                    -vlog_files => [ 'source/CTECH_EXP_rtl_lib_top.vs' ],
+                    -hdl_spec => ["source/CTECH_EXP_rtl.hdl"],
+                },
+            },
+
+            models =>
+            {
+                CTECH_EXP_model =>
+                {
+                    top => 'CTECH_EXP_rtl_lib.CTECH_EXP_rtl_lib_top',
+                    libs => [ "CTECH_EXP_rtl_lib" ],
+                    use  => [ ], 
+                    export => {
+                        libs => [ "CTECH_EXP_rtl_lib" ],
+                        use => [ ],
+                    },
+                    testcase_globals => {
+                        $PROJECT => {
+                            -test_vlog_opts => [],
+                            -test_vlog_files => [],
+                            -test_elab_opts => [],
+                            -test_vlog_incdirs => [],
+                        },
+                        -simv_args => [],
+                    }, # testcase_globals
+                },
+            },
+        },
+    },
+);
+

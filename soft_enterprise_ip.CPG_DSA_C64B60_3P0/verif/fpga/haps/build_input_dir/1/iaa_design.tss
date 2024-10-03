@@ -1,0 +1,178 @@
+###############################################################################
+# [HAPS 80] - Target System Specification  (TSS)
+###############################################################################
+
+board_system_create -haps -name haps80_system
+
+#board_system_create -add HAPS80_S104 -name HAPS -speed_grade {-1-c}
+board_system_create -add HAPS80_S104 -name mb1 -speed_grade {-1-c}
+
+
+
+#------------------------------------------------------------------------------
+# I/O's 
+#------------------------------------------------------------------------------
+
+# Exclude: Cannot be used for TDM
+#board_system_configure -top_io {mb1.A12}
+
+
+#------------------------------------------------------------------------------
+# Clocks 
+#------------------------------------------------------------------------------
+
+# System Reserved Clock (100 MHz)
+board_system_configure -clock mb1.GCLK0 100Mhz
+
+# Design Clocks
+board_system_configure -clock mb1.GCLK1 pll 
+board_system_configure -clock mb1.GCLK2 pll 
+board_system_configure -clock mb1.GCLK3 pll 
+
+
+#------------------------------------------------------------------------------
+# Reset 
+#------------------------------------------------------------------------------
+
+#board_system_configure -reset {mb1.uA_reset} 0
+#board_system_configure -reset {mb1.uB_reset} 0
+#board_system_configure -reset {mb1.uC_reset} 0
+#board_system_configure -reset {mb1.uD_reset} 0
+
+
+#------------------------------------------------------------------------------
+# Voltage 
+#------------------------------------------------------------------------------
+
+
+
+#------------------------------------------------------------------------------
+# MGB Connector 
+#------------------------------------------------------------------------------
+
+# MGB Riser Card 1
+board_system_create -interconnect -manual RISER1_MGB -name MGB_AM1 -connector {0 0 mb1.AM1}
+
+# PCIe Tracker
+board_system_create -interconnect -manual PCIE4_MGB -name MGB_AM1_J3 -connector MGB_AM1.J3
+
+
+# MGB Riser Card 2
+board_system_create -interconnect -manual RISER1_MGB -name MGB_AM2 -connector {0 0 mb1.AM2}
+
+# PCIe UHFI
+board_system_create -interconnect -manual PCIE4_MGB -name MGB_AM2_J3 -connector MGB_AM2.J3
+
+
+#------------------------------------------------------------------------------
+# FPGA Interconnect
+#------------------------------------------------------------------------------
+
+##INITIAL##board_system_create -interconnect -auto -width 800 -devices {mb1.uA mb1.uD}
+
+##INITIAL##report_board_system HAPS_FPGA_CONNECTIONS.txt
+
+# CDE 
+board_system_configure -connect { umrbus_if.CDE_OUT mb1.CDE_IN }
+
+
+#------------------------------------------------------------------------------
+# Base80 (V1) Config
+#------------------------------------------------------------------------------
+
+# # A <-> B   2 cables  (100)
+# board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_AB_1 -connector {mb1.A12  mb1.B5}
+# board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_AB_2 -connector {mb1.A11  mb1.B4}
+# 
+# 
+# # A <-> C   5 cables  (250)
+# board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_AC_1 -connector {mb1.A24  mb1.C20}
+# board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_AC_2 -connector {mb1.A23  mb1.C21}
+# board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_AC_3 -connector {mb1.A22  mb1.C22}
+# board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_AC_4 -connector {mb1.A21  mb1.C23}
+# board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_AC_5 -connector {mb1.A20  mb1.C24}
+# 
+# 
+# # A <-> D   8 cables  (400)
+# board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_AD_1 -connector {mb1.A19  mb1.D18}
+# board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_AD_2 -connector {mb1.A18  mb1.D19}
+# board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_AD_3 -connector {mb1.A17  mb1.D20}
+# board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_AD_4 -connector {mb1.A16  mb1.D21}
+# board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_AD_5 -connector {mb1.A15  mb1.D22}
+# board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_AD_6 -connector {mb1.A14  mb1.D23}
+# board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_AD_7 -connector {mb1.A13  mb1.D24}
+# board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_AD_8 -connector {mb1.A8   mb1.D17}
+# 
+# 
+# # B <-> C   6 cables  (300)
+# board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_BC_1 -connector {mb1.B24  mb1.C13}
+# board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_BC_2 -connector {mb1.B23  mb1.C14}
+# board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_BC_3 -connector {mb1.B22  mb1.C15}
+# board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_BC_4 -connector {mb1.B21  mb1.C16}
+# board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_BC_5 -connector {mb1.B20  mb1.C17}
+# board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_BC_6 -connector {mb1.B19  mb1.C18}
+# 
+# 
+# # B <-> D   1 cables  (50)
+# ##N.C##board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_BD_1 -connector {mb1.B13  mb1.D13}
+# 
+# 
+# # C <-> D   6 cables  (300)
+# ##N.C##board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_CD_1 -connector {mb1.C7   mb1.D14}
+# ##N.C##board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_CD_2 -connector {mb1.C8   mb1.D15}
+# ##N.C##board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_CD_3 -connector {mb1.C9   mb1.D4}
+# ##N.C##board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_CD_4 -connector {mb1.C10  mb1.D5}
+# ##N.C##board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_CD_5 -connector {mb1.C11  mb1.D6}
+# ##N.C##board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_CD_6 -connector {mb1.C12  mb1.D7}
+
+
+#------------------------------------------------------------------------------
+# Base80 (V2) Config
+#------------------------------------------------------------------------------
+# A <-> B   2 cables  (100)
+board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_AB_1 -connector {mb1.A24  mb1.B13}
+board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_AB_2 -connector {mb1.A12  mb1.B5}
+
+
+# A <-> C   5 cables  (250)
+board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_AC_1 -connector {mb1.A23  mb1.C24}
+board_system_create -interconnect -manual CON_CABLE_50_HT3 -name conn_AC_2 -connector {mb1.A21  mb1.C9}
+board_system_create -interconnect -manual CON_CABLE_50_HT3 -name conn_AC_3 -connector {mb1.A20  mb1.C10}
+board_system_create -interconnect -manual CON_CABLE_50_HT3 -name conn_AC_4 -connector {mb1.A19  mb1.C11}
+board_system_create -interconnect -manual CON_CABLE_50_HT3 -name conn_AC_5 -connector {mb1.A18  mb1.C12}
+
+
+# A <-> D   8 cables  (400)
+board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_AD_1 -connector {mb1.A22  mb1.D13}
+board_system_create -interconnect -manual CON_CABLE_50_HT3 -name conn_AD_2 -connector {mb1.A8   mb1.D5}
+board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_AD_3 -connector {mb1.A13  mb1.D24}
+board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_AD_4 -connector {mb1.A14  mb1.D23}
+board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_AD_5 -connector {mb1.A15  mb1.D22}
+board_system_create -interconnect -manual CON_CABLE_50_HT3 -name conn_AD_6 -connector {mb1.A6   mb1.D12}
+board_system_create -interconnect -manual CON_CABLE_50_HT3 -name conn_AD_7 -connector {mb1.A9   mb1.D4}
+board_system_create -interconnect -manual CON_CABLE_50_HT3 -name conn_AD_8 -connector {mb1.A4   mb1.D6}
+
+
+# B <-> C   6 cables  (300)
+board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_BC_1 -connector {mb1.B18  mb1.C19}
+board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_BC_2 -connector {mb1.B19  mb1.C18}
+board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_BC_3 -connector {mb1.B21  mb1.C8}
+board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_BC_4 -connector {mb1.B22  mb1.C15}
+board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_BC_5 -connector {mb1.B23  mb1.C14}
+board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_BC_6 -connector {mb1.B24  mb1.C13}
+
+
+# B <-> D   2 cables  (100)
+##N.C##board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_BD_1 -connector {mb1.B16  mb1.D19}
+##N.C##board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_BD_1 -connector {mb1.B17  mb1.D18}
+
+
+# C <-> D   6 cables  (300)
+##N.C##board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_CD_1 -connector {mb1.C16  mb1.D16}
+##N.C##board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_CD_2 -connector {mb1.C17  mb1.D17}
+##N.C##board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_CD_3 -connector {mb1.C20  mb1.D20}
+##N.C##board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_CD_4 -connector {mb1.C21  mb1.D21}
+##N.C##board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_CD_5 -connector {mb1.C22  mb1.D15}
+##N.C##board_system_create -interconnect -manual CON_CABLE_25_HT3 -name conn_CD_6 -connector {mb1.C23  mb1.D14}
+
+

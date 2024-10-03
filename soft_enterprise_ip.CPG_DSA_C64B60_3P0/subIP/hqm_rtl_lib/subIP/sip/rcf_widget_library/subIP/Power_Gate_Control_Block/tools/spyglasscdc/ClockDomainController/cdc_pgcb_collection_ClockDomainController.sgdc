@@ -1,0 +1,66 @@
+current_design ClockDomainController
+# Clock information:
+######################################### 
+
+clock -name "pgcb_clk"   -domain PGCB_CLK -tag PGCB_CLK
+clock -name "clock"   -domain CDC_CLK -tag CDC_CLK
+clock -name "prescc_clock"   -domain PRESCC_CDC_CLK -tag PRESCC_CDC_CLK
+
+# Resets
+#########################################
+#reset -name "ClockDomainController.reset_b[0]" -value 0
+reset -name "pok_reset_b" -value 0
+reset -name "pgcb_rst_b" -value 0
+
+
+current_design ClockDomainController 
+
+set_case_analysis -name fscan_clkungate -value 0
+set_case_analysis -name fscan_rstbypen -value 0
+
+#=================================================
+
+#           ABSTRACT PORT INFORMATION             
+
+#=================================================
+
+current_design ClockDomainController 
+
+abstract_port -ports "clkack" -clock "VCLK_ClockDomainController_clkack" -direction input
+abstract_port -ports "clkreq" -clock "pgcb_clk" -direction output
+abstract_port -ports "pok" -clock "clock" -direction output
+abstract_port -ports "gclock_enable_final" -clock "clock" -direction output
+abstract_port -ports "gclock_req_sync" -clock "clock" -direction input
+abstract_port -ports "gclock_req_async" -clock "VCLK_ClockDomainController_gclock_req_async" -direction input
+abstract_port -ports "gclock_ack_async" -clock "clock" -direction output
+abstract_port -ports "gclock_active" -clock "clock" -direction output
+abstract_port -ports "ism_fabric" -clock "clock" -direction input
+abstract_port -ports "ism_agent" -clock "clock" -direction input
+abstract_port -ports "ism_locked" -clock "clock" -direction output
+abstract_port -ports "boundary_locked" -clock "clock" -direction output
+abstract_port -ports "cfg_clkgate_disabled" -clock "VCLK_ClockDomainController_cfg_clkgate_disabled" -direction input
+abstract_port -ports "cfg_clkreq_ctl_disabled" -clock "VCLK_ClockDomainController_cfg_clkreq_ctl_disabled" -direction input
+abstract_port -ports "cfg_clkgate_holdoff" -clock "VCLK_ClockDomainController_cfg_clkgate_holdoff" -direction input
+abstract_port -ports "cfg_pwrgate_holdoff" -clock "VCLK_ClockDomainController_cfg_pwrgate_holdoff" -direction input
+abstract_port -ports "cfg_clkreq_off_holdoff" -clock "VCLK_ClockDomainController_cfg_clkreq_off_holdoff" -direction input
+abstract_port -ports "cfg_clkreq_syncoff_holdoff" -clock "VCLK_ClockDomainController_cfg_clkreq_syncoff_holdoff" -direction input
+abstract_port -ports "pwrgate_disabled" -clock "pgcb_clk" -direction input
+abstract_port -ports "pwrgate_force" -clock "pgcb_clk" -direction input
+abstract_port -ports "pwrgate_pmc_wake" -clock "pgcb_clk" -direction input
+abstract_port -ports "pwrgate_ready" -clock "pgcb_clk" -direction output
+abstract_port -ports "pgcb_force_rst_b" -clock "pgcb_clk" -direction input
+abstract_port -ports "pgcb_pok" -clock "pgcb_clk" -direction input
+abstract_port -ports "pgcb_restore" -clock "pgcb_clk" -direction input
+abstract_port -ports "pgcb_pwrgate_active" -clock "pgcb_clk" -direction input
+abstract_port -ports "fscan_clkungate" -clock "VCLK_ClockDomainController_fscan_clkungate" -direction input
+abstract_port -ports "fismdfx_force_clkreq" -clock "VCLK_ClockDomainController_fismdfx_force_clkreq" -direction input
+abstract_port -ports "fismdfx_clkgate_ovrd" -clock "VCLK_ClockDomainController_fismdfx_clkgate_ovrd" -direction input
+abstract_port -ports "fscan_byprst_b" -clock "VCLK_ClockDomainController_fscan_byprst_b" -direction input
+abstract_port -ports "fscan_rstbypen" -clock "VCLK_ClockDomainController_fscan_rstbypen" -direction input
+abstract_port -ports "fscan_clkgenctrlen" -clock "VCLK_ClockDomainController_fscan_clkgenctrlen" -direction input
+abstract_port -ports "fscan_clkgenctrl" -clock "VCLK_ClockDomainController_fscan_clkgenctrl" -direction input
+
+#############
+#   VISA    
+#############
+

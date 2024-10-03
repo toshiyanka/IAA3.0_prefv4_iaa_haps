@@ -1,0 +1,22 @@
+HCW DIR:DQID0  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQID0 dsi=0x302
+poll_sch  dir:DQID0  0x1     1000 20
+wr hqm_system_csr.parity_ctl.INJ_PAR_ERR_SCH_INT 0x1
+rd hqm_system_csr.parity_ctl.INJ_PAR_ERR_SCH_INT 0x1
+HCW DIR:DQID0  qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x303 msgtype=0 qpri=0 qtype=dir qid=DQID0 dsi=0x302
+poll_sch  dir:DQID0  0x2     1000 20
+##check cq_occ interrupt
+rd hqm_system_csr.dir_cq_31_0_occ_int_status 0x0
+rd hqm_system_csr.dir_cq_63_32_occ_int_status 0x0
+rd hqm_system_csr.dir_cq_95_64_occ_int_status 0x0
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd  0x804a8400 
+rd hqm_system_csr.egress_lut_err 0x00004000 ##SCH_INT_PL_PERR
+rd hqm_system_csr.alarm_err      0x00000004 ##EGRESS_PERR 
+wr hqm_system_csr.alarm_hw_synd  0x804a8400 
+wr hqm_system_csr.egress_lut_err 0x00004000
+wr hqm_system_csr.alarm_err      0x00000004
+rd hqm_system_csr.alarm_hw_synd  0x004a8400 
+wr hqm_system_csr.msix_ack.MSIX_0_ACK 1
+rd hqm_system_csr.msix_ack.MSIX_0_ACK 0
+HCW DIR:DQID0  qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x1 msgtype=0 qpri=0 qtype=dir qid=DQID0 dsi=0x302
+idle 1000

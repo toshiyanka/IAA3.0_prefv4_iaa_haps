@@ -1,0 +1,59 @@
+wash -n intelall soc socenv socrtl dk10nm hdk10nm hdk10nmproc siphdk fabric n7 n7fe s14nm n6 n6fe
+
+FOR SLES12 ONLY (not needed for SLES11):
+        setenv RTL_PROJ_BIN_OVERRIDE /p/hdk/rtl/proj_tools/proj_binx/cds/latest
+
+source /p/hdk/rtl/hdk.rc -cfg sip -reentrant
+setenv MODEL_ROOT $cwd
+
+Compile the model
+=================
+simbuild -dut sbr -1c -CUST p1274 -toolset mat1.6.4.p2 -1c- -ace_args -command "ace -cc -enable_hier_dump" -ace_args- -nf
+
+File list generation
+====================
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.4.p2 -1c- -s all +s .tophiergen
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.4.p2 -1c- -s all +s .v2k_prep
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.4.p2 -1c- -s all +s .flg_v2k
+
+Run ISAF (SpyglassDFT)
+======================
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.4.p2 -1c- -s all +s spyglass_build
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.4.p2 -1c- -s all +s sbr0_sbr_generic.sgdft
+
+   Commands to run sgdft step by step
+       febe -dut sbr -1c -CUST p1274 -toolset mat1.6.4.p2 -1c- -s all +s sbr0_sbr_generic.sgdft.setup
+       febe -dut sbr -1c -CUST p1274 -toolset mat1.6.4.p2 -1c- -s all +s sbr0_sbr_generic.sgdft.drc
+       febe -dut sbr -1c -CUST p1274 -toolset mat1.6.4.p2 -1c- -s all +s sbr0_sbr_generic.sgdft.sgpackage
+   Command to run sgdft for all routers
+       febe -dut sbr -1c -CUST p1274 -toolset mat1.6.4.p2 -1c- -s all +s .sgdft
+
+DC, FV
+======
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.4.p2 -1c- -s all +s gen_collateral +s build_blocksinfo +s sbr0_sbr_generic.dc
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.4.p2 -1c- -s all +s sbr0_sbr_generic.fv
+
+SGLINT
+======
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.4.p2 -1c- -s all +s lintra_build
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.4.p2 -1c- -s all +s sbr0_sbr_generic.lintra_elab
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.4.p2 -1c- -s all +s spyglass_build
+simbuild -dut sbr -1c -CUST p1274 -toolset mat1.6.4.p2 -1c- -s all +s sglint_build -sglint_build "-ASSIGN -mc=sglint_sbr0_sbr_generic"
+simbuild -dut sbr -1c -CUST p1274 -toolset mat1.6.4.p2 -1c- -s all +s sglint_test -sglint_test "-t spyglasslint/sbr0_sbr_generic -noepi"
+
+SGCDC
+=====
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.4.p2 -1c- -s all +s lintra_build
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.4.p2 -1c- -s all +s sbr0_sbr_generic.lintra_elab
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.4.p2 -1c- -s all +s spyglass_build
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.4.p2 -1c- -s all +s spyglass_build_lp
+simbuild -dut sbr -1c -CUST p1274 -toolset mat1.6.4.p2 -1c- -s all +s sgcdc_build -sgcdc_build "-ASSIGN -mc=sbr_config_ipxact_workspace -vlog_opts +define+functional+IOSF_SB_PH2 -vlog_opts +define+INTEL_QUESTACDC_BUG"
+simbuild -dut sbr -1c -CUST p1274 -toolset mat1.6.4.p2 -1c- -s all +s sgcdc_test -sgcdc_test "-t spyglass_cdc/sbr0_sbr_generic:SetupChk -vlog_opts +define+INTEL_QUESTACDC_BUG"
+simbuild -dut sbr -1c -CUST p1274 -toolset mat1.6.4.p2 -1c- -s all +s sgcdc_test -sgcdc_test "-t spyglass_cdc/sbr0_sbr_generic -vlog_opts +define+INTEL_QUESTACDC_BUG"
+
+VCLP
+====
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.4.p2 -1c- -s all +s vclp_build
+febe -dut sbr -1c -CUST p1274 -toolset mat1.6.4.p2 -1c- -s all +s sbr0_sbr_generic.vclp_test
+
+

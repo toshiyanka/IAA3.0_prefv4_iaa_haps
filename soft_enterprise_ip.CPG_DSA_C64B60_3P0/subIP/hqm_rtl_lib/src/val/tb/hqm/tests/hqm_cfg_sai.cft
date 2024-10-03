@@ -1,0 +1,49 @@
+idle 400
+sai 7   # HOSTIA_SUNPASS_SAI
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+###################################
+# Allow HQM to powerup
+idle 300
+rd config_master.cfg_pm_pmcsr_disable
+wr config_master.cfg_pm_pmcsr_disable.disable 0
+rd config_master.cfg_pm_pmcsr_disable
+rd config_master.cfg_pm_override
+rd config_master.cfg_diagnostic_reset_status
+#poll to Wait for reset to be done 
+poll config_master.cfg_diagnostic_reset_status 0x80000bff 0x80000bff 500
+#poll to Wait for unit_idle to be done 
+poll config_master.cfg_diagnostic_idle_status 0x0007ffff 0x0007ffff 500
+###################################
+# Test hqm_system LUTs
+rd hqm_system_csr.hcw_enq_fifo_ctl
+wr hqm_system_csr.hcw_enq_fifo_ctl 0x55
+rd hqm_system_csr.hcw_enq_fifo_ctl 0x55
+#
+wr hqm_sif_csr.hqm_csr_wac_lo 0
+wr hqm_sif_csr.hqm_csr_wac_hi 0
+#
+wr hqm_system_csr.hcw_enq_fifo_ctl 0xaa
+rd hqm_system_csr.hcw_enq_fifo_ctl 0x55
+#
+wr hqm_sif_csr.hqm_csr_wac_lo 0x0100020b
+wr hqm_sif_csr.hqm_csr_wac_hi 0x20000400
+#
+wr hqm_system_csr.hcw_enq_fifo_ctl 0xaa
+rd hqm_system_csr.hcw_enq_fifo_ctl 0xaa

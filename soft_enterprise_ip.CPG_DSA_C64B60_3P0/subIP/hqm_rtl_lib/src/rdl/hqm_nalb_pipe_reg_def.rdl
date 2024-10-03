@@ -1,0 +1,675 @@
+<% use security; %>
+<% my %Security_Props = security::GetSecurityInfo(); %>
+
+reg cfg_control_general_r {
+      IntelRsvd=false;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="CONFIG_REG_NA_1";
+      name = "Cfg Control General";
+      desc = "Non-default settings may cause UNDEFINED behavior.general control register";
+      regwidth = 32;
+      HandCoded=true;
+      field { name = "Rsvz0";    desc = "rsvz0";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_control_general.internal_f[31:2]";} RSVZ0[31:2] = 30'h0;
+      field { name = "50 percent mode"; desc = "restict arbitration to wait for p0 stage to be idle"; fieldwidth = 1;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_control_general.internal_f[1:1]";} CHICKEN_50 [1:1] = 1'b0;
+      field { name = "Single Issue Mode "; desc = "restict arbitration to wait for pipeline to be idle"; fieldwidth = 1;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_control_general.internal_f[0:0]";} CHICKEN_SIM [0:0] = 1'b0;
+  };
+reg cfg_control_arb_weights_tqpri_replay_0_r {
+      IntelRsvd=false;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      shared;
+      HqmClassification="CONFIG_REG_NA_1";
+      name = "Cfg Control Arb Weights Tqpri Replay_0";
+      desc = "lower random arbiter weights for selecting load balanced replay fragment HCW Priority QE when scheduling.   Each priorityBin (PriorityBin[0]=HCW.pri{0,1}, PriorityBin[1]=HCW.pri{2,3}, PriorityBin[2]=HCW.pri{4,5}, PriorityBin[3]=HCW.pri{6,7})  class is assigned an 8 bit weight; each succeeding lower priority class is assigned a weight greater than or equal to the preceding higher class.  The difference between adjacent weights A and B, corresponds to the fraction the (A-B)/256 will be be selected. A value of zero removes the class from random selection and reverts to the loser strict selection. ";
+      regwidth = 32;
+      HandCoded=true;
+      field { name = "PRI3"; desc = "schedule replay PriorityBin=3 weight"; fieldwidth = 8;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_control_arb_weights_tqpri_replay_0.internal_f[31:24]";} PRI3[31:24] = 8'hfe;
+      field { name = "PRI2"; desc = "schedule replay PriorityBin=2 weight"; fieldwidth = 8;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_control_arb_weights_tqpri_replay_0.internal_f[23:16]";} PRI2[23:16] = 8'hfc;
+      field { name = "PRI1"; desc = "schedule replay PriorityBin=1 weight"; fieldwidth = 8;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_control_arb_weights_tqpri_replay_0.internal_f[15:8]";} PRI1[15:8] = 8'hfa;
+      field { name = "PRI0"; desc = "schedule replay PriorityBin=0 weight"; fieldwidth = 8;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_control_arb_weights_tqpri_replay_0.internal_f[7:0]";} PRI0[7:0] = 8'hf8;
+  };
+reg cfg_control_arb_weights_tqpri_replay_1_r {
+      IntelRsvd=false;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      shared;
+      HqmClassification="CONFIG_REG_NA_1";
+      name = "Cfg Control Arb Weights Tqpri Replay_1";
+      desc = "upper random arbiter weights for selecting load balanced replay fragment HCW Priority QE when scheduling. Currenlty unused, maintian CFG target for backward compatibility";
+      regwidth = 32;
+      HandCoded=true;
+      field { name = "Rsvz0";    desc = "rsvz0";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_control_arb_weights_tqpri_replay_1.status[31:0]";} RSVZ0[31:0] = 32'h0;
+  };
+reg cfg_control_arb_weights_tqpri_atq_0_r {
+      IntelRsvd=false;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      shared;
+      HqmClassification="CONFIG_REG_NA_1";
+      name = "Cfg Control Arb Weights Tqpri Atq_0";
+      desc = "lower random arbiter weights for selecting atomic ATQ-ATM HCW Priority QE when scheduling.   Each priorityBin (PriorityBin[0]=HCW.pri{0,1}, PriorityBin[1]=HCW.pri{2,3}, PriorityBin[2]=HCW.pri{4,5}, PriorityBin[3]=HCW.pri{6,7})  class is assigned an 8 bit weight; each succeeding lower priority class is assigned a weight greater than or equal to the preceding higher class.  The difference between adjacent weights A and B, corresponds to the fraction the (A-B)/256 will be be selected. A value of zero removes the class from random selection and reverts to the loser strict selection. ";
+      regwidth = 32;
+      HandCoded=true;
+      field { name = "PRI3"; desc = "schedule atq PriorityBin=3 weight"; fieldwidth = 8;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_control_arb_weights_tqpri_atq_0.internal_f[31:24]";} PRI3[31:24] = 8'hfe;
+      field { name = "PRI2"; desc = "schedule atq PriorityBin=2 weight"; fieldwidth = 8;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_control_arb_weights_tqpri_atq_0.internal_f[23:16]";} PRI2[23:16] = 8'hfc;
+      field { name = "PRI1"; desc = "schedule atq PriorityBin=1 weight"; fieldwidth = 8;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_control_arb_weights_tqpri_atq_0.internal_f[15:8]";} PRI1[15:8] = 8'hfa;
+      field { name = "PRI0"; desc = "schedule atq PriorityBin=0 weight"; fieldwidth = 8;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_control_arb_weights_tqpri_atq_0.internal_f[7:0]";} PRI0[7:0] = 8'hf8;
+  };
+reg cfg_control_arb_weights_tqpri_atq_1_r {
+      IntelRsvd=false;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      shared;
+      HqmClassification="CONFIG_REG_NA_1";
+      name = "Cfg Control Arb Weights Tqpri Atq_1";
+      desc = "upper random arbiter weights for selecting atomic ATQ-ATM HCW Priority QE when scheduling.Currenlty unused, maintian CFG target for backward compatibility";
+      regwidth = 32;
+      HandCoded=true;
+      field { name = "Rsvz0";    desc = "rsvz0";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_control_arb_weights_tqpri_atq_1.status[31:0]";} RSVZ0[31:0] = 32'h0;
+  };
+reg cfg_control_arb_weights_tqpri_nalb_0_r {
+      IntelRsvd=false;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      shared;
+      HqmClassification="CONFIG_REG_NA_1";
+      name = "Cfg Control Arb Weights Tqpri Nalb_0";
+      desc = "lower random arbiter weights for selecting load balanced (unordered, ordered) HCW Priority QE when scheduling.   Each priorityBin (PriorityBin[0]=HCW.pri{0,1}, PriorityBin[1]=HCW.pri{2,3}, PriorityBin[2]=HCW.pri{4,5}, PriorityBin[3]=HCW.pri{6,7})  class is assigned an 8 bit weight; each succeeding lower priority class is assigned a weight greater than or equal to the preceding higher class.  The difference between adjacent weights A and B, corresponds to the fraction the (A-B)/256 will be be selected. A value of zero removes the class from random selection and reverts to the loser strict selection. ";
+      regwidth = 32;
+      HandCoded=true;
+      field { name = "PRI3"; desc = "schedule nalb PriorityBin=3 weight"; fieldwidth = 8;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_control_arb_weights_tqpri_nalb_0.internal_f[31:24]";} PRI3[31:24] = 8'hfe;
+      field { name = "PRI2"; desc = "schedule nalb PriorityBin=2 weight"; fieldwidth = 8;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_control_arb_weights_tqpri_nalb_0.internal_f[23:16]";} PRI2[23:16] = 8'hfc;
+      field { name = "PRI1"; desc = "schedule nalb PriorityBin=1 weight"; fieldwidth = 8;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_control_arb_weights_tqpri_nalb_0.internal_f[15:8]";} PRI1[15:8] = 8'hfa;
+      field { name = "PRI0"; desc = "schedule nalb PriorityBin=0 weight"; fieldwidth = 8;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_control_arb_weights_tqpri_nalb_0.internal_f[7:0]";} PRI0[7:0] = 8'hf8;
+  };
+reg cfg_control_arb_weights_tqpri_nalb_1_r {
+      IntelRsvd=false;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      shared;
+      HqmClassification="CONFIG_REG_NA_1";
+      name = "Cfg Control Arb Weights Tqpri Nalb_1";
+      desc = "upper random arbiter weights for selecting load balanced (unordered, ordered) HCW Priority QE when scheduling.Currenlty unused, maintian CFG target for backward compatibility";
+      regwidth = 32;
+      HandCoded=true;
+      field { name = "Rsvz0";    desc = "rsvz0";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_control_arb_weights_tqpri_nalb_1.status[31:0]";} RSVZ0[31:0] = 32'h0;
+  };
+reg cfg_control_pipeline_credits_r {
+      IntelRsvd=false;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="CONFIG_REG_NA_1";
+      name = "Cfg Control Pipeline Credits";
+      desc = "Non-default settings may cause UNDEFINED behavior.pipeline credit configuration";
+      regwidth = 32;
+      HandCoded=true;
+      field { name = "Rsvz0";    desc = "rsvz0";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_control_pipeline_credits.internal_f[31:30]";} RSVZ0[31:30] = 2'h0;
+      field { name = "Nalb Qed Atq"; desc = "pipeline credits for atq schedule"; fieldwidth = 5;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_control_pipeline_credits.internal_f[29:25]";} NALB_QED_ATQ[29:25] = 5'h09 ;
+      field { name = "Nalb Lsp Enq Lb Atq"; desc = "pipeline credits for atq->atm transfer"; fieldwidth = 5;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_control_pipeline_credits.internal_f[24:20]";} NALB_LSP_ENQ_LB_ATQ[24:20] = 5'h09 ;
+      field { name = "Nalb Qed Rorply"; desc = "pipeline credits for replay schedule"; fieldwidth = 5;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_control_pipeline_credits.internal_f[19:15]";} NALB_QED_RORPLY[19:15] = 5'h09 ;
+      field { name = "Nalb Lsp Enq Lb Rorply"; desc = "pipeline credits for fragment or replay list enqueue"; fieldwidth = 5;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_control_pipeline_credits.internal_f[14:10]";} NALB_LSP_ENQ_LB_RORPLY[14:10] = 5'h09 ;
+      field { name = "Nalb Qed Lb"; desc = "pipeline credits for direct HCW schedule"; fieldwidth = 5;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_control_pipeline_credits.internal_f[9:5]";} NALB_QED_LB[9:5] = 5'h09 ;
+      field { name = "Nalb Lsp Enq Lb"; desc = "pipeline credits for direct HCW enqueue"; fieldwidth = 5;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_control_pipeline_credits.internal_f[4:0]";} NALB_LSP_ENQ_LB[4:0] = 5'h09 ;
+  };
+reg cfg_error_inject_r {
+      donttest = true ;
+      IntelRsvd=false;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="DEBUG_ONLY_REG_NA_1";
+      name = "Cfg Error Inject";
+      desc = "Non-default settings may cause UNDEFINED behavior.inject errors into interface or RAM checking";
+      regwidth = 32;
+      HandCoded=true;
+      field { name = "Rsvz0";    desc = "rsvz0";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_error_inject.internal_f[31:12]";} RSVZ0[31:12] = 20'h0;
+      field { name = "Lsp Nalb 5"; desc = "inject PARITY error into (three) lsp to nalb interface check and propagate to nalb to qed interface"; fieldwidth = 1;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_error_inject.internal_f[11:11]";} LSP_NALB_5[11:11] = 1'h0;
+      field { name = "Rop Nalb 5"; desc = "inject PARITY error into rop to nalb interface check and propagate to (all) nalb to lsp interface"; fieldwidth = 1;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_error_inject.internal_f[10:10]";} ROP_NALB_5[10:10] = 1'h0;
+      field { name = "Rop Nalb 4"; desc = "inject PARITY error into rop to nalb interface check and propagate to (all) nalb to lsp interface"; fieldwidth = 1;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_error_inject.internal_f[9:9]";} ROP_NALB_4[9:9] = 1'h0;
+      field { name = "Rop Nalb 3"; desc = "inject PARITY error into rop to nalb interface check and propagate to (all) nalb to lsp interface"; fieldwidth = 1;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_error_inject.internal_f[8:8]";} ROP_NALB_3[8:8] = 1'h0;
+      field { name = "Lsp Nalb 4"; desc = "inject PARITY error into (three) lsp to nalb interface check and propagate to nalb to qed interface"; fieldwidth = 1;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_error_inject.internal_f[7:7]";} LSP_NALB_4[7:7] = 1'h0;
+      field { name = "Rop Nalb 2"; desc = "inject PARITY error into rop to nalb interface check and propagate to (all) nalb to lsp interface"; fieldwidth = 1;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_error_inject.internal_f[6:6]";} ROP_NALB_2[6:6] = 1'h0;
+      field { name = "Lsp Nalb 3"; desc = "inject PARITY error into (three) lsp to nalb interface check and propagate to nalb to qed interface"; fieldwidth = 1;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_error_inject.internal_f[5:5]";} LSP_NALB_3[5:5] = 1'h0;
+      field { name = "Rop Nalb 1"; desc = "inject PARITY error into rop to nalb interface check and propagate to (all) nalb to lsp interface"; fieldwidth = 1;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_error_inject.internal_f[4:4]";} ROP_NALB_1[4:4] = 1'h0;
+      field { name = "Lsp Nalb 2"; desc = "inject PARITY error into (three) lsp to nalb interface check and propagate to nalb to qed interface"; fieldwidth = 1;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_error_inject.internal_f[3:3]";} LSP_NALB_2[3:3] = 1'h0;
+      field { name = "Lsp Nalb 1"; desc = "inject PARITY error into (three) lsp to nalb interface check and propagate to nalb to qed interface"; fieldwidth = 1;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_error_inject.internal_f[2:2]";} LSP_NALB_1[2:2] = 1'h0;
+      field { name = "Lsp Nalb 0"; desc = "inject PARITY error into (three) lsp to nalb interface check and propagate to nalb to qed interface"; fieldwidth = 1;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_error_inject.internal_f[1:1]";} LSP_NALB_0[1:1] = 1'h0;
+      field { name = "Rop Nalb 0"; desc = "inject PARITY error into rop to nalb interface check and propagate to (all) nalb to lsp interface"; fieldwidth = 1;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_error_inject.internal_f[0:0]";} ROP_NALB_0[0:0] = 1'h0;
+  };
+reg cfg_pipe_health_hold_00_r {
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="STATUS_REG_NA_1";
+      name = "Cfg Pipe Health Hold_00";
+      desc = "pipeline health hold status";
+      regwidth = 32;
+      HandCoded=true;
+      field { name = "P8 Replay Hold"; desc = "p8 pipeline hold for nalb replay list pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_00.internal_f[26:26]";} P8_REPLAY_HOLD[26:26] = 1'b0 ;
+      field { name = "P7 Replay Hold"; desc = "p7 pipeline hold for nalb replay list pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_00.internal_f[25:25]";} P7_REPLAY_HOLD[25:25] = 1'b0 ;
+      field { name = "P6 Replay Hold"; desc = "p6 pipeline hold for nalb replay list pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_00.internal_f[24:24]";} P6_REPLAY_HOLD[24:24] = 1'b0 ;
+      field { name = "P5 Replay Hold"; desc = "p5 pipeline hold for nalb replay list pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_00.internal_f[23:23]";} P5_REPLAY_HOLD[23:23] = 1'b0 ;
+      field { name = "P4 Replay Hold"; desc = "p4 pipeline hold for nalb replay list pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_00.internal_f[22:22]";} P4_REPLAY_HOLD[22:22] = 1'b0 ;
+      field { name = "P3 Replay Hold"; desc = "p3 pipeline hold for nalb replay list pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_00.internal_f[21:21]";} P3_REPLAY_HOLD[21:21] = 1'b0 ;
+      field { name = "P2 Replay Hold"; desc = "p2 pipeline hold for nalb replay list pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_00.internal_f[20:20]";} P2_REPLAY_HOLD[20:20] = 1'b0 ;
+      field { name = "P1 Replay Hold"; desc = "p1 pipeline hold for nalb replay list pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_00.internal_f[19:19]";} P1_REPLAY_HOLD[19:19] = 1'b0 ;
+      field { name = "P0 Replay Hold"; desc = "p0 pipeline hold for nalb replay list pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_00.internal_f[18:18]";} P0_REPLAY_HOLD[18:18] = 1'b0 ;
+      field { name = "P8 Rofrag Hold"; desc = "p8 pipeline hold for nalb reorder fragment pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_00.internal_f[17:17]";} P8_ROFRAG_HOLD[17:17] = 1'b0 ;
+      field { name = "P7 Rofrag Hold"; desc = "p7 pipeline hold for nalb reorder fragment pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_00.internal_f[16:16]";} P7_ROFRAG_HOLD[16:16] = 1'b0 ;
+      field { name = "P6 Rofrag Hold"; desc = "p6 pipeline hold for nalb reorder fragment pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_00.internal_f[15:15]";} P6_ROFRAG_HOLD[15:15] = 1'b0 ;
+      field { name = "P5 Rofrag Hold"; desc = "p5 pipeline hold for nalb reorder fragment pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_00.internal_f[14:14]";} P5_ROFRAG_HOLD[14:14] = 1'b0 ;
+      field { name = "P4 Rofrag Hold"; desc = "p4 pipeline hold for nalb reorder fragment pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_00.internal_f[13:13]";} P4_ROFRAG_HOLD[13:13] = 1'b0 ;
+      field { name = "P3 Rofrag Hold"; desc = "p3 pipeline hold for nalb reorder fragment pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_00.internal_f[12:12]";} P3_ROFRAG_HOLD[12:12] = 1'b0 ;
+      field { name = "P2 Rofrag Hold"; desc = "p2 pipeline hold for nalb reorder fragment pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_00.internal_f[11:11]";} P2_ROFRAG_HOLD[11:11] = 1'b0 ;
+      field { name = "P1 Rofrag Hold"; desc = "p1 pipeline hold for nalb reorder fragment pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_00.internal_f[10:10]";} P1_ROFRAG_HOLD[10:10] = 1'b0 ;
+      field { name = "P0 Rofrag Hold"; desc = "p0 pipeline hold for nalb reorder fragment pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_00.internal_f[9:9]";} P0_ROFRAG_HOLD[9:9] = 1'b0 ;
+      field { name = "P8 Nalb Hold"; desc = "p8 pipeline hold for nalb pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_00.internal_f[8:8]";} P8_NALB_HOLD[8:8] = 1'b0 ;
+      field { name = "P7 Nalb Hold"; desc = "p7 pipeline hold for nalb pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_00.internal_f[7:7]";} P7_NALB_HOLD[7:7] = 1'b0 ;
+      field { name = "P6 Nalb Hold"; desc = "p6 pipeline hold for nalb pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_00.internal_f[6:6]";} P6_NALB_HOLD[6:6] = 1'b0 ;
+      field { name = "P5 Nalb Hold"; desc = "p5 pipeline hold for nalb pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_00.internal_f[5:5]";} P5_NALB_HOLD[5:5] = 1'b0 ;
+      field { name = "P4 Nalb Hold"; desc = "p4 pipeline hold for nalb pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_00.internal_f[4:4]";} P4_NALB_HOLD[4:4] = 1'b0 ;
+      field { name = "P3 Nalb Hold"; desc = "p3 pipeline hold for nalb pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_00.internal_f[3:3]";} P3_NALB_HOLD[3:3] = 1'b0 ;
+      field { name = "P2 Nalb Hold"; desc = "p2 pipeline hold for nalb pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_00.internal_f[2:2]";} P2_NALB_HOLD[2:2] = 1'b0 ;
+      field { name = "P1 Nalb Hold"; desc = "p1 pipeline hold for nalb pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_00.internal_f[1:1]";} P1_NALB_HOLD[1:1] = 1'b0 ;
+      field { name = "P0 Nalb Hold"; desc = "p0 pipeline hold for nalb pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_00.internal_f[0:0]";} P0_NALB_HOLD[0:0] = 1'b0 ;
+  };
+reg cfg_pipe_health_hold_01_r {
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="STATUS_REG_NA_1";
+      name = "Cfg Pipe Health Hold_01";
+      desc = "pipeline health hold status";
+      regwidth = 32;
+      HandCoded=true;
+      field { name = "P8 Atq Hold"; desc = "p8 pipeline hold for nalb atq pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_01.internal_f[8:8]";} P8_ATQ_HOLD[8:8] = 1'b0 ;
+      field { name = "P7 Atq Hold"; desc = "p7 pipeline hold for nalb atq pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_01.internal_f[7:7]";} P7_ATQ_HOLD[7:7] = 1'b0 ;
+      field { name = "P6 Atq Hold"; desc = "p6 pipeline hold for nalb atq pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_01.internal_f[6:6]";} P6_ATQ_HOLD[6:6] = 1'b0 ;
+      field { name = "P5 Atq Hold"; desc = "p5 pipeline hold for nalb atq pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_01.internal_f[5:5]";} P5_ATQ_HOLD[5:5] = 1'b0 ;
+      field { name = "P4 Atq Hold"; desc = "p4 pipeline hold for nalb atq pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_01.internal_f[4:4]";} P4_ATQ_HOLD[4:4] = 1'b0 ;
+      field { name = "P3 Atq Hold"; desc = "p3 pipeline hold for nalb atq pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_01.internal_f[3:3]";} P3_ATQ_HOLD[3:3] = 1'b0 ;
+      field { name = "P2 Atq Hold"; desc = "p2 pipeline hold for nalb atq pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_01.internal_f[2:2]";} P2_ATQ_HOLD[2:2] = 1'b0 ;
+      field { name = "P1 Atq Hold"; desc = "p1 pipeline hold for nalb atq pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_01.internal_f[1:1]";} P1_ATQ_HOLD[1:1] = 1'b0 ;
+      field { name = "P0 Atq Hold"; desc = "p0 pipeline hold for nalb atq pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_hold_01.internal_f[0:0]";} P0_ATQ_HOLD[0:0] = 1'b0 ;
+  };
+reg cfg_pipe_health_valid_00_r {
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="STATUS_REG_NA_1";
+      name = "Cfg Pipe Health Valid_00";
+      desc = "pipeline health valid status";
+      regwidth = 32;
+      HandCoded=true;
+      field { name = "P8 Replay Valid"; desc = "p8 pipeline valid for nalb replay list pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_00.internal_f[26:26]";} P8_REPLAY_VALID[26:26] = 1'b0 ;
+      field { name = "P7 Replay Valid"; desc = "p7 pipeline valid for nalb replay list pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_00.internal_f[25:25]";} P7_REPLAY_VALID[25:25] = 1'b0 ;
+      field { name = "P6 Replay Valid"; desc = "p6 pipeline valid for nalb replay list pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_00.internal_f[24:24]";} P6_REPLAY_VALID[24:24] = 1'b0 ;
+      field { name = "P5 Replay Valid"; desc = "p5 pipeline valid for nalb replay list pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_00.internal_f[23:23]";} P5_REPLAY_VALID[23:23] = 1'b0 ;
+      field { name = "P4 Replay Valid"; desc = "p4 pipeline valid for nalb replay list pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_00.internal_f[22:22]";} P4_REPLAY_VALID[22:22] = 1'b0 ;
+      field { name = "P3 Replay Valid"; desc = "p3 pipeline valid for nalb replay list pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_00.internal_f[21:21]";} P3_REPLAY_VALID[21:21] = 1'b0 ;
+      field { name = "P2 Replay Valid"; desc = "p2 pipeline valid for nalb replay list pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_00.internal_f[20:20]";} P2_REPLAY_VALID[20:20] = 1'b0 ;
+      field { name = "P1 Replay Valid"; desc = "p1 pipeline valid for nalb replay list pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_00.internal_f[19:19]";} P1_REPLAY_VALID[19:19] = 1'b0 ;
+      field { name = "P0 Replay Valid"; desc = "p0 pipeline valid for nalb replay list pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_00.internal_f[18:18]";} P0_REPLAY_VALID[18:18] = 1'b0 ;
+      field { name = "P8 Rofrag Valid"; desc = "p8 pipeline valid for nalb reorder fragment pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_00.internal_f[17:17]";} P8_ROFRAG_VALID[17:17] = 1'b0 ;
+      field { name = "P7 Rofrag Valid"; desc = "p7 pipeline valid for nalb reorder fragment pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_00.internal_f[16:16]";} P7_ROFRAG_VALID[16:16] = 1'b0 ;
+      field { name = "P6 Rofrag Valid"; desc = "p6 pipeline valid for nalb reorder fragment pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_00.internal_f[15:15]";} P6_ROFRAG_VALID[15:15] = 1'b0 ;
+      field { name = "P5 Rofrag Valid"; desc = "p5 pipeline valid for nalb reorder fragment pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_00.internal_f[14:14]";} P5_ROFRAG_VALID[14:14] = 1'b0 ;
+      field { name = "P4 Rofrag Valid"; desc = "p4 pipeline valid for nalb reorder fragment pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_00.internal_f[13:13]";} P4_ROFRAG_VALID[13:13] = 1'b0 ;
+      field { name = "P3 Rofrag Valid"; desc = "p3 pipeline valid for nalb reorder fragment pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_00.internal_f[12:12]";} P3_ROFRAG_VALID[12:12] = 1'b0 ;
+      field { name = "P2 Rofrag Valid"; desc = "p2 pipeline valid for nalb reorder fragment pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_00.internal_f[11:11]";} P2_ROFRAG_VALID[11:11] = 1'b0 ;
+      field { name = "P1 Rofrag Valid"; desc = "p1 pipeline valid for nalb reorder fragment pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_00.internal_f[10:10]";} P1_ROFRAG_VALID[10:10] = 1'b0 ;
+      field { name = "P0 Rofrag Valid"; desc = "p0 pipeline valid for nalb reorder fragment pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_00.internal_f[9:9]";} P0_ROFRAG_VALID[9:9] = 1'b0 ;
+      field { name = "P8 Nalb Valid"; desc = "p8 pipeline valid for nalb pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_00.internal_f[8:8]";} P8_NALB_VALID[8:8] = 1'b0 ;
+      field { name = "P7 Nalb Valid"; desc = "p7 pipeline valid for nalb pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_00.internal_f[7:7]";} P7_NALB_VALID[7:7] = 1'b0 ;
+      field { name = "P6 Nalb Valid"; desc = "p6 pipeline valid for nalb pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_00.internal_f[6:6]";} P6_NALB_VALID[6:6] = 1'b0 ;
+      field { name = "P5 Nalb Valid"; desc = "p5 pipeline valid for nalb pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_00.internal_f[5:5]";} P5_NALB_VALID[5:5] = 1'b0 ;
+      field { name = "P4 Nalb Valid"; desc = "p4 pipeline valid for nalb pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_00.internal_f[4:4]";} P4_NALB_VALID[4:4] = 1'b0 ;
+      field { name = "P3 Nalb Valid"; desc = "p3 pipeline valid for nalb pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_00.internal_f[3:3]";} P3_NALB_VALID[3:3] = 1'b0 ;
+      field { name = "P2 Nalb Valid"; desc = "p2 pipeline valid for nalb pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_00.internal_f[2:2]";} P2_NALB_VALID[2:2] = 1'b0 ;
+      field { name = "P1 Nalb Valid"; desc = "p1 pipeline valid for nalb pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_00.internal_f[1:1]";} P1_NALB_VALID[1:1] = 1'b0 ;
+      field { name = "P0 Nalb Valid"; desc = "p0 pipeline valid for nalb pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_00.internal_f[0:0]";} P0_NALB_VALID[0:0] = 1'b0 ;
+  };
+reg cfg_pipe_health_valid_01_r {
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="STATUS_REG_NA_1";
+      name = "Cfg Pipe Health Valid_01";
+      desc = "pipeline health valid status";
+      regwidth = 32;
+      HandCoded=true;
+      field { name = "P8 Atq Valid"; desc = "p8 pipeline valid for nalb atq pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_01.internal_f[8:8]";} P8_ATQ_VALID[8:8] = 1'b0 ;
+      field { name = "P7 Atq Valid"; desc = "p7 pipeline valid for nalb atq pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_01.internal_f[7:7]";} P7_ATQ_VALID[7:7] = 1'b0 ;
+      field { name = "P6 Atq Valid"; desc = "p6 pipeline valid for nalb atq pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_01.internal_f[6:6]";} P6_ATQ_VALID[6:6] = 1'b0 ;
+      field { name = "P5 Atq Valid"; desc = "p5 pipeline valid for nalb atq pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_01.internal_f[5:5]";} P5_ATQ_VALID[5:5] = 1'b0 ;
+      field { name = "P4 Atq Valid"; desc = "p4 pipeline valid for nalb atq pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_01.internal_f[4:4]";} P4_ATQ_VALID[4:4] = 1'b0 ;
+      field { name = "P3 Atq Valid"; desc = "p3 pipeline valid for nalb atq pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_01.internal_f[3:3]";} P3_ATQ_VALID[3:3] = 1'b0 ;
+      field { name = "P2 Atq Valid"; desc = "p2 pipeline valid for nalb atq pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_01.internal_f[2:2]";} P2_ATQ_VALID[2:2] = 1'b0 ;
+      field { name = "P1 Atq Valid"; desc = "p1 pipeline valid for nalb atq pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_01.internal_f[1:1]";} P1_ATQ_VALID[1:1] = 1'b0 ;
+      field { name = "P0 Atq Valid"; desc = "p0 pipeline valid for nalb atq pipline"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_pipe_health_valid_01.internal_f[0:0]";} P0_ATQ_VALID[0:0] = 1'b0 ;
+  };
+reg cfg_interface_status_r {
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="STATUS_REG_NA_1";
+      name = "Cfg Interface Status";
+      desc = "current status of the double buffer (db) on each interface";
+      regwidth = 32;
+      HandCoded=true;
+      field { name = "int idle"; desc = "int ring idle inverted"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_interface_status.internal_f[31:31]";} INT_IDLE_B[31:31] = 1'h0;
+      field { name = "Db Rop Nalb Enq Status Ready"; desc = "reorder_pipe to nalb_pipe enqueue HCW/replay list interface. 2 Registered value of out_ready"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_interface_status.internal_f[26:26]";} DB_ROP_NALB_ENQ_STATUS_READY[26:26] = 1'b1 ;
+      field { name = "Db Rop Nalb Enq Status Depth"; desc = "reorder_pipe to nalb_pipe enqueue HCW/replay list interface. 1:0 Current depth value"; fieldwidth = 2;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_interface_status.internal_f[25:24]";} DB_ROP_NALB_ENQ_STATUS_DEPTH[25:24] = 2'h0 ;
+      field { name = "Db Lsp Nalb Sch Unoord Status Ready"; desc = "list_sel_pipe to nalb_pipe schedule unoord interface. 2 Registered value of out_ready"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_interface_status.internal_f[22:22]";} DB_LSP_NALB_SCH_UNOORD_STATUS_READY[22:22] = 1'b1 ;
+      field { name = "Db Lsp Nalb Sch Unoord Status Depth"; desc = "list_sel_pipe to nalb_pipe schedule unoord interface. 1:0 Current depth value"; fieldwidth = 2;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_interface_status.internal_f[21:20]";} DB_LSP_NALB_SCH_UNOORD_STATUS_DEPTH[21:20] = 2'h0 ;
+      field { name = "Db Lsp Nalb Sch Rorply Status Ready"; desc = "list_sel_pipe to nalb_pipe schedule lb replay list interface. 2 Registered value of out_ready"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_interface_status.internal_f[18:18]";} DB_LSP_NALB_SCH_RORPLY_STATUS_READY[18:18] = 1'b1 ;
+      field { name = "Db Lsp Nalb Sch Rorply Status Depth"; desc = "list_sel_pipe to nalb_pipe schedule lb replay list interface. 1:0 Current depth value"; fieldwidth = 2;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_interface_status.internal_f[17:16]";} DB_LSP_NALB_SCH_RORPLY_STATUS_DEPTH[17:16] = 2'h0 ;
+      field { name = "Db Lsp Nalb Sch Atq Status Ready"; desc = "list_sel_pipe to nalb_pipe schedule atq to atm interface. 2 Registered value of out_ready"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_interface_status.internal_f[14:14]";} DB_LSP_NALB_SCH_ATQ_STATUS_READY[14:14] = 1'b1 ;
+      field { name = "Db Lsp Nalb Sch Atq Status Depth"; desc = "list_sel_pipe to nalb_pipe schedule atq to atm interface. 1:0 Current depth value"; fieldwidth = 2;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_interface_status.internal_f[13:12]";} DB_LSP_NALB_SCH_ATQ_STATUS_DEPTH[13:12] = 2'h0 ;
+      field { name = "Db Nalb Lsp Enq Lb Status Ready"; desc = "nalb_pipe to list_sel_pie enqueue lb(Unordered, Ordered, ATQ) interface. 2 Registered value of out_ready"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_interface_status.internal_f[10:10]";} DB_NALB_LSP_ENQ_LB_STATUS_READY[10:10] = 1'b1 ;
+      field { name = "Db Nalb Lsp Enq Lb Status Depth"; desc = "nalb_pipe to list_sel_pie enqueue lb(Unordered, Ordered, ATQ) interface. 1:0 Current depth value"; fieldwidth = 2;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_interface_status.internal_f[9:8]";} DB_NALB_LSP_ENQ_LB_STATUS_DEPTH[9:8] = 2'h0 ;
+      field { name = "Db Nalb Lsp Enq Rorply Status Ready"; desc = "nalb_pipe to list_sel_pipe enqueue lb replay list interface. 2 Registered value of out_ready"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_interface_status.internal_f[6:6]";} DB_NALB_LSP_ENQ_RORPLY_STATUS_READY[6:6] = 1'b1 ;
+      field { name = "Db Nalb Lsp Enq Rorply Status Depth"; desc = "nalb_pipe to list_sel_pipe enqueue lb replay list interface. 1:0 Current depth value"; fieldwidth = 2;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_interface_status.internal_f[5:4]";} DB_NALB_LSP_ENQ_RORPLY_STATUS_DEPTH[5:4] = 2'h0 ;
+      field { name = "Db Nalb Qed Status Ready"; desc = "nalb_pipe to qed_pipe schedule HCW interface. 2 Registered value of out_ready"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_interface_status.internal_f[2:2]";} DB_NALB_QED_STATUS_READY[2:2] = 1'b1 ;
+      field { name = "Db Nalb Qed Status Depth"; desc = "nalb_pipe to qed_pipe schedule HCW interface. 1:0 Current depth value"; fieldwidth = 2;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_interface_status.internal_f[1:0]";} DB_NALB_QED_STATUS_DEPTH[1:0] = 2'h0 ;
+  };
+reg cfg_diagnostic_aw_status_r {
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="STATUS_REG_NA_1";
+      name = "Cfg Diagnostic Aw Status";
+      desc = "Internal AW modules pipline status";
+      regwidth = 32;
+      HandCoded=true;
+      field { name = "Rw Nxthp P3 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status.status[26:26]";} RW_NXTHP_P3_V_F[26:26] = 1'b0;
+      field { name = "Rw Nxthp P2 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status.status[25:25]";} RW_NXTHP_P2_V_F[25:25] = 1'b0;
+      field { name = "Rw Nxthp P1 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status.status[24:24]";} RW_NXTHP_P1_V_F[24:24] = 1'b0;
+      field { name = "Rw Nxthp P0 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status.status[23:23]";} RW_NXTHP_P0_V_F[23:23] = 1'b0;
+      field { name = "Rw Nxthp P3 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status.status[22:22]";} RW_NXTHP_P3_HOLD[22:22] = 1'b0;
+      field { name = "Rw Nxthp P2 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status.status[21:21]";} RW_NXTHP_P2_HOLD[21:21] = 1'b0;
+      field { name = "Rw Nxthp P1 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status.status[20:20]";} RW_NXTHP_P1_HOLD[20:20] = 1'b0;
+      field { name = "Rmw Nalb Cnt P3 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status.status[19:19]";} RMW_NALB_CNT_P3_V_F[19:19] = 1'b0;
+      field { name = "Rmw Nalb Cnt P2 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status.status[18:18]";} RMW_NALB_CNT_P2_V_F[18:18] = 1'b0;
+      field { name = "Rmw Nalb Cnt P1 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status.status[17:17]";} RMW_NALB_CNT_P1_V_F[17:17] = 1'b0;
+      field { name = "Rmw Nalb Cnt P0 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status.status[16:16]";} RMW_NALB_CNT_P0_V_F[16:16] = 1'b0;
+      field { name = "Rmw Nalb Cnt P3 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status.status[15:15]";} RMW_NALB_CNT_P3_HOLD[15:15] = 1'b0;
+      field { name = "Rmw Nalb Cnt P2 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status.status[14:14]";} RMW_NALB_CNT_P2_HOLD[14:14] = 1'b0;
+      field { name = "Rmw Nalb Cnt P1 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status.status[13:13]";} RMW_NALB_CNT_P1_HOLD[13:13] = 1'b0;
+      field { name = "Rmw Nalb Hp P3 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status.status[12:12]";} RMW_NALB_HP_P3_V_F[12:12] = 1'b0;
+      field { name = "Rmw Nalb Hp P2 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status.status[11:11]";} RMW_NALB_HP_P2_V_F[11:11] = 1'b0;
+      field { name = "Rmw Nalb Hp P1 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status.status[10:10]";} RMW_NALB_HP_P1_V_F[10:10] = 1'b0;
+      field { name = "Rmw Nalb Hp P0 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status.status[9:9]";} RMW_NALB_HP_P0_V_F[9:9] = 1'b0;
+      field { name = "Rmw Nalb Hp P3 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status.status[8:8]";} RMW_NALB_HP_P3_HOLD[8:8] = 1'b0;
+      field { name = "Rmw Nalb Hp P2 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status.status[7:7]";} RMW_NALB_HP_P2_HOLD[7:7] = 1'b0;
+      field { name = "Rmw Nalb Hp P1 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status.status[6:6]";} RMW_NALB_HP_P1_HOLD[6:6] = 1'b0;
+      field { name = "Rmw Nalb Tp P3 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status.status[5:5]";} RMW_NALB_TP_P3_V_F[5:5] = 1'b0;
+      field { name = "Rmw Nalb Tp P2 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status.status[4:4]";} RMW_NALB_TP_P2_V_F[4:4] = 1'b0;
+      field { name = "Rmw Nalb Tp P1 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status.status[3:3]";} RMW_NALB_TP_P1_V_F[3:3] = 1'b0;
+      field { name = "Rmw Nalb Tp P0 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status.status[2:2]";} RMW_NALB_TP_P0_V_F[2:2] = 1'b0;
+      field { name = "Rmw Nalb Tp P3 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status.status[1:1]";} RMW_NALB_TP_P3_HOLD[1:1] = 1'b0;
+      field { name = "Rmw Nalb Tp P2 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status.status[0:0]";} RMW_NALB_TP_P2_HOLD[0:0] = 1'b0;
+  };
+reg cfg_diagnostic_aw_status_01_r {
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="STATUS_REG_NA_1";
+      name = "Cfg Diagnostic Aw Status_01";
+      desc = "Internal AW modules pipline status";
+      regwidth = 32;
+      HandCoded=true;
+      field { name = "Rmw Nalb Tp P1 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_01.status[31:31]";} RMW_NALB_TP_P1_HOLD[31:31] = 1'b0;
+      field { name = "Rmw Atq Cnt P3 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_01.status[30:30]";} RMW_ATQ_CNT_P3_V_F[30:30] = 1'b0;
+      field { name = "Rmw Atq Cnt P2 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_01.status[29:29]";} RMW_ATQ_CNT_P2_V_F[29:29] = 1'b0;
+      field { name = "Rmw Atq Cnt P1 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_01.status[28:28]";} RMW_ATQ_CNT_P1_V_F[28:28] = 1'b0;
+      field { name = "Rmw Atq Cnt P0 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_01.status[27:27]";} RMW_ATQ_CNT_P0_V_F[27:27] = 1'b0;
+      field { name = "Rmw Atq Cnt P3 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_01.status[26:26]";} RMW_ATQ_CNT_P3_HOLD[26:26] = 1'b0;
+      field { name = "Rmw Atq Cnt P2 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_01.status[25:25]";} RMW_ATQ_CNT_P2_HOLD[25:25] = 1'b0;
+      field { name = "Rmw Atq Cnt P1 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_01.status[24:24]";} RMW_ATQ_CNT_P1_HOLD[24:24] = 1'b0;
+      field { name = "Rmw Atq Hp P3 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_01.status[23:23]";} RMW_ATQ_HP_P3_V_F[23:23] = 1'b0;
+      field { name = "Rmw Atq Hp P2 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_01.status[22:22]";} RMW_ATQ_HP_P2_V_F[22:22] = 1'b0;
+      field { name = "Rmw Atq Hp P1 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_01.status[21:21]";} RMW_ATQ_HP_P1_V_F[21:21] = 1'b0;
+      field { name = "Rmw Atq Hp P0 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_01.status[20:20]";} RMW_ATQ_HP_P0_V_F[20:20] = 1'b0;
+      field { name = "Rmw Atq Hp P3 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_01.status[19:19]";} RMW_ATQ_HP_P3_HOLD[19:19] = 1'b0;
+      field { name = "Rmw Atq Hp P2 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_01.status[18:18]";} RMW_ATQ_HP_P2_HOLD[18:18] = 1'b0;
+      field { name = "Rmw Atq Hp P1 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_01.status[17:17]";} RMW_ATQ_HP_P1_HOLD[17:17] = 1'b0;
+      field { name = "Rmw Atq Tp P3 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_01.status[16:16]";} RMW_ATQ_TP_P3_V_F[16:16] = 1'b0;
+      field { name = "Rmw Atq Tp P2 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_01.status[15:15]";} RMW_ATQ_TP_P2_V_F[15:15] = 1'b0;
+      field { name = "Rmw Atq Tp P1 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_01.status[14:14]";} RMW_ATQ_TP_P1_V_F[14:14] = 1'b0;
+      field { name = "Rmw Atq Tp P0 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_01.status[13:13]";} RMW_ATQ_TP_P0_V_F[13:13] = 1'b0;
+      field { name = "Rmw Atq Tp P3 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_01.status[12:12]";} RMW_ATQ_TP_P3_HOLD[12:12] = 1'b0;
+      field { name = "Rmw Atq Tp P2 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_01.status[11:11]";} RMW_ATQ_TP_P2_HOLD[11:11] = 1'b0;
+      field { name = "Rmw Atq Tp P1 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_01.status[10:10]";} RMW_ATQ_TP_P1_HOLD[10:10] = 1'b0;
+      field { name = "Rmw Rofrag Cnt P3 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_01.status[9:9]";} RMW_ROFRAG_CNT_P3_V_F[9:9] = 1'b0;
+      field { name = "Rmw Rofrag Cnt P2 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_01.status[8:8]";} RMW_ROFRAG_CNT_P2_V_F[8:8] = 1'b0;
+      field { name = "Rmw Rofrag Cnt P1 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_01.status[7:7]";} RMW_ROFRAG_CNT_P1_V_F[7:7] = 1'b0;
+      field { name = "Rmw Rofrag Cnt P0 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_01.status[6:6]";} RMW_ROFRAG_CNT_P0_V_F[6:6] = 1'b0;
+      field { name = "Rmw Rofrag Cnt P3 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_01.status[5:5]";} RMW_ROFRAG_CNT_P3_HOLD[5:5] = 1'b0;
+      field { name = "Rmw Rofrag Cnt P2 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_01.status[4:4]";} RMW_ROFRAG_CNT_P2_HOLD[4:4] = 1'b0;
+      field { name = "Rmw Rofrag Cnt P1 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_01.status[3:3]";} RMW_ROFRAG_CNT_P1_HOLD[3:3] = 1'b0;
+      field { name = "Rmw Rofrag Hp P3 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_01.status[2:2]";} RMW_ROFRAG_HP_P3_V_F[2:2] = 1'b0;
+      field { name = "Rmw Rofrag Hp P2 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_01.status[1:1]";} RMW_ROFRAG_HP_P2_V_F[1:1] = 1'b0;
+      field { name = "Rmw Rofrag Hp P1 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_01.status[0:0]";} RMW_ROFRAG_HP_P1_V_F[0:0] = 1'b0;
+  };
+reg cfg_diagnostic_aw_status_02_r {
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="STATUS_REG_NA_1";
+      name = "Cfg Diagnostic_AW Status_02";
+      desc = "Internal aw modules pipline status";
+      regwidth = 32;
+      HandCoded=true;
+      field { name = "Rmw Rofrag Hp P0 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_02.status[31:31]";} RMW_ROFRAG_HP_P0_V_F[31:31] = 1'b0;
+      field { name = "Rmw Rofrag Hp P3 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_02.status[30:30]";} RMW_ROFRAG_HP_P3_HOLD[30:30] = 1'b0;
+      field { name = "Rmw Rofrag Hp P2 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_02.status[29:29]";} RMW_ROFRAG_HP_P2_HOLD[29:29] = 1'b0;
+      field { name = "Rmw Rofrag Hp P1 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_02.status[28:28]";} RMW_ROFRAG_HP_P1_HOLD[28:28] = 1'b0;
+      field { name = "Rmw Rofrag Tp P3 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_02.status[27:27]";} RMW_ROFRAG_TP_P3_V_F[27:27] = 1'b0;
+      field { name = "Rmw Rofrag Tp P2 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_02.status[26:26]";} RMW_ROFRAG_TP_P2_V_F[26:26] = 1'b0;
+      field { name = "Rmw Rofrag Tp P1 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_02.status[25:25]";} RMW_ROFRAG_TP_P1_V_F[25:25] = 1'b0;
+      field { name = "Rmw Rofrag Tp P0 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_02.status[24:24]";} RMW_ROFRAG_TP_P0_V_F[24:24] = 1'b0;
+      field { name = "Rmw Rofrag Tp P3 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_02.status[23:23]";} RMW_ROFRAG_TP_P3_HOLD[23:23] = 1'b0;
+      field { name = "Rmw Rofrag Tp P2 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_02.status[22:22]";} RMW_ROFRAG_TP_P2_HOLD[22:22] = 1'b0;
+      field { name = "Rmw Rofrag Tp P1 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_02.status[21:21]";} RMW_ROFRAG_TP_P1_HOLD[21:21] = 1'b0;
+      field { name = "Rmw Replay Cnt P3 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_02.status[20:20]";} RMW_REPLAY_CNT_P3_V_F[20:20] = 1'b0;
+      field { name = "Rmw Replay Cnt P2 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_02.status[19:19]";} RMW_REPLAY_CNT_P2_V_F[19:19] = 1'b0;
+      field { name = "Rmw Replay Cnt P1 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_02.status[18:18]";} RMW_REPLAY_CNT_P1_V_F[18:18] = 1'b0;
+      field { name = "Rmw Replay Cnt P0 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_02.status[17:17]";} RMW_REPLAY_CNT_P0_V_F[17:17] = 1'b0;
+      field { name = "Rmw Replay Cnt P3 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_02.status[16:16]";} RMW_REPLAY_CNT_P3_HOLD[16:16] = 1'b0;
+      field { name = "Rmw Replay Cnt P2 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_02.status[15:15]";} RMW_REPLAY_CNT_P2_HOLD[15:15] = 1'b0;
+      field { name = "Rmw Replay Cnt P1 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_02.status[14:14]";} RMW_REPLAY_CNT_P1_HOLD[14:14] = 1'b0;
+      field { name = "Rmw Replay Hp P3 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_02.status[13:13]";} RMW_REPLAY_HP_P3_V_F[13:13] = 1'b0;
+      field { name = "Rmw Replay Hp P2 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_02.status[12:12]";} RMW_REPLAY_HP_P2_V_F[12:12] = 1'b0;
+      field { name = "Rmw Replay Hp P1 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_02.status[11:11]";} RMW_REPLAY_HP_P1_V_F[11:11] = 1'b0;
+      field { name = "Rmw Replay Hp P0 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_02.status[10:10]";} RMW_REPLAY_HP_P0_V_F[10:10] = 1'b0;
+      field { name = "Rmw Replay Hp P3 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_02.status[9:9]";} RMW_REPLAY_HP_P3_HOLD[9:9] = 1'b0;
+      field { name = "Rmw Replay Hp P2 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_02.status[8:8]";} RMW_REPLAY_HP_P2_HOLD[8:8] = 1'b0;
+      field { name = "Rmw Replay Hp P1 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_02.status[7:7]";} RMW_REPLAY_HP_P1_HOLD[7:7] = 1'b0;
+      field { name = "Rmw Replay Tp P3 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_02.status[6:6]";} RMW_REPLAY_TP_P3_V_F[6:6] = 1'b0;
+      field { name = "Rmw Replay Tp P2 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_02.status[5:5]";} RMW_REPLAY_TP_P2_V_F[5:5] = 1'b0;
+      field { name = "Rmw Replay Tp P1 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_02.status[4:4]";} RMW_REPLAY_TP_P1_V_F[4:4] = 1'b0;
+      field { name = "Rmw Replay Tp P0 V F"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_02.status[3:3]";} RMW_REPLAY_TP_P0_V_F[3:3] = 1'b0;
+      field { name = "Rmw Replay Tp P3 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_02.status[2:2]";} RMW_REPLAY_TP_P3_HOLD[2:2] = 1'b0;
+      field { name = "Rmw Replay Tp P2 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_02.status[1:1]";} RMW_REPLAY_TP_P2_HOLD[1:1] = 1'b0;
+      field { name = "Rmw Replay Tp P1 Hold"; desc = "AW sub module status. AW RMW pipe status"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_diagnostic_aw_status_02.status[0:0]";} RMW_REPLAY_TP_P1_HOLD[0:0] = 1'b0;
+  };
+reg cfg_syndrome_00_r {
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="DEBUG_ONLY_REG_NA_1";
+      name = "Cfg Syndrome Eccerror_00";
+      desc = "Non-default settings may cause UNDEFINED behavior.capture syndrome associated with interrupt ISR.
+[br](type=0  data[0]): ECC error [IntelRsvd]: rw_nxthp_error_sb_f[/IntelRsvd]
+[br](type=0  data[1]): ECC error [IntelRsvd]: rw_nxthp_error_mb_f[/IntelRsvd]
+[br](type=1  data[0]): HW error [IntelRsvd]: error_nalb_nopri[/IntelRsvd]
+[br](type=1  data[1]): HW error [IntelRsvd]: error_nalb_of[/IntelRsvd]
+[br](type=1  data[2]): HW error [IntelRsvd]: error_atq_nopri[/IntelRsvd]
+[br](type=1  data[3]): HW error [IntelRsvd]: error_atq_of[/IntelRsvd]
+[br](type=1  data[4]): HW error [IntelRsvd]: error_rofrag_of[/IntelRsvd]
+[br](type=1  data[5]): HW error [IntelRsvd]: error_replay_nopri[/IntelRsvd]
+[br](type=1  data[6]): HW error [IntelRsvd]: error_replay_of[/IntelRsvd]
+[br](type=1  data[7]): HW error [IntelRsvd]: error_badcmd0[/IntelRsvd]
+[br](type=1  data[8]): HW error [IntelRsvd]: error_replay_headroom[/IntelRsvd]
+[br](type=1  data[9]): HW error [IntelRsvd]: error_rofrag_headroom[/IntelRsvd]
+[br](type=1  data[10]): HW error [IntelRsvd]: error_atq_headroom [ 1 ][/IntelRsvd]
+[br](type=1  data[11]): HW error [IntelRsvd]: error_atq_headroom [ 0 ][/IntelRsvd]
+[br](type=1  data[12]): HW error [IntelRsvd]: error_nalb_headroom [ 1 ][/IntelRsvd]
+[br](type=1  data[13]): HW error [IntelRsvd]: error_nalb_headroom [ 0 ][/IntelRsvd]
+[br](type=1  data[14]): HW error [IntelRsvd]: rw_nxthp_status[/IntelRsvd]
+[br](type=1  data[15]): HW error [IntelRsvd]: rmw_nalb_tp_status[/IntelRsvd]
+[br](type=1  data[16]): HW error [IntelRsvd]: rmw_nalb_hp_status[/IntelRsvd]
+[br](type=1  data[17]): HW error [IntelRsvd]: rmw_nalb_cnt_status[/IntelRsvd]
+[br](type=1  data[18]): HW error [IntelRsvd]: rmw_atq_cnt_status[/IntelRsvd]
+[br](type=1  data[19]): HW error [IntelRsvd]: rmw_atq_hp_status[/IntelRsvd]
+[br](type=1  data[20]): HW error [IntelRsvd]: rmw_atq_tp_status[/IntelRsvd]
+[br](type=1  data[21]): HW error [IntelRsvd]: rmw_rofrag_cnt_status[/IntelRsvd]
+[br](type=1  data[22]): HW error [IntelRsvd]: rmw_rofrag_hp_status[/IntelRsvd]
+[br](type=1  data[23]): HW error [IntelRsvd]: rmw_rofrag_tp_status[/IntelRsvd]
+[br](type=1  data[24]): HW error [IntelRsvd]: rmw_replay_cnt_status[/IntelRsvd]
+[br](type=1  data[25]): HW error [IntelRsvd]: rmw_replay_hp_status[/IntelRsvd]
+[br](type=1  data[26]): HW error [IntelRsvd]: rmw_replay_tp_status[/IntelRsvd]
+[br](type=1  data[27]): HW error [IntelRsvd]: ram_access[/IntelRsvd]
+[br](type=2  data[0]): HW error [IntelRsvd]: residue_check_rx_sync_rop_nalb_enq_err[/IntelRsvd]
+[br](type=2  data[1]): HW error [IntelRsvd]: residue_check_nalb_cnt_err[/IntelRsvd]
+[br](type=2  data[2]): HW error [IntelRsvd]: residue_check_atq_cnt_err[/IntelRsvd]
+[br](type=2  data[3]): HW error [IntelRsvd]: residue_check_rofrag_cnt_err[/IntelRsvd]
+[br](type=2  data[4]): HW error [IntelRsvd]: residue_check_replay_cnt_err[/IntelRsvd]
+[br](type=2  data[5]): HW error [IntelRsvd]: rw_nxthp_err_parity[/IntelRsvd]
+[br](type=2  data[6]): HW error [IntelRsvd]: parity_check_rmw_nalb_hp_p2_error[/IntelRsvd]
+[br](type=2  data[7]): HW error [IntelRsvd]: parity_check_rmw_nalb_tp_p2_error[/IntelRsvd]
+[br](type=2  data[8]): HW error [IntelRsvd]: parity_check_rmw_atq_hp_p2_error[/IntelRsvd]
+[br](type=2  data[9]): HW error [IntelRsvd]: parity_check_rmw_atq_tp_p2_error[/IntelRsvd]
+[br](type=2  data[10]): HW error [IntelRsvd]: parity_check_rmw_rofrag_hp_p2_error[/IntelRsvd]
+[br](type=2  data[11]): HW error [IntelRsvd]: parity_check_rmw_rofrag_tp_p2_error[/IntelRsvd]
+[br](type=2  data[12]): HW error [IntelRsvd]: parity_check_rmw_replay_hp_p2_error[/IntelRsvd]
+[br](type=2  data[13]): HW error [IntelRsvd]: parity_check_rmw_replay_tp_p2_error[/IntelRsvd]
+[br](type=2  data[14]): HW error [IntelRsvd]: parity_check_rw_nxthp_p2_data_error[/IntelRsvd]
+[br](type=2  data[15]): HW error [IntelRsvd]: parity_check_rx_sync_lsp_nalb_sch_unoord_error[/IntelRsvd]
+[br](type=2  data[16]): HW error [IntelRsvd]: parity_check_rx_sync_lsp_nalb_sch_rorply_error[/IntelRsvd]
+[br](type=2  data[17]): HW error [IntelRsvd]: parity_check_rx_sync_lsp_nalb_sch_atq_error[/IntelRsvd]
+[br](type=2  data[18]): HW error [IntelRsvd]: parity_check_rx_sync_rop_nalb_enq_data_flid_error[/IntelRsvd]
+[br](type=2  data[19]): HW error [IntelRsvd]: parity_check_rx_sync_rop_nalb_enq_data_hist_list_error[/IntelRsvd]
+[br](type=2  data[20]): HW error [IntelRsvd]: parity_check_rx_sync_rop_nalb_enq_data_frag_list_hptr_error[/IntelRsvd]
+[br](type=2  data[21]): HW error [IntelRsvd]: parity_check_rx_sync_rop_nalb_enq_data_frag_list_tptr_error[/IntelRsvd]
+[br](type=2  data[22]): HW error [IntelRsvd]: cfg_rx_fifo_status.overflow[/IntelRsvd]
+[br](type=2  data[23]): HW error [IntelRsvd]: cfg_rx_fifo_status.underflow[/IntelRsvd]
+[br](type=2  data[24]): HW error [IntelRsvd]: rx_sync_rop_nalb_enq_status_pnc.overflow[/IntelRsvd]
+[br](type=2  data[25]): HW error [IntelRsvd]: rx_sync_rop_nalb_enq_status_pnc.underflow[/IntelRsvd]
+[br](type=2  data[26]): HW error [IntelRsvd]: rx_sync_lsp_nalb_sch_unoord_status_pnc.overflow[/IntelRsvd]
+[br](type=2  data[27]): HW error [IntelRsvd]: rx_sync_lsp_nalb_sch_unoord_status_pnc.underflow[/IntelRsvd]
+[br](type=3  data[0]): HW error [IntelRsvd]: rx_sync_lsp_nalb_sch_rorply_status_pnc.overflow[/IntelRsvd]
+[br](type=3  data[1]): HW error [IntelRsvd]: rx_sync_lsp_nalb_sch_rorply_status_pnc.underflow[/IntelRsvd]
+[br](type=3  data[2]): HW error [IntelRsvd]: rx_sync_lsp_nalb_sch_atq_status_pnc.overflow[/IntelRsvd]
+[br](type=3  data[3]): HW error [IntelRsvd]: rx_sync_lsp_nalb_sch_atq_status_pnc.underflow[/IntelRsvd]
+[br](type=3  data[4]): HW error [IntelRsvd]: fifo_rop_nalb_enq_nalb_error_of[/IntelRsvd]
+[br](type=3  data[5]): HW error [IntelRsvd]: fifo_rop_nalb_enq_nalb_error_uf[/IntelRsvd]
+[br](type=3  data[6]): HW error [IntelRsvd]: fifo_rop_nalb_enq_ro_error_of[/IntelRsvd]
+[br](type=3  data[7]): HW error [IntelRsvd]: fifo_rop_nalb_enq_ro_error_uf[/IntelRsvd]
+[br](type=3  data[8]): HW error [IntelRsvd]: fifo_lsp_nalb_sch_unoord_error_of[/IntelRsvd]
+[br](type=3  data[9]): HW error [IntelRsvd]: fifo_lsp_nalb_sch_unoord_error_uf[/IntelRsvd]
+[br](type=3  data[10]): HW error [IntelRsvd]: fifo_lsp_nalb_sch_rorply_error_of[/IntelRsvd]
+[br](type=3  data[11]): HW error [IntelRsvd]: fifo_lsp_nalb_sch_rorply_error_uf[/IntelRsvd]
+[br](type=3  data[12]): HW error [IntelRsvd]: fifo_lsp_nalb_sch_atq_error_of[/IntelRsvd]
+[br](type=3  data[13]): HW error [IntelRsvd]: fifo_lsp_nalb_sch_atq_error_uf[/IntelRsvd]
+[br](type=3  data[14]): HW error [IntelRsvd]: fifo_nalb_qed_error_of[/IntelRsvd]
+[br](type=3  data[15]): HW error [IntelRsvd]: fifo_nalb_qed_error_uf[/IntelRsvd]
+[br](type=3  data[16]): HW error [IntelRsvd]: fifo_nalb_lsp_enq_lb_error_of[/IntelRsvd]
+[br](type=3  data[17]): HW error [IntelRsvd]: fifo_nalb_lsp_enq_lb_error_uf[/IntelRsvd]
+[br](type=3  data[18]): HW error [IntelRsvd]: fifo_nalb_lsp_enq_rorply_error_of[/IntelRsvd]
+[br](type=3  data[19]): HW error [IntelRsvd]: fifo_nalb_lsp_enq_rorply_error_uf[/IntelRsvd]
+[br](type=3  data[20]): HW error [IntelRsvd]: fifo_rop_nalb_enq_nalb_pop_data_parity_error[/IntelRsvd]
+[br](type=3  data[21]): HW error [IntelRsvd]: fifo_rop_nalb_enq_ro_pop_data_parity_error[/IntelRsvd]
+[br](type=3  data[22]): HW error [IntelRsvd]: rf_ipar_error[/IntelRsvd]
+[br](type=3  data[23]): HW error [IntelRsvd]: NA[/IntelRsvd]
+[br](type=3  data[24]): HW error [IntelRsvd]: NA[/IntelRsvd]
+[br](type=3  data[25]): HW error [IntelRsvd]: NA[/IntelRsvd]
+[br](type=3  data[26]): HW error [IntelRsvd]: NA[/IntelRsvd]
+[br](type=3  data[27]): HW error [IntelRsvd]: NA[/IntelRsvd]
+";
+      regwidth = 32;
+      HandCoded=true;
+      field { name = "Syndvalid"; desc = "contents are valid"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RW/1C/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_syndrome_00.i_hqm_AW_register_wtcfg.internal_f[31:31]";} SYNDVALID[31:31] = 1'b0;
+      field { name = "Syndtype"; desc = "type of error captured. "; fieldwidth = 3;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_syndrome_00.i_hqm_AW_register_wtcfg.internal_f[30:28]";} SYNDTYPE[30:28] = 3'h0;
+      field { name = "Synddata"; desc = "Syndrom data. The data format correlates to the type."; fieldwidth = 28;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_syndrome_00.i_hqm_AW_register_wtcfg.internal_f[27:0]";} SYNDDATA[27:0] = 28'h0;
+  };
+reg cfg_syndrome_01_r {
+      IntelRsvd=true;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="DEBUG_ONLY_REG_NA_1";
+      name = "Cfg Syndrome Eccerror_01";
+      desc = "Non-default settings may cause UNDEFINED behavior.capture syndrome associated with interrupt ISR";
+      regwidth = 32;
+      HandCoded=true;
+      field { name = "Syndvalid"; desc = "contents are valid"; fieldwidth = 1;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RW/1C/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_syndrome_01.i_hqm_AW_register_wtcfg.internal_f[31:31]";} SYNDVALID[31:31] = 1'b0;
+      field { name = "Syndtype"; desc = "type of error captured. "; fieldwidth = 3;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_syndrome_01.i_hqm_AW_register_wtcfg.internal_f[30:28]";} SYNDTYPE[30:28] = 3'h0;
+      field { name = "Synddata"; desc = "Syndrom data. The data format correlates to the type."; fieldwidth = 28;  IntelRsvd=true; PowerWell="vcccfn_gated"; AccessType = "RO/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_syndrome_01.i_hqm_AW_register_wtcfg.internal_f[27:0]";} SYNDDATA[27:0] = 28'h0;
+  };
+reg cfg_detect_feature_operation_00_r {
+      IntelRsvd=false;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="STATUS_REG_NA_1";
+      name="Detect Feature Operation_00";
+      desc="Non-default settings may cause UNDEFINED behavior.Register will capture and log a bit when unit feature is activated.";
+      field { name="f_atq_cnt_pri7"; fieldwidth = 1; desc = "Detect activity on ATQ LL for priority 7";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_00.internal_f[31:31]";} F_ATQ_CNT_PRI7[31:31] = 1'h0;
+      field { name="f_atq_cnt_pri6"; fieldwidth = 1; desc = "Detect activity on ATQ LL for priority 6";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_00.internal_f[30:30]";} F_ATQ_CNT_PRI6[30:30] = 1'h0;
+      field { name="f_atq_cnt_pri5"; fieldwidth = 1; desc = "Detect activity on ATQ LL for priority 5";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_00.internal_f[29:29]";} F_ATQ_CNT_PRI5[29:29] = 1'h0;
+      field { name="f_atq_cnt_pri4"; fieldwidth = 1; desc = "Detect activity on ATQ LL for priority 4";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_00.internal_f[28:28]";} F_ATQ_CNT_PRI4[28:28] = 1'h0;
+      field { name="f_atq_cnt_pri3"; fieldwidth = 1; desc = "Detect activity on ATQ LL for priority 3";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_00.internal_f[27:27]";} F_ATQ_CNT_PRI3[27:27] = 1'h0;
+      field { name="f_atq_cnt_pri2"; fieldwidth = 1; desc = "Detect activity on ATQ LL for priority 2";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_00.internal_f[26:26]";} F_ATQ_CNT_PRI2[26:26] = 1'h0;
+      field { name="f_atq_cnt_pri1"; fieldwidth = 1; desc = "Detect activity on ATQ LL for priority 1";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_00.internal_f[25:25]";} F_ATQ_CNT_PRI1[25:25] = 1'h0;
+      field { name="f_atq_cnt_pri0"; fieldwidth = 1; desc = "Detect activity on ATQ LL for priority 0";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_00.internal_f[24:24]";} F_ATQ_CNT_PRI0[24:24] = 1'h0; 
+      field { name="f_replay_cnt_pri7"; fieldwidth = 1; desc = "Detect activity on replay LL for priority 7";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_00.internal_f[23:23]";} F_REPLAY_CNT_PRI7[23:23] = 1'h0;
+      field { name="f_replay_cnt_pri6"; fieldwidth = 1; desc = "Detect activity on replay LL for priority 6";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_00.internal_f[22:22]";} F_REPLAY_CNT_PRI6[22:22] = 1'h0;
+      field { name="f_replay_cnt_pri5"; fieldwidth = 1; desc = "Detect activity on replay LL for priority 5";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_00.internal_f[21:21]";} F_REPLAY_CNT_PRI5[21:21] = 1'h0;
+      field { name="f_replay_cnt_pri4"; fieldwidth = 1; desc = "Detect activity on replay LL for priority 4";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_00.internal_f[20:20]";} F_REPLAY_CNT_PRI4[20:20] = 1'h0;
+      field { name="f_replay_cnt_pri3"; fieldwidth = 1; desc = "Detect activity on replay LL for priority 3";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_00.internal_f[19:19]";} F_REPLAY_CNT_PRI3[19:19] = 1'h0;
+      field { name="f_replay_cnt_pri2"; fieldwidth = 1; desc = "Detect activity on replay LL for priority 2";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_00.internal_f[18:18]";} F_REPLAY_CNT_PRI2[18:18] = 1'h0;
+      field { name="f_replay_cnt_pri1"; fieldwidth = 1; desc = "Detect activity on replay LL for priority 1";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_00.internal_f[17:17]";} F_REPLAY_CNT_PRI1[17:17] = 1'h0;
+      field { name="f_replay_cnt_pri0"; fieldwidth = 1; desc = "Detect activity on replay LL for priority 0";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_00.internal_f[16:16]";} F_REPLAY_CNT_PRI0[16:16] = 1'h0;
+      field { name = "Rsvz0";    desc = "rsvz0";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_00.internal_f[15:9]";} RSVZ0[15:9] = 7'h0;
+      field { name="f_rofrag_cnt"; fieldwidth = 1; desc = "Detect activity on reorder fragment LL ";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_00.internal_f[8:8]";} F_ROFRAG_CNT[8:8] = 1'h0;
+      field { name="f_lb_cnt_pri7"; fieldwidth = 1; desc = "Detect activity on load balanced LL for priority 7";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_00.internal_f[7:7]";} F_LB_CNT_PRI7[7:7] = 1'h0;
+      field { name="f_lb_cnt_pri6"; fieldwidth = 1; desc = "Detect activity on load balanced LL for priority 6";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_00.internal_f[6:6]";} F_LB_CNT_PRI6[6:6] = 1'h0;
+      field { name="f_lb_cnt_pri5"; fieldwidth = 1; desc = "Detect activity on load balanced LL for priority 5";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_00.internal_f[5:5]";} F_LB_CNT_PRI5[5:5] = 1'h0;
+      field { name="f_lb_cnt_pri4"; fieldwidth = 1; desc = "Detect activity on load balanced LL for priority 4";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_00.internal_f[4:4]";} F_LB_CNT_PRI4[4:4] = 1'h0;
+      field { name="f_lb_cnt_pri3"; fieldwidth = 1; desc = "Detect activity on load balanced LL for priority 3";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_00.internal_f[3:3]";} F_LB_CNT_PRI3[3:3] = 1'h0;
+      field { name="f_lb_cnt_pri2"; fieldwidth = 1; desc = "Detect activity on load balanced LL for priority 2";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_00.internal_f[2:2]";} F_LB_CNT_PRI2[2:2] = 1'h0;
+      field { name="f_lb_cnt_pri1"; fieldwidth = 1; desc = "Detect activity on load balanced LL for priority 1";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_00.internal_f[1:1]";} F_LB_CNT_PRI1[1:1] = 1'h0;
+      field { name="f_lb_cnt_pri0"; fieldwidth = 1; desc = "Detect activity on load balanced LL for priority 0";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_00.internal_f[0:0]";} F_LB_CNT_PRI0[0:0] = 1'h0;
+};
+reg cfg_detect_feature_operation_01_r {
+      IntelRsvd=false;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="STATUS_REG_NA_1";
+      name="Detect Feature Operation_01";
+      desc="Non-default settings may cause UNDEFINED behavior.Register will capture and log a bit when unit feature is activated.";
+      field { name="a_atq_cnt_pri7"; fieldwidth = 1; desc = "Detect full (16k) on ATQ LL for priority 7";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_01.internal_f[31:31]";} A_ATQ_CNT_PRI7[31:31] = 1'h0;
+      field { name="a_atq_cnt_pri6"; fieldwidth = 1; desc = "Detect full (16k) on ATQ LL for priority 6";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_01.internal_f[30:30]";} A_ATQ_CNT_PRI6[30:30] = 1'h0;
+      field { name="a_atq_cnt_pri5"; fieldwidth = 1; desc = "Detect full (16k) on ATQ LL for priority 5";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_01.internal_f[29:29]";} A_ATQ_CNT_PRI5[29:29] = 1'h0;
+      field { name="a_atq_cnt_pri4"; fieldwidth = 1; desc = "Detect full (16k) on ATQ LL for priority 4";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_01.internal_f[28:28]";} A_ATQ_CNT_PRI4[28:28] = 1'h0;
+      field { name="a_atq_cnt_pri3"; fieldwidth = 1; desc = "Detect full (16k) on ATQ LL for priority 3";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_01.internal_f[27:27]";} A_ATQ_CNT_PRI3[27:27] = 1'h0;
+      field { name="a_atq_cnt_pri2"; fieldwidth = 1; desc = "Detect full (16k) on ATQ LL for priority 2";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_01.internal_f[26:26]";} A_ATQ_CNT_PRI2[26:26] = 1'h0;
+      field { name="a_atq_cnt_pri1"; fieldwidth = 1; desc = "Detect full (16k) on ATQ LL for priority 1";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_01.internal_f[25:25]";} A_ATQ_CNT_PRI1[25:25] = 1'h0;
+      field { name="a_atq_cnt_pri0"; fieldwidth = 1; desc = "Detect full (16k) on ATQ LL for priority 0";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_01.internal_f[24:24]";} A_ATQ_CNT_PRI0[24:24] = 1'h0;
+      field { name="a_replay_cnt_pri7"; fieldwidth = 1; desc = "Detect full (16k) on replay LL for priority 7";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_01.internal_f[23:23]";} A_REPLAY_CNT_PRI7[23:23] = 1'h0;
+      field { name="a_replay_cnt_pri6"; fieldwidth = 1; desc = "Detect full (16k) on replay LL for priority 6";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_01.internal_f[22:22]";} A_REPLAY_CNT_PRI6[22:22] = 1'h0;
+      field { name="a_replay_cnt_pri5"; fieldwidth = 1; desc = "Detect full (16k) on replay LL for priority 5";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_01.internal_f[21:21]";} A_REPLAY_CNT_PRI5[21:21] = 1'h0;
+      field { name="a_replay_cnt_pri4"; fieldwidth = 1; desc = "Detect full (16k) on replay LL for priority 4";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_01.internal_f[20:20]";} A_REPLAY_CNT_PRI4[20:20] = 1'h0;
+      field { name="a_replay_cnt_pri3"; fieldwidth = 1; desc = "Detect full (16k) on replay LL for priority 3";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_01.internal_f[19:19]";} A_REPLAY_CNT_PRI3[19:19] = 1'h0;
+      field { name="a_replay_cnt_pri2"; fieldwidth = 1; desc = "Detect full (16k) on replay LL for priority 2";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_01.internal_f[18:18]";} A_REPLAY_CNT_PRI2[18:18] = 1'h0;
+      field { name="a_replay_cnt_pri1"; fieldwidth = 1; desc = "Detect full (16k) on replay LL for priority 1";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_01.internal_f[17:17]";} A_REPLAY_CNT_PRI1[17:17] = 1'h0;
+      field { name="a_replay_cnt_pri0"; fieldwidth = 1; desc = "Detect full (16k) on replay LL for priority 0";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_01.internal_f[16:16]";} A_REPLAY_CNT_PRI0[16:16] = 1'h0;
+      field { name = "Rsvz0";    desc = "rsvz0";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_01.internal_f[15:10]";} RSVZ0[15:10] = 6'h0;
+      field { name="interrupt"; fieldwidth = 1; desc = "Detect Interrupt";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_01.internal_f[9:9]";} INTERRUPT[9:9] = 1'h0;
+      field { name="a_rofrag_cnt"; fieldwidth = 1; desc = "Detect full (16k) on reorder fragment LL ";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_01.internal_f[8:8]";} A_ROFRAG_CNT[8:8] = 1'h0;
+      field { name="a_lb_cnt_pri7"; fieldwidth = 1; desc = "Detect full (16k) on load balanced LL for priority 7";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_01.internal_f[7:7]";} A_LB_CNT_PRI7[7:7] = 1'h0;
+      field { name="a_lb_cnt_pri6"; fieldwidth = 1; desc = "Detect full (16k) on load balanced LL for priority 6";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_01.internal_f[6:6]";} A_LB_CNT_PRI6[6:6] = 1'h0;
+      field { name="a_lb_cnt_pri5"; fieldwidth = 1; desc = "Detect full (16k) on load balanced LL for priority 5";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_01.internal_f[5:5]";} A_LB_CNT_PRI5[5:5] = 1'h0;
+      field { name="a_lb_cnt_pri4"; fieldwidth = 1; desc = "Detect full (16k) on load balanced LL for priority 4";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_01.internal_f[4:4]";} A_LB_CNT_PRI4[4:4] = 1'h0;
+      field { name="a_lb_cnt_pri3"; fieldwidth = 1; desc = "Detect full (16k) on load balanced LL for priority 3";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_01.internal_f[3:3]";} A_LB_CNT_PRI3[3:3] = 1'h0;
+      field { name="a_lb_cnt_pri2"; fieldwidth = 1; desc = "Detect full (16k) on load balanced LL for priority 2";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_01.internal_f[2:2]";} A_LB_CNT_PRI2[2:2] = 1'h0;
+      field { name="a_lb_cnt_pri1"; fieldwidth = 1; desc = "Detect full (16k) on load balanced LL for priority 1";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_01.internal_f[1:1]";} A_LB_CNT_PRI1[1:1] = 1'h0;
+      field { name="a_lb_cnt_pri0"; fieldwidth = 1; desc = "Detect full (16k) on load balanced LL for priority 0";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW/V"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_detect_feature_operation_01.internal_f[0:0]";} A_LB_CNT_PRI0[0:0] = 1'h0;
+};
+reg cfg_nalb_csr_control_r {
+      IntelRsvd=false;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      shared;
+      HqmClassification="SURVIVE_REG_NA_1";
+      name = "Cfg nalb csr Control General";
+      desc = "general control register";
+      field { name= "Rsvz0"; fieldwidth = 16; desc = "rsvz0";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_nalb_csr_control.internal_f[31:16]";} RSVZ0[31:16] = 16'h0;
+      field { name= "int_inf5_synd_dis"; fieldwidth = 1; desc = "int inf syndrome disable. INF AID=5";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_nalb_csr_control.internal_f[15:15]";} INT_INF5_SYND_DIS[15:15] = 1'h0;
+      field { name= "int_inf5_alarm_dis"; fieldwidth = 1; desc = "int inf alarm disable. INF AID=5";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_nalb_csr_control.internal_f[14:14]";} INT_INF5_ALARM_DIS[14:14] = 1'h0 ;
+      field { name= "int_inf4_synd_dis"; fieldwidth = 1; desc = "int inf syndrome disable. INF AID=4";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_nalb_csr_control.internal_f[13:13]";} INT_INF4_SYND_DIS[13:13] = 1'h0;
+      field { name= "int_inf4_alarm_dis"; fieldwidth = 1; desc = "int inf alarm disable. INF AID=4";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_nalb_csr_control.internal_f[12:12]";} INT_INF4_ALARM_DIS[12:12] = 1'h0 ;
+      field { name= "int_inf3_synd_dis"; fieldwidth = 1; desc = "int inf syndrome disable. INF AID=3";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_nalb_csr_control.internal_f[11:11]";} INT_INF3_SYND_DIS[11:11] = 1'h0;
+      field { name= "int_inf3_alarm_dis"; fieldwidth = 1; desc = "int inf alarm disable. INF AID=3";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_nalb_csr_control.internal_f[10:10]";} INT_INF3_ALARM_DIS[10:10] = 1'h0 ;
+      field { name= "int_inf2_synd_dis"; fieldwidth = 1; desc = "int inf syndrome disable. INF AID=2";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_nalb_csr_control.internal_f[9:9]";} INT_INF2_SYND_DIS[9:9] = 1'h0;
+      field { name= "int_inf2_alarm_dis"; fieldwidth = 1; desc = "int inf alarm disable. INF AID=2";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_nalb_csr_control.internal_f[8:8]";} INT_INF2_ALARM_DIS[8:8] = 1'h0 ;
+      field { name= "int_inf1_synd_dis"; fieldwidth = 1; desc = "int inf syndrome disable. INF AID=1";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_nalb_csr_control.internal_f[7:7]";} INT_INF1_SYND_DIS[7:7] = 1'h0;
+      field { name= "int_inf1_alarm_dis"; fieldwidth = 1; desc = "int inf alarm disable INF AID=1";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_nalb_csr_control.internal_f[6:6]";} INT_INF1_ALARM_DIS[6:6] = 1'h0 ;
+      field { name= "int_inf0_synd_dis"; fieldwidth = 1; desc = "int inf syndrome disable. INF AID=0";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_nalb_csr_control.internal_f[5:5]";} INT_INF0_SYND_DIS[5:5] = 1'h0;
+      field { name= "int_inf0_alarm_dis"; fieldwidth = 1; desc = "int inf alarm disable. INF AID=0";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_nalb_csr_control.internal_f[4:4]";} INT_INF0_ALARM_DIS[4:4] = 1'h0 ;
+      field { name= "int_unc0_synd_dis"; fieldwidth = 1; desc = "int unc syndrome disable. UNC MBE AID=0";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_nalb_csr_control.internal_f[3:3]";} INT_UNC_SYND_DIS[3:3] = 1'h0;
+      field { name= "int_unc0_alarm_dis"; fieldwidth = 1; desc = "int unc alarm disable UNC MBE AID=0";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_nalb_csr_control.internal_f[2:2]";} INT_UNCR_ALARM_DIS[2:2] = 1'h0;
+      field { name= "int_cor0_synd_dis"; fieldwidth = 1; desc = "int cor syndrome disable. COR SBE AID=0";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_nalb_csr_control.internal_f[1:1]";} INT_COR_SYND_DIS[1:1] = 1'h0;
+      field { name= "int_cor0_alarm_dis"; fieldwidth = 1; desc = "int cor alarm disable. COR SBE AID=0";  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_nalb_csr_control.internal_f[0:0]";} INT_COR_ALARM_DIS[0:0] = 1'h0;
+};
+reg cfg_patch_control_r {
+      donttest = true;
+      IntelRsvd=false;
+      Security_PolicyGroup = <%=$Security_Props{'HQM_OS_W'}%>;
+      Security_ReadAccess_Str = <%=$Security_Props{'HQM_OS_W_RAC_AGENTS'}%>;
+      Security_WriteAccess_Str = <%=$Security_Props{'HQM_OS_W_WAC_AGENTS'}%>;
+      HqmIsFeatureReg=true;
+      shared;
+      HqmClassification="SURVIVE_REG_NA_1";
+      name="Cfg Patch Control";
+      desc="Non-default settings may cause UNDEFINED behavior.Common Control register with Patch config access";
+      HandCoded=true;
+      regwidth=32;
+      field { name = "delay_clockoff"; desc = "specify the number of idle clocks required to turn off clocks"; fieldwidth = 8;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_patch_control.internal_f[7:0]";} DELAY_CLOCKOFF[7:0] = 8'h40;
+      field { name = "delay_clkoff_bypass"; desc = "specify the number of clocks required to stay in clk_off bypass state, max supported value is 63 clocks"; fieldwidth = 6;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_patch_control.internal_f[13:8]";} DELAY_CLKOFF_BYPASS[13:8] = 6'h7;
+      field { name = "Rsvz1";    desc = "rsvz1"; fieldwidth = 2;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_patch_control.internal_f[15:14]";} RSVZ1[15:14] = 2'h0;
+      field { name = "Rsvz0";    desc = "rsvz0"; fieldwidth = 15;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_patch_control.internal_f[30:16]";} RSVZ0[30:16] = 15'h0;
+      field { name = "disable_clockoff"; desc = "set this bit to disable turning off the clock for the partitiion"; fieldwidth = 1;  IntelRsvd=false; PowerWell="vcccfn_gated"; AccessType = "RW"; ValRTLSignal = "%HQMID%.i_hqm_nalb_pipe_core.i_hqm_nalb_pipe_register_pfcsr.i_hqm_nalb_target_cfg_patch_control.internal_f[31:31]";} DISABLE_CLOCKOFF[31:31] = 1'h0;
+};

@@ -1,0 +1,51 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+
+###################################
+# Wait for reset to be done (including hardware memory init)
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+
+###################################
+# Setup LUTs used by HCWs
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+  ldb qid QID_A:6 qid_ldb_inflight_limit=512
+
+  ldb pool 15 credit_cnt=0x3800 credit_limit=0x4000 freelist_base=0x00   freelist_limit=0x3fff
+  dir pool 15 credit_cnt=0x3800 credit_limit=0x4000 freelist_base=0x4000 freelist_limit=0x7fff
+
+  vas 0 ldb_qidv:QID_A=1
+
+ ldb pp PP_A:0  gpa=0x80000000 vas=0 dir_pool=15 ldb_pool=15 dir_credit_count=0 ldb_credit_count=0x20  ldb_min_credit_quanta=0x20 ldb_credit_hwm=0x50 ldb_credit_lwm=0x20
+ ldb pp PP_B:1  gpa=0x80010000 vas=0 dir_pool=15 ldb_pool=15 dir_credit_count=0 ldb_credit_count=0x20  ldb_min_credit_quanta=0x20 ldb_credit_hwm=0x50 ldb_credit_lwm=0x20
+ ldb pp PP_C:2  gpa=0x80020000 vas=0 dir_pool=15 ldb_pool=15 dir_credit_count=0 ldb_credit_count=0x20  ldb_min_credit_quanta=0x20 ldb_credit_hwm=0x50 ldb_credit_lwm=0x20
+ ldb pp PP_D:3  gpa=0x80030000 vas=0 dir_pool=15 ldb_pool=15 dir_credit_count=0 ldb_credit_count=0x20  ldb_min_credit_quanta=0x20 ldb_credit_hwm=0x50 ldb_credit_lwm=0x20
+
+ ldb pp PP_0:8  gpa=0x80080000 vas=0 dir_pool=15 ldb_pool=15 dir_credit_count=0 ldb_credit_count=0x20  ldb_min_credit_quanta=0x20 ldb_credit_hwm=0x50 ldb_credit_lwm=0x20
+ ldb pp PP_1:9  gpa=0x80090000 vas=0 dir_pool=15 ldb_pool=15 dir_credit_count=0 ldb_credit_count=0x20  ldb_min_credit_quanta=0x20 ldb_credit_hwm=0x50 ldb_credit_lwm=0x20
+ ldb cq CQ_0:8  gpa=0x80280000 hist_list_base=0x000 hist_list_limit=0x1ff qidv0=1 qidix0=QID_A pri0=0 # cq_depth=8 
+ ldb cq CQ_1:9  gpa=0x80290000 hist_list_base=0x200 hist_list_limit=0x3ff qidv0=1 qidix0=QID_A pri0=0 # cq_depth=8 
+
+cfg_end
+
+idle 100

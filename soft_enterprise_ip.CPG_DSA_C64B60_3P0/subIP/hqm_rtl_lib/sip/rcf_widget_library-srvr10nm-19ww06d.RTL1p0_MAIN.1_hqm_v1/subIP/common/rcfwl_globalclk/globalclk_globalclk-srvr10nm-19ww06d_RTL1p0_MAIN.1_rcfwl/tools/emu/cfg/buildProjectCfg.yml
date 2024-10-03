@@ -1,0 +1,123 @@
+################################################################################################
+### emubuild cfg file using YAML format
+################################################################################################
+
+##############################
+# Global Defaults
+##############################
+GLOBAL:
+    #TOP:
+    #SETUP:
+        #- GCC_HOME=$ENV{GCC_HOME}
+        #- EMU_DATA=$ENV{EMU_DATA}
+#    ACE_METAFILES:
+#        USER_ID:
+#            FILE: target/emu/$ENV{MODEL}/$ENV{EMU_SCOPE}.M$ENV{MODEL}.filelist.Emulation.pl
+    NETBATCH_FILE: $ENV{EMU_DATA}/cfg/nb.yml
+    #RTL_CHANGES:
+    # .*:
+    #   - tools/emu/rtlchanges  
+    REMOVE_LIBS:
+      - yam_lib
+      - ml_lib
+      - configdb_lib
+    MOD_LIBS:
+     .*:
+       DEFINES:
+          #ADD:
+          #   - EMULATION
+          #   - NO_PWR_PINS
+          REMOVE:
+             - VCS
+             - VCSSIM
+             - HIERREF
+       #VERILOG_FILES:
+       #   REMOVE:
+       #      - .*verif/tb/clk/cte_refclkgen.vs
+       VERILOG_FFILES:
+          ADD:
+             - ${EMU_DATA}/emulation_defines.f
+      
+#   BB_MODULES:
+#         - libname.modulename
+
+##############################
+# Configurations
+##############################
+CONFIGURATIONS:
+   ALL_COMMON:
+      ABSTRACT: YES
+      # no longer works well. specify -target as emu_opts.
+      #WORKDIR: 
+   ZSE:
+      NETBATCH_FILE: target/resource.yml
+      NETBATCH_FILE_MERGE: YES
+      ACE_METAFILES:
+        USER_ID:
+            FILE: target/emu/$ENV{MODEL}/$ENV{EMU_SCOPE}.M$ENV{MODEL}.filelist.Emulation.pl
+            MODEL_NAME: $ENV{MODEL}
+      INHERITS:
+         - ALL_COMMON
+      PLATFORM: ZSE1
+      BOARDS: 1
+      CFG_FILES:
+         - ${EMU_DATA}/zebu/zse_build.utf
+      OTHER_FILES:
+         - ${EMU_DATA}/zebu/zFast.config
+         - ${EMU_DATA}/zebu/zTopBuild_edit.tcl
+      #UNIFIED_COMPILE: 1.0
+      MOD_LIBS:
+       .*:
+         VERILOG_FFILES:
+           ADD:
+             # pick the right defines file
+             - ${EMU_DATA}/emu_defines_upf.f
+         VERILOG_OPTIONS:
+           ADD:
+             - -diag skip_translate_body
+      USER:
+         FLAG_SYNOPSYS_TRANSLATE_OFF:
+            ENABLE: YES
+            SCRIPT: ${EMU_DATA}/scripts/flag_synopsys_translate_off.pl
+      USE_HBL: NO
+      COMPILE_OPTIONS_FILE: ${EMU_DATA}/zebu/zse_vcsopts.yml
+      NLP: YES
+      UPF:
+         USE_RTL_TOP: YES
+      SETUP:
+         # these are picked up from the simbuild environment. no need to specify
+         #- ZSE_PATH=
+         #- VCS_HOME=
+         #- GCC_HOME=
+         #- SNPSLMD_LICENSE_FILE=
+         #- NOVAS_HOME=/p/vt/tools/sim/vendor/zse/verdi3/2013.09_p9
+         #- NOVAS_ETC_DIR=${ZSE_PATH}/etc/novas/etc
+         - PATH=${VCS_HOME}/bin:${PATH}               
+
+
+
+   FPGA:
+      NETBATCH_FILE: target/resource.yml
+      NETBATCH_FILE_MERGE: YES
+      ACE_METAFILES:
+        USER_ID:
+            FILE: target/emu/$ENV{MODEL}/$ENV{EMU_SCOPE}.M$ENV{MODEL}.filelist.FPGA.pl
+            MODEL_NAME: $ENV{MODEL}
+      INHERITS:
+         - ALL_COMMON
+      PLATFORM: FPGA_PROTOCOMPILER
+      BOARDS: 1
+      CFG_FILES:
+         - $ENV{EMU_DATA}/fpga/protocompiler_opts.tcl
+      #SETUP:
+      #   - NOVAS_HOME=/p/vt/tools/sim/vendor/zse/verdi3/2013.09_p9
+      UNIFIED_COMPILE: 0
+      FPGA_OPTIONS:
+         HARDWARE: HAPS-70
+         DIRECTIVES:
+           COMPILE:
+              - -hdl_define __USELIBGROUPORDER__
+         #COMPILE_ONLY: YES
+
+
+

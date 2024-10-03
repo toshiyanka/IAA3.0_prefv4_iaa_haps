@@ -1,0 +1,70 @@
+# ----------------------------------------------------------------------------
+# HQM SS+TB topology, NON-REUSABLE
+# ----------------------------------------------------------------------------
+
+topology {
+    ip_type = SYSTEM
+    sim_type = RTL
+
+    num_socket = 1
+    allow_mmio_holes = 1
+
+    s0 {
+        ip_type = SOCKET
+        sim_type = RTL
+
+        # Below is needed for Mem Map picker and setup
+        #connect::scf_io_subsystem3::scf_iocoh_agent::m2iosf0::iosf_port1 = hqm_subsystem0::hqm_agent::hqm::iosf_port0
+        connect::hqm_subsystem0::hqm_agent::hqm::iosf_port0 = scf_iocoh_subsystem3::scf_iocoh_agent::m2iosf0::iosf_port0
+
+        scf_iocoh_subsystem3 {
+          `IMPORT scf_iocoh_arch.dut_cfg
+          p2p_ring_id = 0
+
+          scf_iocoh_chassis {
+              `IMPORT scf_iocoh_chassis.dut_cfg
+              module_variant = DEFAULT
+              cms0::turnagent_enb = 1
+
+              mspmas0::pmsb_iosf_sb::portid_list = 1
+              mspmas0::pmsb_iosf_sb::payload_width = 16
+          }
+          scf_iocoh_agent {
+              `IMPORT scf_iocoh_gen2_agent.dut_cfg
+              module_variant = DEFAULT
+          }
+          col_id = 0
+          row_id = 0
+          orientation = S
+        }
+
+        hqm_subsystem0 {
+            #Place holder for SS level
+            `IMPORT hqm_arch.dut_cfg
+
+            hqm_agent {
+                  `IMPORT hqm_agent.dut_cfg
+
+                  hqm::fuse_puller_inst_name = hqm
+                  hqm::fuse_topology_settings::hqm_fuse_group = hqm
+                  hqm::fuse_topology_settings::fuse_puller_inst_name = hca_sapma_merged_rdl
+                  hqm::fuse_topology_settings::fuse_puller_rtl_path = hqm_tb_top.hqm
+                  hqm::fuse_topology_settings::fuse_puller_phase = PH4_AGENT_IP_GO_RESUME
+                  hqm::gpsb_port::portid_list = 33
+                  hqm::gpsb_port::ral_portid_list = 33
+                  hqm::tb_top_path = hqm_tb_top.hqm_test_island.hqm_global_ti
+                  hqm::ral_bdf = 0/0/0
+                  hqm::root_bus = 0
+                  hqm::secondary_bus = 1
+                  hqm::subordinate_bus = 1
+
+                  hqm::inst_suffix = hqm
+                  hqm::hqm_fuse_no_bypass = 1
+
+                  pasid_capable = 0
+                  iosf_port0::pasid_capable = 0
+            }
+        }
+    }
+}
+

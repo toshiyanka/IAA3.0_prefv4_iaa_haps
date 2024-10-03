@@ -1,0 +1,100 @@
+
+
+################################################
+################################################
+####HQMV30_AO
+####AO test-suite can't run with +HQM_LSP_CQ_INFLIGHT_EXTENDED
+################################################
+################################################
+#run hqm_functional_hqmv30.list which includes hqm_functional_ao.list
+#.include hqm_functional_ao.list
+
+
+
+
+################################################
+################################################
+####HQMV30_ROB
+.include hcw_pfsciov_rob_rand.list
+
+.include hcw_enqueue.list
+.include hqm_agent_scheduling.list
+.include hqm_agent_functional_v2.list
+.include hqm_agent_fuses_straps.list
+.include hqm_misc_tests.list
+.include hqm_agent_power_clocks.list
+.include hqm_agent_top_level_stress.list
+####AY_RM_V30_REVISIT####   .include hqm_agent_hcw_errors.list
+.include hqm_agent_perf.list
+.include hqm_agent_perf_nooppad.list
+.include hqm_survivability.list
+.include hqm_agent_security.list
+.include hqmv2_sai_test.list
+####AY_RM_V30_REVISIT####   .include hqm_agent_integrity_checks.list
+.include hqm_sparse_cq_dir_ldb.list
+.include hqm_sparse_cq_ldb.list
+.include hqm_sparse_cq_dir.list
+.include hqm_wb_padding.list
+.include hcw_pfvfsciov_rand.list
+.include hcw_pfvfsciov2_sequential.list
+.include $WORKAREA/src/val/reglist/hqm/hqm_compliance/hqm_compliance_test.list
+
+
+##Te suggested not to run this list in Agitate mode
+####AY_RM_V30_REVISIT####   +defaults -simv_args  '"'  +HQM_SKIP_AGITATE_SEQ  +HQM_SKIP_HCW_WR_RDY_AGITATE  '"' -simv_args-
+####AY_RM_V30_REVISIT####   .include hqm_agent_integrity_checks.list
+####AY_RM_V30_REVISIT####   -defaults -simv_args  '"'  +HQM_SKIP_AGITATE_SEQ  +HQM_SKIP_HCW_WR_RDY_AGITATE  '"' -simv_args-
+
+##Steve suggested not to run this list in BG CFG, Agitate and prochot mode
++defaults -simv_args  '"' +HQM_DISABLE_BACKGROUND_CFG_GEN_SEQ +HQM_SKIP_AGITATE_SEQ +HQM_NO_PRE_FLUSH_PHASE +HQM_SKIP_HCW_WR_RDY_AGITATE +HQM_DISABLE_PROCHOT_DRIVE +HQM_DIS_PRIM_ISM_DLY_OVERRIDE '"' -simv_args-
+.include $WORKAREA/src/val/reglist/hqm/hqm_iosf.list
+.include $WORKAREA/src/val/reglist/hqm/hqm_functional/hqm_addr_alias_check.list
+-defaults -simv_args  '"' +HQM_DISABLE_BACKGROUND_CFG_GEN_SEQ +HQM_SKIP_AGITATE_SEQ +HQM_NO_PRE_FLUSH_PHASE +HQM_SKIP_HCW_WR_RDY_AGITATE +HQM_DISABLE_PROCHOT_DRIVE +HQM_DIS_PRIM_ISM_DLY_OVERRIDE '"' -simv_args-
+
+.include hqm_core_functional.list
+.include hqm_core_stress.list
+.include hcw_sciov_test_ims_pull_en.list
+.include hqm_agent_cov.list
+
+
+.include hqm_intermediate_reset.list
+
++defaults -simv_args  '"' +hqm_reset_cycle_sequence_stim_config::extend_prim_txns_in_rst=1 +hqm_reset_cycle_sequence_stim_config::avoid_prim_txns_in_flr=0 '"' -simv_args- -dirtag ext_prim_txns
+.include hqm_intermediate_reset.list
+-defaults -simv_args  '"' +hqm_reset_cycle_sequence_stim_config::extend_prim_txns_in_rst=1 +hqm_reset_cycle_sequence_stim_config::avoid_prim_txns_in_flr=0 '"' -simv_args- -dirtag ext_prim_txns
+
+## include list which can not run with Background cfg 
++defaults -simv_args  '"' +HQM_DISABLE_BACKGROUND_CFG_GEN_SEQ '"' -simv_args-
+####HQMV30_NEED_TO_REVIEW_REGISTER_TESTS####  .include hqm_agent_reset.list
+-defaults -simv_args  '"' +HQM_DISABLE_BACKGROUND_CFG_GEN_SEQ '"' -simv_args-
+
++defaults -simv_args  '"' +HQM_DISABLE_BACKGROUND_CFG_GEN_SEQ +HQM_SKIP_AGITATE_SEQ +HQM_NO_PRE_FLUSH_PHASE +HQM_SKIP_HCW_WR_RDY_AGITATE +HQM_DISABLE_PROCHOT_DRIVE +HQM_DIS_PRIM_ISM_DLY_OVERRIDE '"' -simv_args-
+.include hqm_taprtdr_hwrstfrpwr_test.list
+.include hqm_pfvf_space_accsample.list 
+-defaults -simv_args  '"' +HQM_DISABLE_BACKGROUND_CFG_GEN_SEQ +HQM_SKIP_AGITATE_SEQ +HQM_NO_PRE_FLUSH_PHASE +HQM_SKIP_HCW_WR_RDY_AGITATE +HQM_DISABLE_PROCHOT_DRIVE +HQM_DIS_PRIM_ISM_DLY_OVERRIDE '"' -simv_args-
+
+################################################
+################################################
+####
+## hqmv25 proc regression list 
+####
+####CTH2_TEMP####  .include $WORKAREA/src/val/reglist/hqm/hqm_hqmproc_functional/hqm_hqmproc_functional.list
+###AY_TMP####  .include $WORKAREA/src/val/reglist/hqm/hqm_hqmproc_functional/hqm_hqmproc_functional_agicfg.list
+#.include $WORKAREA/src/val/reglist/hqm/hqm_hqmproc_functional/hqm_hqmproc_functional_agisys.list
+###AY_TMP####  .include $WORKAREA/src/val/reglist/hqm/hqm_hqmproc_functional/hqm_hqmproc_functional_agicoff.list
+#.include $WORKAREA/src/val/reglist/hqm/hqm_hqmproc_functional/hqm_hqmproc_functional_surv_rnd.list
+####CTH2_TEMP####  +defaults -simv_args  '"' +HQM_DISABLE_BACKGROUND_CFG_GEN_SEQ +HQM_SKIP_AGITATE_SEQ +HQM_NO_PRE_FLUSH_PHASE +HQM_SKIP_HCW_WR_RDY_AGITATE +HQM_DISABLE_PROCHOT_DRIVE +HQM_DIS_PRIM_ISM_DLY_OVERRIDE '"' -simv_args-
+####CTH2_TEMP####    .include $WORKAREA/src/val/reglist/hqm/hqm_hqmproc_functional/hqmproc.trf.nonagi.list
+####CTH2_TEMP####    .include $WORKAREA/src/val/reglist/hqm/hqm_hqmproc_functional/hqm_perf_dta.list
+####CTH2_TEMP####    .include $WORKAREA/src/val/reglist/hqm/hqm_hqmproc_functional/hqm_perf_qeprio.list
+####CTH2_TEMP####  .include $WORKAREA/src/val/reglist/hqm/hqm_hqmproc_functional/hqm_hqmproc_functional_surv_rnd.list
+####CTH2_TEMP####  -defaults -simv_args  '"' +HQM_DISABLE_BACKGROUND_CFG_GEN_SEQ +HQM_SKIP_AGITATE_SEQ +HQM_NO_PRE_FLUSH_PHASE +HQM_SKIP_HCW_WR_RDY_AGITATE +HQM_DISABLE_PROCHOT_DRIVE +HQM_DIS_PRIM_ISM_DLY_OVERRIDE '"' -simv_args-
+
+
+#####
+#testlist which require 32GB memory
+#####
+.include hqm_agent_functional_largemem.list 
+
+
+

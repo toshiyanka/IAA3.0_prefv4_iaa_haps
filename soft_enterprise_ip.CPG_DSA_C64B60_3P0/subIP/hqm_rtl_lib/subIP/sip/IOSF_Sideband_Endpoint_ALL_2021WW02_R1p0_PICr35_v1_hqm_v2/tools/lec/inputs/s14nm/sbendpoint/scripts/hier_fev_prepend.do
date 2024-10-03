@@ -1,0 +1,1 @@
+vpx analyze datapath -verbose

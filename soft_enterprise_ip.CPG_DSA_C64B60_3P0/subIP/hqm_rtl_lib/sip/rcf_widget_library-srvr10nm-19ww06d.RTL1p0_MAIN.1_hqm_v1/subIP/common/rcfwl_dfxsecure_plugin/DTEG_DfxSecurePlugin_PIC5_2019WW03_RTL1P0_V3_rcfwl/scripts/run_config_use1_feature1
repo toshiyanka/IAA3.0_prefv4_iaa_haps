@@ -1,0 +1,19 @@
+cd $IP_ROOT
+rm -rf pwa/results .acetestinfo.log
+
+\cp verif/tb/include/configs/use1_feature1/DfxSecurePlugin_TbDefines.svh              verif/tb/DfxSecurePlugin_TbDefines.svh
+\cp verif/tb/include/configs/use1_feature1/DFXSECURE_dfxsecureplugin_param_overide.vh verif/tb/include/DFXSECURE_dfxsecureplugin_param_overide.vh
+\cp verif/tb/include/configs/use1_feature1/DFXSECURE_dfxsecureplugin_param_values.vh  verif/tb/include/DFXSECURE_dfxsecureplugin_param_values.vh
+
+ace -cc -pwa pwa_config_use1_feature1
+ace -x DfxSecurePlugin_DefaultTest \
+       DfxSecurePlugin_DriveUserPolicySeqTest \
+       DfxSecurePlugin_PolicySweepSeqTest \
+       DfxSecurePlugin_DriveUserPolicyViaSBOVRSeqTest \
+       DfxSecurePlugin_DriveAllUserInputSeqTest -pwa pwa_config_use1_feature1
+
+grep -ir status pwa/results/tests/*/postsim.log
+
+\cp verif/tb/include/configs/default/DfxSecurePlugin_TbDefines.svh              verif/tb/DfxSecurePlugin_TbDefines.svh
+\cp verif/tb/include/configs/default/DFXSECURE_dfxsecureplugin_param_overide.vh verif/tb/include/DFXSECURE_dfxsecureplugin_param_overide.vh
+\cp verif/tb/include/configs/default/DFXSECURE_dfxsecureplugin_param_values.vh  verif/tb/include/DFXSECURE_dfxsecureplugin_param_values.vh

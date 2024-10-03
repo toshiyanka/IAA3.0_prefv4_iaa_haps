@@ -1,0 +1,16 @@
+# number of HCWs enqueued
+rd hqm_system_csr.hqm_system_cnt_0 6
+# number of HCWs scheduled
+rd hqm_system_csr.hqm_system_cnt_8 4
+# Return first ORD
+HCW LDB:0 qe_valid=1 qe_orsp=0 qe_uhl=1 cq_pop=1 meas=0 lockid=0  msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302 ptr=1
+
+poll_sch  dir:0  0x4   1000 2000
+
+# Return DIR tokens
+HCW DIR:0 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=1 msgtype=0 qpri=0 qtype=dir qid=0 dsi=0x302 ptr=5
+idle 100
+# number of HCWs enqueued
+rd hqm_system_csr.hqm_system_cnt_0 8
+# number of HCWs scheduled
+rd hqm_system_csr.hqm_system_cnt_8 6

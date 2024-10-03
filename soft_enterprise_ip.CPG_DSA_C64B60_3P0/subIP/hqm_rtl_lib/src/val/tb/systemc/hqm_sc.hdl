@@ -1,0 +1,27 @@
+require ToolConfig;
+
+my $InitUtils        = &ToolConfig::get_tool_path('ipconfig/init_utils');
+##my $MemDecoderDir    = &ToolConfig::get_tool_path('ipconfig/mem_decoder');
+my $SyscDir          = "$ENV{MODEL_ROOT}/verif/tb/systemc";
+my $tbTools          = &ToolConfig::get_tool_path("ipconfig/ml");
+my $sqlite_path      = &ToolConfig::get_tool_path("ipconfig/sqlite");
+my $sqlite_include   = "$sqlite_path/include";
+##my @init_utils_c_incdirs = &ToolConfig::get_tool_var("ipconfig/init_utils", "C_INCDIRS");
+my @init_utils_c_incdirs = &ToolConfig::get_tool_var("ipconfig/init_utils", "C_INCDIRS_OVMSV");
+my @tbtools_c_incdirs = &ToolConfig::get_tool_var("ipconfig/tfm_vi_tb", "C_INCDIRS");
+
+
+$hdl_spec = {
+    '-cpp_files' => [
+        "${SyscDir}/hqm_sc_env.cpp",
+        "${SyscDir}/hqm_sc_vc.cpp",
+        "${SyscDir}/hqm_sc_agent.cpp",        
+    ],
+
+    '-c_incdir' => [
+        "${SyscDir}",
+	         @init_utils_c_incdirs,
+             "${InitUtils}/src/sys_level_preloader/ovmsv",
+             "${InitUtils}/src/sys_level_preloader/sv",
+	       ],
+};

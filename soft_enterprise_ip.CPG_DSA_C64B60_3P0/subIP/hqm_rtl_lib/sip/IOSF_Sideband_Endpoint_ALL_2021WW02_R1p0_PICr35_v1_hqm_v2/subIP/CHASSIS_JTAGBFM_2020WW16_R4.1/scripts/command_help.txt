@@ -1,0 +1,41 @@
+To use BFM specific debug Messgaes:
+===================================
+   ace -cc -vlog_opts "+define+JTAG_BFM_DEBUG_MSG" -x -t <test_name>
+
+To use CTT files from a specific location:
+==========================================
+   ace -cc -vlog_opts "+define+USE_GENERATED_FILES_FOR_JTAGBFM" -x -t <test_name>
+
+To Setup Verbosity from command line:
+=====================================
+   ace -cc -x -simv_args "+verbosity=OVM_NONE"
+
+To run with SHDR length greater than 4096(defualt):
+===================================================
+   ace -cc -vlog_opts "+define+OVM_MAX_STREAMBITS=1000000"
+
+To use a custom width for Tracker greater than 128(defualt):
+============================================================
+   ace -cc -vlog_opts "+define+CHASSIS_JTAGBFM_TRACKER_WIDTH=200" -x -t <test_name>
+
+To run Zircon:
+==============
+   /p/sip/utils/bin/preZirconQA -list-varis 
+   ## All Details
+   /p/sip/utils/bin/preZirconQA -ip 'DFx JTAG BFM' -proj 'All' -alias JtagBfm -vari 'ALL'                               ## Pre Zircon QA
+   /p/sip/utils/bin/zirconQA    -ip 'DFx JTAG BFM' -proj 'All' -alias JtagBfm -vari 'ALL' -rv ALL_2013WW38_R1.0_v2      ## All Details
+   /p/sip/utils/bin/zirconQA    -ip 'DFx JTAG BFM' -proj 'All' -alias JtagBfm -vari 'ALL' -rv ALL_2013WW38_R1.0_v2 -rpt ## Detailed Report
+   /p/sip/utils/bin/zirconQA    -ip 'DFx JTAG BFM' -proj 'All' -alias JtagBfm -vari 'ALL' -fc Verification              ## Details on verification
+
+   preZirconQA -ip 'DFx JTAG BFM' -proj 'All' -alias JtagBfm -vari 'ALL'                               ## Pre Zircon QA
+   zirconQA    -ip 'DFx JTAG BFM' -proj 'All' -alias JtagBfm -vari 'ALL' -rv ALL_2014WW24_R1.0_v3 -rpt
+
+To run ARN:
+=============
+   cd $IP_ROOT/scripts
+   /p/sip/utils/bin/editRelFile
+   /p/sip/utils/bin/sipRelease -rn  -force
+   /p/sip/utils/bin/sipRelease -ann -preview -irr  'https://irrpod.cps.intel.com/irr/#w$KAidQRxDPwtB'
+   /p/sip/utils/bin/sipRelease -ann -real    -irr  'ttps://irrprod.cps.intel.com/irr/#w$KAidQRxDPwtB'
+
+#####################################################################################

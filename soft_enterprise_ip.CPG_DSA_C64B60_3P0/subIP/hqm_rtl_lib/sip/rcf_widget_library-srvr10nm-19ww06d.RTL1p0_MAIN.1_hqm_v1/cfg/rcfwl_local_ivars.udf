@@ -1,0 +1,238 @@
+# -*- mode: cperl; cperl-indent-level: 4; cperl-indent-parens-as-block: t; -*- ## vim: noai:ts=4 : sw=4 : filetype=perl
+# vim: noai:ts=4 : sw=4 : filetype=perl #
+require ToolConfig;
+
+my $scope = "hqm_rcfwl";
+
+
+%audf = (
+          CheckerData => 
+          {
+             $scope =>
+             {
+                post_simulation =>
+                {
+                     scripts => [&ToolConfig::get_tool_env_var('spyglass_cdc', 'SPYGLASS_METHODOLOGY_CDC')."/scripts/move_sgcdc_assertions.pl: --enable <-en_functional_cdc_cp>  --dest $ENV{MODEL_ROOT}/target/rcfwl/cdc/spyglass_sva/$scope/<-model>/<-static_check_top> ", ],
+                     -enable_flag => "-en_functional_cdc_cp",
+                },
+             },
+          }, 
+
+   InterfaceVars => {
+
+       # These 3 options are necessary for VISA insertion
+       -add_flag_dump => { default => 1 },
+       -dump_rtl_include_prereqs => { default => 1 },
+       -enable_generate_rtl => { default => 1 },
+       -enable_legacy_lib_mapping => {default => 0},
+       -enable_hier_dump => { default => 1,},
+       -enable_dump_ctl => { default => 1 },
+       -enable_dump_rtl => { default => 1 },
+        -enable_tag_overrides => { default => 1 },
+#       -cdc_sched_filter      => { default => "Synthesis"},
+#       -spyglass_sched_filter => { default => "Synthesis"},
+#       -lint_sched_filter     => { default => "Lint"},
+
+       -enable_auto_produced_tag_propagation => { default => 0 },
+
+       # added for move to 16.01.19
+       -lintra_include_type => { default => "incdir" },
+
+       -allow_hdl_spec_of_elab_opts => { default => 1},
+       -models_to_compile => {
+          merging => 'ASSIGN',
+          default => [qw(
+                      dft_reset_sync
+                      cdc_wrapper
+                      ip_disable
+                      fuse_hip_glue
+                       )],
+      },
+      -vlog_opts => { 
+                     default => [
+                                 "-full64",
+#                                 "+define+CTECH_LIB_META_ON",
+                                 "+define+INTEL_INST_ON",
+                                 "+define+INST_ON",
+                                 "+define+INTEL_INST_ON",
+#                                 "+define+INTEL_SIMONLY",
+                                 "+define+INST_ON",
+                                 "-sverilog",
+                                 "+define+INSTANTIATE_HIERDUMP",
+                                 "+define+AGENT_CTE",
+                                 "+incdir+$ENV{TFM_VI_SV_INCLUDES}",
+                                 "+incdir+$ENV{OVM_INCLUDES}",
+                                 "+incdir+$ENV{SAOLA_INCLUDES}",
+                                 "+define+IOSFSB_UTILITIES_PROTOCOL_VER_MIN_1_3",
+                                ],
+      },
+      -post_process_pattern_file => {
+          default => "cfg/rcfwl_post_process.pp",
+      },
+
+      -static_check_cfg_file => {
+          merging => 'ASSIGN',
+          default => ["$ENV{MODEL_ROOT}/tools/lint/lintra_static_check.cfg",
+                      &ToolConfig::get_tool_env_var('spyglass_cdc', 'SPYGLASS_METHODOLOGY_CDC') . "/ace_static_check.cfg",],
+      },
+                -sglint_static_check_cfg_file => {
+                                default => [
+                                          &ToolConfig::get_tool_var('spyglass_lint','sglint_ace_static_file'),
+                                 ],
+                         }, 
+
+
+          -simv_args => { 
+            default => [
+              "+DUT_CFG=simrun.dut_cfg", # Populate ConfigDB with simrun.dut_cfg
+              "-assert nopostproc", #  disable end of test report of assertions/coverage
+              "+OVM_USE_DPIC_OVM_IS_MATCH", # use DPI C implementation of match function - simulation speedup
+            ] 
+      },
+      -c_isystem => {default => [&ToolConfig::get_tool_path('boost')]},
+      -c_incdir => { default => [ &ToolConfig::get_tool_path('ipconfig/yam') . '/../include',
+                                      &ToolConfig::get_tool_path('vcs') . '/include',
+                                      &ToolConfig::get_tool_path('jem') . '/jem_rt',
+                                      &ToolConfig::get_tool_path('systemc') . '/tlm/include/tlm',
+                                      &ToolConfig::get_tool_path('systemc') . '/include',
+                                      &ToolConfig::get_tool_path('tfm_vi_tb') . '/tools/comm/cdns_uvm_ml/ml/adapters/uvm_sc',
+                                      &ToolConfig::get_tool_path('tfm_vi_tb') . '/tools/comm/cdns_uvm_ml/ml/adapters/uvm_sc/common',
+                                      &ToolConfig::get_tool_path('tfm_vi_tb') . '/tools/comm/cdns_uvm_ml/ml/adapters/uvm_sc/osci',
+                                      &ToolConfig::get_tool_path('tfm_vi_tb') . '/tools/comm/cdns_uvm_ml/ml/frameworks/uvm/sc',
+                                ],},
+
+      -elab_opts => {
+                      default => [
+                                  "-full64",
+                                  "+error+99999",
+                                  "-debug_access+pp+f",
+                                  "-debug_region=lib",
+                                  "-error=UNIQUE",
+                                  "-error=PRIORITY",
+                                  "-congruency=allowBA",
+                                 ],
+                     },
+
+
+      -enable_cdc_lint => { default => 1 },
+      -exit_on_missing_cdclint_home => { default => 1 },
+
+      $scope => {
+          -en_functional_cdc_cp => { default => 0, },
+          __PROTOTYPES => {
+             import => ["TEST","LOWPOWER"],
+          },
+          -model => {
+             default => "$ENV{DUT}",
+          },
+
+                  -no_systeminit => {
+                type  => "BOOLEAN",
+                default => 0,
+            },
+
+            -systeminit_only => {
+                type  => "BOOLEAN",
+                default => 0,
+            },
+
+            -trace_gen => {
+                type  => "BOOLEAN",
+                default => 0,
+            },
+                        
+            -spyglass_goals => {
+                clear_default => 1,
+                default => [],
+            },
+
+                        -dut_cfg => {
+                default => "$ENV{MODEL_ROOT}/cfg/dut_cfg/top/topology.dut_cfg", # specify a .dut_cfg file to load
+                type  => "SCALAR",
+                help  => {
+                    desc => "-dut_cfg <.dut_cfg file>"
+                }
+            },
+
+           
+            -dut_cfg_outfile => {
+                default => "simrun.dut_cfg", # specify the output .dut_cfg file for systeminit to produce
+                type  => "SCALAR",
+                help  => {
+                    desc => "-dut_cfg_outfile <.dut_cfg file>"
+                }
+            },
+
+            -project_constraints => {
+                default => ["proj_constraints"], # specify any systeminit constraints for this project
+                type  => "ARRAY",
+                help  => {
+                    desc => "-project_constraints <comma-separated constraint classes>"
+                }
+            },
+
+            -test_constraints => {
+                default => ["test_constraints"], # specify any systeminit constraints for this test
+                valid_test_option => 1,
+                type  => "ARRAY",
+                help  => {
+                    desc => "-test_constraints <comma-separated constraint classes>"
+                }
+            },
+
+            -test_constraints_incdirs => {
+                default => [], # specify any systeminit constraints for this test
+                valid_test_option => 1,
+                type  => "ARRAY",
+                help  => {
+                    desc => "-test_constraints_incdirs <comma-separated directories>"
+                }
+            },
+            -test_constraints_incfiles => {
+                default => [], # specify any systeminit constraints for this test
+                valid_test_option => 1,
+                type  => "ARRAY",
+                help  => {
+                    desc => "-test_constraints_incfiles <comma-separated files>"
+                }
+            },
+
+
+
+          -zin_opts => { default => ["-c -licq",], },
+          -en__hqm_rcfwl_cdc_wrapper_rtl_lib_VISA_INSERTION => {
+             type => 'BOOLEAN',
+             default => 0,
+          },
+
+       },
+       },
+
+
+        HDLSpec => {
+           -hdl_compiler => {
+               debussy => {
+                  -libDir => "vericom_4value",
+               },
+               vcs => {
+                  -libDir         => "vcs_4value",
+                  -iniContents    => <<'EOF',
+                  --Mapping default work dir
+                  WORK > DEFAULT
+                  --Mapping system libraries
+                  --Low-power libraries
+                  UPF : $VCS_HOME/suse64/packages/upf
+                  LPA : $VCS_HOME/suse64/packages/lpa
+EOF
+                },
+           },
+           -filter => {
+           },
+           cdc => {
+                   -vlogToolArgs   => "-sv -mfcu -mixedansiports -permissive -convertallparams -synthprefix -nopsl -oldsv -suppress 2902 -suppress 7033 -suppress 3838 -skipsynthoffregion +define+LINT_ON",
+                   -libDir         => "cdc_lib/$ENV{CDC_VER}",
+                  },
+        },
+);
+
+$audf{'HDLSpec'}{'-hdl_compiler'}{'vcs'}{'-libDir'} = "vcs_4value_$ENV{VARIANT}" if (defined $ENV{VARIANT});

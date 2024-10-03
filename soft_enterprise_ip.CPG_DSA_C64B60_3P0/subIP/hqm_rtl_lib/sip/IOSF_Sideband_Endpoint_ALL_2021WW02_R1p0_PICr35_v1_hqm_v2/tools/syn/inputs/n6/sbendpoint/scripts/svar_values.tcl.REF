@@ -1,0 +1,114 @@
+## -----------------------------------------------------------------------------
+## HEADER $Id: svar_values.tcl,v 1.3 2018/06/14 06:55:28 bfairey Exp $
+## HEADER_MSG Lynx Design System: Production Flow
+## HEADER_MSG    Version 2017.09-SP1-1
+## HEADER_MSG    Copyright (c) 2017 Synopsys
+## HEADER_MSG    Perforce Label: lynx_flow_2017.09-SP1-1
+## -----------------------------------------------------------------------------
+## DESCRIPTION:
+##  This is svar_values.tcl example file
+## -----------------------------------------------------------------------------
+
+## -----------------------------------------------------------------------------
+## Directory where collateral dir is found
+## -----------------------------------------------------------------------------
+
+set SVAR(collateral_dir) "$SEV(bscript_dir)"
+
+## -----------------------------------------------------------------------------
+## Design Name
+## -----------------------------------------------------------------------------
+
+set SVAR(design_name) "sbendpoint"
+
+## -----------------------------------------------------------------------------
+## This variable specifies the number of scan chains.
+## -----------------------------------------------------------------------------
+
+set SVAR(dft,scan_chain_count) 30
+
+set SVAR(tech,metal_layer_info_list) [list \
+  { "M0" "H" } \
+  { "M1" "V" } \
+  { "M2" "H" } \
+  { "M3" "V" } \
+  { "M4" "H" } \
+  { "M5" "V" } \
+  { "M6" "H" } \
+  { "M7" "V" } \
+  { "M8" "H" } \
+  { "M9" "V" } \
+  { "M10" "H" } \
+  { "M11" "V" } \
+  { "M10" "H" } \
+  { "M11" "V" } \
+  { "M12" "H" } \
+  { "M13" "V" } \
+  { "AP" "H" } \
+]
+
+
+## -----------------------------------------------------------------------------
+## If set to 1, Configure a Golden UPF methodology
+## If set to 0, Configure a UPF PRIME methodology
+## 
+## See documentation on the difference between Golden UPF flows and PRIME UPF flows. Golden UPF flow is covered in SolvNet Doc Id: 1412864
+## -----------------------------------------------------------------------------
+
+set SVAR(pwr,enable_golden_upf) 0
+
+## -----------------------------------------------------------------------------
+## If set to 1, UPF contains well bias connectivity
+## If set to 0, UPF does not contain well bias connectivity
+## -----------------------------------------------------------------------------
+
+set SVAR(pwr,upf_bias_enable) 0
+
+## -----------------------------------------------------------------------------
+## File used to provide UPF for RTL.
+## -----------------------------------------------------------------------------
+
+#set SVAR(pwr,upf_enable) 0
+
+set SVAR(pwr,upf_for_rtl) $SVAR(febe_root)/$SVAR(design_name)_cth.upf
+
+set SVAR(voltage_file) $SVAR(febe_root)/$SVAR(design_name)_set_voltage.tcl
+
+#set SVAR(pwr,upf_for_rtl) /nfs/fm/disks/fm_fabric_00087/Jignasap/MAY_SBE_cheetah/ip-sbr/tools/upf/sbendpoint.upf
+
+#set SVAR(pwr,upf_for_rtl) $SVAR(febe_root)/tools/upf/$SVAR(design_name).upf
+
+#set SVAR(voltage_file) $SVAR(febe_root)/$SVAR(design_name)_set_voltage.tcl
+
+## SAGE flow related SVARs: 
+set SVAR(cht_dft,atpg,ATPG_FLOW_HOME) "/p/hdk/pu_tu/prd/sage/1.12.3"
+source $SVAR(cht_dft,atpg,ATPG_FLOW_HOME)/templates/sage_svar_values.tcl
+set SVAR(cht_dft,atpg,ATPG_FLOW_HOME) "/p/hdk/pu_tu/prd/sage/1.12.3"
+set SVAR(cht_dft,atpg,ATPG_CHT) "1"
+# default values for cheetah ends here  
+### user defiend variables
+set SVAR(cht_dft,atpg,WARD) "$SEV(bscript_dir)/.."
+set SVAR(cht_dft,atpg,ATPG_FAULT_MODE) "stuckat"
+set SVAR(cht_dft,atpg,ATPG_EDT_MODE) "bypass"
+set SVAR(cht_dft,atpg,ATPG_SIP) "on";
+set SVAR(cht_dft,atpg,ATPG_STOP) "ATPG_PATTERN_GEN";
+set SVAR(cht_dft,atpg,ISAF_HOME) "/p/com/eda/intel/isaf/2.2.5/src"
+set SVAR(cht_dft,atpg,ATPG_PROJECT) "SIP"
+set SVAR(cht_dft,atpg,ATPG_VERILOG_TOP) "$SVAR(design_name)"
+set SVAR(cht_dft,atpg,ATPG_BOUNDARY_MASK) "nomask"
+set SVAR(cht_dft,atpg,ATPG_FAULT_DISPOSITION) "on"
+set SVAR(cht_dft,atpg,ATPG_PATTERN_COMPRESSION) "off"
+set SVAR(cht_dft,atpg,ATPG_SCAN_PATH_FILE) "$::SEV(bscript_dir)/../10_syn/020_dc_baseline/rpts/dc.dft.$SVAR(design_name).dft.dft_scan_path"
+set SVAR(cht_dft,atpg,ATPG_VERILOG) "$::SEV(bscript_dir)/../10_syn/020_dc_baseline/work/$SVAR(design_name).v"
+set SVAR(cht_dft,atpg,ATPG_VERILOG_NETLIST) "$SVAR(cht_dft,atpg,ATPG_VERILOG)"
+set SVAR(cht_dft,atpg,ATPG_PATTERN_NAME) "$SVAR(cht_dft,atpg,ATPG_VERILOG_TOP).$SVAR(cht_dft,atpg,ATPG_EDT_MODE).$SVAR(cht_dft,atpg,ATPG_FAULT_MODE).$SVAR(cht_dft,atpg,ATPG_PAT_TAG)"
+## please change the below value if you are not finding this relative paths, aceroot/results/DC/sb_i3c_lite/collateral/dft/sb_i3c_lite.ip_info
+#set SVAR(cht_dft,atpg,IP_INFO_FILE) "$SEV(builds_dir)/../../../../$SVAR(design_name)/collateral/dft/$SVAR(design_name).ip_info"
+
+set SVAR(cht_dft,atpg,IP_INFO_FILE) "$SEV(builds_dir)/$SVAR(design_name)/ext_inputs/fe_collateral/constraints/dft/$SVAR(design_name).ip_info"
+
+set SVAR(change_names_override_file) "$SEV(bscript_dir)/syn/n6bbfix.tcl"
+
+## -----------------------------------------------------------------------------
+## End of File                                                                  
+## -----------------------------------------------------------------------------

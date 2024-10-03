@@ -1,0 +1,54 @@
+# This is example on how to create a RECIPE for creating run script around 'ace calculated lintra command'
+# Available Usage syntax:
+#      i. environment variables
+#             $ENV{ACE_HOME}
+#      ii. Lintra command key word.  This is where the ace caclucated lintra command to be placed
+#              _LINTRA_EXE_COMMAND_
+#      iii. Reference to ACE flag
+#                <scope_name::flag name> 
+#      iv. Locate file on 'ace -show_search_path'
+#                  FIND_FILE:'partial path to file' 
+#      v. Locate directory on 'ace -show_search_path'
+#                  FIND_DIR:'partial path to directory' 
+#      vi. Only one Unix command per-line can be specified
+# The user may inject UNIX command before/after _LINTRA_EXE_COMMAND_ command.  
+# Or, the user may write a wrapper script around _LINTRA_EXE_COMMAND_ command
+
+#Example:
+
+# locate Readme file on search path and copy to lintra execution directory.
+cp FIND_FILE:doc/templates/Readme .
+
+# example on some other command with ENV var in it.
+tree $ENV{ ACE_HOME }/doc/templates/
+
+# example on referencing ace  flag
+tree <-model_compile_results_dir>/makefiles
+
+# the ace calcuated command executes here
+_LINTRA_EXE_COMMAND_
+echo "Debug--->Running Lintra Copying script"
+#\cp $SIP_ROOT/target/stf_scanss/$CUSTOMER/aceroot/pwa_lint/results/tests/lintra_stf_scanss/lintra.filelist                               $SIP_ROOT/tools/lint/
+#\cp $SIP_ROOT/target/stf_scanss/$CUSTOMER/aceroot/pwa_lint/results/tests/lintra_stf_scanss/stf_scan_subsystem.lintra.violations          $SIP_ROOT/tools/lint/
+#\cp $SIP_ROOT/target/stf_scanss/$CUSTOMER/aceroot/pwa_lint/results/tests/lintra_stf_scanss/stf_scan_subsystem_violations.xml             $SIP_ROOT/tools/lint/
+#\cp $SIP_ROOT/pwa_lint/results/tests/lintra_stap/lintra.filelist                    $SIP_ROOT/tools/lint/
+#\cp $SIP_ROOT/target/stap/$CUSTOMER/aceroot/pwa_lint/results/tests/lintra_stap/*_vcs.log                          $SIP_ROOT/tools/lint/run_lintra.log
+latest_log=`ls -Art $SIP_ROOT/target/stap/$CUSTOMER/aceroot/pwa_lint/results/tests/lintra_stap/*[0-9].log | tail -n 1`
+\cp $latest_log $SIP_ROOT/tools/lint/run_lintra.log
+\cp $SIP_ROOT/target/stap/$CUSTOMER/aceroot/pwa_lint/results/tests/lintra_stap/lintra.filelist                               $SIP_ROOT/tools/lint/
+\cp $SIP_ROOT/target/stap/$CUSTOMER/aceroot/pwa_lint/results/tests/lintra_stap/stap.lintra.violations          $SIP_ROOT/tools/lint/
+\cp $SIP_ROOT/target/stap/$CUSTOMER/aceroot/pwa_lint/results/tests/lintra_stap/stap_violations.xml             $SIP_ROOT/tools/lint/
+echo "\n$SIP_ROOT/tools/lint/run_lintra.log generated."
+#if(-e $SIP_ROOT/tools/lint/run_lintra.log) then
+#    set pass = `grep -c -w "Lint status PASSED" $IP_ROOT/tools/lint/run_lintra.log`
+#    if($pass == 0) then
+#        echo "\n\nLint status FAILED"
+#        exit 1
+#    else
+#        echo "\n\nLint status PASSED"
+#    endif
+#endif
+
+# example of unix command to run after lintra
+echo DONE_WITH_LINTRA_EXE_SCRAG_RECIPE
+

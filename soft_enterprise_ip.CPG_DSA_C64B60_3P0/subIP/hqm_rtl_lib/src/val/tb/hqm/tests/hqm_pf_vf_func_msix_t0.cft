@@ -1,0 +1,84 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+###################################
+# Wait for reset to be done (including hardware memory init)
+poll config_master.cfg_diagnostic_reset_status 0x000001ff 0x000081ff 1000
+###################################
+###################################
+#SRIOV
+#if SRIOV is being used, current hardware allows a PF or VF producer access to CSR reg values including mailbox data and ISR status to which it may not be expected to have access. 
+# Configure FUNC_VF to a base address of 0x00000013_xxxxxxxx
+####AY_RM_VF_V30   wr hqm_pf_cfg_i.sriov_cap_func_bar_l 0x00000000
+####AY_RM_VF_V30   wr hqm_pf_cfg_i.sriov_cap_func_bar_u 0x00000013
+###################################
+# Enable VFs and VF memory operations
+####AY_RM_VF_V30   wr hqm_pf_cfg_i.sriov_cap_num_vf 0x10
+####AY_RM_VF_V30   wr hqm_pf_cfg_i.sriov_cap_control_status 0x9
+
+
+#########################################################################
+#########################################################################
+####HQM_FUNC_PF_PER_VF[0] 
+##HQM_FUNC_PF_PER_VF[0]
+####AY_RM_VF_V30   wr  hqm_func_pf_per_vf[0].vf_to_pf_mailbox[0]   0xf0100000
+####AY_RM_VF_V30   wr  hqm_func_pf_per_vf[0].vf_to_pf_mailbox[1]   0xf0100401
+
+#########################################################################
+#########################################################################
+w####AY_RM_VF_V30   r  hqm_func_vf_bar[0].vf_reset_in_progress   0x7788aa00
+####AY_RM_VF_V30   wr  hqm_func_vf_bar[1].vf_reset_in_progress   0x7788aa01
+####AY_RM_VF_V30   wr  hqm_func_vf_bar[2].vf_reset_in_progress   0x7788aa02
+####AY_RM_VF_V30   wr  hqm_func_vf_bar[3].vf_reset_in_progress   0x7788aa03
+####AY_RM_VF_V30   wr  hqm_func_vf_bar[4].vf_reset_in_progress   0x7788aa04
+####AY_RM_VF_V30   wr  hqm_func_vf_bar[5].vf_reset_in_progress   0x7788aa05
+####AY_RM_VF_V30   wr  hqm_func_vf_bar[6].vf_reset_in_progress   0x7788aa06
+####AY_RM_VF_V30   wr  hqm_func_vf_bar[7].vf_reset_in_progress   0x7788aa07
+####AY_RM_VF_V30   wr  hqm_func_vf_bar[8].vf_reset_in_progress   0x7788aa08
+####AY_RM_VF_V30   wr  hqm_func_vf_bar[9].vf_reset_in_progress   0x7788aa09
+####AY_RM_VF_V30   wr  hqm_func_vf_bar[10].vf_reset_in_progress  0x7788aa0a
+####AY_RM_VF_V30   wr  hqm_func_vf_bar[11].vf_reset_in_progress  0x7788aa0b
+####AY_RM_VF_V30   wr  hqm_func_vf_bar[12].vf_reset_in_progress  0x7788aa0c
+####AY_RM_VF_V30   wr  hqm_func_vf_bar[13].vf_reset_in_progress  0x7788aa0d
+####AY_RM_VF_V30   wr  hqm_func_vf_bar[14].vf_reset_in_progress  0x7788aa0e
+####AY_RM_VF_V30   wr  hqm_func_vf_bar[15].vf_reset_in_progress  0x7788aa0f
+
+#########################################################################
+#########################################################################
+##VF MMIO space::VF_BAR
+##HQM_FUNC_VF_BAR[0]
+####AY_RM_VF_V30   rd  hqm_func_vf_bar[0].vf_to_pf_mailbox[0]  0xf0100000
+####AY_RM_VF_V30   rd  hqm_func_vf_bar[0].vf_to_pf_mailbox[1]  0xf0100401
+
+#########################################################################
+#########################################################################
+####AY_RM_VF_V30   wr hqm_func_vf_bar[0].pf_to_vf_mailbox[0]   0x1ff00000
+####AY_RM_VF_V30   wr hqm_func_vf_bar[0].pf_to_vf_mailbox[15]  0x1ff0000f
+####AY_RM_VF_V30   rd hqm_func_vf_bar[0].pf_to_vf_mailbox[0]   0x1ff00000
+####AY_RM_VF_V30   rd hqm_func_vf_bar[0].pf_to_vf_mailbox[15]  0x1ff0000f
+
+####AY_RM_VF_V30   wr hqm_func_vf_bar[1].pf_to_vf_mailbox[0]   0x2ff00000
+####AY_RM_VF_V30   wr hqm_func_vf_bar[1].pf_to_vf_mailbox[15]  0x2ff0000f
+####AY_RM_VF_V30   rd hqm_func_vf_bar[1].pf_to_vf_mailbox[0]   0x2ff00000
+####AY_RM_VF_V30   rd hqm_func_vf_bar[1].pf_to_vf_mailbox[15]  0x2ff0000f
+
+####AY_RM_VF_V30   wr hqm_func_vf_bar[15].pf_to_vf_mailbox[0]   0xfff00000
+####AY_RM_VF_V30   wr hqm_func_vf_bar[15].pf_to_vf_mailbox[15]  0xfff0000f
+####AY_RM_VF_V30   rd hqm_func_vf_bar[15].pf_to_vf_mailbox[0]   0xfff00000
+####AY_RM_VF_V30   rd hqm_func_vf_bar[15].pf_to_vf_mailbox[15]  0xfff0000f

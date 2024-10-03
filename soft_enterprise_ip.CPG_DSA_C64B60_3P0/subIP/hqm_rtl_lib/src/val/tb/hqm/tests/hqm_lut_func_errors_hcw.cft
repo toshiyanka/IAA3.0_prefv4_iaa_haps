@@ -1,0 +1,1125 @@
+#####################################################
+# Set write_bad_parity
+wr hqm_system_csr.parity_ctl.write_bad_parity 1
+wr hqm_system_csr.dir_pp_v[3]                 0
+wr hqm_system_csr.parity_ctl.write_bad_parity 0
+IDLE 50
+rd hqm_system_csr.hqm_system_cnt_0      0x00000000
+rd hqm_system_csr.hqm_system_cnt_2      0x00000000
+rd hqm_system_csr.hqm_system_cnt_4      0x00000000
+rd hqm_system_csr.hqm_system_cnt_14     0x00000000
+rd hqm_system_csr.hqm_system_cnt_16     0x00000000
+rd hqm_system_csr.hqm_system_cnt_18     0x00000000
+# This HCW should cause an ingress parity error
+HCW DIR:3 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=dir qid=1 dsi=0x300 ingress_drop=1
+msix_alarm_wait 1000
+# Verify correct error was detected and logged and MSI-X was sent out
+rd hqm_system_csr.alarm_hw_synd         0x806b8503              # v=1 src=0 unit=1 aid=0x2b cls=2 alarm=1 rtype=1 rid=pp
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00004000
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_0      0x00000001
+rd hqm_system_csr.hqm_system_cnt_2      0x00000000
+rd hqm_system_csr.hqm_system_cnt_4      0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000001
+rd hqm_system_csr.hqm_system_cnt_16     0x00000001
+rd hqm_system_csr.hqm_system_cnt_18     0x00000000
+# Clear the error
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00004000
+wr hqm_system_csr.msix_ack              0x00000001
+# Rewrite the LUT to fix the error
+wr hqm_system_csr.dir_pp_v[3]           0
+msix_alarm_wait 1000
+# The RMW should have also seen and logged the error again but as a CFG error
+rd hqm_system_csr.alarm_hw_synd         0x80488400              # v=1 src=0 unit=1 aid=0x08 cls=2 alarm=1 rtype=0 rid=addr
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00004000
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000002
+rd hqm_system_csr.hqm_system_cnt_16     0x00000002
+# Clear the error
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00004000
+wr hqm_system_csr.msix_ack              0x00000001
+# Rewrite the LUT again and there should be no error
+wr hqm_system_csr.dir_pp_v[3]           0
+rd hqm_system_csr.alarm_hw_synd         0x00000000 0x80000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.hqm_system_cnt_14     0x00000002
+rd hqm_system_csr.hqm_system_cnt_16     0x00000002
+#####################################################
+wr hqm_system_csr.ecc_ctl.write_bad_mb_ecc    1
+wr hqm_system_csr.vf_dir_vpp2pp[971]          6
+wr hqm_system_csr.ecc_ctl.write_bad_mb_ecc    0
+IDLE 20
+HCW DIR:11 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=dir qid=12 dsi=0x300 ingress_drop=1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x806c850b              # v=1 src=0 unit=1 aid=0x2c cls=2 alarm=1 rtype=1 rid=pp
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00040000
+rd hqm_system_csr.alarm_mb_ecc_err      0x00000000
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_0      0x00000002
+rd hqm_system_csr.hqm_system_cnt_2      0x00000000
+rd hqm_system_csr.hqm_system_cnt_4      0x00000002
+rd hqm_system_csr.hqm_system_cnt_14     0x00000003
+rd hqm_system_csr.hqm_system_cnt_16     0x00000003
+rd hqm_system_csr.hqm_system_cnt_18     0x00000000
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00040000
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.vf_dir_vpp2pp[971]    6
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x804484cb              # v=1 src=0 unit=1 aid=0x04 cls=2 alarm=1 rtype=0 rid=addr
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00040000
+rd hqm_system_csr.alarm_mb_ecc_err      0x00000020
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000004
+rd hqm_system_csr.hqm_system_cnt_16     0x00000004
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00040000
+wr hqm_system_csr.alarm_mb_ecc_err      0x00000020
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.vf_dir_vpp2pp[971]    6
+rd hqm_system_csr.alarm_hw_synd         0x00000000 0x80000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000000
+rd hqm_system_csr.alarm_mb_ecc_err      0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.hqm_system_cnt_14     0x00000004
+rd hqm_system_csr.hqm_system_cnt_16     0x00000004
+######################################################
+wr hqm_system_csr.parity_ctl.write_bad_parity 1
+wr hqm_system_csr.vf_ldb_vpp2pp[653]          7
+wr hqm_system_csr.parity_ctl.write_bad_parity 0
+IDLE 20
+HCW LDB:13 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=dir qid=14 dsi=0x10f ingress_drop=1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x806ba50d              # v=1 src=0 unit=1 aid=0x2b cls=2 ldb=1 alarm=1 rtype=1 rid=pp
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00020000
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_0      0x00000003
+rd hqm_system_csr.hqm_system_cnt_2      0x00000000
+rd hqm_system_csr.hqm_system_cnt_4      0x00000003
+rd hqm_system_csr.hqm_system_cnt_14     0x00000005
+rd hqm_system_csr.hqm_system_cnt_16     0x00000005
+rd hqm_system_csr.hqm_system_cnt_18     0x00000000
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00020000
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.vf_ldb_vpp2pp[653]    7
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x80488400              # v=1 src=0 unit=1 aid=0x08 cls=2 alarm=1 rtype=0 rid=addr
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00020000
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000006
+rd hqm_system_csr.hqm_system_cnt_16     0x00000006
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00020000
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.vf_ldb_vpp2pp[653]    7
+rd hqm_system_csr.alarm_hw_synd         0x00000000 0x80000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.hqm_system_cnt_14     0x00000006
+rd hqm_system_csr.hqm_system_cnt_16     0x00000006
+######################################################
+wr hqm_system_csr.parity_ctl.write_bad_parity 1
+wr hqm_system_csr.vf_dir_vpp_v[971]           1
+wr hqm_system_csr.parity_ctl.write_bad_parity 0
+IDLE 20
+HCW DIR:11 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=dir qid=12 dsi=0x300 ingress_drop=1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x806b850b              # v=1 src=0 unit=1 aid=0x2b cls=2 alarm=1 rtype=1 rid=pp
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00010000
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_0      0x00000004
+rd hqm_system_csr.hqm_system_cnt_2      0x00000000
+rd hqm_system_csr.hqm_system_cnt_4      0x00000004
+rd hqm_system_csr.hqm_system_cnt_14     0x00000007
+rd hqm_system_csr.hqm_system_cnt_16     0x00000007
+rd hqm_system_csr.hqm_system_cnt_18     0x00000000
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00010000
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.vf_dir_vpp_v[971]     1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x80488400              # v=1 src=0 unit=1 aid=0x08 cls=2 alarm=1 rtype=0 rid=addr
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00010000
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000008
+rd hqm_system_csr.hqm_system_cnt_16     0x00000008
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00010000
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.vf_dir_vpp_v[971]     1
+rd hqm_system_csr.alarm_hw_synd         0x00000000 0x80000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.hqm_system_cnt_14     0x00000008
+rd hqm_system_csr.hqm_system_cnt_16     0x00000008
+######################################################
+wr hqm_system_csr.parity_ctl.write_bad_parity 1
+wr hqm_system_csr.vf_ldb_vpp_v[653]           1
+wr hqm_system_csr.parity_ctl.write_bad_parity 0
+IDLE 20
+HCW LDB:13 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=dir qid=14 dsi=0x10f ingress_drop=1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x806ba50d              # v=1 src=0 unit=1 aid=0x2b cls=2 ldb=1 alarm=1 rtype=1 rid=pp
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00008000
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_0      0x00000005
+rd hqm_system_csr.hqm_system_cnt_2      0x00000000
+rd hqm_system_csr.hqm_system_cnt_4      0x00000005
+rd hqm_system_csr.hqm_system_cnt_14     0x00000009
+rd hqm_system_csr.hqm_system_cnt_16     0x00000009
+rd hqm_system_csr.hqm_system_cnt_18     0x00000000
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00008000
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.vf_ldb_vpp_v[653]     1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x80488400              # v=1 src=0 unit=1 aid=0x08 cls=2 alarm=1 rtype=0 rid=addr
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00008000
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x0000000a
+rd hqm_system_csr.hqm_system_cnt_16     0x0000000a
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00008000
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.vf_ldb_vpp_v[653]     1
+rd hqm_system_csr.alarm_hw_synd         0x00000000 0x80000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.hqm_system_cnt_14     0x0000000a
+rd hqm_system_csr.hqm_system_cnt_16     0x0000000a
+######################################################
+wr hqm_system_csr.parity_ctl.write_bad_parity 1
+wr hqm_system_csr.dir_pp_v[6]                 1
+wr hqm_system_csr.parity_ctl.write_bad_parity 0
+IDLE 20
+HCW DIR:6 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=dir qid=1 dsi=0x300 ingress_drop=1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x806b8506              # v=1 src=0 unit=1 aid=0x2b cls=2 alarm=1 rtype=1 rid=pp
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00004000
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_0      0x00000006
+rd hqm_system_csr.hqm_system_cnt_2      0x00000000
+rd hqm_system_csr.hqm_system_cnt_4      0x00000006
+rd hqm_system_csr.hqm_system_cnt_14     0x0000000b
+rd hqm_system_csr.hqm_system_cnt_16     0x0000000b
+rd hqm_system_csr.hqm_system_cnt_18     0x00000000
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00004000
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.dir_pp_v[6]           1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x80488400              # v=1 src=0 unit=1 aid=0x08 cls=2 alarm=1 rtype=0 rid=addr
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00004000
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x0000000c
+rd hqm_system_csr.hqm_system_cnt_16     0x0000000c
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00004000
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.dir_pp_v[6]           1
+rd hqm_system_csr.alarm_hw_synd         0x00000000 0x80000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.hqm_system_cnt_14     0x0000000c
+rd hqm_system_csr.hqm_system_cnt_16     0x0000000c
+######################################################
+wr hqm_system_csr.parity_ctl.write_bad_parity 1
+wr hqm_system_csr.ldb_pp_v[7]                 1
+wr hqm_system_csr.parity_ctl.write_bad_parity 0
+IDLE 20
+HCW LDB:7 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=dir qid=2 dsi=0x10f ingress_drop=1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x806ba507              # v=1 src=0 unit=1 aid=0x2b cls=2 ldb=1 alarm=1 rtype=1 rid=pp
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00002000
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_0      0x00000007
+rd hqm_system_csr.hqm_system_cnt_2      0x00000000
+rd hqm_system_csr.hqm_system_cnt_4      0x00000007
+rd hqm_system_csr.hqm_system_cnt_14     0x0000000d
+rd hqm_system_csr.hqm_system_cnt_16     0x0000000d
+rd hqm_system_csr.hqm_system_cnt_18     0x00000000
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00002000
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.ldb_pp_v[7]           1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x80488400              # v=1 src=0 unit=1 aid=0x08 cls=2 alarm=1 rtype=0 rid=addr
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00002000
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x0000000e
+rd hqm_system_csr.hqm_system_cnt_16     0x0000000e
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00002000
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.ldb_pp_v[7]           1
+rd hqm_system_csr.alarm_hw_synd         0x00000000 0x80000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.hqm_system_cnt_14     0x0000000e
+rd hqm_system_csr.hqm_system_cnt_16     0x0000000e
+######################################################
+wr hqm_system_csr.ecc_ctl.write_bad_mb_ecc    1
+wr hqm_system_csr.vf_dir_vqid2qid[972]        1
+wr hqm_system_csr.ecc_ctl.write_bad_mb_ecc    0
+IDLE 20
+HCW DIR:11 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=dir qid=12 dsi=0x300 ingress_drop=1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x806c850b              # v=1 src=0 unit=1 aid=0x2c cls=2 alarm=1 rtype=1 rid=pp
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00001000
+rd hqm_system_csr.alarm_mb_ecc_err      0x00000000
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_0      0x00000008
+rd hqm_system_csr.hqm_system_cnt_2      0x00000000
+rd hqm_system_csr.hqm_system_cnt_4      0x00000008
+rd hqm_system_csr.hqm_system_cnt_14     0x0000000f
+rd hqm_system_csr.hqm_system_cnt_16     0x0000000f
+rd hqm_system_csr.hqm_system_cnt_18     0x00000000
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00001000
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.vf_dir_vqid2qid[972]  1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x804584cc              # v=1 src=0 unit=1 aid=0x05 cls=2 alarm=1 rtype=0 rid=addr
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00001000
+rd hqm_system_csr.alarm_mb_ecc_err      0x00000040
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000010
+rd hqm_system_csr.hqm_system_cnt_16     0x00000010
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00001000
+wr hqm_system_csr.alarm_mb_ecc_err      0x00000040
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.vf_dir_vqid2qid[972]  1
+rd hqm_system_csr.alarm_hw_synd         0x00000000 0x80000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000000
+rd hqm_system_csr.alarm_mb_ecc_err      0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.hqm_system_cnt_14     0x00000010
+rd hqm_system_csr.hqm_system_cnt_16     0x00000010
+######################################################
+wr hqm_system_csr.ecc_ctl.write_bad_mb_ecc    1
+wr hqm_system_csr.vf_ldb_vqid2qid[334]        2
+wr hqm_system_csr.ecc_ctl.write_bad_mb_ecc    0
+IDLE 20
+HCW LDB:13 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=14 dsi=0x10f ingress_drop=1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x806ca50d              # v=1 src=0 unit=1 aid=0x2c cls=2 ldb=1 alarm=1 rtype=1 rid=pp
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000800
+rd hqm_system_csr.alarm_mb_ecc_err      0x00000000
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_0      0x00000009
+rd hqm_system_csr.hqm_system_cnt_2      0x00000000
+rd hqm_system_csr.hqm_system_cnt_4      0x00000009
+rd hqm_system_csr.hqm_system_cnt_14     0x00000011
+rd hqm_system_csr.hqm_system_cnt_16     0x00000011
+rd hqm_system_csr.hqm_system_cnt_18     0x00000000
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000800
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.vf_ldb_vqid2qid[334]  2
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x8046844e              # v=1 src=0 unit=1 aid=0x06 cls=2 alarm=1 rtype=0 rid=addr
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000800
+rd hqm_system_csr.alarm_mb_ecc_err      0x00000080
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000012
+rd hqm_system_csr.hqm_system_cnt_16     0x00000012
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000800
+wr hqm_system_csr.alarm_mb_ecc_err      0x00000080
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.vf_ldb_vqid2qid[334]  2
+rd hqm_system_csr.alarm_hw_synd         0x00000000 0x80000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000000
+rd hqm_system_csr.alarm_mb_ecc_err      0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.hqm_system_cnt_14     0x00000012
+rd hqm_system_csr.hqm_system_cnt_16     0x00000012
+######################################################
+wr hqm_system_csr.parity_ctl.write_bad_parity 1
+wr hqm_system_csr.vf_dir_vqid_v[972]          1
+wr hqm_system_csr.parity_ctl.write_bad_parity 0
+IDLE 20
+HCW DIR:11 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=dir qid=12 dsi=0x300 ingress_drop=1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x806b850b              # v=1 src=0 unit=1 aid=0x2b cls=2 alarm=1 rtype=1 rid=pp
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000400
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_0      0x0000000a
+rd hqm_system_csr.hqm_system_cnt_2      0x00000000
+rd hqm_system_csr.hqm_system_cnt_4      0x0000000a
+rd hqm_system_csr.hqm_system_cnt_14     0x00000013
+rd hqm_system_csr.hqm_system_cnt_16     0x00000013
+rd hqm_system_csr.hqm_system_cnt_18     0x00000000
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000400
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.vf_dir_vqid_v[972]    1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x80488400              # v=1 src=0 unit=1 aid=0x08 cls=2 alarm=1 rtype=0 rid=addr
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000400
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000014
+rd hqm_system_csr.hqm_system_cnt_16     0x00000014
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000400
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.vf_dir_vqid_v[972]    1
+rd hqm_system_csr.alarm_hw_synd         0x00000000 0x80000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.hqm_system_cnt_14     0x00000014
+rd hqm_system_csr.hqm_system_cnt_16     0x00000014
+######################################################
+wr hqm_system_csr.parity_ctl.write_bad_parity 1
+wr hqm_system_csr.vf_ldb_vqid_v[334]          1
+wr hqm_system_csr.parity_ctl.write_bad_parity 0
+IDLE 20
+HCW LDB:13 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=14 dsi=0x10f ingress_drop=1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x806ba50d              # v=1 src=0 unit=1 aid=0x2b cls=2 ldb=1 alarm=1 rtype=1 rid=pp
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000200
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_0      0x0000000b
+rd hqm_system_csr.hqm_system_cnt_2      0x00000000
+rd hqm_system_csr.hqm_system_cnt_4      0x0000000b
+rd hqm_system_csr.hqm_system_cnt_14     0x00000015
+rd hqm_system_csr.hqm_system_cnt_16     0x00000015
+rd hqm_system_csr.hqm_system_cnt_18     0x00000000
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000200
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.vf_ldb_vqid_v[334]    1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x80488400              # v=1 src=0 unit=1 aid=0x08 cls=2 alarm=1 rtype=0 rid=addr
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000200
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000016
+rd hqm_system_csr.hqm_system_cnt_16     0x00000016
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000200
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.vf_ldb_vqid_v[334]    1
+rd hqm_system_csr.alarm_hw_synd         0x00000000 0x80000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.hqm_system_cnt_14     0x00000016
+rd hqm_system_csr.hqm_system_cnt_16     0x00000016
+######################################################
+wr hqm_system_csr.parity_ctl.write_bad_parity 1
+wr hqm_system_csr.dir_qid_v[1]                1
+wr hqm_system_csr.parity_ctl.write_bad_parity 0
+IDLE 20
+HCW DIR:6 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=dir qid=1 dsi=0x300 ingress_drop=1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x806b8506              # v=1 src=0 unit=1 aid=0x2b cls=2 alarm=1 rtype=1 rid=pp
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000040
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_0      0x0000000c
+rd hqm_system_csr.hqm_system_cnt_2      0x00000000
+rd hqm_system_csr.hqm_system_cnt_4      0x0000000c
+rd hqm_system_csr.hqm_system_cnt_14     0x00000017
+rd hqm_system_csr.hqm_system_cnt_16     0x00000017
+rd hqm_system_csr.hqm_system_cnt_18     0x00000000
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000040
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.dir_qid_v[1]          1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x80488400              # v=1 src=0 unit=1 aid=0x08 cls=2 alarm=1 rtype=0 rid=addr
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000040
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000018
+rd hqm_system_csr.hqm_system_cnt_16     0x00000018
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000040
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.dir_qid_v[1]          1
+rd hqm_system_csr.alarm_hw_synd         0x00000000 0x80000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.hqm_system_cnt_14     0x00000018
+rd hqm_system_csr.hqm_system_cnt_16     0x00000018
+######################################################
+wr hqm_system_csr.parity_ctl.write_bad_parity 1
+wr hqm_system_csr.ldb_qid_v[2]                1
+wr hqm_system_csr.parity_ctl.write_bad_parity 0
+IDLE 20
+HCW LDB:7 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=2 dsi=0x10f ingress_drop=1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x806ba507              # v=1 src=0 unit=1 aid=0x2b cls=2 ldb=1 alarm=1 rtype=1 rid=pp
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000020
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_0      0x0000000d
+rd hqm_system_csr.hqm_system_cnt_2      0x00000000
+rd hqm_system_csr.hqm_system_cnt_4      0x0000000d
+rd hqm_system_csr.hqm_system_cnt_14     0x00000019
+rd hqm_system_csr.hqm_system_cnt_16     0x00000019
+rd hqm_system_csr.hqm_system_cnt_18     0x00000000
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000020
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.ldb_qid_v[2]          1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x80488400              # v=1 src=0 unit=1 aid=0x08 cls=2 alarm=1 rtype=0 rid=addr
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000020
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x0000001a
+rd hqm_system_csr.hqm_system_cnt_16     0x0000001a
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000020
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.ldb_qid_v[2]          1
+rd hqm_system_csr.alarm_hw_synd         0x00000000 0x80000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.hqm_system_cnt_14     0x0000001a
+rd hqm_system_csr.hqm_system_cnt_16     0x0000001a
+######################################################
+wr hqm_system_csr.parity_ctl.write_bad_parity 1
+wr hqm_system_csr.ldb_vasqid_v[162]           1
+wr hqm_system_csr.parity_ctl.write_bad_parity 0
+IDLE 20
+HCW LDB:7 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=2 dsi=0x10f ingress_drop=1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x806ba507              # v=1 src=0 unit=1 aid=0x2b cls=2 ldb=1 alarm=1 rtype=1 rid=pp
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000010
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_0      0x0000000e
+rd hqm_system_csr.hqm_system_cnt_2      0x00000000
+rd hqm_system_csr.hqm_system_cnt_4      0x0000000e
+rd hqm_system_csr.hqm_system_cnt_14     0x0000001b
+rd hqm_system_csr.hqm_system_cnt_16     0x0000001b
+rd hqm_system_csr.hqm_system_cnt_18     0x00000000
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000010
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.ldb_vasqid_v[162]     1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x80488400              # v=1 src=0 unit=1 aid=0x08 cls=2 alarm=1 rtype=0 rid=addr
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000010
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x0000001c
+rd hqm_system_csr.hqm_system_cnt_16     0x0000001c
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000010
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.ldb_vasqid_v[162]     1
+rd hqm_system_csr.alarm_hw_synd         0x00000000 0x80000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.hqm_system_cnt_14     0x0000001c
+rd hqm_system_csr.hqm_system_cnt_16     0x0000001c
+######################################################
+wr hqm_system_csr.parity_ctl.write_bad_parity 1
+wr hqm_system_csr.dir_vasqid_v[481]           1
+wr hqm_system_csr.parity_ctl.write_bad_parity 0
+IDLE 20
+HCW DIR:6 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=dir qid=1 dsi=0x300 ingress_drop=1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x806b8506              # v=1 src=0 unit=1 aid=0x2b cls=2 alarm=1 rtype=1 rid=pp
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000008
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_0      0x0000000f
+rd hqm_system_csr.hqm_system_cnt_2      0x00000000
+rd hqm_system_csr.hqm_system_cnt_4      0x0000000f
+rd hqm_system_csr.hqm_system_cnt_14     0x0000001d
+rd hqm_system_csr.hqm_system_cnt_16     0x0000001d
+rd hqm_system_csr.hqm_system_cnt_18     0x00000000
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000008
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.dir_vasqid_v[481]     1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x80488400              # v=1 src=0 unit=1 aid=0x08 cls=2 alarm=1 rtype=0 rid=addr
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000008
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x0000001e
+rd hqm_system_csr.hqm_system_cnt_16     0x0000001e
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000008
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.dir_vasqid_v[481]     1
+rd hqm_system_csr.alarm_hw_synd         0x00000000 0x80000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.hqm_system_cnt_14     0x0000001e
+rd hqm_system_csr.hqm_system_cnt_16     0x0000001e
+######################################################
+wr hqm_system_csr.parity_ctl.write_bad_parity 1
+wr hqm_system_csr.ldb_pp2vas[7]               5
+wr hqm_system_csr.parity_ctl.write_bad_parity 0
+IDLE 20
+HCW LDB:7 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=2 dsi=0x10f ingress_drop=1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x806ba507              # v=1 src=0 unit=1 aid=0x2b cls=2 ldb=1 alarm=1 rtype=1 rid=pp
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000004
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_0      0x00000010
+rd hqm_system_csr.hqm_system_cnt_2      0x00000000
+rd hqm_system_csr.hqm_system_cnt_4      0x00000010
+rd hqm_system_csr.hqm_system_cnt_14     0x0000001f
+rd hqm_system_csr.hqm_system_cnt_16     0x0000001f
+rd hqm_system_csr.hqm_system_cnt_18     0x00000000
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000004
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.ldb_pp2vas[7]         5
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x80488400              # v=1 src=0 unit=1 aid=0x08 cls=2 alarm=1 rtype=0 rid=addr
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000004
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000020
+rd hqm_system_csr.hqm_system_cnt_16     0x00000020
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000004
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.ldb_pp2vas[7]         5
+rd hqm_system_csr.alarm_hw_synd         0x00000000 0x80000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.hqm_system_cnt_14     0x00000020
+rd hqm_system_csr.hqm_system_cnt_16     0x00000020
+######################################################
+wr hqm_system_csr.parity_ctl.write_bad_parity 1
+wr hqm_system_csr.dir_pp2vas[6]               5
+wr hqm_system_csr.parity_ctl.write_bad_parity 0
+IDLE 20
+HCW DIR:6 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=dir qid=1 dsi=0x300 ingress_drop=1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x806b8506              # v=1 src=0 unit=1 aid=0x2b cls=2 alarm=1 rtype=1 rid=pp
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000002
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_0      0x00000011
+rd hqm_system_csr.hqm_system_cnt_2      0x00000000
+rd hqm_system_csr.hqm_system_cnt_4      0x00000011
+rd hqm_system_csr.hqm_system_cnt_14     0x00000021
+rd hqm_system_csr.hqm_system_cnt_16     0x00000021
+rd hqm_system_csr.hqm_system_cnt_18     0x00000000
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000002
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.dir_pp2vas[6]         5
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x80488400              # v=1 src=0 unit=1 aid=0x08 cls=2 alarm=1 rtype=0 rid=addr
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000002
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000022
+rd hqm_system_csr.hqm_system_cnt_16     0x00000022
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000002
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.dir_pp2vas[6]         5
+rd hqm_system_csr.alarm_hw_synd         0x00000000 0x80000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.hqm_system_cnt_14     0x00000022
+rd hqm_system_csr.hqm_system_cnt_16     0x00000022
+######################################################
+wr hqm_system_csr.parity_ctl.write_bad_parity 1
+wr hqm_system_csr.ldb_qid_cfg_v[2]            0
+wr hqm_system_csr.parity_ctl.write_bad_parity 0
+IDLE 20
+HCW LDB:7 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=2 dsi=0x10f ingress_drop=1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x806ba507              # v=1 src=0 unit=1 aid=0x2b cls=2 ldb=1 alarm=1 rtype=1 rid=pp
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000001
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_0      0x00000012
+rd hqm_system_csr.hqm_system_cnt_2      0x00000000
+rd hqm_system_csr.hqm_system_cnt_4      0x00000012
+rd hqm_system_csr.hqm_system_cnt_14     0x00000023
+rd hqm_system_csr.hqm_system_cnt_16     0x00000023
+rd hqm_system_csr.hqm_system_cnt_18     0x00000000
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000001
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.ldb_qid_cfg_v[2]      0
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x80488400              # v=1 src=0 unit=1 aid=0x08 cls=2 alarm=1 rtype=0 rid=addr
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000001
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000024
+rd hqm_system_csr.hqm_system_cnt_16     0x00000024
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000001
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.ldb_qid_cfg_v[2]      0
+rd hqm_system_csr.alarm_hw_synd         0x00000000 0x80000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.hqm_system_cnt_14     0x00000024
+rd hqm_system_csr.hqm_system_cnt_16     0x00000024
+######################################################
+wr hqm_system_csr.parity_ctl.write_bad_parity 1
+wr hqm_system_csr.ldb_qid_its[2]              0
+wr hqm_system_csr.parity_ctl.write_bad_parity 0
+IDLE 20
+HCW LDB:7 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=2 dsi=0x10f ingress_drop=1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x806ba507              # v=1 src=0 unit=1 aid=0x2b cls=2 ldb=1 alarm=1 rtype=1 rid=pp
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000100
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_0      0x00000013
+rd hqm_system_csr.hqm_system_cnt_2      0x00000000
+rd hqm_system_csr.hqm_system_cnt_4      0x00000013
+rd hqm_system_csr.hqm_system_cnt_14     0x00000025
+rd hqm_system_csr.hqm_system_cnt_16     0x00000025
+rd hqm_system_csr.hqm_system_cnt_18     0x00000000
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000100
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.ldb_qid_its[2]        0
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x80488400              # v=1 src=0 unit=1 aid=0x08 cls=2 alarm=1 rtype=0 rid=addr
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000100
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000026
+rd hqm_system_csr.hqm_system_cnt_16     0x00000026
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000100
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.ldb_qid_its[2]        0
+rd hqm_system_csr.alarm_hw_synd         0x00000000 0x80000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.hqm_system_cnt_14     0x00000026
+rd hqm_system_csr.hqm_system_cnt_16     0x00000026
+######################################################
+wr hqm_system_csr.parity_ctl.write_bad_parity 1
+wr hqm_system_csr.dir_qid_its[1]              5
+wr hqm_system_csr.parity_ctl.write_bad_parity 0
+IDLE 20
+HCW DIR:6 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=dir qid=1 dsi=0x300 ingress_drop=1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x806b8506              # v=1 src=0 unit=1 aid=0x2b cls=2 alarm=1 rtype=1 rid=pp
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000080
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_0      0x00000014
+rd hqm_system_csr.hqm_system_cnt_2      0x00000000
+rd hqm_system_csr.hqm_system_cnt_4      0x00000014
+rd hqm_system_csr.hqm_system_cnt_14     0x00000027
+rd hqm_system_csr.hqm_system_cnt_16     0x00000027
+rd hqm_system_csr.hqm_system_cnt_18     0x00000000
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000080
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.dir_qid_its[1]        5
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x80488400              # v=1 src=0 unit=1 aid=0x08 cls=2 alarm=1 rtype=0 rid=addr
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000080
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000028
+rd hqm_system_csr.hqm_system_cnt_16     0x00000028
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.ingress_lut_err       0x00000080
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.dir_qid_its[1]        5
+rd hqm_system_csr.alarm_hw_synd         0x00000000 0x80000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.ingress_lut_err       0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.hqm_system_cnt_14     0x00000028
+rd hqm_system_csr.hqm_system_cnt_16     0x00000028
+######################################################
+wr hqm_system_csr.parity_ctl.write_bad_parity 1
+wr hqm_system_csr.dir_cq_fmt[1]               0
+wr hqm_system_csr.parity_ctl.write_bad_parity 0
+IDLE 20
+HCW DIR:6 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=dir qid=1 dsi=0x300 ingress_drop=1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x804a8400              # v=1 src=0 unit=1 aid=0x0a cls=2 alarm=1 rtype=0 rid=addr
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.egress_lut_err        0x00000001
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_0      0x00000015
+rd hqm_system_csr.hqm_system_cnt_2      0x00000001
+rd hqm_system_csr.hqm_system_cnt_4      0x00000014
+rd hqm_system_csr.hqm_system_cnt_14     0x00000029
+rd hqm_system_csr.hqm_system_cnt_16     0x00000029
+rd hqm_system_csr.hqm_system_cnt_18     0x00000001
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.egress_lut_err        0x00000001
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.dir_cq_fmt[1]         0
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x80498400              # v=1 src=0 unit=1 aid=0x09 cls=2 alarm=1 rtype=0 rid=addr
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.egress_lut_err        0x00000001
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x0000002a
+rd hqm_system_csr.hqm_system_cnt_16     0x0000002a
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.egress_lut_err        0x00000001
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.dir_cq_fmt[1]         0 
+rd hqm_system_csr.alarm_hw_synd         0x00000000 0x80000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.egress_lut_err        0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.hqm_system_cnt_14     0x0000002a
+rd hqm_system_csr.hqm_system_cnt_16     0x0000002a
+######################################################
+wr hqm_system_csr.parity_ctl.write_bad_parity 1
+wr hqm_system_csr.dir_cq2vf_pf_ro[1]          0x10
+wr hqm_system_csr.parity_ctl.write_bad_parity 0
+IDLE 20
+HCW DIR:6 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=dir qid=1 dsi=0x300 ingress_drop=1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x80498400              # v=1 src=0 unit=1 aid=0x09 cls=2 alarm=1 rtype=0 rid=addr
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.egress_lut_err        0x00000002
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_0      0x00000016
+rd hqm_system_csr.hqm_system_cnt_2      0x00000002
+rd hqm_system_csr.hqm_system_cnt_4      0x00000014
+rd hqm_system_csr.hqm_system_cnt_14     0x0000002b
+rd hqm_system_csr.hqm_system_cnt_16     0x0000002b
+rd hqm_system_csr.hqm_system_cnt_18     0x00000002
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.egress_lut_err        0x00000002
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.dir_cq2vf_pf_ro[1]    0x10
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x80498400              # v=1 src=0 unit=1 aid=0x09 cls=2 alarm=1 rtype=0 rid=addr
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.egress_lut_err        0x00000002
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x0000002c
+rd hqm_system_csr.hqm_system_cnt_16     0x0000002c
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.egress_lut_err        0x00000002
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.dir_cq2vf_pf_ro[1]    0x10
+rd hqm_system_csr.alarm_hw_synd         0x00000000 0x80000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.egress_lut_err        0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.hqm_system_cnt_14     0x0000002c
+rd hqm_system_csr.hqm_system_cnt_16     0x0000002c
+######################################################
+wr hqm_system_csr.parity_ctl.write_bad_parity 1
+wr hqm_system_csr.dir_cq_addr_u[1]            0
+wr hqm_system_csr.parity_ctl.write_bad_parity 0
+IDLE 20
+HCW DIR:6 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=dir qid=1 dsi=0x300 ingress_drop=1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x80498400              # v=1 src=0 unit=1 aid=0x09 cls=2 alarm=1 rtype=0 rid=addr
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.egress_lut_err        0x00000004
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_0      0x00000017
+rd hqm_system_csr.hqm_system_cnt_2      0x00000003
+rd hqm_system_csr.hqm_system_cnt_4      0x00000014
+rd hqm_system_csr.hqm_system_cnt_14     0x0000002d
+rd hqm_system_csr.hqm_system_cnt_16     0x0000002d
+rd hqm_system_csr.hqm_system_cnt_18     0x00000003
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.egress_lut_err        0x00000004
+wr hqm_system_csr.msix_ack              0x00000001
+# This is not packed so there is no RMW to cause an error on the read
+wr hqm_system_csr.dir_cq_addr_u[1]      0
+rd hqm_system_csr.alarm_hw_synd         0x00000000 0x80000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.egress_lut_err        0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.hqm_system_cnt_14     0x0000002d
+rd hqm_system_csr.hqm_system_cnt_16     0x0000002d
+######################################################
+wr hqm_system_csr.parity_ctl.write_bad_parity 1
+wr hqm_system_csr.dir_cq_addr_l[1]            0
+wr hqm_system_csr.parity_ctl.write_bad_parity 0
+IDLE 20
+HCW DIR:6 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=dir qid=1 dsi=0x300 ingress_drop=1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x80498400              # v=1 src=0 unit=1 aid=0x09 cls=2 alarm=1 rtype=0 rid=addr
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.egress_lut_err        0x00000008
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_0      0x00000018
+rd hqm_system_csr.hqm_system_cnt_2      0x00000004
+rd hqm_system_csr.hqm_system_cnt_4      0x00000014
+rd hqm_system_csr.hqm_system_cnt_14     0x0000002e
+rd hqm_system_csr.hqm_system_cnt_16     0x0000002e
+rd hqm_system_csr.hqm_system_cnt_18     0x00000004
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.egress_lut_err        0x00000008
+wr hqm_system_csr.msix_ack              0x00000001
+# This is not packed so there is no RMW to cause an error on the read
+wr hqm_system_csr.dir_cq_addr_l[1]      0
+rd hqm_system_csr.alarm_hw_synd         0x00000000 0x80000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.egress_lut_err        0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.hqm_system_cnt_14     0x0000002e
+rd hqm_system_csr.hqm_system_cnt_16     0x0000002e
+######################################################
+wr hqm_system_csr.parity_ctl.write_bad_parity 1
+wr hqm_system_csr.dir_cq_pasid[1]             0
+wr hqm_system_csr.parity_ctl.write_bad_parity 0
+IDLE 20
+HCW DIR:6 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=dir qid=1 dsi=0x300 ingress_drop=1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x80498400              # v=1 src=0 unit=1 aid=0x09 cls=2 alarm=1 rtype=0 rid=addr
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.egress_lut_err        0x00000010
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_0      0x00000019
+rd hqm_system_csr.hqm_system_cnt_2      0x00000005
+rd hqm_system_csr.hqm_system_cnt_4      0x00000014
+rd hqm_system_csr.hqm_system_cnt_14     0x0000002f
+rd hqm_system_csr.hqm_system_cnt_16     0x0000002f
+rd hqm_system_csr.hqm_system_cnt_18     0x00000005
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.egress_lut_err        0x00000010
+wr hqm_system_csr.msix_ack              0x00000001
+# This is not packed so there is no RMW to cause an error on the read
+wr hqm_system_csr.dir_cq_pasid[1]       0
+rd hqm_system_csr.alarm_hw_synd         0x00000000 0x80000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.egress_lut_err        0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.hqm_system_cnt_14     0x0000002f
+rd hqm_system_csr.hqm_system_cnt_16     0x0000002f
+######################################################
+wr hqm_system_csr.parity_ctl.write_bad_parity 1
+wr hqm_system_csr.ldb_cq2vf_pf_ro[2]          0x10
+wr hqm_system_csr.parity_ctl.write_bad_parity 0
+IDLE 20
+HCW LDB:7 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=2 dsi=0x300 ingress_drop=1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x80498400              # v=1 src=0 unit=1 aid=0x09 cls=2 alarm=1 rtype=0 rid=addr
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.egress_lut_err        0x00000020
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_0      0x0000001a
+rd hqm_system_csr.hqm_system_cnt_2      0x00000006
+rd hqm_system_csr.hqm_system_cnt_4      0x00000014
+rd hqm_system_csr.hqm_system_cnt_14     0x00000030
+rd hqm_system_csr.hqm_system_cnt_16     0x00000030
+rd hqm_system_csr.hqm_system_cnt_18     0x00000006
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.egress_lut_err        0x00000020
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.ldb_cq2vf_pf_ro[2]    0x10
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x80498400              # v=1 src=0 unit=1 aid=0x09 cls=2 alarm=1 rtype=0 rid=addr
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.egress_lut_err        0x00000020
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_14     0x00000031
+rd hqm_system_csr.hqm_system_cnt_16     0x00000031
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.egress_lut_err        0x00000020
+wr hqm_system_csr.msix_ack              0x00000001
+wr hqm_system_csr.ldb_cq2vf_pf_ro[2]    0x10
+rd hqm_system_csr.alarm_hw_synd         0x00000000 0x80000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.egress_lut_err        0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.hqm_system_cnt_14     0x00000031
+rd hqm_system_csr.hqm_system_cnt_16     0x00000031
+######################################################
+wr hqm_system_csr.parity_ctl.write_bad_parity 1
+wr hqm_system_csr.ldb_cq_addr_u[2]            0
+wr hqm_system_csr.parity_ctl.write_bad_parity 0
+IDLE 20
+HCW LDB:7 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=2 dsi=0x300 ingress_drop=1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x80498400              # v=1 src=0 unit=1 aid=0x09 cls=2 alarm=1 rtype=0 rid=addr
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.egress_lut_err        0x00000040
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_0      0x0000001b
+rd hqm_system_csr.hqm_system_cnt_2      0x00000007
+rd hqm_system_csr.hqm_system_cnt_4      0x00000014
+rd hqm_system_csr.hqm_system_cnt_14     0x00000032
+rd hqm_system_csr.hqm_system_cnt_16     0x00000032
+rd hqm_system_csr.hqm_system_cnt_18     0x00000007
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.egress_lut_err        0x00000040
+wr hqm_system_csr.msix_ack              0x00000001
+# This is not packed so there is no RMW to cause an error on the read
+wr hqm_system_csr.ldb_cq_addr_u[2]      0
+rd hqm_system_csr.alarm_hw_synd         0x00000000 0x80000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.egress_lut_err        0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.hqm_system_cnt_14     0x00000032
+rd hqm_system_csr.hqm_system_cnt_16     0x00000032
+######################################################
+wr hqm_system_csr.parity_ctl.write_bad_parity 1
+wr hqm_system_csr.ldb_cq_addr_l[2]            0
+wr hqm_system_csr.parity_ctl.write_bad_parity 0
+IDLE 20
+HCW LDB:7 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=2 dsi=0x300 ingress_drop=1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x80498400              # v=1 src=0 unit=1 aid=0x09 cls=2 alarm=1 rtype=0 rid=addr
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.egress_lut_err        0x00000080
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_0      0x0000001c
+rd hqm_system_csr.hqm_system_cnt_2      0x00000008
+rd hqm_system_csr.hqm_system_cnt_4      0x00000014
+rd hqm_system_csr.hqm_system_cnt_14     0x00000033
+rd hqm_system_csr.hqm_system_cnt_16     0x00000033
+rd hqm_system_csr.hqm_system_cnt_18     0x00000008
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.egress_lut_err        0x00000080
+wr hqm_system_csr.msix_ack              0x00000001
+# This is not packed so there is no RMW to cause an error on the read
+wr hqm_system_csr.ldb_cq_addr_l[2]      0
+rd hqm_system_csr.alarm_hw_synd         0x00000000 0x80000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.egress_lut_err        0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.hqm_system_cnt_14     0x00000033
+rd hqm_system_csr.hqm_system_cnt_16     0x00000033
+######################################################
+wr hqm_system_csr.parity_ctl.write_bad_parity 1
+wr hqm_system_csr.ldb_cq_pasid[2]             0
+wr hqm_system_csr.parity_ctl.write_bad_parity 0
+IDLE 20
+HCW LDB:7 qe_valid=1 qe_orsp=0 qe_uhl=0 cq_pop=0 meas=0 lockid=0x000 msgtype=0 qpri=0 qtype=uno qid=2 dsi=0x300 ingress_drop=1
+msix_alarm_wait 1000
+rd hqm_system_csr.alarm_hw_synd         0x80498400              # v=1 src=0 unit=1 aid=0x09 cls=2 alarm=1 rtype=0 rid=addr
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.egress_lut_err        0x00000100
+rd hqm_system_csr.msix_ack              0x00000001
+rd hqm_system_csr.hqm_system_cnt_0      0x0000001d
+rd hqm_system_csr.hqm_system_cnt_2      0x00000009
+rd hqm_system_csr.hqm_system_cnt_4      0x00000014
+rd hqm_system_csr.hqm_system_cnt_14     0x00000034
+rd hqm_system_csr.hqm_system_cnt_16     0x00000034
+rd hqm_system_csr.hqm_system_cnt_18     0x00000009
+wr hqm_system_csr.alarm_hw_synd         0x80000000
+wr hqm_system_csr.egress_lut_err        0x00000100
+wr hqm_system_csr.msix_ack              0x00000001
+# This is not packed so there is no RMW to cause an error on the read
+wr hqm_system_csr.ldb_cq_pasid[2]       0
+rd hqm_system_csr.alarm_hw_synd         0x00000000 0x80000000
+rd hqm_system_csr.alarm_pf_synd0        0x00000000 0x80000000
+rd hqm_system_csr.egress_lut_err        0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.hqm_system_cnt_14     0x00000034
+rd hqm_system_csr.hqm_system_cnt_16     0x00000034
+#ldb_qid2vqid
+######################################################
+# Return tokens and completions
+HCW DIR:1 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x004 msgtype=0 qpri=0 qtype=dir qid=1 dsi=0x300
+IDLE 20
+poll hqm_system_csr.hqm_system_cnt_0      0x0000001e 0xffffffff 1000 20
+poll hqm_system_csr.hqm_system_cnt_2      0x0000000a 0xffffffff 1000 20
+poll hqm_system_csr.hqm_system_cnt_4      0x00000014 0xffffffff 1000 20
+poll hqm_system_csr.hqm_system_cnt_14     0x00000034 0xffffffff 1000 20
+poll hqm_system_csr.hqm_system_cnt_16     0x00000034 0xffffffff 1000 20
+poll hqm_system_csr.hqm_system_cnt_18     0x00000009 0xffffffff 1000 20
+HCW LDB:2 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x004 msgtype=0 qpri=0 qtype=uno qid=2 dsi=0x300
+IDLE 20
+poll hqm_system_csr.hqm_system_cnt_0      0x0000001f 0xffffffff 1000 20
+poll hqm_system_csr.hqm_system_cnt_2      0x0000000b 0xffffffff 1000 20
+poll hqm_system_csr.hqm_system_cnt_4      0x00000014 0xffffffff 1000 20
+poll hqm_system_csr.hqm_system_cnt_14     0x00000034 0xffffffff 1000 20
+poll hqm_system_csr.hqm_system_cnt_16     0x00000034 0xffffffff 1000 20
+poll hqm_system_csr.hqm_system_cnt_18     0x00000009 0xffffffff 1000 20
+HCW LDB:2 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x004 msgtype=0 qpri=0 qtype=uno qid=2 dsi=0x300
+IDLE 20
+poll hqm_system_csr.hqm_system_cnt_0      0x00000020 0xffffffff 1000 20
+poll hqm_system_csr.hqm_system_cnt_2      0x0000000c 0xffffffff 1000 20
+poll hqm_system_csr.hqm_system_cnt_4      0x00000014 0xffffffff 1000 20
+poll hqm_system_csr.hqm_system_cnt_14     0x00000034 0xffffffff 1000 20
+poll hqm_system_csr.hqm_system_cnt_16     0x00000034 0xffffffff 1000 20
+poll hqm_system_csr.hqm_system_cnt_18     0x00000009 0xffffffff 1000 20
+HCW LDB:2 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x004 msgtype=0 qpri=0 qtype=uno qid=2 dsi=0x300
+IDLE 20
+poll hqm_system_csr.hqm_system_cnt_0      0x00000021 0xffffffff 1000 20
+poll hqm_system_csr.hqm_system_cnt_2      0x0000000d 0xffffffff 1000 20
+poll hqm_system_csr.hqm_system_cnt_4      0x00000014 0xffffffff 1000 20
+poll hqm_system_csr.hqm_system_cnt_14     0x00000034 0xffffffff 1000 20
+poll hqm_system_csr.hqm_system_cnt_16     0x00000034 0xffffffff 1000 20
+poll hqm_system_csr.hqm_system_cnt_18     0x00000009 0xffffffff 1000 20
+HCW LDB:2 qe_valid=0 qe_orsp=0 qe_uhl=1 cq_pop=0 meas=0 lockid=0x004 msgtype=0 qpri=0 qtype=uno qid=2 dsi=0x300
+IDLE 20
+poll hqm_system_csr.hqm_system_cnt_0      0x00000022 0xffffffff 1000 20
+poll hqm_system_csr.hqm_system_cnt_2      0x0000000e 0xffffffff 1000 20
+poll hqm_system_csr.hqm_system_cnt_4      0x00000014 0xffffffff 1000 20
+poll hqm_system_csr.hqm_system_cnt_14     0x00000034 0xffffffff 1000 20
+poll hqm_system_csr.hqm_system_cnt_16     0x00000034 0xffffffff 1000 20
+poll hqm_system_csr.hqm_system_cnt_18     0x00000009 0xffffffff 1000 20
+HCW LDB:2 qe_valid=0 qe_orsp=0 qe_uhl=0 cq_pop=1 meas=0 lockid=0x003 msgtype=0 qpri=0 qtype=uno qid=2 dsi=0x300
+IDLE 20
+poll hqm_system_csr.hqm_system_cnt_0      0x00000023 0xffffffff 1000 20
+poll hqm_system_csr.hqm_system_cnt_2      0x0000000f 0xffffffff 1000 20
+poll hqm_system_csr.hqm_system_cnt_4      0x00000014 0xffffffff 1000 20
+poll hqm_system_csr.hqm_system_cnt_14     0x00000034 0xffffffff 1000 20
+poll hqm_system_csr.hqm_system_cnt_16     0x00000034 0xffffffff 1000 20
+poll hqm_system_csr.hqm_system_cnt_18     0x00000009 0xffffffff 1000 20
+######################################################
+rd hqm_system_csr.ingress_lut_err       0x00000000
+rd hqm_system_csr.egress_lut_err        0x00000000
+rd hqm_system_csr.alarm_lut_perr        0x00000000
+rd hqm_system_csr.msix_ack              0x00000000
+rd hqm_system_csr.sbe_cnt_0             0x00000000

@@ -1,0 +1,8 @@
+create_clock -name clock -period 832 -waveform {0 416} [get_ports clock ]
+set_ideal_network [get_ports clock]
+create_clock -name pgcb_clk -period 2496 -waveform {0 1248} [get_ports pgcb_clk ]
+set_ideal_network [get_ports pgcb_clk]
+create_clock -name fvisa_serstrb -period 120000 -waveform {0 60000} [get_ports fvisa_serstrb]
+set_ideal_network [get_ports fvisa_serstrb]
+create_clock -name policy_update -period 120000 -waveform {0 60000}   [get_ports fdfx_policy_update]
+set_ideal_network [get_ports fdfx_policy_update]

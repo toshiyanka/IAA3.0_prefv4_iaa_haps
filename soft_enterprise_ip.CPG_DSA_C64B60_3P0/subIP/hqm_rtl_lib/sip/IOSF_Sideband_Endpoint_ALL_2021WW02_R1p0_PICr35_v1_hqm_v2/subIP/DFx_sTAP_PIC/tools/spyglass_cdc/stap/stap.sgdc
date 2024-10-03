@@ -1,0 +1,36 @@
+current_design stap
+
+clock -name "ftap_tck"               -period 10  -edge { 0 5 }    -domain grp_ftap_tck          -tag  grp_ftap_tck
+clock -name "ftapsslv_tck"           -period  5  -edge { 0 2.5}   -domain grp_ftapsslv_tck      -tag  grp_ftapsslv_tck
+clock -name "sntapnw_ftap_tck"       -period 10  -edge { 0 5 }    -domain grp_ftap_tck          -tag  grp_ftap_tck
+clock -name "sntapnw_ftap_tck2"      -period  5  -edge { 0 2.5}   -domain grp_ftapsslv_tck      -tag  grp_ftapsslv_tck
+clock -name "stap_fbscan_tck"        -period 10  -edge { 0 5 }    -domain grp_ftap_tck          -tag  grp_ftap_tck
+clock -name "fdfx_policy_update"     -period 10  -edge { 0 5 }    -domain grp_policy_update     -tag  grp_policy_update 
+
+
+reset -name "ftap_trst_b"            -value 0
+reset -name "ftapsslv_trst_b"        -value 0
+reset -name "fdfx_powergood"         -value 0
+#reset -name "sntapnw_ftap_trst_b"    -value 0
+#reset -name "sn_fwtap_wrst_b"        -value 0
+#reset -name "tap_rtdr_powergood"     -value 0
+
+quasi_static -name "ftap_slvidcode*"
+quasi_static -name "fdfx_secure_policy*"
+quasi_static -name "dfxsecure_feature_en*"
+quasi_static -name "visa_all_dis*"
+quasi_static -name "visa_customer_dis*"
+quasi_static -name "fdfx_earlyboot_exit"
+
+abstract_port  -ports "ftapsslv_trst_b"     -direction input  -clock VCLK_ftapsslv_trst_b
+abstract_port  -ports "fdfx_powergood"       -direction input -clock VCLK_fdfx_powergood 
+abstract_port  -ports "ftap_trst_b"          -direction input -clock VCLK_ftap_trst_b
+#abstract_port  -ports "sntapnw_ftap_trst_b"  -direction input -clock VCLK_sntapnw_ftap_trst_b 
+#abstract_port  -ports "sn_fwtap_wrst_b"     -direction  input -clock VCLK_sn_fwtap_wrst_b 
+#abstract_port  -ports "tap_rtdr_powergood"   -direction input -clock VCLK_tap_rtdr_powergood
+
+reset_filter_path -from_rst ftap_trst_b fdfx_powergood -clock ftap_tck fdfx_policy_update -type reset_sync02
+reset_filter_path -type rdc -from_rst {ftap_trst_b} -to_rst {fdfx_powergood} -to_clock ftap_tck 
+
+#Change after subsystem feedback
+quasi_static -name "tap_rtdr_irdec"

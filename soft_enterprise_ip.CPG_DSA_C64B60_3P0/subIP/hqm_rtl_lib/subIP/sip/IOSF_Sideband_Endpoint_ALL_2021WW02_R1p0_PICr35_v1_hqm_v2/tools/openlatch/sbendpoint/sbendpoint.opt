@@ -1,0 +1,29 @@
+# options passed to SGCDC static verification
+{
+   %opts = (
+     -lintra_goal => "lint",
+     -static_check_top   => "iosf_sbc_ep_rtl_lib.sbendpoint",
+     -model => "cdc_sbendpoint",
+     -static_check_tools => [ "lintra", ],
+     -lintra_goal        => "openlatch",     
+     -lira_exe_opts    => [  "",],
+        -post_process_parser            => "$ENV{ACE_HOME}/bin/ace_postsim.pl",
+        -post_process_pattern_file      => "$ENV{ACE_HOME}/udf/ace_base_postsim.pp",
+     -post_process_pattern_file => "$ENV{ACE_HOME}/udf/ace_base_postsim.pp",
+     -enable_runsim_postsim_checks => 0,
+     -ok_error => [
+                 #'/DBG/',
+                 #'/rsp_error/',
+                  ]
+   );
+
+   %runModes = (
+     FLG => {
+          -lintra_goal     =>  "flg",
+     },
+    -OpenLatch => {
+            -lintra_goal => "openlatch" ,  #NOTE the goals are set in ace_static_check.cfg
+        }
+
+   );
+}

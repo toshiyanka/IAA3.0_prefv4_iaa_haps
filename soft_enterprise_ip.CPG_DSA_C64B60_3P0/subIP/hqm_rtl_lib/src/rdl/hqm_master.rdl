@@ -1,0 +1,57 @@
+<% if (defined($HQM_CONFIG_MASTER_SPACE)) { %>
+  <% if ($HQM_CONFIG_MASTER_SPACE eq "MEM") { %>
+       addrmap hqm_config_master_MEM_map {
+         Space = "MEM";
+  <% } elsif ($HQM_CONFIG_MASTER_SPACE eq "MSG") { %>
+       addrmap hqm_config_master_MSG_map {
+         Space = "MSG";
+  <% } %>
+<% } else { %>
+  addrmap hqm_config_master_map {
+    Space = "MEM";
+<% } %>
+
+  BaseAddress = "0x00000000";
+
+  `include "hqm_master_reg_def.rdl"
+
+  <% if (!defined($HQM_CONFIG_MASTER_SPACE) || ($HQM_CONFIG_MASTER_SPACE eq "MSG")) { %>
+    cfg_master_ctl_r                            CFG_MASTER_CTL                                @0x0c000000 ;
+  <% } %>
+
+  cfg_pm_override_r                             CFG_PM_OVERRIDE                               @0x0c000004 ;
+  cfg_hqm_pgcb_control_r                        CFG_HQM_PGCB_CONTROL                          @0x0c000008 ;
+  cfg_hqm_cdc_control_r                         CFG_HQM_CDC_CONTROL                           @0x0c00000c ;
+  cfg_control_general_r                         CFG_CONTROL_GENERAL                           @0x0c000010 ;
+  cfg_mstr_internal_timeout_r                   CFG_MSTR_INTERNAL_TIMEOUT                     @0x0c000014 ;
+  cfg_diagnostic_proc_lcb_status_r              CFG_DIAGNOSTIC_PROC_LCB_STATUS                @0x0c000018 ;
+  cfg_diagnostic_status_1_r                     CFG_DIAGNOSTIC_STATUS_1                       @0x0c00001c ;
+  cfg_diagnostic_syndrome_r                     CFG_DIAGNOSTIC_SYNDROME                       @0x0c000020 ;
+  cfg_diagnostic_reset_status_r                 CFG_DIAGNOSTIC_RESET_STATUS                   @0x04000000 ;
+  cfg_diagnostic_idle_status_r                  CFG_DIAGNOSTIC_IDLE_STATUS                    @0x04000004 ;
+  cfg_diagnostic_heartbeat_r                    CFG_DIAGNOSTIC_HEARTBEAT                      @0x04000008 ;
+  cfg_flr_count_l_r                             CFG_FLR_COUNT_L                               @0x0400000c ;
+  cfg_flr_count_h_r                             CFG_FLR_COUNT_H                               @0x04000010 ;
+  cfg_pm_status_r                               CFG_PM_STATUS                                 @0x04000014 ;
+  cfg_pm_pmcsr_disable_r                        CFG_PM_PMCSR_DISABLE                          @0x04000018 ;
+  cfg_clk_on_cnt_l_r                            CFG_CLK_ON_CNT_L                              @0x0400001c ;
+  cfg_clk_on_cnt_h_r                            CFG_CLK_ON_CNT_H                              @0x04000020 ;
+  cfg_proc_on_cnt_l_r                           CFG_PROC_ON_CNT_L                             @0x04000024 ;
+  cfg_proc_on_cnt_h_r                           CFG_PROC_ON_CNT_H                             @0x04000028 ;
+  cfg_prochot_cnt_l_r                           CFG_PROCHOT_CNT_L                             @0x0400002c ;
+  cfg_prochot_cnt_h_r                           CFG_PROCHOT_CNT_H                             @0x04000030 ;
+  cfg_prochot_event_cnt_l_r                     CFG_PROCHOT_EVENT_CNT_L                       @0x04000034 ;
+  cfg_prochot_event_cnt_h_r                     CFG_PROCHOT_EVENT_CNT_H                       @0x04000038 ;
+  cfg_d3tod0_event_cnt_l_r                      CFG_D3TOD0_EVENT_CNT_L                        @0x0400003c ;
+  cfg_d3tod0_event_cnt_h_r                      CFG_D3TOD0_EVENT_CNT_H                        @0x04000040 ;
+  cfg_clk_cnt_disable_r                         CFG_CLK_CNT_DISABLE                           @0x04000044 ;
+  cfg_ts_control_r                              CFG_TS_CONTROL                                @0x04000048 ;
+  cfg_unit_version_r                            CFG_UNIT_VERSION                              @0x0400004c ;
+
+  //BEGIN OVERRIDES
+  CFG_UNIT_VERSION.UNIT_VERSION-> reset = 8'h0 ; 
+  //END OVERRIDES
+//BEGIN COMMON VALRTLSIGNALS
+CFG_UNIT_VERSION.UNIT_VERSION-> ValRTLSignal = "%HQMID%.i_hqm_master_core.i_hqm_cfg_master.i_hqm_cfg_master_register_prim.i_hqm_mstr_target_cfg_unit_version.status[31:24]";
+//END COMMON VALRTLSIGNALS
+}; 

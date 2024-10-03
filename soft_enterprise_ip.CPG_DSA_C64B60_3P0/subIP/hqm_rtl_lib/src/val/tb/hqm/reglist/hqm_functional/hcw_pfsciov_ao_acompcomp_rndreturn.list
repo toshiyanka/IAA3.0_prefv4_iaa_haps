@@ -1,0 +1,96 @@
+####################################################
+# PF/SCIOV with  ldb_qid_ao_cfg_sel3+short_256
+#                ldb_qid_ao_cfgrnd_sel3 
+#Keep options:
+# +cmd_type_sel=3 => this option will control hqm_pp_cq_base_seq.sv 1) RENQ/RENQ_T/COMP/COMP_T tbcnt is newly generated one, not to carry the original tbcnt getting from pend_hcw_trans or pend_hcw_trans_comb 
+# return A_COMP and COMP in any order
+#   => because the A_COMP and COMP are returned in any order, this reglist is an error handling test set
+#  email 05162022: For the CHP assertions test failure, hist_list_a ran into fifo overflows. It looks like for combined qtype(AO) CHP receives COMP first follows by A_COMP. Basically COMP decrements cq/qid/total inflight counts which allows lsp to reschedule the next qe while hist_list_a is still full. If A_COMP occurs first, only the fid is decrement so lsp can¿t schedule the next qe until the COMP arrives. I don¿t know if this is how the TB sends the COMP/A_COMP or there¿s an ordering issue related to the new ordering buffer logic in the system.
+#### 
+####################################################
+.repeat 2
+hcw_pf_test:sequential+q1_ldb+ldb_qid_ao_cfg_sel3+short_256                  -dut hqm -model hqm  -dirtag pf_q1_ldb_seq_short256_sel3_ao           
+hcw_pf_test:sequential+q2_ldb+ldb_qid_ao_cfg_sel3+short_256                  -dut hqm -model hqm  -dirtag pf_q2_ldb_seq_short256_sel3_ao           
+hcw_pf_test:sequential+q4_ldb+ldb_qid_ao_cfg_sel3+short_256                  -dut hqm -model hqm  -dirtag pf_q4_ldb_seq_short256_sel3_ao           
+hcw_pf_test:sequential+q8_ldb+ldb_qid_ao_cfg_sel3+short_256                  -dut hqm -model hqm  -dirtag pf_q8_ldb_seq_short256_sel3_ao           
+hcw_pf_test:sequential+q16_ldb+ldb_qid_ao_cfg_sel3+short_256                 -dut hqm -model hqm  -dirtag pf_q16_ldb_seq_short256_sel3_ao          
+hcw_pf_test:sequential+q32_ldb+ldb_qid_ao_cfg_sel3+short_256                 -dut hqm -model hqm  -dirtag pf_q32_ldb_seq_short256_sel3_ao          
+
+hcw_pf_test:sequential+q1_ldb+ldb_qid_ao_cfgrnd_sel3+short_256               -dut hqm -model hqm  -dirtag pf_q1_ldb_seq_short256_sel3_aornd        
+hcw_pf_test:sequential+q2_ldb+ldb_qid_ao_cfgrnd_sel3+short_256               -dut hqm -model hqm  -dirtag pf_q2_ldb_seq_short256_sel3_aornd        
+hcw_pf_test:sequential+q4_ldb+ldb_qid_ao_cfgrnd_sel3+short_256               -dut hqm -model hqm  -dirtag pf_q4_ldb_seq_short256_sel3_aornd        
+hcw_pf_test:sequential+q8_ldb+ldb_qid_ao_cfgrnd_sel3+short_256               -dut hqm -model hqm  -dirtag pf_q8_ldb_seq_short256_sel3_aornd        
+hcw_pf_test:sequential+q16_ldb+ldb_qid_ao_cfgrnd_sel3+short_256              -dut hqm -model hqm  -dirtag pf_q16_ldb_seq_short256_sel3_aornd       
+hcw_pf_test:sequential+q32_ldb+ldb_qid_ao_cfgrnd_sel3+short_256              -dut hqm -model hqm  -dirtag pf_q32_ldb_seq_short256_sel3_aornd       
+
+#msix
+hcw_pf_test:sequential+q1_ldb_msix+ldb_qid_ao_cfg_sel3+short_256             -dut hqm -model hqm  -dirtag pf_q1_ldb_msix_seq_short256_sel3_ao       
+hcw_pf_test:sequential+q2_ldb_msix+ldb_qid_ao_cfg_sel3+short_256             -dut hqm -model hqm  -dirtag pf_q2_ldb_msix_seq_short256_sel3_ao       
+hcw_pf_test:sequential+q4_ldb_msix+ldb_qid_ao_cfg_sel3+short_256             -dut hqm -model hqm  -dirtag pf_q4_ldb_msix_seq_short256_sel3_ao       
+hcw_pf_test:sequential+q8_ldb_msix+ldb_qid_ao_cfg_sel3+short_256             -dut hqm -model hqm  -dirtag pf_q8_ldb_msix_seq_short256_sel3_ao       
+hcw_pf_test:sequential+q16_ldb_msix+ldb_qid_ao_cfg_sel3+short_256            -dut hqm -model hqm  -dirtag pf_q16_ldb_msix_seq_short256_sel3_ao      
+hcw_pf_test:sequential+q32_ldb_msix+ldb_qid_ao_cfg_sel3+short_256            -dut hqm -model hqm  -dirtag pf_q32_ldb_msix_seq_short256_sel3_ao      
+
+hcw_pf_test:sequential+q1_ldb_msix+ldb_qid_ao_cfgrnd_sel3+short_256          -dut hqm -model hqm  -dirtag pf_q1_ldb_msix_seq_short256_sel3_aornd    
+hcw_pf_test:sequential+q2_ldb_msix+ldb_qid_ao_cfgrnd_sel3+short_256          -dut hqm -model hqm  -dirtag pf_q2_ldb_msix_seq_short256_sel3_aornd    
+hcw_pf_test:sequential+q4_ldb_msix+ldb_qid_ao_cfgrnd_sel3+short_256          -dut hqm -model hqm  -dirtag pf_q4_ldb_msix_seq_short256_sel3_aornd    
+hcw_pf_test:sequential+q8_ldb_msix+ldb_qid_ao_cfgrnd_sel3+short_256          -dut hqm -model hqm  -dirtag pf_q8_ldb_msix_seq_short256_sel3_aornd    
+hcw_pf_test:sequential+q16_ldb_msix+ldb_qid_ao_cfgrnd_sel3+short_256         -dut hqm -model hqm  -dirtag pf_q16_ldb_msix_seq_short256_sel3_aornd   
+hcw_pf_test:sequential+q32_ldb_msix+ldb_qid_ao_cfgrnd_sel3+short_256         -dut hqm -model hqm  -dirtag pf_q32_ldb_msix_seq_short256_sel3_aornd   
+
+#rand
+hcw_pf_test:sequential+ldb_qid_ao_cfg_sel3+short_256                         -dut hqm -model hqm  -dirtag pf_seq_short256_sel3_ao                   
+hcw_pf_test:sequential+ldb_qid_ao_cfgrnd_sel3+short_256                      -dut hqm -model hqm  -dirtag pf_seq_short256_sel3_aornd                
+#hcw_sciov_test2:sequential+ldb_qid_ao_cfg_sel3+short_256                    -dut hqm -model hqm  -dirtag sciov2_seq_short256_sel3_ao               
+#hcw_sciov_test:sequential+ldb_qid_ao_cfg_sel3+short_256                     -dut hqm -model hqm  -dirtag sciov_seq_short256_sel3_ao                
+.repeat
+
+.repeat 2
+hcw_pf_test:q1_ldb+ldb_qid_ao_cfg_sel3+short_256                 -dut hqm -model hqm  -dirtag pf_q1_ldb.short256_sel3_ao           
+hcw_pf_test:q2_ldb+ldb_qid_ao_cfg_sel3+short_256                 -dut hqm -model hqm  -dirtag pf_q2_ldb.short256_sel3_ao           
+hcw_pf_test:q4_ldb+ldb_qid_ao_cfg_sel3+short_256                 -dut hqm -model hqm  -dirtag pf_q4_ldb.short256_sel3_ao           
+hcw_pf_test:q8_ldb+ldb_qid_ao_cfg_sel3+short_256                 -dut hqm -model hqm  -dirtag pf_q8_ldb.short256_sel3_ao           
+hcw_pf_test:q16_ldb+ldb_qid_ao_cfg_sel3+short_256                -dut hqm -model hqm  -dirtag pf_q16_ldb.short256_sel3_ao          
+hcw_pf_test:q32_ldb+ldb_qid_ao_cfg_sel3+short_256                -dut hqm -model hqm  -dirtag pf_q32_ldb.short256_sel3_ao          
+
+hcw_pf_test:q1_ldb+ldb_qid_ao_cfgrnd_sel3+short_256              -dut hqm -model hqm  -dirtag pf_q1_ldb.short256_sel3_aornd        
+hcw_pf_test:q2_ldb+ldb_qid_ao_cfgrnd_sel3+short_256              -dut hqm -model hqm  -dirtag pf_q2_ldb.short256_sel3_aornd        
+hcw_pf_test:q4_ldb+ldb_qid_ao_cfgrnd_sel3+short_256              -dut hqm -model hqm  -dirtag pf_q4_ldb.short256_sel3_aornd        
+hcw_pf_test:q8_ldb+ldb_qid_ao_cfgrnd_sel3+short_256              -dut hqm -model hqm  -dirtag pf_q8_ldb.short256_sel3_aornd        
+hcw_pf_test:q16_ldb+ldb_qid_ao_cfgrnd_sel3+short_256             -dut hqm -model hqm  -dirtag pf_q16_ldb.short256_sel3_aornd       
+hcw_pf_test:q32_ldb+ldb_qid_ao_cfgrnd_sel3+short_256             -dut hqm -model hqm  -dirtag pf_q32_ldb.short256_sel3_aornd       
+
+#msix
+hcw_pf_test:q1_ldb_msix+ldb_qid_ao_cfg_sel3+short_256            -dut hqm -model hqm  -dirtag pf_q1_ldb_msix.short256_sel3_ao          
+hcw_pf_test:q2_ldb_msix+ldb_qid_ao_cfg_sel3+short_256            -dut hqm -model hqm  -dirtag pf_q2_ldb_msix.short256_sel3_ao          
+hcw_pf_test:q4_ldb_msix+ldb_qid_ao_cfg_sel3+short_256            -dut hqm -model hqm  -dirtag pf_q4_ldb_msix.short256_sel3_ao          
+hcw_pf_test:q8_ldb_msix+ldb_qid_ao_cfg_sel3+short_256            -dut hqm -model hqm  -dirtag pf_q8_ldb_msix.short256_sel3_ao          
+hcw_pf_test:q16_ldb_msix+ldb_qid_ao_cfg_sel3+short_256           -dut hqm -model hqm  -dirtag pf_q16_ldb_msix.short256_sel3_ao         
+hcw_pf_test:q32_ldb_msix+ldb_qid_ao_cfg_sel3+short_256           -dut hqm -model hqm  -dirtag pf_q32_ldb_msix.short256_sel3_ao         
+
+hcw_pf_test:q1_ldb_msix+ldb_qid_ao_cfgrnd_sel3+short_256         -dut hqm -model hqm  -dirtag pf_q1_ldb_msix.short256_sel3_aornd       
+hcw_pf_test:q2_ldb_msix+ldb_qid_ao_cfgrnd_sel3+short_256         -dut hqm -model hqm  -dirtag pf_q2_ldb_msix.short256_sel3_aornd       
+hcw_pf_test:q4_ldb_msix+ldb_qid_ao_cfgrnd_sel3+short_256         -dut hqm -model hqm  -dirtag pf_q4_ldb_msix.short256_sel3_aornd       
+hcw_pf_test:q8_ldb_msix+ldb_qid_ao_cfgrnd_sel3+short_256         -dut hqm -model hqm  -dirtag pf_q8_ldb_msix.short256_sel3_aornd       
+hcw_pf_test:q16_ldb_msix+ldb_qid_ao_cfgrnd_sel3+short_256        -dut hqm -model hqm  -dirtag pf_q16_ldb_msix.short256_sel3_aornd      
+hcw_pf_test:q32_ldb_msix+ldb_qid_ao_cfgrnd_sel3+short_256        -dut hqm -model hqm  -dirtag pf_q32_ldb_msix.short256_sel3_aornd      
+
+
+hcw_pf_test:ldb_qid_ao_cfg_sel3+short_256                        -dut hqm -model hqm  -dirtag pf.short256_sel3_ao 
+hcw_pf_test:q32+ldb_qid_ao_cfg_sel3+short_256                    -dut hqm -model hqm  -dirtag pf_q32_short256_sel3_ao 
+hcw_pf_test:q32_ldb_msix+ldb_qid_ao_cfg_sel3+short_256           -dut hqm -model hqm  -dirtag pf_q32_ldb_msix_short256_sel3_ao 
+
+hcw_pf_test:ldb_qid_ao_cfgrnd_sel3+short_256                     -dut hqm -model hqm  -dirtag pf.short256_sel3_aornd 
+hcw_pf_test:q32+ldb_qid_ao_cfgrnd_sel3+short_256                 -dut hqm -model hqm  -dirtag pf_q32_short256_sel3_aornd 
+hcw_pf_test:q32_ldb_msix+ldb_qid_ao_cfgrnd_sel3+short_256        -dut hqm -model hqm  -dirtag pf_q32_ldb_msix_short256_sel3_aornd 
+
+#hcw_sciov_test2:ldb_qid_ao_cfg_sel3+short_256                              -dut hqm -model hqm  -dirtag sciov2.short256_sel3_ao  
+#hcw_sciov_test:ldb_qid_ao_cfg_sel3+short_256                               -dut hqm -model hqm  -dirtag sciov.short256_sel3_ao  
+
+#hcw_sciov_test2:lq32_dq64_vdev16+ldb_qid_ao_cfg_sel3+short_256            -dut hqm -model hqm  -dirtag sciov2_lq32_dq64_vdev16_short256_sel3_ao  
+#hcw_sciov_test:lq32_dq64_vdev16+ldb_qid_ao_cfg_sel3+short_256             -dut hqm -model hqm  -dirtag sciov_lq32_dq64_vdev16_short256_sel3_ao  
+
+#hcw_sciov_test2:lq32_dq64_vdev16_ims+ldb_qid_ao_cfg_sel3+short_256        -dut hqm -model hqm  -dirtag sciov2_lq32_dq64_vdev16_ims_short256_sel3_ao  
+#hcw_sciov_test:lq32_dq64_vdev16_ims+ldb_qid_ao_cfg_sel3+short_256         -dut hqm -model hqm  -dirtag sciov_lq32_dq64_vdev16_ims_short256_sel3_ao 
+.repeat
+

@@ -1,0 +1,650 @@
+regfile hqm_pcie_cap_rf {
+	reg pcie_cap_id_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Pcie Cap Id";
+		desc = "PF PCI Express Capability Register";
+		regwidth = 8;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Pciecid";
+			desc = "Capability ID: PCI SIG assigned capability record ID (10h, PCI Express capability)";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} PCIECID [07:00] = 8'h10;
+
+	}; // end register ppcid
+
+	reg pcie_cap_next_cap_ptr_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Pcie Cap Next Cap Ptr";
+		desc = "PF PCI Express Next Capability Pointer Register";
+		regwidth = 8;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Cap Ptr";
+			desc = "Capability Pointer";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} CAP_PTR [07:00] = 8'h00;
+
+	}; // end register ppcp
+
+	reg pcie_cap_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Pcie Cap";
+		desc = "PF PCI Express Capabilities Register";
+		regwidth = 16;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Reserved";
+			desc = "Reserved";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} RESERVED [15:14] = 2'b00;
+
+		field {
+			name = "Imn";
+			desc = "Interrupt Message Number: This field indicates which MSI vector is used for the interrupt message generated in association with the status bits in either the Slot Status field of this capability structure (applies to only RC or Switch)Not applicable to EP.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} IMN [13:9] = 5'b00000;
+
+		field {
+			name = "Si";
+			desc = "Slot Implemented: This bit when set indicates that the PCI Express Link associated with this port is connected to a slot. Hardwired to 0 for EP.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} SI [8:8] = 1'b0;
+
+		field {
+			name = "Dpt";
+			desc = "Device/Port Type: Indicates the type of PCI Express logical device. Hardwired to 1001b (Root Complex Integrated Endpoint)";
+			PowerWell="vcccfn"; AccessType = "RO/V";
+		} DPT [7:4] = 4'b1001;
+
+		field {
+			name = "Cv";
+			desc = "Capability Version: Indicates PCI-SIG defined PCI Express capability structure version number.EP is PCIe 4.0 Specification Compliant.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} CV [3:0] = 4'b0010;
+
+	}; // end register ppcr
+
+	reg pcie_cap_device_cap_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Pcie Cap Device Cap";
+		desc = "PF PCI Express Device Capabilities Register";
+		regwidth = 32;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Reserved0";
+			desc = "Reserved0";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} RESERVED0 [31:29] = 3'h0;
+
+		field {
+			name = "Flr";
+			desc = "Function level reset: When set indicates that the device supports the FLR feature. When SR-IOV is enabled both PF & VF have to support FLR";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} FLR [28:28] = 1'b1;
+
+		field {
+			name = "Csps";
+			desc = "Captured Slot Power Limit Scale: Does not apply to EP.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} CSPS [27:26] = 2'b00;
+
+		field {
+			name = "Cspv";
+			desc = "Captured Slot Power Limit Value: Does not apply to EP.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} CSPV [25:18] = 8'h0;
+
+		field {
+			name = "Reserved1";
+			desc = "Reserved1";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} RESERVED1 [17:16] = 2'h0;
+
+		field {
+			name = "Rbep";
+			desc = "Role-Based Error Reporting: Indicates that EP conforms to Role based error reporting ECN for PCIe 1.0a and which was subsequently rolled in PCIe 1.1 and future revisions.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} RBEP [15:15] = 1'b1;
+
+		field {
+			name = "Attn";
+			desc = "Attention Button/Indicator Present and Power Indicator Present. None of these are implemented in the EP.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} ATTN [14:12] = 3'b000;
+
+		field {
+			name = "El1l";
+			desc = "Endpoint L1 Acceptable Latency: This field indicates the acceptable latency that an Endpoint can withstand due to the transition from L1 state to the L0 state. Hardcoded to the lowest value of 1us.Since HQM does not have a physical layer, this functionality is not implemented.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} EL1L [11:9] = 3'b000;
+
+		field {
+			name = "El0l";
+			desc = "Endpoint L0s Acceptable Latency: This field indicates the acceptable latency that an Endpoint can withstand due to the transition from L1 state to the L0 state. This value is hardcoded to the latency of 64-128ns.Since HQM does not have a physical layer, this functionality is not implemented.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} EL0L [8:6] = 3'b001;
+
+		field {
+			name = "Etfs";
+			desc = "Extended Tag Field Supported: This field indicates the maximum supported size of the Tag field as a Requester. When Clear indicates 5-bit Tag field is supported. When set 8-bit Tag field is supported. Supports 256 outstanding read requests.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} ETFS [5:5] = 1'b1;
+
+		field {
+			name = "Pfs";
+			desc = "Phantom Functions Supported: This field indicates the support for use of unclaimed function numbers to extend the number of outstanding transactions allowed. EP does not use this capability.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} PFS [4:3] = 2'b00;
+
+		field {
+			name = "Mps";
+			desc = "Max_Payload_Size Supported: This field indicates the maximum payload size that EP can support for TLPs. This value is set to indicate 512B. The defined encodings are:ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ 000b = 128B max payload sizeÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ 001b = 256B max payload size(Max supported)ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ 010b = 512 bytes max payload sizeÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ 011b = 1KB max payload sizeÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ 100b = 2KB max payload sizeÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ 101b = 4KB max payload size";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} MPS [2:0] = 3'b010;
+
+	}; // end register ppdcap
+
+	reg pcie_cap_device_control_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Pcie Cap Device Control";
+		desc = "PF PCI Express Device Control Register";
+		regwidth = 16;
+		shared;
+                IntelRsvd = false;
+                donttest = true;
+
+		field {
+			name = "Startflr";
+			desc = "Initiate FLR - Used to initiate FLR transition. A write of 1 initiates FLR transition. Since hardware must not respond to any cycles till FLR completion, the value read by software from this bit is 0.";
+			PowerWell="vcccfn"; AccessType = "RW";
+		} STARTFLR [15:15] = 1'b0;
+
+		field {
+			name = "Mrs";
+			desc = "Max_Read_Request_Size: This field sets the maximum Read Request size for the EP as a Requester.The EP is capable for generating up to 512B read requests. However requests generated by the EP will be limited by the programmed value in this field.Defined encodings for this field are:000b = 128B max read request size001b = 256B max read request size010b = 512B max read request size (Default)011b = 1024B max read request size100b = 2048B max read request size101b = 4096B max read request sizeFor HQM valid setting for this field is upto 512B.";
+			PowerWell="vcccfn"; AccessType = "RW";
+		} MRS [14:12] = 3'b010;
+
+		field {
+			name = "Ens";
+			desc = "Enable No Snoop (NS): If this bit is set to 1, EP is permitted to set the No Snoop bit in the Requester Attributes of transactions it initiates. When clear all transactions will have the No Snoop bit clear.Note that setting this bit will not cause the EP to set the No Snoop attribute on every memory requests that it initiates.";
+			PowerWell="vcccfn"; AccessType = "RW";
+		} ENS [11:11] = 1'b1;
+
+		field {
+			name = "Apme";
+			desc = "Auxiliary (AUX) Power PM Enable: This bit when set enables a device to draw AUX power independent of PME AUX power. Does not apply to EP";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} APME [10:10] = 1'b0;
+
+		field {
+			name = "Pfe";
+			desc = "Phantom Functions Enable: When set, this bit enables a device to use unclaimed functions as Phantom Functions. Does not apply to EP.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} PFE [9:9] = 1'b0;
+
+		field {
+			name = "Etfe";
+			desc = "Extended Tag Field Enable: When set, this bit enables a device to use an 8-bit Tag field as a requester. Supports 256 outstanding requests.";
+			PowerWell="vcccfn"; AccessType = "RW";
+		} ETFE [8:8] = 1'b1;
+
+		field {
+			name = "Mps";
+			desc = "Max_Payload_Size (MPS): This field sets maximum TLP payload for EP. As a Receiver, the EP must handle TLPs as large as the set value; as a Transmitter, the EP must not generate TLPs exceeding the set value.The EP is capable of generating up to 512B MPS. However requests generated by the EP will be limited by the programmed value in this field.It is expected that the root complexes that the EP will be paired up with will be limited to 512B MPS.000b = 128B(Default)001b = 256B010b = 512BOthers values not supported by EP";
+			PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal="prim_gated_rst_b";
+		} MPS [7:5] = 3'b000;
+
+		field {
+			name = "Ero";
+			desc = "Enable Relaxed Ordering: If this bit is set, EP is permitted to set the Relaxed Ordering bit in the Attributes field of transactions it initiates.Note that seting this bit does not cause the EP to set the RO on every transaction it issues.";
+			PowerWell="vcccfn"; AccessType = "RW";
+		} ERO [4:4] = 1'b1;
+
+		field {
+			name = "Urro";
+			desc = "Unsupported Request Reporting Enable: This bit, in conjunction with other bits, controls the signaling of Unsupported Requests by sending Error Messages to the root port. When clear it disables sending of error messages.";
+			PowerWell="vcccfn"; AccessType = "RW";
+		} URRO [3:3] = 1'b0;
+
+		field {
+			name = "Fere";
+			desc = "Fatal Error Reporting Enable: This bit, in conjunction with other bits, controls sending ERR_FATAL Messages to the root port. When clear disables sending of error messages.";
+			PowerWell="vcccfn"; AccessType = "RW";
+		} FERE [2:2] = 1'h0;
+
+		field {
+			name = "Nere";
+			desc = "Non-Fatal Error Reporting Enable: This bit, in conjunction with other bits, controls sending ERR_NONFATAL Messages to the root port. When clear disables sending of error messages.";
+			PowerWell="vcccfn"; AccessType = "RW";
+		} NERE [1:1] = 1'h0;
+
+		field {
+			name = "Cere";
+			desc = "Correctable Error Reporting Enable: This bit, in conjunction with other bits, controls sending ERR_COR Messages to the root port. When clear disables sending of error messages.";
+			PowerWell="vcccfn"; AccessType = "RW";
+		} CERE [0:0] = 1'h0;
+
+	}; // end register ppdcntl
+
+	reg pcie_cap_device_status_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Pcie Cap Device Status";
+		desc = "PF PCI Express Device Status Register";
+		regwidth = 16;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Reserved";
+			desc = "Reserved";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} RESERVED [15:6] = 10'h0;
+
+		field {
+			name = "Tp";
+			desc = "Transactions Pending: This bit when set indicates that EP has issued Non-Posted Requests which have not been completed either with a completion packet or completion timeout mechanism.";
+			PowerWell="vcccfn"; AccessType = "RO/V";
+		} TP [5:5] = 1'h0;
+
+		field {
+			name = "Apd";
+			desc = "AUX Power Detected: Devices that require AUX power report this bit as set if AUX power is detected by the device.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} APD [4:4] = 1'h0;
+
+		field {
+			name = "Urd";
+			desc = "Unsupported Request Detected: This bit indicates that EP received an Unsupported Request.A one indicates that an error was detected since the last time this bit was cleared.Errors are updated in this field regardless of whether the error reporting bit is set in the Device Control Register.";
+			PowerWell="vcccfn"; AccessType = "RW/1C/V";
+		} URD [3:3] = 1'h0;
+
+		field {
+			name = "Fed";
+			desc = "Fatal Error Detected: This bit indicates status of Fatal errors detected.A one indicates that an error was detected since the last time this bit was cleared.Errors are updated in this field regardless of whether the error reporting bit is set in the Device Control Register.";
+			PowerWell="vcccfn"; AccessType = "RW/1C/V";
+		} FED [2:2] = 1'h0;
+
+		field {
+			name = "Ned";
+			desc = "Non-Fatal Error Detected: This bit indicates status of Nonfatal errors detected.A one indicates that an error was detected since the last time this bit was cleared.Errors are updated in this field regardless of whether the error reporting bit is set in the Device Control Register.";
+			PowerWell="vcccfn"; AccessType = "RW/1C/V";
+		} NED [1:1] = 1'h0;
+
+		field {
+			name = "Ced";
+			desc = "Correctable Error Detected: This bit indicates status of correctable errors detected.A one indicates that an error was detected since the last time this bit was cleared.Errors are updated in this field regardless of whether the error reporting bit is set in the Device Control Register.";
+			PowerWell="vcccfn"; AccessType = "RW/1C/V";
+		} CED [0:0] = 1'h0;
+
+	}; // end register ppdstat
+
+	reg pcie_cap_link_cap_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Pcie Cap Link Cap";
+		desc = "Link Capabilities Register";
+		regwidth = 32;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Portnum";
+			desc = "Port Number: Assigned by EP after link training phase.";
+			PowerWell="vcccfn"; AccessType = "RW/O/P";
+		} PORTNUM [31:24] = 8'h0;
+
+		field {
+			name = "Reserved";
+			desc = "Reserved";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} RESERVED [23:23] = 1'b0;
+
+		field {
+			name = "Aspm";
+			desc = "ASPM Optionality Compliance";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} ASPM [22:22] = 1'b1;
+
+		field {
+			name = "Lbn";
+			desc = "Link Bandwidth Notification Capability:";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} LBN [21:21] = 1'b0;
+
+		field {
+			name = "Na Iosf";
+			desc = "Does not apply to EP";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} NA_IOSF [20:18] = 3'b000;
+
+		field {
+			name = "L1el";
+			desc = "L1 Exit Latency- Indicates the exit latency from L1 to L0 state.000b - Less than 1 ÃƒÆ’Ã‚Â¬s001b - 1 ÃƒÆ’Ã‚Â¬s - 2 ÃƒÆ’Ã‚Â¬s010b - 2 ÃƒÆ’Ã‚Â¬s - 4 ÃƒÆ’Ã‚Â¬s011b - 4 ÃƒÆ’Ã‚Â¬s - 8 ÃƒÆ’Ã‚Â¬s100b - 8 ÃƒÆ’Ã‚Â¬s - 16 ÃƒÆ’Ã‚Â¬s101b - 16 ÃƒÆ’Ã‚Â¬s - 32 ÃƒÆ’Ã‚Â¬s110b - 32 ÃƒÆ’Ã‚Â¬s - 64 ÃƒÆ’Ã‚Â¬s111b - L1 transition not supported";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} L1EL [17:15] = 3'b000;
+
+		field {
+			name = "L0el";
+			desc = "L0s Exit Latency- Indicates the exit latency from L0s to L0 state.000b - Less than 64ns001b - 64ns - 128ns010b - 128ns - 256ns011b - 256ns - 512ns100b - 512ns - 1 ÃƒÆ’Ã‚Â¬s101b - 1 ÃƒÆ’Ã‚Â¬s - 2 ÃƒÆ’Ã‚Â¬s110b - 2 ÃƒÆ’Ã‚Â¬s - 4 ÃƒÆ’Ã‚Â¬s111b - Reserved";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} L0EL [14:12] = 3'b000;
+
+		field {
+			name = "Aslpm";
+			desc = "Active State Link PM Support - Indicates the level of active state power management supported in EP. Defined encodings are:00b - Reserved01b - L0s Entry Supported10b - Reserved11b - L0s and L1 Supported";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} ASLPM [11:10] = 2'b11;
+
+		field {
+			name = "Linkw";
+			desc = "Max Link Width- Indicates the max link width.Relevant encoding:000000b - Reserved000001b - x1000010b - x2000100b - x4001000b - x8001100b - x12010000b - x16100000b - x32EP value depends on SKU. However the max link width is x16.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} LINKW [9:4] = 6'b000001;
+
+		field {
+			name = "Maxspeed";
+			desc = "Max Link Speed - Indicates Maximum supported Link Speed. Defined encodings are :0001b - 2.5Gbs Link speed supported (Gen 1)0010b - 5.0Gbs Link speed supported (Gen 2)EP indicates a max Link Speed of 5.0 Gbs.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} MAXSPEED [3:0] = 4'b0001;
+
+	}; // end register plcapr
+
+	reg pcie_cap_link_control_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Pcie Cap Link Control";
+		desc = "Link Control Register";
+		regwidth = 16;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Reserved";
+			desc = "Reserved";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} RESERVED [15:12] = 4'b0000;
+
+		field {
+			name = "Lbwinte";
+			desc = "Link Autonomous Bandwidth Interrupt Enable - When set to 1b this bit enables the generation of an interrupt to indicate that the Link Autonomous Bandwidth Status bit has been set.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} LBWINTE [11:11] = 1'b0;
+
+		field {
+			name = "Lbwminte";
+			desc = "Link Bandwidth Management Interrupt Enable - When set to 1b this bit enables the generation of an interrupt to indicate that the Link Bandwidth Management Status bit has been set.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} LBWMINTE [10:10] = 1'b0;
+
+		field {
+			name = "Wd";
+			desc = "Hardware Autonomous Width Disable - When set to 1b this bit disables hardware from changing the link width for reasons other than attempting to correct unreliable link operation by reducing link width.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} WD [9:9] = 1'b0;
+
+		field {
+			name = "Eclkpm";
+			desc = "Enable Clock Power Management - Defined for PCIe Compliance";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} ECLKPM [8:8] = 1'b0;
+
+		field {
+			name = "Extsync";
+			desc = "Extended Sync. No effect on HQM";
+			PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal="prim_gated_rst_b";
+		} EXTSYNC [7:7] = 1'b0;
+
+		field {
+			name = "Cclkcfg";
+			desc = "Common Clock Configuration - No effect on HQM";
+			PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal="prim_gated_rst_b";
+		} CCLKCFG [6:6] = 1'b0;
+
+		field {
+			name = "Retrain";
+			desc = "Retrain Link: No effect on HQM";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} RETRAIN [5:5] = 1'b0;
+
+		field {
+			name = "Linkdis";
+			desc = "Link Disable: This bit disables the Link by directing the LTSSM to the Disabled state when set to 1b.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} LINKDIS [4:4] = 1'b0;
+
+		field {
+			name = "Rcb";
+			desc = "Read Completion Boundary (RCB): For PCIe Endpoints this field is set optionally by configuration software to indicate the RCB value of the Root Port upstream from the Endpoint.ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“ 0b = 64BÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“ 1b = 128 byte";
+			PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal="prim_gated_rst_b";
+		} RCB [3:3] = 1'b0;
+
+		field {
+			name = "Reserved2";
+			desc = "Reserved";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} RESERVED2 [2:2] = 1'b0;
+
+		field {
+			name = "Aspmc";
+			desc = "Active State Link PM Control - No effect on HQM";
+			PowerWell="vcccfn"; AccessType = "RW";
+            ResetSignal="prim_gated_rst_b";
+		} ASPMC [1:0] = 2'b00;
+
+	}; // end register plcntlr
+
+	reg pcie_cap_link_status_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Pcie Cap Link Status";
+		desc = "Link Status Register";
+		regwidth = 16;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Reserved";
+			desc = "Reserved";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} RESERVED [15:15] = 1'b0;
+
+		field {
+			name = "Lbwms";
+			desc = "Link Bandwidth Management Status";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} LBWMS [14:14] = 1'b0;
+
+		field {
+			name = "Dlact";
+			desc = "Data Link Layer Link Active";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} DLACT [13:13] = 1'b0;
+
+		field {
+			name = "Sclkcfg";
+			desc = "Slot Clock Configuration - When set indicates that EP uses the physical reference clock that the platform provides on the connector. This bit must be cleared if EP uses an independent clock.Defined for PCIe Compliance";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} SCLKCFG [12:12] = 1'b1;
+
+		field {
+			name = "Ltinprog";
+			desc = "Link Training - Indicates that link training is in progress.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} LTINPROG [11:11] = 1'b0;
+
+		field {
+			name = "Lte";
+			desc = "Link Training Error - Indicates that a link training error has occurred.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} LTE [10:10] = 1'b0;
+
+		field {
+			name = "Nlw";
+			desc = "Negotiated Link Width: Negotiated Link Width - Indicates the negotiated width of the link.Relevant encoding for EP are:000001b - x1000010b - x2000100b - x4001000b - x8010000b - x16Defined for PCIe Compliance";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} NLW [9:4] = 6'b000001;
+
+		field {
+			name = "Nls";
+			desc = "Negotiated Link Speed: The negotiated Link Speed. Defined encodings are:0001b - 2.5Gbs0010b - 5.0GbsDefined for PCIe Compliance";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} NLS [3:0] = 4'b0001;
+
+	}; // end register plsr
+
+	reg pcie_cap_device_cap_2_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Pcie Cap Device Cap_2";
+		desc = "Device Capabilities 2 Register";
+		regwidth = 32;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Reserved3";
+			desc = "Reserved";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} RESERVED3 [31:24] = 8'h00;
+
+		field {
+			name = "Maxe2etlpp";
+			desc = "Maximum End-End TLP Prefixes Supported.A value of 0 indicates support for 4 end to end TLP prefixes, else indicates the number of end to end TLP prefixes supported.";
+            PowerWell="vcccfn"; AccessType = "RO";
+		} MAXE2ETLPP [23:22] = 2'b01;
+
+		field {
+			name = "E2etlpps";
+			desc = "End-End TLP Prefix Supported.A value of 1b indicates support for end to end TLP prefixes.";
+            PowerWell="vcccfn"; AccessType = "RO";
+		} E2ETLPPS [21:21] = 1'b1;
+
+		field {
+			name = "Effs";
+			desc = "Extended Fmt Field Supported. If Set, the Function supports the 3-bit definition of the Fmt field. If Clear, the Function supports a 2-bit definition of the Fmt field.";
+            PowerWell="vcccfn"; AccessType = "RO";
+		} EFFS [20:20] = 1'b1;
+
+		field {
+			name = "Reserved2";
+			desc = "Reserved";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} RESERVED2 [19:18] = 2'h0;
+
+		field {
+			name = "Req10btags";
+			desc = "Requester 10b Tag Supported.A value of 1b indicates support for 10b tags as a requester.";
+            PowerWell="vcccfn"; AccessType = "RO";
+		} REQ10BTAGS [17:17] = 1'b0;
+
+		field {
+			name = "Cmp10btags";
+			desc = "Completer 10b Tag Supported.A value of 1b indicates support for 10b tags as a completer.";
+            PowerWell="vcccfn"; AccessType = "RO/V";
+		} CMP10BTAGS [16:16] = 1'b1;
+
+		field {
+			name = "Reserved";
+			desc = "Reserved";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} RESERVED [15:5] = 11'h000;
+
+		field {
+			name = "Ctods";
+			desc = "Completion Timeout Disable Supported.A value of 1b indicates support for the completion timeout disable mechanism.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} CTODS [4:4] = 1'b1;
+
+		field {
+			name = "Ctors";
+			desc = "Completion Timeout Ranges Supported:This field indicates support for the optional completion timeout programmability mechanism. This mechanism enables system software to modify the completion timeout value.Four time value ranges are defined:Bits are set according to the following table to show the timeout value ranges that are supported.It is strongly recommended that the completion timeout mechanism not expire in less than 10 ms";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} CTORS [3:0] = 4'b0000;
+
+	}; // end register pdcapr2
+
+	reg pcie_cap_device_control_2_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Pcie Cap Device Control_2";
+		desc = "Device Control 2 Register";
+		regwidth = 16;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Reserved1";
+			desc = "Reserved1";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} RESERVED1 [15:9] = 7'h00;
+
+		field {
+			name = "Eido";
+			desc = "Enable ID Based Ordering: If this bit is set, EP is permitted to set the ID Based Ordering bit in the Attributes field of transactions it initiates.Note that seting this bit does not cause the EP to set the IDO on every transaction it issues.";
+			PowerWell="vcccfn"; AccessType = "RW";
+		} EIDO [8:8] = 1'b0;
+
+		field {
+			name = "Reserved0";
+			desc = "Reserved0";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} RESERVED0 [7:5] = 3'h0;
+
+		field {
+			name = "Ctodis";
+			desc = "Completion Timeout Disable:When set to 1b, this bit disables the completion timeout mechanism. Software is permitted to set or clear this bit at any time. When set, the completion timeout detection mechanism is disabled. If there are outstanding requests when the bit is cleared, it is permitted but not required for hardware to apply the completion timeout mechanism to the outstanding requests. If this is done, it is permitted to base the start time for each request on either the time this bit was cleared or the time each request was issued.The default value for this bit is 0b.";
+			PowerWell="vcccfn"; AccessType = "RW";
+		} CTODIS [4:4] = 1'b0;
+
+		field {
+			name = "Ctov";
+			desc = "Completion Timeout Value:In devices that support completion timeout programmability, this field enables system software to modify the completion timeout value.Encoding:Values not defined are reserved.Software is permitted to change the value in this field at any time. For requests already pending when the completion timeout value is changed, hardware is permitted to use either the new or the old value for the outstanding requests and is permitted to base the start time for each request either when this value was changed or when each request was issued.The default value for this field is 0000b.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} CTOV [3:0] = 4'b0000;
+
+	}; // end register pdcntr2
+
+	pcie_cap_id_r                   PCIE_CAP_ID                     @0x0;
+
+	pcie_cap_next_cap_ptr_r         PCIE_CAP_NEXT_CAP_PTR           @0x1;
+
+	pcie_cap_r                      PCIE_CAP                        @0x2;
+
+	pcie_cap_device_cap_r           PCIE_CAP_DEVICE_CAP             @0x4;
+
+	pcie_cap_device_control_r       PCIE_CAP_DEVICE_CONTROL         @0x8;
+
+	pcie_cap_device_status_r        PCIE_CAP_DEVICE_STATUS          @0xa;
+
+      <% if ($HQM_PF_CFG_REG_EP == 1) { %>
+	pcie_cap_link_cap_r             PCIE_CAP_LINK_CAP               @0xc;
+	pcie_cap_link_control_r         PCIE_CAP_LINK_CONTROL           @0x10;
+	pcie_cap_link_status_r          PCIE_CAP_LINK_STATUS            @0x12;
+      <% } %>
+
+	pcie_cap_device_cap_2_r         PCIE_CAP_DEVICE_CAP_2           @0x24;
+
+	pcie_cap_device_control_2_r     PCIE_CAP_DEVICE_CONTROL_2       @0x28;
+
+};
+

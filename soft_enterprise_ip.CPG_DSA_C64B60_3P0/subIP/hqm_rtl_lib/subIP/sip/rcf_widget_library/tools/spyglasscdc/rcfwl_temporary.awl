@@ -1,0 +1,16 @@
+#SNPS tool issue. Temp waiver pending resolution, probably SP2-13
+ 
+waive -msg {Unsynchronized reset crossing detected from * '*' (*et: '*', Clock: '*') to * '*ctech_*sync*[*][*]' (*et: '*', Clock: '*'). Reason: Qualifier not found}  -rule {  {Ar_resetcross01}  }  -comment {SNPS  Tool issue. RDC paths ending at doublesync should be filtered. Star #9001410898 }
+ 
+waive -msg {Unsynchronized reset crossing detected from * '*' (*et: '*') to * '*ctech_*sync*[*][*]' (*et: '*'), that are clocked by '*'. Reason: Qualifier not found}  -rule {  {Ar_resetcross01}  }  -comment {SNPS Tool issue. RDC paths ending at doublesync should be filtered. Star #9001410898 }
+ 
+#SNPS tool and CDCLint issue
+waive -msg {Synchronized reset crossing detected from  *} -severity {  {Info}  }  -rule {  {Ar_resetcross01}  }  -comment {Created by aradhak2: Spyglass reporting and CDCLint parsing issue. Info severity should be ignored}
+
+#SNPS tool issue. Temp waiver pending resolution, probably SP2-13
+waive -msg {Unsynchronized reset crossing detected from * '*' (*et: '*', Clock: '*') to * '*ctech_*sync*[*][*]' (*et: '*', Clock: '*'). Reason: *}  -rule {  {Ar_resetcross01}  }  -comment {SNPS Tool issue. RDC paths ending at doublesync should be filtered. Star #9001410898 } 
+waive -msg {Unsynchronized reset crossing detected from * '*' (*et: '*') to * '*ctech_*sync*[*][*]' (*et: '*'), that are clocked by '*'. Reason: *}  -rule {  {Ar_resetcross01}  }  -comment {SNPS Tool issue. RDC paths ending at doublesync should be filtered. Star #9001410898 }
+
+#waivers due to design intent
+waive -msg {Destination flop 'hqm_rcfwl_cdc_wrapper.CDC.u_CdcMainClock.\AsyncReqXC[*].u_gClockReqAsyncSync .ctech_lib_doublesync_rstb1.sync[*][*]' clocked by 'hqm_rcfwl_cdc_wrapper.clock' can glitch (1 source(s), 1 domain(s)). Reason :'Source is port,Presence of combinational logic specified through constraint'}  -rule {  {Ac_glitch03}  }  -comment {specification is for input to be glitch free} 
+waive -msg {Destination flop 'hqm_rcfwl_cdc_wrapper.CDC.u_CdcPgcbClock.\AsyncReqXC[*].u_gClockReqAsyncPG .ctech_lib_doublesync_rstb1.sync[*][*]' clocked by 'hqm_rcfwl_cdc_wrapper.pgcb_clk' can glitch (1 source(s), 1 domain(s)). Reason :'Source is port,Presence of combinational logic specified through constraint'}  -rule {  {Ac_glitch03}  }  -comment {Created by kcorrell on 03-Dec-2018 11:52:30} 

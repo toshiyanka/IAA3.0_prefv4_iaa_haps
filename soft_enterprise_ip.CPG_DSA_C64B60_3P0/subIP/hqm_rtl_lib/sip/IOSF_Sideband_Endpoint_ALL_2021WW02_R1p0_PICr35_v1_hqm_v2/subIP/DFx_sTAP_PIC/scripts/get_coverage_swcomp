@@ -1,0 +1,79 @@
+#!/bin/csh -f
+
+\cp source/rtl/include/configs/stap_params_include_max_swcomp.inc     source/rtl/include/stap_params_include.inc
+\cp verif/tb/include/configs/tb_param_max_swcomp.inc                  verif/tb/include/tb_param.inc
+\cp verif/tb/include/configs/STapTop_swcomp_isol_en.sv             verif/tb/STapTop.sv
+
+ace -cc  -cc_on -ccm branch+line+tgl+cond+fsm+assert -elab_models -pwa pwa_swcomp
+
+ace -x -t TapTestRegisterAccess -test_in_model -cc_on -ccm branch+line+tgl+cond+fsm+assert -test_elab_opts "-lca" -pwa pwa_swcomp
+urg -dir $IP_ROOT/pwa_swcomp/results/vcs_lib/$VCS_VER/models/stap_model/stap_model.simv.vdb/ -dir $IP_ROOT/pwa_swcomp/results/tests/TapTestRegisterAccess/TapTestRegisterAccess.simv.vdb/ -dbname TapTestRegisterAccess
+
+
+ace -x -t TapTestRandom -test_in_model -cc_on -ccm branch+line+tgl+cond+fsm+assert -test_elab_opts "-lca" -pwa pwa_swcomp
+urg -dir $IP_ROOT/pwa_swcomp/results/vcs_lib/$VCS_VER/models/stap_model/stap_model.simv.vdb/ -dir $IP_ROOT/pwa_swcomp/results/tests/TapTestRandom/TapTestRandom.simv.vdb/ -dbname TapTestRandom
+
+ace -x -t TapTestRemoteTDR -test_in_model -cc_on -ccm branch+line+tgl+cond+fsm+assert -test_elab_opts "-lca" -pwa pwa_swcomp
+urg -dir $IP_ROOT/pwa_swcomp/results/vcs_lib/$VCS_VER/models/stap_model/stap_model.simv.vdb/ -dir $IP_ROOT/pwa_swcomp/results/tests/TapTestRemoteTDR/TapTestRemoteTDR.simv.vdb/ -dbname TapTestRemoteTDR
+
+ace -x -t TapTestTmsGlitch -test_in_model -cc_on -ccm branch+line+tgl+cond+fsm+assert -test_elab_opts "-lca" -pwa pwa_swcomp
+urg -dir $IP_ROOT/pwa_swcomp/results/vcs_lib/$VCS_VER/models/stap_model/stap_model.simv.vdb/ -dir $IP_ROOT/pwa_swcomp/results/tests/TapTestTmsGlitch/TapTestTmsGlitch.simv.vdb/ -dbname TapTestTmsGlitch
+
+ace -x -t TapTestFsmStates -test_in_model -cc_on -ccm branch+line+tgl+cond+fsm+assert -test_elab_opts "-lca" -pwa pwa_swcomp
+urg -dir $IP_ROOT/pwa_swcomp/results/vcs_lib/$VCS_VER/models/stap_model/stap_model.simv.vdb/ -dir $IP_ROOT/pwa_swcomp/results/tests/TapTestFsmStates/TapTestFsmStates.simv.vdb/ -dbname TapTestFsmStates
+
+ace -x -t TapTestBypass -test_in_model -cc_on -ccm branch+line+tgl+cond+fsm+assert -test_elab_opts "-lca" -pwa pwa_swcomp
+urg -dir $IP_ROOT/pwa_swcomp/results/vcs_lib/$VCS_VER/models/stap_model/stap_model.simv.vdb/ -dir $IP_ROOT/pwa_swcomp/results/tests/TapTestBypass/TapTestBypass.simv.vdb/ -dbname TapTestBypass
+
+ace -x -t TapTestBoundaryRegisterAccess -test_in_model -cc_on -ccm branch+line+tgl+cond+fsm+assert -test_elab_opts "-lca" -pwa pwa_swcomp
+urg -dir $IP_ROOT/pwa_swcomp/results/vcs_lib/$VCS_VER/models/stap_model/stap_model.simv.vdb/ -dir $IP_ROOT/pwa_swcomp/results/tests/TapTestBoundaryRegisterAccess/TapTestBoundaryRegisterAccess.simv.vdb/ -dbname TapTestBoundaryRegisterAccess
+
+ace -x -t TapTestNetworkRegisterAccess -test_in_model -cc_on -ccm branch+line+tgl+cond+fsm+assert -test_elab_opts "-lca" -pwa pwa_swcomp
+urg -dir $IP_ROOT/pwa_swcomp/results/vcs_lib/$VCS_VER/models/stap_model/stap_model.simv.vdb/ -dir $IP_ROOT/pwa_swcomp/results/tests/TapTestNetworkRegisterAccess/TapTestNetworkRegisterAccess.simv.vdb/ -dbname TapTestNetworkRegisterAccess
+
+ace -x -t TapTestOnlyBypass -test_in_model -cc_on -ccm branch+line+tgl+cond+fsm+assert -test_elab_opts "-lca" -pwa pwa_swcomp
+urg -dir $IP_ROOT/pwa_swcomp/results/vcs_lib/$VCS_VER/models/stap_model/stap_model.simv.vdb/ -dir $IP_ROOT/pwa_swcomp/results/tests/TapTestOnlyBypass/TapTestOnlyBypass.simv.vdb/ -dbname TapTestOnlyBypass
+
+ace -x -t TapTestOnlySLVIDCODE -test_in_model -cc_on -ccm branch+line+tgl+cond+fsm+assert -test_elab_opts "-lca" -pwa pwa_swcomp
+urg -dir $IP_ROOT/pwa_swcomp/results/vcs_lib/$VCS_VER/models/stap_model/stap_model.simv.vdb/ -dir $IP_ROOT/pwa_swcomp/results/tests/TapTestOnlySLVIDCODE/TapTestOnlySLVIDCODE.simv.vdb/ -dbname TapTestOnlySLVIDCODE
+
+ace -x -t TapTestBoundaryRegisterAccessWoReset -test_in_model -cc_on -ccm branch+line+tgl+cond+fsm+assert -test_elab_opts "-lca" -pwa pwa_swcomp
+urg -dir $IP_ROOT/pwa_swcomp/results/vcs_lib/$VCS_VER/models/stap_model/stap_model.simv.vdb/ -dir $IP_ROOT/pwa_swcomp/results/tests/TapTestBoundaryRegisterAccessWoReset/TapTestBoundaryRegisterAccessWoReset.simv.vdb/ -dbname TapTestBoundaryRegisterAccessWoReset
+
+ace -x -t TapTestReservedOpcodeAccess -test_in_model -cc_on -ccm branch+line+tgl+cond+fsm+assert -test_elab_opts "-lca" -pwa pwa_swcomp
+urg -dir $IP_ROOT/pwa_swcomp/results/vcs_lib/$VCS_VER/models/stap_model/stap_model.simv.vdb/ -dir $IP_ROOT/pwa_swcomp/results/tests/TapTestReservedOpcodeAccess/TapTestReservedOpcodeAccess.simv.vdb/ -dbname TapTestReservedOpcodeAccess
+
+ace -x -t TapTestOrangeGreenRegisterAccess -test_in_model -cc_on -ccm branch+line+tgl+cond+fsm+assert -test_elab_opts "-lca" -pwa pwa_swcomp
+urg -dir $IP_ROOT/pwa_swcomp/results/vcs_lib/$VCS_VER/models/stap_model/stap_model.simv.vdb/ -dir $IP_ROOT/pwa_swcomp/results/tests/TapTestOrangeGreenRegisterAccess/TapTestOrangeGreenRegisterAccess.simv.vdb/ -dbname TapTestOrangeGreenRegisterAccess
+
+ace -x -t TapTestGreenRegisterAccess -test_in_model -cc_on -ccm branch+line+tgl+cond+fsm+assert -test_elab_opts "-lca" -pwa pwa_swcomp
+urg -dir $IP_ROOT/pwa_swcomp/results/vcs_lib/$VCS_VER/models/stap_model/stap_model.simv.vdb/ -dir $IP_ROOT/pwa_swcomp/results/tests/TapTestGreenRegisterAccess/TapTestGreenRegisterAccess.simv.vdb/ -dbname TapTestGreenRegisterAccess
+
+ace -x -t Rd_tdr_isol_en_test -test_in_model -cc_on -ccm branch+line+tgl+cond+fsm+assert -test_elab_opts "-lca" -pwa pwa_swcomp
+urg -dir $IP_ROOT/pwa_swcomp/results/vcs_lib/$VCS_VER/models/stap_model/stap_model.simv.vdb/ -dir $IP_ROOT/pwa_swcomp/results/tests/Rd_tdr_isol_en_test/Rd_tdr_isol_en_test.simv.vdb/ -dbname Rd_tdr_isol_en_test
+
+\cp verif/tb/include/configs/tb_param_default.inc              verif/tb/include/tb_param.inc
+\cp source/rtl/include/configs/stap_params_include_tdo_posedge.inc source/rtl/include/stap_params_include.inc
+\cp verif/tb/include/configs/STapTop_tdo_posedge.sv                verif/tb/STapTop.sv
+
+ace -cc -cc_on -ccm branch+line+tgl+cond+fsm+assert -elab_models -pwa pwa1_swcomp
+
+ace -x -t TapTestRandom -test_in_model -cc_on -ccm branch+line+tgl+cond+fsm+assert -test_elab_opts "-lca" -pwa pwa1_swcomp
+urg -dir $IP_ROOT/pwa1_swcomp/results/vcs_lib/$VCS_VER/models/stap_model/stap_model.simv.vdb/ -dir $IP_ROOT/pwa1_swcomp/results/tests/TapTestRandom/TapTestRandom.simv.vdb/ -dbname TapTestRandom_1
+
+urg -dir TapTestRemoteTDR.vdb -dir TapTestRandom.vdb -dir TapTestBypass.vdb -dir TapTestTmsGlitch.vdb -dir TapTestFsmStates.vdb -dir TapTestRegisterAccess.vdb -dir TapTestBoundaryRegisterAccess.vdb -dir TapTestNetworkRegisterAccess.vdb -dir TapTestOnlyBypass.vdb -dir TapTestOnlySLVIDCODE.vdb -dir TapTestBoundaryRegisterAccessWoReset.vdb -dir TapTestReservedOpcodeAccess.vdb -dir TapTestOrangeGreenRegisterAccess.vdb -dir TapTestGreenRegisterAccess.vdb -dir Rd_tdr_isol_en_test.vdb TapTestRandom_1.vdb -dbname Merge_swcomp
+
+grep -ir status $IP_ROOT/pwa_swcomp/results/tests/*/postsim.log
+grep -ir status $IP_ROOT/pwa1_swcomp/results/tests/*/postsim.log
+
+\rm -r TapTestRemoteTDR.vdb TapTestRandom.vdb TapTestBypass.vdb TapTestFsmStates.vdb TapTestRegisterAccess.vdb TapTestTmsGlitch.vdb TapTestBoundaryRegisterAccess.vdb TapTestNetworkRegisterAccess.vdb TapTestOnlyBypass.vdb TapTestOnlySLVIDCODE.vdb TapTestBoundaryRegisterAccessWoReset.vdb TapTestReservedOpcodeAccess.vdb TapTestOrangeGreenRegisterAccess.vdb TapTestGreenRegisterAccess.vdb Rd_tdr_isol_en_test.vdb TapTestRandom_1.vdb 
+
+urg -dir $IP_ROOT/Merge_swcomp.vdb/ -hier $IP_ROOT/scripts/coverage_inclusion.txt -elfile $IP_ROOT/verif/tb/include/stap_cov_exclusions_swcomp.el -elfile $IP_ROOT/verif/tb/include/stap_drreg_line_exclusions.el -excl_bypass_checks -report AllCov_swcomp -format both
+
+firefox AllCov_swcomp/urgReport/dashboard.html &
+
+cd $IP_ROOT
+
+\cp source/rtl/include/configs/stap_params_include_default.inc source/rtl/include/stap_params_include.inc
+\cp verif/tb/include/configs/tb_param_default.inc              verif/tb/include/tb_param.inc
+\cp verif/tb/include/configs/STapTop_def_ext_lb.sv             verif/tb/STapTop.sv

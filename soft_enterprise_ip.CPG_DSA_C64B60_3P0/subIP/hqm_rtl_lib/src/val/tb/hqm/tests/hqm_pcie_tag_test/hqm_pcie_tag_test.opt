@@ -1,0 +1,40 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => [
+            "+AW_CONTINUE_ON_ERROR", "+iosf_tracker_filename=iosf_trk", "-assert nopostproc", " +HQM_PCIE_RC_VIP_PRESENT", "+SLA_PCIE_FLUSH_PHASE_TIMEOUT=10000000", "+SLA_FLUSH_PHASE_TIMEOUT=600000", "+SLA_MAX_RUN_CLOCK=10000000", "+HQM_PVC_AUTO_TAG_GEN_DIS", "+vcs+lic+wait",
+            ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+      disable_ten_bit_tag   => { 
+          -simv_args => 
+            ["+HQM_TEN_BIT_TAG_DISABLE",
+            ],
+            },
+      sec_2_2_6_2 => { 
+          -simv_args => ["",],  
+          },
+      duplicate_req_id  => {
+          -simv_args => 
+            ["+HQM_TAG_GEN_SEQ_MODE=duplicate_req_id ",
+            ],
+            },
+      unique_random_req_id  => { 
+          -simv_args => 
+          ["+HQM_TAG_GEN_SEQ_MODE=unique_random_req_id ",
+          ],  },
+      pf_tags   => { 
+           -simv_args => 
+            ["",
+            ],
+            },
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+

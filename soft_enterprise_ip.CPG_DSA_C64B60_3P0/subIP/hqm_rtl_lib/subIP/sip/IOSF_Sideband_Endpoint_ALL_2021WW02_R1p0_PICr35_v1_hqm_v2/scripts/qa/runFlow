@@ -1,0 +1,148 @@
+#!/bin/tcsh -f
+
+source ./runPre -tool_name $0 $argv -no_env_checks
+if( $status != 0 ) exit $status
+
+# If running in non-dynamo mode, several env variables need to be set.
+if ( $dynopt == "nonDyn") then
+   if (! $?SIP_CONF_NAME) then
+      echo "${SIP_TOOL_NAME} -E- SIP_CONF_NAME must be set when using ${SIP_TOOL_NAME} in non-Dynamo mode"
+      exit 1
+   endif
+   if (! $?PUNI_PREFIX) then
+      echo "${SIP_TOOL_NAME} -E- PUNI_PREFIX must be set when using ${SIP_TOOL_NAME} in non-Dynamo mode"
+      exit 1
+   endif
+else
+   # When running in Dynamo mode, SIP_CONF_NAME doesn't have to be set. However,
+   # it needs to be tested to know if an Endpoint flow is being run. Here,
+   # the variable is set, if it isn't already, to avoid compilation errors.
+   # needs to always be set because the ENV may contain bad values. :)
+   setenv SIP_CONF_NAME
+   setenv PUNI_PREFIX
+endif
+
+
+#####################################
+#                                   #
+#     Running SFM flow for Endpoint #
+#                                   #
+#####################################
+
+if ($SIP_CONF_NAME == "IOSF_Sideband_Endpoint") then
+   # Running on an endpoint configuration
+   runFullConfig -endpoint
+   set exitstatus=$status
+
+   if( $exitstatus ) then
+      echo "${SIP_TOOL_NAME} -E- runFullConfig -endpoint returned with errors"
+      exit $exitstatus
+   else
+      echo "${SIP_TOOL_NAME} -I- Running SFM Endpoint flow with job name $nb_job_name"
+      #leaving sfm as there is no equalent path in hdk
+      /p/com/eda/intel/sfm/2.0/bin/sfm \
+                                     sbe.value \
+                                     -nb \
+                                     -a sbe.array \
+                                     -flow ./sbe.flow \
+                                     -ld ../../tools/logs/ \
+                                     -equ $flow_equ \
+                                     -title $nb_job_name \
+                                     -exp 3 \
+                                     -Q /EIG/FABRIC/RTL/sb \
+                   		     -C SLES10_EM64T_2G \
+                                     -bn $nb_job_name \
+				     -P fm_normal 
+    	                             
+      set exitstatus=$status
+      if( $exitstatus ) then
+         echo "${SIP_TOOL_NAME} -E- SFM failed for endpoint"
+         exit $exitstatus
+      else
+         echo "${SIP_TOOL_NAME} -I- SFM completed successfully for endpoint"
+      endif
+   endif
+
+#####################################
+#                                   #
+#    Running SFM flow for Router    #
+#                                   #
+#####################################
+else 
+   # Dynamo runs runFullConfig for us; only call runFullConfig in non-dynamo mode
+   if ($dynopt == "nonDyn") then
+      runFullConfig -conf ${SIP_CONF_NAME}
+      set exitstatus=$status
+      
+      if( $exitstatus ) then
+         echo "${SIP_TOOL_NAME} -E- runFullConfig -conf ${SIP_CONF_NAME} returned with errors"
+         exit $exitstatus
+      else
+         # Create sbr.value file from template if we are running in non-dynamo mode.
+         echo "${SIP_TOOL_NAME} -I- Generating sbr.value file for ${SIP_CONF_NAME}, ${PUNI_PREFIX}"
+         cp sbr.value.tmpl sbr.value
+         perl -pi -e 's/confName/'$SIP_CONF_NAME'/g' sbr.value
+         perl -pi -e 's/puniPrefix/'$PUNI_PREFIX'/g' sbr.value
+      endif
+      
+
+      # When running non-dynamo mode, the ACE prescript needs to be run to generate file
+      # lists.
+      cd ../../ace/
+      iosf_sbc_pre_script -cc -m ${SIP_CONF_NAME}
+      set exitstatus=$status
+
+      if( $exitstatus ) then
+         echo "${SIP_TOOL_NAME} -E- iosf_sbc_prescript returned with errors"
+         exit $exitstatus
+      endif
+      cd -
+
+
+      echo "${SIP_TOOL_NAME} -I- Running SFM Router Non-Dynamo Flow with job name $nb_job_name"
+      /p/com/eda/intel/sfm/2.0/bin/sfm \
+                                     sbr.value \
+                                     -nb \
+                                     -a sbr.array \
+                                     -flow ./sbr.flow \
+                                     -ld ../../tools/logs/ \
+                                     -equ $flow_equ \
+                                     -title $nb_job_name \
+                                     -exp 3 \
+                                     -Q /EIG/FABRIC/RTL/sb \
+				     -C SLES10_EM64T_2G \
+                                     -bn $nb_job_name \
+				      -P fm_normal 
+
+                                            set exitstatus=$status
+      if( $exitstatus ) then
+         echo "${SIP_TOOL_NAME} -E- SFM failed for router configuration ${SIP_CONF_NAME}, ${PUNI_PREFIX}"
+         exit $exitstatus
+      else
+         echo "${SIP_TOOL_NAME} -I- SFM completed successfully for router configuration ${SIP_CONF_NAME}, ${PUNI_PREFIX}"
+      endif
+   else
+      echo "${SIP_TOOL_NAME} -I- Running SFM Dynamo Router Flow with job name $nb_job_name"
+      /p/com/eda/intel/sfm/2.0/bin/sfm \
+                                         sbr_dyn.value \
+                                         -nb \
+                                         -a sbr.array \
+                                         -flow ./sbr_dyn.flow \
+                                         -ld  ../../tools/logs/ \
+                                         -equ $flow_equ \
+                                         -title $nb_job_name \
+                                         -exp 3 \
+                                         -Q /EIG/FABRIC/RTL/sb \
+					 -C SLES10_EM64T_2G \
+                                         -bn $nb_job_name  \
+				         -P fm_normal 
+      set exitstatus=$status
+      if( $exitstatus ) then
+         echo "${SIP_TOOL_NAME} -E- SFM failed for dynamo router configuration ${SIP_CONF_NAME}, ${PUNI_PREFIX}"
+         exit $exitstatus
+      else
+         echo "${SIP_TOOL_NAME} -I- SFM completed successfully for dynamo router configuration"
+      endif
+   endif
+endif
+

@@ -1,0 +1,37 @@
+
+iProcsForModule [get_single_name [get_current_design -icl]] 
+
+# Test to validate TLR reset of HTAP TAPSELECT registers
+iTopProc htap_tapselect_tlr_test {} {
+
+   iNote "-INFO- Starting TLR reset test for HTAP TAPSELECT registers..."
+
+   # find all TAPSELECT registers in the design (Intel-specific)
+   set tapselect_module_names {*intel_htap_sel*}
+   set tapselect_regs [tap_utils::find_regs $tapselect_module_names {}]
+   iNote "-INFO- List of HTAP TAPSELECT registers [get_name_list $tapselect_regs]"
+   
+   foreach_in_collection reg $tapselect_regs {
+
+      set reg_name [get_single_name $reg]
+      iNote "-INFO- \[init phase\] Testing TLR reset for register: $reg_name"
+      
+      iWrite $reg_name 0b01
+      iRead  $reg_name 0bx
+      iApply
+      
+      iWrite $reg_name 0b01
+      iRead  $reg_name 0b01
+      iApply
+
+      iNote "-INFO- Applying TLR reset..."
+      iCall tap_reset TLR
+
+      iNote "-INFO- \[check phase\] Checking value after TLR reset for register: $reg_name"
+
+      iWrite $reg_name 0b10
+      iRead  $reg_name 0b10
+      iApply
+      
+   }
+}

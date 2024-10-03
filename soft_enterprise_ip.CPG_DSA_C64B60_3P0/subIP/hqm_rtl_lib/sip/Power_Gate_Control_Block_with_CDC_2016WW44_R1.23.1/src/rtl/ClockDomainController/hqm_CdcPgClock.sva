@@ -1,0 +1,70 @@
+`ifndef INTEL_DC
+
+   //assert_clkreq must lead clkreq_hold
+   aClkreqAssertLeadsHold: assert property ( @(posedge pgcb_clk) disable iff((pgcb_reset_b!==1) || ($past(pgcb_reset_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+      !$stable(assert_clkreq_pg) |-> ($past(clkreq_hold_pg)!=assert_clkreq_pg) && (clkreq_hold_pg!=assert_clkreq_pg)
+   );
+    
+   //clkreq_hold must follow assert_clkreq
+   aClkreqHoldFollowsAssert: assert property ( @(posedge pgcb_clk) disable iff((pgcb_reset_b!==1) || ($past(pgcb_reset_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+      !$stable(clkreq_hold_pg) |-> ($past(assert_clkreq_pg)==clkreq_hold_pg) && (assert_clkreq_pg==clkreq_hold_pg)
+   );
+
+   //assertion of clkreq can only be due to assert_clkreq
+   aClkreqAssertion: assert property ( @(posedge pgcb_clk) disable iff((pgcb_reset_b!==1) || ($past(pgcb_reset_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+      $rose(clkreq) |-> assert_clkreq_pg && !$past(clkreq_hold_pg)
+   );
+   aClkreqAssertion2: assert property ( @(posedge pgcb_clk) disable iff((pgcb_reset_b!==1) || ($past(pgcb_reset_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+      $rose(assert_clkreq_pg) |-> $rose(clkreq)
+   );
+
+   //deassert of clkreq can only be due to clkreq_hold
+   aClkreqDeassertion: assert property ( @(posedge pgcb_clk) disable iff((pgcb_reset_b!==1) || ($past(pgcb_reset_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+      $fell(clkreq) |-> !$past(clkreq_hold_pg) && !$past(assert_clkreq_pg)
+    );
+   aClkreqDeassertion2: assert property ( @(posedge pgcb_clk) disable iff((pgcb_reset_b!==1) || ($past(pgcb_reset_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+      $fell(clkreq_hold_pg) |-> ##1 $fell(clkreq)
+   );
+      
+      // cdc_restore_pg needs to clear when the isms are unlocked and pgcb_restore is deasserted to
+      // allow exit from RESTORE state
+      aCdcRestoreDeassert: assert property ( @(posedge pgcb_clk) disable iff((pgcb_reset_b!==1) || ($past(pgcb_reset_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+         !pgcb_restore && !ism_locked_pg |-> ##1 !cdc_restore_pg
+      );
+
+   //-- fismdfx_force_clkreq --//
+      //If force_clkreq asserts and clkreq/clkack=0, clkreq should assert
+      aDFxForceClkreq: assert property ( @(posedge pgcb_clk) disable iff((pgcb_reset_b!==1) || ($past(pgcb_reset_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+         $rose(fismdfx_force_clkreq_pg) && clkreq_start_ok && pgcb_pok |-> ##1 clkreq
+      );
+      // If force_clkreq asserts -> not power-gate ready
+      aDFxForceClkreqNotPGRdy: assert property ( @(posedge pgcb_clk) disable iff((pgcb_reset_b!==1) || ($past(pgcb_reset_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+         fismdfx_force_clkreq_pg && !force_ready_pg && pgcb_pok |-> !pwrgate_ready
+      );
+      // If force_clkreq asserts and the domain is locked -> unlock the domain
+      aDFxForceClkreqUnlock: assert property ( @(posedge pgcb_clk) disable iff((pgcb_reset_b!==1) || ($past(pgcb_reset_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+         fismdfx_force_clkreq_pg && locked_pg && !pgcb_pwrgate_active && !pwrgate_force |-> ##1 unlock_domain_pg 
+      );
+
+
+   //-- restore_wake_pg --//
+      //If pgcb_restore deasserts -> restore_wake_pg should be asserted 
+      aRestoreWakeAssert: assert property ( @(posedge pgcb_clk) disable iff((pgcb_reset_b!==1) || ($past(pgcb_reset_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+         $fell(pgcb_restore) |-> ##1 restore_wake_pg
+      );
+      //if restore_wake is asserted and !restore -> unlock domain
+      aRestoreWakeUnlock: assert property ( @(posedge pgcb_clk) disable iff((pgcb_reset_b!==1) || ($past(pgcb_reset_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+         restore_wake_pg && !pgcb_restore && !pgcb_pwrgate_active && locked_pg && !ism_locked_pg |-> ##1 unlock_domain_pg
+      );
+      //If restore_wake deasserts, domain should be unlocked 
+      aRestoreWakeDeassert: assert property ( @(posedge pgcb_clk) disable iff((pgcb_reset_b!==1) || ($past(pgcb_reset_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+         $fell(restore_wake_pg) |-> !locked_pg 
+      );
+
+   //-- ism_wake --//
+      //If pgcb_restore deasserts -> restore_wake_pg should be asserted 
+      aISMWakeClkreq: assert property ( @(posedge pgcb_clk) disable iff((pgcb_reset_b!==1) || ($past(pgcb_reset_b, 1, 1, @(posedge pgcb_clk)) !== 1))
+         ism_wake_pg && clkreq_start_ok && pgcb_pok |-> ##1 clkreq
+      );
+
+`endif

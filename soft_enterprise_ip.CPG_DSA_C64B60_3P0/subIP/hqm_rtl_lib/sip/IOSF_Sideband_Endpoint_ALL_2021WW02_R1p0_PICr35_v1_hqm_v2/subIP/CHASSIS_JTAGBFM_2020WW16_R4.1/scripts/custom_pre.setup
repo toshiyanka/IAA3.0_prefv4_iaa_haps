@@ -1,0 +1,53 @@
+#!/usr/intel/bin/tcsh -f
+
+printf "\n\nRemoving existing environment variables....."
+unsetenv SIP_PROJECT
+unsetenv PROJECT_BASE
+
+unsetenv ACE_ENG
+unsetenv ACE_PROJECT
+unsetenv ACE_RC
+unsetenv ACE_PWA_DIR
+
+unsetenv CAD_ROOT
+unsetenv LIB_AREA
+unsetenv GCC_LIB_VER
+
+unsetenv DW_LICENSE_OVERRIDE
+unsetenv LM_LICENSE_FILE
+unsetenv SNPSLMD_LICENSE_FILE
+unsetenv LD_LIBRARY_PATH
+
+unsetenv MTAP_VER 
+unsetenv TAPNW_VER
+unsetenv STAP_VER 
+
+printf "Done\n\n\n"
+
+if ( ! $?IP_ROOT ) then
+  echo "ERROR: Must set IP_ROOT env variable first"
+  exit 1
+endif
+
+printf "Setting up environment variables....."
+
+setenv SIP_PROJECT dfx
+setenv PROJECT_BASE ${IP_ROOT}
+
+#For Ace
+setenv ACE_ENG ${PROJECT_BASE}
+setenv ACE_PROJECT jtagbfm 
+setenv ACE_RC ${PROJECT_BASE}/ace/$ACE_PROJECT.acerc
+setenv ACE_PWA_DIR pwa
+
+#For compilation
+setenv LIB_AREA ${PROJECT_BASE}/verif/lib
+setenv GCC_LIB_VER 4.9.2
+
+#For subIP
+setenv STAP_VER ${IP_ROOT}/subIP/ip-stap
+setenv MTAP_VER ${IP_ROOT}/subIP/ip-master-tap
+setenv TAPNW_VER ${IP_ROOT}/subIP/ip-tap-network
+
+printf "Done!\n\n"
+echo "Setting up tools....\n\n"

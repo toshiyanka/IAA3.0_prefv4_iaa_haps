@@ -1,0 +1,44 @@
+setenv ACE_ENG      `realpath $IP_ROOT/..`
+setenv ACE_PROJECT  IOSF_SBC_EP
+setenv ACE_PWA_DIR  `basename $IP_ROOT`
+setenv ACE_RC       $IP_ROOT/ace/iosf_sbc_ep.acerc
+
+setenv ACE_CDC_VER  v20141110
+setenv LM_PROJECT EIG_FABRIC
+setenv LD_LIBRARY_PATH ${IP_ROOT}/verif/bfm/sideband_vc/svlib/bin:${LD_LIBRARY_PATH}
+setenv DEBUSSY_HOME $VERDI_HOME
+#setenv MGLS_LICENSE_FILE 1717@plxs0352.pdx.intel.com:1717@ilic2003.iil.intel.com:$MGLS_LICENSE_FILE
+setenv MGLS_LICENSE_FILE 1717@fmylic01a.fm.intel.com:1717@pgllic10.png.intel.com:1717@plxs0409.pdx.intel.com:1717@chslic03.ch.intel.com:1717@chslic04.ch.intel.com:1717@pgllic10.png.intel.com:1717@pgllic11.png.intel.com:1717@pgllic12.png.intel.com:1717@ilic1010.iil.intel.com
+
+setenv SIP_TOOL_VARIATION ep_${SIP_TOOL_VARIATION}
+
+cd ${IP_ROOT}
+/usr/intel/bin/perl ace/setup_libxml
+setenv NBPOOL fm_normal
+setenv NBQSLOT /EIG/FABRIC/RTL/sb
+setenv NBCLASS SLES11_EM64T_2G
+
+# JESSE: Adding in CDC flow events - START
+if( -d /p/com/eda/intel/cdc/${ACE_CDC_VER}/ ) then
+   echo "custom_post.ep.setup -I- Pulling in ACE CDC Version ${ACE_CDC_VER}"
+   if( -e ~/.qcdc ) then
+      if( -e ~/.qcdc.bak ) then
+         echo "custom_post.ep.setup -I- Removing the old .qcdc file since a backup exists"
+         rm -f ~/.qcdc
+      else
+         echo "custom_post.ep.setup -I- Moving ~/.qcdc to ~/.qcdc.bak"
+         mv -f ~/.qcdc ~/.qcdc.bak
+      endif
+   endif
+   source /p/com/eda/intel/cdc/${ACE_CDC_VER}/bin/qcdc.env
+   if( -e /p/com/eda/intel/cdc/${ACE_CDC_VER}/prototype/recon_setup ) then
+      source /p/com/eda/intel/cdc/${ACE_CDC_VER}/prototype/recon_setup
+   endif
+   cp /p/com/eda/intel/cdc/${ACE_CDC_VER}/ace/lib/common/QuestaCDC_TCL.pm ${IP_ROOT}/ace/lib/common/QuestaCDC_TCL.pm
+   cp /p/com/eda/intel/cdc/${ACE_CDC_VER}/ace/lib/common/RunModes.pm ${IP_ROOT}/ace/lib/common/RunModes.pm
+else
+   echo "custom_post.ep.setup -I- Could not get access to /p/com/eda/intel/cdc/${ACE_CDC_VER}/. Please check if you have access to this version."
+endif
+# JESSE: Adding in CDC flow events - FINISH
+
+cd -

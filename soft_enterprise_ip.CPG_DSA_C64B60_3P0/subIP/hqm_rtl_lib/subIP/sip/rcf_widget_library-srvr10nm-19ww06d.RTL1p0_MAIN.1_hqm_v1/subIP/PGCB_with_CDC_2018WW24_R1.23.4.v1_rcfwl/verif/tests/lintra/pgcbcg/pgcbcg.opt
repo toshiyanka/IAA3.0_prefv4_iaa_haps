@@ -1,0 +1,23 @@
+{
+  %opts = (
+    -static_check_top      => "dts_rtl_lib.thrm_top",
+    -model                 => "dts_rtl",
+    -static_check_tools    => [ "lintra", ],
+    -static_check_cfg_file => [ "tools/lint/ace_static_check.lintra.cfg", ],
+    -lintra_goal           => "lint",
+    -lintra_exe_opts => ["--report_rules :full:xml"],
+    -lira_exe_opts         => [
+      "-mfcu",
+	  "-D SVA_OFF",
+    ],
+    -post_process_pattern_file => "$ENV{ACE_HOME}/udf/ace_base_postsim.pp",
+    -lintra_waiver_files => [ "$ENV{MODEL_ROOT}/tools/lint/waivers/dts.lwv", ],
+  );
+
+ %runModes = (
+     FLG => {
+         #  use `ace -show_lintra_goals' to get a list of available goals
+         -lintra_goal     =>  "flg",
+     },
+ );
+}

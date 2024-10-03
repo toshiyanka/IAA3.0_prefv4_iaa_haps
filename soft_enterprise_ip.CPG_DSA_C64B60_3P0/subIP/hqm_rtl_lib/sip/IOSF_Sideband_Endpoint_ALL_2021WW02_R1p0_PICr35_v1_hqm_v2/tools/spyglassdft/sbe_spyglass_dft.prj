@@ -1,0 +1,23 @@
+read_file -type sourcelist $::env(IP_ROOT)/tools/spyglassdft/sbe_rtl_list.f
+read_file -type sgdc $::env(IP_ROOT)/tools/spyglassdft/sbe_scan_ready.sgdc 
+set_option top sbe_wrapper
+
+set_option projectwdir $::env(IP_ROOT)/tools/spyglassdft/sbendpoint/<inst>
+set_option allow_module_override yes
+set_option report {moresimple summary}
+
+
+set_option enableSV                             yes
+set_option language_mode                        mixed
+set_option relax_hdl_parsing                    yes
+set_option hdlin_translate_off_skip_text        yes
+set_option handlememory                         yes
+set_option mthresh                              16000
+set_option hdllibdu                             yes
+set_option sort                                 yes
+set_option nosavepolicy                         all
+set_option savepolicy                           lowpower
+
+set_option current_methodology /p/com/flows/spyglass_methodology/1.1.0/
+
+read_file -type waiver $::env(IP_ROOT)/tools/spyglassdft/iosf_sbc_ep_waivers.swl 

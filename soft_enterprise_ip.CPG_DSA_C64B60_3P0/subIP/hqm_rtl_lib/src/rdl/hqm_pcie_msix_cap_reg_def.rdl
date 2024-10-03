@@ -1,0 +1,132 @@
+<% use hqm_params; %>
+
+regfile hqm_pcie_msix_cap_rf {
+	reg msix_cap_id_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Msix Cap Id";
+		desc = "PF Message Signalled Interrupt X Capability ID Register";
+		regwidth = 8;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Msix";
+			desc = "Capability ID: PCI SIG assigned capability record ID (11h, MSI-X capability). 11h identifies the EP as a device that is MSI-X capable.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} MSIX [07:00] = 8'h11;
+
+	}; // end register pmsix
+
+	reg msix_cap_next_cap_ptr_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Msix Cap Next Cap Ptr";
+		desc = "MSIX Next Capability Pointer Register";
+		regwidth = 8;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Cap Ptr";
+			desc = "Next Capability Pointer";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} CAP_PTR [07:00] = 8'h00;
+
+	}; 
+
+	reg msix_cap_control_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Msix Cap Control";
+		desc = "PF Message Signalled Interrupt X Control Register";
+		regwidth = 16;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Msixen";
+			desc = "MSI-X Enable: This bit enables the EP to generates interrupts using the MSI-X tables instead of the legacy INTx messages.When this bit is set to 1, the EP will not generate INTx messages and must use the MSI-X to signal interrupts.The device driver should not clear this bit to mask interrupts. This bit will be set by the system PCI device manager.";
+			PowerWell="vcccfn"; AccessType = "RW";
+		} MSIXEN [15:15] = 1'h0;
+
+		field {
+			name = "Fm";
+			desc = "Function Mask: This bit controls the masking of all vectors implemented in the EP.When this bit is 0, each vectors mask bit determines whether the vector is masked or not.Whent this bit is 1, all vecotrs are masked regardless of the per vector masking bit.";
+			PowerWell="vcccfn"; AccessType = "RW";
+		} FM [14:14] = 1'h0;
+
+		field {
+			name = "Reserved";
+			desc = "Always returns 0ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢s when read.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} RESERVED [13:11] = 3'h0;
+
+		field {
+			name = "Ts";
+			desc = "MSI-X Table Size: Number of vectors (encoded as N-1) supported by the EP. The EP supports 65 vectors.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} TS [10:00] = 11'h040;
+
+	};
+
+	reg msix_cap_table_offset_bir_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Msix Cap Table Offset Bir";
+		desc = "PF MSI-X Table Offset & Table BIR Register";
+		regwidth = 32;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "To";
+			desc = "Table Offset: Offset to a location in one of the EPÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢s BARÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢s (indicated by TBIR) that points to the location of the base of the MSI-X Table.The EP MSI-X Table maps to an offset of 1024KB in PFUNCBAR.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} TO [31:3] = 29'h00200000;
+
+		field {
+			name = "Tbir";
+			desc = "Table BAR Indicator Register: The BIR points to the FUNC_PF register (10h)";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} TBIR [2:0] = 3'h0;
+
+	};
+
+	reg msix_cap_pba_offset_bir_r {
+  HqmClassification="PCI_CFG_REG_NA_1";
+
+		name = "Msix Cap Pba Offset Bir";
+		desc = "PF MSI-X Pending Bit Array & BIR Offset Register";
+		regwidth = 32;
+		shared;
+                IntelRsvd = false;
+
+		field {
+			name = "Pbao";
+			desc = "Pending Bit Array Offset: Offset to a location in the FUNC_PF BAR (indicated by PBABIR) that points to the location of the base of the MSI-X PBA.";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} PBAO [31:3] = 29'h00200200;
+
+		field {
+			name = "Pbabir";
+			desc = "Pending Bit Array BAR Indicator Register: The PBABIR points to the FUNC_BAR register (10h)";
+			PowerWell="vcccfn"; AccessType = "RO";
+		} PBABIR [2:0] = 3'h0;
+
+	};
+
+	// Instantiate Registers
+
+	msix_cap_id_r                   MSIX_CAP_ID                     @0x0;
+
+	msix_cap_next_cap_ptr_r         MSIX_CAP_NEXT_CAP_PTR           @0x1;
+
+	msix_cap_control_r              MSIX_CAP_CONTROL                @0x2;
+
+	msix_cap_table_offset_bir_r     MSIX_CAP_TABLE_OFFSET_BIR       @0x4;
+
+	msix_cap_pba_offset_bir_r       MSIX_CAP_PBA_OFFSET_BIR         @0x8;
+
+};
+

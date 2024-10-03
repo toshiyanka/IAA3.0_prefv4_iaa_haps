@@ -1,0 +1,23 @@
+cd $IP_ROOT
+rm -rf pwa/results .acetestinfo.log
+
+\cp source/rtl/include/configs/stap_params_include_progrst.inc source/rtl/include/stap_params_include.inc
+\cp verif/tb/include/configs/tb_param_progrst.inc              verif/tb/include/tb_param.inc
+\cp verif/tb/include/configs/STapTop_progrst_ext_lb.sv         verif/tb/STapTop.sv
+\cp verif/tb/include/configs/emulate_stap_tdo_progrst.sv       verif/tb/emulate_stap_tdo.sv
+
+#// https://vthsd.intel.com/hsd/seg_softip/default.aspx#bug/default.aspx?bug_id=4795640
+#// Title:  dfx_earlyboot_exit not asserted, GREEN IR's not accessible
+# This test will fail as there is no scoreboard support.
+# Open the fsdb with scripte/ebe.rc and see the stap_irreg_ireg[7:0], stap_irdecoder_drselect[14:0], fdfx_earlyboot_exit 
+
+ace -cc -pwa pwa_progrst_hsd_ebe
+ace -x -t TapTestProgRstITDR_EBEL -nb -nbmon -pwa pwa_progrst_hsd_ebe
+
+grep -ir status pwa/results/tests/*/postsim.log
+
+\cp source/rtl/include/configs/stap_params_include_default.inc source/rtl/include/stap_params_include.inc
+\cp verif/tb/include/configs/tb_param_default.inc              verif/tb/include/tb_param.inc
+\cp verif/tb/include/configs/STapTop_def_ext_lb.sv             verif/tb/STapTop.sv
+\cp verif/tb/include/configs/emulate_stap_tdo_default.sv       verif/tb/emulate_stap_tdo.sv
+

@@ -1,0 +1,44 @@
+########################################
+## README
+########################################
+#  Execute this file for sample coverage run
+########################################
+
+#Steps to generate PCIe coverage report using denali coverbins.
+
+########################################
+#Compile the db for coverage:
+########################################
+bman -mc hqm_tb -s all +s vcs -vlog_opts=+define+HQM_PCIE_TB -vlog_opts=+define+CDN_PCIE_COVERAGE -vlog_opts="-cm line+cond+branch+fsm+tgl -cm_dir coverage.vdb -cm_hier hqm_pcie_hier.f"
+########################################
+
+########################################
+#Run test with coverage ON:
+########################################
+trex hqm_pcie_cfg_test -dut hqm_ss -model hqm_tb -ace_args -simv_args '"' -cm line+cond+branch+fsm+tgl -cm_dir coverage.vdb '"' -ace_args-
+########################################
+
+########################################
+#Regression:
+########################################
+#simregress -l verif/tb/hqm/reglist/pcie_tests.list -save -trex -ace_args -simv_args '"' -cm line+cond+branch+fsm+tgl -cm_dir coverage.vdb '"' -ace_args- -trex-
+########################################
+
+#A directory named coverage.vdb would be created within every run directory.
+
+########################################
+#Coverage generation:
+########################################
+#Note: Need to gunzip recursively in the run directory, if trex zips all the run files.
+# 1. gunzip -r */*.vdb/*
+# 2. Find vdbfiles (run within regress directory):
+#	  find . -name coverage.vdb > vdbfiles
+# 3. Use coverage generation script:
+#     casa urg -dir ../../../target/hqm_ss/vcs_4value/hqm_tb/hqm_tb.simv.vdb -f vdbfiles
+# 4. For generating/loading exclusion files (via 'verdi' gui):
+#    - Dump the coverage database first.
+#	   casa urg -dir ../../../target/hqm_ss/vcs_4value/hqm_tb/hqm_tb.simv.vdb -f vdbfiles -dbname complete_cov_db -report complete_report
+#	 - Load the dumped database in verdi.
+#	   casa verdi complete_cov_db.vdb/
+#	 - Follow the UI based steps to load/generate exclusion file.
+########################################

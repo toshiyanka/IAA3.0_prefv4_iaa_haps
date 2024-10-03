@@ -1,0 +1,15 @@
+cd $IP_ROOT
+rm -rf pwa/results .acetestinfo.log
+
+\cp source/rtl/dfxsecure_plugin_rtl.hdl_gls source/rtl/dfxsecure_plugin_rtl.hdl
+
+ace -cc -vlog_opts "+define+no_unit_delay" -pwa pwa_gls
+ace -x DfxSecurePlugin_DefaultTest \
+       DfxSecurePlugin_DriveUserPolicySeqTest \
+       DfxSecurePlugin_PolicySweepSeqTest \
+       DfxSecurePlugin_DriveUserPolicyViaSBOVRSeqTest -vlog_opts "+define+no_unit_delay" \
+       -pwa pwa_gls -nb -nbmon
+
+\cp source/rtl/dfxsecure_plugin_rtl.hdl_rtl source/rtl/dfxsecure_plugin_rtl.hdl
+
+grep -ir status pwa/results/tests/*/postsim.log

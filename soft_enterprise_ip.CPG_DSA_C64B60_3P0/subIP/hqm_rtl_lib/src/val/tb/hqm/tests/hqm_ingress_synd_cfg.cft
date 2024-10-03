@@ -1,0 +1,97 @@
+idle 400
+###################################
+# Read first part of PF header
+rd hqm_pf_cfg_i.vendor_id
+rd hqm_pf_cfg_i.device_id
+rd hqm_pf_cfg_i.device_command
+rd hqm_pf_cfg_i.device_status
+###################################
+# Setup FUNC_PF BAR to a base address of 0x00000001_xxxxxxxx
+wr hqm_pf_cfg_i.func_bar_l 0x00000000
+wr hqm_pf_cfg_i.func_bar_u 0x00000001
+###################################
+# Setup CSR_PF BAR to a base address of 0x00000002_xxxxxxxx
+wr hqm_pf_cfg_i.csr_bar_l 0x00000000
+wr hqm_pf_cfg_i.csr_bar_u 0x00000002
+###################################
+# Setup FUNC_VF BAR to a base address of 0x00000003_xxxxxxxx
+###################################
+# Enable memory operations
+wr hqm_pf_cfg_i.device_command 0x6
+rd hqm_pf_cfg_i.device_command
+###################################
+# 16 VF
+###################################
+# Enable VF and VF memory operations
+#### wr hqm_vf_cfg_i[0].device_command 0x4
+#### wr hqm_vf_cfg_i[1].device_command 0x4
+#### wr hqm_vf_cfg_i[2].device_command 0x4
+#### wr hqm_vf_cfg_i[3].device_command 0x4
+#### wr hqm_vf_cfg_i[4].device_command 0x4
+#### wr hqm_vf_cfg_i[5].device_command 0x4
+#### wr hqm_vf_cfg_i[6].device_command 0x4
+#### wr hqm_vf_cfg_i[7].device_command 0x4
+#### wr hqm_vf_cfg_i[8].device_command 0x4
+#### wr hqm_vf_cfg_i[9].device_command 0x4
+#### wr hqm_vf_cfg_i[10].device_command 0x4
+#### wr hqm_vf_cfg_i[11].device_command 0x4
+#### wr hqm_vf_cfg_i[12].device_command 0x4
+#### wr hqm_vf_cfg_i[13].device_command 0x4
+#### wr hqm_vf_cfg_i[14].device_command 0x4
+#### wr hqm_vf_cfg_i[15].device_command 0x4
+###################################
+wr config_master.cfg_pm_pmcsr_disable.disable 0x0
+rd config_master.cfg_pm_pmcsr_disable.disable 0x0
+##
+###poll to Wait for reset to be done 
+poll config_master.cfg_diagnostic_reset_status 0x800003ff 0x800003ff 500
+###poll to Wait for unit_idle to be done 
+poll config_master.cfg_diagnostic_idle_status  0x0007ffff 0x0007ffff 500
+###################################
+# Setup MSI-X Table entries
+wr hqm_msix_mem.msg_addr_l[0]  0xdeadf00c
+wr hqm_msix_mem.msg_addr_u[0]  0xfeeddeaf
+wr hqm_msix_mem.msg_data[0]    0xa11c0ded
+wr hqm_msix_mem.vector_ctrl[0] 0x00000000
+rd hqm_msix_mem.msg_addr_l[0]  0xdeadf00c
+rd hqm_msix_mem.msg_addr_u[0]  0xfeeddeaf
+rd hqm_msix_mem.msg_data[0]    0xa11c0ded
+rd hqm_msix_mem.vector_ctrl[0] 0x00000000
+###################################
+# Enable MSI-X
+wr hqm_pf_cfg_i.msix_cap_control 0x8000
+rd hqm_pf_cfg_i.msix_cap_control 0x8040
+###################################
+
+#mem_update      # initialize memories to hqm_cfg defaults using backdoor access
+
+cfg_begin
+
+  dir pp  0 vas=0 exp_ill_hcw_cmd=1
+  ldb pp 63 vas=0 exp_ill_hcw_cmd=1
+
+  vf  0 dir_vpp0_pp=0 ldb_vpp63_pp=63 dir_vqid63_qid=63 ldb_vqid0_qid=0 dir_vpp0_v=0 ldb_vpp63_v=0
+  vf  1 dir_vpp0_pp=0 ldb_vpp63_pp=63 dir_vqid63_qid=63 ldb_vqid0_qid=0 dir_vpp0_v=0 ldb_vpp63_v=0
+  vf  2 dir_vpp0_pp=0 ldb_vpp63_pp=63 dir_vqid63_qid=63 ldb_vqid0_qid=0 dir_vpp0_v=0 ldb_vpp63_v=0
+  vf  3 dir_vpp0_pp=0 ldb_vpp63_pp=63 dir_vqid63_qid=63 ldb_vqid0_qid=0 dir_vpp0_v=0 ldb_vpp63_v=0
+  vf  4 dir_vpp0_pp=0 ldb_vpp63_pp=63 dir_vqid63_qid=63 ldb_vqid0_qid=0 dir_vpp0_v=0 ldb_vpp63_v=0
+  vf  5 dir_vpp0_pp=0 ldb_vpp63_pp=63 dir_vqid63_qid=63 ldb_vqid0_qid=0 dir_vpp0_v=0 ldb_vpp63_v=0
+  vf  6 dir_vpp0_pp=0 ldb_vpp63_pp=63 dir_vqid63_qid=63 ldb_vqid0_qid=0 dir_vpp0_v=0 ldb_vpp63_v=0
+  vf  7 dir_vpp0_pp=0 ldb_vpp63_pp=63 dir_vqid63_qid=63 ldb_vqid0_qid=0 dir_vpp0_v=0 ldb_vpp63_v=0
+  vf  8 dir_vpp0_pp=0 ldb_vpp63_pp=63 dir_vqid63_qid=63 ldb_vqid0_qid=0 dir_vpp0_v=0 ldb_vpp63_v=0
+  vf  9 dir_vpp0_pp=0 ldb_vpp63_pp=63 dir_vqid63_qid=63 ldb_vqid0_qid=0 dir_vpp0_v=0 ldb_vpp63_v=0
+  vf 10 dir_vpp0_pp=0 ldb_vpp63_pp=63 dir_vqid63_qid=63 ldb_vqid0_qid=0 dir_vpp0_v=0 ldb_vpp63_v=0
+  vf 11 dir_vpp0_pp=0 ldb_vpp63_pp=63 dir_vqid63_qid=63 ldb_vqid0_qid=0 dir_vpp0_v=0 ldb_vpp63_v=0
+  vf 12 dir_vpp0_pp=0 ldb_vpp63_pp=63 dir_vqid63_qid=63 ldb_vqid0_qid=0 dir_vpp0_v=0 ldb_vpp63_v=0
+  vf 13 dir_vpp0_pp=0 ldb_vpp63_pp=63 dir_vqid63_qid=63 ldb_vqid0_qid=0 dir_vpp0_v=0 ldb_vpp63_v=0
+  vf 14 dir_vpp0_pp=0 ldb_vpp63_pp=63 dir_vqid63_qid=63 ldb_vqid0_qid=0 dir_vpp0_v=0 ldb_vpp63_v=0
+  vf 15 dir_vpp0_pp=0 ldb_vpp63_pp=63 dir_vqid63_qid=63 ldb_vqid0_qid=0 dir_vpp0_v=0 ldb_vpp63_v=0
+
+cfg_end
+
+wr hqm_system_csr.dir_pp_v[0]  0
+wr hqm_system_csr.ldb_pp_v[63] 0
+
+# Enable ingress illegal HCW command and illegal PP alarms
+wr hqm_system_csr.ingress_alarm_enable  0x00000003
+rd hqm_system_csr.ingress_alarm_enable  0x00000003

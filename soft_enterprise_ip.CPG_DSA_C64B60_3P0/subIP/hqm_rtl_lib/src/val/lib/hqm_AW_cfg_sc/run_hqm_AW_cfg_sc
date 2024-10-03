@@ -1,0 +1,20 @@
+export VCS_HOME=`ToolConfig.pl get_tool_path vcs`
+export PATH="$VCS_HOME/bin:$PATH"
+export SNPSLMD_LICENSE_FILE="26586@synopsys34p.elic.intel.com:26586@synopsys45p.elic.intel.com:26586@synopsys14p.elic.intel.com"
+export VCS_TARGET_ARCH="suse64"
+export VCS_ARCH_OVERRIDE="suse32"
+export VCS_LIC_EXPIRE_WARNING="5"
+
+printenv > printenv.log   
+build_hqm_AW_cfg_sc > build.log   
+simv +ntb_random_seed=0 > run.log
+
+if grep -q PASS run.log; then
+    echo "PASS"
+    exit 0
+else
+    echo "FAIL"
+    exit 1
+fi
+
+

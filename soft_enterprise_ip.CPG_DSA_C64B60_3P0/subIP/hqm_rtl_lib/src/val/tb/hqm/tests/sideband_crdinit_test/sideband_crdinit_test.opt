@@ -1,0 +1,98 @@
+use lib "$ENV{MODEL_ROOT}/cfg/ace/lib";
+use common::RunModes;
+common::RunModes::init_library;
+{
+   %opts = (
+      -simv_args => ["+AW_CONTINUE_ON_ERROR", "+iosf_tracker_filename=iosf_trk",
+       "+SLA_USER_DATA_PHASE_TIMEOUT=0",
+       "+SLA_CONFIG_PHASE_TIMEOUT=0",
+       "+SLA_FLUSH_PHASE_TIMEOUT=0",
+       "-assert nopostproc", "+HQMS_DEBUG", "+HQMI_DEBUG",
+       "+vcs+lic+wait",
+      ],
+      -test_in_model => 1,
+      -enabled_post_process_modes => "hqm_test",
+   );
+   %runModes = (
+      test0 => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_cfgrd_seq",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up_reset.cft",
+          ],
+      },
+
+
+     cfgwr => {
+          -simv_args => ["+IOSF_SIDE_FILE=back2back_sb_cfgwr_seq","+BLOCKING_IOSF_CFGRD_TXN",
+          "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/power_up_reset.cft", "+REINIT_START",
+          "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_sb_update_check.cft",
+
+          ],
+      },
+
+   
+
+      
+
+     
+   cfgrd => {
+          -simv_args => ["+IOSF_SIDE_FILE=back2back_sb_cfgrd_seq","+REINIT_START",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_sb_error.cft",
+       "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cfg_sb_check.cft",
+  
+          ],
+      },
+
+      
+  
+
+     
+     
+
+ cpl => {
+          -simv_args => ["+IOSF_SIDE_FILE=hqm_iosf_sb_cpl_seq","+CHK_DISABLE","+REINIT_START",
+           "-assert quiet+hier=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/cpl_sb_error.waiver",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_cpl.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_cpl_sb_check.cft",
+
+          ],
+      },
+  
+
+memrd => {
+          -simv_args => ["+IOSF_SIDE_FILE=back2back_sb_memrd_seq", "+MEM64_TXN",
+       "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft","+REINIT_START",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_generic.cft",
+
+          ],
+      },
+
+      
+      
+
+memwr => {
+          -simv_args => ["+IOSF_SIDE_FILE=back2back_sb_memwr_seq","+REINIT_START",
+                 "+HQM_SEQ_CFG=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_error.cft",
+        "+HQM_SEQ_CFG_EOT=aceroot/verif/tb/hqm/hqm_iosf_lib/CFT/mem_update_check.cft",
+
+          ],
+      },
+
+
+
+
+
+
+
+
+  
+
+  
+        
+
+
+   );
+   import_runmodes (
+         -dest_hash => \%runModes,
+   );
+}
+
