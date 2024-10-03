@@ -1,0 +1,15 @@
++define+SVA_OFF
++define+INTEL_SVA_OFF
++define+ASSERT_OFF
++define+INTEL_FPGA
++define+SYNTHESIS
++define+NO_FSDB_DUMP_MODULE
++define+VISA_OFF
++define+FPGA_MODE
++define+SPARK_VCS
++incdir+$ip/subip/sip/fpga/verif/tests
++incdir+$ip/subip/sip/fpga/verif/tests/hca
++incdir+$ip/subip/sip/fpga/verif/tb
++incdir+$ip/subip/sip/fpga/verif/tb/env
++incdir+$OVM_HOME/src
++incdir+/p/com/eda/intel/saola/v20140417/verilog

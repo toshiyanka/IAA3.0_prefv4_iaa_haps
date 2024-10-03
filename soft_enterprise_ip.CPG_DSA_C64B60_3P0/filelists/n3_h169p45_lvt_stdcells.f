@@ -1,0 +1,32 @@
+## VCLP
+## ld /p/tech1/n3/tech-release/v0.5.2.4/*169l3p45*_lvt_*c210108*/verilog/*/*.v
+##/p/tech1/n3/tech-release/v0.5.2.4/tcbn03_bwph169l3p45cpd_base2_lvt_c210108_lib/verilog/tcbn03_bwph169l3p45cpd_base2_lvt_c210108_050b/tcbn03_bwph169l3p45cpd_base2_lvt_c210108.v
+##/p/tech1/n3/tech-release/v0.5.2.4/tcbn03_bwph169l3p45cpd_base2_lvt_c210108_lib/verilog/tcbn03_bwph169l3p45cpd_base2_lvt_c210108_050b/tcbn03_bwph169l3p45cpd_base2_lvt_c210108_pwr.v
+##/p/tech1/n3/tech-release/v0.5.2.4/tcbn03_bwph169l3p45cpd_base3_lvt_c210108_lib/verilog/tcbn03_bwph169l3p45cpd_base3_lvt_c210108_050a/tcbn03_bwph169l3p45cpd_base3_lvt_c210108.v
+##/p/tech1/n3/tech-release/v0.5.2.4/tcbn03_bwph169l3p45cpd_base3_lvt_c210108_lib/verilog/tcbn03_bwph169l3p45cpd_base3_lvt_c210108_050a/tcbn03_bwph169l3p45cpd_base3_lvt_c210108_pwr.v
+##/p/tech1/n3/tech-release/v0.5.2.4/tcbn03_bwph169l3p45cpd_base_lvt_c210108_lib/verilog/tcbn03_bwph169l3p45cpd_base_lvt_c210108_050b/tcbn03_bwph169l3p45cpd_base_lvt_c210108.v
+##/p/tech1/n3/tech-release/v0.5.2.4/tcbn03_bwph169l3p45cpd_base_lvt_c210108_lib/verilog/tcbn03_bwph169l3p45cpd_base_lvt_c210108_050b/tcbn03_bwph169l3p45cpd_base_lvt_c210108_pwr.v
+##/p/tech1/n3/tech-release/v0.5.2.4/tcbn03_bwph169l3p45cpd_eco_lvt_c210108_lib/verilog/tcbn03_bwph169l3p45cpd_eco_lvt_c210108_050b/tcbn03_bwph169l3p45cpd_eco_lvt_c210108.v
+##/p/tech1/n3/tech-release/v0.5.2.4/tcbn03_bwph169l3p45cpd_eco_lvt_c210108_lib/verilog/tcbn03_bwph169l3p45cpd_eco_lvt_c210108_050b/tcbn03_bwph169l3p45cpd_eco_lvt_c210108_pwr.v
+##/p/tech1/n3/tech-release/v0.5.2.4/tcbn03_bwph169l3p45cpd_gclkiwm9_lvt_c210108_lib/verilog/tcbn03_bwph169l3p45cpd_gclkiwm9_lvt_c210108_050a/tcbn03_bwph169l3p45cpd_gclkiwm9_lvt_c210108.v
+##/p/tech1/n3/tech-release/v0.5.2.4/tcbn03_bwph169l3p45cpd_gclkiwm9_lvt_c210108_lib/verilog/tcbn03_bwph169l3p45cpd_gclkiwm9_lvt_c210108_050a/tcbn03_bwph169l3p45cpd_gclkiwm9_lvt_c210108_pwr.v
+##/p/tech1/n3/tech-release/v0.5.2.4/tcbn03_bwph169l3p45cpd_lvl_lvt_c210108_lib/verilog/tcbn03_bwph169l3p45cpd_lvl_lvt_c210108_050a/tcbn03_bwph169l3p45cpd_lvl_lvt_c210108.v
+##/p/tech1/n3/tech-release/v0.5.2.4/tcbn03_bwph169l3p45cpd_lvl_lvt_c210108_lib/verilog/tcbn03_bwph169l3p45cpd_lvl_lvt_c210108_050a/tcbn03_bwph169l3p45cpd_lvl_lvt_c210108_pwr.v
+##/p/tech1/n3/tech-release/v0.5.2.4/tcbn03_bwph169l3p45cpd_mb2_lvt_c210108_lib/verilog/tcbn03_bwph169l3p45cpd_mb2_lvt_c210108_050a/tcbn03_bwph169l3p45cpd_mb2_lvt_c210108.v
+##/p/tech1/n3/tech-release/v0.5.2.4/tcbn03_bwph169l3p45cpd_mb2_lvt_c210108_lib/verilog/tcbn03_bwph169l3p45cpd_mb2_lvt_c210108_050a/tcbn03_bwph169l3p45cpd_mb2_lvt_c210108_pwr.v
+##/p/tech1/n3/tech-release/v0.5.2.4/tcbn03_bwph169l3p45cpd_mb3_lvt_c210108_lib/verilog/tcbn03_bwph169l3p45cpd_mb3_lvt_c210108_050a/tcbn03_bwph169l3p45cpd_mb3_lvt_c210108.v
+##/p/tech1/n3/tech-release/v0.5.2.4/tcbn03_bwph169l3p45cpd_mb3_lvt_c210108_lib/verilog/tcbn03_bwph169l3p45cpd_mb3_lvt_c210108_050a/tcbn03_bwph169l3p45cpd_mb3_lvt_c210108_pwr.v
+##/p/tech1/n3/tech-release/v0.5.2.4/tcbn03_bwph169l3p45cpd_mb_lvt_c210108_lib/verilog/tcbn03_bwph169l3p45cpd_mb_lvt_c210108_050b/tcbn03_bwph169l3p45cpd_mb_lvt_c210108.v
+##/p/tech1/n3/tech-release/v0.5.2.4/tcbn03_bwph169l3p45cpd_mb_lvt_c210108_lib/verilog/tcbn03_bwph169l3p45cpd_mb_lvt_c210108_050b/tcbn03_bwph169l3p45cpd_mb_lvt_c210108_pwr.v
+##/p/tech1/n3/tech-release/v0.5.2.4/tcbn03_bwph169l3p45cpd_pm_lvt_c210108_lib/verilog/tcbn03_bwph169l3p45cpd_pm_lvt_c210108_050b/tcbn03_bwph169l3p45cpd_pm_lvt_c210108.v
+##/p/tech1/n3/tech-release/v0.5.2.4/tcbn03_bwph169l3p45cpd_pm_lvt_c210108_lib/verilog/tcbn03_bwph169l3p45cpd_pm_lvt_c210108_050b/tcbn03_bwph169l3p45cpd_pm_lvt_c210108_pwr.v
+##/p/tech1/n3/tech-release/v0.5.2.4/tcbn03_bwph169l3p45cpd_spare_lvt_c210108_lib/verilog/tcbn03_bwph169l3p45cpd_spare_lvt_c210108_050b/tcbn03_bwph169l3p45cpd_spare_lvt_c210108.v
+##/p/tech1/n3/tech-release/v0.5.2.4/tcbn03_bwph169l3p45cpd_spare_lvt_c210108_lib/verilog/tcbn03_bwph169l3p45cpd_spare_lvt_c210108_050b/tcbn03_bwph169l3p45cpd_spare_lvt_c210108_pwr.v
+##/p/tech1/n3/tech-release/v0.5.2.4/tcbn03_bwph169l3p45cpd_syn_lvt_c210108_lib/verilog/tcbn03_bwph169l3p45cpd_syn_lvt_c210108_050a/tcbn03_bwph169l3p45cpd_syn_lvt_c210108.v
+##/p/tech1/n3/tech-release/v0.5.2.4/tcbn03_bwph169l3p45cpd_syn_lvt_c210108_lib/verilog/tcbn03_bwph169l3p45cpd_syn_lvt_c210108_050a/tcbn03_bwph169l3p45cpd_syn_lvt_c210108_pwr.v
+## Ctech
+/p/tech1/n3/tech-release/v0.5.2.2/tcbn03_bwph169l3p45cpd_base_lvt_c201214_lib/verilog/tcbn03_bwph169l3p45cpd_base_lvt_c201214_050c/tcbn03_bwph169l3p45cpd_base_lvt_c201214.v
+/p/tech1/n3/tech-release/v0.5.2.2/tcbn03_bwph169l3p45cpd_syn_lvt_c201008_lib/verilog/tcbn03_bwph169l3p45cpd_syn_lvt_c201008_050c/tcbn03_bwph169l3p45cpd_syn_lvt_c201008.v
+/p/tech1/n3/tech-release/v0.5.2.2/tcbn03_bwph169l3p45cpd_base2_lvt_c201008_lib/verilog/tcbn03_bwph169l3p45cpd_base2_lvt_c201008_050c/tcbn03_bwph169l3p45cpd_base2_lvt_c201008.v
+/p/tech1/n3/tech-release/v0.5.2.2/tcbn03_bwph169l3p45cpd_base_lvt_c201008_lib/verilog/tcbn03_bwph169l3p45cpd_base_lvt_c201008_050c/tcbn03_bwph169l3p45cpd_base_lvt_c201008.v
+

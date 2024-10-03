@@ -1,0 +1,12 @@
++define+SVA_OFF
++define+INTEL_SVA_OFF
++define+ASSERT_OFF
++define+INTEL_FPGA
++define+SYNTHESIS
++define+NO_FSDB_DUMP_MODULE
++define+VISA_OFF
++define+FPGA_MODE
++define+SPARK_VCS
++incdir+$ip/subip/sip/fpga/src/sideband_network/rtl/iosfsbc/common
++incdir+$ip/subip/sip/fpga/src/sideband_network/rtl/iosfsbc/router
++incdir+$ip/subip/sip/fpga/src/sideband_network/subIP/genram_base_ward/source/rtl

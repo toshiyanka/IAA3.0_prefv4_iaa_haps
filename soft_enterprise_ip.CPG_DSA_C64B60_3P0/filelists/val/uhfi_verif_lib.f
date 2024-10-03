@@ -1,0 +1,9 @@
+$ip/subip/sip/UHFI_v4.13.0/subIP/vc/fpga_lbus_agent/tb/fpga_lbus_ifc_wrp.sv
+$ip/subip/sip/UHFI_v4.13.0/verif/tb/env/uhfi_config.sv
+$ip/subip/sip/UHFI_v4.13.0/verif/tb/env/uhfi_env_pkg.sv
+$ip/subip/sip/UHFI_v4.13.0/verif/tb/uhfi_signal_if.sv
+$ip/subip/sip/UHFI_v4.13.0/verif/tb/uhfi_desc2ddr_f2f_if.sv
+$ip/subip/sip/UHFI_v4.13.0/subIP/vc/UMA_SRAM_BFM/k7n323601m_R04.v
+$ip/subip/sip/UHFI_v4.13.0/subIP/vc/UMA_SRAM_BFM/sram_1x1.v
+$ip/subip/sip/UHFI_v4.13.0/verif/tb/uhfi_cfg.sv
+$ip/subip/sip/UHFI_v4.13.0/verif/tb/uhfi_cov_if.sv

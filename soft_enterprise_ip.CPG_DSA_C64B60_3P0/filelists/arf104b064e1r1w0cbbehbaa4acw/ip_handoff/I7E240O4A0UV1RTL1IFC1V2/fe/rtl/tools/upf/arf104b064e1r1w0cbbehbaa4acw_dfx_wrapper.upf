@@ -1,0 +1,200 @@
+##
+## -------------------------------------------------------------------------
+## -- IP: arf104b064e1r1w0cbbehbaa4acw_dfx_wrapper
+## -- Business Organization: SPRF
+## -- Author: cudoming
+## -- Intel Proprietary
+## -- Copyright (C) 2023 Intel Corporation
+## -- All Rights Reserved
+##
+## 
+## -------------------------------------------------------------------------
+##
+
+upf_version 2.1
+
+
+##
+## -------------------------------------------------------------------------
+## Dynamically set <IP>_UPF_ROOT_DIR
+## -------------------------------------------------------------------------
+## To greatly improve UPF portability, loads to configs and UPFs must be done relative to the current UPF
+## [file normalize [file dirname [info script]]] is a TCL command that returns the location of the UPF that is being parsed
+## All subsequent loads to configs and SIP UPFs are done relative to the <IP>_UPF_ROOT_DIR
+## This can be used for subIP UPFs that are developed in the REPO or are installed in the subip direcory of the REPO
+## This can be used for IP specific cfg and global UPF config
+##
+
+set arf104b064e1r1w0cbbehbaa4acw_dfx_wrapper_UPF_ROOT_DIR [file normalize [file dirname [info script]]]
+
+
+##
+## -------------------------------------------------------------------------
+## Source global config (MANDATORY)
+## -------------------------------------------------------------------------
+## Every IP & SOC should source this file (contents will only be executed the first time)
+##
+
+source $arf104b064e1r1w0cbbehbaa4acw_dfx_wrapper_UPF_ROOT_DIR/global_upf.cfg
+
+
+##
+## -------------------------------------------------------------------------
+## Source IP-specific config (OPTIONAL)
+## -------------------------------------------------------------------------
+## IP UPF configuration should be implemented in this file
+## SoC will use this file during integration
+## The contents of this file must not collide with global_upf.cfg
+##
+
+#source $arf104b064e1r1w0cbbehbaa4acw_dfx_wrapper_UPF_ROOT_DIR/<IP>_upf.cfg
+
+
+##
+## -------------------------------------------------------------------------
+## Design Attributes
+## -------------------------------------------------------------------------
+## Vendor-specific attributes for correct functionality
+##
+
+## Synopsys tools: backward compatibility for the usage of both add_power_state and create_pst/add_pst
+set_design_attributes -elements {.} -attribute enable_state_propagation_in_add_power_state TRUE
+## Synopsys tools: treat lower domain boundary false
+set_design_attributes -elements {.} -attribute lower_domain_boundary false
+## Cadence tools: treat lower domain boundary false (by default for 2.x, Cadence tools are applying ISO strategies to both the boundaries)
+set_design_attributes -elements {.} -attribute domain_interface_def 1.0
+
+if {$::__SIM} {
+    if {[info exists synopsys_program_name]} {
+        ## Synopsys VCS run-time: re-execute initial blocks in RTL within a domain that is powered back up
+        set_design_attributes -attribute SNPS_reinit TRUE
+        ## Synopsys VCS run-time: disable RTL assertions in power domains when supply is off (can optionally specify -elements {<list_of_domains>})
+        set_design_attributes -attribute SNPS_assertion_control KILL
+    }
+}
+
+if {$::__WELL_BIAS} {
+    ## use well-bias connections
+    set_design_attributes -elements {.} -attribute enable_bias TRUE
+}
+
+##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++##
+## Define port lists for power domains
+##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++##
+
+set arf104b064e1r1w0cbbehbaa4acw_rd_in_ports { ckrdp0 rdenp0 rdaddrp0 rdaddrp0_fd sdl_initp0  }
+set arf104b064e1r1w0cbbehbaa4acw_wr_in_ports { ckwrp0 wrenp0 wraddrp0 wrdatap0 wraddrp0_fd wrdatap0_fd  }
+set arf104b064e1r1w0cbbehbaa4acw_output_ports { rddatap0  }
+set arf104b064e1r1w0cbbehbaa4acw_ports_clampOne { rdaddrp0_rd wraddrp0_rd wrdatap0_rd  }
+
+##
+## -------------------------------------------------------------------------
+## Supply Ports and Nets
+## -------------------------------------------------------------------------
+##
+
+ create_supply_net  vcc
+ create_supply_port vcc -direction in
+ connect_supply_net vcc -ports vcc
+
+ create_supply_net  vss
+ create_supply_port vss -direction in
+ connect_supply_net vss -ports vss
+
+##
+## -------------------------------------------------------------------------
+## Supply Sets
+## -------------------------------------------------------------------------
+##
+
+create_supply_set ss_vcc -function "power vcc" -function "ground vss"
+
+##
+## -------------------------------------------------------------------------
+## Power Domains
+## -------------------------------------------------------------------------
+## Specify primary supply of domain with "primary <supply_set>"
+##
+
+
+# Single Rail No Power Gate 
+## Create default domain 1st with -elements {.} (all instances in design)
+create_power_domain arf104b064e1r1w0cbbehbaa4acw_dfx_wrapper_pd_default -supply "primary ss_vcc" -elements {.}
+
+
+##
+## -------------------------------------------------------------------------
+## Power-Gated Domain
+## -------------------------------------------------------------------------
+## SoC integration can use the following variables to direct SIP implementation (HIPs should remove references to these variables)
+##
+## ::<IP>_DISABLE_PGD           if not exists or 0: implement power-gated domain, PST, and retention (if applicable)
+##                                               1: do not implement power-gated domain (below variables do not apply)
+## ::__DISABLE_PWR_SWITCH       if not exists or 0: implememnt power switch
+##                                               1: do not implement, but port gated supply as input
+## ::__MAP_PWR_SWITCH_DISABLE   if not exists or 0: map power switch cells
+##                                               1: do not map (SoC will map)
+## ::__PORT_IP_SWITCHED_SUPPLY  if not exists or 0: do not port gated supply
+##                                               1: port gated supply as output
+##
+
+
+##No Power Gated domain
+
+
+
+
+##
+## ------------------------------------------------------------------------
+## Power State Table
+## ------------------------------------------------------------------------
+## Specify allowable supply-pair relationships to infer isolation and level-shifting
+##
+
+if {([info exists ::__arf104b064e1r1w0cbbehbaa4acw_dfx_wrapper_PST_ENABLE] && $::__arf104b064e1r1w0cbbehbaa4acw_dfx_wrapper_PST_ENABLE) || ![info exists ::__IP_PST_DISABLE_ALL] || !$::__IP_PST_DISABLE_ALL} {
+
+    ## specify allowable voltage states for each supply
+#    add_power_state ss_<VCC2> -state ps_<IP>_<VCC2>_OFF "-supply_expr {power  == `{OFF}}                       -simstate CORRUPT"
+#    add_power_state ss_<VCC2> -state ps_<IP>_<VCC2>_HV  "-supply_expr {power  == `{FULL_ON, $::VCC_SUPPLY_HV}} -simstate NORMAL" -update
+#    add_power_state ss_<VCC2> -state ps_<IP>_<VCC2>_LV  "-supply_expr {power  == `{FULL_ON, $::VCC_SUPPLY_LV}} -simstate NORMAL" -update
+    add_power_state ss_vcc -state arf104b064e1r1w0cbbehbaa4acw_dfx_wrapper_VCC_OFF "-supply_expr {power  == `{OFF}}                       -simstate CORRUPT"
+    add_power_state ss_vcc -state arf104b064e1r1w0cbbehbaa4acw_dfx_wrapper_VCC_HV  "-supply_expr {power  == `{FULL_ON, $::VCC_SUPPLY_HV}} -simstate NORMAL" -update
+    add_power_state ss_vcc -state arf104b064e1r1w0cbbehbaa4acw_dfx_wrapper_VCC_LV  "-supply_expr {power  == `{FULL_ON, $::VCC_SUPPLY_LV}} -simstate NORMAL" -update
+    add_power_state ss_vcc -state arf104b064e1r1w0cbbehbaa4acw_dfx_wrapper_VSS     "-supply_expr {ground == `{FULL_ON, $::VSS_GROUND}}    -simstate NORMAL" -update
+
+    create_pst pst_arf104b064e1r1w0cbbehbaa4acw_dfx_wrapper -supplies   "ss_vcc.power ss_vcc.ground"
+    add_pst_state ps_arf104b064e1r1w0cbbehbaa4acw_dfx_wrapper_s1 -pst pst_arf104b064e1r1w0cbbehbaa4acw_dfx_wrapper -state "arf104b064e1r1w0cbbehbaa4acw_dfx_wrapper_VCC_OFF arf104b064e1r1w0cbbehbaa4acw_dfx_wrapper_VSS"
+    add_pst_state ps_arf104b064e1r1w0cbbehbaa4acw_dfx_wrapper_s2 -pst pst_arf104b064e1r1w0cbbehbaa4acw_dfx_wrapper -state "arf104b064e1r1w0cbbehbaa4acw_dfx_wrapper_VCC_HV  arf104b064e1r1w0cbbehbaa4acw_dfx_wrapper_VSS"
+    add_pst_state ps_arf104b064e1r1w0cbbehbaa4acw_dfx_wrapper_s3 -pst pst_arf104b064e1r1w0cbbehbaa4acw_dfx_wrapper -state "arf104b064e1r1w0cbbehbaa4acw_dfx_wrapper_VCC_LV  arf104b064e1r1w0cbbehbaa4acw_dfx_wrapper_VSS"
+
+}
+
+## -------------------------------------------------------------------------
+## Load UPFs for IP children that have power intent defined
+## -------------------------------------------------------------------------
+##
+if {[info exists __SIM] && $__SIM} {
+     load_upf $arf104b064e1r1w0cbbehbaa4acw_dfx_wrapper_UPF_ROOT_DIR/arf104b064e1r1w0cbbehbaa4acw.upf -scope array 
+}
+
+##
+## Connect to IP
+##
+
+connect_supply_net ss_vcc.power  -ports array/vcc
+connect_supply_net ss_vcc.ground -ports array/vss
+
+##
+## -------------------------------------------------------------------------
+## Port Supply Association
+## -------------------------------------------------------------------------
+## required for all ports not related to the primary supply of the default domain
+## NOTE: for the general case, specify both -receiver_supply & -driver_supply the same
+##     -  input ports: -driver_supply is hi-conn and -receiver_supply is lo-conn
+##     - output ports: -driver_supply is lo-conn and -receiver_supply is hi-conn
+##
+
+if {![info exists ::__IP_SRSN_DISABLE] || !$::__IP_SRSN_DISABLE} {
+
+}
+

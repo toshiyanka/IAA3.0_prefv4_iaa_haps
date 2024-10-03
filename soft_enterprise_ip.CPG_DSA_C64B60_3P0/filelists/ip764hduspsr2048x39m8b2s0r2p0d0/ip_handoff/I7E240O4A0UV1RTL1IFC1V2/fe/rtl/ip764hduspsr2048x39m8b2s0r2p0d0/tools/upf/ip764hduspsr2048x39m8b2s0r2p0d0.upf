@@ -1,0 +1,318 @@
+#############################################################################################
+## Intel Confidential                                                                      ##
+#############################################################################################
+## Copyright 2023 Intel Corporation. The information contained herein is the proprietary   ##
+## and confidential information of Intel or its licensors, and is supplied subject to, and ##
+## may be used only in accordance with, previously executed agreements with Intel.         ##
+## EXCEPT AS MAY OTHERWISE BE AGREED IN WRITING: (1) ALL MATERIALS FURNISHED BY INTEL      ##
+## HEREUNDER ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND; (2) INTEL SPECIFICALLY     ##
+## DISCLAIMS ANY WARRANTY OF NONINFRINGEMENT, FITNESS FOR A PARTICULAR PURPOSE OR          ##
+## MERCHANTABILITY; AND (3) INTEL WILL NOT BE LIABLE FOR ANY COSTS OF PROCUREMENT OF       ##
+## SUBSTITUTES, LOSS OF PROFITS, INTERRUPTION OF BUSINESS, OR FOR ANY OTHER SPECIAL,       ##
+## CONSEQUENTIAL OR INCIDENTAL DAMAGES, HOWEVER CAUSED, WHETHER FOR BREACH OF WARRANTY,    ##
+## CONTRACT, TORT, NEGLIGENCE, STRICT LIABILITY OR OTHERWISE.                              ##
+#############################################################################################
+#############################################################################################
+##                                                                                         ##
+##  Vendor:                Intel Corporation                                               ##
+##  Product:               c764hduspsr                                                     ##
+##  Version:               r1.0.0                                                          ##
+##  Technology:            p1276.4                                                         ##
+##  Celltype:              MemoryIP                                                        ##
+##  IP Owner:              Intel CMO                                                       ##
+##  Creation Time:         Tue Mar 28 2023 19:11:52                                        ##
+##  Memory Name:           ip764hduspsr2048x39m8b2s0r2p0d0                                 ##
+##  Memory Name Generated: ip764hduspsr2048x39m8b2s0r2p0d0                                 ##
+##                                                                                         ##
+#############################################################################################
+
+
+upf_version 2.1
+
+
+##
+## -------------------------------------------------------------------------
+## Dynamically set <IP>_UPF_ROOT_DIR
+## -------------------------------------------------------------------------
+## To greatly improve UPF portability, loads to configs and UPFs must be done relative to the current UPF
+## [file normalize [file dirname [info script]]] is a TCL command that returns the location of the UPF that is being parsed
+## All subsequent loads to configs and SIP UPFs are done relative to the <IP>_UPF_ROOT_DIR
+## This can be used for subIP UPFs that are developed in the REPO or are installed in the subip direcory of the REPO
+## This can be used for IP specific cfg and global UPF config
+##
+
+set ip764hduspsr2048x39m8b2s0r2p0d0_UPF_ROOT_DIR [file normalize [file dirname [info script]]]
+
+
+##
+## -------------------------------------------------------------------------
+## Source global config (MANDATORY)
+## -------------------------------------------------------------------------
+## Every IP & SOC should source this file (contents will only be executed the first time)
+##
+
+source $ip764hduspsr2048x39m8b2s0r2p0d0_UPF_ROOT_DIR/global_upf.cfg
+
+
+##
+## -------------------------------------------------------------------------
+## Source IP-specific config (OPTIONAL)
+## -------------------------------------------------------------------------
+## IP UPF configuration should be implemented in this file
+## SoC will use this file during integration
+## The contents of this file must not collide with global_upf.cfg
+##
+
+#source $ip764hduspsr2048x39m8b2s0r2p0d0_UPF_ROOT_DIR/ip764hduspsr2048x39m8b2s0r2p0d0_upf.cfg
+
+
+##
+## -------------------------------------------------------------------------
+## Design Attributes
+## -------------------------------------------------------------------------
+## Vendor-specific attributes for correct functionality
+##
+
+## Synopsys tools: backward compatibility for the usage of both add_power_state and create_pst/add_pst
+set_design_attributes -elements {.} -attribute enable_state_propagation_in_add_power_state TRUE
+## Synopsys tools: treat lower domain boundary false
+set_design_attributes -elements {.} -attribute lower_domain_boundary false
+## Cadence tools: treat lower domain boundary false (by default for 2.x, Cadence tools are applying ISO strategies to both the boundaries)
+set_design_attributes -elements {.} -attribute domain_interface_def 1.0
+
+if {$::__SIM} {
+    if {[info exists synopsys_program_name]} {
+        ## Synopsys VCS run-time: re-execute initial blocks in RTL within a domain that is powered back up
+        set_design_attributes -attribute SNPS_reinit TRUE
+        ## Synopsys VCS run-time: disable RTL assertions in power domains when supply is off (can optionally specify -elements {<list_of_domains>})
+        set_design_attributes -attribute SNPS_assertion_control KILL
+    }
+}
+
+if {$::__WELL_BIAS} {
+    ## use well-bias connections
+    set_design_attributes -elements {.} -attribute enable_bias TRUE
+}
+
+##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++##
+## The top level hierarchy, for which this UPF represents, is purely structural
+##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++##
+
+##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++##
+## Define port lists for power domains
+##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++##
+
+
+
+# set the list of VDDP ports
+set ip764hduspsr2048x39m8b2s0r2p0d0_vddp_input_ports { arysleep sbc   }
+set ip764hduspsr2048x39m8b2s0r2p0d0_vddp_output_ports {  q }
+set ip764hduspsr2048x39m8b2s0r2p0d0_async_reset_ports { async_reset }
+
+
+
+# set the list of input ports
+set ip764hduspsr2048x39m8b2s0r2p0d0_ports { clk wen ren adr din redrowen mce stbyp rmce wmce wpulse ra wa  }
+
+##
+## -------------------------------------------------------------------------
+## Supply Ports and Nets
+## -------------------------------------------------------------------------
+##
+create_supply_net vss
+create_supply_port vss -direction in
+connect_supply_net vss -ports vss
+
+create_supply_net vddp
+create_supply_port vddp -direction in
+connect_supply_net vddp -ports vddp
+
+
+
+
+
+##
+## -------------------------------------------------------------------------
+## Supply Sets
+## -------------------------------------------------------------------------
+##
+
+create_supply_set ss_vddp -function "power vddp" -function "ground vss"
+
+
+
+
+
+##
+## -----------------------------------------------------------------------------
+## Load sub-IP UPFs
+## ----------------------------------------------------------------------------
+## Sub-IPs should be linked or copied in the subip directory of the REPO
+##
+
+## SIP UPF is always loaded
+#load_upf $<IP>_UPF_ROOT_DIR/<RECURSIVELY_MOVE_UP_DIRECTORY>/subip/<UPF_LOCATION>/<SIP>.upf -scope <SIP_instance_name>
+#connect_supply_net ss_<VCC1>.power  -ports <SIP_instance_name>/<supply_port>
+#connect_supply_net ss_<VCC1>.ground -ports <SIP_instance_name>/vss
+
+## HIP UPF is only loaded during VCS simulations, otherwise HIP LDB is implicitly loaded for VCLP and construction tools
+#if {$::__SIM} {
+#    load_upf $<IP>_UPF_ROOT_DIR/<RECURSIVELY_MOVE_UP_DIRECTORY>/subip/<UPF_LOCATION>/<HIP>.upf -scope <HIP_instance_name>
+#}
+#connect_supply_net ss_<VCC1>.power  -ports <HIP_instance_name>/<supply_port>
+#connect_supply_net ss_<VCC1>.ground -ports <HIP_instance_name>/vss
+
+##
+## -------------------------------------------------------------------------
+## Power Domains
+## -------------------------------------------------------------------------
+## Specify primary supply of domain with "primary <supply_set>"
+##
+
+## Create default domain 1st with -elements {.} (all instances in design)
+#create_power_domain pd_<VCC1>_default -supply "primary ss_<VCC1>" -elements {.}
+
+create_power_domain pd_ip764hduspsr2048x39m8b2s0r2p0d0 -supply "primary ss_vddp" -elements {.}
+
+## For each supply that powers logical instances in the design, create a secondary domain with those instances listed
+## NOTE: secondary domains in synthesized designs should generally have only 1 instance
+#create_power_domain pd_<VCC2> -supply "primary ss_<VCC2>" -elements [list \
+#    <pd_VCC2_instance1> \
+#    <pd_VCC2_instance2> \
+#]
+
+# Single Rail No Power Gate
+set ip764hduspsr2048x39m8b2s0r2p0d0_pd0_elements {ip764hduspsr2048x39m8b2s0r2p0d0_bmod/ip764hduspsr2048x39m8b2s0r2p0d0_input ip764hduspsr2048x39m8b2s0r2p0d0_bmod/ip764hduspsr2048x39m8b2s0r2p0d0_output ip764hduspsr2048x39m8b2s0r2p0d0_bmod/ip764hduspsr2048x39m8b2s0r2p0d0_func_input ip764hduspsr2048x39m8b2s0r2p0d0_bmod/ip764hduspsr2048x39m8b2s0r2p0d0_array}
+set ip764hduspsr2048x39m8b2s0r2p0d0_pd1_elements {}
+set ip764hduspsr2048x39m8b2s0r2p0d0_pd2_elements {}
+
+#------------------------------------------------------
+# Create POWER DOMAIN 0 - Primary Supply
+#------------------------------------------------------
+create_power_domain pd0_ip764hduspsr2048x39m8b2s0r2p0d0 -supply "primary ss_vddp" -elements "$ip764hduspsr2048x39m8b2s0r2p0d0_pd0_elements"
+
+
+
+
+
+
+##------------------------------------------------------
+## Create POWER DOMAIN 1 - Array Supply
+## Single rail No Power gate
+##-------------------------------------------------------
+create_power_domain pd1_ip764hduspsr2048x39m8b2s0r2p0d0 -supply "primary ss_vddp" -elements "$ip764hduspsr2048x39m8b2s0r2p0d0_pd1_elements"
+
+
+
+
+
+
+
+
+    ##
+    ## -------------------------------------------------------------------------
+    ## Retention strategies
+    ## -------------------------------------------------------------------------
+    ## NOTE: -save_signal and -restore_signal should be the same signal (but opposite sense)
+    ##
+
+    ##
+    ## -------------------------------------------------------------------------
+    ## Isolation strategies (specific to Power-Gated Domain)
+    ## -------------------------------------------------------------------------
+    ##
+
+##
+## -------------------------------------------------------------------------
+## Isolation strategies
+## -------------------------------------------------------------------------
+## -domain               <power_domain>  the power_domain where the isolated ports reside
+## -location             <location>      self   - place iso in module containing port (default),
+##                                       parent - place iso in parent of module containing port
+## -isolation_supply_set <supply_set>    the supply_set that powers the iso cells (should be receiving supply or always-on supply)
+## -isolation_signal     <signal>        the signal that controls the iso strategy
+## -isolation_sense      <sense>         low  - iso_out=clamp_value if -isolation_signal='0, else iso_out=iso_in
+##                                       high - iso_out=clamp_value if -isolation_signal='1, else iso_out=iso_in
+## -clamp_value          <value>         0 - iso_out='0 when isolating
+##                                       1 - iso_out='1 when isolating
+## -elements             <list_of_ports> explicit list of ports to be isolated
+## -source               <supply_set>    the supply_set powering the source logic requiring isolation
+## -applies_to           <port_type>     inputs  - add isolation to  input ports
+##                                       outputs - add isolation to output ports
+##
+## For guidelines on source/sink/applies_to/diff_supply_only based strategies, please visit: https://wiki.ith.intel.com/display/hdk/UPF+2.1
+## Clock and Data signals can be co-mingled in a given strategy. Implemenation tools will select clock cell type as needed.
+##
+
+##
+## ------------------------------------------------------------------------
+## Power State Table
+## ------------------------------------------------------------------------
+## Specify allowable supply-pair relationships to infer isolation and level-shifting
+##
+
+if {([info exists ::__ip764hduspsr2048x39m8b2s0r2p0d0_PST_ENABLE] && $::__ip764hduspsr2048x39m8b2s0r2p0d0_PST_ENABLE) || ![info exists ::__IP_PST_DISABLE_ALL] || !$::__IP_PST_DISABLE_ALL} {
+
+# Single Rail No Power Gate
+add_power_state -supply ss_vddp -state "ps_ip764hduspsr2048x39m8b2s0r2p0d0_VDDP_HV" "-supply_expr {power == `{FULL_ON,$::VCC_SUPPLY_HV}} -simstate NORMAL"
+add_power_state -supply ss_vddp -state "ps_ip764hduspsr2048x39m8b2s0r2p0d0_VDDP_LV" "-supply_expr {power == `{FULL_ON,$::VCC_SUPPLY_LV}} -simstate NORMAL" -update
+add_power_state -supply ss_vddp -state "ps_ip764hduspsr2048x39m8b2s0r2p0d0_VDDP_OFF" "-supply_expr {power == `{OFF}} -simstate CORRUPT" -update
+add_power_state -supply ss_vddp -state "ps_ip764hduspsr2048x39m8b2s0r2p0d0_VSS" "-supply_expr {ground == `{FULL_ON,$::VSS_GROUND}} -simstate NORMAL" -update
+
+#add_power_state -domain pd_ip764hduspsr2048x39m8b2s0r2p0d0 -state "ps_ip764hduspsr2048x39m8b2s0r2p0d0_SRAM_ON" "-logic_expr {ss_vddp == ip764hduspsr2048x39m8b2s0r2p0d0_VDDA_HV}"
+
+
+
+
+
+
+
+# ------------------------------------------------------------------
+# Single Rail No Power Gate
+# ------------------------------------------------------------------
+# Power supply order:
+# vddp   vss
+
+create_pst pst_ip764hduspsr2048x39m8b2s0r2p0d0 -supplies "ss_vddp.power ss_vddp.ground"
+
+# ACTIVE (VCCSOC ON)
+add_pst_state s_ip764hduspsr2048x39m8b2s0r2p0d0_VDDP_HV -pst pst_ip764hduspsr2048x39m8b2s0r2p0d0 -state "ps_ip764hduspsr2048x39m8b2s0r2p0d0_VDDP_HV ps_ip764hduspsr2048x39m8b2s0r2p0d0_VSS"
+add_pst_state s_ip764hduspsr2048x39m8b2s0r2p0d0_VDDP_LV -pst pst_ip764hduspsr2048x39m8b2s0r2p0d0 -state "ps_ip764hduspsr2048x39m8b2s0r2p0d0_VDDP_LV ps_ip764hduspsr2048x39m8b2s0r2p0d0_VSS"
+
+# FULL SHUTDOWN (VCCSOC OFF)
+add_pst_state s_ip764hduspsr2048x39m8b2s0r2p0d0_VDDP_OFF -pst pst_ip764hduspsr2048x39m8b2s0r2p0d0 -state "ps_ip764hduspsr2048x39m8b2s0r2p0d0_VDDP_OFF ps_ip764hduspsr2048x39m8b2s0r2p0d0_VSS"
+
+
+
+
+}
+
+#
+# -------------------------------------------------------------------------
+# Port Supply Association (including Port Clamp Values)
+# -------------------------------------------------------------------------
+# required for all ports not related to the primary supply of the default domain
+# NOTE: for the general case, specify both -receiver_supply & -driver_supply the same
+#     -  input ports: -driver_supply is hi-conn and -receiver_supply is lo-conn
+#     - output ports: -driver_supply is lo-conn and -receiver_supply is hi-conn
+#
+#
+# -------------------------------------------------------------------------
+# Port Clamp Values
+# -------------------------------------------------------------------------
+# IP specifies port clamp values to be used if SOC needs to isolate IP inputs or outputs
+
+
+if {![info exists ::__IP_SRSN_DISABLE] || !$::__IP_SRSN_DISABLE} {
+ set_port_attributes -receiver_supply ss_vddp -ports "$ip764hduspsr2048x39m8b2s0r2p0d0_vddp_input_ports" -clamp_value 0
+ set_port_attributes -receiver_supply ss_vddp -ports "$ip764hduspsr2048x39m8b2s0r2p0d0_async_reset_ports" -clamp_value 1
+ set_port_attributes -driver_supply ss_vddp -ports "$ip764hduspsr2048x39m8b2s0r2p0d0_vddp_output_ports" -clamp_value 0
+
+
+ set_port_attributes -receiver_supply ss_vddp -ports "$ip764hduspsr2048x39m8b2s0r2p0d0_ports" -clamp_value 0
+
+
+}
+
+
+

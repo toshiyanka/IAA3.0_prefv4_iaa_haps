@@ -1,0 +1,9 @@
++incdir+$UVM_HOME/src
++incdir+$SAOLA_HOME/verilog_uvm
++incdir+$SAOLA_HOME/verilog
++incdir+$ip/verif/tb/env
++incdir+$ip/verif/tb/env/common
++incdir+$ip/verif/tb/env/ACLEnv
++incdir+$ip/verif/tb/sequences
++incdir+$ip/verif/tb/sequences/ip_only
+$ip/verif/tb/sequences/ip_only/DsaKLVSeqPkg.sv

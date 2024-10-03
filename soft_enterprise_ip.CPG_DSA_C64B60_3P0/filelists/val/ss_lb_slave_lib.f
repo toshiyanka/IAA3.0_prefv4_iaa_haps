@@ -1,0 +1,9 @@
+$ip/subip/sip/UHFI_v4.13.0/subIP/LB2SB/source/rtl/ss_lb_slave/ss_lb_slave_top.sv
+$ip/subip/sip/UHFI_v4.13.0/subIP/LB2SB/source/rtl/ss_lb_slave/ss_lb_slave_ctrl.sv
+$ip/subip/sip/UHFI_v4.13.0/subIP/LB2SB/source/rtl/ss_lb_slave/ss_lb_slave_addr_decoder.sv
+$ip/subip/sip/UHFI_v4.13.0/subIP/LB2SB/source/rtl/ss_lb_slave/ss_lb_slave_rd_mux.sv
+$ip/subip/sip/UHFI_v4.13.0/subIP/LB2SB/source/rtl/ss_lb_slave/ss_lb_slave_reg_bank.sv
+$ip/subip/sip/UHFI_v4.13.0/subIP/LB2SB/source/rtl/ss_lb_slave/ss_lb_slave_sync.sv
+$ip/subip/sip/UHFI_v4.13.0/subIP/LB2SB/source/rtl/ss_lb_slave/ss_lb_slave_test_module.sv
+$ip/subip/sip/UHFI_v4.13.0/subIP/LB2SB/source/rtl/ss_lb_slave/ss_lb_slave_fifo_block.sv
+$ip/subip/sip/UHFI_v4.13.0/subIP/LB2SB/source/rtl/ss_lb_slave/vivado/ss_lb_slave_fifo_mem_stub.v

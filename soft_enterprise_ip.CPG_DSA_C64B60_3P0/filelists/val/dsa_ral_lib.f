@@ -1,0 +1,10 @@
++incdir+$UVM_HOME/src
++incdir+$SAOLA_HOME/verilog
++incdir+$SAOLA_HOME/verilog_uvm
++incdir+$ip/verif/tb/env/common
++incdir+$ip/verif/tb/env/ral/eip/dsa3p0s64b60
++incdir+$ip/verif/tb/env/ral/eip/dsa3p0i64b60
++incdir+$ip/verif/tb/env/ral/eip/iaa3p0s64b60
++incdir+$ip/verif/tb/env/ral/eip/iax2c32b30
++incdir+$ip/verif/tb/env/ral/eip/iax3p0i64b60
+$ip/verif/tb/env/ral/eip/DsaRalPkg.svh

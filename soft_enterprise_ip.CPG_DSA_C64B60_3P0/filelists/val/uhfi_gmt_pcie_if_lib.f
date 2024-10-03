@@ -1,0 +1,10 @@
+$ip/subip/sip/UHFI_v4.13.0/subIP/uhfi_iosf_trks/verif/tb/wrappers/uhfi_gmt_if.sv
++incdir+$SAOLA_HOME/verilog
++incdir+$OVM_HOME/src
++incdir+$OVM_HOME/src/macros
++incdir+$ip/subip/sip/UHFI_v4.13.0/verif/tb/include
++incdir+$ip/subip/sip/UHFI_v4.13.0/source/rtl/include
++incdir+$ip/subip/sip/UHFI_v4.13.0/subIP/fpga_gtx_bridge/verif/gtx_ip/tb
++incdir+$ip/subip/sip/UHFI_v4.13.0/subIP/uhfi_iosf_trks/verif/tb/wrappers
++incdir+$ip/subip/sip/UHFI_v4.13.0/subIP/uhfi_iosf_trks/verif/tb/env
++incdir+$ip/subip/sip/UHFI_v4.13.0/subIP/uhfi_iosf_trks/verif/tb/utils
